@@ -118,7 +118,7 @@ const FilterItem = props => {
 
 const FilterItems = props => {
 	const {filters = []} = props;
-	
+
 	return filters.map(filter =>
 		filter.items.map((item, index) => (
 			<FilterItem filter={filter} item={item} key={index} {...props} />
