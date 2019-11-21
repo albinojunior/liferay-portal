@@ -17,7 +17,7 @@ const buildFilterItem = data => {
 	if (typeof data === 'string') {
 		return {
 			active: true,
-			key: data
+			value: data
 		};
 	}
 
@@ -27,39 +27,41 @@ const buildFilterItem = data => {
 	};
 };
 
-const buildInitialState = (filterKeys, filters) => {
+const buildInitialState = (filterKeys, filters, prefixKeys) => {
 	const initialState = {};
 
-	Object.entries(filterKeys).forEach(([key, value]) => {
-		if (filters[value]) {
-			initialState[key] = filters[value].map(buildFilterItem);
-		}
+	filterKeys.forEach(filterKey => {
+		prefixKeys.forEach(prefixKey => {
+			const key = `${prefixKey}${filterKey}`;
+			if (filters[key]) {
+				initialState[key] = filters[key].map(buildFilterItem);
+			}
+		});
 	});
 
 	return initialState;
 };
 
-const reducer = filterKeys => (state, {filterKey, selectedItems}) => {
-	const filterProp = Object.entries(filterKeys).find(
-		([_, value]) => value === filterKey
-	)[0];
-
-	return {
-		...state,
-		[filterProp]: selectedItems
-	};
+const reducer = (state, {filterKey, prefixKey = '', selectedItems}) => {
+		return {
+			...state,
+			[`${prefixKey}${filterKey}`]: selectedItems
+		};
 };
 
-const useFiltersReducer = filterKeys => {
+const useFiltersReducer = (filterKeys = [] /*TODO replace to filterKeys constant*/, prefixKeys = ['']) => {
 	const {filters} = useRouterParams();
 
 	const initialState = useMemo(
-		() => buildInitialState(filterKeys, filters),
+		() => buildInitialState(filterKeys, filters, prefixKeys),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
+	const [filterItems, dispatch] = useReducer(reducer, initialState);
 
-	return useReducer(reducer(filterKeys), initialState);
+	const values = filterItems.map(filterItem => filterItem.value);
+
+	return {dispatch, filterItems, values};
 };
 
 export {useFiltersReducer};

@@ -23,7 +23,7 @@ const useFilterState = (dispatch, filterKey) => {
 	const selectedItems = useMemo(() => {
 		if (selectedKeys) {
 			if (selectedKeys && items.length) {
-				return items.filter(role => selectedKeys.includes(role.key));
+				return items.filter(item => selectedKeys.includes(item.key));
 			}
 
 			return buildFallbackItems(selectedKeys);
