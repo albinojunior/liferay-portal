@@ -14,11 +14,11 @@ import {useEffect, useMemo, useState} from 'react';
 import {useRouterParams} from '../../../hooks/useRouterParams.es';
 import {buildFallbackItems} from '../util/filterEvents.es';
 
-const useFilterState = (dispatch, filterKey) => {
+const useFilterState = (dispatch, filterKey, prefixKey) => {
 	const {filters} = useRouterParams();
 	const [items, setItems] = useState([]);
-
-	const selectedKeys = filters[filterKey];
+	 
+	const selectedKeys = prefixKey ? filters[prefixKey][filterKey] : filters[filterKey];
 
 	const selectedItems = useMemo(() => {
 		if (selectedKeys) {

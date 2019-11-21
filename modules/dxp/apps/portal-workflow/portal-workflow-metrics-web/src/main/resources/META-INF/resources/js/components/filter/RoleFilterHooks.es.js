@@ -25,12 +25,14 @@ const RoleFilter = ({
 		position = 'left',
 		withSelectionTitle = false
 	} = {},
+	prefixKey,
 	processId
 }) => {
 	const {items, selectedItems} = useFilterResource(
 		dispatch,
 		filterKey,
-		`/processes/${processId}/roles`
+		prefixKey,
+		`/processes/${processId}/roles`,
 	);
 
 	const filterName = useFilterName(

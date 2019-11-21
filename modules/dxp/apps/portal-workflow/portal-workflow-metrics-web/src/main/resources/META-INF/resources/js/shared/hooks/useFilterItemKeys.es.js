@@ -26,3 +26,31 @@ const useFilterItemKeys = (filterKeys, filterValues) => {
 };
 
 export {useFilterItemKeys};
+
+
+
+/* 
+	const filterKeys = {
+		processSteps: 'taskKeys',
+		roles: 'roleIds'
+	};
+
+	[processSteps], ['taskKeys'],
+	[roles], ['roleIds']
+
+filters.performance.taskKeys = [{
+	active: true,
+	key: data
+}]
+filters.performance = {
+	taskKeys =[],
+	roleIds =[]
+}
+const filterKeys = [
+	'taskKeys',
+	'roleIds'
+];
+const filterKeys = [
+	[processSteps], ['taskKeys'],
+	[roles], ['roleIds']
+]; */

@@ -40,6 +40,7 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 		filterTitles,
 		filterValues
 	);
+	const {roleIds, taskKeys} = filterValues;
 
 	const selectedFilters = getSelectedItems(filterResults);
 	const filtered = search.length > 0 || selectedFilters.length > 0;
