@@ -29,13 +29,13 @@ const getFiltersParam = queryString => {
 const getFilterResults = (filterKeys, filterTitles, filterValues) => {
 	const filterResults = [];
 
-	Object.keys(filterKeys).forEach(objectKey => {
-		if (filterValues[objectKey]) {
+	filterKeys.forEach(filterKey => {
+		if (filterValues[filterKey]) {
 			filterResults.push(
 				asFilterObject(
-					filterValues[objectKey],
-					filterKeys[objectKey],
-					filterTitles[objectKey]
+					filterValues[filterKey],
+					filterKey,
+					filterTitles[filterKey]
 				)
 			);
 		}

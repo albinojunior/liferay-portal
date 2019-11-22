@@ -14,25 +14,26 @@ import React from 'react';
 import Filter from '../../shared/components/filter/Filter.es';
 import {useFilterName} from '../../shared/components/filter/hooks/useFilterName.es';
 import {useFilterResource} from '../../shared/components/filter/hooks/useFilterResource.es';
+import {filterKeys} from '../../shared/components/filter/util/filterConstants.es';
 
 const RoleFilter = ({
 	className,
 	dispatch,
-	filterKey = 'roleIds',
+	filterKey = filterKeys.roles,
 	options: {
 		hideControl = false,
 		multiple = true,
 		position = 'left',
 		withSelectionTitle = false
 	} = {},
-	prefixKey,
+	prefixKey = '',
 	processId
 }) => {
 	const {items, selectedItems} = useFilterResource(
 		dispatch,
 		filterKey,
 		prefixKey,
-		`/processes/${processId}/roles`,
+		`/processes/${processId}/roles`
 	);
 
 	const filterName = useFilterName(

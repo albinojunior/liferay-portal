@@ -34,12 +34,10 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 	const {search = ''} = parse(query);
 	const keywords = search.length ? search : null;
 
-	const [filterValues, dispatch] = useFiltersReducer(filterKeys);
-	const filterResults = getFilterResults(
-		filterKeys,
-		filterTitles,
-		filterValues
-	);
+	const {keys, titles} = useFiltersConstants(['processStep', 'roles']);
+
+	const {dispatch, filterItems, filterValues} = useFiltersReducer(keys);
+	const filterResults = getFilterResults(keys, titles, filterValues);
 	const {roleIds, taskKeys} = filterValues;
 
 	const selectedFilters = getSelectedItems(filterResults);

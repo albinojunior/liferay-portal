@@ -17,13 +17,15 @@ import {buildFallbackItems} from '../util/filterEvents.es';
 const useFilterState = (dispatch, filterKey, prefixKey) => {
 	const {filters} = useRouterParams();
 	const [items, setItems] = useState([]);
+
+	const filter = `${prefixKey}${filterKey}`;
 	 
-	const selectedKeys = prefixKey ? filters[prefixKey][filterKey] : filters[filterKey];
+	const selectedKeys = filters[filter];
 
 	const selectedItems = useMemo(() => {
 		if (selectedKeys) {
 			if (selectedKeys && items.length) {
-				return items.filter(item => selectedKeys.includes(item.key));
+				return items.filter(item => selectedKeys.includes(item.value));
 			}
 
 			return buildFallbackItems(selectedKeys);
@@ -33,7 +35,7 @@ const useFilterState = (dispatch, filterKey, prefixKey) => {
 	}, [items, selectedKeys]);
 
 	useEffect(() => {
-		dispatch({filterKey, selectedItems});
+		dispatch({filterKey: filter, selectedItems});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedItems]);
 
