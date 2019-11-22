@@ -11,10 +11,7 @@
 
 import React, {useMemo} from 'react';
 
-import {
-	filterKeys,
-	filterTitles
-} from '../../shared/components/filter/util/filterConstants.es';
+import { useFiltersConstants } from '../../shared/components/filter/hooks/useFiltersConstants.es';
 import {
 	getSelectedItems,
 	getFilterResults
