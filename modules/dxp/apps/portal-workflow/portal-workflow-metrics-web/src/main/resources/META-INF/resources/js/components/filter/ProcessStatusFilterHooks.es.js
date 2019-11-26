@@ -11,38 +11,49 @@
 
 import React from 'react';
 
-import Filter from '../../../shared/components/filter/Filter.es';
-import {useFilterName} from '../../../shared/components/filter/hooks/useFilterName.es';
-import {useFilterResource} from '../../../shared/components/filter/hooks/useFilterResource.es';
+import Filter from '../../shared/components/filter/Filter.es';
+import {useFilterName} from '../../shared/components/filter/hooks/useFilterName.es';
+import {useFilterStatic} from '../../shared/components/filter/hooks/useFilterStatic.es';
 
-const ProcessStepFilter = ({
+const processStatuses = [
+	{
+		key: processStatusConstants.completed,
+		name: Liferay.Language.get('completed')
+	},
+	{
+		key: processStatusConstants.pending,
+		name: Liferay.Language.get('pending')
+	}
+];
+
+const ProcessStatusFilter = ({
+	className,
 	dispatch,
-	filterKey = 'taskKeys',
+	filterKey = 'statuses',
 	options: {
 		hideControl = false,
 		multiple = true,
 		position = 'left',
-		withAllSteps = false,
 		withSelectionTitle = false
-	} = {},
-	processId
+	} = {}
 }) => {
-	const {items, selectedItems} = useFilterResource(
+	const {items, selectedItems} = useFilterStatic(
 		dispatch,
 		filterKey,
-		`/processes/${processId}/tasks?page=0&pageSize=0`,
-		items => (withAllSteps ? [allStepsItem, ...items] : items)
+		processStatuses
 	);
 
 	const filterName = useFilterName(
 		multiple,
 		selectedItems,
-		Liferay.Language.get('process-step'),
+		Liferay.Language.get('process-status'),
 		withSelectionTitle
 	);
 
 	return (
 		<Filter
+			defaultItem={items[0]}
+			elementClasses={className}
 			filterKey={filterKey}
 			hideControl={hideControl}
 			items={items}
@@ -53,10 +64,10 @@ const ProcessStepFilter = ({
 	);
 };
 
-const allStepsItem = {
-	dividerAfter: true,
-	key: 'allSteps',
-	name: Liferay.Language.get('all-steps')
+const processStatusConstants = {
+	completed: 'Completed',
+	pending: 'Pending'
 };
 
-export default ProcessStepFilter;
+export default ProcessStatusFilter;
+export {processStatusConstants};

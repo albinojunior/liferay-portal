@@ -9,38 +9,51 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
+import React, {useMemo} from 'react';
 
-import Filter from '../../../shared/components/filter/Filter.es';
-import {useFilterName} from '../../../shared/components/filter/hooks/useFilterName.es';
-import {useFilterResource} from '../../../shared/components/filter/hooks/useFilterResource.es';
+import Filter from '../../shared/components/filter/Filter.es';
+import {useFilterFetch} from '../../shared/components/filter/hooks/useFilterFetch.es';
+import {useFilterName} from '../../shared/components/filter/hooks/useFilterName.es';
 
-const RoleFilter = ({
+const ProcessStepFilter = ({
+	className,
 	dispatch,
-	filterKey = 'roleIds',
+	filterKey = 'taskKeys',
 	options: {
 		hideControl = false,
 		multiple = true,
 		position = 'left',
+		withAllSteps = false,
 		withSelectionTitle = false
 	} = {},
+	prefixKey = '',
 	processId
 }) => {
-	const {items, selectedItems} = useFilterResource(
+	const staticItems = useMemo(() => (withAllSteps ? [allStepsItem] : null), [
+		withAllSteps
+	]);
+
+	const {items, selectedItems} = useFilterFetch(
 		dispatch,
 		filterKey,
-		`/processes/${processId}/roles`
+		prefixKey,
+		`/processes/${processId}/tasks?page=0&pageSize=0`,
+		staticItems
 	);
+
+	const defaultItem = useMemo(() => (items ? items[0] : undefined), [items]);
 
 	const filterName = useFilterName(
 		multiple,
 		selectedItems,
-		Liferay.Language.get('role'),
+		Liferay.Language.get('process-step'),
 		withSelectionTitle
 	);
 
 	return (
 		<Filter
+			defaultItem={defaultItem}
+			elementClasses={className}
 			filterKey={filterKey}
 			hideControl={hideControl}
 			items={items}
@@ -51,4 +64,10 @@ const RoleFilter = ({
 	);
 };
 
-export default RoleFilter;
+const allStepsItem = {
+	dividerAfter: true,
+	key: 'allSteps',
+	name: Liferay.Language.get('all-steps')
+};
+
+export default ProcessStepFilter;

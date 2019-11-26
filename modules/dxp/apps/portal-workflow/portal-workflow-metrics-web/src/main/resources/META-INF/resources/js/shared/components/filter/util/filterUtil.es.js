@@ -29,13 +29,13 @@ const getFiltersParam = queryString => {
 const getFilterResults = (filterKeys, filterTitles, filterValues) => {
 	const filterResults = [];
 
-	Object.keys(filterKeys).forEach(objectKey => {
-		if (filterValues[objectKey]) {
+	filterKeys.forEach((filterKey, index) => {
+		if (filterValues[filterKey]) {
 			filterResults.push(
 				asFilterObject(
-					filterValues[objectKey],
-					filterKeys[objectKey],
-					filterTitles[objectKey]
+					filterValues[filterKey],
+					filterKey,
+					filterTitles[index]
 				)
 			);
 		}
@@ -73,8 +73,26 @@ const getSelectedItems = filterResults => {
 			? filter.items.filter(item => item.active)
 			: [];
 
-		return !!filter.items.length;
+		return filter.items.length > 0;
 	});
+};
+
+const handleFilterItems = (items, selectedKeys) =>
+	items.map((item, index) => {
+		const key = item.key || String(item.id);
+
+		return {
+			...item,
+			active: selectedKeys && selectedKeys.includes(key),
+			dividerAfter: item.dividerAfter && !!items[index + 1],
+			key
+		};
+	});
+
+const mergeItemsArray = (items1, items2) => {
+	const mergedItems = items1 || [];
+
+	return items2 ? mergedItems.concat(items2) : mergedItems;
 };
 
 const pushToHistory = (filterQuery, routerProps) => {
@@ -133,6 +151,8 @@ export {
 	getFilterValues,
 	getSelectedItems,
 	getSelectedItemsQuery,
+	handleFilterItems,
+	mergeItemsArray,
 	pushToHistory,
 	reduceFilters,
 	removeFilters,
