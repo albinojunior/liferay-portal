@@ -14,11 +14,12 @@ import React from 'react';
 import EmptyState from '../../shared/components/list/EmptyState.es';
 import ReloadButton from '../../shared/components/list/ReloadButton.es';
 import LoadingState from '../../shared/components/loading/LoadingState.es';
+import PaginationBar from '../../shared/components/pagination/PaginationBar.es';
 import PromisesResolver from '../../shared/components/request/PromisesResolver.es';
 import {Table} from './PerformanceByAssigneePageTable.es';
 
 const Body = ({data, filtered}) => {
-	const {items} = data;
+	const {items, page, pageSize, totalCount} = data;
 
 	return (
 		<div className="container-fluid-1280 mt-4">
@@ -28,7 +29,16 @@ const Body = ({data, filtered}) => {
 
 			<PromisesResolver.Resolved>
 				{items && items.length > 0 ? (
-					<Body.Table items={items} />
+					<>
+						<Body.Table items={items} />
+
+						<PaginationBar
+							page={page}
+							pageCount={items.length}
+							pageSize={pageSize}
+							totalCount={totalCount}
+						/>
+					</>
 				) : (
 					<Body.Empty filtered={filtered} />
 				)}
