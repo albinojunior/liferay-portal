@@ -30,6 +30,7 @@ const Container = ({processId, query}) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[processId, query]
 	);
+	const {dateEnd, dateStart} = timeRange || {};
 
 	let processStepsKey;
 
@@ -55,7 +56,6 @@ const Container = ({processId, query}) => {
 		}
 
 		if (timeRange) {
-			const {dateEnd, dateStart} = timeRange;
 			params.dateEnd = dateEnd.toISOString();
 			params.dateStart = dateStart.toISOString();
 		}
@@ -68,7 +68,7 @@ const Container = ({processId, query}) => {
 	const promises = useMemo(
 		() => [fetchData(processId)],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[processId, query]
+		[dateEnd, dateStart, processId, processStepsKey]
 	);
 
 	return (

@@ -27,12 +27,13 @@ import {
 import {Body, Empty, Footer} from './PerformanceByStepCardBody.es';
 import {Item, Table} from './PerformanceByStepCardTable.es';
 
-const Container = ({processId, query}) => {
+const Container = ({processId}) => {
 	const {client} = useContext(AppContext);
 	const [data, setData] = useState({});
 	const {getSelectedTimeRange} = useContext(TimeRangeContext);
 
 	const timeRange = getSelectedTimeRange();
+	const {dateEnd, dateStart} = timeRange || {};
 
 	const fetchData = () => {
 		return client
@@ -42,8 +43,11 @@ const Container = ({processId, query}) => {
 			});
 	};
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const promises = useMemo(() => [fetchData()], [processId, query]);
+	const promises = useMemo(
+		() => [fetchData()],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[dateEnd, dateStart, processId]
+	);
 
 	return (
 		<PromisesResolver promises={promises}>
