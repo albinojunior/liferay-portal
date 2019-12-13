@@ -18,7 +18,11 @@ import React, {useState, useEffect} from 'react';
 import {useRouter} from '../../hooks/useRouter.es';
 import {parse, stringify} from '../router/queryString.es';
 
-const SearchField = props => {
+const SearchField = ({
+	defaultRouteParams = {},
+	disabled,
+	placeholder = Liferay.Language.get('search-for')
+}) => {
 	const {
 		history,
 		location,
@@ -26,8 +30,6 @@ const SearchField = props => {
 	} = useRouter();
 	const query = parse(location.search);
 	const {search = ''} = query;
-
-	const {disabled, placeholder = Liferay.Language.get('search-for')} = props;
 
 	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
 
@@ -51,6 +53,7 @@ const SearchField = props => {
 		setRedirect(false);
 
 		const pathname = pathToRegexp.compile(path)({
+			...defaultRouteParams,
 			...params,
 			page: 1
 		});

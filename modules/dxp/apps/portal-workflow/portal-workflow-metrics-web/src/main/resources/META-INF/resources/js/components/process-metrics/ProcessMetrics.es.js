@@ -100,11 +100,6 @@ class ProcessMetrics extends React.Component {
 			query
 		};
 
-		const defaultPathname = getPathname(
-			dashboardTab.params,
-			dashboardTab.path
-		);
-
 		return (
 			<div className="workflow-process-dashboard">
 				<DropDownHeader>
@@ -160,25 +155,23 @@ class ProcessMetrics extends React.Component {
 					</AlertMessage>
 				)}
 
-				<Router>
-					<Switch>
-						<Redirect
+				{/* <Router> */}
+					{/* <Switch> */}
+						{/* <Redirect
 							exact
 							from="/metrics/:processId"
 							to={{
 								pathname: defaultPathname,
 								search: query
 							}}
-						/>
+						/> */}
 
 						<Route
-							exact
 							path={dashboardTab.path}
 							render={withParams(DashboardTab)}
 						/>
 
 						<Route
-							exact
 							path={performanceTab.path}
 							render={withParams(
 								CompletedItemsCard,
@@ -187,8 +180,8 @@ class ProcessMetrics extends React.Component {
 								PerformanceByAssigneeCard
 							)}
 						/>
-					</Switch>
-				</Router>
+					{/* </Switch> */}
+				{/* </Router> */}
 			</div>
 		);
 	}

@@ -26,6 +26,12 @@ import {
 import {Item} from './ProcessListPageItem.es';
 import {Table} from './ProcessListPageTable.es';
 
+const defaultRouteParams = {
+	page: 1,
+	pageSize: 20,
+	sort: 'overdueInstanceCount:desc'
+};
+
 const ProcessListPage = ({page, pageSize, query, sort}) => {
 	usePageTitle(Liferay.Language.get('metrics'));
 	const {search = ''} = parse(query);
@@ -64,7 +70,10 @@ const Filters = ({page, pageSize, search, sort, totalCount}) => {
 			<nav className="management-bar management-bar-light navbar navbar-expand-md">
 				<div className="container-fluid container-fluid-max-xl">
 					<div className="navbar-form navbar-form-autofit">
-						<SearchField disabled={!search && totalCount === 0} />
+						<SearchField
+							defaultRouteParams={defaultRouteParams}
+							disabled={!search && totalCount === 0}
+						/>
 					</div>
 				</div>
 			</nav>
@@ -95,4 +104,5 @@ ProcessListPage.Item = Item;
 ProcessListPage.Loading = LoadingView;
 ProcessListPage.Table = Table;
 
+export {defaultRouteParams};
 export default ProcessListPage;

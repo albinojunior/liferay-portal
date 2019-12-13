@@ -10,16 +10,21 @@
  */
 
 import React from 'react';
-import {Redirect, Route, HashRouter as Router, Switch} from 'react-router-dom';
+import {Route, HashRouter as Router, Switch} from 'react-router-dom';
 
 import HeaderController from '../shared/components/header-controller/HeaderController.es';
-import {withParams} from '../shared/components/router/routerUtil.es';
+import {
+	withParams,
+	withDefaultParams
+} from '../shared/components/router/routerUtil.es';
 import fetch from '../shared/rest/fetch.es';
 import {AppContext} from './AppContext.es';
 import InstanceListPage from './instance-list-page/InstanceListPage.es';
 import PerformanceByAssigneePage from './performance-by-assignee-page/PerformanceByAssigneePage.es';
 import PerformanceByStepPage from './performance-by-step-page/PerformanceByStepPage.es';
-import ProcessListPage from './process-list-page/ProcessListPage.es';
+import ProcessListPage, {
+	defaultRouteParams
+} from './process-list-page/ProcessListPage.es';
 import ProcessMetrics from './process-metrics/ProcessMetrics.es';
 import SLAForm from './sla/SLAForm.es';
 import SLAListCard from './sla/SLAListCard.es';
@@ -57,7 +62,7 @@ export default class AppComponent extends React.Component {
 	}
 
 	render() {
-		const {defaultDelta, namespace, title} = this.state;
+		const {namespace, title} = this.state;
 
 		return (
 			<Router>
@@ -70,21 +75,13 @@ export default class AppComponent extends React.Component {
 
 					<div className="portal-workflow-metrics-app">
 						<Switch>
-							<Redirect
-								exact
-								from="/"
-								to={`/processes/${defaultDelta}/1/${encodeURIComponent(
-									'overdueInstanceCount:desc'
-								)}`}
+							<Route
+								path="/metrics/:processId/dashboard/:pageSize/:page/:sort"
+								render={withParams(ProcessMetrics)}
 							/>
 
 							<Route
-								path="/processes/:pageSize/:page/:sort"
-								render={withParams(ProcessListPage)}
-							/>
-
-							<Route
-								path="/metrics/:processId"
+								path="/metrics/:processId/performance"
 								render={withParams(ProcessMetrics)}
 							/>
 
@@ -127,6 +124,14 @@ export default class AppComponent extends React.Component {
 								exact
 								path="/performance/assignee/:processId/:pageSize/:page/:sort"
 								render={withParams(PerformanceByAssigneePage)}
+							/>
+
+							<Route
+								exact
+								path="/:pageSize?/:page?/:sort?"
+								render={withDefaultParams(defaultRouteParams)(
+									ProcessListPage
+								)}
 							/>
 						</Switch>
 					</div>

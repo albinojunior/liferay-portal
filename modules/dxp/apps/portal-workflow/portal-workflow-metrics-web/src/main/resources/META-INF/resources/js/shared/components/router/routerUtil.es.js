@@ -11,11 +11,23 @@
 
 import React from 'react';
 
-export const withParams = (...args) => ({
+import {removeUndefinedValues} from '../../util/object.es';
+
+const withParams = (...components) => ({location: {search}, match: {params}}) =>
+	injectRouterProps(components, params, search);
+
+const withDefaultParams = defaultRouteParams => (...components) => ({
 	location: {search},
 	match: {params}
 }) =>
-	args.map((Component, index) => {
+	injectRouterProps(
+		components,
+		{...defaultRouteParams, ...removeUndefinedValues(params)},
+		search
+	);
+
+const injectRouterProps = (components, params, search) => {
+	return components.map((Component, index) => {
 		if (params.sort) params.sort = decodeURIComponent(params.sort);
 
 		return (
@@ -27,3 +39,6 @@ export const withParams = (...args) => ({
 			/>
 		);
 	});
+};
+
+export {withParams, withDefaultParams};

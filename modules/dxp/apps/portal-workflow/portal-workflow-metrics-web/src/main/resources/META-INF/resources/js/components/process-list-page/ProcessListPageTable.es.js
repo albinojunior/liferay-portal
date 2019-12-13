@@ -12,7 +12,7 @@
 import React from 'react';
 
 import ListHeadItem from '../../shared/components/list/ListHeadItem.es';
-import ProcessListPage from './ProcessListPage.es';
+import ProcessListPage, {defaultRouteParams} from './ProcessListPage.es';
 
 const Table = ({items}) => {
 	const onTimeTitle = Liferay.Language.get('on-time');
@@ -30,6 +30,7 @@ const Table = ({items}) => {
 							style={{width: '70%'}}
 						>
 							<ListHeadItem
+								defaultRouteParams={defaultRouteParams}
 								name="title"
 								title={processNameTitle}
 							/>
@@ -37,6 +38,9 @@ const Table = ({items}) => {
 
 						<th className="table-head-title" style={{width: '10%'}}>
 							<ListHeadItem
+								defaultOrder="desc"
+								defaultRouteParams={defaultRouteParams}
+								defaultSelected
 								name="overdueInstanceCount"
 								title={overdueTitle}
 							/>
@@ -44,6 +48,7 @@ const Table = ({items}) => {
 
 						<th className="table-head-title" style={{width: '10%'}}>
 							<ListHeadItem
+								defaultRouteParams={defaultRouteParams}
 								name="onTimeInstanceCount"
 								title={onTimeTitle}
 							/>
@@ -51,6 +56,7 @@ const Table = ({items}) => {
 
 						<th className="table-head-title" style={{width: '10%'}}>
 							<ListHeadItem
+								defaultRouteParams={defaultRouteParams}
 								name="instanceCount"
 								title={totalPendingTitle}
 							/>

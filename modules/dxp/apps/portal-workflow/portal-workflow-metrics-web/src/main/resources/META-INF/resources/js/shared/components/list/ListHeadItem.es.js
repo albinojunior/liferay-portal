@@ -20,6 +20,9 @@ import Icon from '../Icon.es';
  * @memberof shared/components/list
  */
 const ListHeadItem = ({
+	defaultOrder = 'asc',
+	defaultRouteParams = {},
+	defaultSelected,
 	iconColor,
 	iconName,
 	location: {search},
@@ -27,17 +30,19 @@ const ListHeadItem = ({
 	name,
 	title
 }) => {
-	const sort = params && params.sort ? params.sort : `${name}:asc`;
+	const defaultSort = defaultSelected ? `${name}:${defaultOrder}` : '-:asc';
+	const sort = params && params.sort ? params.sort : defaultSort;
 
 	const [field, order] = decodeURIComponent(sort).split(':');
 
 	const sorted = field === name;
 
-	const nextSort = `${name}:${sorted && order === 'desc' ? 'asc' : 'desc'}`;
+	const nextSort = `${name}:${order === 'desc' ? 'asc' : 'desc'}`;
 
 	const sortIcon = order === 'asc' ? 'order-arrow-up' : 'order-arrow-down';
 
 	const pathname = pathToRegexp.compile(path)({
+		...defaultRouteParams,
 		...params,
 		sort: nextSort
 	});

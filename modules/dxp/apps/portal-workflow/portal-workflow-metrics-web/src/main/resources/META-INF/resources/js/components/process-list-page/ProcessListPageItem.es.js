@@ -20,10 +20,14 @@ const Item = ({
 	overdueInstanceCount,
 	title
 }) => {
+	const link = `/metrics/${id}/dashboard/20/1/${encodeURIComponent(
+		'overdueInstanceCount:desc'
+	)}`;
+
 	return (
 		<tr>
 			<td className="lfr-title-column table-cell-expand table-cell-minw-200 table-title">
-				<ChildLink to={`/metrics/${id}`}>
+				<ChildLink to={link}>
 					<span>{title}</span>
 				</ChildLink>
 			</td>
