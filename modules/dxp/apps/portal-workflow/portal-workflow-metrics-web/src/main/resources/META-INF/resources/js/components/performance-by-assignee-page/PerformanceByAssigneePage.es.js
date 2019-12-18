@@ -65,17 +65,17 @@ const Container = ({filtersParam, query, routeParams, timeRangeKeys}) => {
 
 	const {search = null} = parse(query);
 
-	const {data, fetchData} = useFetch(
-		`/processes/${processId}/assignee-users`,
-		{
+	const {data, fetchData} = useFetch({
+		params: {
 			completed: true,
 			keywords: search,
 			roleIds,
 			taskKeys,
 			...routeParams,
 			...timeRangeParams
-		}
-	);
+		},
+		url: `/processes/${processId}/assignee-users`
+	});
 
 	const promises = useMemo(() => [fetchData()], [fetchData]);
 

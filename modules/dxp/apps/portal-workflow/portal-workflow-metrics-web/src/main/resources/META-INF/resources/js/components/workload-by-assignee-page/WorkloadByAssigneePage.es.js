@@ -37,15 +37,15 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 
 	const filtered = search.length > 0 || selectedFilters.length > 0;
 
-	const {data, fetchData} = useFetch(
-		`/processes/${processId}/assignee-users`,
-		{
+	const {data, fetchData} = useFetch({
+		params: {
 			keywords,
 			roleIds,
 			taskKeys,
 			...routeParams
-		}
-	);
+		},
+		url: `/processes/${processId}/assignee-users`
+	});
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const promises = useMemo(() => [fetchData()], [fetchData]);
