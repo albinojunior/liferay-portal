@@ -12,12 +12,14 @@
 import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
-import InstanceListPageItem from '../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageItem.es';
+import {ReassignTaskModalContext} from '../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPage.es';
+import {Table} from '../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageTable.es';
 import {InstanceListContext} from '../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
 
 const instance = {
 	assetTitle: 'New Post',
 	assetType: 'Blog',
+	assigneeUsers: [{id: 20124, name: 'Test Test'}],
 	creatorUser: {
 		name: 'User 1'
 	},
@@ -32,7 +34,11 @@ describe('The instance list item should', () => {
 	test('Be rendered with "User 1", "Jan 01, 2019, 12:00 AM", and "Review, Update" columns', () => {
 		const {getByTestId} = render(
 			<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
-				<InstanceListPageItem {...instance} />
+				<ReassignTaskModalContext.Provider
+					value={{setShowModal: () => {}, showModal: false}}
+				>
+					<Table.Item {...instance} />
+				</ReassignTaskModalContext.Provider>
 			</InstanceListContext.Provider>
 		);
 
@@ -48,7 +54,11 @@ describe('The instance list item should', () => {
 	test('Be rendered with check icon when the slaStatus is "OnTime"', () => {
 		const {getByTestId} = render(
 			<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
-				<InstanceListPageItem {...instance} slaStatus="OnTime" />
+				<ReassignTaskModalContext.Provider
+					value={{setShowModal: () => {}, showModal: false}}
+				>
+					<Table.Item {...instance} slaStatus="OnTime" />
+				</ReassignTaskModalContext.Provider>
 			</InstanceListContext.Provider>
 		);
 
@@ -62,7 +72,11 @@ describe('The instance list item should', () => {
 	test('Be rendered with exclamation icon when the slaStatus is "Overdue"', () => {
 		const {getByTestId} = render(
 			<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
-				<InstanceListPageItem {...instance} slaStatus="Overdue" />
+				<ReassignTaskModalContext.Provider
+					value={{setShowModal: () => {}, showModal: false}}
+				>
+					<Table.Item {...instance} slaStatus="Overdue" />
+				</ReassignTaskModalContext.Provider>
 			</InstanceListContext.Provider>
 		);
 
@@ -76,7 +90,11 @@ describe('The instance list item should', () => {
 	test('Be rendered with hr icon when the slaStatus is "Untracked"', () => {
 		const {getByTestId} = render(
 			<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
-				<InstanceListPageItem {...instance} slaStatus="Untracked" />
+				<ReassignTaskModalContext.Provider
+					value={{setShowModal: () => {}, showModal: false}}
+				>
+					<Table.Item {...instance} slaStatus="Untracked" />
+				</ReassignTaskModalContext.Provider>
 			</InstanceListContext.Provider>
 		);
 
@@ -87,10 +105,15 @@ describe('The instance list item should', () => {
 
 	test('Call setInstanceId with "1" as instance id param', () => {
 		const contextMock = {setInstanceId: jest.fn()};
+		instance.status = 'Completed';
 
 		const {getByTestId} = render(
 			<InstanceListContext.Provider value={contextMock}>
-				<InstanceListPageItem {...instance} />
+				<ReassignTaskModalContext.Provider
+					value={{setShowModal: () => {}, showModal: false}}
+				>
+					<Table.Item {...instance} />
+				</ReassignTaskModalContext.Provider>
 			</InstanceListContext.Provider>
 		);
 
@@ -99,5 +122,35 @@ describe('The instance list item should', () => {
 		fireEvent.click(instanceIdLink);
 
 		expect(contextMock.setInstanceId).toBeCalledWith(1);
+	});
+});
+
+describe('The InstanceListPageItem quick action menu should', () => {
+	afterEach(cleanup);
+
+	const instance = {
+		assetTitle: 'New Post',
+		assetType: 'Blog',
+		dateCreated: new Date('2019-01-01'),
+		id: 1
+	};
+
+	const setShowModal = jest.fn();
+
+	test('set modal visualization by clicking the reassign task button', () => {
+		const {getByTestId} = render(
+			<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
+				<ReassignTaskModalContext.Provider
+					value={{setShowModal, showModal: false}}
+				>
+					<Table.Item {...instance} />
+				</ReassignTaskModalContext.Provider>
+			</InstanceListContext.Provider>
+		);
+
+		const reassignTaskButton = getByTestId('reassignTaskButton');
+
+		fireEvent.click(reassignTaskButton);
+		expect(setShowModal).toHaveBeenCalledTimes(1);
 	});
 });
