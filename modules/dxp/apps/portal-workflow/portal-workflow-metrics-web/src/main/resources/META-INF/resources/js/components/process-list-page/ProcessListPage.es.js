@@ -32,11 +32,14 @@ const ProcessListPage = ({page, pageSize, query, sort}) => {
 
 	const title = search.length ? search : null;
 
-	const {data, fetchData} = useFetch('/processes', {
-		page,
-		pageSize,
-		sort: decodeURIComponent(sort),
-		title
+	const {data, fetchData} = useFetch({
+		params: {
+			page,
+			pageSize,
+			sort: decodeURIComponent(sort),
+			title
+		},
+		url: '/processes'
 	});
 
 	const promises = useMemo(() => [fetchData()], [fetchData]);
