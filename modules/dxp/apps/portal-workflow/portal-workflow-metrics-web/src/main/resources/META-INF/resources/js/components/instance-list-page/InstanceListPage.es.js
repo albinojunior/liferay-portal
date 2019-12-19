@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, createContext, useState} from 'react';
 
 import {getFiltersParam} from '../../shared/components/filter/util/filterUtil.es';
 import EmptyState from '../../shared/components/list/EmptyState.es';
@@ -21,12 +21,15 @@ import Request from '../../shared/components/request/Request.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
 import InstanceListPageFilters from './InstanceListPageFilters.es';
 import InstanceListPageItemDetail from './InstanceListPageItemDetail.es';
-import InstanceListPageTable from './InstanceListPageTable.es';
+import {Table} from './InstanceListPageTable.es';
+import {ReassignTaskModal} from './modal/InstanceListPageReassignTaskModal.es';
 import {InstanceFiltersProvider} from './store/InstanceListPageFiltersStore.es';
 import {
 	InstanceListProvider,
 	InstanceListContext
 } from './store/InstanceListPageStore.es';
+
+const ReassignTaskModalContext = createContext();
 
 export function InstanceListPage({page, pageSize, processId, query}) {
 	const {
@@ -37,42 +40,52 @@ export function InstanceListPage({page, pageSize, processId, query}) {
 		timeRange = []
 	} = getFiltersParam(query);
 
+	const [showModal, setShowModal] = useState({
+		selectedItem: undefined,
+		visible: false
+	});
+
 	useProcessTitle(processId, Liferay.Language.get('all-items'));
 
 	return (
 		<Request>
-			<InstanceFiltersProvider
-				assigneeKeys={assigneeUserIds}
-				processId={processId}
-				processStatusKeys={statuses}
-				processStepKeys={taskKeys}
-				slaStatusKeys={slaStatuses}
-				timeRangeKeys={timeRange}
+			<ReassignTaskModalContext.Provider
+				value={{setShowModal, showModal}}
 			>
-				<InstanceListProvider
-					page={page}
-					pageSize={pageSize}
+				<InstanceFiltersProvider
+					assigneeKeys={assigneeUserIds}
 					processId={processId}
-					query={query}
+					processStatusKeys={statuses}
+					processStepKeys={taskKeys}
+					slaStatusKeys={slaStatuses}
+					timeRangeKeys={timeRange}
 				>
-					<InstanceListPage.Header
-						processId={processId}
-						query={query}
-					/>
-
-					<InstanceListPage.Body
+					<InstanceListProvider
 						page={page}
 						pageSize={pageSize}
 						processId={processId}
 						query={query}
-					/>
-				</InstanceListProvider>
-			</InstanceFiltersProvider>
+					>
+						<InstanceListPage.Header
+							processId={processId}
+							query={query}
+						/>
+
+						<InstanceListPage.Body
+							page={page}
+							pageSize={pageSize}
+							processId={processId}
+							query={query}
+							showModal={showModal}
+						/>
+					</InstanceListProvider>
+				</InstanceFiltersProvider>
+			</ReassignTaskModalContext.Provider>
 		</Request>
 	);
 }
 
-const Body = ({page, pageSize, processId, query}) => {
+const Body = ({page, pageSize, processId, query, showModal}) => {
 	const {fetchInstances, items, searching, totalCount} = useContext(
 		InstanceListContext
 	);
@@ -86,13 +99,14 @@ const Body = ({page, pageSize, processId, query}) => {
 		'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
 	);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const promises = useMemo(() => [fetchInstances()], [
-		page,
-		pageSize,
-		processId,
-		query
-	]);
+	const promises = useMemo(() => {
+		if (!showModal.visible) {
+			return [fetchInstances()];
+		}
+
+		return [];
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [page, pageSize, processId, query, showModal.visible]);
 
 	return (
 		<>
@@ -105,7 +119,7 @@ const Body = ({page, pageSize, processId, query}) => {
 					<PromisesResolver.Resolved>
 						{items && items.length ? (
 							<>
-								<InstanceListPageTable items={items} />
+								<InstanceListPage.Body.Table items={items} />
 
 								<PaginationBar
 									page={page}
@@ -136,7 +150,7 @@ const Body = ({page, pageSize, processId, query}) => {
 					</PromisesResolver.Rejected>
 				</PromisesResolver>
 			</div>
-
+			<InstanceListPage.ReassignTaskModal></InstanceListPage.ReassignTaskModal>
 			<InstanceListPageItemDetail processId={processId} />
 		</>
 	);
@@ -152,7 +166,10 @@ const Header = () => {
 	);
 };
 
+InstanceListPage.ReassignTaskModal = ReassignTaskModal;
 InstanceListPage.Body = Body;
+Body.Table = Table;
 InstanceListPage.Header = Header;
 
+export {ReassignTaskModalContext};
 export default InstanceListPage;

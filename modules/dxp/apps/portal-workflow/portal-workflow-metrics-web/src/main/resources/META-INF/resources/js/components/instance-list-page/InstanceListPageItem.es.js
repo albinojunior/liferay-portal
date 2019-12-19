@@ -9,10 +9,15 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext} from 'react';
+import ClayButton from '@clayui/button';
+import ClayDropDown from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
+import ClayTable from '@clayui/table';
+import React, {useContext, useState, useCallback} from 'react';
 
 import Icon from '../../shared/components/Icon.es';
 import moment from '../../shared/util/moment.es';
+import {ReassignTaskModalContext} from './InstanceListPage.es';
 import {InstanceListContext} from './store/InstanceListPageStore.es';
 
 const getStatusIcon = status => {
@@ -43,7 +48,7 @@ const getStatusIcon = status => {
 	return null;
 };
 
-const InstanceListPageItem = ({
+const Item = ({
 	assetTitle,
 	assetType,
 	assigneeUsers,
@@ -58,6 +63,18 @@ const InstanceListPageItem = ({
 	const {setInstanceId} = useContext(InstanceListContext);
 	const statusIcon = getStatusIcon(slaStatus);
 
+	const taskItem = {
+		assetTitle,
+		assetType,
+		assigneeUsers,
+		creatorUser,
+		dateCreated,
+		id,
+		slaStatus,
+		status,
+		taskNames
+	};
+
 	const updateInstanceId = () => setInstanceId(id);
 
 	const formattedAssignees = !completed
@@ -67,11 +84,11 @@ const InstanceListPageItem = ({
 		: Liferay.Language.get('not-available');
 
 	return (
-		<tr data-testid="instanceRow">
-			<td>
+		<ClayTable.Row data-testid="instanceRow">
+			<ClayTable.Cell>
 				{statusIcon && (
 					<span
-						className={`mr-3 sticker sticker-sm ${statusIcon.bgColor}`}
+						className={`sticker sticker-sm ${statusIcon.bgColor}`}
 					>
 						<span className="inline-item">
 							<Icon
@@ -81,42 +98,109 @@ const InstanceListPageItem = ({
 						</span>
 					</span>
 				)}
-			</td>
+			</ClayTable.Cell>
 
-			<td className="lfr-title-column table-title">
-				<a
+			<ClayTable.Cell>
+				<span
+					className="link-text"
 					data-target="#instanceDetailModal"
 					data-testid="instanceIdLink"
 					data-toggle="modal"
-					href="javascript:;"
 					onClick={updateInstanceId}
 					tabIndex="-1"
 				>
 					<strong>{id}</strong>
-				</a>
-			</td>
+				</span>
+			</ClayTable.Cell>
 
-			<td data-testid="assetInfoCell">{`${assetType}: ${assetTitle}`}</td>
+			<ClayTable.Cell data-testid="assetInfoCell">
+				{`${assetType}: ${assetTitle}`}{' '}
+			</ClayTable.Cell>
 
-			<td data-testid="taskNamesCell">
+			<ClayTable.Cell data-testid="taskNamesCell">
 				{!completed
 					? taskNames.join(', ')
 					: Liferay.Language.get('completed')}
-			</td>
+			</ClayTable.Cell>
 
-			<td data-testid="assigneesCell">{formattedAssignees}</td>
+			<ClayTable.Cell data-testid="assigneesCell">
+				{formattedAssignees}
+			</ClayTable.Cell>
 
-			<td data-testid="creatorUserCell">
+			<ClayTable.Cell data-testid="creatorUserCell">
 				{creatorUser ? creatorUser.name : ''}
-			</td>
+			</ClayTable.Cell>
 
-			<td className="pr-4 text-right" data-testid="dateCreatedCell">
+			<ClayTable.Cell data-testid="dateCreatedCell">
 				{moment
 					.utc(dateCreated)
 					.format(Liferay.Language.get('mmm-dd-yyyy-lt'))}
-			</td>
-		</tr>
+			</ClayTable.Cell>
+
+			<ClayTable.Cell style={{paddingRight: '0rem'}}>
+				<QuickActionMenu taskItem={taskItem} />
+			</ClayTable.Cell>
+		</ClayTable.Row>
 	);
 };
 
-export default InstanceListPageItem;
+const QuickActionMenu = ({taskItem}) => {
+	const [active, setActive] = useState(false);
+	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
+	const {setShowModal, showModal} = useContext(ReassignTaskModalContext);
+	const handleClickReassigneeTask = useCallback(
+		() => {
+			setShowModal(() => ({
+				selectedItem: taskItem,
+				visible: !showModal.visible
+			}));
+			setActive(() => false);
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[taskItem]
+	);
+
+	return (
+		<div className="autofit-col">
+			<div className="quick-action-menu">
+				<button
+					className="component-action quick-action-item"
+					href="#1"
+					onClick={handleClickReassigneeTask}
+					role="button"
+				>
+					<ClayIcon spritemap={spritemap} symbol="change" />
+				</button>
+			</div>
+			<ClayDropDown
+				active={active}
+				onActiveChange={setActive}
+				trigger={
+					<ClayButton
+						className="component-action"
+						displayType="unstyled"
+						monospaced
+					>
+						<ClayIcon spritemap={spritemap} symbol="ellipsis-v" />
+					</ClayButton>
+				}
+			>
+				<ClayDropDown.ItemList>
+					<li>
+						<button
+							className="dropdown-item"
+							data-testid="reassignTaskButton"
+							onClick={() => handleClickReassigneeTask()}
+						>
+							{Liferay.Language.get('reassign-task')}
+						</button>
+					</li>
+				</ClayDropDown.ItemList>
+			</ClayDropDown>
+		</div>
+	);
+};
+
+Item.QuickActionMenu = QuickActionMenu;
+
+export {Item};

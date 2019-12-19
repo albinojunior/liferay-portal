@@ -13,25 +13,25 @@ import {useContext, useCallback, useState} from 'react';
 
 import {AppContext} from '../../components/AppContext.es';
 
-const useFetch = ({headless = false, params = {}, url}) => {
+const usePost = ({body = {}, headless = false, url}) => {
 	const {client, clientHeadless} = useContext(AppContext);
 	const [data, setData] = useState({});
 
-	const queryParamsStr = JSON.stringify(params);
+	const queryBodyStr = JSON.stringify(body);
 	const requestClient = headless ? clientHeadless : client;
-	const fetchData = useCallback(
+	const postData = useCallback(
 		() =>
-			requestClient.get(url, {params}).then(({data}) => {
+			requestClient.post(url, body).then(({data}) => {
 				setData(data);
 			}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[queryParamsStr, url, headless]
+		[queryBodyStr, url, headless]
 	);
 
 	return {
 		data,
-		fetchData
+		postData
 	};
 };
 
-export {useFetch};
+export {usePost};
