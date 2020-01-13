@@ -13,7 +13,7 @@ import pathToRegexp from 'path-to-regexp';
 
 import {parse, stringify} from '../../router/queryString.es';
 
-const asFilterObject = (items, key, name, pinned = false) => ({
+const asFilterObject = (items, key, name, pinned) => ({
 	items,
 	key,
 	name,
@@ -26,7 +26,12 @@ const getFiltersParam = queryString => {
 	return queryParams.filters || {};
 };
 
-const getFilterResults = (filterKeys, filterTitles, filterValues) => {
+const getFilterResults = (
+	filterKeys,
+	filterPinnedValue,
+	filterTitles,
+	filterValues
+) => {
 	const filterResults = [];
 
 	filterKeys.forEach((filterKey, index) => {
@@ -35,7 +40,8 @@ const getFilterResults = (filterKeys, filterTitles, filterValues) => {
 				asFilterObject(
 					filterValues[filterKey],
 					filterKey,
-					filterTitles[index]
+					filterTitles[index],
+					filterPinnedValue[index]
 				)
 			);
 		}

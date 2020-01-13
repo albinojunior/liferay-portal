@@ -15,7 +15,7 @@ import React from 'react';
 import EmptyState from '../../../../../shared/components/list/EmptyState.es';
 import RetryButton from '../../../../../shared/components/list/RetryButton.es';
 import LoadingState from '../../../../../shared/components/loading/LoadingState.es';
-import PromisesResolver from '../../../../../shared/components/request/PromisesResolver.es';
+import PromisesResolver from '../../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {Table} from './BulkReassignSelectAssigneesStepTable.es';
 
 const Body = ({data, setRetry, tasks}) => {

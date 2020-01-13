@@ -11,7 +11,7 @@
 
 import React, {useContext, useMemo, useState, useEffect} from 'react';
 
-import PromisesResolver from '../../../../../shared/components/request/PromisesResolver.es';
+import PromisesResolver from '../../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../../../shared/hooks/useFetch.es';
 import {InstanceListContext} from '../../../store/InstanceListPageStore.es';
 import {Body} from './BulkReassignSelectTasksStepBody.es';

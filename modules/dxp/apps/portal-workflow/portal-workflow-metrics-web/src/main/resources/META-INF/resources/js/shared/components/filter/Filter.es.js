@@ -230,6 +230,7 @@ class Filter extends React.Component {
 				className={dropdownClassName}
 				data-testid={dataTestId}
 				ref={this.setWrapperRef.bind(this)}
+				style={this.props.style}
 			>
 				<button
 					aria-expanded={expanded}
