@@ -61,7 +61,7 @@ const CustomTimeRangeForm = ({
 	const onApply = () => {
 		const errors = validate();
 
-		if (!errors) {
+		if (errors !== {}) {
 			activeCustomFilter();
 			applyCustomFilter();
 			setFormVisible(false);

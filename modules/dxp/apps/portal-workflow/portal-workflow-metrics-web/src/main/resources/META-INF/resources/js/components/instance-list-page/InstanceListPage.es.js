@@ -9,36 +9,28 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 
-import {getFiltersParam} from '../../shared/components/filter/util/filterUtil.es';
 import EmptyState from '../../shared/components/list/EmptyState.es';
 import ReloadButton from '../../shared/components/list/ReloadButton.es';
 import LoadingState from '../../shared/components/loading/LoadingState.es';
 import PaginationBar from '../../shared/components/pagination/PaginationBar.es';
-import PromisesResolver from '../../shared/components/request/PromisesResolver.es';
-import Request from '../../shared/components/request/Request.es';
+import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
+import {parse} from '../../shared/components/router/queryString.es';
+import {useFetch} from '../../shared/hooks/useFetch.es';
+import {useFilter} from '../../shared/hooks/useFilter.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
+import {processStatusConstants} from '../filter/ProcessStatusFilter.es';
+import {isValidDate} from '../filter/util/timeRangeUtil.es';
 import {Filters} from './InstanceListPageFilters.es';
 import {ItemDetail} from './InstanceListPageItemDetail.es';
 import {Table} from './InstanceListPageTable.es';
 import {ModalContext} from './modal/ModalContext.es';
 import {SingleReassignModal} from './modal/single-reassign/SingleReassignModal.es';
-import {InstanceFiltersProvider} from './store/InstanceListPageFiltersStore.es';
-import {
-	InstanceListProvider,
-	InstanceListContext
-} from './store/InstanceListPageStore.es';
+import {InstanceListProvider} from './store/InstanceListPageStore.es';
 
-const InstanceListPage = ({page, pageSize, processId, query}) => {
-	const {
-		assigneeUserIds = [],
-		slaStatuses = [],
-		statuses = [],
-		taskKeys = [],
-		timeRange = []
-	} = getFiltersParam(query);
-
+const InstanceListPage = ({query, routeParams}) => {
+	const {page, pageSize, processId} = routeParams;
 	const [singleModal, setSingleModal] = useState({
 		selectedItem: undefined,
 		visible: false
@@ -46,48 +38,78 @@ const InstanceListPage = ({page, pageSize, processId, query}) => {
 
 	useProcessTitle(processId, Liferay.Language.get('all-items'));
 
-	return (
-		<Request>
-			<ModalContext.Provider value={{setSingleModal, singleModal}}>
-				<InstanceFiltersProvider
-					assigneeKeys={assigneeUserIds}
-					processId={processId}
-					processStatusKeys={statuses}
-					processStepKeys={taskKeys}
-					slaStatusKeys={slaStatuses}
-					timeRangeKeys={timeRange}
-				>
-					<InstanceListProvider
-						page={page}
-						pageSize={pageSize}
-						processId={processId}
-						query={query}
-					>
-						<InstanceListPage.Header
-							processId={processId}
-							query={query}
-						/>
+	const filterKeys = [
+		'assignee',
+		'processStep',
+		'processStatus',
+		'slaStatus',
+		'timeRange'
+	];
 
-						<InstanceListPage.Body
-							page={page}
-							pageSize={pageSize}
-							processId={processId}
-							query={query}
-							singleModal={singleModal}
-						/>
-					</InstanceListProvider>
-				</InstanceFiltersProvider>
-			</ModalContext.Provider>
-		</Request>
+	const {
+		dispatch,
+		filterState: {timeRange},
+		filterValues: {assigneeUserIds, slaStatuses, statuses = [], taskKeys},
+		selectedFilters
+	} = useFilter(filterKeys);
+
+	const {dateEnd, dateStart} =
+		timeRange && timeRange.length ? timeRange[0] : {};
+
+	let timeRangeParams = {};
+
+	if (
+		statuses.some(status => status === processStatusConstants.completed) &&
+		isValidDate(dateEnd) &&
+		isValidDate(dateStart)
+	) {
+		timeRangeParams = {
+			dateEnd: dateEnd.toISOString(),
+			dateStart: dateStart.toISOString()
+		};
+	}
+	const {search = null} = parse(query);
+	const {data, fetchData} = useFetch({
+		params: {
+			assigneeUserIds,
+			keywords: search,
+			page,
+			pageSize,
+			slaStatuses,
+			statuses,
+			taskKeys,
+			...timeRangeParams
+		},
+		url: `/processes/${processId}/instances`
+	});
+
+	return (
+		<ModalContext.Provider value={{setSingleModal, singleModal}}>
+			<InstanceListProvider>
+				<InstanceListPage.Header
+					dispatch={dispatch}
+					filtered={search || selectedFilters.length > 0}
+					processId={processId}
+					routeParams={routeParams}
+					selectedFilters={selectedFilters}
+					totalCount={data.totalCount}
+				/>
+
+				<InstanceListPage.Body
+					data={data}
+					fetchData={fetchData}
+					filtered={search || selectedFilters.length > 0}
+					routeParams={routeParams}
+					singleModal={singleModal}
+				/>
+			</InstanceListProvider>
+		</ModalContext.Provider>
 	);
 };
 
-const Body = ({page, pageSize, processId, query, singleModal}) => {
-	const {fetchInstances, items, searching, totalCount} = useContext(
-		InstanceListContext
-	);
-
-	const emptyMessageText = searching
+const Body = ({data, fetchData, filtered, routeParams, singleModal}) => {
+	const {items, processId, totalCount} = data;
+	const emptyMessageText = filtered
 		? Liferay.Language.get('no-results-were-found')
 		: Liferay.Language.get(
 				'once-there-are-active-processes-metrics-will-appear-here'
@@ -98,12 +120,12 @@ const Body = ({page, pageSize, processId, query, singleModal}) => {
 
 	const promises = useMemo(() => {
 		if (!singleModal.visible) {
-			return [fetchInstances()];
+			return [fetchData()];
 		}
 
 		return [];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [page, pageSize, processId, query, singleModal.visible]);
+	}, [fetchData, singleModal.visible]);
 
 	return (
 		<>
@@ -119,9 +141,8 @@ const Body = ({page, pageSize, processId, query, singleModal}) => {
 								<InstanceListPage.Body.Table items={items} />
 
 								<PaginationBar
-									page={page}
 									pageCount={items.length}
-									pageSize={pageSize}
+									{...routeParams}
 									totalCount={totalCount}
 								/>
 							</>
@@ -153,13 +174,21 @@ const Body = ({page, pageSize, processId, query, singleModal}) => {
 	);
 };
 
-const Header = () => {
-	const {totalCount} = useContext(InstanceListContext);
-
+const Header = ({
+	dispatch,
+	filtered,
+	routeParams,
+	selectedFilters,
+	totalCount
+}) => {
 	return (
-		<Request.Success>
-			<Filters totalCount={totalCount} />
-		</Request.Success>
+		<Filters
+			dispatch={dispatch}
+			filtered={filtered}
+			routeParams={routeParams}
+			selectedFilters={selectedFilters}
+			totalCount={totalCount}
+		/>
 	);
 };
 

@@ -17,12 +17,12 @@ import {useFilterName} from '../../shared/components/filter/hooks/useFilterName.
 import filterConstants from '../../shared/components/filter/util/filterConstants.es';
 import {useRouterParams} from '../../shared/hooks/useRouterParams.es';
 import {AppContext} from '../AppContext.es';
+import {CustomTimeRangeForm} from './CustomTimeRangeForm.es';
 import {
+	formatTimeRange,
 	parseQueryDate,
 	formatDescriptionDate
-} from '../process-metrics/util/timeRangeUtil.es';
-import {CustomTimeRangeForm} from './CustomTimeRangeForm.es';
-import {formatTimeRange} from './util/timeRangeUtil.es';
+} from './util/timeRangeUtil.es';
 
 const isCustomFilter = filter => filter.key === 'custom';
 
@@ -38,7 +38,8 @@ const TimeRangeFilter = ({
 	dispatch,
 	filterKey = filterConstants.timeRange.key,
 	options = {},
-	prefixKey = ''
+	prefixKey = '',
+	style
 }) => {
 	const defaultOptions = {
 		hideControl: true,
@@ -99,6 +100,7 @@ const TimeRangeFilter = ({
 			onClickFilter={onClickFilter}
 			prefixKey={prefixKey}
 			{...options}
+			style={style}
 		>
 			{formVisible && (
 				<CustomTimeRangeForm

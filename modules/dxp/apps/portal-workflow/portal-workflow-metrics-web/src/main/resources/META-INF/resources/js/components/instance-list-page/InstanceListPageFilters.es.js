@@ -9,76 +9,48 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext} from 'react';
+import React, {useMemo} from 'react';
 
-import FilterResultsBar from '../../shared/components/filter/FilterResultsBar.es';
-import {filterKeys} from '../../shared/components/filter/util/filterConstants.es';
-import {asFilterObject} from '../../shared/components/filter/util/filterUtil.es';
-import AssigneeFilter from '../process-metrics/filter/AssigneeFilter.es';
-import ProcessStatusFilter from '../process-metrics/filter/ProcessStatusFilter.es';
-import ProcessStepFilter from '../process-metrics/filter/ProcessStepFilter.es';
-import SLAStatusFilter from '../process-metrics/filter/SLAStatusFilter.es';
-import {TimeRangeFilter} from '../process-metrics/filter/TimeRangeFilter.es';
-import {AssigneeContext} from '../process-metrics/filter/store/AssigneeStore.es';
-import {ProcessStatusContext} from '../process-metrics/filter/store/ProcessStatusStore.es';
-import {ProcessStepContext} from '../process-metrics/filter/store/ProcessStepStore.es';
-import {SLAStatusContext} from '../process-metrics/filter/store/SLAStatusStore.es';
-import {TimeRangeContext} from '../process-metrics/filter/store/TimeRangeStore.es';
+import filterConstants from '../../shared/components/filter/util/filterConstants.es';
+import ResultsBar from '../../shared/components/results-bar/ResultsBar.es';
+import AssigneeFilter from '../filter/AssigneeFilter.es';
+import ProcessStatusFilter, {
+	processStatusConstants
+} from '../filter/ProcessStatusFilter.es';
+import ProcessStepFilter from '../filter/ProcessStepFilter.es';
+import SLAStatusFilter from '../filter/SLAStatusFilter.es';
+import TimeRangeFilter from '../filter/TimeRangeFilter.es';
 
-const Filters = ({totalCount}) => {
-	const {assignees} = useContext(AssigneeContext);
-	const {isCompletedStatusSelected, processStatuses} = useContext(
-		ProcessStatusContext
+const Filters = ({
+	dispatch,
+	filtered,
+	routeParams,
+	selectedFilters,
+	totalCount
+}) => {
+	const statusesFilterItem = useMemo(
+		() => selectedFilters.find(filter => filter.key === 'statuses'),
+		[selectedFilters]
 	);
-	const {processSteps} = useContext(ProcessStepContext);
-	const {slaStatuses} = useContext(SLAStatusContext);
-	const {timeRanges} = useContext(TimeRangeContext);
+	const {name} = statusesFilterItem ? statusesFilterItem.items[0] : {};
+	const completedStatusSelected = useMemo(
+		() =>
+			selectedFilters.length > 0 && statusesFilterItem
+				? name === processStatusConstants.completed
+				: false,
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[name]
+	);
 
-	const completedStatusSelected = isCompletedStatusSelected();
-
-	const getFilters = () => {
-		const filters = [
-			asFilterObject(
-				slaStatuses,
-				filterKeys.slaStatus,
-				Liferay.Language.get('sla-status')
+	const selectedFilterItems = useMemo(
+		() =>
+			selectedFilters.filter(
+				filter =>
+					completedStatusSelected ||
+					filter.key !== filterConstants.timeRange.key
 			),
-			asFilterObject(
-				processStatuses,
-				filterKeys.processStatus,
-				Liferay.Language.get('process-status')
-			)
-		];
-
-		if (completedStatusSelected) {
-			filters.push(
-				asFilterObject(
-					timeRanges,
-					filterKeys.timeRange,
-					Liferay.Language.get('completion-period'),
-					true
-				)
-			);
-		}
-
-		filters.push(
-			asFilterObject(
-				processSteps,
-				filterKeys.processStep,
-				Liferay.Language.get('process-step')
-			)
-		);
-
-		filters.push(
-			asFilterObject(
-				assignees,
-				filterKeys.assignee,
-				Liferay.Language.get('assignees')
-			)
-		);
-
-		return filters;
-	};
+		[completedStatusSelected, selectedFilters]
+	);
 
 	return (
 		<>
@@ -91,20 +63,60 @@ const Filters = ({totalCount}) => {
 							</strong>
 						</li>
 
-						<SLAStatusFilter />
+						<SLAStatusFilter
+							dispatch={dispatch}
+							processId={routeParams.processId}
+						/>
 
-						<ProcessStatusFilter />
+						<ProcessStatusFilter
+							dispatch={dispatch}
+							processId={routeParams.processId}
+						/>
 
-						{completedStatusSelected && <TimeRangeFilter />}
+						<TimeRangeFilter
+							dispatch={dispatch}
+							options={{
+								withSelectionTitle: false
+							}}
+							processId={routeParams.processId}
+							style={
+								completedStatusSelected
+									? {display: 'inherit'}
+									: {display: 'none'}
+							}
+						/>
 
-						<ProcessStepFilter />
+						<ProcessStepFilter
+							dispatch={dispatch}
+							processId={routeParams.processId}
+						/>
 
-						<AssigneeFilter />
+						<AssigneeFilter
+							dispatch={dispatch}
+							processId={routeParams.processId}
+						/>
 					</ul>
 				</div>
 			</nav>
 
-			<FilterResultsBar filters={getFilters()} totalCount={totalCount} />
+			{filtered && statusesFilterItem && (
+				<ResultsBar>
+					<ResultsBar.TotalCount
+						search={routeParams.search}
+						totalCount={totalCount}
+					/>
+
+					<ResultsBar.FilterItems
+						filters={selectedFilterItems}
+						{...routeParams}
+					/>
+
+					<ResultsBar.Clear
+						filters={selectedFilters}
+						{...routeParams}
+					/>
+				</ResultsBar>
+			)}
 		</>
 	);
 };
