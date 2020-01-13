@@ -14,7 +14,7 @@ import React from 'react';
 
 import PromisesResolver, {
 	PromisesResolverContext
-} from '../../../../src/main/resources/META-INF/resources/js/shared/components/request/PromisesResolver.es';
+} from '../../../../src/main/resources/META-INF/resources/js/shared/components/promises-resolver/PromisesResolver.es';
 
 describe('The pending view should', () => {
 	afterEach(cleanup);

@@ -26,6 +26,13 @@ const items = [
 	}
 ];
 
+const routeParams = {
+	page: 1,
+	pageSize: 20,
+	query: '',
+	sort: 'overdueInstanceCount%3Adesc'
+};
+
 describe('The instance list card should', () => {
 	const clientMock = {
 		get: jest.fn().mockResolvedValue({data: {items}})
@@ -40,7 +47,7 @@ describe('The instance list card should', () => {
 				client={clientMock}
 				getClient={jest.fn(() => clientMock)}
 			>
-				<InstanceListPage />
+				<InstanceListPage routeParams={routeParams} />
 			</MockRouter>
 		);
 	});
@@ -52,6 +59,8 @@ describe('The instance list card should', () => {
 
 		expect(filterNames[0].innerHTML).toBe('sla-status');
 		expect(filterNames[1].innerHTML).toBe('process-status');
-		expect(filterNames[2].innerHTML).toBe('process-step');
+		expect(filterNames[2].innerHTML).toBe('completion-period');
+		expect(filterNames[3].innerHTML).toBe('process-step');
+		expect(filterNames[4].innerHTML).toBe('assignee');
 	});
 });
