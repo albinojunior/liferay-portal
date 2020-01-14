@@ -56,30 +56,28 @@ public class WorkflowTaskAssignableUsersResourceImpl
 						List<WorkflowTaskAssignableUser>
 							workflowTaskAssignableUsers = new ArrayList<>();
 
-						Set<User> commonPooledActors = null;
+						Set<User> commonUsers = null;
 
 						for (Long workflowTaskId : workflowTaskIds) {
-							List<User> pooledActors =
+							List<User> users =
 								_workflowTaskManager.getPooledActors(
 									contextUser.getCompanyId(), workflowTaskId);
 
-							if (commonPooledActors == null) {
-								commonPooledActors = new HashSet<>(
-									pooledActors);
+							if (commonUsers == null) {
+								commonUsers = new HashSet<>(users);
 							}
 							else {
-								commonPooledActors.retainAll(pooledActors);
+								commonUsers.retainAll(users);
 							}
 
 							workflowTaskAssignableUsers.add(
 								_createWorkflowTaskAssignableUser(
-									pooledActors, workflowTaskId));
+									users, workflowTaskId));
 						}
 
 						workflowTaskAssignableUsers.add(
 							_createWorkflowTaskAssignableUser(
-								commonPooledActors,
-								_COMMON_ASSIGNABLE_USERS_TASK_ID));
+								commonUsers, _COMMON_WORKFLOW_TASK_ID));
 
 						return workflowTaskAssignableUsers.toArray(
 							new WorkflowTaskAssignableUser[0]);
@@ -103,7 +101,7 @@ public class WorkflowTaskAssignableUsersResourceImpl
 		return workflowTaskAssignableUser;
 	}
 
-	private static final Long _COMMON_ASSIGNABLE_USERS_TASK_ID = 0L;
+	private static final Long _COMMON_WORKFLOW_TASK_ID = 0L;
 
 	@Reference
 	private Portal _portal;
