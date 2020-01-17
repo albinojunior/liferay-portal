@@ -137,7 +137,6 @@ exports[`Should change search value 1`] = `
                           >
                             <ForwardRef
                               displayType="unstyled"
-                              spritemap="http://localhost:8080/o/admin-theme/images/lexicon/icons.svg"
                               symbol="search"
                               type="submit"
                             >
@@ -151,7 +150,6 @@ exports[`Should change search value 1`] = `
                                   type="submit"
                                 >
                                   <ForwardRef
-                                    spritemap="http://localhost:8080/o/admin-theme/images/lexicon/icons.svg"
                                     symbol="search"
                                   >
                                     <svg
@@ -160,7 +158,7 @@ exports[`Should change search value 1`] = `
                                       role="presentation"
                                     >
                                       <use
-                                        xlinkHref="http://localhost:8080/o/admin-theme/images/lexicon/icons.svg#search"
+                                        xlinkHref="#search"
                                       />
                                     </svg>
                                   </ForwardRef>
@@ -222,7 +220,7 @@ exports[`Should render component 1`] = `
                 role="presentation"
               >
                 <use
-                  xlinkHref="http://localhost:8080/o/admin-theme/images/lexicon/icons.svg#search"
+                  xlinkHref="#search"
                 />
               </svg>
             </button>
