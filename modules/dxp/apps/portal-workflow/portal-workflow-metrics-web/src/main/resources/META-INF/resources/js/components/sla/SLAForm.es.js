@@ -616,9 +616,8 @@ const Footer = ({id, onReloadNodes, processId, query}) => {
 						? AppStatus.slaUpdated
 						: AppStatus.slaSaved;
 
-					setStatus(status, () => {
-						setRedirectToSLAList(true);
-					});
+					setStatus(status);
+					setRedirectToSLAList(true);
 				})
 				.catch(result => {
 					const {
