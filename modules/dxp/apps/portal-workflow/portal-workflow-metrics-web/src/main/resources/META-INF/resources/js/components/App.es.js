@@ -37,7 +37,7 @@ export default class AppComponent extends React.Component {
 			client,
 			companyId: props.companyId,
 			defaultDelta: props.defaultDelta,
-			deltas: props.deltas,
+			deltaValues: props.deltaValues,
 			getClient,
 			isAmPm: props.isAmPm,
 			maxPages: props.maxPages,

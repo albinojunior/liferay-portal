@@ -15,7 +15,13 @@ import ReactDOM from 'react-dom';
 
 import AppComponent from './components/App.es';
 
-export default function(defaultDelta, deltas, isAmPm, maxPages, namespace) {
+export default function(
+	defaultDelta,
+	deltaValues,
+	isAmPm,
+	maxPages,
+	namespace
+) {
 	const container = document.getElementById(`${namespace}root`);
 
 	const buildContainer = () => {
@@ -24,7 +30,7 @@ export default function(defaultDelta, deltas, isAmPm, maxPages, namespace) {
 			<AppComponent
 				companyId={Liferay.ThemeDisplay.getCompanyId()}
 				defaultDelta={defaultDelta}
-				deltas={deltas}
+				deltaValues={deltaValues}
 				isAmPm={isAmPm}
 				maxPages={maxPages}
 				namespace={namespace}

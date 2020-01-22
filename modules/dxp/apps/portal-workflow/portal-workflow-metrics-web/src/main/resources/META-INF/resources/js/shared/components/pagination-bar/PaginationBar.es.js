@@ -16,27 +16,24 @@ import React, {useContext, useMemo, useCallback} from 'react';
 import {AppContext} from '../../../components/AppContext.es';
 import {useRouter} from '../../hooks/useRouter.es';
 
-const PaginationBar = props => {
-	const {deltas} = useContext(AppContext);
+const PaginationBar = ({
+	routing = true,
+	page,
+	pageBuffer,
+	pageSize,
+	totalCount,
+	setPage = () => {},
+	setPageSize = () => {}
+}) => {
+	const {deltaValues} = useContext(AppContext);
 	const {
 		history,
 		location: {search},
 		match: {params, path}
 	} = useRouter();
 
-	const {
-		routing = true,
-		page,
-		pageBuffer,
-		pageSize,
-		pageSizes = deltas,
-		totalCount,
-		setPage = () => {},
-		setPageSize = () => {}
-	} = props;
-
-	const deltaItems = useMemo(() => pageSizes.map(label => ({label})), [
-		pageSizes
+	const deltas = useMemo(() => deltaValues.map(label => ({label})), [
+		deltaValues
 	]);
 
 	const labels = useMemo(
@@ -86,7 +83,7 @@ const PaginationBar = props => {
 		[params, path, search]
 	);
 
-	if (totalCount <= pageSizes[0]) {
+	if (totalCount <= deltaValues[0]) {
 		return <></>;
 	}
 
@@ -96,7 +93,7 @@ const PaginationBar = props => {
 		<ClayPaginationBarWithBasicItems
 			activeDelta={Number(pageSize)}
 			activePage={Number(page)}
-			deltas={deltaItems}
+			deltas={deltas}
 			ellipsisBuffer={pageBuffer}
 			labels={labels}
 			onDeltaChange={handleChangePageSize}

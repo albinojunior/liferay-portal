@@ -48,7 +48,7 @@ const MockRouter = ({
 		() => ({
 			client,
 			defaultDelta: 20,
-			deltas: [5, 10, 20, 30, 50, 75],
+			deltaValues: [5, 10, 20, 30, 50, 75],
 			getClient: () => client,
 			maxPages: 3,
 			namespace: 'workflow_',
