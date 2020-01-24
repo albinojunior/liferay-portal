@@ -10,7 +10,7 @@
  */
 
 import React, {useContext, useState, useEffect, useCallback} from 'react';
-import {Route, HashRouter as Router, Switch} from 'react-router-dom';
+import {Route, Switch} from 'react-router-dom';
 
 import {parse, stringify} from '../../shared/components/router/queryString.es';
 import {
@@ -168,21 +168,19 @@ const ProcessMetrics = props => {
 				</AlertMessage>
 			)}
 
-			<Router>
-				<Switch>
-					<Route
-						exact
-						path={dashboardTab.path}
-						render={withParams(DashboardTab)}
-					/>
+			<Switch>
+				<Route
+					exact
+					path={dashboardTab.path}
+					render={withParams(DashboardTab)}
+				/>
 
-					<Route
-						exact
-						path={performanceTab.path}
-						render={withParams(PerformanceTab)}
-					/>
-				</Switch>
-			</Router>
+				<Route
+					exact
+					path={performanceTab.path}
+					render={withParams(PerformanceTab)}
+				/>
+			</Switch>
 		</div>
 	);
 };
