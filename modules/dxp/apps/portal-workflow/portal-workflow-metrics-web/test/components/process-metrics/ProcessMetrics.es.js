@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, render} from '@testing-library/react';
+import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import ProcessMetrics from '../../../src/main/resources/META-INF/resources/js/components/process-metrics/ProcessMetrics.es';
@@ -32,7 +32,7 @@ describe('The ProcessMetrics component should', () => {
 		const component = render(
 			<MockRouter
 				client={client}
-				initialPath="/metrics/35315"
+				initialPath="/metrics/35315/dashboard"
 				path="/metrics/:processId"
 			>
 				<ProcessMetrics />
@@ -81,8 +81,9 @@ describe('The ProcessMetrics component should', () => {
 		getByTestId = component.getByTestId;
 	});
 
-	test('Show error toast when request fails', () => {
-		const processMetricsDashBoard = getByTestId('processMetricsDashBoard');
-		console.log(processMetricsDashBoard);
+	test('Active the tab by clicking it', () => {
+		const tabElements = getByTestId('tabElements');
+		fireEvent.click(tabElements.children[1].children[0]);
+		expect(tabElements.children[1].children[0]).toHaveClass('active');
 	});
 });
