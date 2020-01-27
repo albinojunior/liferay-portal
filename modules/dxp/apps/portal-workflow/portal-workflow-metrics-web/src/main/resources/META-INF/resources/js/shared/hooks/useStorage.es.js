@@ -9,48 +9,37 @@
  * distribution rights of the Software.
  */
 
-import {useState, useEffect} from 'react';
+import {useEventListener} from 'frontend-js-react-web';
+import {useCallback, useState} from 'react';
 
 import {jsonStorage} from '../util/storage.es';
 
-const eventTarget = new EventTarget();
-
 const useStorage = (storageType, key) => {
-	const {get, set} = jsonStorage(storageType);
+	const {get, remove, set} = jsonStorage(storageType);
 	const [value, setValue] = useState(get(key));
 
-	const updater = (updatedValue, remove = false) => {
-		setValue(updatedValue);
+	const listener = useCallback(
+		({detail}) => {
+			if (detail.key === key) setValue(detail.newValue);
+		},
+		[key]
+	);
 
-		if (remove) {
-			storageType.removeItem(key);
+	useEventListener('storage_change', listener, false, window);
+
+	const updater = (newValue, removeItem) => {
+		if (removeItem) {
+			remove(key);
 		} else {
-			set(key, updatedValue);
+			set(key, newValue);
 		}
 
-		eventTarget.dispatchEvent(
-			new CustomEvent('storage_change', {detail: {key, updatedValue}})
+		window.dispatchEvent(
+			new CustomEvent('storage_change', {detail: {key, newValue}})
 		);
 	};
 
-	useEffect(() => {
-		const listener = ({detail}) => {
-			if (detail.key === key) setValue(detail.updatedValue);
-		};
-
-		eventTarget.addEventListener('storage_change', listener);
-
-		return () => {
-			eventTarget.removeEventListener('storage_change', listener);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	return [
-		value,
-		updatedValue => updater(updatedValue),
-		() => updater({}, true)
-	];
+	return [value, newValue => updater(newValue), () => updater({}, true)];
 };
 
 const setStorage = storage => key => useStorage(storage, key);
