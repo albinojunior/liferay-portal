@@ -12,6 +12,7 @@
 import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
+import {useTimeout} from 'frontend-js-react-web';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 
 import {usePatch} from '../../../../shared/hooks/usePatch.es';
@@ -21,6 +22,7 @@ import {BulkReassignSelectAssigneesStep} from './select-assignees-step/BulkReass
 import {BulkReassignSelectTasksStep} from './select-tasks-step/BulkReassignSelectTasksStep.es';
 
 const BulkReassignModal = () => {
+	const delay = useTimeout();
 	const {bulkModal, setBulkModal} = useContext(ModalContext);
 
 	const {reassignedTasks, reassigning, selectedTasks, visible} = bulkModal;
@@ -66,12 +68,16 @@ const BulkReassignModal = () => {
 
 			patchData()
 				.then(() => {
+					delay(() => {
 					onClose();
 
 					setSuccessToast([
 						...successToast,
-						Liferay.Language.get('these-tasks-have-been-reassigned')
+							Liferay.Language.get(
+								'these-tasks-have-been-reassigned'
+							)
 					]);
+					}, reassignedTasks.length * 500);
 				})
 				.catch(() => {
 					const error = `${Liferay.Language.get(

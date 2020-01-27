@@ -12,6 +12,7 @@
 import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
+import {useTimeout} from 'frontend-js-react-web';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 
 import EmptyState from '../../../../shared/components/list/EmptyState.es';
@@ -43,6 +44,7 @@ const LoadingView = () => {
 };
 
 const SingleReassignModal = () => {
+	const delay = useTimeout();
 	const [errorToast, setErrorToast] = useState(() => false);
 	const [reassignedTasks, setReassignedTasks] = useState(() => ({
 		tasks: []
@@ -97,16 +99,25 @@ const SingleReassignModal = () => {
 				singleModal.selectedItem.assigneeUsers[0].id !== newAssigneeId)
 		) {
 			setSendingPost(() => true);
+
 			setErrorToast(() => false);
+
 			postData()
 				.then(() => {
+					delay(() => {
 					onClose();
+
 					setSuccessToast([
 						...successToast,
-						Liferay.Language.get('this-task-has-been-reassigned')
+							Liferay.Language.get(
+								'this-task-has-been-reassigned'
+							)
 					]);
+
 					setSendingPost(() => false);
+
 					setErrorToast(() => false);
+					}, 500);
 				})
 				.catch(() => {
 					setErrorToast(() => true);
@@ -226,33 +237,7 @@ const SingleReassignModal = () => {
 	);
 };
 
-const Footer = ({onClose, reassignButtonHandler, sendingPost}) => {
-	return (
-		<ClayModal.Footer
-			first={
-				<ClayButton
-					data-testid="cancelButton"
-					displayType="secondary"
-					onClick={onClose}
-				>
-					{Liferay.Language.get('cancel')}
-				</ClayButton>
-			}
-			last={
-				<ClayButton
-					data-testid="reassignButton"
-					disabled={sendingPost}
-					onClick={reassignButtonHandler}
-				>
-					{Liferay.Language.get('reassign')}
-				</ClayButton>
-			}
-		/>
-	);
-};
-
 SingleReassignModal.ErrorView = ErrorView;
-SingleReassignModal.Footer = Footer;
 SingleReassignModal.LoadingView = LoadingView;
 SingleReassignModal.Table = Table;
 
