@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext, useState, useEffect, useCallback} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {Route, Switch} from 'react-router-dom';
 
 import {parse, stringify} from '../../shared/components/router/queryString.es';
@@ -19,12 +19,10 @@ import {
 } from '../../shared/components/router/routerUtil.es';
 import {ChildLink} from '../../shared/components/router/routerWrapper.es';
 import Tabs from '../../shared/components/tabs/Tabs.es';
-import {sub} from '../../shared/util/lang.es';
-import {openErrorToast} from '../../shared/util/toast.es';
 import {AppContext} from '../AppContext.es';
 import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
-import AlertMessage from './AlertMessage.es';
 import DropDownHeader from './DropDownHeader.es';
+import SLAInfo from './SLAInfo.es';
 import CompletionVelocityCard from './completion-velocity/CompletionVelocityCard.es';
 import PerformanceByAssigneeCard from './performance-by-assignee-card/PerformanceByAssigneeCard.es';
 import PerformanceByStepCard from './performance-by-step-card/PerformanceByStepCard.es';
@@ -33,73 +31,65 @@ import PendingItemsCard from './process-items/PendingItemsCard.es';
 import WorkloadByAssigneeCard from './workload-by-assignee-card/WorkloadByAssigneeCard.es';
 import WorkloadByStepCard from './workload-by-step-card/WorkloadByStepCard.es';
 
-const ProcessMetrics = props => {
-	const {history, processId, query} = props;
-	const {client, defaultDelta} = useContext(AppContext);
-	const [blockedSLACount, setBlockedSLACount] = useState(0);
-	const [slaCount, setSlaCount] = useState(null);
+const DashboardTab = props => {
+	return (
+		<div className="container-fluid-1280">
+			<div className="row">
+				<div className="col-md-9 p-0">
+					<PendingItemsCard {...props} />
 
-	const loadBlockedSLACount = useCallback(() => {
-		return client
-			.get(`/processes/${processId}/slas?page=1&pageSize=1&status=2`)
-			.then(({data: {totalCount}}) => totalCount)
-			.catch(showLoadingError);
+					<WorkloadByStepCard {...props} />
+				</div>
 
+				<div className="col-md-3 p-0">
+					<WorkloadByAssigneeCard {...props} />
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const PerformanceTab = props => {
+	useTimeRangeFetch();
+
+	return (
+		<>
+			<CompletedItemsCard {...props} />
+			<CompletionVelocityCard {...props} />
+			<PerformanceByStepCard {...props} />
+			<PerformanceByAssigneeCard {...props} />
+		</>
+	);
+};
+
+const ProcessMetrics = ({history, processId, query}) => {
+	const {defaultDelta} = useContext(AppContext);
+
+	const dashboardTab = useMemo(
+		() => ({
+			key: 'dashboard',
+			name: Liferay.Language.get('dashboard'),
+			params: {
+				page: 1,
+				pageSize: defaultDelta,
+				processId,
+				sort: encodeURIComponent('overdueInstanceCount:asc')
+			},
+			path: '/metrics/:processId/dashboard/:pageSize/:page/:sort'
+		}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [processId]);
+		[processId]
+	);
 
-	const loadSLACount = useCallback(() => {
-		return client
-			.get(`/processes/${processId}/slas?page=1&pageSize=1`)
-			.then(({data: {totalCount}}) => totalCount)
-			.catch(showLoadingError);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [processId]);
-
-	const showLoadingError = () => {
-		openErrorToast({
-			message: Liferay.Language.get(
-				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-			)
-		});
-	};
-
-	useEffect(() => {
-		Promise.all([loadBlockedSLACount(), loadSLACount()])
-			.then(([blockedSLACount, slaCount]) => {
-				setBlockedSLACount(blockedSLACount);
-				setSlaCount(slaCount);
-			})
-			.catch(showLoadingError);
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	let blockedSLAText = Liferay.Language.get('x-sla-is-blocked');
-
-	if (blockedSLACount !== 1) {
-		blockedSLAText = Liferay.Language.get('x-slas-are-blocked');
-	}
-
-	const dashboardTab = {
-		key: 'dashboard',
-		name: Liferay.Language.get('dashboard'),
-		params: {
-			page: 1,
-			pageSize: defaultDelta,
-			processId,
-			sort: encodeURIComponent('overdueInstanceCount:asc')
-		},
-		path: '/metrics/:processId/dashboard/:pageSize/:page/:sort'
-	};
-	const performanceTab = {
-		key: 'performance',
-		name: Liferay.Language.get('performance'),
-		params: {
-			processId
-		},
-		path: '/metrics/:processId/performance'
-	};
+	const performanceTab = useMemo(
+		() => ({
+			key: 'performance',
+			name: Liferay.Language.get('performance'),
+			params: {processId},
+			path: '/metrics/:processId/performance'
+		}),
+		[processId]
+	);
 
 	if (history.location.pathname === `/metrics/${processId}`) {
 		const pathname = getPathname(dashboardTab.params, dashboardTab.path);
@@ -130,43 +120,7 @@ const ProcessMetrics = props => {
 
 			<Tabs tabs={[dashboardTab, performanceTab]} />
 
-			{blockedSLACount !== 0 && (
-				<AlertMessage className="mb-0" iconName="exclamation-full">
-					<>
-						{`${sub(blockedSLAText, [
-							blockedSLACount
-						])} ${Liferay.Language.get(
-							'fix-the-sla-configuration-to-resume-accurate-reporting'
-						)} `}
-
-						<ChildLink to={`/slas/${processId}/${defaultDelta}/1`}>
-							<strong>
-								{Liferay.Language.get('set-up-slas')}
-							</strong>
-						</ChildLink>
-					</>
-				</AlertMessage>
-			)}
-
-			{slaCount === 0 && (
-				<AlertMessage
-					className="mb-0"
-					iconName="warning-full"
-					type="warning"
-				>
-					<>
-						{`${Liferay.Language.get(
-							'no-slas-are-defined-for-this-process'
-						)} `}
-
-						<ChildLink to={`/sla/new/${processId}`}>
-							<strong>
-								{Liferay.Language.get('add-a-new-sla')}
-							</strong>
-						</ChildLink>
-					</>
-				</AlertMessage>
-			)}
+			<SLAInfo processId={processId} />
 
 			<Switch>
 				<Route
@@ -182,37 +136,6 @@ const ProcessMetrics = props => {
 				/>
 			</Switch>
 		</div>
-	);
-};
-
-const DashboardTab = props => {
-	return (
-		<div className="container-fluid-1280">
-			<div className="row">
-				<div className="col-md-9 p-0">
-					<PendingItemsCard {...props} />
-
-					<WorkloadByStepCard {...props} />
-				</div>
-
-				<div className="col-md-3 p-0">
-					<WorkloadByAssigneeCard {...props} />
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const PerformanceTab = props => {
-	useTimeRangeFetch();
-
-	return (
-		<>
-			<CompletedItemsCard {...props} />
-			<CompletionVelocityCard {...props} />
-			<PerformanceByStepCard {...props} />
-			<PerformanceByAssigneeCard {...props} />
-		</>
 	);
 };
 
