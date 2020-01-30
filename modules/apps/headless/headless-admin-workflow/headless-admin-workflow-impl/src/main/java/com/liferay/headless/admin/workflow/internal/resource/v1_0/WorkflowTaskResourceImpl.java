@@ -423,6 +423,7 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 				id = workflowTask.getWorkflowTaskId();
 				name = workflowTask.getName();
 				objectReviewed = ObjectReviewedUtil.toObjectReviewed(
+					contextAcceptLanguage.getPreferredLocale(),
 					workflowTask.getOptionalAttributes());
 				workflowInstanceId = workflowTask.getWorkflowInstanceId();
 			}
