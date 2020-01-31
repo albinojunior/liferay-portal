@@ -28,25 +28,23 @@ const Body = ({data, setRetry, tasks}) => {
 
 	return (
 		<ClayModal.Body>
-			<div style={{maxHeight: '23rem'}}>
-				<PromisesResolver.Pending>
-					<Body.Loading />
-				</PromisesResolver.Pending>
+			<PromisesResolver.Pending>
+				<Body.Loading />
+			</PromisesResolver.Pending>
 
-				<PromisesResolver.Resolved>
-					<Body.Table data={data} items={paginatedItems} />
+			<PromisesResolver.Resolved>
+				<Body.Table data={data} items={paginatedItems} />
 
-					<PaginationBar
-						{...pagination}
-						routing={false}
-						totalCount={tasks.length}
-					/>
-				</PromisesResolver.Resolved>
+				<PaginationBar
+					{...pagination}
+					routing={false}
+					totalCount={tasks.length}
+				/>
+			</PromisesResolver.Resolved>
 
-				<PromisesResolver.Rejected>
-					<Body.Error onClick={() => setRetry(retry => retry + 1)} />
-				</PromisesResolver.Rejected>
-			</div>
+			<PromisesResolver.Rejected>
+				<Body.Error onClick={() => setRetry(retry => retry + 1)} />
+			</PromisesResolver.Rejected>
 		</ClayModal.Body>
 	);
 };
@@ -55,7 +53,7 @@ const ErrorView = ({onClick}) => {
 	return (
 		<EmptyState
 			actionButton={<RetryButton onClick={onClick} />}
-			className="border-0 pb-8 pt-8"
+			className="border-0 pb-7 pt-8"
 			hideAnimation={true}
 			message={Liferay.Language.get('failed-to-retrieve-assignees')}
 			messageClassName="small"
@@ -66,7 +64,7 @@ const ErrorView = ({onClick}) => {
 const LoadingView = () => {
 	return (
 		<LoadingState
-			className="border-0 pb-8 pt-8"
+			className="border-0 mb-4 mt-6 pb-8 pt-8"
 			message={Liferay.Language.get('retrieving-all-possible-assignees')}
 			messageClassName="small"
 		/>

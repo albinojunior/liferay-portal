@@ -45,17 +45,19 @@ const BulkReassignSelectAssigneesStep = ({setErrorToast}) => {
 	}, [fetchData, retry]);
 
 	return (
-		<PromisesResolver promises={promises}>
-			<PromisesResolver.Resolved>
-				<BulkReassignSelectAssigneesStep.Header data={data} />
-			</PromisesResolver.Resolved>
+		<div className="fixed-height modal-metrics-content">
+			<PromisesResolver promises={promises}>
+				<PromisesResolver.Resolved>
+					<BulkReassignSelectAssigneesStep.Header data={data} />
+				</PromisesResolver.Resolved>
 
-			<BulkReassignSelectAssigneesStep.Body
-				data={data}
-				setRetry={setRetry}
-				tasks={selectedTasks}
-			/>
-		</PromisesResolver>
+				<BulkReassignSelectAssigneesStep.Body
+					data={data}
+					setRetry={setRetry}
+					tasks={selectedTasks}
+				/>
+			</PromisesResolver>
+		</div>
 	);
 };
 
