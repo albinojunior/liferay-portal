@@ -115,7 +115,7 @@ const Item = ({
 
 const Table = ({data, items}) => {
 	return (
-		<ClayTable borderless={true} data-testid="bulkReassignModalTable">
+		<ClayTable data-testid="bulkReassignModalTable">
 			<ClayTable.Head>
 				<ClayTable.Row>
 					<ClayTable.Cell
@@ -123,7 +123,7 @@ const Table = ({data, items}) => {
 						style={{
 							color: 'inherit',
 							fontWeight: 'bold',
-							width: '8%'
+							width: '10%'
 						}}
 					>
 						{Liferay.Language.get('id')}
@@ -165,7 +165,7 @@ const Table = ({data, items}) => {
 						style={{
 							color: 'inherit',
 							fontWeight: 'bold',
-							width: '20%'
+							width: '25%'
 						}}
 					>
 						{`${Liferay.Language.get('new-assignee')} `}
