@@ -42,6 +42,7 @@ const InstanceListPage = ({routeParams}) => {
 	const [bulkModal, setBulkModal] = useState({
 		reassignedTasks: [],
 		reassigning: false,
+		selectAll: false,
 		selectedAssignee: null,
 		selectedTasks: [],
 		useSameAssignee: false,
@@ -150,7 +151,10 @@ const Body = ({data, filtered, routeParams}) => {
 				<PromisesResolver.Resolved>
 					{items && items.length ? (
 						<>
-							<InstanceListPage.Body.Table items={items} />
+							<InstanceListPage.Body.Table
+								items={items}
+								totalCount={totalCount}
+							/>
 
 							<PaginationBar
 								pageBuffer={3}
@@ -183,7 +187,9 @@ const Body = ({data, filtered, routeParams}) => {
 
 			<InstanceListPage.SingleReassignModal />
 
-			<InstanceListPage.BulkReassignModal />
+			<InstanceListPage.BulkReassignModal
+				processId={routeParams.processId}
+			/>
 
 			<ItemDetail processId={routeParams.processId} />
 		</>
