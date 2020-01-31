@@ -20,33 +20,34 @@ import {ModalContext} from './modal/ModalContext.es';
 import {InstanceListContext} from './store/InstanceListPageStore.es';
 
 const getSLAStatusIcon = slaStatus => {
-	if (slaStatus === 'OnTime') {
-		return {
+	const items = {
+		OnTime: {
 			bgColor: 'bg-success-light',
 			iconColor: 'text-success',
 			iconName: 'check-circle'
-		};
-	}
-
-	if (slaStatus === 'Overdue') {
-		return {
+		},
+		Overdue: {
 			bgColor: 'bg-danger-light',
 			iconColor: 'text-danger',
 			iconName: 'exclamation-circle'
-		};
-	}
-
-	return {
-		bgColor: 'bg-info-light',
-		iconColor: 'text-info',
-		iconName: 'hr'
+		},
+		Untracked: {
+			bgColor: 'bg-info-light',
+			iconColor: 'text-info',
+			iconName: 'hr'
+		}
 	};
+
+	return items[slaStatus] || items.Untracked;
 };
 
-const Item = taskItem => {
-	const {selectedItems = [], setInstanceId, setSelectedItems} = useContext(
-		InstanceListContext
-	);
+const Item = ({totalCount, ...taskItem}) => {
+	const {
+		selectedItems = [],
+		setInstanceId,
+		setSelectAll,
+		setSelectedItems
+	} = useContext(InstanceListContext);
 	const {instanceDetailsModal, setInstanceDetailsModal} = useContext(
 		ModalContext
 	);
@@ -66,7 +67,7 @@ const Item = taskItem => {
 	} = taskItem;
 
 	useEffect(() => {
-		setChecked(selectedItems.find(item => item.id === id) !== undefined);
+		setChecked(!!selectedItems.find(item => item.id === id));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedItems]);
 
@@ -84,11 +85,12 @@ const Item = taskItem => {
 	const handleCheck = ({target}) => {
 		setChecked(target.checked);
 
-		if (target.checked) {
-			setSelectedItems([...selectedItems, taskItem]);
-		} else {
-			setSelectedItems(selectedItems.filter(item => item.id !== id));
-		}
+		const updatedItems = target.checked
+			? [...selectedItems, taskItem]
+			: selectedItems.filter(item => item.id !== id);
+
+		setSelectAll(totalCount > 0 && totalCount === updatedItems.length);
+		setSelectedItems(updatedItems);
 	};
 
 	return (
