@@ -94,3 +94,12 @@
 		}
 	}
 }
+
+.modal-metrics-content {
+	background-color: #f1f2f5;
+
+	&.fixed-height {
+		height: 35rem;
+		overflow: auto;
+	}
+}
