@@ -76,7 +76,8 @@ const BulkReassignModal = ({processId}) => {
 		const params = {
 			completed: false,
 			page: 1,
-			pageSize: -1
+			pageSize: -1,
+			sort: encodeURIComponent('workflowInstanceId:asc')
 		};
 
 		if (visible) {
