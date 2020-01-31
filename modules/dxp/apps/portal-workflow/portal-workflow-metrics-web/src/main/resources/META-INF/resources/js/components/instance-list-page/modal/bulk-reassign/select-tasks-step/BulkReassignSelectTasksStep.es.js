@@ -32,7 +32,8 @@ const BulkReassignSelectTasksStep = ({processId, setErrorToast}) => {
 		const params = {
 			completed: false,
 			page,
-			pageSize
+			pageSize,
+			sort: encodeURIComponent('workflowInstanceId:asc')
 		};
 
 		if (selectAll) {
