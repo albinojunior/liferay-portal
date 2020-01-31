@@ -167,11 +167,17 @@ public class LayoutDataConverter {
 				JSONObject containerConfigJSONObject = JSONUtil.put(
 					"backgroundColorCssClass",
 					inputRowConfigJSONObject.getString(
-						"backgroundColorCssClass", null)
-				).put(
-					"backgroundImage",
-					_getBackgroundImageJSONObject(inputRowConfigJSONObject)
-				).put(
+						"backgroundColorCssClass", null));
+
+				JSONObject backgroundImageJSONObject =
+					_getBackgroundImageJSONObject(inputRowConfigJSONObject);
+
+				if (backgroundImageJSONObject != null) {
+					containerConfigJSONObject.put(
+						"backgroundImage", backgroundImageJSONObject);
+				}
+
+				containerConfigJSONObject.put(
 					"paddingBottom",
 					inputRowConfigJSONObject.getInt("paddingVertical")
 				).put(
@@ -182,7 +188,7 @@ public class LayoutDataConverter {
 					inputRowConfigJSONObject.getInt("paddingVertical")
 				).put(
 					"type",
-					inputRowConfigJSONObject.getString("containerType", null)
+					inputRowConfigJSONObject.getString("containerType", "fluid")
 				);
 
 				JSONObject containerJSONObject = _getItemJSONObject(
@@ -254,6 +260,10 @@ public class LayoutDataConverter {
 
 	private static JSONObject _getBackgroundImageJSONObject(
 		JSONObject inputRowConfigJSONObject) {
+
+		if (inputRowConfigJSONObject.isNull("backgroundImage")) {
+			return null;
+		}
 
 		Object backgroundImage = inputRowConfigJSONObject.get(
 			"backgroundImage");

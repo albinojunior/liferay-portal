@@ -327,6 +327,8 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"mappingFieldsURL", editorSoyContext.get("mappingFieldsURL")
 			).put(
+				"masterUsed", editorSoyContext.get("masterUsed")
+			).put(
 				"moveItemURL",
 				getFragmentEntryActionURL(
 					"/content_layout/move_fragment_entry_link_react")
@@ -616,6 +618,16 @@ public class ContentPageEditorDisplayContext {
 
 	public String getPublishURL() {
 		return getFragmentEntryActionURL("/content_layout/publish_layout");
+	}
+
+	public boolean isMasterLayout() throws PortalException {
+		if (_getPageType() ==
+				LayoutPageTemplateEntryTypeConstants.TYPE_MASTER_LAYOUT) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public boolean isSingleSegmentsExperienceMode() {

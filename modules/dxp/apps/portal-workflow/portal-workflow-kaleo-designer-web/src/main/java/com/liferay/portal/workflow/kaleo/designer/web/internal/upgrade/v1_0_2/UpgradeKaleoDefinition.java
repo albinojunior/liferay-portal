@@ -16,12 +16,14 @@ package com.liferay.portal.workflow.kaleo.designer.web.internal.upgrade.v1_0_2;
 
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 
@@ -79,14 +81,16 @@ public class UpgradeKaleoDefinition extends UpgradeProcess {
 	protected void addKaleoDefinitionsFromKaleoDefinitionVersion()
 		throws PortalException, SQLException {
 
-		StringBundler sb1 = new StringBundler(8);
+		StringBundler sb1 = new StringBundler(10);
 
 		sb1.append("select KaleoDefinitionVersion.* from ");
-		sb1.append("KaleoDefinitionVersion join (select name, max(version) ");
-		sb1.append("as version from KaleoDefinitionVersion group by name) ");
-		sb1.append("sub on sub.name = KaleoDefinitionVersion.name and sub.");
-		sb1.append("version = KaleoDefinitionVersion.version left join ");
-		sb1.append("KaleoDefinition on KaleoDefinitionVersion.name = ");
+		sb1.append("KaleoDefinitionVersion join (select name,  ");
+		sb1.append("max(kaleoDefinitionVersionId) as ");
+		sb1.append("kaleoDefinitionVersionId from KaleoDefinitionVersion ");
+		sb1.append("group by name) sub on sub.name = KaleoDefinitionVersion.");
+		sb1.append("name and sub.kaleoDefinitionVersionId = ");
+		sb1.append("KaleoDefinitionVersion.kaleoDefinitionVersionId left ");
+		sb1.append("join KaleoDefinition on KaleoDefinitionVersion.name = ");
 		sb1.append("KaleoDefinition.name where KaleoDefinition.");
 		sb1.append("kaleoDefinitionId is null");
 
@@ -102,20 +106,28 @@ public class UpgradeKaleoDefinition extends UpgradeProcess {
 				String name = rs.getString("name");
 				String title = rs.getString("title");
 				String content = rs.getString("content");
-				int version = rs.getInt("version");
+				String version = rs.getString("version");
 
 				addKaleoDefinition(
 					groupId, userId, createDate, modifiedDate, name, title,
-					content, version);
+					content, getVersion(version));
 			}
 		}
 	}
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (hasTable("KaleoDraftDefinition")) {
+		if (hasTable("KaleoDefinitionVersion") &&
+			hasTable("KaleoDraftDefinition")) {
+
 			addKaleoDefinitionsFromKaleoDefinitionVersion();
 		}
+	}
+
+	protected int getVersion(String version) {
+		int[] versionParts = StringUtil.split(version, StringPool.PERIOD, 0);
+
+		return versionParts[0];
 	}
 
 	private final CounterLocalService _counterLocalService;

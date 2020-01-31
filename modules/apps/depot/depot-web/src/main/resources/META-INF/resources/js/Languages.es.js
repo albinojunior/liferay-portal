@@ -18,19 +18,17 @@ import ClayDropDown from '@clayui/drop-down';
 import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
+import {useModal} from '@clayui/modal';
 import ClayTable from '@clayui/table';
-import {ItemSelectorDialog} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState, useRef} from 'react';
 
-/**
- * @class Languages
- */
+import ManageLanguages from './ManageLanguages.es';
+
 const Languages = ({
 	availableLocales,
 	defaultLocaleId,
 	inheritLocales = true,
-	manageCustomLanguagesURL,
 	portletNamespace,
 	siteAvailableLocales,
 	siteDefaultLocaleId,
@@ -52,6 +50,21 @@ const Languages = ({
 		setLanguageTranslationWarning
 	] = useState(false);
 
+	const [showModal, setShowModal] = useState(false);
+
+	const handleOnCloseModal = () => {
+		setShowModal(false);
+	};
+
+	const {observer, onClose} = useModal({
+		onClose: handleOnCloseModal
+	});
+
+	const handleOnSaveModal = selectedLocales => {
+		setCustomLocales(selectedLocales);
+		onClose();
+	};
+
 	const customLocalesInputRef = useRef();
 
 	useEffect(() => {
@@ -61,35 +74,6 @@ const Languages = ({
 			customLocalesInputRef.current.value = localesIds.join(',');
 		}
 	}, [customLocales, selectedRadioGroupValue]);
-
-	const handleManageBtnClick = () => {
-		var url = Liferay.Util.PortletURL.createPortletURL(
-			manageCustomLanguagesURL,
-			{
-				customDefaultLocaleId,
-				customLocales: JSON.stringify(customLocales)
-			}
-		);
-
-		const itemSelectorDialog = new ItemSelectorDialog({
-			buttonAddLabel: Liferay.Language.get('done'),
-			eventName: `_${portletNamespace}_manageLanguages`,
-			title: Liferay.Language.get('language-selection'),
-			url: url.toString()
-		});
-
-		itemSelectorDialog.open();
-
-		itemSelectorDialog.on('selectedItemChange', event => {
-			const selectedItem = event.selectedItem;
-
-			if (selectedItem) {
-				const selectedLanguages = selectedItem.value;
-
-				setCustomLocales(selectedLanguages);
-			}
-		});
-	};
 
 	const Language = ({displayName, isDefault, localeId, showActions}) => {
 		const [active, setActive] = useState(false);
@@ -161,7 +145,9 @@ const Languages = ({
 							<ClayTable.Cell align="center">
 								<ClayButton
 									displayType="secondary"
-									onClick={handleManageBtnClick}
+									onClick={() => {
+										setShowModal(true);
+									}}
 									small
 								>
 									{Liferay.Language.get('manage')}
@@ -238,6 +224,17 @@ const Languages = ({
 				</>
 			)}
 
+			{showModal && (
+				<ManageLanguages
+					availableLocales={availableLocales}
+					customDefaultLocaleId={customDefaultLocaleId}
+					customLocales={customLocales}
+					observer={observer}
+					onModalClose={onClose}
+					onModalSave={handleOnSaveModal}
+				/>
+			)}
+
 			{languageWarning && (
 				<ClayAlert
 					displayType="warning"
@@ -274,7 +271,6 @@ Languages.propTypes = {
 	).isRequired,
 	defaultLocaleId: PropTypes.string.isRequired,
 	inheritLocales: PropTypes.bool,
-	manageCustomLanguagesURL: PropTypes.string,
 	portletNamespace: PropTypes.string.isRequired,
 	siteAvailableLocales: PropTypes.arrayOf(
 		PropTypes.shape({

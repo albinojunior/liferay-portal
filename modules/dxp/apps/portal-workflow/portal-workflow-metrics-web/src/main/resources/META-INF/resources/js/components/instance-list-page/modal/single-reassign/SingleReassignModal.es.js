@@ -20,6 +20,7 @@ import LoadingState from '../../../../shared/components/loading/LoadingState.es'
 import PromisesResolver from '../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../../shared/hooks/useFetch.es';
 import {usePost} from '../../../../shared/hooks/usePost.es';
+import {InstanceListContext} from '../../store/InstanceListPageStore.es';
 import {ModalContext} from '../ModalContext.es';
 import {Table} from './SingleReassignModalTable.es';
 
@@ -50,15 +51,19 @@ const SingleReassignModal = () => {
 	const [retry, setRetry] = useState(0);
 	const [sendingPost, setSendingPost] = useState(false);
 	const [successToast, setSuccessToast] = useState(() => []);
-	const {setSingleModal, singleModal} = useContext(ModalContext);
-	const onClose = () => {
-		setSingleModal(() => ({selectedItem: undefined, visible: false}));
-		setReassignedTasks(() => ({
-			tasks: []
-		}));
-	};
 
-	const {observer} = useModal({onClose});
+	const {setSingleModal, singleModal} = useContext(ModalContext);
+	const {setSelectedItems} = useContext(InstanceListContext);
+
+	const {observer, onClose} = useModal({
+		onClose: () => {
+			setSingleModal(() => ({selectedItem: undefined, visible: false}));
+
+			setReassignedTasks(() => ({
+				tasks: []
+			}));
+		}
+	});
 
 	const instanceItem = useMemo(
 		() => (singleModal.selectedItem ? singleModal.selectedItem : {}),
@@ -107,6 +112,7 @@ const SingleReassignModal = () => {
 					]);
 					setSendingPost(() => false);
 					setErrorToast(() => false);
+					setSelectedItems([]);
 				})
 				.catch(() => {
 					setErrorToast(() => true);
@@ -226,33 +232,7 @@ const SingleReassignModal = () => {
 	);
 };
 
-const Footer = ({onClose, reassignButtonHandler, sendingPost}) => {
-	return (
-		<ClayModal.Footer
-			first={
-				<ClayButton
-					data-testid="cancelButton"
-					displayType="secondary"
-					onClick={onClose}
-				>
-					{Liferay.Language.get('cancel')}
-				</ClayButton>
-			}
-			last={
-				<ClayButton
-					data-testid="reassignButton"
-					disabled={sendingPost}
-					onClick={reassignButtonHandler}
-				>
-					{Liferay.Language.get('reassign')}
-				</ClayButton>
-			}
-		/>
-	);
-};
-
 SingleReassignModal.ErrorView = ErrorView;
-SingleReassignModal.Footer = Footer;
 SingleReassignModal.LoadingView = LoadingView;
 SingleReassignModal.Table = Table;
 

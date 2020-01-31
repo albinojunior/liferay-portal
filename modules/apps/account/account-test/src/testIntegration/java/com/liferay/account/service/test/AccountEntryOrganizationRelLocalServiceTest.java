@@ -199,7 +199,7 @@ public class AccountEntryOrganizationRelLocalServiceTest {
 	}
 
 	@Test(expected = NoSuchEntryOrganizationRelException.class)
-	public void testDeleteAccountEntryUserRelThrowsNoSuchEntryOrganizationRelException()
+	public void testDeleteAccountEntryOrganizationRelThrowsNoSuchEntryOrganizationRelException()
 		throws Exception {
 
 		_accountEntryOrganizationRelLocalService.
@@ -207,6 +207,42 @@ public class AccountEntryOrganizationRelLocalServiceTest {
 				_accountEntry.getAccountEntryId(),
 				_organization.getOrganizationId());
 	}
+
+	@Test
+	public void testGetAccountEntryOrganizationRelsByOrganizationId()
+		throws Exception {
+
+		_accountEntries.add(
+			AccountEntryTestUtil.addAccountEntry(_accountEntryLocalService));
+		_accountEntries.add(
+			AccountEntryTestUtil.addAccountEntry(_accountEntryLocalService));
+
+		long[] expectedAccountEntryIds = ListUtil.toLongArray(
+			_accountEntries, AccountEntry.ACCOUNT_ENTRY_ID_ACCESSOR);
+
+		for (long accountEntryId : expectedAccountEntryIds) {
+			_accountEntryOrganizationRelLocalService.
+				addAccountEntryOrganizationRel(
+					accountEntryId, _organization.getOrganizationId());
+		}
+
+		List<AccountEntryOrganizationRel> accountEntryOrganizationRels =
+			_accountEntryOrganizationRelLocalService.
+				getAccountEntryOrganizationRelsByOrganizationId(
+					_organization.getOrganizationId());
+
+		long[] accountEntryIds = ListUtil.toLongArray(
+			accountEntryOrganizationRels,
+			AccountEntryOrganizationRelModel::getAccountEntryId);
+
+		Assert.assertTrue(
+			ArrayUtil.containsAll(expectedAccountEntryIds, accountEntryIds));
+		Assert.assertTrue(
+			ArrayUtil.containsAll(accountEntryIds, expectedAccountEntryIds));
+	}
+
+	@DeleteAfterTestRun
+	private final List<AccountEntry> _accountEntries = new ArrayList<>();
 
 	@DeleteAfterTestRun
 	private AccountEntry _accountEntry;

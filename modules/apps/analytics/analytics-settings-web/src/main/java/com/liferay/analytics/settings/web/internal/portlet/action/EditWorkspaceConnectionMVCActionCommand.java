@@ -102,6 +102,8 @@ public class EditWorkspaceConnectionMVCActionCommand
 
 		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 
+		httpClientBuilder.useSystemProperties();
+
 		try (CloseableHttpClient closeableHttpClient =
 				httpClientBuilder.build()) {
 

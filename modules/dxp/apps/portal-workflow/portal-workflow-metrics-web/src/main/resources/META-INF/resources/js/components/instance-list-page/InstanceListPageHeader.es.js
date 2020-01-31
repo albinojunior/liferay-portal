@@ -56,7 +56,10 @@ const Header = ({
 	const kebabItems = [
 		{
 			action: () => {
-				if (selectedItems.length > 1) {
+				if (
+					selectedItems.length > 1 ||
+					selectedItems[0].taskNames.length > 1
+				) {
 					setBulkModal({...bulkModal, visible: true});
 				} else {
 					setSingleModal({
@@ -70,22 +73,26 @@ const Header = ({
 		}
 	];
 
+	const selectedOnPage = useMemo(
+		() =>
+			selectedItems.filter(item => items.find(({id}) => id === item.id)),
+		[items, selectedItems]
+	);
+
+	const allPageSelected =
+		items && items.length > 0 && items.length === selectedOnPage.length;
+
 	useEffect(() => {
 		const active = selectedItems.length > 0;
-
 		const label = selectAll ? Liferay.Language.get('all-selected') : '';
-
-		const selectedOnPage = selectedItems.filter(item =>
-			items.find(({id}) => id === item.id)
-		);
-		const allPageSelected = items && items.length === selectedOnPage.length;
 
 		setSelectAll(totalCount > 0 && totalCount === selectedItems.length);
 
 		setToolbarOptions({
 			active,
-			checked: items && items.length > 0 && allPageSelected,
-			indeterminateCheckbox: !allPageSelected && !selectAll && active,
+			checked: allPageSelected || selectAll,
+			indeterminateCheckbox:
+				selectedOnPage.length > 0 && !allPageSelected && !selectAll,
 			label
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,7 +106,9 @@ const Header = ({
 				updatedItems = [
 					...selectedItems,
 					...items.filter(
-						item => !selectedItems.find(({id}) => item.id === id)
+						item =>
+							!selectedItems.find(({id}) => item.id === id) &&
+							item.status !== processStatusConstants.completed
 					)
 				];
 			} else {
@@ -138,6 +147,10 @@ const Header = ({
 		[completedStatusSelected, selectedFilters]
 	);
 
+	const timeRangeStyle = completedStatusSelected
+		? {display: 'inherit'}
+		: {display: 'none'};
+
 	return (
 		<>
 			<ClayManagementToolbar
@@ -154,8 +167,12 @@ const Header = ({
 							data-testid="checkAllButton"
 							indeterminate={toolbarOptions.indeterminateCheckbox}
 							label={toolbarOptions.label}
-							onChange={({target}) => {
-								handleSelectAll(target.checked);
+							onChange={() => {
+								handleSelectAll(
+									!toolbarOptions.indeterminateCheckbox &&
+										!selectAll &&
+										!allPageSelected
+								);
 							}}
 						/>
 					</ClayManagementToolbar.Item>
@@ -184,11 +201,7 @@ const Header = ({
 									withSelectionTitle: false
 								}}
 								processId={routeParams.processId}
-								style={
-									completedStatusSelected
-										? {display: 'inherit'}
-										: {display: 'none'}
-								}
+								style={timeRangeStyle}
 							/>
 
 							<ProcessStepFilter

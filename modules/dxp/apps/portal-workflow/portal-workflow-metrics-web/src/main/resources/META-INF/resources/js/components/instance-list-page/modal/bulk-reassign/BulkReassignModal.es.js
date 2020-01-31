@@ -16,12 +16,14 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 
 import {usePatch} from '../../../../shared/hooks/usePatch.es';
 import {sub} from '../../../../shared/util/lang.es';
+import {InstanceListContext} from '../../store/InstanceListPageStore.es';
 import {ModalContext} from '../ModalContext.es';
 import {BulkReassignSelectAssigneesStep} from './select-assignees-step/BulkReassignSelectAssigneesStep.es';
 import {BulkReassignSelectTasksStep} from './select-tasks-step/BulkReassignSelectTasksStep.es';
 
 const BulkReassignModal = () => {
 	const {bulkModal, setBulkModal} = useContext(ModalContext);
+	const {setSelectedItems} = useContext(InstanceListContext);
 
 	const {reassignedTasks, reassigning, selectedTasks, visible} = bulkModal;
 
@@ -29,22 +31,22 @@ const BulkReassignModal = () => {
 	const [errorToast, setErrorToast] = useState(null);
 	const [successToast, setSuccessToast] = useState([]);
 
-	const onClose = () => {
-		setBulkModal({
-			reassignedTasks: [],
-			reassigning: false,
-			selectedAssignee: null,
-			selectedTasks: [],
-			useSameAssignee: false,
-			visible: false
-		});
+	const {observer, onClose} = useModal({
+		onClose: () => {
+			setBulkModal({
+				reassignedTasks: [],
+				reassigning: false,
+				selectedAssignee: null,
+				selectedTasks: [],
+				useSameAssignee: false,
+				visible: false
+			});
 
-		setCurrentStep('selectTasks');
+			setCurrentStep('selectTasks');
 
-		setErrorToast(false);
-	};
-
-	const {observer} = useModal({onClose});
+			setErrorToast(false);
+		}
+	});
 
 	const {patchData} = usePatch({
 		admin: true,
@@ -72,6 +74,8 @@ const BulkReassignModal = () => {
 						...successToast,
 						Liferay.Language.get('these-tasks-have-been-reassigned')
 					]);
+
+					setSelectedItems([]);
 				})
 				.catch(() => {
 					const error = `${Liferay.Language.get(

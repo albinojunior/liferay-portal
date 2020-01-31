@@ -21,6 +21,7 @@ import useLazy from '../../core/hooks/useLazy';
 import useLoad from '../../core/hooks/useLoad';
 import usePlugins from '../../core/hooks/usePlugins';
 import * as Actions from '../actions/index';
+import {PAGE_TYPES} from '../config/constants/pageTypes';
 import {ConfigContext} from '../config/index';
 import {useSelector, useDispatch} from '../store/index';
 import {useSelectItem} from './Controls';
@@ -40,7 +41,7 @@ function ToolbarBody() {
 	const selectItem = useSelectItem();
 	const store = useSelector(state => state);
 
-	const {portletNamespace} = config;
+	const {masterUsed, portletNamespace} = config;
 	const {segmentsExperienceId, segmentsExperimentStatus} = store;
 
 	const {draft} = store;
@@ -49,6 +50,7 @@ function ToolbarBody() {
 		classPK,
 		discardDraftRedirectURL,
 		discardDraftURL,
+		pageType,
 		publishURL,
 		redirectURL,
 		singleSegmentsExperienceMode,
@@ -118,11 +120,26 @@ function ToolbarBody() {
 		}
 	};
 
+	const handleSubmit = event => {
+		if (
+			masterUsed &&
+			!confirm(
+				Liferay.Language.get(
+					'changes-made-on-this-master-are-going-to-be-propagated-to-all-page-templates,-display-page-templates,-and-pages-using-it.are-you-sure-you-want-to-proceed'
+				)
+			)
+		) {
+			event.preventDefault();
+		}
+	};
+
 	const deselectItem = event => {
 		if (event.target === event.currentTarget) {
 			selectItem(null, {multiSelect: event.shiftKey});
 		}
 	};
+
+	const isMasterLayout = pageType === PAGE_TYPES.master;
 
 	return (
 		<div
@@ -189,7 +206,7 @@ function ToolbarBody() {
 						/>
 
 						<ClayButton
-							className="btn btn-secondary nav-btn"
+							className="btn btn-secondary mr-3"
 							disabled={!draft}
 							displayType="secondary"
 							onClick={handleDiscardDraft}
@@ -217,12 +234,14 @@ function ToolbarBody() {
 						/>
 
 						<ClayButton
-							className="nav-btn"
 							displayType="primary"
+							onClick={handleSubmit}
 							small
 							type="submit"
 						>
-							{singleSegmentsExperienceMode
+							{isMasterLayout
+								? Liferay.Language.get('publish-master')
+								: singleSegmentsExperienceMode
 								? Liferay.Language.get('save-variant')
 								: Liferay.Language.get('publish')}
 						</ClayButton>
