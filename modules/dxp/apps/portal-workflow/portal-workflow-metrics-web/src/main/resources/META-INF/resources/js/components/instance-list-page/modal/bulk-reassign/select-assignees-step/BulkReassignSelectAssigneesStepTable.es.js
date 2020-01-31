@@ -18,12 +18,11 @@ import {Autocomplete} from '../../../../../shared/components/autocomplete/Autoco
 import {ModalContext} from '../../ModalContext.es';
 
 const Item = ({
-	assetTitle,
-	assetType,
 	assigneePerson,
 	data,
 	id,
 	name,
+	objectReviewed: {assetTitle, assetType},
 	workflowInstanceId
 }) => {
 	const {bulkModal, setBulkModal} = useContext(ModalContext);
@@ -40,6 +39,14 @@ const Item = ({
 		[selectedAssignee]
 	);
 
+	const {assigneeId} = useMemo(
+		() =>
+			!useSameAssignee
+				? reassignedTasks.find(task => task.workflowTaskId === id) || {}
+				: {},
+		[id, reassignedTasks, useSameAssignee]
+	);
+
 	const assignees = useMemo(() => {
 		const {workflowTaskAssignableUsers: users} = data || {};
 
@@ -53,6 +60,11 @@ const Item = ({
 		return [];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data]);
+
+	const assignee = useMemo(
+		() => assignees.find(assignee => assignee.id === assigneeId) || {},
+		[assigneeId, assignees]
+	);
 
 	const handleSelect = newAssignee => {
 		const filteredTasks = reassignedTasks.filter(
@@ -90,7 +102,7 @@ const Item = ({
 
 			<ClayTable.Cell>
 				<Autocomplete
-					defaultValue={defaultValue}
+					defaultValue={defaultValue || assignee.name}
 					disabled={reassigning || useSameAssignee}
 					items={assignees}
 					onSelect={handleSelect}
