@@ -45,7 +45,10 @@ const ToolbarWithSelection = ({
 				{active && (
 					<>
 						<ClayManagementToolbar.Item>
-							<span className="ml-0 mr-0 navbar-text">
+							<span
+								className="ml-0 mr-0 navbar-text"
+								data-testid="toolbarLabel"
+							>
 								{selectAll
 									? Liferay.Language.get('all-selected')
 									: sub(
