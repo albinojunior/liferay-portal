@@ -20,6 +20,20 @@ const asFilterObject = (items, key, name, pinned) => ({
 	pinned
 });
 
+const buildFilterItem = data => {
+	if (typeof data === 'string') {
+		return {
+			active: true,
+			key: data
+		};
+	}
+
+	return {
+		...data,
+		active: true
+	};
+};
+
 const buildFilterItems = (items, selectedKeys) => {
 	return items.map((item, index) => {
 		const key = item.key || String(item.id);
@@ -33,28 +47,25 @@ const buildFilterItems = (items, selectedKeys) => {
 	});
 };
 
+const getFilterKeys = (items = []) => items.map(({key}) => key);
+
 const getFiltersParam = queryString => {
 	const queryParams = parse(queryString);
 
 	return queryParams.filters || {};
 };
 
-const getFilterResults = (
-	filterKeys,
-	filterPinnedValue,
-	filterTitles,
-	filterValues
-) => {
+const getFilterResults = (prefixedKeys, pinnedValues, titles, values) => {
 	const filterResults = [];
 
-	filterKeys.forEach((filterKey, index) => {
-		if (filterValues[filterKey]) {
+	prefixedKeys.forEach((prefixedKey, index) => {
+		if (values[prefixedKey]) {
 			filterResults.push(
 				asFilterObject(
-					filterValues[filterKey],
-					filterKey,
-					filterTitles[index],
-					filterPinnedValue[index]
+					values[prefixedKey],
+					prefixedKey,
+					titles[index],
+					pinnedValues[index]
 				)
 			);
 		}
@@ -125,10 +136,13 @@ const reduceFilters = (filterItems, paramKey) => {
 	);
 };
 
-const removeFilters = queryString => {
+const removeFilters = (queryString, clearAll) => {
 	const queryParams = parse(queryString);
 
-	queryParams.filters = null;
+	if (clearAll) {
+		queryParams.filters = null;
+	}
+
 	queryParams.search = null;
 
 	return stringify(queryParams);
@@ -169,7 +183,9 @@ const replaceHistory = (filterQuery, routerProps) => {
 
 export {
 	asFilterObject,
+	buildFilterItem,
 	buildFilterItems,
+	getFilterKeys,
 	getFiltersParam,
 	getFilterResults,
 	getFilterValues,
