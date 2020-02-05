@@ -27,7 +27,7 @@ import {ModalContext} from './modal/ModalContext.es';
 import {InstanceListContext} from './store/InstanceListPageStore.es';
 
 const Header = ({
-	dispatch,
+	filterKeys,
 	items = [],
 	routeParams,
 	selectedFilters,
@@ -90,7 +90,11 @@ const Header = ({
 
 	useEffect(() => {
 		if (selectAll && remainingItems.length > 0) {
-			setSelectedItems(items);
+			setSelectedItems(
+				items.filter(
+					item => item.status !== processStatusConstants.completed
+				)
+			);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [items]);
@@ -139,10 +143,6 @@ const Header = ({
 		[completedStatusSelected, selectedFilters]
 	);
 
-	const timeRangeStyle = {
-		display: completedStatusSelected ? 'inherit' : 'none'
-	};
-
 	return (
 		<>
 			<ToolbarWithSelection
@@ -177,27 +177,21 @@ const Header = ({
 							</strong>
 						</ClayManagementToolbar.Item>
 
-						<SLAStatusFilter dispatch={dispatch} />
+						<SLAStatusFilter />
 
-						<ProcessStatusFilter dispatch={dispatch} />
+						<ProcessStatusFilter />
 
-						<TimeRangeFilter
-							dispatch={dispatch}
-							options={{
-								withSelectionTitle: false
-							}}
-							style={timeRangeStyle}
-						/>
+						{completedStatusSelected && (
+							<TimeRangeFilter
+								options={{
+									withSelectionTitle: false
+								}}
+							/>
+						)}
 
-						<ProcessStepFilter
-							dispatch={dispatch}
-							processId={routeParams.processId}
-						/>
+						<ProcessStepFilter processId={routeParams.processId} />
 
-						<AssigneeFilter
-							dispatch={dispatch}
-							processId={routeParams.processId}
-						/>
+						<AssigneeFilter processId={routeParams.processId} />
 					</>
 				)}
 			</ToolbarWithSelection>
@@ -215,6 +209,7 @@ const Header = ({
 					/>
 
 					<ResultsBar.Clear
+						filterKeys={filterKeys}
 						filters={selectedFilters}
 						{...routeParams}
 					/>

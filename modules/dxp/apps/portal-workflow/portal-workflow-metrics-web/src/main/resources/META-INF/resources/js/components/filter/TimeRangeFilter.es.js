@@ -27,7 +27,6 @@ const TimeRangeFilter = ({
 	buttonClassName,
 	className,
 	disabled,
-	dispatch,
 	filterKey = filterConstants.timeRange.key,
 	options = {},
 	prefixKey = '',
@@ -37,7 +36,8 @@ const TimeRangeFilter = ({
 		hideControl: true,
 		multiple: false,
 		position: 'left',
-		withSelectionTitle: true
+		withSelectionTitle: true,
+		withoutRouteParams: false
 	};
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	options = useMemo(() => ({...defaultOptions, ...options}), [options]);
@@ -71,9 +71,9 @@ const TimeRangeFilter = ({
 	);
 
 	const {items, selectedItems} = useFilterStatic(
-		dispatch,
 		filterKey,
 		prefixKey,
+		options.withoutRouteParams,
 		staticItems
 	);
 
@@ -82,7 +82,7 @@ const TimeRangeFilter = ({
 		[items]
 	);
 
-	if (defaultItem && !selectedItems.length) {
+	if (defaultItem && options.withSelectionTitle && !selectedItems.length) {
 		selectedItems[0] = defaultItem;
 	}
 
@@ -115,6 +115,7 @@ const TimeRangeFilter = ({
 					items={items}
 					prefixKey={prefixKey}
 					setFormVisible={setFormVisible}
+					withoutRouteParams={options.withoutRouteParams}
 				/>
 			)}
 		</Filter>
