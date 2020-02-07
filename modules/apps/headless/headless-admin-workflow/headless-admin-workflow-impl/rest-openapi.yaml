@@ -1059,6 +1059,10 @@ paths:
                       format: date-time
                       type: string
                 - in: query
+                  name: searchByRoles
+                  schema:
+                      type: boolean
+                - in: query
                   name: searchByUserRoles
                   schema:
                       type: boolean
