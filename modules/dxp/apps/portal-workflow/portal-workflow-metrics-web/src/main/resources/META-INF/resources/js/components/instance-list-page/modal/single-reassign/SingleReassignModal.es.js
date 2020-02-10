@@ -96,11 +96,7 @@ const SingleReassignModal = () => {
 	});
 
 	const reassignButtonHandler = useCallback(() => {
-		if (
-			newAssigneeId !== undefined &&
-			(singleModal.selectedItem.assigneeUsers.length === 0 ||
-				singleModal.selectedItem.assigneeUsers[0].id !== newAssigneeId)
-		) {
+		if (newAssigneeId !== undefined) {
 			setSendingPost(() => true);
 			setErrorToast(() => false);
 			postData()
@@ -118,9 +114,6 @@ const SingleReassignModal = () => {
 					setErrorToast(() => true);
 					setSendingPost(() => false);
 				});
-		}
-		else {
-			onClose();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [postData]);
