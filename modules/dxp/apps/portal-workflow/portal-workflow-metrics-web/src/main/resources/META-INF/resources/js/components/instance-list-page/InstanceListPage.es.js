@@ -28,6 +28,7 @@ import {ModalContext} from './modal/ModalContext.es';
 import {BulkReassignModal} from './modal/bulk-reassign/BulkReassignModal.es';
 import {InstanceDetailsModal} from './modal/instance-details/InstanceDetailsModal.es';
 import {SingleReassignModal} from './modal/single-reassign/SingleReassignModal.es';
+import SingleTransitionModal from './modal/single-transition/SingleTransitionModal.es';
 import {InstanceListProvider} from './store/InstanceListPageStore.es';
 
 const InstanceListPage = ({routeParams}) => {
@@ -50,6 +51,13 @@ const InstanceListPage = ({routeParams}) => {
 		visible: false
 	});
 
+	const [singleTransitionModal, setSingleTransitionModal] = useState({
+		selectedItem: undefined,
+		title: '',
+		transitionName: '',
+		visible: false
+	});
+
 	const [instanceDetailsModal, setInstanceDetailsModal] = useState({
 		processId,
 		visible: false
@@ -61,7 +69,9 @@ const InstanceListPage = ({routeParams}) => {
 		setBulkModal,
 		setInstanceDetailsModal,
 		setSingleModal,
-		singleModal
+		setSingleTransitionModal,
+		singleModal,
+		singleTransitionModal
 	};
 
 	useProcessTitle(processId, Liferay.Language.get('all-items'));
@@ -110,13 +120,22 @@ const InstanceListPage = ({routeParams}) => {
 	});
 
 	const promises = useMemo(() => {
-		if (!bulkModal.visible && !singleModal.visible) {
+		if (
+			!bulkModal.visible &&
+			!singleModal.visible &&
+			!singleTransitionModal.visible
+		) {
 			return [fetchData()];
 		}
 
 		return [];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [bulkModal.visible, fetchData, singleModal.visible]);
+	}, [
+		bulkModal.visible,
+		fetchData,
+		singleModal.visible,
+		singleTransitionModal.visible
+	]);
 
 	return (
 		<ModalContext.Provider value={modalState}>
@@ -200,6 +219,8 @@ const Body = ({data, filtered, routeParams}) => {
 
 			<InstanceListPage.SingleReassignModal />
 
+			<InstanceListProvider.SingleTransitionModal />
+
 			<InstanceListPage.BulkReassignModal />
 
 			<InstanceListPage.InstanceDetailsModal />
@@ -213,5 +234,6 @@ InstanceListPage.BulkReassignModal = BulkReassignModal;
 InstanceListPage.Header = Header;
 InstanceListPage.InstanceDetailsModal = InstanceDetailsModal;
 InstanceListPage.SingleReassignModal = SingleReassignModal;
+InstanceListProvider.SingleTransitionModal = SingleTransitionModal;
 
 export default InstanceListPage;
