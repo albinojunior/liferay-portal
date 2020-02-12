@@ -106,15 +106,15 @@ const BulkReassignModal = () => {
 			taskNames
 		};
 
-		if (visible) {
-			if (selectAllInstances) {
-				params.workflowDefinitionId = processId;
-			}
-			else {
-				params.workflowInstanceIds = selectedItems.length
-					? selectedItems.map(item => item.id)
-					: singleModal.selectedItem.id;
-			}
+		if (selectAllInstances) {
+			params.workflowDefinitionId = processId;
+		}
+		else {
+			const {selectedItem = {}} = singleModal || {};
+
+			params.workflowInstanceIds = selectedItems.length
+				? selectedItems.map(item => item.id)
+				: selectedItem.id;
 		}
 
 		return params;
