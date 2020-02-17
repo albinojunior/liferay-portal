@@ -16,7 +16,7 @@ const useSLANodes = (processId, fetchClient) => {
 
 	const fetchNodes = useCallback(
 		processId => {
-			fetchClient
+			return fetchClient
 				.get(`/processes/${processId}/nodes`)
 				.then(({data: {items}}) => {
 					const entersTaskString = Liferay.Language.get(
