@@ -584,9 +584,7 @@ const Footer = ({id, onReloadNodes, processId, query}) => {
 		}
 		else {
 			openErrorToast({
-				message: Liferay.Language.get(
-					'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-				)
+				message: Liferay.Language.get('your-request-has-failed')
 			});
 		}
 	};
@@ -623,10 +621,8 @@ const Footer = ({id, onReloadNodes, processId, query}) => {
 					setStatus(status);
 					setRedirectToSLAList(true);
 				})
-				.catch(result => {
-					const {
-						response: {data}
-					} = result;
+				.catch(error => {
+					const {data} = error.response || {};
 
 					handleErrors(data);
 				});
