@@ -263,6 +263,7 @@ const Body = ({id, processId, query}) => {
 							/>
 
 							<input
+								autoFocus
 								className="form-control"
 								defaultValue={name}
 								id="sla_name"
