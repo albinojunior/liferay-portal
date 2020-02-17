@@ -35,8 +35,7 @@ const {
 				name: 'Test Test'
 			},
 			id: 1,
-			name: 'Review',
-
+			label: 'Review',
 			objectReviewed: {assetTitle: 'Blog 1', assetType: 'Blog'},
 			workflowInstanceId: 1
 		},
@@ -46,7 +45,7 @@ const {
 				name: 'Test Test'
 			},
 			id: 2,
-			name: 'Update',
+			label: 'Update',
 			objectReviewed: {assetTitle: 'Blog 2', assetType: 'Blog'},
 			workflowInstanceId: 2
 		}
