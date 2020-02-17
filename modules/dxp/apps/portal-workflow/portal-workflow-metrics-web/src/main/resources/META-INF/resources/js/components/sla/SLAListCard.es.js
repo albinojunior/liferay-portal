@@ -48,6 +48,7 @@ class SLAListCard extends React.Component {
 
 	componentDidMount() {
 		this.loadBlockedSLA();
+		this.loadData();
 	}
 
 	componentWillMount() {
@@ -56,7 +57,9 @@ class SLAListCard extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		this.loadData(nextProps);
+		if (this.props !== nextProps) {
+			this.loadData(nextProps);
+		}
 	}
 
 	loadData(props = this.props) {
