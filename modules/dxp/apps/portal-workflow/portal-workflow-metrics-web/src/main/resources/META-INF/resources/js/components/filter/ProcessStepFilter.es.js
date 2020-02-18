@@ -24,6 +24,7 @@ const allStepsItem = {
 
 const ProcessStepFilter = ({
 	className,
+	disabled,
 	filterKey = filterConstants.processStep.key,
 	options = {},
 	prefixKey = '',
@@ -70,6 +71,7 @@ const ProcessStepFilter = ({
 		<Filter
 			dataTestId="processStepFilter"
 			defaultItem={defaultItem}
+			disabled={disabled}
 			elementClasses={className}
 			filterKey={filterKey}
 			items={items}
