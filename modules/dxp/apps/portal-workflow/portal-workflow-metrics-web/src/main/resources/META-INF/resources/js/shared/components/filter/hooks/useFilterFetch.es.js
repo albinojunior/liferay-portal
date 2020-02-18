@@ -12,6 +12,7 @@
 import {useCallback, useContext, useEffect} from 'react';
 
 import {AppContext} from '../../../../components/AppContext.es';
+import {FilterContext} from '../FilterContext.es';
 import {
 	buildFilterItems,
 	getCapitalizedFilterKey,
@@ -27,6 +28,7 @@ const useFilterFetch = ({
 	withoutRouteParams
 }) => {
 	const {client} = useContext(AppContext);
+	const {dispatchFilterError} = useContext(FilterContext);
 	const {items, selectedItems, selectedKeys, setItems} = useFilterState(
 		getCapitalizedFilterKey(prefixKey, filterKey),
 		withoutRouteParams
@@ -45,7 +47,14 @@ const useFilterFetch = ({
 
 	useEffect(
 		() => {
-			client.get(requestUrl).then(fetchCallback);
+			dispatchFilterError(filterKey, true);
+
+			client
+				.get(requestUrl)
+				.then(fetchCallback)
+				.catch(() => {
+					dispatchFilterError(filterKey);
+				});
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
