@@ -19,7 +19,7 @@ import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
 import {isValidDate} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByStepCardBody.es';
 
-const Header = ({prefixKey, totalCount}) => (
+const Header = ({disableFilters, prefixKey, totalCount}) => (
 	<Panel.HeaderWithOptions
 		description={Liferay.Language.get('performance-by-step-description')}
 		elementClasses="dashboard-panel-header"
@@ -28,7 +28,7 @@ const Header = ({prefixKey, totalCount}) => (
 		<div className="autofit-col m-0 management-bar management-bar-light navbar">
 			<ul className="navbar-nav">
 				<TimeRangeFilter
-					disabled={!totalCount}
+					disabled={!totalCount || disableFilters}
 					options={{position: 'right'}}
 					prefixKey={prefixKey}
 				/>
@@ -44,7 +44,10 @@ const PerformanceByStepCard = ({routeParams}) => {
 	const prefixKey = 'step';
 	const prefixKeys = [prefixKey];
 
-	const {filterState = {}} = useFilter({filterKeys, prefixKeys});
+	const {filterState = {}, filtersError} = useFilter({
+		filterKeys,
+		prefixKeys
+	});
 
 	const timeRange = filterState.stepTimeRange || [];
 	const timeRangeValues = timeRange && timeRange.length ? timeRange[0] : {};
@@ -75,13 +78,19 @@ const PerformanceByStepCard = ({routeParams}) => {
 			return [fetchData()];
 		}
 
-		return [new Promise(() => {})];
-	}, [fetchData, timeRangeParams.dateEnd, timeRangeParams.dateStart]);
+		return [new Promise((_, reject) => reject(filtersError))];
+	}, [
+		fetchData,
+		filtersError,
+		timeRangeParams.dateEnd,
+		timeRangeParams.dateStart
+	]);
 
 	return (
 		<Panel elementClasses="dashboard-card">
 			<PromisesResolver promises={promises}>
 				<PerformanceByStepCard.Header
+					disableFilters={filtersError}
 					prefixKey={prefixKey}
 					totalCount={data.totalCount}
 				/>

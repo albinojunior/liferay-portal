@@ -29,6 +29,7 @@ function ProcessItemsCard({
 	children,
 	completed,
 	description,
+	filtersError,
 	processId,
 	timeRange,
 	title
@@ -65,8 +66,13 @@ function ProcessItemsCard({
 			return [fetchData()];
 		}
 
-		return [new Promise(() => {})];
-	}, [fetchData, timeRangeParams.dateEnd, timeRangeParams.dateStart]);
+		return [new Promise((_, reject) => reject(filtersError))];
+	}, [
+		fetchData,
+		filtersError,
+		timeRangeParams.dateEnd,
+		timeRangeParams.dateStart
+	]);
 
 	return (
 		<PromisesResolver promises={promises}>
@@ -117,7 +123,7 @@ const Body = ({completed = false, data, processId, timeRange}) => {
 			<PromisesResolver.Rejected>
 				<EmptyState
 					actionButton={<ReloadButton />}
-					className="border-0 mt-7"
+					className="border-0"
 					hideAnimation={true}
 					message={Liferay.Language.get(
 						'there-was-a-problem-retrieving-data-please-try-reloading-the-page'

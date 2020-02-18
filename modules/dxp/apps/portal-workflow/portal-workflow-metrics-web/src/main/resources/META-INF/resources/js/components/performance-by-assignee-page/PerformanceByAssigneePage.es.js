@@ -35,6 +35,7 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 	const {
 		filterState: {timeRange},
 		filterValues: {roleIds, taskKeys},
+		filtersError,
 		prefixedKeys,
 		selectedFilters
 	} = useFilter({filterKeys});
@@ -68,8 +69,13 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 			return [fetchData()];
 		}
 
-		return [new Promise(() => {})];
-	}, [fetchData, timeRangeParams.dateEnd, timeRangeParams.dateStart]);
+		return [new Promise((_, reject) => reject(filtersError))];
+	}, [
+		fetchData,
+		filtersError,
+		timeRangeParams.dateEnd,
+		timeRangeParams.dateStart
+	]);
 
 	return (
 		<PromisesResolver promises={promises}>

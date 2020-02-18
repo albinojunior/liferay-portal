@@ -21,20 +21,23 @@ const CompletedItemsCard = ({routeParams}) => {
 	const prefixKeys = [prefixKey];
 
 	const {
-		filterState: {completedTimeRange: timeRange = []}
+		filterState: {completedTimeRange = []},
+		filtersError
 	} = useFilter({filterKeys, prefixKeys});
 
-	const timeRangeParams = timeRange && timeRange.length ? timeRange[0] : {};
+	const timeRange = completedTimeRange[0] || {};
 
 	return (
 		<ProcessItemsCard
 			completed={true}
 			description={Liferay.Language.get('completed-items-description')}
-			timeRange={timeRangeParams}
+			filtersError={filtersError}
+			timeRange={timeRange}
 			title={Liferay.Language.get('completed-items')}
 			{...routeParams}
 		>
 			<TimeRangeFilter
+				disabled={filtersError}
 				options={{position: 'right'}}
 				prefixKey={prefixKey}
 			/>

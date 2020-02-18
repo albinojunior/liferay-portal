@@ -20,7 +20,7 @@ import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
 import {isValidDate} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByAssigneeCardBody.es';
 
-const Header = ({prefixKey, processId}) => {
+const Header = ({disableFilters, prefixKey, processId}) => {
 	return (
 		<Panel.HeaderWithOptions
 			description={Liferay.Language.get(
@@ -32,6 +32,7 @@ const Header = ({prefixKey, processId}) => {
 			<div className="autofit-col m-0 management-bar management-bar-light navbar">
 				<ul className="navbar-nav">
 					<ProcessStepFilter
+						disabled={disableFilters}
 						options={{
 							hideControl: true,
 							multiple: false,
@@ -45,6 +46,7 @@ const Header = ({prefixKey, processId}) => {
 
 					<TimeRangeFilter
 						className={'pl-3'}
+						disabled={disableFilters}
 						options={{position: 'right'}}
 						prefixKey={prefixKey}
 					/>
@@ -60,7 +62,7 @@ const PerformanceByAssigneeCard = ({routeParams}) => {
 	const filterKeys = ['processStep', 'timeRange'];
 	const prefixKey = 'assignee';
 	const prefixKeys = [prefixKey];
-	const {filterState = {}, filterValues} = useFilter({
+	const {filterState = {}, filterValues, filtersError} = useFilter({
 		filterKeys,
 		prefixKeys
 	});
@@ -96,13 +98,14 @@ const PerformanceByAssigneeCard = ({routeParams}) => {
 			return [fetchData()];
 		}
 
-		return [new Promise(() => {})];
-	}, [fetchData, params.dateEnd, params.dateStart]);
+		return [new Promise((_, reject) => reject(filtersError))];
+	}, [fetchData, filtersError, params.dateEnd, params.dateStart]);
 
 	return (
 		<Panel elementClasses="dashboard-card">
 			<PromisesResolver promises={promises}>
 				<PerformanceByAssigneeCard.Header
+					disableFilters={filtersError}
 					prefixKey={prefixKey}
 					{...routeParams}
 				/>

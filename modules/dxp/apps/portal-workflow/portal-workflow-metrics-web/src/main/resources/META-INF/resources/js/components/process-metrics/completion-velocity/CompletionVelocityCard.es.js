@@ -27,7 +27,10 @@ const CompletionVelocityCard = ({routeParams}) => {
 	const filterKeys = ['timeRange', 'velocityUnit'];
 	const prefixKey = 'completion';
 	const prefixKeys = [prefixKey];
-	const {filterState = {}} = useFilter({filterKeys, prefixKeys});
+	const {filterState = {}, filtersError} = useFilter({
+		filterKeys,
+		prefixKeys
+	});
 
 	const {
 		completionVelocityUnit: velocityUnit = [],
@@ -82,13 +85,20 @@ const CompletionVelocityCard = ({routeParams}) => {
 			return [fetchData()];
 		}
 
-		return [new Promise(() => {})];
-	}, [timeRangeParams.dateEnd, timeRangeParams.dateStart, fetchData, unit]);
+		return [new Promise((_, reject) => reject(filtersError))];
+	}, [
+		fetchData,
+		filtersError,
+		timeRangeParams.dateEnd,
+		timeRangeParams.dateStart,
+		unit
+	]);
 
 	return (
 		<PromisesResolver promises={promises}>
 			<Panel>
 				<CompletionVelocityCard.Header
+					disableFilters={filtersError}
 					prefixKey={prefixKey}
 					timeRange={timeRangeValues}
 				/>
@@ -103,7 +113,11 @@ const CompletionVelocityCard = ({routeParams}) => {
 	);
 };
 
-const Header = ({prefixKey, timeRange: {dateEnd, dateStart}}) => {
+const Header = ({
+	disableFilters,
+	prefixKey,
+	timeRange: {dateEnd, dateStart}
+}) => {
 	return (
 		<Panel.HeaderWithOptions
 			description={Liferay.Language.get(
@@ -115,6 +129,7 @@ const Header = ({prefixKey, timeRange: {dateEnd, dateStart}}) => {
 			<div className="autofit-col m-0 management-bar management-bar-light navbar">
 				<ul className="navbar-nav">
 					<TimeRangeFilter
+						disabled={disableFilters}
 						options={{position: 'right'}}
 						prefixKey={prefixKey}
 					/>
@@ -122,6 +137,7 @@ const Header = ({prefixKey, timeRange: {dateEnd, dateStart}}) => {
 					{dateEnd && dateStart && (
 						<VelocityUnitFilter
 							className={'pl-3'}
+							disabled={disableFilters}
 							prefixKey={prefixKey}
 							timeRange={{dateEnd, dateStart}}
 						/>

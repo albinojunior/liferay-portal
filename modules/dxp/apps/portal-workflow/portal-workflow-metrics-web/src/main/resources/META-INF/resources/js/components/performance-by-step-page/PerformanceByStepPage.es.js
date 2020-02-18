@@ -11,6 +11,7 @@
 
 import React, {useMemo} from 'react';
 
+import filterConstants from '../../shared/components/filter/util/filterConstants.es';
 import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {parse} from '../../shared/components/router/queryString.es';
 import {useFetch} from '../../shared/hooks/useFetch.es';
@@ -32,6 +33,7 @@ const PerformanceByStepPage = ({query, routeParams}) => {
 
 	const {
 		filterState: {timeRange},
+		hasFilterError,
 		prefixedKeys
 	} = useFilter({});
 
@@ -57,13 +59,23 @@ const PerformanceByStepPage = ({query, routeParams}) => {
 		url: `/processes/${processId}/tasks`
 	});
 
+	const filterError = useMemo(
+		() => hasFilterError(filterConstants.timeRange.key),
+		[hasFilterError]
+	);
+
 	const promises = useMemo(() => {
 		if (timeRangeParams.dateEnd && timeRangeParams.dateStart) {
 			return [fetchData()];
 		}
 
-		return [new Promise(() => {})];
-	}, [fetchData, timeRangeParams.dateEnd, timeRangeParams.dateStart]);
+		return [new Promise((_, reject) => reject(filterError))];
+	}, [
+		fetchData,
+		filterError,
+		timeRangeParams.dateEnd,
+		timeRangeParams.dateStart
+	]);
 
 	return (
 		<PromisesResolver promises={promises}>
