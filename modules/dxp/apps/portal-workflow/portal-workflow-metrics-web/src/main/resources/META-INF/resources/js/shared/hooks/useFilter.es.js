@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {useContext, useEffect, useMemo} from 'react';
+import {useCallback, useContext, useEffect, useMemo} from 'react';
 
 import {FilterContext} from '../components/filter/FilterContext.es';
 import {useFiltersConstants} from '../components/filter/hooks/useFiltersConstants.es';
@@ -55,6 +55,23 @@ const useFilter = ({
 		[filterState, prefixedKeys]
 	);
 
+	const hasFilterError = useCallback(
+		filterKey => {
+			const {errors = []} = filterState;
+
+			return errors.includes(filterKey);
+		},
+		[filterState]
+	);
+
+	const filtersError = useMemo(
+		() =>
+			filterKeys
+				.map(hasFilterError)
+				.reduce((current, next) => current || next, false),
+		[filterKeys, hasFilterError]
+	);
+
 	const selectedFilters = useMemo(() => getSelectedItems(filterResults), [
 		filterResults
 	]);
@@ -70,6 +87,8 @@ const useFilter = ({
 		dispatchFilter,
 		filterState,
 		filterValues: withoutRouteParams ? filterValues : filters,
+		filtersError,
+		hasFilterError,
 		prefixedKeys,
 		selectedFilters
 	};

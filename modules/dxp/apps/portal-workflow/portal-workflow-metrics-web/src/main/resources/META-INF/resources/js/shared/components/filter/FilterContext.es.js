@@ -13,16 +13,26 @@ import React, {createContext, useReducer, useState} from 'react';
 
 const FilterContext = createContext();
 
-const filterReducer = (state = {}, newState) => {
+const filterReducer = (state, {error, filterKey, removeError, ...newState}) => {
+	if (error) {
+		newState.errors = removeError
+			? state.errors.filter(key => key !== filterKey)
+			: [...state.errors, filterKey];
+	}
+
 	return {...state, ...newState};
 };
 
 const FilterContextProvider = ({children}) => {
-	const [filterState, dispatch] = useReducer(filterReducer, {});
+	const [filterState, dispatch] = useReducer(filterReducer, {errors: []});
 	const [filterValues, setFilterValues] = useState({});
 
 	const dispatchFilter = (filterKey, selectedItems) => {
 		return dispatch({[filterKey]: selectedItems});
+	};
+
+	const dispatchFilterError = (filterKey, removeError) => {
+		return dispatch({error: true, filterKey, removeError});
 	};
 
 	return (
@@ -30,6 +40,7 @@ const FilterContextProvider = ({children}) => {
 			value={{
 				dispatch,
 				dispatchFilter,
+				dispatchFilterError,
 				filterState,
 				filterValues,
 				setFilterValues
