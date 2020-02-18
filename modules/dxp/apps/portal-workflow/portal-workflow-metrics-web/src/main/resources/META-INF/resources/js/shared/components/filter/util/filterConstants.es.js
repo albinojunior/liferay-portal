@@ -47,24 +47,4 @@ const filterConstants = {
 	}
 };
 
-const filterKeys = {
-	assignee: 'assigneeUserIds',
-	processStatus: 'statuses',
-	processStep: 'taskKeys',
-	roles: 'roleIds',
-	slaStatus: 'slaStatuses',
-	timeRange: 'timeRange',
-	timeRangeDateEnd: 'dateEnd',
-	timeRangeDateStart: 'dateStart'
-};
-
-const filterTitles = {
-	assignee: Liferay.Language.get('assignee'),
-	processStatus: Liferay.Language.get('process-status'),
-	processStep: Liferay.Language.get('process-step'),
-	roles: Liferay.Language.get('roles'),
-	slaStatus: Liferay.Language.get('sla-status')
-};
-
-export {filterKeys, filterTitles};
 export default filterConstants;

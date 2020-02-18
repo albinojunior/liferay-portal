@@ -11,7 +11,7 @@
 
 import React, {useContext} from 'react';
 
-import {filterKeys} from '../../../shared/components/filter/util/filterConstants.es';
+import filterConstants from '../../../shared/components/filter/util/filterConstants.es';
 import {ChildLink} from '../../../shared/components/router/routerWrapper.es';
 import {AppContext} from '../../AppContext.es';
 import {processStatusConstants} from '../../filter/ProcessStatusFilter.es';
@@ -27,9 +27,11 @@ const Item = ({
 	const {defaultDelta} = useContext(AppContext);
 	const getFiltersQuery = slaStatusFilter => {
 		return {
-			[filterKeys.processStatus]: [processStatusConstants.pending],
-			[filterKeys.processStep]: [taskKey],
-			[filterKeys.slaStatus]: [slaStatusFilter]
+			[filterConstants.processStatus.key]: [
+				processStatusConstants.pending
+			],
+			[filterConstants.processStep.key]: [taskKey],
+			[filterConstants.slaStatus.key]: [slaStatusFilter]
 		};
 	};
 	const instancesListPath = `/instance/${processId}/${defaultDelta}/1`;

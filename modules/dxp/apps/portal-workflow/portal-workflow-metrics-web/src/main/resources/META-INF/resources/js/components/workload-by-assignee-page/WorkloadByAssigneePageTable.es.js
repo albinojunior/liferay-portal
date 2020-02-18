@@ -11,7 +11,7 @@
 
 import React, {useContext} from 'react';
 
-import {filterKeys} from '../../shared/components/filter/util/filterConstants.es';
+import filterConstants from '../../shared/components/filter/util/filterConstants.es';
 import ListHeadItem from '../../shared/components/list/ListHeadItem.es';
 import {ChildLink} from '../../shared/components/router/routerWrapper.es';
 import UserAvatar from '../../shared/components/user-avatar/UserAvatar.es';
@@ -34,10 +34,12 @@ const Item = ({
 
 	const getFiltersQuery = slaStatus => {
 		const filterParams = {
-			[filterKeys.assignee]: [id],
-			[filterKeys.processStatus]: [processStatusConstants.pending],
-			[filterKeys.processStep]: taskKeys,
-			[filterKeys.slaStatus]: [slaStatus]
+			[filterConstants.assignee.key]: [id],
+			[filterConstants.processStatus.key]: [
+				processStatusConstants.pending
+			],
+			[filterConstants.processStep.key]: taskKeys,
+			[filterConstants.slaStatus.key]: [slaStatus]
 		};
 
 		return filterParams;
