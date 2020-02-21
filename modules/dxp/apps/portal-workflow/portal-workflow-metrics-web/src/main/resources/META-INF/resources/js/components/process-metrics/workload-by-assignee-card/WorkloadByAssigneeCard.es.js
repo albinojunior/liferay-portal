@@ -49,11 +49,14 @@ const Header = ({processId}) => (
 const WorkloadByAssigneeCard = ({routeParams}) => {
 	const {processId} = routeParams;
 	const [currentTab, setCurrentTab] = useState('overdue');
-
 	const filterKeys = ['processStep'];
-	const {filterValues} = useFilter({filterKeys});
 
-	const params = getParams(currentTab, filterValues.taskKeys);
+	const {
+		filterValues: {taskKeys: [taskKey] = []},
+	} = useFilter({filterKeys});
+
+	const params = getParams(currentTab, taskKey);
+
 	const {data, fetchData} = useFetch({
 		params,
 		url: `/processes/${processId}/assignee-users`,
@@ -82,19 +85,12 @@ const WorkloadByAssigneeCard = ({routeParams}) => {
 	);
 };
 
-const getParams = (currentTab, taskKeys) => {
+const getParams = (currentTab, taskKey) => {
 	const params = {
 		page: 1,
 		pageSize: 10,
+		taskKeys: taskKey !== 'allSteps' ? taskKey : undefined,
 	};
-
-	if (taskKeys && taskKeys.length) {
-		const key = taskKeys[0];
-
-		if (key !== 'allSteps') {
-			params.taskKeys = key;
-		}
-	}
 
 	if (currentTab === 'overdue') {
 		params.sort = 'overdueTaskCount:desc';

@@ -16,7 +16,7 @@ import PromisesResolver from '../../../shared/components/promises-resolver/Promi
 import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByStepCardBody.es';
 
 const Header = ({disableFilters, prefixKey, totalCount}) => (
@@ -39,28 +39,22 @@ const Header = ({disableFilters, prefixKey, totalCount}) => (
 
 const PerformanceByStepCard = ({routeParams}) => {
 	const {processId} = routeParams;
-
 	const filterKeys = ['timeRange'];
 	const prefixKey = 'step';
 	const prefixKeys = [prefixKey];
 
-	const {filterState = {}, filtersError} = useFilter({
+	const {
+		filterValues: {stepDateEnd, stepDateStart, stepTimeRange: [key] = []},
+		filtersError,
+	} = useFilter({
 		filterKeys,
 		prefixKeys,
 	});
 
-	const timeRange = filterState.stepTimeRange || [];
-	const timeRangeValues = timeRange && timeRange.length ? timeRange[0] : {};
-	const {dateEnd, dateStart} = timeRangeValues;
-
-	let timeRangeParams = {};
-
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
+	const timeRange = useMemo(
+		() => getTimeRangeParams(stepDateStart, stepDateEnd),
+		[stepDateEnd, stepDateStart]
+	);
 
 	const {data, fetchData} = useFetch({
 		params: {
@@ -68,23 +62,12 @@ const PerformanceByStepCard = ({routeParams}) => {
 			page: 1,
 			pageSize: 10,
 			sort: 'durationAvg:desc',
-			...timeRangeParams,
+			...timeRange,
 		},
 		url: `/processes/${processId}/tasks`,
 	});
 
-	const promises = useMemo(() => {
-		if (timeRangeParams.dateEnd && timeRangeParams.dateStart) {
-			return [fetchData()];
-		}
-
-		return [new Promise((_, reject) => reject(filtersError))];
-	}, [
-		fetchData,
-		filtersError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-	]);
+	const promises = useMemo(() => [fetchData()], [fetchData]);
 
 	return (
 		<Panel elementClasses="dashboard-card">
@@ -100,7 +83,7 @@ const PerformanceByStepCard = ({routeParams}) => {
 				{data.totalCount > 0 && (
 					<PerformanceByStepCard.Footer
 						processId={processId}
-						timeRange={timeRangeValues}
+						timeRange={{key, ...timeRange}}
 						totalCount={data.totalCount}
 					/>
 				)}

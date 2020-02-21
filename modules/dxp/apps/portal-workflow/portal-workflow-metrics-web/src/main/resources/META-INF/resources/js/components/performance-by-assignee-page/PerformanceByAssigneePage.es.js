@@ -17,7 +17,7 @@ import {useFetch} from '../../shared/hooks/useFetch.es';
 import {useFilter} from '../../shared/hooks/useFilter.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
 import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
-import {isValidDate} from '../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../filter/util/timeRangeUtil.es';
 import {Body} from './PerformanceByAssigneePageBody.es';
 import {Header} from './PerformanceByAssigneePageHeader.es';
 
@@ -25,32 +25,21 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 	useTimeRangeFetch();
 
 	const {processId} = routeParams;
+	const {search = null} = parse(query);
+	const filterKeys = ['processStep', 'roles'];
 
 	useProcessTitle(processId, Liferay.Language.get('performance-by-assignee'));
 
-	const {search = null} = parse(query);
-
-	const filterKeys = ['processStep', 'roles'];
-
 	const {
-		filterState: {timeRange},
-		filterValues: {roleIds, taskKeys},
-		filtersError,
+		filterValues: {dateEnd, dateStart, roleIds, taskKeys},
 		prefixedKeys,
 		selectedFilters,
 	} = useFilter({filterKeys});
 
-	const {dateEnd, dateStart} =
-		timeRange && timeRange.length ? timeRange[0] : {};
-
-	let timeRangeParams = {};
-
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
+	const timeRange = useMemo(() => getTimeRangeParams(dateStart, dateEnd), [
+		dateEnd,
+		dateStart,
+	]);
 
 	const {data, fetchData} = useFetch({
 		params: {
@@ -59,23 +48,12 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 			roleIds,
 			taskKeys,
 			...routeParams,
-			...timeRangeParams,
+			...timeRange,
 		},
 		url: `/processes/${processId}/assignee-users`,
 	});
 
-	const promises = useMemo(() => {
-		if (timeRangeParams.dateEnd && timeRangeParams.dateStart) {
-			return [fetchData()];
-		}
-
-		return [new Promise((_, reject) => reject(filtersError))];
-	}, [
-		fetchData,
-		filtersError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-	]);
+	const promises = useMemo(() => [fetchData()], [fetchData]);
 
 	return (
 		<PromisesResolver promises={promises}>

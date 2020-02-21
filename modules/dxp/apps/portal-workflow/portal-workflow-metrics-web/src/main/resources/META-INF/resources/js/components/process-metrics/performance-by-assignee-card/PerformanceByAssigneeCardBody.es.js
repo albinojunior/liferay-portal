@@ -19,7 +19,6 @@ import LoadingState from '../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import {ChildLink} from '../../../shared/components/router/routerWrapper.es';
 import {AppContext} from '../../AppContext.es';
-import {formatQueryDate} from '../../filter/util/timeRangeUtil.es';
 import {Table} from './PerformanceByAssigneeCardTable.es';
 
 const Body = ({data: {items}, filtered}) => {
@@ -79,11 +78,11 @@ const ErrorView = () => {
 const Footer = ({processId, processStep, timeRange, totalCount}) => {
 	const {defaultDelta} = useContext(AppContext);
 	const filters = {};
-
 	const {dateEnd, dateStart, key} = timeRange;
+
 	if (dateEnd && dateStart && key) {
-		filters.dateEnd = formatQueryDate(dateEnd, true);
-		filters.dateStart = formatQueryDate(dateStart);
+		filters.dateEnd = dateEnd;
+		filters.dateStart = dateStart;
 		filters.timeRange = [key];
 	}
 

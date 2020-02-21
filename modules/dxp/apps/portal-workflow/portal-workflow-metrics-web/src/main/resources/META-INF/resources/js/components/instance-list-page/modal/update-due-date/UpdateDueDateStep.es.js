@@ -15,7 +15,11 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import MaskedInput from 'react-text-mask';
 
 import Icon from '../../../../shared/components/Icon.es';
-import {formatDate, isValidDate} from '../../../../shared/util/date.es';
+import {
+	defaultDateFormat,
+	formatDate,
+	isValidDate,
+} from '../../../../shared/util/date.es';
 import {toUppercase} from '../../../../shared/util/util.es';
 import {AppContext} from '../../../AppContext.es';
 import {ModalContext} from '../ModalContext.es';
@@ -26,16 +30,15 @@ const UpdateDueDateStep = ({dueDate = new Date()}) => {
 
 	const dateFormat = 'MM/DD/YYYY';
 	const dateMask = [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/];
-	const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss\\Z';
 	const timeFormat = useMemo(() => (isAmPm ? 'h:mm a' : 'H:mm'), [isAmPm]);
 
 	const [invalidDate, setInvalidDate] = useState(false);
 	const [comment, setComment] = useState('');
 	const [date, setDate] = useState(
-		formatDate(dueDate, dateFormat, dateTimeFormat)
+		formatDate(dueDate, dateFormat, defaultDateFormat)
 	);
 	const [time, setTime] = useState(
-		toUppercase(formatDate(dueDate, timeFormat, dateTimeFormat))
+		toUppercase(formatDate(dueDate, timeFormat, defaultDateFormat))
 	);
 
 	useEffect(() => {
@@ -45,11 +48,11 @@ const UpdateDueDateStep = ({dueDate = new Date()}) => {
 		if (validDate && isValidDate(time, timeFormat)) {
 			const newDateTime = formatDate(
 				`${date} ${time}`,
-				dateTimeFormat,
+				defaultDateFormat,
 				`${dateFormat} ${timeFormat}`
 			);
 
-			newDueDate = isValidDate(newDateTime, dateTimeFormat)
+			newDueDate = isValidDate(newDateTime, defaultDateFormat)
 				? newDateTime
 				: null;
 		}

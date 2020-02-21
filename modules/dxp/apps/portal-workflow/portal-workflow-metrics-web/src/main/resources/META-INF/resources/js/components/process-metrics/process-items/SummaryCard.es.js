@@ -18,7 +18,6 @@ import {formatNumber} from '../../../shared/util/numeral.es';
 import {getPercentage} from '../../../shared/util/util.es';
 import {AppContext} from '../../AppContext.es';
 import {processStatusConstants} from '../../filter/ProcessStatusFilter.es';
-import {formatQueryDate} from '../../filter/util/timeRangeUtil.es';
 
 class SummaryCard extends React.Component {
 	constructor(props) {
@@ -59,8 +58,9 @@ class SummaryCard extends React.Component {
 
 		if (timeRange) {
 			const {dateEnd, dateStart, key} = timeRange;
-			filterParams.dateEnd = formatQueryDate(dateEnd);
-			filterParams.dateStart = formatQueryDate(dateStart);
+
+			filterParams.dateEnd = dateEnd;
+			filterParams.dateStart = dateStart;
 			filterParams.timeRange = [key];
 		}
 

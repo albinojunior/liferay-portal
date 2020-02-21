@@ -9,10 +9,11 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
+import React, {useMemo} from 'react';
 
 import {useFilter} from '../../../shared/hooks/useFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
+import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import ProcessItemsCard from './ProcessItemsCard.es';
 
 const CompletedItemsCard = ({routeParams}) => {
@@ -21,18 +22,24 @@ const CompletedItemsCard = ({routeParams}) => {
 	const prefixKeys = [prefixKey];
 
 	const {
-		filterState: {completedTimeRange = []},
+		filterValues: {
+			completedDateEnd,
+			completedDateStart,
+			completedTimeRange: [key] = [],
+		},
 		filtersError,
 	} = useFilter({filterKeys, prefixKeys});
 
-	const timeRange = completedTimeRange[0] || {};
+	const timeRange = useMemo(
+		() => getTimeRangeParams(completedDateStart, completedDateEnd),
+		[completedDateEnd, completedDateStart]
+	);
 
 	return (
 		<ProcessItemsCard
 			completed={true}
 			description={Liferay.Language.get('completed-items-description')}
-			filtersError={filtersError}
-			timeRange={timeRange}
+			timeRange={{key, ...timeRange}}
 			title={Liferay.Language.get('completed-items')}
 			{...routeParams}
 		>

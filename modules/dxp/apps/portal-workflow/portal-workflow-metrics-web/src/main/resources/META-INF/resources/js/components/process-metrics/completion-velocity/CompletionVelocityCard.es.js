@@ -17,82 +17,63 @@ import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
 import VelocityUnitFilter from '../../filter/VelocityUnitFilter.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import {getVelocityUnits} from '../../filter/util/velocityUnitUtil.es';
 import {Body} from './CompletionVelocityCardBody.es';
 
 const CompletionVelocityCard = ({routeParams}) => {
 	const {processId} = routeParams;
-
 	const filterKeys = ['timeRange', 'velocityUnit'];
 	const prefixKey = 'completion';
 	const prefixKeys = [prefixKey];
-	const {filterState = {}, filtersError} = useFilter({
-		filterKeys,
-		prefixKeys,
-	});
 
 	const {
-		completionVelocityUnit: velocityUnit = [],
-		completionTimeRange: timeRange = [],
-	} = filterState;
+		filterValues: {
+			completionDateEnd,
+			completionDateStart,
+			completionVelocityUnit: [velocity] = [],
+		},
+		filtersError,
+	} = useFilter({filterKeys, prefixKeys});
 
-	const timeRangeValues = timeRange.length ? timeRange[0] : {};
-	const {dateEnd, dateStart} = timeRangeValues;
-
-	let timeRangeParams = {};
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
-
-	const velocityUnitKeys = velocityUnit.length ? velocityUnit[0] : {};
-
-	const velocityUnits = useMemo(
-		() => getVelocityUnits({dateEnd, dateStart}),
-		[dateEnd, dateStart]
+	const timeRange = useMemo(
+		() => getTimeRangeParams(completionDateStart, completionDateEnd),
+		[completionDateEnd, completionDateStart]
 	);
 
+	const velocityUnits = useMemo(() => getVelocityUnits(timeRange), [
+		timeRange,
+	]);
+
 	const defaultUnit = useMemo(
-		() =>
-			velocityUnits.find(
-				velocityUnit => velocityUnit.defaultVelocityUnit
-			) || {},
+		() => velocityUnits.find(unit => unit.defaultVelocityUnit) || {},
 		[velocityUnits]
 	);
 
-	const velocityUnitValues = useMemo(
-		() =>
-			velocityUnits.find(
-				velocityUnit => velocityUnit.key === velocityUnitKeys.key
-			) || defaultUnit,
-		[defaultUnit, velocityUnits, velocityUnitKeys.key]
+	const velocityUnit = useMemo(
+		() => velocityUnits.find(unit => unit.key === velocity),
+		[velocity, velocityUnits]
 	);
-	const {key: unit} = velocityUnitValues;
+
+	const currentVelocityUnit = velocityUnit || defaultUnit;
+
+	const {key: unit} = currentVelocityUnit;
 
 	const {data, fetchData} = useFetch({
 		params: {
-			...timeRangeParams,
+			...timeRange,
 			unit,
 		},
 		url: `processes/${processId}/metric`,
 	});
 
 	const promises = useMemo(() => {
-		if (timeRangeParams.dateEnd && timeRangeParams.dateStart && unit) {
+		if (timeRange.dateEnd && timeRange.dateStart && unit) {
 			return [fetchData()];
 		}
 
 		return [new Promise((_, reject) => reject(filtersError))];
-	}, [
-		fetchData,
-		filtersError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-		unit,
-	]);
+	}, [fetchData, filtersError, timeRange.dateEnd, timeRange.dateStart, unit]);
 
 	return (
 		<PromisesResolver promises={promises}>
@@ -100,24 +81,20 @@ const CompletionVelocityCard = ({routeParams}) => {
 				<CompletionVelocityCard.Header
 					disableFilters={filtersError}
 					prefixKey={prefixKey}
-					timeRange={timeRangeValues}
+					timeRange={timeRange}
 				/>
 
 				<CompletionVelocityCard.Body
 					data={data}
-					timeRange={timeRangeValues}
-					velocityUnit={velocityUnitValues}
+					timeRange={timeRange}
+					velocityUnit={currentVelocityUnit}
 				/>
 			</Panel>
 		</PromisesResolver>
 	);
 };
 
-const Header = ({
-	disableFilters,
-	prefixKey,
-	timeRange: {dateEnd, dateStart},
-}) => {
+const Header = ({disableFilters, prefixKey, timeRange}) => {
 	return (
 		<Panel.HeaderWithOptions
 			description={Liferay.Language.get(
@@ -134,14 +111,12 @@ const Header = ({
 						prefixKey={prefixKey}
 					/>
 
-					{dateEnd && dateStart && (
-						<VelocityUnitFilter
-							className={'pl-3'}
-							disabled={disableFilters}
-							prefixKey={prefixKey}
-							timeRange={{dateEnd, dateStart}}
-						/>
-					)}
+					<VelocityUnitFilter
+						className={'pl-3'}
+						disabled={disableFilters}
+						prefixKey={prefixKey}
+						timeRange={timeRange}
+					/>
 				</ul>
 			</div>
 		</Panel.HeaderWithOptions>

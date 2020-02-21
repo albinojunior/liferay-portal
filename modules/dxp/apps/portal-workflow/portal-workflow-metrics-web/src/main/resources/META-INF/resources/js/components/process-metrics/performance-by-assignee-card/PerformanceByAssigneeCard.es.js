@@ -17,7 +17,7 @@ import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
 import ProcessStepFilter from '../../filter/ProcessStepFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByAssigneeCardBody.es';
 
 const Header = ({disableFilters, prefixKey, processId}) => {
@@ -58,48 +58,42 @@ const Header = ({disableFilters, prefixKey, processId}) => {
 
 const PerformanceByAssigneeCard = ({routeParams}) => {
 	const {processId} = routeParams;
-
 	const filterKeys = ['processStep', 'timeRange'];
 	const prefixKey = 'assignee';
 	const prefixKeys = [prefixKey];
-	const {filterState = {}, filterValues, filtersError} = useFilter({
+
+	const {
+		filterValues: {
+			assigneeDateEnd,
+			assigneeDateStart,
+			assigneeTaskKeys: [taskKey] = [],
+			assigneeTimeRange: [key] = [],
+		},
+		filtersError,
+	} = useFilter({
 		filterKeys,
 		prefixKeys,
 	});
 
-	const params = {
-		completed: true,
-		page: 1,
-		pageSize: 10,
-		sort: 'durationTaskAvg:desc',
-	};
-
-	const processStep = filterValues.assigneeTaskKeys || [];
-	if (processStep.length && processStep[0] !== 'allSteps') {
-		params.taskKeys = processStep[0];
-	}
-
-	const timeRange = filterState.assigneeTimeRange || [];
-	const timeRangeValues = timeRange.length ? timeRange[0] : {};
-	const {dateEnd, dateStart} = timeRangeValues;
-
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		params.dateEnd = dateEnd.toISOString();
-		params.dateStart = dateStart.toISOString();
-	}
+	const taskKeys = taskKey !== 'allSteps' ? taskKey : undefined;
+	const timeRange = useMemo(
+		() => getTimeRangeParams(assigneeDateStart, assigneeDateEnd),
+		[assigneeDateEnd, assigneeDateStart]
+	);
 
 	const {data, fetchData} = useFetch({
-		params,
+		params: {
+			completed: true,
+			page: 1,
+			pageSize: 10,
+			sort: 'durationTaskAvg:desc',
+			taskKeys,
+			...timeRange,
+		},
 		url: `/processes/${processId}/assignee-users`,
 	});
 
-	const promises = useMemo(() => {
-		if (params.dateEnd && params.dateStart) {
-			return [fetchData()];
-		}
-
-		return [new Promise((_, reject) => reject(filtersError))];
-	}, [fetchData, filtersError, params.dateEnd, params.dateStart]);
+	const promises = useMemo(() => [fetchData()], [fetchData]);
 
 	return (
 		<Panel elementClasses="dashboard-card">
@@ -112,12 +106,12 @@ const PerformanceByAssigneeCard = ({routeParams}) => {
 
 				<PerformanceByAssigneeCard.Body
 					data={data}
-					filtered={params.taskKeys}
+					filtered={!!taskKeys}
 				/>
 
 				<PerformanceByAssigneeCard.Footer
-					processStep={params.taskKeys}
-					timeRange={timeRangeValues}
+					processStep={taskKeys}
+					timeRange={{key, ...timeRange}}
 					totalCount={data.totalCount}
 					{...routeParams}
 				/>

@@ -11,14 +11,13 @@
 
 import React, {useMemo} from 'react';
 
-import filterConstants from '../../shared/components/filter/util/filterConstants.es';
 import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {parse} from '../../shared/components/router/queryString.es';
 import {useFetch} from '../../shared/hooks/useFetch.es';
 import {useFilter} from '../../shared/hooks/useFilter.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
 import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
-import {isValidDate} from '../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../filter/util/timeRangeUtil.es';
 import {Body} from './PerformanceByStepPageBody.es';
 import {Header} from './PerformanceByStepPageHeader.es';
 
@@ -26,56 +25,31 @@ const PerformanceByStepPage = ({query, routeParams}) => {
 	useTimeRangeFetch();
 
 	const {processId} = routeParams;
+	const {search = null} = parse(query);
 
 	useProcessTitle(processId, Liferay.Language.get('performance-by-step'));
 
-	const {search = null} = parse(query);
-
 	const {
-		filterState: {timeRange},
-		hasFilterError,
+		filterValues: {dateEnd, dateStart},
 		prefixedKeys,
 	} = useFilter({});
 
-	const {dateEnd, dateStart} =
-		timeRange && timeRange.length ? timeRange[0] : {};
-
-	let timeRangeParams = {};
-
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
+	const timeRange = useMemo(() => getTimeRangeParams(dateStart, dateEnd), [
+		dateEnd,
+		dateStart,
+	]);
 
 	const {data, fetchData} = useFetch({
 		params: {
 			completed: true,
 			key: search,
 			...routeParams,
-			...timeRangeParams,
+			...timeRange,
 		},
 		url: `/processes/${processId}/tasks`,
 	});
 
-	const filterError = useMemo(
-		() => hasFilterError(filterConstants.timeRange.key),
-		[hasFilterError]
-	);
-
-	const promises = useMemo(() => {
-		if (timeRangeParams.dateEnd && timeRangeParams.dateStart) {
-			return [fetchData()];
-		}
-
-		return [new Promise((_, reject) => reject(filterError))];
-	}, [
-		fetchData,
-		filterError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-	]);
+	const promises = useMemo(() => [fetchData()], [fetchData]);
 
 	return (
 		<PromisesResolver promises={promises}>

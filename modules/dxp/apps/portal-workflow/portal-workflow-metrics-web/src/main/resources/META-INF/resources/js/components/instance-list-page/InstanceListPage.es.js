@@ -21,7 +21,7 @@ import {useFilter} from '../../shared/hooks/useFilter.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
 import {processStatusConstants} from '../filter/ProcessStatusFilter.es';
 import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
-import {isValidDate} from '../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../filter/util/timeRangeUtil.es';
 import {Header} from './InstanceListPageHeader.es';
 import {Table} from './InstanceListPageTable.es';
 import {ModalContext} from './modal/ModalContext.es';
@@ -91,31 +91,26 @@ const InstanceListPage = ({routeParams}) => {
 	];
 
 	const {
-		filterState: {timeRange},
-		filterValues: {assigneeUserIds, slaStatuses, statuses = [], taskKeys},
-		filtersError,
+		filterValues: {
+			assigneeUserIds,
+			dateEnd,
+			dateStart,
+			slaStatuses,
+			statuses = [],
+			taskKeys,
+		},
 		prefixedKeys,
 		selectedFilters,
 	} = useFilter({filterKeys});
-
-	const {dateEnd, dateStart} =
-		timeRange && timeRange.length ? timeRange[0] : {};
 
 	const completedStatus = statuses.some(
 		status => status === processStatusConstants.completed
 	);
 
-	let completedAndDate = !completedStatus;
-
-	let timeRangeParams = {};
-
-	if (completedStatus && isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-		completedAndDate = true;
-	}
+	const timeRange = useMemo(
+		() => (completedStatus ? getTimeRangeParams(dateStart, dateEnd) : {}),
+		[completedStatus, dateEnd, dateStart]
+	);
 
 	const {data, fetchData} = useFetch({
 		params: {
@@ -125,7 +120,7 @@ const InstanceListPage = ({routeParams}) => {
 			slaStatuses,
 			statuses,
 			taskKeys,
-			...timeRangeParams,
+			...timeRange,
 		},
 		url: `/processes/${processId}/instances`,
 	});
@@ -133,7 +128,6 @@ const InstanceListPage = ({routeParams}) => {
 	const promises = useMemo(() => {
 		if (
 			!bulkModal.visible &&
-			completedAndDate &&
 			!singleModal.visible &&
 			!singleTransition.visible &&
 			!updateDueDate.visible
@@ -141,12 +135,10 @@ const InstanceListPage = ({routeParams}) => {
 			return [fetchData()];
 		}
 
-		return [new Promise((_, reject) => reject(filtersError))];
+		return [];
 	}, [
 		bulkModal.visible,
-		completedAndDate,
 		fetchData,
-		filtersError,
 		singleModal.visible,
 		singleTransition.visible,
 		updateDueDate.visible,

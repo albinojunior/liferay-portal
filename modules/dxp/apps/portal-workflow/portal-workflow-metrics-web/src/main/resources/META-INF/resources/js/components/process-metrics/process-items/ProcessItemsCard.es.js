@@ -21,7 +21,6 @@ import LoadingState from '../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {AppContext} from '../../AppContext.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
 import PANELS from './Panels.es';
 import SummaryCard from './SummaryCard.es';
 
@@ -29,22 +28,13 @@ function ProcessItemsCard({
 	children,
 	completed,
 	description,
-	filtersError,
 	processId,
 	timeRange,
 	title,
 }) {
 	const {setTitle} = useContext(AppContext);
 
-	const {dateEnd, dateStart} = timeRange || {};
-
-	let timeRangeParams = {};
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
+	const timeRangeParams = timeRange || {};
 
 	const {data, fetchData} = useFetch({
 		params: {
@@ -58,21 +48,7 @@ function ProcessItemsCard({
 		setTitle(data.title);
 	}, [data.title]);
 
-	const promises = useMemo(() => {
-		if (
-			!timeRange ||
-			(timeRangeParams.dateEnd && timeRangeParams.dateStart)
-		) {
-			return [fetchData()];
-		}
-
-		return [new Promise((_, reject) => reject(filtersError))];
-	}, [
-		fetchData,
-		filtersError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-	]);
+	const promises = useMemo(() => [fetchData()], [fetchData]);
 
 	return (
 		<PromisesResolver promises={promises}>
@@ -128,6 +104,7 @@ const Body = ({completed = false, data, processId, timeRange}) => {
 					message={Liferay.Language.get(
 						'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
 					)}
+					messageClassName="small"
 				/>
 			</PromisesResolver.Rejected>
 

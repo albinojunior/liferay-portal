@@ -44,12 +44,9 @@ const Item = ({
 			[filterConstants.processStatus.key]: [
 				processStatusConstants.pending,
 			],
+			[filterConstants.processStep.key]: [processStepKey],
 			[filterConstants.slaStatus.key]: [slaStatusConstants[currentTab]],
 		};
-
-		if (processStepKey && processStepKey !== 'allSteps') {
-			filterParams[filterConstants.processStep.key] = [processStepKey];
-		}
 
 		return filterParams;
 	};

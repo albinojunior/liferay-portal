@@ -72,7 +72,7 @@ const ProcessMetrics = ({history, processId, query}) => {
 				page: 1,
 				pageSize: defaultDelta,
 				processId,
-				sort: encodeURIComponent('overdueInstanceCount:asc'),
+				sort: 'overdueInstanceCount:asc',
 			},
 			path: '/metrics/:processId/dashboard/:pageSize/:page/:sort',
 		}),
