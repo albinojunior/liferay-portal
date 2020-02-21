@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 
 import {useFilter} from '../../../hooks/useFilter.es';
 import {useRouterParams} from '../../../hooks/useRouterParams.es';
@@ -26,23 +26,21 @@ const useFilterState = (prefixedKey, withoutRouteParams) => {
 		: filters[prefixedKey];
 
 	const selectedItems = useMemo(() => {
-		if (selectedKeys) {
-			if (items.length) {
-				return items.filter(item => selectedKeys.includes(item.key));
-			}
+		let selectedItems = buildFallbackItems(selectedKeys) || [];
 
-			return buildFallbackItems(selectedKeys);
+		if (items.length && selectedKeys) {
+			selectedItems = items.filter(item =>
+				selectedKeys.includes(item.key)
+			);
 		}
 
-		return [];
-	}, [items, selectedKeys]);
-
-	useEffect(() => {
 		if (!withoutRouteParams) {
 			dispatchFilter(prefixedKey, selectedItems);
 		}
+
+		return selectedItems;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedItems]);
+	}, [items, selectedKeys]);
 
 	return {items, selectedItems, selectedKeys, setItems};
 };

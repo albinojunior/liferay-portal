@@ -14,10 +14,15 @@ import {useEffect} from 'react';
 import {buildFilterItems, getCapitalizedFilterKey} from '../util/filterUtil.es';
 import {useFilterState} from './useFilterState.es';
 
-const useFilterStatic = (filterKey, prefixKey, routing, staticItems) => {
+const useFilterStatic = (
+	filterKey,
+	prefixKey,
+	withoutRouteParams,
+	staticItems
+) => {
 	const {items, selectedItems, selectedKeys, setItems} = useFilterState(
 		getCapitalizedFilterKey(prefixKey, filterKey),
-		routing
+		withoutRouteParams
 	);
 
 	useEffect(() => {
@@ -25,7 +30,7 @@ const useFilterStatic = (filterKey, prefixKey, routing, staticItems) => {
 
 		setItems(mappedItems);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [staticItems, selectedKeys]);
+	}, [selectedKeys, staticItems]);
 
 	return {
 		items,
