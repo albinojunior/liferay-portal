@@ -40,10 +40,10 @@ const Filter = ({
 	items,
 	multiple = true,
 	name,
-	onChangeFilter,
 	onClickFilter,
 	position = 'left',
 	prefixKey = '',
+	preventClick,
 	style,
 	withoutRouteParams,
 }) => {
@@ -91,8 +91,6 @@ const Filter = ({
 	}, [items, searchTerm]);
 
 	const applyFilterChanges = useCallback(() => {
-		dispatchFilter(prefixedFilterKey, getSelectedItems(items));
-
 		if (!withoutRouteParams) {
 			const query = getSelectedItemsQuery(
 				items,
@@ -102,8 +100,11 @@ const Filter = ({
 
 			replaceHistory(query, routerProps);
 		}
+		else {
+			dispatchFilter(prefixedFilterKey, getSelectedItems(items));
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [items, routerProps.location.search]);
+	}, [items, routerProps]);
 
 	const closeDropdown = () => {
 		setExpanded(false);
@@ -122,11 +123,7 @@ const Filter = ({
 			);
 			const current = items[index];
 
-			const preventDefault = onChangeFilter
-				? onChangeFilter(current)
-				: false;
-
-			if (!preventDefault) {
+			if (!preventClick) {
 				if (!multiple) {
 					items.forEach(item => {
 						item.active = false;
@@ -145,7 +142,7 @@ const Filter = ({
 			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[items]
+		[applyFilterChanges, items]
 	);
 
 	const selectDefaultItem = useCallback(() => {
@@ -158,11 +155,17 @@ const Filter = ({
 				);
 
 				items[index].active = true;
-				applyFilterChanges();
+
+				if (!preventClick) {
+					applyFilterChanges();
+				}
+				else {
+					onClickHandler(items[index])();
+				}
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [defaultItem, items]);
+	}, [applyFilterChanges, defaultItem, items]);
 
 	useEffect(() => {
 		selectDefaultItem();
@@ -170,8 +173,6 @@ const Filter = ({
 	}, [defaultItem]);
 
 	useEffect(() => {
-		selectDefaultItem();
-
 		const callback = handleClickOutside(() => {
 			if (expanded) {
 				closeDropdown();
@@ -189,7 +190,7 @@ const Filter = ({
 			removeClickOutsideListener(callback);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [expanded, changed]);
+	}, [applyFilterChanges, expanded, changed]);
 
 	return (
 		<li

@@ -9,7 +9,9 @@
  * distribution rights of the Software.
  */
 
-import React, {createContext, useReducer, useState} from 'react';
+import React, {createContext, useMemo, useReducer} from 'react';
+
+import {getFilterValues} from './util/filterUtil.es';
 
 const FilterContext = createContext();
 
@@ -25,7 +27,6 @@ const filterReducer = (state, {error, filterKey, removeError, ...newState}) => {
 
 const FilterContextProvider = ({children}) => {
 	const [filterState, dispatch] = useReducer(filterReducer, {errors: []});
-	const [filterValues, setFilterValues] = useState({});
 
 	const dispatchFilter = (filterKey, selectedItems) => {
 		return dispatch({[filterKey]: selectedItems});
@@ -35,6 +36,10 @@ const FilterContextProvider = ({children}) => {
 		return dispatch({error: true, filterKey, removeError});
 	};
 
+	const filterValues = useMemo(() => getFilterValues(filterState), [
+		filterState,
+	]);
+
 	return (
 		<FilterContext.Provider
 			value={{
@@ -43,7 +48,6 @@ const FilterContextProvider = ({children}) => {
 				dispatchFilterError,
 				filterState,
 				filterValues,
-				setFilterValues,
 			}}
 		>
 			{children}
