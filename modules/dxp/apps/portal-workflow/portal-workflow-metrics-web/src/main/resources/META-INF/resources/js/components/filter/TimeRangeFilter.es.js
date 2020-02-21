@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 
 import Filter from '../../shared/components/filter/Filter.es';
 import {useFilterName} from '../../shared/components/filter/hooks/useFilterName.es';
@@ -18,7 +18,11 @@ import filterConstants from '../../shared/components/filter/util/filterConstants
 import {
 	getCapitalizedFilterKey,
 	mergeItemsArray,
+	replaceHistory,
 } from '../../shared/components/filter/util/filterUtil.es';
+import {parse, stringify} from '../../shared/components/router/queryString.es';
+import {useFilter} from '../../shared/hooks/useFilter.es';
+import {useRouter} from '../../shared/hooks/useRouter.es';
 import {useRouterParams} from '../../shared/hooks/useRouterParams.es';
 import {useSessionStorage} from '../../shared/hooks/useStorage.es';
 import {AppContext} from '../AppContext.es';
@@ -33,7 +37,6 @@ const TimeRangeFilter = ({
 	filterKey = filterConstants.timeRange.key,
 	options = {},
 	prefixKey = '',
-	style,
 }) => {
 	const defaultOptions = {
 		hideControl: true,
@@ -47,20 +50,19 @@ const TimeRangeFilter = ({
 
 	const {isAmPm} = useContext(AppContext);
 	const {filters} = useRouterParams();
-	const {
-		formVisible,
-		onChangeFilter,
-		onClickFilter,
-		setFormVisible,
-	} = useCustomFormState();
+	const {formVisible, onClickFilter, setFormVisible} = useCustomFormState();
+
 	const [storedTimeRanges = {}] = useSessionStorage('timeRanges');
+
+	const {dispatch, filterState} = useFilter(options);
 
 	const dateEndKey = getCapitalizedFilterKey(prefixKey, 'dateEnd');
 	const dateStartKey = getCapitalizedFilterKey(prefixKey, 'dateStart');
+	const prefixedFilterKey = getCapitalizedFilterKey(prefixKey, filterKey);
+	const routerProps = useRouter();
 
 	const dateEnd = filters[dateEndKey];
 	const dateStart = filters[dateStartKey];
-
 	const {items: timeRanges} = useMemo(() => storedTimeRanges, [
 		storedTimeRanges,
 	]);
@@ -99,6 +101,29 @@ const TimeRangeFilter = ({
 		options.withSelectionTitle
 	);
 
+	const handleSelectFilter = useCallback(
+		filter => {
+			const filterValue = {[prefixedFilterKey]: [filter.key]};
+			const query = parse(routerProps.location.search);
+
+			if (!options.withoutRouteParams) {
+				query.filters = {
+					...query.filters,
+					[dateEndKey]: filter.dateEnd,
+					[dateStartKey]: filter.dateStart,
+					...filterValue,
+				};
+
+				replaceHistory(stringify(query), routerProps);
+			}
+			else {
+				dispatch({...filterState, ...filterValue});
+			}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[filterState, routerProps]
+	);
+
 	return (
 		<Filter
 			buttonClassName={buttonClassName}
@@ -109,15 +134,14 @@ const TimeRangeFilter = ({
 			filterKey={filterKey}
 			items={items}
 			name={filterName}
-			onChangeFilter={onChangeFilter}
-			onClickFilter={onClickFilter}
+			onClickFilter={onClickFilter(handleSelectFilter)}
 			prefixKey={prefixKey}
+			preventClick
 			{...options}
-			style={style}
 		>
 			{formVisible && (
 				<CustomTimeRangeForm
-					filterKey={filterKey}
+					handleSelectFilter={handleSelectFilter}
 					items={items}
 					prefixKey={prefixKey}
 					setFormVisible={setFormVisible}

@@ -22,7 +22,7 @@ import {sub} from '../../shared/util/lang.es';
 import {useCustomTimeRange} from './hooks/useCustomTimeRange.es';
 
 const CustomTimeRangeForm = ({
-	filterKey,
+	handleSelectFilter,
 	items,
 	prefixKey = '',
 	setFormVisible,
@@ -36,7 +36,7 @@ const CustomTimeRangeForm = ({
 		setDateEnd,
 		setDateStart,
 		validate,
-	} = useCustomTimeRange(filterKey, prefixKey, withoutRouteParams);
+	} = useCustomTimeRange(prefixKey, withoutRouteParams);
 	const wrapperRef = useRef();
 
 	const dateFormat = 'MM/DD/YYYY';
@@ -64,7 +64,7 @@ const CustomTimeRangeForm = ({
 
 		if (!dateEndError && !dateStartError) {
 			activeCustomFilter();
-			applyCustomFilter();
+			applyCustomFilter(handleSelectFilter);
 			setFormVisible(false);
 		}
 	};

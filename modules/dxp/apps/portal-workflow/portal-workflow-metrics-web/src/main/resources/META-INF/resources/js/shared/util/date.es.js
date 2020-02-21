@@ -11,12 +11,14 @@
 
 import moment from './moment.es';
 
+const defaultDateFormat = 'YYYY-MM-DDTHH:mm:ss\\Z';
+
 const formatDate = (date, format = 'L', fromFormat = null) => {
-	return moment(date, fromFormat).format(format);
+	return moment.utc(date, fromFormat).format(format);
 };
 
 const isValidDate = (date, format = 'L') => {
-	return moment(date, format, true).isValid();
+	return moment.utc(date, format, true).isValid();
 };
 
-export {formatDate, isValidDate};
+export {defaultDateFormat, formatDate, isValidDate};
