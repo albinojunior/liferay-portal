@@ -18,6 +18,7 @@ import filterConstants from '../../shared/components/filter/util/filterConstants
 import {getVelocityUnits} from './util/velocityUnitUtil.es';
 
 const VelocityUnitFilter = ({
+	disabled,
 	className,
 	filterKey = filterConstants.velocityUnit.key,
 	options = {},
@@ -65,6 +66,7 @@ const VelocityUnitFilter = ({
 		<Filter
 			dataTestId="velocityUnitFilter"
 			defaultItem={defaultItem}
+			disabled={disabled}
 			elementClasses={className}
 			filterKey={filterKey}
 			items={items}
