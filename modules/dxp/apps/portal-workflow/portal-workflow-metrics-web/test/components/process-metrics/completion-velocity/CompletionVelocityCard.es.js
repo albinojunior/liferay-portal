@@ -13,17 +13,21 @@ import {findAllByTestId, findByTestId, render} from '@testing-library/react';
 import React from 'react';
 
 import CompletionVelocityCard from '../../../../src/main/resources/META-INF/resources/js/components/process-metrics/completion-velocity/CompletionVelocityCard.es';
+import {stringify} from '../../../../src/main/resources/META-INF/resources/js/shared/components/router/queryString.es';
 import {jsonSessionStorage} from '../../../../src/main/resources/META-INF/resources/js/shared/util/storage.es';
 import {MockRouter} from '../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const {processId, query} = {
+const {filters, processId} = {
+	filters: {
+		completionDateEnd: '2019-12-09T00:00:00Z',
+		completionDateStart: '2019-12-03T00:00:00Z',
+		completionTimeRange: ['7'],
+		completionVelocityUnit: ['Days'],
+	},
 	processId: 12345,
-	query:
-		'?filters.completionVelocityUnit%5B0%5D=Days&filters.completionTimeRange%5B0%5D=7',
 };
-
 const data = {
 	histograms: [
 		{
@@ -57,7 +61,7 @@ const data = {
 	],
 	value: 0.36,
 };
-
+const query = stringify({filters});
 const timeRangeData = {
 	items: [
 		{

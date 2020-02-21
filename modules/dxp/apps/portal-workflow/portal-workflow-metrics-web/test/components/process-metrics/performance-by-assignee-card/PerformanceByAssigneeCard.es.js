@@ -18,17 +18,21 @@ import {
 import React from 'react';
 
 import PerformanceByAssigneeCard from '../../../../src/main/resources/META-INF/resources/js/components/process-metrics/performance-by-assignee-card/PerformanceByAssigneeCard.es';
+import {stringify} from '../../../../src/main/resources/META-INF/resources/js/shared/components/router/queryString.es';
 import {jsonSessionStorage} from '../../../../src/main/resources/META-INF/resources/js/shared/util/storage.es';
 import {MockRouter} from '../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const {processId, query} = {
+const {filters, processId} = {
+	filters: {
+		assigneeDateEnd: '2019-12-09T00:00:00Z',
+		assigneeDateStart: '2019-12-03T00:00:00Z',
+		assigneeTaskKeys: ['update'],
+		assigneeTimeRange: ['7'],
+	},
 	processId: 12345,
-	query:
-		'?filters.assigneeTaskKeys%5B0%5D=update&filters.assigneeTimeRange%5B0%5D=7',
 };
-
 const items = [
 	{
 		durationTaskAvg: 10800000,
@@ -49,7 +53,6 @@ const items = [
 	},
 ];
 const data = {items, totalCount: items.length};
-
 const processStepsData = {
 	items: [
 		{
@@ -63,7 +66,7 @@ const processStepsData = {
 	],
 	totalCount: 2,
 };
-
+const query = stringify({filters});
 const timeRangeData = {
 	items: [
 		{
@@ -98,8 +101,8 @@ describe('The performance by assignee card component should', () => {
 			const clientMock = {
 				get: jest
 					.fn()
-					.mockResolvedValueOnce({data: processStepsData})
-					.mockResolvedValue({data}),
+					.mockResolvedValueOnce({data})
+					.mockResolvedValue({data: processStepsData}),
 			};
 
 			const wrapper = ({children}) => (
@@ -123,7 +126,7 @@ describe('The performance by assignee card component should', () => {
 				'view-all-assignees (3)'
 			);
 			expect(viewAllAssignees.parentNode.getAttribute('href')).toContain(
-				'filters.dateEnd=2019-12-09&filters.dateStart=2019-12-03&filters.timeRange%5B0%5D=7&filters.taskKeys%5B0%5D=update'
+				'filters.dateEnd=2019-12-09T00%3A00%3A00Z&filters.dateStart=2019-12-03T00%3A00%3A00Z&filters.timeRange%5B0%5D=7&filters.taskKeys%5B0%5D=update'
 			);
 		});
 
@@ -170,8 +173,8 @@ describe('The performance by assignee card component should', () => {
 			const clientMock = {
 				get: jest
 					.fn()
-					.mockResolvedValueOnce({data: processStepsData})
-					.mockResolvedValue({data: {items: [], totalCount: 0}}),
+					.mockResolvedValueOnce({data: {items: [], totalCount: 0}})
+					.mockResolvedValue({data: processStepsData}),
 			};
 
 			const wrapper = ({children}) => (

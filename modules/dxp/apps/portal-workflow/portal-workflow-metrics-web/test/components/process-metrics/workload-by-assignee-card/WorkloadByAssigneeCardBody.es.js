@@ -50,7 +50,6 @@ describe('The workload by assignee body should', () => {
 					currentTab="onTime"
 					data={data}
 					processId={12345}
-					processStepKey="allSteps"
 				/>,
 				{wrapper}
 			);

@@ -31,7 +31,7 @@ describe('The ResultsBar component should', () => {
 		],
 		page: 1,
 		pageSize: 20,
-		sort: encodeURIComponent('overdueTaskCount:asc'),
+		sort: 'overdueTaskCount:asc',
 	};
 
 	afterEach(cleanup);

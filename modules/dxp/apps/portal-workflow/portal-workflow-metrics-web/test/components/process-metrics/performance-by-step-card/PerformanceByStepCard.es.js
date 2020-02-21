@@ -13,16 +13,20 @@ import {cleanup, findByTestId, render} from '@testing-library/react';
 import React from 'react';
 
 import PerformanceByStepCard from '../../../../src/main/resources/META-INF/resources/js/components/process-metrics/performance-by-step-card/PerformanceByStepCard.es';
+import {stringify} from '../../../../src/main/resources/META-INF/resources/js/shared/components/router/queryString.es';
 import {jsonSessionStorage} from '../../../../src/main/resources/META-INF/resources/js/shared/util/storage.es';
 import {MockRouter} from '../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const {processId, query} = {
+const {filters, processId} = {
+	filters: {
+		stepDateEnd: '2019-12-09T00:00:00Z',
+		stepDateStart: '2019-12-03T00:00:00Z',
+		stepTimeRange: ['7'],
+	},
 	processId: 12345,
-	query: '?filters.stepTimeRange%5B0%5D=7',
 };
-
 const items = [
 	{
 		breachedInstanceCount: 3,
@@ -44,7 +48,7 @@ const items = [
 	},
 ];
 const data = {items, totalCount: items.length};
-
+const query = stringify({filters});
 const timeRangeData = {
 	items: [
 		{
@@ -115,7 +119,7 @@ describe('The performance by step card component should', () => {
 
 			expect(viewAllSteps).toHaveTextContent('view-all-steps (3)');
 			expect(viewAllSteps.parentNode.getAttribute('href')).toContain(
-				'filters.dateEnd=2019-12-09&filters.dateStart=2019-12-03&filters.timeRange%5B0%5D=7'
+				'filters.dateEnd=2019-12-09T00%3A00%3A00Z&filters.dateStart=2019-12-03T00%3A00%3A00Z&filters.timeRange%5B0%5D=7'
 			);
 		});
 	});
