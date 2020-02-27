@@ -11,29 +11,31 @@
 
 import React, {createContext, useState} from 'react';
 
-const useInstanceListData = () => {
+const InstanceListContext = createContext(null);
+
+const InstanceListPageProvider = ({children}) => {
 	const [instanceId, setInstanceId] = useState();
 	const [selectAll, setSelectAll] = useState(false);
+	const [selectedItem, setSelectedItem] = useState({});
 	const [selectedItems, setSelectedItems] = useState([]);
 
-	return {
+	const value = {
 		instanceId,
 		selectAll,
+		selectedItem,
 		selectedItems,
 		setInstanceId,
 		setSelectAll,
+		setSelectedItem,
 		setSelectedItems,
 	};
-};
 
-const InstanceListContext = createContext(null);
-
-const InstanceListProvider = ({children}) => {
 	return (
-		<InstanceListContext.Provider value={useInstanceListData()}>
+		<InstanceListContext.Provider value={value}>
 			{children}
 		</InstanceListContext.Provider>
 	);
 };
 
-export {InstanceListContext, InstanceListProvider, useInstanceListData};
+export {InstanceListContext};
+export default InstanceListPageProvider;

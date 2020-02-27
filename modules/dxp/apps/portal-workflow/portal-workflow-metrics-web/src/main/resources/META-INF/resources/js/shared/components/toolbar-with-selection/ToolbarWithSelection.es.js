@@ -49,7 +49,7 @@ const ToolbarWithSelection = ({
 								className="ml-0 mr-0 navbar-text"
 								data-testid="toolbarLabel"
 							>
-								{selectAll
+								{selectAll || selectedCount === totalCount
 									? Liferay.Language.get('all-selected')
 									: sub(
 											Liferay.Language.get(
