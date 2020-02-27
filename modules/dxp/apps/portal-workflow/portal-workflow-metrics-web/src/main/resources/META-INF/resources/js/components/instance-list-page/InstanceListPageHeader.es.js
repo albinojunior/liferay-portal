@@ -19,49 +19,44 @@ import ResultsBar from '../../shared/components/results-bar/ResultsBar.es';
 import ToolbarWithSelection from '../../shared/components/toolbar-with-selection/ToolbarWithSelection.es';
 import AssigneeFilter from '../filter/AssigneeFilter.es';
 import ProcessStatusFilter, {
-	processStatusConstants,
+	processStatusConstants
 } from '../filter/ProcessStatusFilter.es';
 import ProcessStepFilter from '../filter/ProcessStepFilter.es';
 import SLAStatusFilter from '../filter/SLAStatusFilter.es';
 import TimeRangeFilter from '../filter/TimeRangeFilter.es';
-import {ModalContext} from './modal/ModalContext.es';
-import {InstanceListContext} from './store/InstanceListPageStore.es';
+import {InstanceListContext} from './InstanceListPageProvider.es';
+import {ModalContext} from './modal/ModalProvider.es';
 
 const Header = ({
 	filterKeys,
 	items = [],
 	routeParams,
 	selectedFilters,
-	totalCount,
+	totalCount
 }) => {
 	const {
 		selectAll,
 		selectedItems,
 		setSelectAll,
-		setSelectedItems,
+		setSelectedItems
 	} = useContext(InstanceListContext);
 	const previousCount = usePrevious(totalCount);
-	const {bulkModal, setBulkModal, setSingleModal} = useContext(ModalContext);
+	const {setVisibleModal} = useContext(ModalContext);
 
 	const kebabItems = [
 		{
 			icon: 'change',
 			label: Liferay.Language.get('reassign-task'),
 			onClick: () => {
-				if (
+				const bulkOperation =
 					selectedItems.length > 1 ||
-					selectedItems[0].taskNames.length > 1
-				) {
-					setBulkModal({...bulkModal, visible: true});
-				}
-				else {
-					setSingleModal({
-						selectedItem: selectedItems[0],
-						visible: true,
-					});
-				}
-			},
-		},
+					selectedItems[0].taskNames.length > 1;
+
+				setVisibleModal(
+					bulkOperation ? 'bulkReassign' : 'singleReassign'
+				);
+			}
+		}
 	];
 
 	const selectedOnPage = useMemo(
@@ -76,7 +71,7 @@ const Header = ({
 	const checkbox = {
 		checked: allPageSelected || selectAll,
 		indeterminate:
-			selectedOnPage.length > 0 && !allPageSelected && !selectAll,
+			selectedOnPage.length > 0 && !allPageSelected && !selectAll
 	};
 
 	const remainingItems = useMemo(() => {
@@ -88,7 +83,7 @@ const Header = ({
 	}, [items, selectedItems]);
 
 	const toolbarActive = useMemo(() => selectedItems.length > 0, [
-		selectedItems,
+		selectedItems
 	]);
 
 	useEffect(() => {
@@ -196,7 +191,7 @@ const Header = ({
 						{completedStatusSelected && (
 							<TimeRangeFilter
 								options={{
-									withSelectionTitle: false,
+									withSelectionTitle: false
 								}}
 							/>
 						)}
