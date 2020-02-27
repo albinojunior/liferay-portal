@@ -13,13 +13,13 @@ import React, {useContext, useMemo, useState} from 'react';
 
 import PromisesResolver from '../../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../../../shared/hooks/useFetch.es';
-import {ModalContext} from '../../ModalContext.es';
+import {ModalContext} from '../../ModalProvider.es';
 import {Body} from './BulkReassignSelectAssigneesStepBody.es';
 import {Header} from './BulkReassignSelectAssigneesStepHeader.es';
 
 const BulkReassignSelectAssigneesStep = ({setErrorToast}) => {
 	const {
-		bulkModal: {selectedTasks},
+		selectTasks: {tasks},
 	} = useContext(ModalContext);
 
 	const [retry, setRetry] = useState(0);
@@ -27,7 +27,7 @@ const BulkReassignSelectAssigneesStep = ({setErrorToast}) => {
 	const {data, fetchData} = useFetch({
 		admin: true,
 		params: {
-			workflowTaskIds: selectedTasks.map(task => task.id),
+			workflowTaskIds: tasks.map(task => task.id),
 		},
 		url: '/workflow-tasks/assignable-users',
 	});
@@ -35,30 +35,34 @@ const BulkReassignSelectAssigneesStep = ({setErrorToast}) => {
 	const promises = useMemo(() => {
 		setErrorToast(false);
 
-		return [
-			fetchData().catch(err => {
-				setErrorToast(Liferay.Language.get('your-request-has-failed'));
+		if (tasks.length) {
+			return [
+				fetchData().catch(err => {
+					setErrorToast(
+						Liferay.Language.get('your-request-has-failed')
+					);
 
-				return Promise.reject(err);
-			}),
-		];
+					return Promise.reject(err);
+				}),
+			];
+		}
+
+		return [];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchData, retry]);
 
 	return (
-		<div className="fixed-height modal-metrics-content">
-			<PromisesResolver promises={promises}>
-				<PromisesResolver.Resolved>
-					<BulkReassignSelectAssigneesStep.Header data={data} />
-				</PromisesResolver.Resolved>
+		<PromisesResolver promises={promises}>
+			<PromisesResolver.Resolved>
+				<BulkReassignSelectAssigneesStep.Header data={data} />
+			</PromisesResolver.Resolved>
 
-				<BulkReassignSelectAssigneesStep.Body
-					data={data}
-					setRetry={setRetry}
-					tasks={selectedTasks}
-				/>
-			</PromisesResolver>
-		</div>
+			<BulkReassignSelectAssigneesStep.Body
+				data={data}
+				setRetry={setRetry}
+				tasks={tasks}
+			/>
+		</PromisesResolver>
 	);
 };
 

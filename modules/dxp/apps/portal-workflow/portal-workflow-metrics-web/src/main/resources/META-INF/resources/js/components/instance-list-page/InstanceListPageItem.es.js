@@ -17,8 +17,8 @@ import Icon from '../../shared/components/Icon.es';
 import QuickActionKebab from '../../shared/components/quick-action-kebab/QuickActionKebab.es';
 import moment from '../../shared/util/moment.es';
 import {capitalize} from '../../shared/util/util.es';
-import {ModalContext} from './modal/ModalContext.es';
-import {InstanceListContext} from './store/InstanceListPageStore.es';
+import {InstanceListContext} from './InstanceListPageProvider.es';
+import {ModalContext} from './modal/ModalProvider.es';
 
 const getSLAStatusIcon = slaStatus => {
 	const items = {
@@ -49,9 +49,7 @@ const Item = ({totalCount, ...instance}) => {
 		setSelectAll,
 		setSelectedItems,
 	} = useContext(InstanceListContext);
-	const {instanceDetailsModal, setInstanceDetailsModal} = useContext(
-		ModalContext
-	);
+	const {setVisibleModal} = useContext(ModalContext);
 
 	const [checked, setChecked] = useState(false);
 
@@ -134,10 +132,7 @@ const Item = ({totalCount, ...instance}) => {
 					onClick={() => {
 						setInstanceId(id);
 
-						setInstanceDetailsModal(() => ({
-							...instanceDetailsModal,
-							visible: true,
-						}));
+						setVisibleModal('instanceDetails');
 					}}
 					tabIndex="-1"
 				>
@@ -175,28 +170,18 @@ const Item = ({totalCount, ...instance}) => {
 };
 
 const QuickActionMenu = ({disabled, instance}) => {
-	const {
-		bulkModal,
-		setBulkModal,
-		setSingleModal,
-		setSingleTransition,
-		setUpdateDueDate,
-	} = useContext(ModalContext);
-
-	const {id, transitions = [], taskNames} = instance;
+	const {setSingleTransition, setVisibleModal} = useContext(ModalContext);
+	const {setSelectedItem, setSelectedItems} = useContext(InstanceListContext);
+	const {transitions = [], taskNames} = instance;
 
 	const handleClickReassignTask = useCallback(
 		() => {
 			if (taskNames.length > 1) {
-				setBulkModal({...bulkModal, visible: true});
-
-				setSingleModal({selectedItem: instance});
-			}
-			else {
-				setSingleModal({
-					selectedItem: instance,
-					visible: true,
-				});
+				setSelectedItems([instance]);
+				setVisibleModal('bulkReassign');
+			} else {
+				setSelectedItem(instance);
+				setVisibleModal('singleReassign');
 			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,18 +190,19 @@ const QuickActionMenu = ({disabled, instance}) => {
 
 	const handleClickUpdateDueDate = useCallback(
 		() => {
-			if (taskNames.length > 1) {
-				setBulkModal({...bulkModal, visible: true});
-			}
-			else {
-				setUpdateDueDate({selectedItem: instance, visible: true});
-			}
+			setSelectedItem(instance);
+			setVisibleModal('updateDueDate');
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[instance]
 	);
 
 	const transitionLabel = capitalize(Liferay.Language.get('transition'));
+	const updateDueDateItem = {
+		icon: 'date',
+		label: Liferay.Language.get('update-due-date'),
+		onClick: handleClickUpdateDueDate,
+	};
 
 	const kebabItems = [
 		{
@@ -224,11 +210,7 @@ const QuickActionMenu = ({disabled, instance}) => {
 			label: Liferay.Language.get('reassign-task'),
 			onClick: handleClickReassignTask,
 		},
-		{
-			icon: 'date',
-			label: Liferay.Language.get('update-due-date'),
-			onClick: handleClickUpdateDueDate,
-		},
+		updateDueDateItem,
 	];
 
 	if (transitions.length > 0) {
@@ -241,11 +223,11 @@ const QuickActionMenu = ({disabled, instance}) => {
 					label,
 					name,
 					onClick: () => {
+						setVisibleModal('singleTransition');
+						setSelectedItem(instance);
 						setSingleTransition({
-							selectedItemId: id,
 							title: label,
 							transitionName: name,
-							visible: true,
 						});
 					},
 				})),
