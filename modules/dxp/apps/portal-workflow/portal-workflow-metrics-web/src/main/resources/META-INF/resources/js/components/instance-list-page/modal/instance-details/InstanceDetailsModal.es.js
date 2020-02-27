@@ -16,19 +16,15 @@ import React, {useContext, useEffect, useState} from 'react';
 
 import moment from '../../../../shared/util/moment.es';
 import {AppContext} from '../../../AppContext.es';
-import {InstanceListContext} from '../../store/InstanceListPageStore.es';
-import {ModalContext} from '../ModalContext.es';
+import {InstanceListContext} from '../../InstanceListPageProvider.es';
+import {ModalContext} from '../ModalProvider.es';
 
 const InstanceDetailsModal = () => {
 	const [instance, setInstance] = useState({});
 
 	const {client} = useContext(AppContext);
 	const {instanceId} = useContext(InstanceListContext);
-	const {instanceDetailsModal, setInstanceDetailsModal} = useContext(
-		ModalContext
-	);
-
-	const {processId, visible} = instanceDetailsModal;
+	const {processId, setVisibleModal, visibleModal} = useContext(ModalContext);
 
 	useEffect(() => {
 		if (instanceId) {
@@ -86,16 +82,13 @@ const InstanceDetailsModal = () => {
 
 	const {observer} = useModal({
 		onClose: () => {
-			setInstanceDetailsModal({
-				...instanceDetailsModal,
-				visible: false,
-			});
+			setVisibleModal('');
 		},
 	});
 
 	return (
 		<>
-			{visible && (
+			{visibleModal === 'instanceDetails' && (
 				<ClayModal
 					className="instance-details-modal"
 					observer={observer}

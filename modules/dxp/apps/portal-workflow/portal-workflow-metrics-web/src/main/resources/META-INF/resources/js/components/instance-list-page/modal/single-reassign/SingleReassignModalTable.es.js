@@ -16,7 +16,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 
 import {Autocomplete} from '../../../../shared/components/autocomplete/Autocomplete.es';
 import {useFetch} from '../../../../shared/hooks/useFetch.es';
-import {ModalContext} from '../ModalContext.es';
+import {InstanceListContext} from '../../InstanceListPageProvider.es';
 
 const AssigneeInput = ({setAssigneeId, taskId}) => {
 	const {data, fetchData} = useFetch({
@@ -48,27 +48,22 @@ const AssigneeInput = ({setAssigneeId, taskId}) => {
 const Item = ({
 	assetTitle,
 	assetType,
-	completed,
 	index,
 	item,
 	setAssigneeId,
 	taskNames,
 }) => {
-	const {singleModal} = useContext(ModalContext);
+	const {selectedItem, selectedItems} = useContext(InstanceListContext);
 
 	return (
 		<ClayTable.Row {...item} key={index}>
 			<ClayTable.Cell style={{fontWeight: 'bold'}}>
-				{singleModal.selectedItem && singleModal.selectedItem.id}
+				{selectedItems.length ? selectedItems[0].id : selectedItem.id}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>{`${assetType}: ${assetTitle}`} </ClayTable.Cell>
 
-			<ClayTable.Cell>
-				{!completed
-					? taskNames.join(', ')
-					: Liferay.Language.get('completed')}
-			</ClayTable.Cell>
+			<ClayTable.Cell>{taskNames[0]}</ClayTable.Cell>
 
 			<ClayTable.Cell>
 				{item.assigneePerson
@@ -91,10 +86,8 @@ const Table = ({
 	assetType,
 	data,
 	setAssigneeId,
-	status,
 	taskNames = [],
 }) => {
-	const completed = status === 'Completed';
 	const {items} = data;
 
 	return (
@@ -174,7 +167,6 @@ const Table = ({
 						<Table.Item
 							assetTitle={assetTitle}
 							assetType={assetType}
-							completed={completed}
 							index={index}
 							item={item}
 							key={index}
