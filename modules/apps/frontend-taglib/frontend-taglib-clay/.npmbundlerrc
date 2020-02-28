@@ -105,7 +105,6 @@
 		"metal-soy-bundle": true,
 		"metal-state": true,
 		"metal-web-component": true,
-		"moment": true,
 		"xss-filters": true
 	},
 	"output": "build/node/packageRunBuild/resources",
