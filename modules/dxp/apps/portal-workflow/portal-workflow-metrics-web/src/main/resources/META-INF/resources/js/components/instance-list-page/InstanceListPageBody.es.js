@@ -21,6 +21,7 @@ import {ModalContext} from './modal/ModalProvider.es';
 import {BulkReassignModal} from './modal/bulk-reassign/BulkReassignModal.es';
 import {InstanceDetailsModal} from './modal/instance-details/InstanceDetailsModal.es';
 import {SingleReassignModal} from './modal/single-reassign/SingleReassignModal.es';
+import BulkTransitionModal from './modal/transition/bulk/BulkTransitionModal.es';
 import {SingleTransitionModal} from './modal/transition/single/SingleTransitionModal.es';
 import {SingleUpdateDueDateModal} from './modal/update-due-date/SingleUpdateDueDateModal.es';
 
@@ -90,6 +91,8 @@ const Body = ({data, fetchData, filtered, routeParams}) => {
 
 			<Body.BulkReassignModal />
 
+			<Body.BulkTransitionModal />
+
 			<Body.InstanceDetailsModal />
 
 			<Body.SingleReassignModal />
@@ -103,6 +106,7 @@ const Body = ({data, fetchData, filtered, routeParams}) => {
 
 Body.Table = Table;
 Body.BulkReassignModal = BulkReassignModal;
+Body.BulkTransitionModal = BulkTransitionModal;
 Body.InstanceDetailsModal = InstanceDetailsModal;
 Body.SingleReassignModal = SingleReassignModal;
 Body.SingleTransitionModal = SingleTransitionModal;
