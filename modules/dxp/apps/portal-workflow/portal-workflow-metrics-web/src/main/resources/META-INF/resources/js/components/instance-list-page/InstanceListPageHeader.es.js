@@ -17,9 +17,10 @@ import filterConstants from '../../shared/components/filter/util/filterConstants
 import QuickActionKebab from '../../shared/components/quick-action-kebab/QuickActionKebab.es';
 import ResultsBar from '../../shared/components/results-bar/ResultsBar.es';
 import ToolbarWithSelection from '../../shared/components/toolbar-with-selection/ToolbarWithSelection.es';
+import {capitalize} from '../../shared/util/util.es';
 import AssigneeFilter from '../filter/AssigneeFilter.es';
 import ProcessStatusFilter, {
-	processStatusConstants
+	processStatusConstants,
 } from '../filter/ProcessStatusFilter.es';
 import ProcessStepFilter from '../filter/ProcessStepFilter.es';
 import SLAStatusFilter from '../filter/SLAStatusFilter.es';
@@ -32,18 +33,25 @@ const Header = ({
 	items = [],
 	routeParams,
 	selectedFilters,
-	totalCount
+	totalCount,
 }) => {
 	const {
 		selectAll,
 		selectedItems,
 		setSelectAll,
-		setSelectedItems
+		setSelectedItems,
 	} = useContext(InstanceListContext);
 	const previousCount = usePrevious(totalCount);
 	const {setVisibleModal} = useContext(ModalContext);
 
 	const kebabItems = [
+		{
+			icon: 'arrow-start',
+			label: capitalize(Liferay.Language.get('transition')),
+			onClick: () => {
+				setVisibleModal('bulkTransition');
+			},
+		},
 		{
 			icon: 'change',
 			label: Liferay.Language.get('reassign-task'),
@@ -55,8 +63,8 @@ const Header = ({
 				setVisibleModal(
 					bulkOperation ? 'bulkReassign' : 'singleReassign'
 				);
-			}
-		}
+			},
+		},
 	];
 
 	const selectedOnPage = useMemo(
@@ -71,7 +79,7 @@ const Header = ({
 	const checkbox = {
 		checked: allPageSelected || selectAll,
 		indeterminate:
-			selectedOnPage.length > 0 && !allPageSelected && !selectAll
+			selectedOnPage.length > 0 && !allPageSelected && !selectAll,
 	};
 
 	const remainingItems = useMemo(() => {
@@ -83,7 +91,7 @@ const Header = ({
 	}, [items, selectedItems]);
 
 	const toolbarActive = useMemo(() => selectedItems.length > 0, [
-		selectedItems
+		selectedItems,
 	]);
 
 	useEffect(() => {
@@ -191,7 +199,7 @@ const Header = ({
 						{completedStatusSelected && (
 							<TimeRangeFilter
 								options={{
-									withSelectionTitle: false
+									withSelectionTitle: false,
 								}}
 							/>
 						)}
