@@ -55,12 +55,19 @@ const velocityUnitsMap = {
 	730: [asDefault(monthsUnit), yearsUnit],
 };
 
-const getVelocityUnits = ({dateEnd, dateStart}) => {
-	if (!dateEnd || !dateStart) {
+const getVelocityUnits = timeRange => {
+	if (!timeRange.dateEnd || !timeRange.dateStart) {
 		return [];
 	}
 
-	const daysDiff = moment.utc(dateEnd).diff(moment.utc(dateStart), 'days');
+	const dateEnd = moment.utc(timeRange.dateEnd);
+	const dateStart = moment.utc(timeRange.dateStart);
+
+	let daysDiff = dateEnd.diff(dateStart, 'days');
+
+	if (daysDiff === 366 && (dateEnd.isLeapYear() || dateStart.isLeapYear())) {
+		--daysDiff;
+	}
 
 	return (
 		Object.keys(velocityUnitsMap)
