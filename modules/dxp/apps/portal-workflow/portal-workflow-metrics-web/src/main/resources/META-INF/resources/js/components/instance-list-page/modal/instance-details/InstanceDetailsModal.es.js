@@ -12,7 +12,7 @@
 
 import ClayIcon from '@clayui/icon';
 import ClayModal, {useModal} from '@clayui/modal';
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 
 import PromisesResolver from '../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../../shared/hooks/useFetch.es';
@@ -20,45 +20,42 @@ import {InstanceListContext} from '../../store/InstanceListPageStore.es';
 import {ModalContext} from '../ModalContext.es';
 import {Body} from './InstanceDetailsModalBody.es';
 
-const Header = ({id, slaResults = [], slaStatus, status}) => {
-	const empty = slaResults.length === 0;
-	const overdue = slaStatus === 'Overdue';
+const Header = ({id = '', slaResults = [], slaStatus, status}) => {
+	const getStatus = status => (slaResults.length === 0 ? 'Empty' : status);
+	const icons = {
+		Empty: 'hr',
+		Overdue: 'exclamation-circle',
+	};
+	const styles = {
+		Completed: 'text-secondary',
+		Empty: 'text-info',
+		OnTime: 'text-success',
+		Pending: 'text-success',
+	};
 
-	let styleName = 'text-danger';
-
-	if (empty) {
-		styleName = 'text-info';
-	} else if (status === 'Completed') {
-		styleName = 'text-secondary';
-	} else if (status === 'Pending' && slaStatus === 'OnTime') {
-		styleName = 'text-success';
-	}
-
-	let iconTitleName = 'check-circle';
-
-	if (empty) {
-		iconTitleName = 'hr';
-	} else if (overdue) {
-		iconTitleName = 'exclamation-circle';
-	}
+	const iconName = icons[getStatus(slaStatus)] || 'check-circle';
+	const styleName = styles[getStatus(status)] || 'text-danger';
 
 	return (
 		<ClayModal.Header data-testid="instanceDetailsHeader">
-			<div
-				className="font-weight-medium"
-				data-testid="instanceDetailsTitle"
-			>
-				<span className={`modal-title-indicator ${styleName}`}>
-					<ClayIcon data-testid="iconTitle" symbol={iconTitleName} />
-				</span>
+			<PromisesResolver.Resolved>
+				<div
+					className="font-weight-medium"
+					data-testid="instanceDetailsTitle"
+				>
+					<span className={`modal-title-indicator ${styleName}`}>
+						<ClayIcon data-testid="iconTitle" symbol={iconName} />
+					</span>
 
-				{`${Liferay.Language.get('item')} #${id}`}
-			</div>
+					{`${Liferay.Language.get('item')} #${id}`}
+				</div>
+			</PromisesResolver.Resolved>
 		</ClayModal.Header>
 	);
 };
 
 const InstanceDetailsModal = () => {
+	const [retry, setRetry] = useState(0);
 	const {instanceId, setInstanceId} = useContext(InstanceListContext);
 	const {
 		instanceDetailsModal: {processId, visible},
@@ -80,13 +77,14 @@ const InstanceDetailsModal = () => {
 		}
 
 		return [];
-	}, [instanceId, fetchData]);
+	}, [instanceId, fetchData, retry]);
 
 	const {observer} = useModal({
 		onClose: () => {
 			setInstanceId();
 
 			setInstanceDetailsModal({
+				processId,
 				visible: false,
 			});
 		},
@@ -98,10 +96,10 @@ const InstanceDetailsModal = () => {
 			observer={observer}
 			size="lg"
 		>
-			<InstanceDetailsModal.Header {...data} />
-
 			<PromisesResolver promises={promises}>
-				<InstanceDetailsModal.Body {...data} />
+				<InstanceDetailsModal.Header {...data} />
+
+				<InstanceDetailsModal.Body {...data} setRetry={setRetry} />
 			</PromisesResolver>
 		</ClayModal>
 	) : (

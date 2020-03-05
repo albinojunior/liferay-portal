@@ -15,7 +15,7 @@ import ClayModal from '@clayui/modal';
 import React from 'react';
 
 import EmptyState from '../../../../shared/components/empty-state/EmptyState.es';
-import ReloadButton from '../../../../shared/components/list/ReloadButton.es';
+import RetryButton from '../../../../shared/components/list/RetryButton.es';
 import LoadingState from '../../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../../shared/components/promises-resolver/PromisesResolver.es';
 import moment from '../../../../shared/util/moment.es';
@@ -24,20 +24,22 @@ import {Item} from './InstanceDetailsModalItem.es';
 const Body = ({
 	assetTitle,
 	assetType,
-	assigneeUsers,
+	assigneeUsers = [{name: Liferay.Language.get('unassigned')}],
 	creatorUser,
 	dateCompletion,
 	dateCreated,
+	setRetry,
 	id,
 	slaResults = [],
 	status,
 	taskNames = [],
 }) => {
 	const completed = status === 'Completed';
-	const slaOpen = slaResults.filter(({status}) =>
-		['Running', 'Paused'].includes(status)
-	);
-	const slaResolved = slaResults.filter(({status}) => status === 'Stopped');
+	const SLAs = {open: [], resolved: []};
+
+	slaResults.forEach(result => {
+		SLAs[result.status === 'Stopped' ? 'resolved' : 'open'].push(result);
+	});
 
 	return (
 		<ClayModal.Body>
@@ -60,27 +62,27 @@ const Body = ({
 					</p>
 				)}
 
-				{!!slaOpen.length && (
+				{SLAs.open.length && (
 					<Body.SectionSubTitle>
 						{`${Liferay.Language.get('open').toUpperCase()} (${
-							slaOpen.length
+							SLAs.open.length
 						})`}
 					</Body.SectionSubTitle>
 				)}
 
-				{slaOpen.map(item => (
+				{SLAs.open.map(item => (
 					<Body.Item key={item.id} {...item} />
 				))}
 
-				{!!slaResolved.length && (
+				{SLAs.resolved.length && (
 					<Body.SectionSubTitle>
 						{`${Liferay.Language.get('resolved').toUpperCase()} (${
-							slaResolved.length
+							SLAs.resolved.length
 						})`}
 					</Body.SectionSubTitle>
 				)}
 
-				{slaResolved.map(item => (
+				{SLAs.resolved.map(item => (
 					<Body.Item key={item.id} {...item} />
 				))}
 
@@ -98,7 +100,7 @@ const Body = ({
 					detail={creatorUser ? creatorUser.name : ''}
 				/>
 
-				{!!dateCreated && (
+				{dateCreated && (
 					<Body.SectionAttribute
 						description={Liferay.Language.get('creation-date')}
 						detail={moment
@@ -124,7 +126,7 @@ const Body = ({
 					/>
 				)}
 
-				{completed && !!dateCompletion && (
+				{completed && dateCompletion && (
 					<Body.SectionAttribute
 						description={Liferay.Language.get('end-date')}
 						detail={moment
@@ -136,13 +138,7 @@ const Body = ({
 				{!completed && (
 					<Body.SectionAttribute
 						description={Liferay.Language.get('current-assignee')}
-						detail={
-							assigneeUsers && assigneeUsers.length
-								? assigneeUsers
-										.map(user => user.name)
-										.join(', ')
-								: Liferay.Language.get('unassigned')
-						}
+						detail={assigneeUsers.map(user => user.name).join(', ')}
 					/>
 				)}
 
@@ -161,16 +157,16 @@ const Body = ({
 			</PromisesResolver.Resolved>
 
 			<PromisesResolver.Rejected>
-				<Body.Error />
+				<Body.Error onClick={() => setRetry(retry => retry + 1)} />
 			</PromisesResolver.Rejected>
 		</ClayModal.Body>
 	);
 };
 
-const ErrorView = () => {
+const ErrorView = ({onClick}) => {
 	return (
 		<EmptyState
-			actionButton={<ReloadButton />}
+			actionButton={<RetryButton onClick={onClick} />}
 			className="border-0 mb-5"
 			hideAnimation={true}
 			message={Liferay.Language.get(
