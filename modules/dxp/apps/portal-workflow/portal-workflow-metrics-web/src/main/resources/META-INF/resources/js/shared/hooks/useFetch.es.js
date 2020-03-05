@@ -19,6 +19,9 @@ const useFetch = ({admin = false, params = {}, url}) => {
 
 	const client = getClient(admin);
 	const queryParamsStr = JSON.stringify(params);
+
+	console.log(url);
+	
 	const fetchData = useCallback(
 		() =>
 			client.get(url, {params}).then(({data}) => {
