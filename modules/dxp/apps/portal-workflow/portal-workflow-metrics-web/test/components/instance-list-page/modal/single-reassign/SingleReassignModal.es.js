@@ -12,30 +12,36 @@
 import {fireEvent, render} from '@testing-library/react';
 import React, {useState} from 'react';
 
-import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalContext.es';
+import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageProvider.es';
+import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalProvider.es';
 import {SingleReassignModal} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/single-reassign/SingleReassignModal.es';
-import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
 import ToasterProvider from '../../../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
 import {MockRouter} from '../../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
 const ContainerMock = ({children}) => {
-	const [singleModal, setSingleModal] = useState({
-		selectedItem: {
-			assetTitle: 'Blog1',
-			assetType: 'Blogs Entry',
-			assigneeUsers: [{id: 2, name: 'Test Test'}],
-			id: 1,
-			status: 'In Progress',
-			taskNames: ['Review'],
-		},
-		visible: true,
+	const [selectedItem, setSelectedItem] = useState({
+		assetTitle: 'Blog1',
+		assetType: 'Blogs Entry',
+		assigneeUsers: [{id: 2, name: 'Test Test'}],
+		id: 1,
+		status: 'In Progress',
+		taskNames: ['Review'],
 	});
+	const [selectedItems, setSelectedItems] = useState([]);
+	const [visibleModal, setVisibleModal] = useState('singleReassign');
 
 	return (
-		<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
-			<ModalContext.Provider value={{setSingleModal, singleModal}}>
+		<InstanceListContext.Provider
+			value={{
+				selectedItem,
+				selectedItems,
+				setSelectedItem,
+				setSelectedItems,
+			}}
+		>
+			<ModalContext.Provider value={{setVisibleModal, visibleModal}}>
 				<ToasterProvider>{children}</ToasterProvider>
 			</ModalContext.Provider>
 		</InstanceListContext.Provider>
