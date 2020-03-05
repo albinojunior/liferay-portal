@@ -12,21 +12,15 @@
 import {fireEvent, render} from '@testing-library/react';
 import React, {useState} from 'react';
 
-import InstanceListPage from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPage.es';
-import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalContext.es';
-import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
+import {Body} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageBody.es';
+import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageProvider.es';
+import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalProvider.es';
 import ToasterProvider from '../../../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
 import {MockRouter} from '../../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const {
-	assignees,
-	items,
-	processSteps,
-	selectedItems,
-	workflowTaskAssignableUsers,
-} = {
+const {assignees, items, processSteps, workflowTaskAssignableUsers} = {
 	assignees: [{id: 1, name: 'Test Test'}],
 	items: [
 		{
@@ -117,20 +111,83 @@ const clientMock = {
 };
 
 const ContainerMock = ({children}) => {
-	const [bulkModal, setBulkModal] = useState({
-		processId: '12345',
+	const [bulkReassign, setBulkReassign] = useState({
 		reassignedTasks: [],
 		reassigning: false,
 		selectedAssignee: null,
-		selectedTasks: [],
 		useSameAssignee: false,
-		visible: true,
 	});
+	const processId = '12345';
+	const [selectAll, setSelectAll] = useState(false);
+	const [visibleModal, setVisibleModal] = useState('bulkReassign');
+	const task = id => ({
+		assignees: [{id, name: 'Test Test'}],
+		items: [
+			{
+				assigneePerson: {
+					id,
+					name: 'Test Test',
+				},
+				id,
+				label: 'Review',
+				objectReviewed: {
+					assetTitle: 'Blog 1',
+					assetType: 'Blog',
+				},
+				workflowInstanceId: 1,
+			},
+			{
+				assigneePerson: {
+					id,
+					name: 'Test Test',
+				},
+				id: id + 1,
+				label: 'Update',
+				objectReviewed: {
+					assetTitle: 'Blog 2',
+					assetType: 'Blog',
+				},
+				workflowInstanceId: 2,
+			},
+		],
+		processSteps: [
+			{key: 'review', name: 'Review'},
+			{key: 'update', name: 'Update'},
+		],
+	});
+
+	const [selectTasks, setSelectTasks] = useState({
+		selectAll: false,
+		tasks: [],
+	});
+
+	const [selectedItems, setSelectedItems] = useState([
+		task(1),
+		task(2),
+		task(3),
+	]);
 
 	return (
 		<MockRouter client={clientMock}>
-			<InstanceListContext.Provider value={{selectedItems}}>
-				<ModalContext.Provider value={{bulkModal, setBulkModal}}>
+			<InstanceListContext.Provider
+				value={{
+					selectAll,
+					selectedItems,
+					setSelectAll,
+					setSelectedItems,
+				}}
+			>
+				<ModalContext.Provider
+					value={{
+						bulkReassign,
+						processId,
+						selectTasks,
+						setBulkReassign,
+						setSelectTasks,
+						setVisibleModal,
+						visibleModal,
+					}}
+				>
 					<ToasterProvider>{children}</ToasterProvider>
 				</ModalContext.Provider>
 			</InstanceListContext.Provider>
@@ -142,11 +199,9 @@ describe('The BulkReassignModal component should', () => {
 	let getAllByTestId, getByTestId, renderResult;
 
 	beforeAll(() => {
-		renderResult = render(
-			<ContainerMock>
-				<InstanceListPage.BulkReassignModal />
-			</ContainerMock>
-		);
+		renderResult = render(<Body.BulkReassignModal />, {
+			wrapper: ContainerMock,
+		});
 
 		getAllByTestId = renderResult.getAllByTestId;
 		getByTestId = renderResult.getByTestId;
@@ -176,7 +231,7 @@ describe('The BulkReassignModal component should', () => {
 		const cancelBtn = getByTestId('cancelButton');
 		const nextBtn = getByTestId('nextButton');
 
-		const table = getByTestId('bulkReassignModalTable');
+		const table = getByTestId('selectTaskStepTable');
 		const checkbox = getAllByTestId('itemCheckbox');
 		const checkAllButton = getByTestId('checkAllButton');
 		const processStepFilter = getByTestId('processStepFilter');
