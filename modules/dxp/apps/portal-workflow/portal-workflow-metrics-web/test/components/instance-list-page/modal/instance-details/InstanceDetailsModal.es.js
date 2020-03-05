@@ -15,21 +15,19 @@ import React, {useState} from 'react';
 import '@testing-library/jest-dom/extend-expect';
 
 import InstanceListPage from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPage.es';
-import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalContext.es';
-import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
+import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageProvider.es';
+import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalProvider.es';
 import {MockRouter} from '../../../../mock/MockRouter.es';
 
 const ContainerMock = ({children, clientMock}) => {
-	const [instanceDetailsModal, setInstanceDetailsModal] = useState({
-		processId: '12345',
-		visible: true,
-	});
+	const [instanceId, setInstanceId] = useState(37634);
+	const [visibleModal, setVisibleModal] = useState(true);
 
 	return (
 		<MockRouter client={clientMock}>
-			<InstanceListContext.Provider value={{instanceId: 37634}}>
+			<InstanceListContext.Provider value={{instanceId, setInstanceId}}>
 				<ModalContext.Provider
-					value={{instanceDetailsModal, setInstanceDetailsModal}}
+					value={{processId: '12345', setVisibleModal, visibleModal}}
 				>
 					{children}
 				</ModalContext.Provider>
