@@ -97,13 +97,7 @@ const clientMock = {
 	get: jest
 		.fn()
 		.mockRejectedValueOnce(new Error('request-failure'))
-		.mockResolvedValueOnce({data: {items: processSteps}})
-		.mockResolvedValueOnce({data: {items: assignees}})
 		.mockResolvedValueOnce({data: {items, totalCount: items.length + 1}})
-		.mockResolvedValueOnce({data: {items: processSteps}})
-		.mockResolvedValueOnce({data: {items: assignees}})
-		.mockResolvedValueOnce({data: {items: processSteps}})
-		.mockResolvedValueOnce({data: {items: assignees}})
 		.mockRejectedValueOnce(new Error('request-failure'))
 		.mockResolvedValueOnce({data: {items: [items[0]], totalCount: 1}})
 		.mockRejectedValueOnce(new Error('request-failure'))
@@ -114,6 +108,14 @@ const clientMock = {
 		.fn()
 		.mockRejectedValueOnce(new Error('request-failure'))
 		.mockResolvedValueOnce({data: {}}),
+	request: jest
+		.fn()
+		.mockResolvedValueOnce({data: {items: processSteps}})
+		.mockResolvedValueOnce({data: {items: assignees}})
+		.mockResolvedValueOnce({data: {items: processSteps}})
+		.mockResolvedValueOnce({data: {items: assignees}})
+		.mockResolvedValueOnce({data: {items: processSteps}})
+		.mockResolvedValueOnce({data: {items: assignees}}),
 };
 
 const ContainerMock = ({children}) => {
