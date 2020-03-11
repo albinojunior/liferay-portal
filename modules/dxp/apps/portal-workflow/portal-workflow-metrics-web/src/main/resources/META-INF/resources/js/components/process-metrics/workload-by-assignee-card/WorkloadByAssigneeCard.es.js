@@ -13,8 +13,8 @@ import React, {useMemo, useState} from 'react';
 
 import Panel from '../../../shared/components/Panel.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
-import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
+import {usePost} from '../../../shared/hooks/usePost.es';
 import ProcessStepFilter from '../../filter/ProcessStepFilter.es';
 import {Body} from './WorkloadByAssigneeCardBody.es';
 import Tabs from './WorkloadByAssigneeCardTabs.es';
@@ -57,12 +57,12 @@ const WorkloadByAssigneeCard = ({routeParams}) => {
 
 	const params = getParams(currentTab, taskKey);
 
-	const {data, fetchData} = useFetch({
+	const {data, postData} = usePost({
 		params,
 		url: `/processes/${processId}/assignee-users`,
 	});
 
-	const promises = useMemo(() => [fetchData()], [fetchData]);
+	const promises = useMemo(() => [postData()], [postData]);
 
 	return (
 		<PromisesResolver promises={promises}>

@@ -38,6 +38,14 @@ const BulkReassignSelectTasksStep = ({processId, setErrorToast}) => {
 		initialPageSize: 5,
 	});
 
+	const instanceIds = useMemo(() => {
+		const {selectedItem = {}} = singleModal || {};
+
+		return selectedItems.length
+			? selectedItems.map(({id}) => id)
+			: selectedItem.id;
+	}, [selectedItems, singleModal]);
+
 	const params = useMemo(() => {
 		const filterByUser = userIds && userIds.length;
 
@@ -61,14 +69,12 @@ const BulkReassignSelectTasksStep = ({processId, setErrorToast}) => {
 			params.workflowDefinitionId = processId;
 		}
 		else {
-			params.workflowInstanceIds = selectedItems.length
-				? selectedItems.map(item => item.id)
-				: singleModal.selectedItem.id;
+			params.workflowInstanceIds = instanceIds;
 		}
 
 		return params;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [page, pageSize, taskNames, userIds]);
+	}, [instanceIds, page, pageSize, taskNames, userIds]);
 
 	const {data, fetchData} = useFetch({
 		admin: true,
@@ -99,6 +105,7 @@ const BulkReassignSelectTasksStep = ({processId, setErrorToast}) => {
 			<PromisesResolver promises={promises}>
 				<BulkReassignSelectTasksStep.Header
 					filterKeys={prefixedKeys}
+					instanceIds={instanceIds}
 					prefixKey={prefixKey}
 					selectedFilters={selectedFilters}
 					{...data}

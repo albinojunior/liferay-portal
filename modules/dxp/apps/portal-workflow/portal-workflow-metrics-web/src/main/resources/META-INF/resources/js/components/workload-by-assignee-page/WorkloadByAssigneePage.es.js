@@ -13,8 +13,8 @@ import React, {useMemo} from 'react';
 
 import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {parse} from '../../shared/components/router/queryString.es';
-import {useFetch} from '../../shared/hooks/useFetch.es';
 import {useFilter} from '../../shared/hooks/useFilter.es';
+import {usePost} from '../../shared/hooks/usePost.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
 import {Body} from './WorkloadByAssigneePageBody.es';
 import {Header} from './WorkloadByAssigneePageHeader.es';
@@ -35,7 +35,7 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 
 	const filtered = search || selectedFilters.length > 0;
 
-	const {data, fetchData} = useFetch({
+	const {data, postData} = usePost({
 		params: {
 			keywords: search,
 			roleIds,
@@ -45,7 +45,7 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 		url: `/processes/${processId}/assignee-users`,
 	});
 
-	const promises = useMemo(() => [fetchData()], [fetchData]);
+	const promises = useMemo(() => [postData()], [postData]);
 
 	return (
 		<PromisesResolver promises={promises}>
