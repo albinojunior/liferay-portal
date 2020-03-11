@@ -17,6 +17,7 @@ import Icon from '../../shared/components/Icon.es';
 import QuickActionKebab from '../../shared/components/quick-action-kebab/QuickActionKebab.es';
 import moment from '../../shared/util/moment.es';
 import {capitalize} from '../../shared/util/util.es';
+import {AppContext} from '../AppContext.es';
 import {ModalContext} from './modal/ModalContext.es';
 import {InstanceListContext} from './store/InstanceListPageStore.es';
 
@@ -183,7 +184,7 @@ const QuickActionMenu = ({disabled, instance}) => {
 		setUpdateDueDate,
 	} = useContext(ModalContext);
 
-	const {id, transitions = [], taskNames} = instance;
+	const {assigneeUsers = [], id, transitions = [], taskNames} = instance;
 
 	const handleClickReassignTask = useCallback(
 		() => {
@@ -218,44 +219,56 @@ const QuickActionMenu = ({disabled, instance}) => {
 
 	const transitionLabel = capitalize(Liferay.Language.get('transition'));
 
-	const kebabItems = [
-		{
-			icon: 'change',
-			label: Liferay.Language.get('reassign-task'),
-			onClick: handleClickReassignTask,
-		},
-		{
-			icon: 'date',
-			label: Liferay.Language.get('update-due-date'),
-			onClick: handleClickUpdateDueDate,
-		},
-	];
+	const kebabItems = [];
 
-	if (transitions.length > 0) {
-		const transitionItems = [
+	const {userId} = useContext(AppContext);
+
+	if (
+		assigneeUsers.length == 0 ||
+		assigneeUsers.filter(assigneeUser => assigneeUser.id == userId).length >
+			0
+	) {
+		const actionsItem = [
 			{
-				type: 'divider',
+				icon: 'change',
+				label: Liferay.Language.get('reassign-task'),
+				onClick: handleClickReassignTask,
 			},
 			{
-				items: transitions.map(({label, name}) => ({
-					label,
-					name,
-					onClick: () => {
-						setSingleTransition({
-							selectedItemId: id,
-							title: label,
-							transitionName: name,
-							visible: true,
-						});
-					},
-				})),
-				label: transitionLabel,
-				name: transitionLabel,
-				type: 'group',
+				icon: 'date',
+				label: Liferay.Language.get('update-due-date'),
+				onClick: handleClickUpdateDueDate,
 			},
 		];
 
-		kebabItems.push(...transitionItems);
+		kebabItems.push(...actionsItem);
+
+		if (transitions.length > 0) {
+			const transitionItems = [
+				{
+					type: 'divider',
+				},
+				{
+					items: transitions.map(({label, name}) => ({
+						label,
+						name,
+						onClick: () => {
+							setSingleTransition({
+								selectedItemId: id,
+								title: label,
+								transitionName: name,
+								visible: true,
+							});
+						},
+					})),
+					label: transitionLabel,
+					name: transitionLabel,
+					type: 'group',
+				},
+			];
+
+			kebabItems.push(...transitionItems);
+		}
 	}
 
 	return (
