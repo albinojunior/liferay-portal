@@ -13,8 +13,8 @@ import React, {useMemo} from 'react';
 
 import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {parse} from '../../shared/components/router/queryString.es';
-import {useFetch} from '../../shared/hooks/useFetch.es';
 import {useFilter} from '../../shared/hooks/useFilter.es';
+import {usePost} from '../../shared/hooks/usePost.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
 import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
 import {getTimeRangeParams} from '../filter/util/timeRangeUtil.es';
@@ -41,7 +41,7 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 		dateStart,
 	]);
 
-	const {data, fetchData} = useFetch({
+	const {data, postData} = usePost({
 		params: {
 			completed: true,
 			keywords: search,
@@ -53,7 +53,7 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 		url: `/processes/${processId}/assignee-users`,
 	});
 
-	const promises = useMemo(() => [fetchData()], [fetchData]);
+	const promises = useMemo(() => [postData()], [postData]);
 
 	return (
 		<PromisesResolver promises={promises}>
