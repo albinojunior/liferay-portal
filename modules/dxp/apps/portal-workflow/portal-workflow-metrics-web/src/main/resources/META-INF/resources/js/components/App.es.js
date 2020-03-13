@@ -20,6 +20,7 @@ import PerformanceByAssigneePage from './performance-by-assignee-page/Performanc
 import PerformanceByStepPage from './performance-by-step-page/PerformanceByStepPage.es';
 import ProcessListPage from './process-list-page/ProcessListPage.es';
 import ProcessMetrics from './process-metrics/ProcessMetrics.es';
+import SettingsPage from './settings-page/SettingsPage.es';
 import SLAForm from './sla/SLAForm.es';
 import SLAListCard from './sla/SLAListCard.es';
 import WorkloadByAssigneePage from './workload-by-assignee-page/WorkloadByAssigneePage.es';
@@ -36,6 +37,11 @@ const App = props => {
 							exact
 							path="/"
 							render={withParams(ProcessListPage)}
+						/>
+
+						<Route
+							path="/settings"
+							render={withParams(SettingsPage)}
 						/>
 
 						<Route
