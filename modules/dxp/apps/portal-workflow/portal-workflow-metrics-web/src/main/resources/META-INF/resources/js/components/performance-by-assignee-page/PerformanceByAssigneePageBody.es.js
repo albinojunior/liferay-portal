@@ -9,77 +9,56 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
+import React, {useMemo} from 'react';
 
-import EmptyState from '../../shared/components/empty-state/EmptyState.es';
 import ReloadButton from '../../shared/components/list/ReloadButton.es';
-import LoadingState from '../../shared/components/loading/LoadingState.es';
+import {PageBody} from '../../shared/components/page/PageBody.es';
 import PaginationBar from '../../shared/components/pagination-bar/PaginationBar.es';
-import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {Table} from './PerformanceByAssigneePageTable.es';
 
 const Body = ({data, filtered}) => {
 	const {items, page, pageSize, totalCount} = data;
 
-	return (
-		<div className="container-fluid-1280 mt-4">
-			<PromisesResolver.Pending>
-				<Body.Loading />
-			</PromisesResolver.Pending>
-
-			<PromisesResolver.Resolved>
-				{items && items.length > 0 ? (
-					<>
-						<Body.Table items={items} />
-
-						<PaginationBar
-							page={page}
-							pageBuffer={3}
-							pageSize={pageSize}
-							totalCount={totalCount}
-						/>
-					</>
-				) : (
-					<Body.Empty filtered={filtered} />
-				)}
-			</PromisesResolver.Resolved>
-
-			<PromisesResolver.Rejected>
-				<Body.Error />
-			</PromisesResolver.Rejected>
-		</div>
+	const states = useMemo(
+		() => ({
+			emptyState: {
+				emptyMessage: filtered
+					? Liferay.Language.get('no-results-were-found')
+					: Liferay.Language.get('there-is-no-data-at-the-moment'),
+				emptyType: filtered ? 'not-found' : 'empty',
+			},
+			errorState: {
+				actionButton: <ReloadButton />,
+				hideAnimation: true,
+				message: Liferay.Language.get(
+					'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
+				),
+			},
+			loadingState: {className: 'border-0 pb-6 pt-6 sheet'},
+		}),
+		[filtered]
 	);
-};
 
-const EmptyView = ({filtered}) => {
-	const emptyMessage = filtered
-		? Liferay.Language.get('no-results-were-found')
-		: Liferay.Language.get('there-is-no-data-at-the-moment');
-
-	const emptyType = filtered ? 'not-found' : 'empty';
-
-	return <EmptyState message={emptyMessage} type={emptyType} />;
-};
-
-const ErrorView = () => {
-	return (
-		<EmptyState
-			actionButton={<ReloadButton />}
-			hideAnimation={true}
-			message={Liferay.Language.get(
-				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-			)}
-		/>
+	const bodyContent = useMemo(
+		() =>
+			items &&
+			items.length > 0 && (
+				<>
+					<Body.Table items={items} />
+					<PaginationBar
+						page={page}
+						pageBuffer={3}
+						pageSize={pageSize}
+						totalCount={totalCount}
+					/>
+				</>
+			),
+		[items, page, pageSize, totalCount]
 	);
+
+	return <PageBody bodyContent={bodyContent} states={states} />;
 };
 
-const LoadingView = () => {
-	return <LoadingState className="border-0 pb-6 pt-6 sheet" />;
-};
-
-Body.Empty = EmptyView;
-Body.Error = ErrorView;
-Body.Loading = LoadingView;
 Body.Table = Table;
 
 export {Body};
