@@ -9,8 +9,18 @@
  * distribution rights of the Software.
  */
 
+import ClayIcon from '@clayui/icon';
 import React from 'react';
 
-const SLAListCardContext = React.createContext();
+const FieldLabel = ({htmlFor, required, text}) => (
+	<label htmlFor={htmlFor}>
+		{`${text} `}
+		{required && (
+			<span className="reference-mark">
+				<ClayIcon symbol="asterisk" />
+			</span>
+		)}
+	</label>
+);
 
-export default SLAListCardContext;
+export default FieldLabel;

@@ -9,21 +9,16 @@
  * distribution rights of the Software.
  */
 
-import ClayIcon from '@clayui/icon';
-import React from 'react';
+import {useCallback, useContext} from 'react';
 
-const FieldError = ({error}) => (
-	<div className="form-feedback-group">
-		<div className="form-feedback-item">
-			<span className="form-feedback-indicator mr-2">
-				<ClayIcon symbol="exclamation-full" />
-			</span>
+import {AppContext} from '../../components/AppContext.es';
 
-			<span className="text-semi-bold" data-testid="errorSpan">
-				{error}
-			</span>
-		</div>
-	</div>
-);
+const useDelete = ({admin} = {}) => {
+	const {getClient} = useContext(AppContext);
 
-export default FieldError;
+	const client = getClient(admin);
+
+	return useCallback(url => client.delete(url), [client]);
+};
+
+export {useDelete};

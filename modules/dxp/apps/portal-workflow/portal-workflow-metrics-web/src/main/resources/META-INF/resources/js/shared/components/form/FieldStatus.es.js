@@ -9,18 +9,21 @@
  * distribution rights of the Software.
  */
 
-import ClayIcon from '@clayui/icon';
+import ClayForm from '@clayui/form';
 import React from 'react';
 
-const FieldLabel = ({fieldId, required, text}) => (
-	<label htmlFor={fieldId}>
-		{`${text} `}
-		{required && (
-			<span className="reference-mark">
-				<ClayIcon symbol="asterisk" />
-			</span>
-		)}
-	</label>
+const FieldStatus = ({error, status}) => (
+	<ClayForm.FeedbackGroup>
+		<ClayForm.FeedbackItem>
+			{error ? (
+				<ClayForm.FeedbackIndicator symbol="exclamation-full" />
+			) : (
+				<ClayForm.FeedbackIndicator symbol="check-circle-full" />
+			)}
+
+			{status}
+		</ClayForm.FeedbackItem>
+	</ClayForm.FeedbackGroup>
 );
 
-export default FieldLabel;
+export default FieldStatus;
