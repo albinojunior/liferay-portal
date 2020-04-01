@@ -20,8 +20,8 @@ import PerformanceByAssigneePage from './performance-by-assignee-page/Performanc
 import PerformanceByStepPage from './performance-by-step-page/PerformanceByStepPage.es';
 import ProcessListPage from './process-list-page/ProcessListPage.es';
 import ProcessMetrics from './process-metrics/ProcessMetrics.es';
-import SLAForm from './sla/SLAForm.es';
-import SLAListCard from './sla/SLAListCard.es';
+import SLAFormPage from './sla/sla-form-page/SLAFormPage.es';
+import SLAListPage from './sla/sla-list-page/SLAListPage.es';
 import WorkloadByAssigneePage from './workload-by-assignee-page/WorkloadByAssigneePage.es';
 
 const App = props => {
@@ -56,19 +56,19 @@ const App = props => {
 						<Route
 							exact
 							path="/slas/:processId/:pageSize/:page"
-							render={withParams(SLAListCard)}
+							render={withParams(SLAListPage)}
 						/>
 
 						<Route
 							exact
 							path="/sla/new/:processId"
-							render={withParams(SLAForm)}
+							render={withParams(SLAFormPage)}
 						/>
 
 						<Route
 							exact
 							path="/sla/edit/:processId/:id"
-							render={withParams(SLAForm)}
+							render={withParams(SLAFormPage)}
 						/>
 
 						<Route

@@ -12,18 +12,15 @@
 import ClayIcon from '@clayui/icon';
 import React from 'react';
 
-const FieldError = ({error}) => (
-	<div className="form-feedback-group">
-		<div className="form-feedback-item">
-			<span className="form-feedback-indicator mr-2">
-				<ClayIcon symbol="exclamation-full" />
+const FieldLabel = ({htmlFor, required, text, ...otherProps}) => (
+	<label htmlFor={htmlFor} {...otherProps}>
+		{`${text} `}
+		{required && (
+			<span className="reference-mark">
+				<ClayIcon symbol="asterisk" />
 			</span>
-
-			<span className="text-semi-bold" data-testid="errorSpan">
-				{error}
-			</span>
-		</div>
-	</div>
+		)}
+	</label>
 );
 
-export default FieldError;
+export default FieldLabel;

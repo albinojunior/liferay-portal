@@ -12,9 +12,9 @@
 import ClayAlert from '@clayui/alert';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 
-import {ChildLink} from '../../shared/components/router/routerWrapper.es';
+import ChildLink from '../../shared/components/router/ChildLink.es';
+import {useToaster} from '../../shared/components/toaster/hooks/useToaster.es';
 import {sub} from '../../shared/util/lang.es';
-import {openErrorToast} from '../../shared/util/toast.es';
 import {AppContext} from '../AppContext.es';
 
 const SLAInfo = ({processId}) => {
@@ -22,6 +22,7 @@ const SLAInfo = ({processId}) => {
 	const [blockedSLACount, setBlockedSLACount] = useState(0);
 	const [showDismisible, setShowDismisible] = useState(true);
 	const [slaCount, setSlaCount] = useState(null);
+	const toaster = useToaster();
 
 	const getSLACount = useCallback(
 		blocked => {
@@ -41,11 +42,11 @@ const SLAInfo = ({processId}) => {
 				setSlaCount(slaCount);
 			})
 			.catch(() => {
-				openErrorToast({
-					message: Liferay.Language.get(
+				toaster.danger(
+					Liferay.Language.get(
 						'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-					),
-				});
+					)
+				);
 			});
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

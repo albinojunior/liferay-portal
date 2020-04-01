@@ -17,7 +17,7 @@ import EmptyState from '../../../shared/components/empty-state/EmptyState.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
 import LoadingState from '../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
-import {ChildLink} from '../../../shared/components/router/routerWrapper.es';
+import ChildLink from '../../../shared/components/router/ChildLink.es';
 import {AppContext} from '../../AppContext.es';
 import {Table} from './PerformanceByAssigneeCardTable.es';
 

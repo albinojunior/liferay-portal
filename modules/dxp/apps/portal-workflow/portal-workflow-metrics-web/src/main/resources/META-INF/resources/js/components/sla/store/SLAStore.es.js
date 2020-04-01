@@ -106,6 +106,7 @@ const useSLA = (
 				});
 
 				if (status === 2) {
+					
 					if (!startNodeKeys.nodeKeys.length) {
 						errors[START_NODE_KEYS] = Liferay.Language.get(
 							'selected-option-is-no-longer-available'
@@ -118,6 +119,7 @@ const useSLA = (
 						);
 					}
 
+					console.log(startNodeKeys, pauseNodeKeys, stopNodeKeys, errors);
 					setErrors({...errors});
 				}
 

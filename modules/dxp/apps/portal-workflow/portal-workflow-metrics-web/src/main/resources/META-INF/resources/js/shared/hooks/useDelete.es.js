@@ -9,8 +9,16 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
+import {useCallback, useContext} from 'react';
 
-const SLAListCardContext = React.createContext();
+import {AppContext} from '../../components/AppContext.es';
 
-export default SLAListCardContext;
+const useDelete = ({admin} = {}) => {
+	const {getClient} = useContext(AppContext);
+
+	const client = getClient(admin);
+
+	return useCallback(url => client.delete(url), [client]);
+};
+
+export {useDelete};

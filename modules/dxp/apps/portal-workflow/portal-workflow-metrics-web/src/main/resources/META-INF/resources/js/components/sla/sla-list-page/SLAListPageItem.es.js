@@ -15,12 +15,12 @@ import ClayIcon from '@clayui/icon';
 import ClayTable from '@clayui/table';
 import React, {useCallback, useContext, useState} from 'react';
 
-import {ChildLink} from '../../shared/components/router/routerWrapper.es';
-import {formatDuration} from '../../shared/util/duration.es';
-import moment from '../../shared/util/moment.es';
-import SLAListCardContext from './SLAListCardContext.es';
+import ChildLink from '../../../shared/components/router/ChildLink.es';
+import {formatDuration} from '../../../shared/util/duration.es';
+import moment from '../../../shared/util/moment.es';
+import {SLAListPageContext} from './SLAListPage.es';
 
-const SLAListItem = ({
+const Item = ({
 	dateModified,
 	description,
 	duration,
@@ -30,11 +30,12 @@ const SLAListItem = ({
 	status,
 }) => {
 	const [active, setActive] = useState(false);
-	const {showConfirmDialog} = useContext(SLAListCardContext);
+	const {showDeleteModal} = useContext(SLAListPageContext);
+
 	const deleteHandler = useCallback(() => {
-		showConfirmDialog(id);
+		showDeleteModal(id);
 		setActive(false);
-	}, [id, showConfirmDialog]);
+	}, [id, showDeleteModal]);
 
 	const blocked = status === 2;
 	const durationString = formatDuration(duration);
@@ -107,6 +108,7 @@ const SLAListItem = ({
 							<ClayButton
 								className="dropdown-item"
 								data-testid="deleteButton"
+								displayType="unstyled"
 								onClick={deleteHandler}
 							>
 								{Liferay.Language.get('delete')}
@@ -119,4 +121,4 @@ const SLAListItem = ({
 	);
 };
 
-export default SLAListItem;
+export {Item};
