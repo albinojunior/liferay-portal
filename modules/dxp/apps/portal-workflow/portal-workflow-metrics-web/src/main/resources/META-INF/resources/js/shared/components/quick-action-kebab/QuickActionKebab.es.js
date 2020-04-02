@@ -29,14 +29,16 @@ const QuickActionKebab = ({
 
 	return (
 		<>
-			<div className={`quick-action-menu ${disabled ? 'disabled' : ''}`}>
-				{iconItems.map(({icon, onClick}, index) => (
-					<IconItem icon={icon} key={index} onClick={onClick} />
-				))}
-			</div>
+			{iconItems.length > 0 && (
+				<div className="quick-action-menu">
+					{iconItems.map(({icon, onClick}, index) => (
+						<IconItem icon={icon} key={index} onClick={onClick} />
+					))}
+				</div>
+			)}
 
 			{dropDownItems.length > 0 && (
-				<KebabDropDown disabled={disabled} items={items} />
+				<KebabDropDown disabled={disabled} items={dropDownItems} />
 			)}
 		</>
 	);

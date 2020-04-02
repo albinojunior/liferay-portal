@@ -9,21 +9,21 @@
  * distribution rights of the Software.
  */
 
-import ClayIcon from '@clayui/icon';
-import React from 'react';
+import {useMemo} from 'react';
 
-const FieldError = ({error}) => (
-	<div className="form-feedback-group">
-		<div className="form-feedback-item">
-			<span className="form-feedback-indicator mr-2">
-				<ClayIcon symbol="exclamation-full" />
-			</span>
+import {useFetch} from '../../../../shared/hooks/useFetch.es';
 
-			<span className="text-semi-bold" data-testid="errorSpan">
-				{error}
-			</span>
-		</div>
-	</div>
-);
+const useCalendars = () => {
+	const {data, fetchData: fetchCalendars} = useFetch({url: '/calendars'});
 
-export default FieldError;
+	const calendars = useMemo(() => data.items || [], [data]);
+
+	const defaultCalendar = useMemo(
+		() => calendars.find(({defaultCalendar}) => defaultCalendar),
+		[calendars]
+	);
+
+	return {calendars, defaultCalendar, fetchCalendars};
+};
+
+export {useCalendars};
