@@ -9,32 +9,16 @@
  * distribution rights of the Software.
  */
 
-import {useCallback, useContext, useState} from 'react';
+import {useCallback, useContext} from 'react';
 
 import {AppContext} from '../../components/AppContext.es';
 
-const useFetch = ({admin = false, callback = () => {}, params = {}, url}) => {
+const useDelete = ({admin} = {}) => {
 	const {getClient} = useContext(AppContext);
-	const [data, setData] = useState({});
 
 	const client = getClient(admin);
-	const queryParamsStr = JSON.stringify(params);
 
-	const fetchData = useCallback(
-		() =>
-			client.get(url, {params}).then(({data}) => {
-				setData(data);
-
-				return callback(data);
-			}),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[client, queryParamsStr, url]
-	);
-
-	return {
-		data,
-		fetchData,
-	};
+	return useCallback(url => client.delete(url), [client]);
 };
 
-export {useFetch};
+export {useDelete};

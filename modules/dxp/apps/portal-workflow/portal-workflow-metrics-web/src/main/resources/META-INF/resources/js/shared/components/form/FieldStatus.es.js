@@ -9,14 +9,21 @@
  * distribution rights of the Software.
  */
 
-import {createContext, useState} from 'react';
+import ClayForm from '@clayui/form';
+import React from 'react';
 
-const useErrors = () => {
-	const [errors, setErrors] = useState({});
+const FieldStatus = ({error, status}) => (
+	<ClayForm.FeedbackGroup>
+		<ClayForm.FeedbackItem>
+			{error ? (
+				<ClayForm.FeedbackIndicator symbol="exclamation-full" />
+			) : (
+				<ClayForm.FeedbackIndicator symbol="check-circle-full" />
+			)}
 
-	return {errors, setErrors};
-};
+			{status}
+		</ClayForm.FeedbackItem>
+	</ClayForm.FeedbackGroup>
+);
 
-const Errors = createContext({});
-
-export {Errors, useErrors};
+export default FieldStatus;

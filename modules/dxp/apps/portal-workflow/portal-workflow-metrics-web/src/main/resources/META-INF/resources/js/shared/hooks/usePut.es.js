@@ -9,18 +9,23 @@
  * distribution rights of the Software.
  */
 
-import ClayIcon from '@clayui/icon';
-import React from 'react';
+import {useCallback, useContext} from 'react';
 
-const FieldLabel = ({fieldId, required, text}) => (
-	<label htmlFor={fieldId}>
-		{`${text} `}
-		{required && (
-			<span className="reference-mark">
-				<ClayIcon symbol="asterisk" />
-			</span>
-		)}
-	</label>
-);
+import {AppContext} from '../../components/AppContext.es';
 
-export default FieldLabel;
+const usePut = ({body = {}, admin = false, url}) => {
+	const {getClient} = useContext(AppContext);
+
+	const client = getClient(admin);
+	const queryBodyStr = JSON.stringify(body);
+
+	const putData = useCallback(
+		() => client.put(url, body),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[queryBodyStr, url, admin]
+	);
+
+	return {putData};
+};
+
+export {usePut};
