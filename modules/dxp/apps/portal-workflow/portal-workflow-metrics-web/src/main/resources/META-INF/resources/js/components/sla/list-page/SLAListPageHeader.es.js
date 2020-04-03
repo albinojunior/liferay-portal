@@ -24,11 +24,13 @@ const Header = ({processId}) => {
 					<span>
 						<span
 							className="workflow-tooltip"
+							data-testid="newSLA"
 							data-tooltip-align={'bottom'}
 							title={Liferay.Language.get('new-sla')}
 						>
 							<ChildLink
 								className="btn btn-primary nav-btn nav-btn-monospaced"
+								data-testid="newSLALink"
 								to={`/sla/new/${processId}`}
 							>
 								<ClayIcon symbol="plus" />

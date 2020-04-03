@@ -70,7 +70,7 @@ const Body = ({history, id, processId, query}) => {
 				fetchNodes(processId);
 			}
 
-			setErrors(errors);
+			setErrors({...errors});
 		} else {
 			toaster.danger(Liferay.Language.get('your-request-has-failed'));
 		}

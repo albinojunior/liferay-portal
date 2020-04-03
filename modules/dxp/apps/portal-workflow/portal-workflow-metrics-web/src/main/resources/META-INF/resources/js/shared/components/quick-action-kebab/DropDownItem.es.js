@@ -18,7 +18,6 @@ const DropDownItem = ({action, title}) => {
 			<li>
 				<button
 					className="dropdown-item"
-					data-testid="dropDownItem"
 					onClick={action}
 				>
 					{title}

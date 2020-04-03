@@ -51,6 +51,7 @@ const KebabDropDown = ({disabled, items}) => {
 			trigger={
 				<ClayButton
 					className="component-action"
+					data-testid="kebab"
 					disabled={disabled}
 					displayType="unstyled"
 					monospaced

@@ -32,23 +32,23 @@ const Table = ({items}) => {
 		<ClayTable className="table-responsive">
 			<ClayTable.Head>
 				<ClayTable.Row>
-					<ClayTable.Cell headingCell style={{width: '27%'}}>
+					<ClayTable.Cell data-testid="slaName" headingCell style={{width: '27%'}}>
 						{Liferay.Language.get('sla-name')}
 					</ClayTable.Cell>
 
-					<ClayTable.Cell headingCell style={{width: '24%'}}>
+					<ClayTable.Cell data-testid="description" headingCell style={{width: '24%'}}>
 						{Liferay.Language.get('description')}
 					</ClayTable.Cell>
 
-					<ClayTable.Cell headingCell style={{width: '17%'}}>
+					<ClayTable.Cell data-testid="status" headingCell style={{width: '17%'}}>
 						{Liferay.Language.get('status')}
 					</ClayTable.Cell>
 
-					<ClayTable.Cell headingCell style={{width: '17%'}}>
+					<ClayTable.Cell data-testid="duration" headingCell style={{width: '17%'}}>
 						{Liferay.Language.get('duration')}
 					</ClayTable.Cell>
 
-					<ClayTable.Cell headingCell style={{width: '25%'}}>
+					<ClayTable.Cell data-testid="lastModified" headingCell style={{width: '25%'}}>
 						{Liferay.Language.get('last-modified')}
 					</ClayTable.Cell>
 

@@ -18,6 +18,8 @@ import fetchFailure from '../../mock/fetchFailure.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
+import ToasterProvider from '../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
+
 const client = {
 	get: jest
 		.fn()
@@ -30,13 +32,15 @@ describe('The ProcessMetrics component should', () => {
 
 	beforeAll(() => {
 		const component = render(
-			<MockRouter
-				client={client}
-				initialPath="/metrics/35315/dashboard"
-				path="/metrics/:processId"
-			>
-				<ProcessMetrics />
-			</MockRouter>
+			<ToasterProvider>
+				<MockRouter
+					client={client}
+					initialPath="/metrics/35315/dashboard"
+					path="/metrics/:processId"
+				>
+					<ProcessMetrics />
+				</MockRouter>
+			</ToasterProvider>
 		);
 		getByTestId = component.getByTestId;
 	});
@@ -70,13 +74,15 @@ describe('The ProcessMetrics component should', () => {
 	beforeAll(() => {
 		cleanup();
 		const component = render(
-			<MockRouter
-				client={fetchFailure()}
-				initialPath="/metrics/35315"
-				path="/metrics/:processId"
-			>
-				<ProcessMetrics />
-			</MockRouter>
+			<ToasterProvider>
+				<MockRouter
+					client={fetchFailure()}
+					initialPath="/metrics/35315"
+					path="/metrics/:processId"
+				>
+					<ProcessMetrics />
+				</MockRouter>
+			</ToasterProvider>
 		);
 		getAllByTestId = component.getAllByTestId;
 	});

@@ -84,7 +84,7 @@ const Item = ({
 				{description}
 			</ClayTable.Cell>
 
-			<ClayTable.Cell className={blockedStatusClass}>
+			<ClayTable.Cell className={blockedStatusClass} data-testid="SLAStatus">
 				{statusText}
 			</ClayTable.Cell>
 

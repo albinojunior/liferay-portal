@@ -87,6 +87,7 @@ const SLAListPage = ({page, pageSize, processId}) => {
 
 				{showSLAsUpdatingAlert && (
 					<ClayAlert
+						data-testid="updateAlert"
 						displayType="info"
 						onClose={() => {
 							setShowSLAsUpdatingAlert(false);

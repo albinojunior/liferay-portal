@@ -19,6 +19,19 @@ import ToasterProvider from '../../../../src/main/resources/META-INF/resources/j
 import {MockRouter} from '../../../mock/MockRouter.es';
 
 describe('The SLAFormPage component should', () => {
+	const calendars = [
+		{
+			defaultCalendar: false,
+			key: 'dummy',
+			title: 'Dummy',
+		},
+		{
+			defaultCalendar: true,
+			key: 'default',
+			title: '24/7',
+		},
+	];
+
 	const nodes = [
 		{
 			id: 35903,
@@ -99,7 +112,10 @@ describe('The SLAFormPage component should', () => {
 		};
 
 		const clientMock = {
-			get: jest.fn().mockResolvedValue({data: {items: nodes}}),
+			get: jest
+				.fn()
+				.mockResolvedValueOnce({data: {items: calendars}})
+				.mockResolvedValue({data: {items: nodes}}),
 			post: jest
 				.fn()
 				.mockRejectedValueOnce({})
@@ -118,7 +134,7 @@ describe('The SLAFormPage component should', () => {
 		};
 
 		const historyMock = {
-			replace: jest.fn(),
+			push: jest.fn(),
 		};
 
 		beforeAll(() => {
@@ -139,7 +155,9 @@ describe('The SLAFormPage component should', () => {
 			container = renderResult.container;
 			getAllByTestId = renderResult.getAllByTestId;
 			getByTestId = renderResult.getByTestId;
+		});
 
+		test('Be rendered correctly', () => {
 			durationDaysField = getByTestId('daysField');
 			durationHoursField = getByTestId('hoursField');
 			durationHoursInput = container.querySelector('#sla_duration_hours');
@@ -148,10 +166,9 @@ describe('The SLAFormPage component should', () => {
 			saveButton = getByTestId('saveButton');
 			startField = getByTestId('startField');
 			stopField = getByTestId('stopField');
-		});
 
-		test('Be rendered correctly', () => {
 			const bodySheetTitle = getByTestId('sheetTitle');
+			const calendar = container.querySelector('#sla_calendar_key');
 			const cancelButton = getByTestId('cancelButton');
 			const descriptionField = getByTestId('descriptionField');
 			const descriptionInput = container.querySelector(
@@ -203,6 +220,9 @@ describe('The SLAFormPage component should', () => {
 				'enter-a-whole-number'
 			);
 			expect(durationHoursField).toHaveTextContent('hours');
+			expect(calendar.value).toBe('dummy');
+			expect(calendar.children[0]).toHaveTextContent('Dummy');
+			expect(calendar.children[1]).toHaveTextContent('24/7');
 			expect(saveButton).toHaveTextContent('save');
 			expect(cancelButton).toHaveTextContent('cancel');
 			expect(nameField.classList).not.toContain('has-error');
@@ -297,7 +317,7 @@ describe('The SLAFormPage component should', () => {
 		});
 
 		test('Redirect to SLAListPage after successful submit', async () => {
-			expect(historyMock.replace).toHaveBeenCalledWith({
+			expect(historyMock.push).toHaveBeenCalledWith({
 				pathname: `/slas/5678/20/1`,
 				search: '',
 			});
@@ -308,7 +328,7 @@ describe('The SLAFormPage component should', () => {
 		let container, getAllByTestId, getByTestId, renderResult;
 
 		const data = {
-			calendarKey: '',
+			calendarKey: 'default',
 			dateModified: '2020-03-31T19:22:35Z',
 			description: '',
 			duration: 60000,
@@ -339,6 +359,7 @@ describe('The SLAFormPage component should', () => {
 		const clientMock = {
 			get: jest
 				.fn()
+				.mockResolvedValueOnce({data: {items: calendars}})
 				.mockResolvedValueOnce({data: {items: nodes}})
 				.mockResolvedValue({data}),
 			put: jest.fn().mockResolvedValue({}),
@@ -369,6 +390,7 @@ describe('The SLAFormPage component should', () => {
 		});
 
 		test('Render form in edit mode with correct data', () => {
+			const calendar = container.querySelector('#sla_calendar_key');
 			const durationDaysField = getByTestId('daysField');
 			const durationHoursField = getByTestId('hoursField');
 			const durationHoursInput = container.querySelector(
@@ -386,6 +408,7 @@ describe('The SLAFormPage component should', () => {
 			expect(multiSelectItems[0]).toHaveTextContent('process-begins');
 			expect(multiSelectItems[1]).toHaveTextContent('process-ends');
 			expect(durationHoursInput.value).toBe('00:01');
+			expect(calendar.value).toBe('default');
 			expect(nameField.classList).not.toContain('has-error');
 			expect(startField.classList).not.toContain('has-error');
 			expect(stopField.classList).not.toContain('has-error');
@@ -453,6 +476,7 @@ describe('The SLAFormPage component should', () => {
 		const clientMock = {
 			get: jest
 				.fn()
+				.mockResolvedValueOnce({data: {items: calendars}})
 				.mockResolvedValueOnce({data: {items: nodes}})
 				.mockResolvedValueOnce({data}),
 		};
