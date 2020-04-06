@@ -56,47 +56,28 @@ describe('The SLAListPage component should', () => {
 	});
 
 	describe('Be rendered correctly with items', () => {
-		let baseElement, getByTestId;
+		let getAllByTestId, getByTestId;
 
 		const data = {
 			actions: {},
 			items: [
 				{
-					calendarKey: '',
 					dateModified: '2020-04-03T18:01:07Z',
 					description: '',
 					duration: 60000,
 					id: 37975,
 					name: 'SLA',
 					processId: 36001,
-					startNodeKeys: {
-						nodeKeys: [
-							{
-								executionType: 'begin',
-								id: '36005',
-							},
-						],
-						status: 0,
-					},
-					status: 0,
-					stopNodeKeys: {
-						nodeKeys: [
-							{
-								executionType: 'end',
-								id: '36003',
-							},
-						],
-						status: 0,
-					},
 				},
 			],
-			lastPage: 1,
-			page: 1,
-			pageSize: 20,
 			totalCount: 1,
 		};
 
 		const clientMock = {
+			delete: jest
+				.fn()
+				.mockRejectedValueOnce({})
+				.mockResolvedValue({}),
 			get: jest.fn().mockResolvedValue({data}),
 		};
 
@@ -111,7 +92,7 @@ describe('The SLAListPage component should', () => {
 				</MockRouter>
 			);
 
-			baseElement = renderResult.baseElement;
+			getAllByTestId = renderResult.getAllByTestId;
 			getByTestId = renderResult.getByTestId;
 		});
 
@@ -129,7 +110,6 @@ describe('The SLAListPage component should', () => {
 			expect(lastModified).toHaveTextContent('last-modified');
 		});
 
-		//como checar link de edit ? /sla/edit/processId/id
 		test('Show items info and kebab menu', () => {
 			const kebab = getByTestId('kebab');
 			const slaDateModified = getByTestId('SLADateModified');
@@ -145,27 +125,57 @@ describe('The SLAListPage component should', () => {
 			expect(slaDateModified).toHaveTextContent('Apr 03');
 			fireEvent.click(kebab);
 
-			const dropDownItems = baseElement.querySelectorAll(
-				'button.dropdown-item'
-			);
+			const dropDownItems = getAllByTestId('kebabDropItems');
 
 			expect(dropDownItems[0]).toHaveTextContent('edit');
 			expect(dropDownItems[1]).toHaveTextContent('delete');
 
-			//esta deletando o item antes mesmo de exibir o modal ?
-			// fireEvent.click(dropDownItems[1]);
+			fireEvent.click(dropDownItems[1]);
+
+			jest.runAllTimers();
 		});
 
-		xtest('Display modal after clicking on delete option of kebab menu', () => {
+		test('Display modal after clicking on delete option of kebab menu', () => {
 			const cancelButton = getByTestId('cancelButton');
 			const deleteButton = getByTestId('deleteButton');
-			const deleteModal = getByTestId('deleteModall');
+			const deleteModal = getByTestId('deleteModal');
 
 			expect(deleteModal).toHaveTextContent(
 				'deleting-slas-will-reflect-on-report-data'
 			);
 			expect(cancelButton).toHaveTextContent('cancel');
 			expect(deleteButton).toHaveTextContent('ok');
+
+			fireEvent.click(deleteButton);
+		});
+
+		test('Display toast when failure occur while trying to confirm item delete', () => {
+			const alertToast = getByTestId('alertToast');
+			const alertClose = alertToast.children[1];
+			const deleteButton = getByTestId('deleteButton');
+
+			expect(alertToast).toHaveTextContent('your-request-has-failed');
+
+			fireEvent.click(alertClose);
+
+			const alertContainer = getByTestId('alertContainer');
+
+			expect(alertContainer.children[0].children.length).toBe(0);
+
+			fireEvent.click(deleteButton);
+		});
+
+		test('Display toast when confirm item delete', () => {
+			const alertToast = getByTestId('alertToast');
+			const alertClose = alertToast.children[1];
+
+			expect(alertToast).toHaveTextContent('sla-was-deleted');
+
+			fireEvent.click(alertClose);
+
+			const alertContainer = getByTestId('alertContainer');
+
+			expect(alertContainer.children[0].children.length).toBe(0);
 		});
 
 		//como mockar esse cenario?
@@ -190,7 +200,7 @@ describe('The SLAListPage component should', () => {
 	});
 
 	describe('Be rendered correctly with blocked items', () => {
-		let getAllByTestId, getByTestId;
+		let container, getAllByTestId, getByTestId;
 
 		const data = {
 			actions: {},
@@ -264,6 +274,7 @@ describe('The SLAListPage component should', () => {
 				</MockRouter>
 			);
 
+			container = renderResult.container;
 			getAllByTestId = renderResult.getAllByTestId;
 			getByTestId = renderResult.getByTestId;
 		});
@@ -275,7 +286,9 @@ describe('The SLAListPage component should', () => {
 				'fix-blocked-slas-to-resume-accurate-reporting'
 			);
 
-			//como testar close ?
+			const alertClose = container.querySelector('button.close');
+
+			fireEvent.click(alertClose);
 		});
 
 		test('Show dividers', () => {

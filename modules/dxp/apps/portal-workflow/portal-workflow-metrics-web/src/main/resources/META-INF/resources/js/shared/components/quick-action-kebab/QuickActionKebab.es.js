@@ -14,7 +14,20 @@ import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React from 'react';
 
-import {IconItem} from './IconItem';
+const IconItem = ({icon, onClick}) => {
+	return (
+		<>
+			<button
+				className="component-action quick-action-item"
+				data-testid="iconItemButton"
+				onClick={onClick}
+				role="button"
+			>
+				<ClayIcon symbol={icon} />
+			</button>
+		</>
+	);
+};
 
 const QuickActionKebab = ({
 	dropDownItems = [],
@@ -26,6 +39,11 @@ const QuickActionKebab = ({
 		dropDownItems = items;
 		iconItems = items.filter(({icon}) => icon);
 	}
+
+	dropDownItems = dropDownItems.map(item => ({
+		...item,
+		['data-testid']: 'kebabDropItems',
+	}));
 
 	return (
 		<>

@@ -64,13 +64,14 @@ const mockProps = {
 };
 
 describe('The App component should', () => {
-	let container, getAllByTestId;
+	let container, getAllByTestId, getByText;
 
 	beforeAll(() => {
 		const renderResult = render(<App {...mockProps} />);
 
 		container = renderResult.container;
 		getAllByTestId = renderResult.getAllByTestId;
+		getByText = renderResult.getByText;
 	});
 
 	test('Render the process list page', () => {
@@ -104,5 +105,17 @@ describe('The App component should', () => {
 		expect(tabs[1].className.includes('active')).toBe(true);
 
 		expect(window.location.hash).toContain('#/metrics/1/performance');
+	});
+
+	test('', () => {
+		const tabs = container.querySelectorAll('a.nav-link');
+
+		fireEvent.click(tabs[0]);
+
+		const alertAddSLA = getByText('add-a-new-sla');
+
+		fireEvent.click(alertAddSLA.parentNode);
+
+		expect(window.location.hash).toContain('#/sla/new/1');
 	});
 });
