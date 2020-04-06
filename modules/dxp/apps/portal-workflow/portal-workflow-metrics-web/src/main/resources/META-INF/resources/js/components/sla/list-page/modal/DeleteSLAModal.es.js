@@ -41,7 +41,7 @@ const DeleteSLAModal = () => {
 
 	return (
 		visible && (
-			<ClayModal observer={observer} size="md">
+			<ClayModal data-testid="deleteModal" observer={observer} size="md">
 				<ClayModal.Body>
 					<p>
 						{Liferay.Language.get(
@@ -53,12 +53,13 @@ const DeleteSLAModal = () => {
 					last={
 						<ClayButton.Group spaced>
 							<ClayButton
+								data-testid="cancelButton"
 								displayType="secondary"
 								onClick={onClose}
 							>
 								{Liferay.Language.get('cancel')}
 							</ClayButton>
-							<ClayButton onClick={removeItem}>
+							<ClayButton data-testid="deleteButton" onClick={removeItem}>
 								{Liferay.Language.get('ok')}
 							</ClayButton>
 						</ClayButton.Group>

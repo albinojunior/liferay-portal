@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {fireEvent, render} from '@testing-library/react';
+import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import '@testing-library/jest-dom/extend-expect';
@@ -101,6 +101,8 @@ describe('The SLAListPage component should', () => {
 		};
 
 		beforeAll(() => {
+			cleanup();
+
 			const renderResult = render(
 				<MockRouter client={clientMock}>
 					<ToasterProvider>
@@ -127,7 +129,7 @@ describe('The SLAListPage component should', () => {
 			expect(lastModified).toHaveTextContent('last-modified');
 		});
 
-		//checar link do edit '/sla/edit/processId'
+		//como checar link de edit ? /sla/edit/processId/id
 		test('Show items info and kebab menu', () => {
 			const kebab = getByTestId('kebab');
 			const slaDateModified = getByTestId('SLADateModified');
@@ -148,22 +150,149 @@ describe('The SLAListPage component should', () => {
 			);
 
 			expect(dropDownItems[0]).toHaveTextContent('edit');
-			//expect(dropDownItems[0].getAttribute('href')).toContain('/sla/edit/36001');
 			expect(dropDownItems[1]).toHaveTextContent('delete');
+
+			//esta deletando o item antes mesmo de exibir o modal ?
+			// fireEvent.click(dropDownItems[1]);
 		});
 
 		xtest('Display modal after clicking on delete option of kebab menu', () => {
-			getByTestId();
+			const cancelButton = getByTestId('cancelButton');
+			const deleteButton = getByTestId('deleteButton');
+			const deleteModal = getByTestId('deleteModall');
+
+			expect(deleteModal).toHaveTextContent(
+				'deleting-slas-will-reflect-on-report-data'
+			);
+			expect(cancelButton).toHaveTextContent('cancel');
+			expect(deleteButton).toHaveTextContent('ok');
 		});
 
-		//checar close
-		xtest('Display info alert after a SLA is created or updated', () => {
-			getByTestId();
+		//como mockar esse cenario?
+		xtest('Display info alert and toast after a SLA is created or updated', () => {
+			const updateAlert = getByTestId('updateAlert');
+
+			expect(updateAlert).toHaveTextContent(
+				'one-or-more-slas-are-being-updated'
+			);
+
+			const alertToast = getByTestId('alertToast');
+			const alertClose = alertToast.children[1];
+
+			expect(alertToast).toHaveTextContent('sla-was-updated');
+
+			fireEvent.click(alertClose);
+
+			const alertContainer = getByTestId('alertContainer');
+
+			expect(alertContainer.children[0].children.length).toBe(0);
+		});
+	});
+
+	describe('Be rendered correctly with blocked items', () => {
+		let getAllByTestId, getByTestId;
+
+		const data = {
+			actions: {},
+			items: [
+				{
+					calendarKey: '',
+					dateModified: '2020-04-06T01:26:17Z',
+					description: '',
+					duration: 540000,
+					id: 39409,
+					name: 'SLAb',
+					processId: 36001,
+					status: 2,
+					stopNodeKeys: {
+						nodeKeys: [
+							{
+								executionType: 'end',
+								id: '39522',
+							},
+						],
+						status: 0,
+					},
+				},
+				{
+					calendarKey: '',
+					dateModified: '2020-04-03T18:01:07Z',
+					description: '',
+					duration: 60000,
+					id: 37975,
+					name: 'SLA',
+					processId: 36001,
+					startNodeKeys: {
+						nodeKeys: [
+							{
+								executionType: 'begin',
+								id: '36005',
+							},
+						],
+						status: 0,
+					},
+					status: 0,
+					stopNodeKeys: {
+						nodeKeys: [
+							{
+								executionType: 'end',
+								id: '36003',
+							},
+						],
+						status: 0,
+					},
+				},
+			],
+			lastPage: 1,
+			page: 1,
+			pageSize: 20,
+			totalCount: 1,
+		};
+
+		const clientMock = {
+			get: jest.fn().mockResolvedValue({data}),
+		};
+
+		beforeAll(() => {
+			cleanup();
+
+			const renderResult = render(
+				<MockRouter client={clientMock}>
+					<ToasterProvider>
+						<SLAListPage page="1" pageSize="1" processId="36001" />
+					</ToasterProvider>
+				</MockRouter>
+			);
+
+			getAllByTestId = renderResult.getAllByTestId;
+			getByTestId = renderResult.getByTestId;
 		});
 
-		//checar close
-		xtest('Display toast after a SLA is created or updated', () => {
-			getByTestId();
+		test('Show alert error', () => {
+			const alertError = getByTestId('alertError');
+
+			expect(alertError).toHaveTextContent(
+				'fix-blocked-slas-to-resume-accurate-reporting'
+			);
+
+			//como testar close ?
+		});
+
+		test('Show dividers', () => {
+			const blockedDivider = getByTestId('blockedDivider');
+			const runningDivider = getByTestId('runningDivider');
+
+			expect(blockedDivider).toHaveTextContent('BLOCKED');
+			expect(runningDivider).toHaveTextContent('RUNNING');
+		});
+
+		test('Show blocked items info correctly', () => {
+			const slaNames = getAllByTestId('SLAName');
+			const slaStatus = getAllByTestId('SLAStatus');
+
+			expect(slaNames[0].children[0].children.length).toBe(2);
+			expect(slaStatus[0]).toHaveTextContent('blocked');
+			expect(slaStatus[0].classList).toContain('text-danger');
 		});
 	});
 });

@@ -30,6 +30,7 @@ const BlockedSLAInfo = ({processId}) => {
 		blockedSLA.totalCount > 0 &&
 		visibleBlockedSLAAlert && (
 			<ClayAlert
+				data-testid="alertError"
 				displayType="danger"
 				onClose={() => {
 					setVisibleBlockedSLAAlert(false);

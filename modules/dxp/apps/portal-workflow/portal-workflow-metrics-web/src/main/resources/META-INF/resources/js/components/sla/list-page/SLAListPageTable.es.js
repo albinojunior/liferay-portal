@@ -59,7 +59,7 @@ const Table = ({items}) => {
 			<ClayTable.Body>
 				{showBlockedDivider && (
 					<ClayTable.Row className="table-divider">
-						<ClayTable.Cell colSpan="9">
+						<ClayTable.Cell colSpan="9" data-testid="blockedDivider">
 							{Liferay.Language.get('blocked').toUpperCase()}
 						</ClayTable.Cell>
 					</ClayTable.Row>
@@ -71,7 +71,7 @@ const Table = ({items}) => {
 
 				{showRunningDivider && (
 					<ClayTable.Row className="table-divider">
-						<ClayTable.Cell colSpan="9">
+						<ClayTable.Cell colSpan="9" data-testid="runningDivider">
 							{Liferay.Language.get('running').toUpperCase()}
 						</ClayTable.Cell>
 					</ClayTable.Row>
