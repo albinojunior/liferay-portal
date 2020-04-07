@@ -27,7 +27,7 @@ const Body = ({filtered, items, page, pageSize, totalCount}) => {
 					'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
 				),
 			},
-			loadingProps: {className: 'pb-6 pt-6 sheet'},
+			loadingProps: {className: 'py-6 sheet'},
 		}),
 		[filtered]
 	);

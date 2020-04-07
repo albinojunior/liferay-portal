@@ -9,26 +9,16 @@
  * distribution rights of the Software.
  */
 
-import React, {useState} from 'react';
+import {useCallback, useContext} from 'react';
 
-import ToasterProvider from '../shared/components/toaster/ToasterProvider.es';
+import {AppContext} from '../../components/AppContext.es';
 
-const AppContext = React.createContext();
+const useDelete = ({admin} = {}) => {
+	const {getClient} = useContext(AppContext);
 
-const AppContextProvider = ({children, ...props}) => {
-	const [title, setTitle] = useState(Liferay.Language.get('metrics'));
+	const client = getClient(admin);
 
-	const state = {
-		...props,
-		setTitle,
-		title,
-	};
-
-	return (
-		<AppContext.Provider value={state}>
-			<ToasterProvider>{children}</ToasterProvider>
-		</AppContext.Provider>
-	);
+	return useCallback(url => client.delete(url), [client]);
 };
 
-export {AppContext, AppContextProvider};
+export {useDelete};

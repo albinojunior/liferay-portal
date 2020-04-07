@@ -9,26 +9,21 @@
  * distribution rights of the Software.
  */
 
-import React, {useState} from 'react';
+import {useMemo} from 'react';
 
-import ToasterProvider from '../shared/components/toaster/ToasterProvider.es';
+import {useFetch} from '../../../../shared/hooks/useFetch.es';
 
-const AppContext = React.createContext();
+const useCalendars = () => {
+	const {data, fetchData: fetchCalendars} = useFetch({url: '/calendars'});
 
-const AppContextProvider = ({children, ...props}) => {
-	const [title, setTitle] = useState(Liferay.Language.get('metrics'));
+	const calendars = useMemo(() => data.items || [], [data]);
 
-	const state = {
-		...props,
-		setTitle,
-		title,
-	};
-
-	return (
-		<AppContext.Provider value={state}>
-			<ToasterProvider>{children}</ToasterProvider>
-		</AppContext.Provider>
+	const defaultCalendar = useMemo(
+		() => calendars.find(({defaultCalendar}) => defaultCalendar),
+		[calendars]
 	);
+
+	return {calendars, defaultCalendar, fetchCalendars};
 };
 
-export {AppContext, AppContextProvider};
+export {useCalendars};

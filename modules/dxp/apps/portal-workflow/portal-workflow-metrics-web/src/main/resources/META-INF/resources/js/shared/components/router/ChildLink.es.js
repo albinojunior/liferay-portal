@@ -9,26 +9,28 @@
  * distribution rights of the Software.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
+import {Link} from 'react-router-dom';
 
-import ToasterProvider from '../shared/components/toaster/ToasterProvider.es';
+import {useRouter} from '../../hooks/useRouter.es';
+import {stringify} from './queryString.es';
 
-const AppContext = React.createContext();
-
-const AppContextProvider = ({children, ...props}) => {
-	const [title, setTitle] = useState(Liferay.Language.get('metrics'));
-
-	const state = {
-		...props,
-		setTitle,
-		title,
-	};
+const ChildLink = ({children, query, to, ...otherProps}) => {
+	const {
+		location: {pathname, search},
+	} = useRouter();
 
 	return (
-		<AppContext.Provider value={state}>
-			<ToasterProvider>{children}</ToasterProvider>
-		</AppContext.Provider>
+		<Link
+			{...otherProps}
+			to={{
+				pathname: to,
+				search: stringify({backPath: `${pathname}${search}`, ...query}),
+			}}
+		>
+			{children}
+		</Link>
 	);
 };
 
-export {AppContext, AppContextProvider};
+export default ChildLink;

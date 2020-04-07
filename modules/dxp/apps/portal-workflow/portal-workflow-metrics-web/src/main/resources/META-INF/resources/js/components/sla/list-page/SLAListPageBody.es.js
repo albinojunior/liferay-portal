@@ -11,49 +11,44 @@
 
 import React from 'react';
 
-import Panel from '../../../shared/components/Panel.es';
 import ContentView from '../../../shared/components/content-view/ContentView.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
 import PaginationBar from '../../../shared/components/pagination-bar/PaginationBar.es';
-import {Table} from './WorkloadByStepCardTable.es';
+import {Table} from './SLAListPageTable.es';
 
-const Body = ({items, page, pageSize, processId, totalCount}) => {
+const Body = ({items, page, pageSize, totalCount}) => {
 	const statesProps = {
 		emptyProps: {
-			className: 'py-6',
-			hideAnimation: true,
-			message: Liferay.Language.get('there-is-no-data-at-the-moment'),
-			messageClassName: 'small',
+			hideAnimation: false,
+			message: Liferay.Language.get(
+				'sla-allows-to-define-and-measure-process-performance'
+			),
 		},
 		errorProps: {
 			actionButton: <ReloadButton />,
-			className: 'py-6',
 			hideAnimation: true,
-			message: Liferay.Language.get('unable-to-retrieve-data'),
+			message: Liferay.Language.get(
+				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
+			),
 			messageClassName: 'small',
 		},
-		loadingProps: {className: 'py-6'},
 	};
 
 	return (
-		<Panel.Body elementClasses="pb-3">
-			<ContentView {...statesProps}>
-				{totalCount > 0 && (
-					<>
-						<Body.Table items={items} processId={processId} />
+		<ContentView {...statesProps}>
+			{totalCount > 0 && (
+				<>
+					<Table items={items} />
 
-						<PaginationBar
-							page={page}
-							pageSize={pageSize}
-							totalCount={totalCount}
-						/>
-					</>
-				)}
-			</ContentView>
-		</Panel.Body>
+					<PaginationBar
+						page={page}
+						pageSize={pageSize}
+						totalCount={totalCount}
+					/>
+				</>
+			)}
+		</ContentView>
 	);
 };
-
-Body.Table = Table;
 
 export {Body};

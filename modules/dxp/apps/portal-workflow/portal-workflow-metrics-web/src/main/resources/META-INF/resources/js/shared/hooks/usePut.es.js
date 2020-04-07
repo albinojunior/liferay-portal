@@ -9,26 +9,23 @@
  * distribution rights of the Software.
  */
 
-import React, {useState} from 'react';
+import {useCallback, useContext} from 'react';
 
-import ToasterProvider from '../shared/components/toaster/ToasterProvider.es';
+import {AppContext} from '../../components/AppContext.es';
 
-const AppContext = React.createContext();
+const usePut = ({body = {}, admin = false, url}) => {
+	const {getClient} = useContext(AppContext);
 
-const AppContextProvider = ({children, ...props}) => {
-	const [title, setTitle] = useState(Liferay.Language.get('metrics'));
+	const client = getClient(admin);
+	const queryBodyStr = JSON.stringify(body);
 
-	const state = {
-		...props,
-		setTitle,
-		title,
-	};
-
-	return (
-		<AppContext.Provider value={state}>
-			<ToasterProvider>{children}</ToasterProvider>
-		</AppContext.Provider>
+	const putData = useCallback(
+		() => client.put(url, body),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[queryBodyStr, url, admin]
 	);
+
+	return {putData};
 };
 
-export {AppContext, AppContextProvider};
+export {usePut};
