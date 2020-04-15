@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite errors="0" failures="0" hostname="" id="0" name="Jest" package=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web" skipped="0" tests="251" time="0" timestamp="1586960639290">
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components" name="The App component should Render the process list page" time="0.143">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components" name="The App component should Render the process metrics page on dashboard tab" time="0.354">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components" name="The App component should Render the process metrics page on performance tab and back to dashboard" time="0.093">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components" name="The App component should Navigate to new SLA page" time="0.051">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Be rendered correctly" time="0.041">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Display errors when submitting the form with empty values" time="0.308">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Display a field error when the duration receives an invalid value" time="0.598">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Dismiss errors when the inputs receive valid values and submit" time="0.712">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Display an error when a SLA submission failure happens and resubmit" time="0.332">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Display an error when trying to submit a SLA with a name that already exists" time="0.318">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Create a new SLA Redirect to SLAListPage after successful submit" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Edit a SLA Render form in edit mode with correct data" time="0.203">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Edit a SLA Redirect to SLAListPage after successful submit" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page" name="The SLAFormPage component should Edit a Blocked SLA Handle errors at start and stop node keys" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list card should Be rendered with &quot;sla-status&quot;, &quot;process-status&quot;, &quot;process-step&quot; and &quot;assignee&quot; filters" time="0.01">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list card should Select all page by clicking on check all button" time="0.794">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list card should Select all instances by clicking on select all button" time="0.802">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should Be rendered with &quot;User 1&quot;, &quot;Jan 01, 2019, 12:00 AM&quot;, and &quot;Review, Update&quot; columns" time="0.179">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should Be rendered with check icon when the slaStatus is &quot;OnTime&quot;" time="0.102">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should Be rendered with exclamation icon when the slaStatus is &quot;Overdue&quot;" time="0.089">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should Be rendered with hr icon when the slaStatus is &quot;Untracked&quot;" time="0.094">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should Call setInstanceId with &quot;1&quot; as instance id param" time="0.084">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should set BulkReassign modal visualization by clicking the reassign task button" time="0.157">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list item should set BulkTransition modal visualization by clicking the reassign task button" time="0.123">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The InstanceListPageItem quick action menu should set SingleReassign modal visualization by clicking the reassign task button" time="0.135">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The InstanceListPageItem quick action menu should set SingleUpdateDueDate modal visualization by clicking the reassign task button" time="0.133">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The InstanceListPageItem quick action menu should set SingleUpdateDueDate modal visualization by clicking the reassign task button" time="0.128">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The InstanceListPageItem quick action menu should set SingleUpdateDueDate modal visualization by clicking the reassign task button" time="0.125">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The InstanceListPageItem instance checkbox component should Set checkbox value by clicking it" time="0.197">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select tasks&quot; step with fetch error and retrying" time="0.065">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select tasks&quot; step with items" time="0.23">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select tasks&quot; step with next error and retrying" time="0.108">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select assignees&quot; step with fetch error and retrying" time="0.056">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select assignees&quot; step with items and back to previous step" time="0.053">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select assignees&quot; step with items" time="1.399">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.bulk" name="The BulkReassignModal component should Render &quot;Select assignees&quot; step with reassign fetch error and retrying" time="0.541">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Render &quot;Select tasks&quot; step with fetch error and retrying" time="0.176">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Render &quot;Select tasks&quot; step with items" time="1.017">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Render &quot;Select transitions&quot; step failing the fetch and retry then" time="0.03">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Load the second step and all transitions successfully" time="0.029">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Load transitions and show alert message when select &quot;done&quot; and fail the patch request and retry the request" time="0.047">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Show alert message when attempt to transition without selecting any transition go to previous step and foward" time="0.076">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Select a transition to &quot;approve&quot;, click &quot;Show All&quot; button, add a comment and retry patch request successfully" time="0.182">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.bulk" name="The BulkTransitionModal component should Check all tasks and step foward to &quot;Select Transition&quot; step and show loading view" time="0.105">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.search-field" name="The SearchField component should Be render with empty value" time="0.019">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.search-field" name="The SearchField component should Be render with &quot;test&quot; value" time="0.008">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.search-field" name="The SearchField component should Be render with empty value, change for &quot;test&quot; and submit" time="0.012">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.search-field" name="The SearchField component should Be render with &quot;test&quot; value, change for &quot;testing&quot; and submit" time="0.011">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-assignee-page" name="The PerformanceByAssigneePage component having data should Be rendered with user avatar or lexicon user icon" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-assignee-page" name="The PerformanceByAssigneePage component having data should Be rendered with assignee names" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-assignee-page" name="The PerformanceByAssigneePage component having data should Be rendered with average completion time" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.pagination-bar" name="The PaginationBar component should Render with initial params and change pageSize and page using state" time="0.246">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.pagination-bar" name="The PaginationBar component should Render with initial params and change pageSize and page using route params" time="0.185">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.pagination-bar" name="The PaginationBar component should Render with insufficient total count to pagination" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.completion-velocity" name="The completion velocity card component should Be rendered with time range filter" time="0.074">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.completion-velocity" name="The completion velocity card component should Be rendered with time range filter" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The performance by assignee card component should Be redered with default custom dates" time="0.019">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModal component should Render modal with error message and retry" time="0.185">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModal component should Render modal with items" time="0.439">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModal component should Render modal reassign error and retry" time="0.441">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModal component should Render alert with success message and close modal" time="0.081">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with no items Show navbar with New SLA button with correct link" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with no items Display empty state" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with items Show table columns" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with items Show items info and kebab menu" time="0.23">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with items Display modal after clicking on delete option of kebab menu" time="0.01">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with items Display toast when failure occur while trying to confirm item delete" time="0.025">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with items Display toast when confirm item delete" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with items Display info alert and toast after a SLA is created or updated" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with blocked items Show alert error" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with blocked items Show dividers" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.list-page" name="The SLAListPage component should Be rendered correctly with blocked items Show blocked items info correctly" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components" name="The Panel component should Not render child components without content" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components" name="The Panel component should Render components correctly" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components" name="The Panel component should Render class passed by props" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components" name="The Panel component should Render header with title" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The Autocomplete component should Show the dropdown list on focus input" time="0.24">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The Autocomplete component should Render its items list and select any option" time="0.313">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The Autocomplete component should Fire onChange handler function on change its text and clear input onBlur without select any option" time="0.166">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The Autocomplete component with children should Render the children" time="0.043">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The Autocomplete component should be render with no items Render with &quot;no results found&quot; message" time="0.08">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModalTable component should Render with statuses Completed and Overdue" time="0.028">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModalTable component should Render with no taskName" time="0.014">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModalTable component should Render with no data" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The SingleReassignModalTable component should Render with taskNames" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The AssigneeInput component should Render change assignee input text to Test" time="0.2">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The AssigneeInput component should Change its text to &quot;Test&quot;" time="0.154">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The AssigneeInput component should Select a new assignee" time="0.252">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.reassign.single" name="The AssigneeInput component should Select a new assignee with input already filled" time="0.172">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.header" name="The HeaderKebab component should Not render when has no kebabItems prop" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.header" name="The HeaderKebab component should Render with kebabItems prop" time="0.132">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The AutocompleteMultiSelect component should Show the dropdown list on focus input" time="0.34">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.autocomplete" name="The AutocompleteMultiSelect component should Render its items list and select any option" time="0.305">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee body component with data should Be rendered with user avatar or lexicon user icon" time="0.02">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee body component with data should Be rendered with assignee name" time="0.014">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee body component with data should Be rendered with average completion time" time="0.01">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee body component without data should Render empty state" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-step-card" name="The performance by step card component should Be rendered with results Be rendered with time range filter" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-step-card" name="The performance by step card component should Be rendered with results Be rendered with &quot;View All Steps&quot; button and total &quot;(3)&quot;" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-step-card" name="The performance by step card component should Be rendered without results Be rendered with empty state view" time="0.053">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with overdue tab active Be rendered with &quot;User 1&quot; and &quot;User 2&quot; items" time="0.034">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with overdue tab active Be rendered with &quot;View All Steps&quot; button and total &quot;(2)&quot;" time="0.016">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with total tab active and with &quot;User 1&quot; item" time="0.012">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with total tab active and with &quot;View All Steps&quot; button and total &quot;(1)&quot;" time="0.011">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with onTime tab active and with &quot;User 1&quot; item" time="0.009">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with onTime tab active and with &quot;View All Steps&quot; button and total &quot;(1)&quot;" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with overdue tab active and empty state Be rendered with a empty state" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with total tab active and empty state Be rendered with a empty state" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee body should be rendered with onTime tab active and empty state Be rendered with a empty state" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The BulkReassignModal component should Render &quot;Select tasks&quot; step with fetch error and retrying" time="0.078">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The BulkReassignModal component should Render &quot;Select tasks&quot; step with items" time="0.181">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The BulkReassignModal component should Render &quot;Select tasks&quot; step with next error and retrying" time="0.06">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The BulkReassignModal component should Render &quot;Update tasks due dates&quot; step with items and back to previous step" time="0.06">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The BulkReassignModal component should Render &quot;Update tasks due dates&quot; step with update fetch error and retrying" time="0.046">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The process step filter component should Be rendered with filter item names" time="0.022">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The process step filter component should Be rendered with active option &quot;Update&quot;" time="0.014">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-list-page" name="The performance by assignee page body should Be rendered with process names" time="0.046">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The completed items card component should Be rendered with time range filter" time="0.118">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The completed items card component should Be rendered with overdue count &quot;1&quot;" time="0.05">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The completed items card component should Be rendered with onTime count &quot;2&quot;" time="0.049">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The completed items card component should Be rendered with untracked count &quot;3&quot;" time="0.084">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The completed items card component should Be rendered with total completed count &quot;6&quot;" time="0.049">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-step-card" name="The performance by step body component should Be rendered with &quot;Review&quot; and &quot;Update&quot; names" time="0.013">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-step-card" name="The performance by step body component should Be rendered with &quot;30%&quot; and &quot;22.58%&quot; percentages" time="0.021">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-step-card" name="The performance by step body component should Be rendered with &quot;3h&quot; and &quot;5d 12h&quot; durations" time="0.051">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render without custom range date option selected Be rendered with filter item names" time="0.115">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render without custom range date option selected Be rendered with active option &quot;Last 7 Days&quot;" time="0.096">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render with custom date range option selected and Show the date the href has as a suggestion" time="0.018">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render with custom date range option selected and Sho error span with invalid date input" time="0.048">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render with custom date range option selected and Show error span with date early to 1970 input" time="0.019">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render with custom date range option selected and Show error span to inconsistent date input" time="0.025">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The time range filter component should Render with custom date range option selected and Change the filter value applying a custom time range" time="0.053">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.empty-state" name="The EmptyState component should Be render with message only" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.empty-state" name="The EmptyState component should Be render with message and animation" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.empty-state" name="The EmptyState component should Be render with message, title and animation" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.empty-state" name="The EmptyState component should Be render with message and action button" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.workload-by-assignee-page" name="The workload by assignee page body should Be rendered with &quot;User 1&quot; and &quot;User 2&quot; names" time="0.038">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.instance-details" name="The InstanceDetailsModal component should Render Modal title with correct item id and status icon" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.instance-details" name="The InstanceDetailsModal component should Render SLA details with correct status" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.instance-details" name="The InstanceDetailsModal component should Render Process details with correct infos" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.instance-details" name="The InstanceDetailsModal component should Render Go to Submission Page button with correct link" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.instance-details" name="The InstanceDetailsModal component should Render Process details with correct infos" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee card component should Be rendered with results Be rendered with &quot;View All Assignees&quot; button and total &quot;(3)&quot;" time="0.121">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee card component should Be rendered with results Be rendered with process step filter" time="0.126">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee card component should Be rendered with results Be rendered with time range filter" time="0.065">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.performance-by-assignee-card" name="The performance by assignee card component should Be rendered without results Be rendered with empty state view" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The SingleUpdateDueDateModal component should Render modal with error message and retry" time="0.035">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The SingleUpdateDueDateModal component should Render modal with form inputs with defaultValues" time="0.086">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The SingleUpdateDueDateModal component should Render modal reassign error and retry" time="0.037">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The SingleUpdateDueDateModal component should Render alert with success message and close modal" time="0.01">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.header" name="The HeaderTitle component should Render with title &quot;Metrics&quot; and rerender with &quot;Single Approver&quot;" time="0.013">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The TimePickerInput component should be render with AM/PM format Render with error state and select any option" time="0.108">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.update-due-date" name="The TimePickerInput component should be render without AM/PM format Render with error state and select any option" time="0.103">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The pending view should Not render children when pending is false" time="0.008">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The pending view should Render children when loading is true" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The PromisesResolver should Render its children when the request succeeds" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The PromisesResolver should not Render its children when request fails" time="0.017">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The rejected view should Not render children when error is null" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The rejected view should Render children when has been rejected" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The resolved view should Not render children when has been rejected" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The resolved view should Not render children when loading is true" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.promises-resolver" name="The resolved view should Render children when loading is false and has no error" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.completion-velocity" name="The velocity chart should Be rendered in document" time="0.144">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.completion-velocity" name="The velocity chart should Be render tooltip with valid dates" time="0.011">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.completion-velocity" name="The velocity chart should Be render tooltip with invalid date" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.loading" name="The LoadingState component should Be render with default props" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.loading" name="The LoadingState component should Be render with loading message" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.portal" name="The Portal component should Not render component without container prop" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.portal" name="The Portal component should Render component without replace children" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.portal" name="The Portal component should Render component with replace children" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.quick-action-kebab" name="The QuickActionKebab component should Render quick action options when has no items prop" time="0.013">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.header" name="The HeaderBackButton component should Not render when pathname is equal to basePath" time="0.008">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.header" name="The HeaderBackButton component should Render when pathname is different to basePath" time="0.011">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-step-page" name="The PerformanceByStepPage component having data should Be rendered with step names" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-step-page" name="The PerformanceByStepPage component having data should Be rendered with SLA Breached (%)" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-step-page" name="The PerformanceByStepPage component having data should Be rendered with average completion time" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics" name="The SLAInfo component should SLA count 0 Show alert with correct data" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics" name="The SLAInfo component should SLA blocked count 1 Show alert with correct data" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics" name="The SLAInfo component should SLA blocked count greater than 1 Show alert with correct data" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-step-page" name="The performance by step page body should Be rendered with step names" time="0.023">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-step-page" name="The subcomponents from workload by assignee page body should Be rendered with empty view and no content message" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-step-page" name="The subcomponents from workload by assignee page body should Be rendered with empty view and no results message" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Render correct icon and title" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Render formatted percentage" time="0">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Render formatted value for values with more than 3 digits" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Show see items only when item is hovered" time="0.009">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Not render formatted percentage for total item" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Not render formatted value for values with 3 or less digits" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Render with correct link" time="0">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The SummaryCard component should Render component with disabled state" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-step-card" name="The WorkloadByStepCard component should Load table component with request data and navigation links" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.filter" name="The filter component should Be rendered with filter item names and default item selected" time="0.026">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.filter" name="The filter component should Be rendered with other item selected" time="0.012">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.filter" name="The filter component should Be rendered with search field and filtering options" time="0.135">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.filter" name="The filter component should Be rendered with multiple options" time="0.023">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-list-page" name="The process list page component having data should Be rendered with process names" time="0.035">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.workload-by-assignee-page" name="The workload by assignee page body should Be rendered with &quot;User 1&quot; and &quot;User 2&quot; names" time="0.124">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The pending items card component should Be rendered with overdue count &quot;1&quot;" time="0.03">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The pending items card component should Be rendered with ontime count &quot;2&quot;" time="0.069">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The pending items card component should Be rendered with untracked count &quot;3&quot;" time="0.068">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.process-items" name="The pending items card component should Be rendered with total pending count &quot;6&quot;" time="0.077">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-assignee-page" name="The performance by assignee page body should Be rendered with assignees names" time="0.023">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-assignee-page" name="The subcomponents from workload by assignee page body should Be rendered with empty view and no content message" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.performance-by-assignee-page" name="The subcomponents from workload by assignee page body should Be rendered with empty view and no results message" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.workload-by-assignee-page" name="The workload by assignee page table should Be rendered with &quot;User 1&quot; and &quot;User 2&quot; names" time="0.049">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.workload-by-assignee-page" name="The workload by assignee page table should Be rendered with &quot;10&quot; and &quot;3&quot; values as &quot;On Time&quot; column" time="0.016">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.workload-by-assignee-page" name="The workload by assignee page table should Be rendered with &quot;5&quot; and &quot;7&quot; values as &quot;Overdue&quot; column" time="0.022">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.workload-by-assignee-page" name="The workload by assignee page table should Be rendered with &quot;15&quot; and &quot;10&quot; values as &quot;Total Pending&quot; column" time="0.022">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page" name="The instance list table should Be rendered with two items" time="0.174">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee table should Be rendered with &quot;User 1&quot; and &quot;User 2&quot; names when the tab is Total" time="0.013">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee table should Be rendered with &quot;15&quot; and &quot;10&quot; values when the tab is Total" time="0.012">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee table should Be rendered with &quot;10 / 66.67%&quot; and &quot;3 / 30%&quot; values when the tab is On Time" time="0.007">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee table should Be rendered with &quot;5 / 33.33%&quot; and &quot;7 / 70%&quot; values when the tab is Overdue" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee table should Be rendered with no rows when items list is empty" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.navbar-tabs" name="The NavbarTabs component should Render components with correct link" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.toaster" name="The Toaster component should Render all alerts and clear all" time="0.031">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The sla status filter component should Be rendered with filter item names" time="0.024">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The sla status filter component should Be rendered with active option &quot;Overdue&quot;" time="0.015">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The assignee filter component should Be rendered with filter item names" time="0.043">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The assignee filter component should Be rendered with active option &quot;User 1&quot;" time="0.036">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.results-bar" name="The ResultsBar component should Render with search value &quot;test&quot; and total count &quot;1&quot;" time="0.012">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.results-bar" name="The ResultsBar component should Render with search value &quot;test&quot; and with 2 selected filter item" time="0.029">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.content-view" name="The ContentView component should Be rendered with children" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.content-view" name="The ContentView component should Be rendered with empty state and the expected message" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.content-view" name="The ContentView component should Be rendered with loading state" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.content-view" name="The ContentView component should Be rendered with error state Be rendered with expected message" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.process-metrics.workload-by-assignee-card" name="The workload by assignee card should Be rendered with &quot;User 1&quot; and &quot;User 2&quot; items" time="0.075">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.tabs" name="The Tabs component should Render tabs correctly" time="0.003">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.tabs" name="The Tabs component should Call setCurrentTab with correct key when respective tab is clicked" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The process status filter component should Be rendered with filter item names" time="0.021">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The process status filter component should Be rendered with active option &quot;Completed&quot;" time="0.029">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The role filter component should Be rendered with filter item names" time="0.026">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The role filter component should Be rendered with active option &quot;User&quot;" time="0.014">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.single" name="The SingleTransitionModal component should Be rendered when its attribute visible is &quot;true&quot;" time="0.005">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.single" name="The SingleTransitionModal component should Change comment field value, click in &quot;Done&quot; button" time="0.015">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.single" name="The SingleTransitionModal component should Show error alert after failing request and click in &quot;Done&quot; to retry request" time="0.015">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.instance-list-page.modal.transition.single" name="The SingleTransitionModal component should Show success alert message after post request success" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The velocity unit filter component should Be rendered with filter item names" time="0.041">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter" name="The velocity unit filter component should Be rendered with active option &quot;Weeks&quot;" time="0.03">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.list" name="Should component reload page" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.util" name="Compare the same array" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.util" name="Compare differents arrays" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.util" name="Compare an empty array and a valid array" time="0">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page.util" name="Should test duration" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page.util" name="Should test errors" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page.util" name="Should test hours" time="0.004">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page.util" name="Should test name" time="0.002">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.sla.form-page.util" name="Should test nodes" time="0.001">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter.util" name="The velocityUnitUtil should Return an array when dateEnd and dateStarte have 1 week interval" time="0.006">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.components.filter.util" name="The velocityUnitUtil should Return an array when dateEnd and dateStarte have 1 week interval" time="0">
+  </testcase>
+  <testcase classname=".Users.albino.workspace.liferay.liferay-portal.modules.dxp.apps.portal-workflow.portal-workflow-metrics-web.test.shared.components.chart" name="Should render component" time="0.002">
+  </testcase>
+</testsuite>
