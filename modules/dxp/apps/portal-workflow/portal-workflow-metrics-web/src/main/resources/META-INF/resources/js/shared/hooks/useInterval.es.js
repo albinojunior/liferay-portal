@@ -9,22 +9,26 @@
  * distribution rights of the Software.
  */
 
-import {useCallback, useContext} from 'react';
+import {useIsMounted} from 'frontend-js-react-web';
+import {useCallback} from 'react';
 
-import {AppContext} from '../../components/AppContext.es';
+const useInterval = cancelOnDestroy => {
+	const isMounted = useIsMounted();
 
-const usePatch = ({body = {}, admin = false, url}) => {
-	const {getClient} = useContext(AppContext);
+	return useCallback(
+		(callback, ms) => {
+			const interval = setInterval(() => {
+				if (!cancelOnDestroy || isMounted()) {
+					callback();
+				} else {
+					clearInterval(interval);
+				}
+			}, ms);
 
-	const client = getClient(admin);
-	const queryBodyStr = JSON.stringify(body);
-	const patchData = useCallback(
-		patchBody => client.patch(url, patchBody || body),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[queryBodyStr, url, admin]
+			return () => clearInterval(interval);
+		},
+		[cancelOnDestroy, isMounted]
 	);
-
-	return {patchData};
 };
 
-export {usePatch};
+export {useInterval};
