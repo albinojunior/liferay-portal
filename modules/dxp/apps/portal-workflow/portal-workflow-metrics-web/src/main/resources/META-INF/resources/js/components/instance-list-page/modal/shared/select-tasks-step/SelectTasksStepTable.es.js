@@ -20,13 +20,7 @@ const Item = ({totalCount, ...task}) => {
 		selectTasks: {tasks},
 		setSelectTasks,
 	} = useContext(ModalContext);
-	const {
-		assigneePerson,
-		id,
-		label,
-		objectReviewed: {assetTitle, assetType},
-		workflowInstanceId,
-	} = task;
+	const {assetTitle, assetType, assignee, id, instanceId, label} = task;
 
 	const [checked, setChecked] = useState(false);
 
@@ -63,7 +57,7 @@ const Item = ({totalCount, ...task}) => {
 			</ClayTable.Cell>
 
 			<ClayTable.Cell className="font-weight-bold">
-				{workflowInstanceId}
+				{instanceId}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>{`${assetType}: ${assetTitle}`}</ClayTable.Cell>
@@ -71,9 +65,7 @@ const Item = ({totalCount, ...task}) => {
 			<ClayTable.Cell>{label}</ClayTable.Cell>
 
 			<ClayTable.Cell>
-				{assigneePerson
-					? assigneePerson.name
-					: Liferay.Language.get('unassigned')}
+				{assignee ? assignee.name : Liferay.Language.get('unassigned')}
 			</ClayTable.Cell>
 		</ClayTable.Row>
 	);

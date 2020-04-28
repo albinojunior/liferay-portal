@@ -18,18 +18,19 @@ import {Autocomplete} from '../../../../../../shared/components/autocomplete/Aut
 import {ModalContext} from '../../../ModalProvider.es';
 
 const Item = ({
-	assigneePerson,
+	assetTitle,
+	assetType,
+	assignee,
 	data,
 	id,
+	instanceId,
 	label,
-	objectReviewed: {assetTitle, assetType},
-	workflowInstanceId,
 }) => {
 	const {bulkReassign, setBulkReassign} = useContext(ModalContext);
 	const {reassignedTasks, reassigning, useSameAssignee} = bulkReassign;
 
 	const {assigneeId} = useMemo(
-		() => reassignedTasks.find((task) => task.workflowTaskId === id) || {},
+		() => reassignedTasks.find((task) => task.id === id) || {},
 		[id, reassignedTasks]
 	);
 
@@ -38,7 +39,7 @@ const Item = ({
 
 		if (users && users.length) {
 			const {assignableUsers = []} =
-				users.find((item) => item.workflowTaskId === id) || {};
+				users.find((item) => item.id === id) || {};
 
 			return assignableUsers;
 		}
@@ -55,13 +56,13 @@ const Item = ({
 	const handleSelect = useCallback(
 		(newAssignee) => {
 			const filteredTasks = reassignedTasks.filter(
-				(task) => task.workflowTaskId !== id
+				(task) => task.id !== id
 			);
 
 			if (newAssignee) {
 				filteredTasks.push({
 					assigneeId: newAssignee.id,
-					workflowTaskId: id,
+					id,
 				});
 			}
 
@@ -77,7 +78,7 @@ const Item = ({
 	return (
 		<ClayTable.Row>
 			<ClayTable.Cell className="font-weight-bold">
-				{workflowInstanceId}
+				{instanceId}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>{`${assetType}: ${assetTitle}`} </ClayTable.Cell>
@@ -85,9 +86,7 @@ const Item = ({
 			<ClayTable.Cell>{label}</ClayTable.Cell>
 
 			<ClayTable.Cell>
-				{assigneePerson
-					? assigneePerson.name
-					: Liferay.Language.get('unassigned')}
+				{assignee ? assignee.name : Liferay.Language.get('unassigned')}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>

@@ -18,9 +18,9 @@ import {InstanceListContext} from '../../../../InstanceListPageProvider.es';
 import {ModalContext} from '../../../ModalProvider.es';
 
 const useFetchTasks = (options = {}) => {
-	const defaultOptions = {page: 1, pageSize: -1, withoutUnassigned: false};
+	const defaultOptions = {page: 1, pageSize: -1};
 
-	const {page, pageSize, withoutUnassigned} = useMemo(
+	const {page, pageSize} = useMemo(
 		() => ({...defaultOptions, ...options}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[options]
@@ -29,10 +29,7 @@ const useFetchTasks = (options = {}) => {
 	const {
 		dispatch,
 		filterState,
-		filterValues: {
-			bulkAssigneeIds: userIds = [],
-			bulkTaskNames: workflowTaskNames,
-		},
+		filterValues: {bulkAssigneeIds: userIds = [], bulkTaskNames: taskNames},
 	} = useFilter({withoutRouteParams: true});
 	const {selectAll, selectedItems} = useContext(InstanceListContext);
 	const {processId} = useContext(ModalContext);
@@ -47,8 +44,6 @@ const useFetchTasks = (options = {}) => {
 
 	const body = useMemo(() => {
 		const unassigned = userIds.includes('-1');
-		const searchByRoles =
-			(!withoutUnassigned && userIds.length === 0) || unassigned;
 
 		const assignees = !unassigned ? [userId] : [];
 		const assigneeIds = userIds.length
@@ -58,30 +53,27 @@ const useFetchTasks = (options = {}) => {
 		const body = {
 			assigneeIds,
 			completed: false,
-			searchByRoles,
-			workflowTaskNames,
+			processId,
+			taskNames,
 		};
 
-		if (selectAll) {
-			body.workflowDefinitionId = processId;
-		}
-		else {
-			body.workflowInstanceIds = selectedItems.map(({id}) => id);
+		if (!selectAll) {
+			body.instanceIds = selectedItems.map(({id}) => id);
 		}
 
 		return body;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedItems, userIds, workflowTaskNames]);
+	}, [selectedItems, userIds, taskNames]);
 
 	const {data, postData: fetchTasks} = usePost({
-		admin: true,
+		admin: false,
 		body,
 		params: {
 			page,
 			pageSize,
-			sort: 'workflowInstanceId:asc',
+			sort: 'instanceId:asc',
 		},
-		url: '/workflow-tasks',
+		url: '/tasks',
 	});
 
 	return {clearFilters, data, fetchTasks};

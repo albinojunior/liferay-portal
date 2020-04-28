@@ -45,24 +45,25 @@ const AssigneeInput = ({setAssigneeId, taskId}) => {
 };
 
 const Item = ({
-	assigneePerson = {name: Liferay.Language.get('unassigned')},
+	assetTitle,
+	assetType,
+	assignee = {name: Liferay.Language.get('unassigned')},
 	id,
-	objectReviewed: {assetTitle, assetType},
+	instanceId,
 	setAssigneeId,
 	label,
-	workflowInstanceId,
 }) => {
 	return (
 		<ClayTable.Row>
 			<ClayTable.Cell style={{fontWeight: 'bold'}}>
-				{workflowInstanceId}
+				{instanceId}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>{`${assetType}: ${assetTitle}`} </ClayTable.Cell>
 
 			<ClayTable.Cell>{label}</ClayTable.Cell>
 
-			<ClayTable.Cell>{assigneePerson.name}</ClayTable.Cell>
+			<ClayTable.Cell>{assignee.name}</ClayTable.Cell>
 
 			<ClayTable.Cell>
 				<Table.AssigneeInput
