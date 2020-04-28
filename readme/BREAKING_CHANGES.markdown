@@ -565,3 +565,28 @@ To consolidate all our UX for writing Rich Text Content
 around a single Editor to provide a more cohesive and comprehensive experience.
 
 ---------------------------------------
+
+### asset.vocabulary.default now holds a language key instead of a text
+- **Date:** 2020-Apr-28
+- **JIRA Ticket:** [LPS-112334](https://issues.liferay.com/browse/LPS-112334)
+
+### What changed?
+
+As of 7.3, asset.vocabulary.default no longer has a fixed value of Topic, but a language key
+
+### Who is affected
+
+This affects anyone who overwrites the property.
+
+### How should I update my code?
+
+There is no need to change the code if the property is not overwritten. If the
+property was overwritten and the specified key is not found, the provided text
+will be taken as the name of the default vocabulary.
+
+#### Why was this change made?
+
+The change was made so that the users don't have to change the name for the default
+vocabulary in all languages and benefit from the language keys that we provide
+
+---------------------------------------
