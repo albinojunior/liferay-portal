@@ -46,9 +46,9 @@ public class AppBuilderAppLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public AppBuilderApp addAppBuilderApp(
-			long groupId, long companyId, long userId, long ddmStructureId,
-			long ddmStructureLayoutId, long deDataListViewId,
-			Map<Locale, String> nameMap, int status)
+			long groupId, long companyId, long userId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId, Map<Locale, String> nameMap)
 		throws PortalException {
 
 		User user = userLocalService.getUser(userId);
@@ -62,11 +62,11 @@ public class AppBuilderAppLocalServiceImpl
 		appBuilderApp.setUserName(user.getFullName());
 		appBuilderApp.setCreateDate(new Date());
 		appBuilderApp.setModifiedDate(new Date());
+		appBuilderApp.setActive(active);
 		appBuilderApp.setDdmStructureId(ddmStructureId);
 		appBuilderApp.setDdmStructureLayoutId(ddmStructureLayoutId);
 		appBuilderApp.setDeDataListViewId(deDataListViewId);
 		appBuilderApp.setNameMap(nameMap);
-		appBuilderApp.setStatus(status);
 
 		return appBuilderAppPersistence.update(appBuilderApp);
 	}
@@ -101,8 +101,8 @@ public class AppBuilderAppLocalServiceImpl
 	}
 
 	@Override
-	public List<Long> getAppBuilderAppIds(int status, String type) {
-		return appBuilderAppFinder.findByS_T(status, type);
+	public List<Long> getAppBuilderAppIds(boolean active, String type) {
+		return appBuilderAppFinder.findByA_T(active, type);
 	}
 
 	@Override
@@ -111,8 +111,10 @@ public class AppBuilderAppLocalServiceImpl
 	}
 
 	@Override
-	public List<AppBuilderApp> getAppBuilderApps(long companyId, int status) {
-		return appBuilderAppPersistence.findByC_S(companyId, status);
+	public List<AppBuilderApp> getAppBuilderApps(
+		long companyId, boolean active) {
+
+		return appBuilderAppPersistence.findByC_A(companyId, active);
 	}
 
 	@Override
@@ -163,9 +165,9 @@ public class AppBuilderAppLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public AppBuilderApp updateAppBuilderApp(
-			long userId, long appBuilderAppId, long ddmStructureId,
-			long ddmStructureLayoutId, long deDataListViewId,
-			Map<Locale, String> nameMap, int status)
+			long userId, long appBuilderAppId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId, Map<Locale, String> nameMap)
 		throws PortalException {
 
 		User user = userLocalService.getUser(userId);
@@ -176,11 +178,11 @@ public class AppBuilderAppLocalServiceImpl
 		appBuilderApp.setUserId(user.getUserId());
 		appBuilderApp.setUserName(user.getFullName());
 		appBuilderApp.setModifiedDate(new Date());
+		appBuilderApp.setActive(active);
 		appBuilderApp.setDdmStructureId(ddmStructureId);
 		appBuilderApp.setDdmStructureLayoutId(ddmStructureLayoutId);
 		appBuilderApp.setDeDataListViewId(deDataListViewId);
 		appBuilderApp.setNameMap(nameMap);
-		appBuilderApp.setStatus(status);
 
 		return appBuilderAppPersistence.update(appBuilderApp);
 	}
