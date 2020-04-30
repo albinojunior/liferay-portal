@@ -115,7 +115,7 @@ public class ProductMenuAppDeployer implements AppDeployer {
 				});
 		}
 
-		appBuilderApp.setStatus(
+		appBuilderApp.setAppStatus(
 			AppBuilderAppConstants.Status.DEPLOYED.getValue());
 
 		_appBuilderAppLocalService.updateAppBuilderApp(appBuilderApp);
