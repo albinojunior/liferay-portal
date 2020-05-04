@@ -37,24 +37,23 @@ const FilterItem = ({filterName, label, remove}) => {
 	);
 };
 
-const getFilterResults = (config, filters) => {
+const getFilterResults = (filterConfig, filters) => {
 	const filterResults = [];
 
 	Object.keys(filters).forEach((key) => {
-		const {items, ...filterConfig} = config.find(
+		const {filterItems, ...restConfig} = filterConfig.find(
 			({filterKey}) => filterKey === key
 		);
 
 		const pushItem = (value) => {
-			const filter = items.find((item) => item.value === value);
+			const filter = filterItems.find((item) => item.value === value);
 
-			filterResults.push({...filter, ...filterConfig});
+			filterResults.push({...filter, ...restConfig});
 		};
 
 		if (Array.isArray(filters[key])) {
 			filters[key].forEach(pushItem);
-		}
-		else {
+		} else {
 			pushItem(filters[key]);
 		}
 	});
@@ -62,7 +61,7 @@ const getFilterResults = (config, filters) => {
 	return filterResults;
 };
 
-export default ({filterConfig, isLoading, totalCount}) => {
+export default ({filterConfig = [], isLoading, totalCount}) => {
 	const [{filters = {}, keywords}, dispatch] = useContext(SearchContext);
 
 	const filterResults = getFilterResults(filterConfig, filters);

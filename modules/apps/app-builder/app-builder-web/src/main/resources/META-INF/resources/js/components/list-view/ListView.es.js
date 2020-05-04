@@ -31,27 +31,7 @@ export default withRouter(
 		columns,
 		emptyState,
 		endpoint,
-		filterConfig = [
-			{
-				anyOption: true,
-				filterKey: 'type',
-				filterName: 'Type',
-				items: [
-					{label: 'Standard', value: '1'},
-					{label: 'Workflow Powered', value: '2'},
-				],
-			},
-			{
-				filterKey: 'deployment_type',
-				filterName: 'Deployment Type',
-				items: [
-					{label: 'Standalone', value: '1'},
-					{label: 'Widget', value: '2'},
-					{label: 'Product Menu', value: '3'},
-				],
-				multiple: true,
-			},
-		],
+		filterConfig = [],
 		history,
 		queryParams,
 	}) => {

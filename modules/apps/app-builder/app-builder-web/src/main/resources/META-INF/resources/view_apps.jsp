@@ -25,7 +25,9 @@
 		data='<%=
 			HashMapBuilder.<String, Object>put(
 				"basePortletURL", String.valueOf(renderResponse.createRenderURL())
-			).put(
+			)
+			.put("userId", themeDisplay.getUserId())
+			.put(
 				"pathFriendlyURLPublic", PortalUtil.getPathFriendlyURLPublic()
 			).build() %>'
 		module="js/pages/apps/index.es"

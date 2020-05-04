@@ -36,8 +36,7 @@ const getSortable = (columns, sort = '') => {
 		const [column, order] = sort.split(':');
 
 		return {asc: order === 'asc', column};
-	}
-	else if (columns.length) {
+	} else if (columns.length) {
 		const {asc = true, key: column} =
 			columns.find(({asc}) => asc !== undefined) || columns[0];
 
@@ -47,7 +46,7 @@ const getSortable = (columns, sort = '') => {
 	return {};
 };
 
-export default ({columns, disabled, filterConfig}) => {
+export default ({columns, disabled, filterConfig = []}) => {
 	const [{filters, sort}, dispatch] = useContext(SearchContext);
 	const [filtersValues, setFiltersValues] = useState(filters);
 	const [active, setActive] = useState(false);
@@ -66,17 +65,17 @@ export default ({columns, disabled, filterConfig}) => {
 		const options = [];
 
 		filterConfig.forEach(
-			({anyOption, filterKey, filterName, items, multiple}) => {
-				const filterItems = [...items];
+			({anyOption, filterItems, filterKey, filterName, multiple}) => {
+				const items = [...filterItems];
 				const filterValue = filtersValues[filterKey];
 
 				if (anyOption) {
-					filterItems.unshift({label: Liferay.Language.get('any')});
+					items.unshift({label: Liferay.Language.get('any')});
 				}
 
 				options.push({
 					item: multiple ? CheckboxGroup : RadioGroup,
-					items: filterItems,
+					items,
 					label: `${Liferay.Language.get('filter-by')} ${filterName}`,
 					onChange: (value, checked) => {
 						if (multiple) {
@@ -84,8 +83,7 @@ export default ({columns, disabled, filterConfig}) => {
 								value = filterValue
 									? [...filterValue, value]
 									: [value];
-							}
-							else {
+							} else {
 								value = filterValue.filter(
 									(filter) => filter !== value
 								);
@@ -151,26 +149,29 @@ export default ({columns, disabled, filterConfig}) => {
 	const dropDownItems = [...filterItems, ...sortableItems];
 
 	useEffect(() => {
-		const onClickOutside = ({target}) => {
-			const {id, offsetParent} = target;
-			const triggerClicked =
-				id === 'filter' ||
-				(offsetParent && offsetParent.id === 'filter');
+		if (enableDoneBtn) {
+			const onClickOutside = ({target}) => {
+				const {id, offsetParent} = target;
+				const triggerClicked =
+					id === 'filter' ||
+					(offsetParent && offsetParent.id === 'filter');
 
-			if (
-				(active && triggerClicked) ||
-				(!triggerClicked &&
-					previousActive &&
-					isClickOutside(target, dropdownRef.current))
-			) {
-				handleDone();
-			}
-		};
+				if (
+					(active && triggerClicked) ||
+					(!triggerClicked &&
+						previousActive &&
+						isClickOutside(target, dropdownRef.current))
+				) {
+					handleDone();
+				}
+			};
 
-		window.addEventListener('mousedown', onClickOutside);
+			window.addEventListener('mousedown', onClickOutside);
 
-		return () => window.removeEventListener('mousedown', onClickOutside);
-	}, [active, dropdownRef, handleDone, previousActive]);
+			return () =>
+				window.removeEventListener('mousedown', onClickOutside);
+		}
+	}, [active, dropdownRef, enableDoneBtn, handleDone, previousActive]);
 
 	useEffect(() => {
 		setFiltersValues(filters);
