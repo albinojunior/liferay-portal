@@ -31,10 +31,31 @@ export default withRouter(
 		columns,
 		emptyState,
 		endpoint,
+		filterConfig = [
+			{
+				anyOption: true,
+				filterKey: 'type',
+				filterName: 'Type',
+				items: [
+					{label: 'Standard', value: '1'},
+					{label: 'Workflow Powered', value: '2'},
+				],
+			},
+			{
+				filterKey: 'deployment_type',
+				filterName: 'Deployment Type',
+				items: [
+					{label: 'Standalone', value: '1'},
+					{label: 'Widget', value: '2'},
+					{label: 'Product Menu', value: '3'},
+				],
+				multiple: true,
+			},
+		],
 		history,
 		queryParams,
 	}) => {
-		const [query, setQuery] = useQuery(history, {
+		const [{filters = {}, ...query}, setQuery] = useQuery(history, {
 			keywords: '',
 			page: 1,
 			pageSize: 20,
@@ -55,7 +76,7 @@ export default withRouter(
 			},
 			link: getURL(endpoint),
 			onNetworkStatusChange: (status) => setLoading(status < 4),
-			variables: {...query},
+			variables: {...query, ...filters},
 		});
 
 		let items = [];
@@ -98,14 +119,16 @@ export default withRouter(
 		const [isLoading, setLoading] = useState(true);
 
 		return (
-			<SearchContext.Provider value={[query, dispatch]}>
+			<SearchContext.Provider value={[{...query, filters}, dispatch]}>
 				<ManagementToolbar
 					addButton={addButton}
 					columns={columns}
+					filterConfig={filterConfig}
 					totalCount={totalCount}
 				/>
 
 				<ManagementToolbarResultsBar
+					filterConfig={filterConfig}
 					isLoading={isLoading}
 					totalCount={totalCount}
 				/>
