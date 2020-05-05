@@ -18,13 +18,16 @@ import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.util.Validator;
+
+import java.util.Iterator;
 
 /**
  * @author Marcos Martins
  */
-public class RadioDDMFormFieldTypeReportProcessor
+public class CheckboxMultipleDDMFormFieldTypeReportProcessor
 	extends BaseDDMFormFieldTypeReportProcessor {
 
 	@Override
@@ -36,15 +39,19 @@ public class RadioDDMFormFieldTypeReportProcessor
 
 		Value value = ddmFormFieldValue.getValue();
 
-		String key = value.getString(value.getDefaultLocale());
+		JSONArray keysJSONArray = JSONFactoryUtil.createJSONArray(
+			value.getString(value.getDefaultLocale()));
+
+		Iterator iterator = keysJSONArray.iterator();
 
 		JSONObject fieldJSONObject =
 			formInstanceReportDataJSONObject.getJSONObject(
 				ddmFormFieldValue.getName());
 
-		if (Validator.isNotNull(key)) {
-			JSONObject valuesJSONObject = fieldJSONObject.getJSONObject(
-				"values");
+		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
+
+		while (iterator.hasNext()) {
+			String key = (String)iterator.next();
 
 			int count = valuesJSONObject.getInt(key, 0);
 

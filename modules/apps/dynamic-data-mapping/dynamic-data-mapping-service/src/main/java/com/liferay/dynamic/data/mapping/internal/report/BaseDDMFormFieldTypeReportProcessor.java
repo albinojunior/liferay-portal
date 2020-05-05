@@ -56,8 +56,9 @@ public abstract class BaseDDMFormFieldTypeReportProcessor
 	}
 
 	protected abstract JSONObject doProcess(
-		DDMFormFieldValue ddmFormFieldValue,
-		JSONObject formInstanceReportDataJSONObject,
-		String formInstanceReportEvent);
+			DDMFormFieldValue ddmFormFieldValue,
+			JSONObject formInstanceReportDataJSONObject,
+			String formInstanceReportEvent)
+		throws PortalException;
 
 }
