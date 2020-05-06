@@ -81,10 +81,9 @@ public class AppBuilderAppModelImpl
 		{"groupId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
-		{"ddmStructureId", Types.BIGINT},
+		{"active_", Types.BOOLEAN}, {"ddmStructureId", Types.BIGINT},
 		{"ddmStructureLayoutId", Types.BIGINT},
-		{"deDataListViewId", Types.BIGINT}, {"name", Types.VARCHAR},
-		{"status", Types.INTEGER}
+		{"deDataListViewId", Types.BIGINT}, {"name", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -99,15 +98,15 @@ public class AppBuilderAppModelImpl
 		TABLE_COLUMNS_MAP.put("userName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
+		TABLE_COLUMNS_MAP.put("active_", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("ddmStructureId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("ddmStructureLayoutId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("deDataListViewId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
-		TABLE_COLUMNS_MAP.put("status", Types.INTEGER);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table AppBuilderApp (uuid_ VARCHAR(75) null,appBuilderAppId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,ddmStructureId LONG,ddmStructureLayoutId LONG,deDataListViewId LONG,name STRING null,status INTEGER)";
+		"create table AppBuilderApp (uuid_ VARCHAR(75) null,appBuilderAppId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,active_ BOOLEAN,ddmStructureId LONG,ddmStructureLayoutId LONG,deDataListViewId LONG,name STRING null)";
 
 	public static final String TABLE_SQL_DROP = "drop table AppBuilderApp";
 
@@ -123,13 +122,13 @@ public class AppBuilderAppModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final long COMPANYID_COLUMN_BITMASK = 1L;
+	public static final long ACTIVE_COLUMN_BITMASK = 1L;
 
-	public static final long DDMSTRUCTUREID_COLUMN_BITMASK = 2L;
+	public static final long COMPANYID_COLUMN_BITMASK = 2L;
 
-	public static final long GROUPID_COLUMN_BITMASK = 4L;
+	public static final long DDMSTRUCTUREID_COLUMN_BITMASK = 4L;
 
-	public static final long STATUS_COLUMN_BITMASK = 8L;
+	public static final long GROUPID_COLUMN_BITMASK = 8L;
 
 	public static final long UUID_COLUMN_BITMASK = 16L;
 
@@ -304,6 +303,10 @@ public class AppBuilderAppModelImpl
 		attributeSetterBiConsumers.put(
 			"modifiedDate",
 			(BiConsumer<AppBuilderApp, Date>)AppBuilderApp::setModifiedDate);
+		attributeGetterFunctions.put("active", AppBuilderApp::getActive);
+		attributeSetterBiConsumers.put(
+			"active",
+			(BiConsumer<AppBuilderApp, Boolean>)AppBuilderApp::setActive);
 		attributeGetterFunctions.put(
 			"ddmStructureId", AppBuilderApp::getDdmStructureId);
 		attributeSetterBiConsumers.put(
@@ -324,10 +327,6 @@ public class AppBuilderAppModelImpl
 		attributeGetterFunctions.put("name", AppBuilderApp::getName);
 		attributeSetterBiConsumers.put(
 			"name", (BiConsumer<AppBuilderApp, String>)AppBuilderApp::setName);
-		attributeGetterFunctions.put("status", AppBuilderApp::getStatus);
-		attributeSetterBiConsumers.put(
-			"status",
-			(BiConsumer<AppBuilderApp, Integer>)AppBuilderApp::setStatus);
 
 		_attributeGetterFunctions = Collections.unmodifiableMap(
 			attributeGetterFunctions);
@@ -482,6 +481,33 @@ public class AppBuilderAppModelImpl
 	}
 
 	@Override
+	public boolean getActive() {
+		return _active;
+	}
+
+	@Override
+	public boolean isActive() {
+		return _active;
+	}
+
+	@Override
+	public void setActive(boolean active) {
+		_columnBitmask |= ACTIVE_COLUMN_BITMASK;
+
+		if (!_setOriginalActive) {
+			_setOriginalActive = true;
+
+			_originalActive = _active;
+		}
+
+		_active = active;
+	}
+
+	public boolean getOriginalActive() {
+		return _originalActive;
+	}
+
+	@Override
 	public long getDdmStructureId() {
 		return _ddmStructureId;
 	}
@@ -626,28 +652,6 @@ public class AppBuilderAppModelImpl
 	}
 
 	@Override
-	public int getStatus() {
-		return _status;
-	}
-
-	@Override
-	public void setStatus(int status) {
-		_columnBitmask |= STATUS_COLUMN_BITMASK;
-
-		if (!_setOriginalStatus) {
-			_setOriginalStatus = true;
-
-			_originalStatus = _status;
-		}
-
-		_status = status;
-	}
-
-	public int getOriginalStatus() {
-		return _originalStatus;
-	}
-
-	@Override
 	public StagedModelType getStagedModelType() {
 		return new StagedModelType(
 			PortalUtil.getClassNameId(AppBuilderApp.class.getName()));
@@ -763,11 +767,11 @@ public class AppBuilderAppModelImpl
 		appBuilderAppImpl.setUserName(getUserName());
 		appBuilderAppImpl.setCreateDate(getCreateDate());
 		appBuilderAppImpl.setModifiedDate(getModifiedDate());
+		appBuilderAppImpl.setActive(isActive());
 		appBuilderAppImpl.setDdmStructureId(getDdmStructureId());
 		appBuilderAppImpl.setDdmStructureLayoutId(getDdmStructureLayoutId());
 		appBuilderAppImpl.setDeDataListViewId(getDeDataListViewId());
 		appBuilderAppImpl.setName(getName());
-		appBuilderAppImpl.setStatus(getStatus());
 
 		appBuilderAppImpl.resetOriginalValues();
 
@@ -844,14 +848,14 @@ public class AppBuilderAppModelImpl
 
 		appBuilderAppModelImpl._setModifiedDate = false;
 
+		appBuilderAppModelImpl._originalActive = appBuilderAppModelImpl._active;
+
+		appBuilderAppModelImpl._setOriginalActive = false;
+
 		appBuilderAppModelImpl._originalDdmStructureId =
 			appBuilderAppModelImpl._ddmStructureId;
 
 		appBuilderAppModelImpl._setOriginalDdmStructureId = false;
-
-		appBuilderAppModelImpl._originalStatus = appBuilderAppModelImpl._status;
-
-		appBuilderAppModelImpl._setOriginalStatus = false;
 
 		appBuilderAppModelImpl._columnBitmask = 0;
 	}
@@ -903,6 +907,8 @@ public class AppBuilderAppModelImpl
 			appBuilderAppCacheModel.modifiedDate = Long.MIN_VALUE;
 		}
 
+		appBuilderAppCacheModel.active = isActive();
+
 		appBuilderAppCacheModel.ddmStructureId = getDdmStructureId();
 
 		appBuilderAppCacheModel.ddmStructureLayoutId =
@@ -917,8 +923,6 @@ public class AppBuilderAppModelImpl
 		if ((name != null) && (name.length() == 0)) {
 			appBuilderAppCacheModel.name = null;
 		}
-
-		appBuilderAppCacheModel.status = getStatus();
 
 		return appBuilderAppCacheModel;
 	}
@@ -1010,6 +1014,9 @@ public class AppBuilderAppModelImpl
 	private Date _createDate;
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
+	private boolean _active;
+	private boolean _originalActive;
+	private boolean _setOriginalActive;
 	private long _ddmStructureId;
 	private long _originalDdmStructureId;
 	private boolean _setOriginalDdmStructureId;
@@ -1017,9 +1024,6 @@ public class AppBuilderAppModelImpl
 	private long _deDataListViewId;
 	private String _name;
 	private String _nameCurrentLanguageId;
-	private int _status;
-	private int _originalStatus;
-	private boolean _setOriginalStatus;
 	private long _columnBitmask;
 	private AppBuilderApp _escapedModel;
 

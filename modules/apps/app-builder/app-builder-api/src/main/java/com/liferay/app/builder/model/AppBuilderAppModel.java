@@ -209,6 +209,27 @@ public interface AppBuilderAppModel
 	public void setModifiedDate(Date modifiedDate);
 
 	/**
+	 * Returns the active of this app builder app.
+	 *
+	 * @return the active of this app builder app
+	 */
+	public boolean getActive();
+
+	/**
+	 * Returns <code>true</code> if this app builder app is active.
+	 *
+	 * @return <code>true</code> if this app builder app is active; <code>false</code> otherwise
+	 */
+	public boolean isActive();
+
+	/**
+	 * Sets whether this app builder app is active.
+	 *
+	 * @param active the active of this app builder app
+	 */
+	public void setActive(boolean active);
+
+	/**
 	 * Returns the ddm structure ID of this app builder app.
 	 *
 	 * @return the ddm structure ID of this app builder app
@@ -348,20 +369,6 @@ public interface AppBuilderAppModel
 	 * @param defaultLocale the default locale
 	 */
 	public void setNameMap(Map<Locale, String> nameMap, Locale defaultLocale);
-
-	/**
-	 * Returns the status of this app builder app.
-	 *
-	 * @return the status of this app builder app
-	 */
-	public int getStatus();
-
-	/**
-	 * Sets the status of this app builder app.
-	 *
-	 * @param status the status of this app builder app
-	 */
-	public void setStatus(int status);
 
 	@Override
 	public String[] getAvailableLanguageIds();
