@@ -64,10 +64,16 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessor
 
 			int count = valuesJSONObject.getInt(key, 0);
 
-			if (DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION.equals(
-					formInstanceReportEvent)) {
+			if (formInstanceReportEvent.equals(
+					DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION)) {
 
-				count = count + 1;
+				count++;
+			}
+			else if (formInstanceReportEvent.equals(
+						DDMFormInstanceReportConstants.
+							EVENT_DELETE_RECORD_VERSION)) {
+
+				count--;
 			}
 
 			valuesJSONObject.put(key, count);
