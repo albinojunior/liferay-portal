@@ -15,15 +15,23 @@
 package com.liferay.dynamic.data.mapping.internal.report;
 
 import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.model.Value;
+import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessor;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.Validator;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Marcos Martins
  */
+@Component(
+	immediate = true, property = "form.field.type=" + DDMFormFieldType.RADIO,
+	service = DDMFormFieldTypeReportProcessor.class
+)
 public class RadioDDMFormFieldTypeReportProcessor
 	extends BaseDDMFormFieldTypeReportProcessor {
 
