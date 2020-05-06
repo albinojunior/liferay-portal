@@ -12,17 +12,21 @@
  * details.
  */
 
-package com.liferay.app.builder.service.persistence;
+package com.liferay.app.builder.internal.upgrade.v2_0_0;
 
-import org.osgi.annotation.versioning.ProviderType;
+import com.liferay.app.builder.internal.upgrade.v2_0_0.util.AppBuilderAppTable;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 
 /**
- * @author Brian Wing Shun Chan
- * @generated
+ * @author Rafael Praxedes
  */
-@ProviderType
-public interface AppBuilderAppFinder {
+public class UpgradeAppBuilderApp extends UpgradeProcess {
 
-	public java.util.List<Long> findByA_T(int appStatus, String type);
+	@Override
+	protected void doUpgrade() throws Exception {
+		alter(
+			AppBuilderAppTable.class,
+			new AlterColumnName("status", "appStatus INTEGER"));
+	}
 
 }

@@ -12,17 +12,21 @@
  * details.
  */
 
-package com.liferay.app.builder.service.persistence;
+package com.liferay.app.builder.internal.upgrade;
 
-import org.osgi.annotation.versioning.ProviderType;
+import com.liferay.app.builder.internal.upgrade.v2_0_0.UpgradeAppBuilderApp;
+import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
- * @author Brian Wing Shun Chan
- * @generated
+ * @author Rafael Praxedes
  */
-@ProviderType
-public interface AppBuilderAppFinder {
+@Component(immediate = true, service = UpgradeStepRegistrator.class)
+public class AppBuilderServiceUpgrade implements UpgradeStepRegistrator {
 
-	public java.util.List<Long> findByA_T(int appStatus, String type);
+	public void register(Registry registry) {
+		registry.register("1.0.0", "2.0.0", new UpgradeAppBuilderApp());
+	}
 
 }

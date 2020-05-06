@@ -6,6 +6,8 @@ components:
                     items:
                         $ref: "#/components/schemas/AppDeployment"
                     type: array
+                appStatus:
+                    type: string
                 dataDefinitionId:
                     format: int64
                     type: integer
@@ -34,8 +36,6 @@ components:
                 siteId:
                     format: int64
                     type: integer
-                status:
-                    type: string
                 userId:
                     format: int64
                     type: integer
@@ -68,9 +68,28 @@ paths:
             operationId: getAppsPage
             parameters:
                 - in: query
+                  name: appDeploymentTypes
+                  schema:
+                      items:
+                          enum: [productMenu, standalone, widget]
+                          type: string
+                      type: array
+                - in: query
+                  name: appStatus
+                  schema:
+                      enum: [deployed, undeployed]
+                      type: string
+                - in: query
                   name: keywords
                   schema:
                       type: string
+                - in: query
+                  name: userIds
+                  schema:
+                      items:
+                          format: int64
+                          type: integer
+                      type: array
                 - in: query
                   name: page
                   schema:
