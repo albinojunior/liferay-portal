@@ -13,6 +13,7 @@
  */
 
 const DEFAULT_CONFIG = {
+	sidebarVariant: 'light',
 	toolbarId: 'dataEngineToolbar',
 };
 

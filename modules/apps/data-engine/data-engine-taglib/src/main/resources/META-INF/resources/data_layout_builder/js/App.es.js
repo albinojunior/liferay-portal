@@ -39,14 +39,6 @@ const parseProps = ({
 	groupId: Number(groupId),
 });
 
-const AppSidebar = ({panels, sidebarPanels, toolbarId}) => (
-	<MultiPanelSidebar
-		panels={panels}
-		sidebarPanels={sidebarPanels}
-		toolbarId={toolbarId}
-	/>
-);
-
 const AppContent = ({
 	dataLayoutBuilder,
 	setDataLayoutBuilder,
@@ -55,7 +47,7 @@ const AppContent = ({
 }) => {
 	const [state, dispatch] = useContext(AppContext);
 
-	const {panels, sidebarPanels} = sidebarConfig;
+	const {panels, sidebarPanels, sidebarVariant} = sidebarConfig;
 
 	useEffect(() => {
 		if (dataLayoutBuilder) {
@@ -76,7 +68,11 @@ const AppContent = ({
 				<DataLayoutBuilderContextProvider
 					dataLayoutBuilder={dataLayoutBuilder}
 				>
-					<AppSidebar panels={panels} sidebarPanels={sidebarPanels} />
+					<MultiPanelSidebar
+						panels={panels}
+						sidebarPanels={sidebarPanels}
+						variant={sidebarVariant}
+					/>
 
 					<DataLayoutBuilderDragAndDrop
 						dataLayoutBuilder={dataLayoutBuilder}
