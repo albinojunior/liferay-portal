@@ -16,6 +16,7 @@ import ClayLabel from '@clayui/label';
 import {ClayResultsBar} from '@clayui/management-toolbar';
 import React, {useCallback, useContext} from 'react';
 
+import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import lang from '../../utils/lang.es';
 import Button from '../button/Button.es';
 import SearchContext from './SearchContext.es';
@@ -29,7 +30,7 @@ const FilterItem = ({filterKey, filterName, filterValue, remove}) => {
 				displayType="unstyled"
 			>
 				<span className="label-section">
-					{`${filterName}: `}
+					{`${FILTER_NAMES[filterName][0]}: `}
 					<span className="font-weight-normal">{filterValue}</span>
 				</span>
 			</ClayLabel>

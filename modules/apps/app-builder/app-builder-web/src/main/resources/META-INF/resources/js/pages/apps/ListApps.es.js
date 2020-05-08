@@ -101,7 +101,7 @@ export default ({
 				{label: DEPLOYMENT_TYPES.widget, value: 'widget'},
 			],
 			filterKey: 'deploymentTypes',
-			filterName: Liferay.Language.get('deployment-type'),
+			filterName: 'deployment-type',
 			multiple: true,
 		},
 		{
@@ -110,12 +110,12 @@ export default ({
 				{label: STATUSES.inactive, value: 'false'},
 			],
 			filterKey: 'active',
-			filterName: Liferay.Language.get('status'),
+			filterName: 'status',
 		},
 		{
 			filterItems: [{label: Liferay.Language.get('me'), value: userId}],
 			filterKey: 'userIds',
-			filterName: Liferay.Language.get('author'),
+			filterName: 'author',
 			multiple: true,
 		},
 	];
