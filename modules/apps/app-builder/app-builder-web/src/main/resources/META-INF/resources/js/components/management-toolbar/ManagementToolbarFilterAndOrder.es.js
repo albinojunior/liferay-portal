@@ -26,6 +26,7 @@ import React, {
 	useState,
 } from 'react';
 
+import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import isClickOutside from '../../utils/clickOutside.es';
 import {isEqualObjects} from '../../utils/utils.es';
 import Button from '../button/Button.es';
@@ -37,7 +38,8 @@ const getSortable = (columns, sort = '') => {
 		const [column, order] = sort.split(':');
 
 		return {asc: order === 'asc', column};
-	} else if (columns.length) {
+	}
+	else if (columns.length) {
 		const {asc = true, key: column} =
 			columns.find(({asc}) => asc !== undefined) || columns[0];
 
@@ -73,14 +75,15 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 				options.push({
 					Component: multiple ? CheckboxGroup : RadioGroup,
 					items: multiple ? filterItems : [anyOption, ...filterItems],
-					label: `${Liferay.Language.get('filter-by')} ${filterName}`,
+					label: FILTER_NAMES[filterName][1],
 					onChange: (value, checked) => {
 						if (multiple) {
 							if (checked) {
 								value = filterValue
 									? [...filterValue, value]
 									: [value];
-							} else {
+							}
+							else {
 								value = filterValue.filter(
 									(filter) => filter !== value
 								);
