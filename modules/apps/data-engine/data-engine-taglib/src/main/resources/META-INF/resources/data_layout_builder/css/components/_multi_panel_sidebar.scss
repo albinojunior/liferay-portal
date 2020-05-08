@@ -105,15 +105,11 @@ $zIndexContent: 0;
 			background-color: $gray-800;
 			border-left-color: $secondary;
 
-			a.active,
-			a:focus,
-			a:hover {
-				color: $white;
-			}
-
+			a,
 			button {
 				color: $gray-500;
 
+				&.active,
 				&:active,
 				&:focus,
 				&:hover {
