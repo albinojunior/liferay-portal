@@ -54,6 +54,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -96,7 +97,7 @@ public class DataLayoutResourceImpl
 			PermissionThreadLocal.getPermissionChecker(),
 			ddmStructure.getStructureId(), ActionKeys.DELETE);
 
-		_deleteDataLayout(dataLayoutId, ddmStructure);
+		_deleteDataLayout(dataLayoutId);
 	}
 
 	@Override
@@ -117,8 +118,7 @@ public class DataLayoutResourceImpl
 					ddmStructureVersion.getStructureVersionId());
 
 			for (DDMStructureLayout ddmStructureLayout : ddmStructureLayouts) {
-				_deleteDataLayout(
-					ddmStructureLayout.getStructureLayoutId(), ddmStructure);
+				_deleteDataLayout(ddmStructureLayout.getStructureLayoutId());
 			}
 		}
 	}
@@ -230,13 +230,14 @@ public class DataLayoutResourceImpl
 	}
 
 	private void _addDataDefinitionFieldLinks(
-			long classNameId, long dataDefinitionId, long dataLayoutId,
-			List<String> fieldNames, long siteId)
+			long dataDefinitionId, long dataLayoutId, List<String> fieldNames,
+			long siteId)
 		throws Exception {
 
 		for (String fieldName : fieldNames) {
 			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
-				siteId, classNameId, dataLayoutId, dataDefinitionId, fieldName);
+				siteId, _getClassNameId(), dataLayoutId, dataDefinitionId,
+				fieldName);
 		}
 	}
 
@@ -260,21 +261,22 @@ public class DataLayoutResourceImpl
 				serviceContext);
 
 		_addDataDefinitionFieldLinks(
-			ddmStructure.getClassNameId(), dataDefinitionId,
-			ddmStructureLayout.getStructureLayoutId(), _getFieldNames(content),
-			ddmStructureLayout.getGroupId());
+			dataDefinitionId, ddmStructureLayout.getStructureLayoutId(),
+			_getFieldNames(content), ddmStructureLayout.getGroupId());
 
 		return DataLayoutUtil.toDataLayout(
 			ddmStructureLayout, _spiDDMFormRuleConverter);
 	}
 
-	private void _deleteDataLayout(long dataLayoutId, DDMStructure ddmStructure)
-		throws Exception {
-
+	private void _deleteDataLayout(long dataLayoutId) throws Exception {
 		_ddmStructureLayoutLocalService.deleteDDMStructureLayout(dataLayoutId);
 
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
-			ddmStructure.getClassNameId(), dataLayoutId);
+			_getClassNameId(), dataLayoutId);
+	}
+
+	private long _getClassNameId() {
+		return _portal.getClassNameId(DDMStructureLayout.class);
 	}
 
 	private DataLayout _getDataLayout(long dataLayoutId) throws Exception {
@@ -458,11 +460,12 @@ public class DataLayoutResourceImpl
 				new ServiceContext());
 
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
-			ddmStructure.getClassNameId(), dataLayoutId);
+			_getClassNameId(), dataLayoutId);
 
 		_addDataDefinitionFieldLinks(
-			ddmStructure.getClassNameId(), ddmStructure.getStructureId(),
-			dataLayoutId, _getFieldNames(content), ddmStructure.getGroupId());
+			ddmStructure.getStructureId(),
+			ddmStructureLayout.getStructureLayoutId(), _getFieldNames(content),
+			ddmStructureLayout.getGroupId());
 
 		return DataLayoutUtil.toDataLayout(
 			ddmStructureLayout, _spiDDMFormRuleConverter);
@@ -519,6 +522,9 @@ public class DataLayoutResourceImpl
 	@Reference
 	private DEDataDefinitionFieldLinkLocalService
 		_deDataDefinitionFieldLinkLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private SPIDDMFormRuleConverter _spiDDMFormRuleConverter;

@@ -220,8 +220,8 @@ public class DataDefinitionResourceImpl
 			transformToArray(
 				_deDataDefinitionFieldLinkLocalService.
 					getDEDataDefinitionFieldLinks(
-						_getClassNameId(dataDefinitionId), dataDefinitionId,
-						fieldName),
+						_portal.getClassNameId(DDMStructureLayout.class),
+						dataDefinitionId, fieldName),
 				deDataDefinitionFieldLink -> {
 					DDMStructureLayout ddmStructureLayout =
 						_ddmStructureLayoutLocalService.getDDMStructureLayout(
@@ -643,13 +643,6 @@ public class DataDefinitionResourceImpl
 		}
 
 		return null;
-	}
-
-	private long _getClassNameId(long dataDefinitionId) throws Exception {
-		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
-			dataDefinitionId);
-
-		return ddmStructure.getClassNameId();
 	}
 
 	private DataLayoutResource _getDataLayoutResource(boolean checkPermission) {
@@ -1193,7 +1186,7 @@ public class DataDefinitionResourceImpl
 				transform(
 					_deDataDefinitionFieldLinkLocalService.
 						getDEDataDefinitionFieldLinks(
-							_getClassNameId(dataDefinitionId),
+							_portal.getClassNameId(DDMStructureLayout.class),
 							ddmStructure.getStructureId(), removedFieldName),
 					deDataDefinitionFieldLink ->
 						deDataDefinitionFieldLink.getClassPK()));
@@ -1209,7 +1202,7 @@ public class DataDefinitionResourceImpl
 
 			_deDataDefinitionFieldLinkLocalService.
 				deleteDEDataDefinitionFieldLinks(
-					_getClassNameId(dataDefinitionId),
+					_portal.getClassNameId(DDMStructureLayout.class),
 					ddmStructure.getStructureId(), removedFieldName);
 
 			_deDataDefinitionFieldLinkLocalService.
