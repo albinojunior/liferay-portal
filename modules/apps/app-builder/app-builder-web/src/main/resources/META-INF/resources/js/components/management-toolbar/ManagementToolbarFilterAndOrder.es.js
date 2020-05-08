@@ -103,7 +103,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 		return options;
 	}, [filterConfig, filtersValues]);
 
-	const enableDoneBtn = filterItems.length > 0;
+	const enableDoneButton = filterItems.length > 0;
 
 	const handleDone = useCallback(
 		(clickOutside) => {
@@ -148,7 +148,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const dropDownItems = [...filterItems, ...sortableItems];
 
 	useEffect(() => {
-		if (enableDoneBtn) {
+		if (enableDoneButton) {
 			const onClickOutside = ({target}) => {
 				const {id, offsetParent} = target;
 				const triggerClicked =
@@ -170,14 +170,14 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 			return () =>
 				window.removeEventListener('mousedown', onClickOutside);
 		}
-	}, [active, dropdownRef, enableDoneBtn, handleDone, previousActive]);
+	}, [active, dropdownRef, enableDoneButton, handleDone, previousActive]);
 
 	useEffect(() => {
 		setFiltersValues(filters);
 	}, [filters]);
 
 	useEffect(() => {
-		if (!enableDoneBtn) {
+		if (!enableDoneButton) {
 			handleDone();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +191,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 						<DropDown
 							active={active}
 							footerContent={
-								enableDoneBtn && (
+								enableDoneButton && (
 									<ClayButton
 										block
 										onClick={() => handleDone()}
