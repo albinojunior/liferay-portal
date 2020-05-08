@@ -16,16 +16,9 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import classNames from 'classnames';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
-import {isEqualObjects} from '../../utils/utils.es';
 import Button from '../button/Button.es';
 import SearchContext from '../management-toolbar/SearchContext.es';
 import DropDown, {CheckboxGroup, RadioGroup} from './DropDown.es';
@@ -105,23 +98,15 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 		setFiltersValues(filters);
 	};
 
-	const handleDone = useCallback(
-		(clickOutside) => {
-			if (!isEqualObjects(filters, filtersValues)) {
-				dispatch({filters: filtersValues, type: 'UPDATE_FILTERS'});
-			}
+	const onDoneClick = () => {
+		dispatch({
+			filters: filtersValues,
+			sort: `${sortColumn}:${asc ? 'asc' : 'desc'}`,
+			type: 'UPDATE_FILTERS_AND_SORT',
+		});
 
-			if (column !== sortColumn) {
-				handleSort(asc, sortColumn);
-			}
-
-			if (!clickOutside) {
-				setDropDownActive(false);
-			}
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[asc, column, filters, filtersValues, sortColumn]
-	);
+		setDropDownActive(false);
+	};
 
 	const handleSort = (asc, newColumn) => {
 		dispatch({
@@ -153,7 +138,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 
 	useEffect(() => {
 		if (!enableDoneButton) {
-			handleDone();
+			onDoneClick();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sortColumn]);
@@ -169,7 +154,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 								enableDoneButton && (
 									<ClayButton
 										block
-										onClick={() => handleDone()}
+										onClick={() => onDoneClick()}
 									>
 										{Liferay.Language.get('done')}
 									</ClayButton>
