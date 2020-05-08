@@ -30,8 +30,8 @@ import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import isClickOutside from '../../utils/clickOutside.es';
 import {isEqualObjects} from '../../utils/utils.es';
 import Button from '../button/Button.es';
-import DropDown, {CheckboxGroup, RadioGroup} from '../drop-down/DropDown.es';
 import SearchContext from '../management-toolbar/SearchContext.es';
+import DropDown, {CheckboxGroup, RadioGroup} from './DropDown.es';
 
 const getSortable = (columns, sort = '') => {
 	if (sort.length) {
