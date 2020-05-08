@@ -14,19 +14,23 @@
 
 import ClayLabel from '@clayui/label';
 import {ClayResultsBar} from '@clayui/management-toolbar';
-import React, {useCallback, useContext} from 'react';
+import React, {useContext} from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import lang from '../../utils/lang.es';
 import Button from '../button/Button.es';
 import SearchContext from './SearchContext.es';
 
-const FilterItem = ({filterKey, filterName, filterValue, remove}) => {
+const FilterItem = ({filterKey, filterName, filterValue}) => {
+	const [, dispatch] = useContext(SearchContext);
+
 	return (
 		<ClayResultsBar.Item>
 			<ClayLabel
 				className="tbar-label"
-				closeButtonProps={{onClick: () => remove(filterKey)}}
+				closeButtonProps={{
+					onClick: () => dispatch({filterKey, type: 'REMOVE_FILTER'}),
+				}}
 				displayType="unstyled"
 			>
 				<span className="label-section">
@@ -66,15 +70,6 @@ export const getSelectedFilters = (filterConfig, filters) => {
 export default ({filterConfig = [], isLoading, totalCount}) => {
 	const [{filters = {}, keywords}, dispatch] = useContext(SearchContext);
 
-	const removeFilter = useCallback(
-		(filterKey) => {
-			delete filters[filterKey];
-
-			dispatch({filters, type: 'FILTER'});
-		},
-		[dispatch, filters]
-	);
-
 	const selectedFilters = getSelectedFilters(filterConfig, filters);
 
 	return (
@@ -93,11 +88,7 @@ export default ({filterConfig = [], isLoading, totalCount}) => {
 					</ClayResultsBar.Item>
 
 					{selectedFilters.map((filter, key) => (
-						<FilterItem
-							key={key}
-							{...filter}
-							remove={removeFilter}
-						/>
+						<FilterItem key={key} {...filter} />
 					))}
 
 					<ClayResultsBar.Item expand>

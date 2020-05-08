@@ -33,12 +33,17 @@ const reducer = (state, action) => {
 				filters: {},
 				keywords: '',
 			};
-		case 'FILTER':
+		case 'REMOVE_FILTER': {
+			const {filterKey} = action;
+			const updatedFilters = {...state.filters};
+
+			delete updatedFilters[filterKey];
+
 			return {
 				...state,
-				filters: action.filters,
-				page: 1,
+				filters: updatedFilters,
 			};
+		}
 		case 'SEARCH':
 			return {
 				...state,
@@ -49,6 +54,12 @@ const reducer = (state, action) => {
 			return {
 				...state,
 				sort: action.sort,
+			};
+		case 'UPDATE_FILTERS':
+			return {
+				...state,
+				filters: action.filters,
+				page: 1,
 			};
 		default:
 			return state;
