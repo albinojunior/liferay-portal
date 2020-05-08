@@ -16,9 +16,7 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import classNames from 'classnames';
-import {usePrevious} from 'frontend-js-react-web';
 import React, {
-	createRef,
 	useCallback,
 	useContext,
 	useEffect,
@@ -27,7 +25,6 @@ import React, {
 } from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
-import isClickOutside from '../../utils/clickOutside.es';
 import {isEqualObjects} from '../../utils/utils.es';
 import Button from '../button/Button.es';
 import SearchContext from '../management-toolbar/SearchContext.es';
@@ -52,9 +49,7 @@ const getSortable = (columns, sort = '') => {
 export default ({columns = [], disabled, filterConfig = []}) => {
 	const [{filters = {}, sort}, dispatch] = useContext(SearchContext);
 	const [filtersValues, setFiltersValues] = useState(filters);
-	const [active, setActive] = useState(false);
-	const previousActive = usePrevious(active);
-	const dropdownRef = createRef();
+	const [isDropDownActive, setDropDownActive] = useState(false);
 
 	const sortableColumns = useMemo(
 		() => columns.filter(({sortable}) => sortable),
@@ -105,6 +100,11 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 
 	const enableDoneButton = filterItems.length > 0;
 
+	const onDropDownActiveChange = (active) => {
+		setDropDownActive(active);
+		setFiltersValues(filters);
+	};
+
 	const handleDone = useCallback(
 		(clickOutside) => {
 			if (!isEqualObjects(filters, filtersValues)) {
@@ -116,7 +116,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 			}
 
 			if (!clickOutside) {
-				setActive(false);
+				setDropDownActive(false);
 			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,31 +148,6 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const dropDownItems = [...filterItems, ...sortableItems];
 
 	useEffect(() => {
-		if (enableDoneButton) {
-			const onClickOutside = ({target}) => {
-				const {id, offsetParent} = target;
-				const triggerClicked =
-					id === 'filter-and-order' ||
-					(offsetParent && offsetParent.id === 'filter-and-order');
-
-				if (
-					(active && triggerClicked) ||
-					(!triggerClicked &&
-						previousActive &&
-						isClickOutside(target, dropdownRef.current))
-				) {
-					handleDone(true);
-				}
-			};
-
-			window.addEventListener('mousedown', onClickOutside);
-
-			return () =>
-				window.removeEventListener('mousedown', onClickOutside);
-		}
-	}, [active, dropdownRef, enableDoneButton, handleDone, previousActive]);
-
-	useEffect(() => {
 		setFiltersValues(filters);
 	}, [filters]);
 
@@ -189,7 +164,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 				<ClayManagementToolbar.ItemList>
 					<ClayManagementToolbar.Item>
 						<DropDown
-							active={active}
+							active={isDropDownActive}
 							footerContent={
 								enableDoneButton && (
 									<ClayButton
@@ -200,8 +175,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 									</ClayButton>
 								)
 							}
-							forwardRef={dropdownRef}
-							onActiveChange={setActive}
+							onActiveChange={onDropDownActiveChange}
 							trigger={
 								<ClayButton
 									className="nav-link"
