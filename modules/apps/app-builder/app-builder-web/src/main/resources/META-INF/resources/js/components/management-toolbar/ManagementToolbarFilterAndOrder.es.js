@@ -39,6 +39,38 @@ const getSortable = (columns, sort = '') => {
 	return {};
 };
 
+const filterFactory = (
+	items,
+	label,
+	selected,
+	multiple,
+	onAdd,
+	onRemove,
+	onChange
+) => {
+	if (multiple) {
+		return (
+			<CheckboxGroup
+				items={items}
+				label={label}
+				onAdd={onAdd}
+				onRemove={onRemove}
+				selected={selected}
+			/>
+		);
+	}
+	else {
+		return (
+			<RadioGroup
+				items={[{label: Liferay.Language.get('any')}, ...items]}
+				label={label}
+				onChange={onChange}
+				selected={selected}
+			/>
+		);
+	}
+};
+
 export default ({columns = [], disabled, filterConfig = []}) => {
 	const [{filters = {}, sort}, dispatch] = useContext(SearchContext);
 	const [filtersValues, setFiltersValues] = useState(filters);
@@ -52,44 +84,55 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const {asc, column} = getSortable(sortableColumns, sort);
 	const [sortColumn, setSortColumn] = useState(column);
 
-	const filterItems = useMemo(() => {
-		const options = [];
+	const filterItems = filterConfig.map(
+		({filterItems, filterKey, filterName, multiple}) =>
+			filterFactory(
+				filterItems,
+				FILTER_NAMES[filterName][1],
+				filtersValues[filterKey],
+				multiple,
+				(value) => {
+					setFiltersValues((prevFilterValues) => ({
+						...prevFilterValues,
+						[filterKey]: prevFilterValues[filterKey].concat(value),
+					}));
+				},
+				(value) => {
+					setFiltersValues((prevFilterValues) => ({
+						...prevFilterValues,
+						[filterKey]: prevFilterValues[filterKey].filter(
+							(currentValue) => currentValue !== value
+						),
+					}));
+				},
+				(value) => {
+					setFiltersValues((prevFilterValues) => ({
+						...prevFilterValues,
+						[filterKey]: value,
+					}));
+				}
+			)
+	);
 
-		filterConfig.forEach(
-			({filterItems, filterKey, filterName, multiple}) => {
-				const filterValue = filtersValues[filterKey];
-				const anyOption = {label: Liferay.Language.get('any')};
+	const orderByItems = () => {
+		if (sortableColumns.length === 0) {
+			return null;
+		}
 
-				options.push({
-					Component: multiple ? CheckboxGroup : RadioGroup,
-					items: multiple ? filterItems : [anyOption, ...filterItems],
-					label: FILTER_NAMES[filterName][1],
-					onChange: (value, checked) => {
-						if (multiple) {
-							if (checked) {
-								value = filterValue
-									? [...filterValue, value]
-									: [value];
-							}
-							else {
-								value = filterValue.filter(
-									(filter) => filter !== value
-								);
-							}
-						}
-
-						setFiltersValues((prevValues) => ({
-							...prevValues,
-							[filterKey]: value,
-						}));
-					},
-					selected: filterValue,
-				});
-			}
+		return (
+			<RadioGroup
+				items={sortableColumns.map(({key, value}) => ({
+					label: value,
+					value: key,
+				}))}
+				label={Liferay.Language.get('order-by')}
+				onChange={setSortColumn}
+				selected={sortColumn}
+			/>
 		);
+	};
 
-		return options;
-	}, [filterConfig, filtersValues]);
+	const dropDownItems = [...filterItems, orderByItems()];
 
 	const enableDoneButton = filterItems.length > 0;
 
@@ -114,23 +157,6 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 			type: 'SORT',
 		});
 	};
-
-	const sortableItems = useMemo(() => {
-		const sortConfig = {
-			Component: RadioGroup,
-			items: sortableColumns.map(({key, value}) => ({
-				label: value,
-				value: key,
-			})),
-			label: Liferay.Language.get('order-by'),
-			onChange: setSortColumn,
-			selected: sortColumn,
-		};
-
-		return sortableColumns.length ? [sortConfig] : [];
-	}, [sortColumn, sortableColumns]);
-
-	const dropDownItems = [...filterItems, ...sortableItems];
 
 	useEffect(() => {
 		setFiltersValues(filters);
@@ -187,11 +213,12 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 								</ClayButton>
 							}
 						>
-							{dropDownItems.map(({Component, ...props}, key) => (
-								<Component key={key} {...props} />
+							{dropDownItems.map((item, index) => (
+								<div key={index}>{item}</div>
 							))}
 						</DropDown>
 					</ClayManagementToolbar.Item>
+
 					<ClayManagementToolbar.Item>
 						<Button
 							className={classNames(
