@@ -54,6 +54,7 @@ import com.liferay.dynamic.data.mapping.io.DDMFormSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializerSerializeResponse;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
@@ -155,6 +156,9 @@ public class DataDefinitionResourceImpl
 
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
 			dataDefinitionId);
+
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataDefinitionId);
 
 		_deDataListViewLocalService.deleteDEDataListViews(dataDefinitionId);
 
@@ -449,6 +453,10 @@ public class DataDefinitionResourceImpl
 			GetterUtil.getString(dataDefinition.getStorageType(), "json"),
 			new ServiceContext());
 
+		_addDataDefinitionFieldLinks(
+			ddmStructure.getStructureId(), ddmForm.getDDMFormFields(),
+			ddmStructure.getGroupId());
+
 		DataLayout dataLayout = dataDefinition.getDefaultDataLayout();
 
 		if (dataLayout != null) {
@@ -526,12 +534,19 @@ public class DataDefinitionResourceImpl
 					dataLayout));
 		}
 
-		_updateFieldNames(dataDefinitionId, dataDefinition);
-
 		DDMForm ddmForm = DataDefinitionUtil.toDDMForm(
 			dataDefinition, _ddmFormFieldTypeServicesTracker);
 
 		_validate(dataDefinition, ddmForm);
+
+		_updateFieldNames(dataDefinitionId, dataDefinition);
+
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataDefinitionId);
+
+		_addDataDefinitionFieldLinks(
+			dataDefinitionId, ddmForm.getDDMFormFields(),
+			dataDefinition.getSiteId());
 
 		DDMFormSerializerSerializeRequest.Builder builder =
 			DDMFormSerializerSerializeRequest.Builder.newBuilder(ddmForm);
@@ -593,6 +608,24 @@ public class DataDefinitionResourceImpl
 			DDMStructure.class.getName());
 	}
 
+	private void _addDataDefinitionFieldLinks(
+			long dataDefinitionId, List<DDMFormField> ddmFormFields,
+			long groupId)
+		throws Exception {
+
+		for (DDMFormField ddmFormField : ddmFormFields) {
+			Long fieldSetDDMStructureId = GetterUtil.getLong(
+				ddmFormField.getProperty("ddmStructureId"));
+
+			if (Validator.isNotNull(fieldSetDDMStructureId)) {
+				_deDataDefinitionFieldLinkLocalService.
+					addDEDataDefinitionFieldLink(
+						groupId, _getClassNameId(), dataDefinitionId,
+						fieldSetDDMStructureId, ddmFormField.getName());
+			}
+		}
+	}
+
 	private JSONObject _createFieldContextJSONObject(
 		DDMFormFieldType ddmFormFieldType, Locale locale, String type) {
 
@@ -643,6 +676,10 @@ public class DataDefinitionResourceImpl
 		}
 
 		return null;
+	}
+
+	private long _getClassNameId() {
+		return _portal.getClassNameId(DDMStructure.class);
 	}
 
 	private DataLayoutResource _getDataLayoutResource(boolean checkPermission) {
