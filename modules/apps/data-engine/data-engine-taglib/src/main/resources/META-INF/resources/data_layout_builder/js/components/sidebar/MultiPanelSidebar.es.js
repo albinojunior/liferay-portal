@@ -170,7 +170,16 @@ export default function MultiPanelSidebar({
 					`multi-panel-sidebar-${variant}`
 				)}
 			>
-				<nav className="multi-panel-sidebar-buttons tbar tbar-stacked">
+				<nav
+					className={classNames(
+						'multi-panel-sidebar-buttons',
+						'tbar',
+						'tbar-stacked',
+						variant === 'dark'
+							? `tbar-${variant}-d1`
+							: `tbar-${variant}`
+					)}
+				>
 					<ul className="tbar-nav">
 						{panels.reduce((elements, group, groupIndex) => {
 							const buttons = group.map((panelId) => {
