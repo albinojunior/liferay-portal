@@ -55,11 +55,12 @@ const reducer = (state, action) => {
 				...state,
 				sort: action.sort,
 			};
-		case 'UPDATE_FILTERS':
+		case 'UPDATE_FILTERS_AND_SORT':
 			return {
 				...state,
 				filters: action.filters,
 				page: 1,
+				sort: action.sort,
 			};
 		default:
 			return state;
