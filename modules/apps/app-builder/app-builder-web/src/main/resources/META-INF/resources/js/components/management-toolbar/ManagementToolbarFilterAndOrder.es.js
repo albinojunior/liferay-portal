@@ -108,7 +108,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const handleDone = useCallback(
 		(clickOutside) => {
 			if (!isEqualObjects(filters, filtersValues)) {
-				dispatch({filters: filtersValues, type: 'FILTER'});
+				dispatch({filters: filtersValues, type: 'UPDATE_FILTERS'});
 			}
 
 			if (column !== sortColumn) {
