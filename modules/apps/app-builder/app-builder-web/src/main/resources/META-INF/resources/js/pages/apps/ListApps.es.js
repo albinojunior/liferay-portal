@@ -115,7 +115,7 @@ export default ({
 		{
 			filterItems: [{label: Liferay.Language.get('me'), value: userId}],
 			filterKey: 'userIds',
-			filterName: Liferay.Language.get('creator'),
+			filterName: Liferay.Language.get('author'),
 			multiple: true,
 		},
 	];
