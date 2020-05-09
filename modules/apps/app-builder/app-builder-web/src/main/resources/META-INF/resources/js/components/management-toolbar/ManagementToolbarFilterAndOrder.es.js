@@ -39,38 +39,6 @@ const getSortable = (columns, sort = '') => {
 	return {};
 };
 
-const filterFactory = (
-	items,
-	label,
-	selected,
-	multiple,
-	onAdd,
-	onRemove,
-	onChange
-) => {
-	if (multiple) {
-		return (
-			<CheckboxGroup
-				items={items}
-				label={label}
-				onAdd={onAdd}
-				onRemove={onRemove}
-				selected={selected}
-			/>
-		);
-	}
-	else {
-		return (
-			<RadioGroup
-				items={[{label: Liferay.Language.get('any')}, ...items]}
-				label={label}
-				onChange={onChange}
-				selected={selected}
-			/>
-		);
-	}
-};
-
 export default ({columns = [], disabled, filterConfig = []}) => {
 	const [{filters = {}, sort}, dispatch] = useContext(SearchContext);
 	const [filtersValues, setFiltersValues] = useState(filters);
@@ -85,37 +53,56 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const [sortColumn, setSortColumn] = useState(column);
 
 	const filterItems = filterConfig.map(
-		({filterItems, filterKey, filterName, multiple}) =>
-			filterFactory(
-				filterItems,
-				FILTER_NAMES[filterName][1],
-				filtersValues[filterKey],
-				multiple,
-				(value) => {
-					setFiltersValues((prevFilterValues) => {
-						const values = filtersValues[filterKey] || [];
+		({filterItems, filterKey, filterName, multiple}) => {
+			const props = {
+				items: filterItems,
+				label: FILTER_NAMES[filterName][1],
+				selected: filtersValues[filterKey],
+			};
 
-						return {
-							...prevFilterValues,
-							[filterKey]: values.concat(value),
-						};
-					});
-				},
-				(value) => {
-					setFiltersValues((prevFilterValues) => ({
-						...prevFilterValues,
-						[filterKey]: prevFilterValues[filterKey].filter(
-							(currentValue) => currentValue !== value
-						),
-					}));
-				},
-				(value) => {
-					setFiltersValues((prevFilterValues) => ({
-						...prevFilterValues,
-						[filterKey]: value,
-					}));
-				}
-			)
+			if (multiple) {
+				return (
+					<CheckboxGroup
+						{...props}
+						onAdd={(value) => {
+							setFiltersValues((prevFilterValues) => {
+								const values = filtersValues[filterKey] || [];
+
+								return {
+									...prevFilterValues,
+									[filterKey]: values.concat(value),
+								};
+							});
+						}}
+						onRemove={(value) => {
+							setFiltersValues((prevFilterValues) => ({
+								...prevFilterValues,
+								[filterKey]: prevFilterValues[filterKey].filter(
+									(currentValue) => currentValue !== value
+								),
+							}));
+						}}
+					/>
+				);
+			}
+			else {
+				return (
+					<RadioGroup
+						{...props}
+						items={[
+							{label: Liferay.Language.get('any')},
+							...props.items,
+						]}
+						onChange={(value) => {
+							setFiltersValues((prevFilterValues) => ({
+								...prevFilterValues,
+								[filterKey]: value,
+							}));
+						}}
+					/>
+				);
+			}
+		}
 	);
 
 	const orderByItems = () => {
