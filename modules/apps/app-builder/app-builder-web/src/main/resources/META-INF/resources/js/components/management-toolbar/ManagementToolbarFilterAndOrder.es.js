@@ -92,10 +92,14 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 				filtersValues[filterKey],
 				multiple,
 				(value) => {
-					setFiltersValues((prevFilterValues) => ({
-						...prevFilterValues,
-						[filterKey]: prevFilterValues[filterKey].concat(value),
-					}));
+					setFiltersValues((prevFilterValues) => {
+						const values = filtersValues[filterKey] || [];
+
+						return {
+							...prevFilterValues,
+							[filterKey]: values.concat(value),
+						};
+					});
 				},
 				(value) => {
 					setFiltersValues((prevFilterValues) => ({
