@@ -129,7 +129,7 @@ else {
 	/>
 </div>
 
-<portlet:actionURL name="/redirect/check_redirect_entry_chain" var="checkRedirectEntryChainURL" />
+<portlet:resourceURL id="/redirect/check_redirect_entry_chain" var="checkRedirectEntryChainURL" />
 
 <liferay-frontend:component
 	context='<%=
