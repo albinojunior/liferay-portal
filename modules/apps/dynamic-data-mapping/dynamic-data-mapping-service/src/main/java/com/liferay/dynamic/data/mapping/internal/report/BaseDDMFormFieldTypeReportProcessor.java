@@ -33,14 +33,11 @@ public abstract class BaseDDMFormFieldTypeReportProcessor
 			String formInstanceReportEvent)
 		throws Exception {
 
-		JSONObject cloneFormInstanceReportDataJSONObject =
-			JSONFactoryUtil.createJSONObject(
-				formInstanceReportDataJSONObject.toJSONString());
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			formInstanceReportDataJSONObject.toJSONString());
 
-		if (!cloneFormInstanceReportDataJSONObject.has(
-				ddmFormFieldValue.getName())) {
-
-			cloneFormInstanceReportDataJSONObject.put(
+		if (!jsonObject.has(ddmFormFieldValue.getName())) {
+			jsonObject.put(
 				ddmFormFieldValue.getName(),
 				JSONUtil.put(
 					"type", ddmFormFieldValue.getType()
@@ -50,8 +47,7 @@ public abstract class BaseDDMFormFieldTypeReportProcessor
 		}
 
 		return doProcess(
-			ddmFormFieldValue, cloneFormInstanceReportDataJSONObject,
-			formInstanceReportEvent);
+			ddmFormFieldValue, jsonObject, formInstanceReportEvent);
 	}
 
 	protected abstract JSONObject doProcess(
