@@ -138,6 +138,13 @@ public class DDMFormInstanceReportWrapper
 		return model.getData();
 	}
 
+	@Override
+	public DDMFormInstance getFormInstance()
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return model.getFormInstance();
+	}
+
 	/**
 	 * Returns the form instance ID of this ddm form instance report.
 	 *

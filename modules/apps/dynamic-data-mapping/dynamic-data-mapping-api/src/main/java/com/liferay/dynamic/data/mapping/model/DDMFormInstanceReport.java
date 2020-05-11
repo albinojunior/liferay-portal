@@ -60,4 +60,7 @@ public interface DDMFormInstanceReport
 
 			};
 
+	public DDMFormInstance getFormInstance()
+		throws com.liferay.portal.kernel.exception.PortalException;
+
 }
