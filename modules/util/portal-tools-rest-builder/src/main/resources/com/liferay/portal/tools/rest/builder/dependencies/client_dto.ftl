@@ -70,6 +70,10 @@ public class ${schemaName} implements Cloneable {
 		}
 	</#list>
 
+	public static ${schemaName} toDTO(String json) {
+		return ${schemaName}SerDes.toDTO(json);
+	}
+
 	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
 
 	<#list properties?keys as propertyName>
