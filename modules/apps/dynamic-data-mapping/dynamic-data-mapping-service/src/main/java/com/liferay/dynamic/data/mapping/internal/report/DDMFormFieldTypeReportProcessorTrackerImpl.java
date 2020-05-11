@@ -44,7 +44,7 @@ public class DDMFormFieldTypeReportProcessorTrackerImpl
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
 			bundleContext, DDMFormFieldTypeReportProcessor.class,
-			"form.field.type");
+			"ddm.form.field.type.name");
 	}
 
 	@Deactivate
