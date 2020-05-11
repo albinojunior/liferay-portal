@@ -18,7 +18,6 @@ import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessor;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -38,11 +37,17 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessor
 	extends BaseDDMFormFieldTypeReportProcessor {
 
 	@Override
-	public JSONObject doProcess(
+	protected JSONObject doProcess(
 			DDMFormFieldValue ddmFormFieldValue,
 			JSONObject formInstanceReportDataJSONObject,
 			String formInstanceReportEvent)
-		throws PortalException {
+		throws Exception {
+
+		JSONObject fieldJSONObject =
+			formInstanceReportDataJSONObject.getJSONObject(
+				ddmFormFieldValue.getName());
+
+		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
 
 		Value value = ddmFormFieldValue.getValue();
 
@@ -50,12 +55,6 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessor
 			value.getString(value.getDefaultLocale()));
 
 		Iterator iterator = keysJSONArray.iterator();
-
-		JSONObject fieldJSONObject =
-			formInstanceReportDataJSONObject.getJSONObject(
-				ddmFormFieldValue.getName());
-
-		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
 
 		while (iterator.hasNext()) {
 			String key = (String)iterator.next();

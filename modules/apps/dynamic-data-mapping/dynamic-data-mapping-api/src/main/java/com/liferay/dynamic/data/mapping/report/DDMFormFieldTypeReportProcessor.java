@@ -15,7 +15,6 @@
 package com.liferay.dynamic.data.mapping.report;
 
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 
 /**
@@ -24,8 +23,9 @@ import com.liferay.portal.kernel.json.JSONObject;
 public interface DDMFormFieldTypeReportProcessor {
 
 	public JSONObject process(
-			DDMFormFieldValue ddmFormFieldValue, JSONObject fieldJSONObject,
+			DDMFormFieldValue ddmFormFieldValue,
+			JSONObject formInstanceReportDataJSONObject,
 			String formInstanceReportEvent)
-		throws PortalException;
+		throws Exception;
 
 }

@@ -18,7 +18,6 @@ import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessor;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -35,19 +34,19 @@ public class RadioDDMFormFieldTypeReportProcessor
 	extends BaseDDMFormFieldTypeReportProcessor {
 
 	@Override
-	public JSONObject doProcess(
+	protected JSONObject doProcess(
 			DDMFormFieldValue ddmFormFieldValue,
 			JSONObject formInstanceReportDataJSONObject,
 			String formInstanceReportEvent)
-		throws PortalException {
-
-		Value value = ddmFormFieldValue.getValue();
-
-		String key = value.getString(value.getDefaultLocale());
+		throws Exception {
 
 		JSONObject fieldJSONObject =
 			formInstanceReportDataJSONObject.getJSONObject(
 				ddmFormFieldValue.getName());
+
+		Value value = ddmFormFieldValue.getValue();
+
+		String key = value.getString(value.getDefaultLocale());
 
 		if (Validator.isNotNull(key)) {
 			JSONObject valuesJSONObject = fieldJSONObject.getJSONObject(
