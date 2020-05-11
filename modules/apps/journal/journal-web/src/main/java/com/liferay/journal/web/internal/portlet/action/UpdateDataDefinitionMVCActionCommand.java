@@ -14,10 +14,8 @@
 
 package com.liferay.journal.web.internal.portlet.action;
 
-import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinition;
-import com.liferay.data.engine.rest.client.serdes.v2_0.DataDefinitionSerDes;
-import com.liferay.data.engine.rest.client.serdes.v2_0.DataLayoutSerDes;
-import com.liferay.data.engine.rest.dto.v2_0.util.DataEngineUtil;
+import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
+import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
@@ -52,25 +50,21 @@ public class UpdateDataDefinitionMVCActionCommand extends BaseMVCActionCommand {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		long dataDefinitionId = ParamUtil.getLong(
-			actionRequest, "dataDefinitionId");
-		String dataDefinitionString = ParamUtil.getString(
-			actionRequest, "dataDefinition");
-		String dataLayout = ParamUtil.getString(actionRequest, "dataLayout");
-
 		DataDefinitionResource dataDefinitionResource =
 			DataDefinitionResource.builder(
 			).user(
 				themeDisplay.getUser()
 			).build();
 
-		DataDefinition dataDefinition = DataDefinitionSerDes.toDTO(
-			dataDefinitionString);
+		DataDefinition dataDefinition = DataDefinition.toDTO(
+			ParamUtil.getString(actionRequest, "dataDefinition"));
 
-		dataDefinition.setDefaultDataLayout(DataLayoutSerDes.toDTO(dataLayout));
+		dataDefinition.setDefaultDataLayout(
+			DataLayout.toDTO(ParamUtil.getString(actionRequest, "dataLayout")));
 
 		dataDefinitionResource.putDataDefinition(
-			dataDefinitionId, DataEngineUtil.toDataDefinition(dataDefinition));
+			ParamUtil.getLong(actionRequest, "dataDefinitionId"),
+			dataDefinition);
 	}
 
 }
