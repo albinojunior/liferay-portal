@@ -14,12 +14,22 @@
 
 package com.liferay.dynamic.data.mapping.model.impl;
 
+import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalServiceUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+
 /**
  * @author Marcos Martins
  */
 public class DDMFormInstanceReportImpl extends DDMFormInstanceReportBaseImpl {
 
 	public DDMFormInstanceReportImpl() {
+	}
+
+	@Override
+	public DDMFormInstance getFormInstance() throws PortalException {
+		return DDMFormInstanceLocalServiceUtil.getFormInstance(
+			getFormInstanceId());
 	}
 
 }
