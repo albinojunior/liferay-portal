@@ -18,7 +18,7 @@ import React from 'react';
 import ManagementToolbar from '../../../../src/main/resources/META-INF/resources/js/components/management-toolbar/ManagementToolbar.es';
 import SearchContextProviderWrapper from '../../SearchContextProviderWrapper.es';
 
-const addButton = (onClick) => <button onClick={onClick}>add</button>;
+const createAddButton = (onClick) => <button onClick={onClick}>add</button>;
 
 describe('ManagementToolbar', () => {
 	afterEach(cleanup);
@@ -29,7 +29,7 @@ describe('ManagementToolbar', () => {
 		const {queryByPlaceholderText, queryByText} = render(
 			<SearchContextProviderWrapper defaultQuery={{sort: 'field1:asc'}}>
 				<ManagementToolbar
-					addButton={() => addButton(onClickButtonCallback)}
+					addButton={() => createAddButton(onClickButtonCallback)}
 					columns={[
 						{key: 'field', sortable: true},
 						{asc: true, key: 'field1', sortable: true},
@@ -39,30 +39,30 @@ describe('ManagementToolbar', () => {
 			</SearchContextProviderWrapper>
 		);
 
-		const addBtn = queryByText('add');
+		const addButton = queryByText('add');
 		const filterAndOrder = queryByText('filter-and-order');
 		const searchField = queryByPlaceholderText('search...');
 
-		expect(addBtn.disabled).toBeFalsy();
+		expect(addButton.disabled).toBeFalsy();
 		expect(filterAndOrder.parentElement.disabled).toBeTruthy();
 		expect(searchField.disabled).toBeTruthy();
 
-		fireEvent.click(addBtn);
+		fireEvent.click(addButton);
 
 		expect(onClickButtonCallback).toHaveBeenCalled();
 	});
 
 	it('renders without filter and order', () => {
 		const {queryByPlaceholderText, queryByText} = render(
-			<ManagementToolbar addButton={addButton} columns={[]} />,
+			<ManagementToolbar addButton={createAddButton} columns={[]} />,
 			{wrapper: SearchContextProviderWrapper}
 		);
 
-		const addBtn = queryByText('add');
+		const addButton = queryByText('add');
 		const filterAndOrder = queryByText('filter-and-order');
 		const searchField = queryByPlaceholderText('search...');
 
-		expect(addBtn).toBeTruthy();
+		expect(addButton).toBeTruthy();
 		expect(filterAndOrder).toBeFalsy();
 		expect(searchField).toBeTruthy();
 	});
@@ -133,7 +133,7 @@ describe('ManagementToolbar', () => {
 		);
 
 		const anyOption = queryByLabelText('any');
-		const doneBtn = queryByText('done');
+		const doneButton = queryByText('done');
 		const field1 = queryByLabelText('field1');
 		const field2 = queryByLabelText('field2');
 		const field3 = queryByLabelText('field3');
@@ -141,7 +141,7 @@ describe('ManagementToolbar', () => {
 		const multipleFilters = queryAllByLabelText(/multiple/i);
 		const singleFilters = queryAllByLabelText(/single/i);
 
-		expect(doneBtn).toBeTruthy();
+		expect(doneButton).toBeTruthy();
 		expect(field1).toBeFalsy();
 		expect(field2).toBeTruthy();
 		expect(field3).toBeTruthy();
@@ -179,7 +179,7 @@ describe('ManagementToolbar', () => {
 		expect(field2.checked).toBeTruthy();
 		expect(field3.checked).toBeFalsy();
 
-		fireEvent.click(doneBtn);
+		fireEvent.click(doneButton);
 
 		expect(dispatch.mock.calls.length).toBe(2);
 		expect(dispatch.mock.calls[0][0]).toEqual({

@@ -42,6 +42,11 @@ const getSortable = (columns, sort = '') => {
 export default ({columns = [], disabled, filterConfig = []}) => {
 	const [{filters = {}, sort}, dispatch] = useContext(SearchContext);
 	const [filtersValues, setFiltersValues] = useState(filters);
+
+	useEffect(() => {
+		setFiltersValues(filters);
+	}, [filters]);
+
 	const [isDropDownActive, setDropDownActive] = useState(false);
 
 	const sortableColumns = useMemo(
@@ -55,9 +60,9 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const filterItems = filterConfig.map(
 		({filterItems, filterKey, filterName, multiple}) => {
 			const props = {
+				checked: filtersValues[filterKey],
 				items: filterItems,
 				label: FILTER_NAMES[filterName][1],
-				selected: filtersValues[filterKey],
 			};
 
 			if (multiple) {
@@ -112,13 +117,13 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 
 		return (
 			<RadioGroup
+				checked={sortColumn}
 				items={sortableColumns.map(({key, value}) => ({
 					label: value,
 					value: key,
 				}))}
 				label={Liferay.Language.get('order-by')}
 				onChange={setSortColumn}
-				selected={sortColumn}
 			/>
 		);
 	};
@@ -132,7 +137,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 		setFiltersValues(filters);
 	};
 
-	const onDoneClick = () => {
+	const onDoneButtonClick = () => {
 		dispatch({
 			filters: filtersValues,
 			sort: `${sortColumn}:${asc ? 'asc' : 'desc'}`,
@@ -142,7 +147,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 		setDropDownActive(false);
 	};
 
-	const handleSort = (asc, newColumn) => {
+	const onSortButtonClick = (asc, newColumn) => {
 		dispatch({
 			sort: `${newColumn}:${asc ? 'asc' : 'desc'}`,
 			type: 'SORT',
@@ -150,12 +155,8 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	};
 
 	useEffect(() => {
-		setFiltersValues(filters);
-	}, [filters]);
-
-	useEffect(() => {
 		if (!enableDoneButton) {
-			onDoneClick();
+			onDoneButtonClick();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sortColumn]);
@@ -171,7 +172,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 								enableDoneButton && (
 									<ClayButton
 										block
-										onClick={() => onDoneClick()}
+										onClick={() => onDoneButtonClick()}
 									>
 										{Liferay.Language.get('done')}
 									</ClayButton>
@@ -222,7 +223,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 							)}
 							disabled={disabled}
 							displayType="unstyled"
-							onClick={() => handleSort(!asc, column)}
+							onClick={() => onSortButtonClick(!asc, column)}
 							symbol="order-arrow"
 							tooltip={Liferay.Language.get(
 								'reverse-sort-direction'

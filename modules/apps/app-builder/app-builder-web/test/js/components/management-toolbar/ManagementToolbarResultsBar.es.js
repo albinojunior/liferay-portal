@@ -56,11 +56,11 @@ describe('ManagementToolbarResultsBar', () => {
 			</SearchContextProviderWrapper>
 		);
 
-		const clearBtn = queryByText('clear-all');
+		const clearButton = queryByText('clear-all');
 		let filterResults = queryAllByText(/filter:/i);
 		const closeButtons = container.querySelectorAll('button.close');
 
-		expect(clearBtn).toBeTruthy();
+		expect(clearButton).toBeTruthy();
 		expect(filterResults.length).toBe(2);
 
 		expect(filterResults[0].textContent).toBe(
@@ -74,7 +74,7 @@ describe('ManagementToolbarResultsBar', () => {
 
 		expect(filterResults.length).toBe(1);
 
-		fireEvent.click(clearBtn);
+		fireEvent.click(clearButton);
 
 		expect(container.innerHTML).toBe('');
 	});
