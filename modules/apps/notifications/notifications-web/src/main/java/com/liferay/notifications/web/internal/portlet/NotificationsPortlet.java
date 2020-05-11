@@ -400,10 +400,8 @@ public class NotificationsPortlet extends MVCPortlet {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-		redirect = _portal.escapeRedirect(redirect);
-
 		if (Validator.isNotNull(redirect)) {
-			actionResponse.sendRedirect(redirect);
+			actionResponse.sendRedirect(_portal.escapeRedirect(redirect));
 		}
 	}
 
