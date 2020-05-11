@@ -21,6 +21,9 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.DateUtil;
@@ -32,8 +35,6 @@ import com.liferay.portal.kernel.util.WebKeys;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.portlet.RenderRequest;
 
@@ -54,21 +55,25 @@ public class DDMFormReportDisplayContext {
 		return _ddmFormInstanceReport;
 	}
 
-	public List<String> getFieldNames() throws PortalException {
+	public JSONArray getFields() throws PortalException {
 		DDMFormInstance formInstance =
 			getDDMFormInstanceReport().getFormInstance();
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		DDMForm ddmForm = formInstance.getDDMForm();
 
 		List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
 
-		Stream<DDMFormField> stream = ddmFormFields.stream();
+		ddmFormFields.forEach(
+			ddmFormField -> jsonArray.put(
+				JSONUtil.put(
+					"name", ddmFormField.getName()
+				).put(
+					"type", ddmFormField.getType()
+				)));
 
-		return stream.map(
-			ddmFormField -> ddmFormField.getName()
-		).collect(
-			Collectors.toList()
-		);
+		return jsonArray;
 	}
 
 	public String getLastModifiedDate() {

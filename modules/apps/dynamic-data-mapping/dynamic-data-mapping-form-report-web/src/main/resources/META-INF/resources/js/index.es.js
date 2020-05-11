@@ -16,14 +16,14 @@ import React from 'react';
 
 import App from './App.es';
 
-export default ({data, fieldNames}) => {
+export default ({data, fields}) => {
 	if (!data) {
 		return null;
 	}
 
 	return (
 		<div className="form-report">
-			{fieldNames}
+			{fields}
 			<App data={JSON.parse(data)} />
 		</div>
 	);
