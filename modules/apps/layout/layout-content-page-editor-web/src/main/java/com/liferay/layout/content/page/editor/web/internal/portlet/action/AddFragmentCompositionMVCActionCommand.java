@@ -138,9 +138,10 @@ public class AddFragmentCompositionMVCActionCommand
 				serviceContext, themeDisplay);
 
 			if (previewFileEntry != null) {
-				_fragmentCompositionService.updateFragmentComposition(
-					fragmentComposition.getFragmentCompositionId(),
-					previewFileEntry.getFileEntryId());
+				fragmentComposition =
+					_fragmentCompositionService.updateFragmentComposition(
+						fragmentComposition.getFragmentCompositionId(),
+						previewFileEntry.getFileEntryId());
 			}
 		}
 
