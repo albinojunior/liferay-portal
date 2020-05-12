@@ -35,12 +35,12 @@ describe('Card', () => {
 	});
 
 	test('show ta card with "No responses yet" status', () => {
-		const {getByText} = render(
+		const {getAllByText} = render(
 			<>
 				<Card {...props} totalEntries={0} />
 			</>
 		);
 
-		expect(getByText('no-entries-yet')).not.toBe(null);
+		expect(getAllByText('there-are-no-entries').length).toBe(2);
 	});
 });

@@ -54,9 +54,9 @@ exports[`Index render the cards properly 1`] = `
                 </p>
                 <p
                   class="card-text"
-                  title="no-entries-yet"
+                  title="there-are-no-entries"
                 >
-                  no-entries-yet
+                  there-are-no-entries
                 </p>
               </div>
             </div>
@@ -75,12 +75,12 @@ exports[`Index render the cards properly 1`] = `
                   <h1
                     class="text-default"
                   >
-                    no-entries-yet
+                    there-are-no-entries
                   </h1>
                   <p
                     class="text-default"
                   >
-                    entries-submitted-to-this-field-will-show-up-here
+                    entries-submitted-with-this-field-filled-will-show-up-here
                   </p>
                 </div>
               </div>
@@ -138,9 +138,9 @@ exports[`Index render the cards properly 1`] = `
                 </p>
                 <p
                   class="card-text"
-                  title="no-entries-yet"
+                  title="there-are-no-entries"
                 >
-                  no-entries-yet
+                  there-are-no-entries
                 </p>
               </div>
             </div>
@@ -159,12 +159,12 @@ exports[`Index render the cards properly 1`] = `
                   <h1
                     class="text-default"
                   >
-                    no-entries-yet
+                    there-are-no-entries
                   </h1>
                   <p
                     class="text-default"
                   >
-                    entries-submitted-to-this-field-will-show-up-here
+                    entries-submitted-with-this-field-filled-will-show-up-here
                   </p>
                 </div>
               </div>
@@ -222,9 +222,9 @@ exports[`Index render the cards properly 1`] = `
                 </p>
                 <p
                   class="card-text"
-                  title="no-entries-yet"
+                  title="there-are-no-entries"
                 >
-                  no-entries-yet
+                  there-are-no-entries
                 </p>
               </div>
             </div>
@@ -243,12 +243,12 @@ exports[`Index render the cards properly 1`] = `
                   <h1
                     class="text-default"
                   >
-                    no-entries-yet
+                    there-are-no-entries
                   </h1>
                   <p
                     class="text-default"
                   >
-                    entries-submitted-to-this-field-will-show-up-here
+                    entries-submitted-with-this-field-filled-will-show-up-here
                   </p>
                 </div>
               </div>
