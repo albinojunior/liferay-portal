@@ -212,6 +212,29 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 		int taskCount = _getTaskCount(searchSearchResponse);
 
 		if (taskCount > 0) {
+			if (pagination == null) {
+				return Page.of(
+					Stream.of(
+						searchSearchResponse.getAggregationResultsMap()
+					).map(
+						aggregationResultsMap ->
+							(TermsAggregationResult)aggregationResultsMap.get(
+								"name")
+					).map(
+						TermsAggregationResult::getBuckets
+					).flatMap(
+						Collection::stream
+					).map(
+						bucket -> TaskUtil.toTask(
+							_language, bucket.getKey(),
+							ResourceBundleUtil.getModuleAndPortalResourceBundle(
+								contextAcceptLanguage.getPreferredLocale(),
+								TaskResourceImpl.class))
+					).collect(
+						Collectors.toList()
+					));
+			}
+
 			return Page.of(
 				_getTasks(
 					taskBulkSelection.getAssigneeIds(),
@@ -457,6 +480,12 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
+		TermsAggregation termsAggregation = _aggregations.terms("name", "name");
+
+		termsAggregation.setSize(10000);
+
+		searchSearchRequest.addAggregation(termsAggregation);
+
 		searchSearchRequest.addAggregation(
 			_resourceHelper.creatTaskCountScriptedMetricAggregation(
 				ListUtil.fromArray(assigneeIds),
@@ -532,7 +561,8 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		TermsAggregation termsAggregation = _aggregations.terms("name", "name");
+		TermsAggregation termsAggregation = _aggregations.terms(
+			"taskId", "taskId");
 
 		FilterAggregation indexFilterAggregation = _aggregations.filter(
 			"index",
@@ -579,48 +609,33 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 			SearchSearchResponse::getAggregationResultsMap
 		).map(
 			aggregationResultsMap ->
-				(TermsAggregationResult)aggregationResultsMap.get("name")
+				(TermsAggregationResult)aggregationResultsMap.get("taskId")
 		).map(
 			TermsAggregationResult::getBuckets
 		).flatMap(
 			Collection::stream
 		).map(
-			bucket -> {
-				if (pagination == null) {
-					return TaskUtil.toTask(
-						_language, bucket.getKey(),
-						ResourceBundleUtil.getModuleAndPortalResourceBundle(
-							contextAcceptLanguage.getPreferredLocale(),
-							TaskResourceImpl.class));
-				}
-
-				return Stream.of(
-					(FilterAggregationResult)bucket.getChildAggregationResult(
-						"index")
-				).map(
-					filterAggregationResult ->
-						(TopHitsAggregationResult)
-							filterAggregationResult.getChildAggregationResult(
-								"topHits")
-				).map(
-					TopHitsAggregationResult::getSearchHits
-				).map(
-					SearchHits::getSearchHits
-				).flatMap(
-					List::stream
-				).map(
-					SearchHit::getSourcesMap
-				).findFirst(
-				).map(
-					sourcesMap -> TaskUtil.toTask(
-						_language, contextAcceptLanguage.getPreferredLocale(),
-						_portal,
-						ResourceBundleUtil.getModuleAndPortalResourceBundle(
-							contextAcceptLanguage.getPreferredLocale(),
-							TaskResourceImpl.class),
-						sourcesMap, _userLocalService::fetchUser)
-				).get();
-			}
+			bucket -> (FilterAggregationResult)bucket.getChildAggregationResult(
+				"index")
+		).map(
+			filterAggregationResult ->
+				(TopHitsAggregationResult)
+					filterAggregationResult.getChildAggregationResult("topHits")
+		).map(
+			TopHitsAggregationResult::getSearchHits
+		).map(
+			SearchHits::getSearchHits
+		).flatMap(
+			List::stream
+		).map(
+			SearchHit::getSourcesMap
+		).map(
+			sourcesMap -> TaskUtil.toTask(
+				_language, contextAcceptLanguage.getPreferredLocale(), _portal,
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					contextAcceptLanguage.getPreferredLocale(),
+					TaskResourceImpl.class),
+				sourcesMap, _userLocalService::fetchUser)
 		).collect(
 			Collectors.toCollection(LinkedList::new)
 		);
