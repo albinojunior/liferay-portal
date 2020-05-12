@@ -93,12 +93,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 </#if>
 @XmlRootElement(name = "${schemaName}")
 public class ${schemaName} <#if dtoParentClassName?has_content>extends ${dtoParentClassName}</#if> {
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
-
 	public static ${schemaName} toDTO(String json) {
 		return ObjectMapperUtil.readValue(${schemaName}.class, json);
 	}
 
+	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
 
 	<#list properties?keys as propertyName>

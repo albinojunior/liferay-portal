@@ -29,12 +29,11 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class ${schemaName} implements Cloneable {
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
-
 	public static ${schemaName} toDTO(String json) {
 		return ${schemaName}SerDes.toDTO(json);
 	}
 
+	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
 
 	<#list properties?keys as propertyName>
