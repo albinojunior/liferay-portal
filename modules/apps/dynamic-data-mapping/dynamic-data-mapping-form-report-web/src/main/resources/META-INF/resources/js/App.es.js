@@ -15,58 +15,46 @@
 import React from 'react';
 
 import Card from './components/card/Card.es';
-import EmptyCard from './components/card/EmptyCard.es';
 import PieChart from './components/chart/pie/PieChart.es';
 import {sortByCount} from './utils/operations.es';
 
-export default ({data, fields}) => {
-	const toArray = (values) =>
-		Object.entries(values).map(([label, count]) => ({count, label}));
+const toArray = (values) =>
+	Object.entries(values).map(([label, count]) => ({count, label}));
 
-	const chartFactory = (type, values, totalEntries) => {
-		if (type === 'radio') {
-			return (
-				<PieChart
-					data={sortByCount(toArray(values))}
-					totalEntries={totalEntries}
-				/>
-			);
-		}
+const chartFactory = (type, values, totalEntries) => {
+	if (type === 'radio') {
+		return (
+			<PieChart
+				data={sortByCount(toArray(values))}
+				totalEntries={totalEntries}
+			/>
+		);
+	}
 
-		return null;
-	};
-
-	const sumTotalEntries = (values) =>
-		Object.values(values).reduce((acc, value) => acc + value, 0);
-
-	return fields.map(({name, type}, index) => {
-		if (data[name]) {
-			const {type, values} = data[name];
-			const totalEntries = sumTotalEntries(values);
-			const chart = chartFactory(type, values, totalEntries);
-
-			if (chart === null) {
-				return null;
-			}
-
-			return (
-				<Card
-					fieldName={name}
-					key={index}
-					totalEntries={totalEntries}
-					type={type}
-					values={values}
-				>
-					{chart}
-				</Card>
-			);
-		}
-		else {
-			return (
-				<Card fieldName={name} key={index} totalEntries={0} type={type}>
-					<EmptyCard />
-				</Card>
-			);
-		}
-	});
+	return null;
 };
+
+const sumTotalEntries = (values) =>
+	Object.values(values).reduce((acc, value) => acc + value, 0);
+
+export default ({data, fields}) =>
+	fields.map(({name, type}, index) => {
+		const {values = {}} = data[name] || {};
+		const totalEntries = sumTotalEntries(values);
+		const chart = chartFactory(type, values, totalEntries);
+
+		if (chart === null) {
+			return null;
+		}
+
+		return (
+			<Card
+				fieldName={name}
+				key={index}
+				totalEntries={totalEntries}
+				type={type}
+			>
+				{chart}
+			</Card>
+		);
+	});

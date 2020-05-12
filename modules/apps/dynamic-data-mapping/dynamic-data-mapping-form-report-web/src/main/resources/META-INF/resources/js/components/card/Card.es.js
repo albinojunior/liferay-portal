@@ -17,6 +17,8 @@ import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import React from 'react';
 
+import EmptyState from './EmptyState.es';
+
 export default ({children, fieldName, totalEntries, type}) => (
 	<div className="col-md-8">
 		<div className="sheet">
@@ -43,7 +45,7 @@ export default ({children, fieldName, totalEntries, type}) => (
 								displayType="text"
 								truncate={false}
 							>
-								{totalEntries
+								{totalEntries > 0
 									? `${totalEntries} ${Liferay.Language.get(
 											'entries'
 									  ).toLowerCase()}`
@@ -52,7 +54,9 @@ export default ({children, fieldName, totalEntries, type}) => (
 						</div>
 					</ClayCard.AspectRatio>
 
-					<ClayCard.Body>{children}</ClayCard.Body>
+					<ClayCard.Body>
+						{totalEntries > 0 ? children : <EmptyState />}
+					</ClayCard.Body>
 				</ClayCard>
 			</div>
 		</div>
