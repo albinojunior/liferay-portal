@@ -27,7 +27,9 @@ if (ddmFormInstanceReport != null) {
 
 Map<String, Object> data = HashMapBuilder.<String, Object>put(
 	"data", ddmFormInstanceReportData
-).put("fields", ddmFormReportDisplayContext.getFields()).build();
+).put(
+	"fields", ddmFormReportDisplayContext.getFields()
+).build();
 %>
 
 <div id="<portlet:namespace />report">
