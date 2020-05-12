@@ -16,72 +16,27 @@ import React from 'react';
 
 import lang from '../../utils/lang.es';
 
-const EmptyState = ({emptyState, isFiltered, keywords = ''}) => {
-	const defaultEmpty = {
-		description: null,
+const DEFAULT_EMPTY = {
+	empty: {
+		className: 'taglib-empty-state',
 		title: Liferay.Language.get('there-are-no-entries'),
-	};
-
-	const defaultFiltered = {
-		description: Liferay.Language.get(
-			'there-are-no-results-with-these-attributes'
-		),
+	},
+	search: {
+		className: 'taglib-search-state',
 		title: Liferay.Language.get('no-results-were-found'),
-	};
+	},
+};
 
-	const defaultSearch = {
-		...defaultFiltered,
-		description: lang.sub(
-			Liferay.Language.get('there-are-no-results-for-x'),
-			[keywords]
-		),
-	};
-
-	const defaultSearchFiltered = {
-		...defaultFiltered,
-		description: lang.sub(
-			Liferay.Language.get(
-				'there-are-no-results-for-x-with-these-attributes'
-			),
-			[keywords]
-		),
-	};
-
-	emptyState = {
-		...defaultEmpty,
-		...emptyState,
-	};
-
-	const filtered = {
-		...defaultFiltered,
-		...emptyState.filtered,
-	};
-
-	const search = {
-		...defaultSearch,
-		...emptyState.search,
-	};
-
-	const searchFiltered = {
-		...defaultSearchFiltered,
-		...emptyState.searchFiltered,
-	};
-
-	const isSearch = keywords !== '';
-
-	let currentState = isSearch ? search : emptyState;
-
-	if (isFiltered) {
-		currentState = isSearch ? searchFiltered : filtered;
-	}
-
-	const {button, description, title} = currentState;
-	const stateType = isSearch || isFiltered ? 'search' : 'empty';
-
+const EmptyState = ({
+	button,
+	className = DEFAULT_EMPTY.empty.className,
+	description,
+	title = DEFAULT_EMPTY.empty.title,
+}) => {
 	return (
 		<div className="taglib-empty-result-message">
 			<div className="text-center">
-				<div className={`taglib-${stateType}-state`} />
+				<div className={className} />
 
 				{title && (
 					<h1 className="taglib-empty-result-message-title">
@@ -101,6 +56,34 @@ const EmptyState = ({emptyState, isFiltered, keywords = ''}) => {
 	);
 };
 
+export const FilteredEmpty = (props) => {
+	const description = Liferay.Language.get(
+		'there-are-no-results-with-these-attributes'
+	);
+
+	return <EmptyState description={description} {...props} />;
+};
+
+export const SearchEmpty = ({keywords, ...otherProps}) => {
+	const description = lang.sub(
+		Liferay.Language.get('there-are-no-results-for-x'),
+		[keywords]
+	);
+
+	return <EmptyState description={description} {...otherProps} />;
+};
+
+export const SearchAndFilteredEmpty = ({keywords, ...otherProps}) => {
+	const description = lang.sub(
+		Liferay.Language.get(
+			'there-are-no-results-for-x-with-these-attributes'
+		),
+		[keywords]
+	);
+
+	return <EmptyState description={description} {...otherProps} />;
+};
+
 export const withEmpty = (Component) => {
 	const Wrapper = ({
 		emptyState,
@@ -110,13 +93,36 @@ export const withEmpty = (Component) => {
 		...restProps
 	}) => {
 		if (isEmpty) {
-			return (
-				<EmptyState
-					emptyState={emptyState}
-					isFiltered={isFiltered}
-					keywords={keywords}
-				/>
-			);
+			if (keywords.length) {
+				if (isFiltered) {
+					return (
+						<SearchAndFilteredEmpty
+							keywords={keywords}
+							{...DEFAULT_EMPTY.search}
+							{...emptyState.searchAndFiltered}
+						/>
+					);
+				}
+
+				return (
+					<SearchEmpty
+						keywords={keywords}
+						{...DEFAULT_EMPTY.search}
+						{...emptyState.search}
+					/>
+				);
+			}
+
+			if (isFiltered) {
+				return (
+					<FilteredEmpty
+						{...DEFAULT_EMPTY.search}
+						{...emptyState.filtered}
+					/>
+				);
+			}
+
+			return <EmptyState {...emptyState} />;
 		}
 
 		return <Component {...restProps} />;
