@@ -37,15 +37,7 @@ const props = {
 };
 
 describe('Legend', () => {
-	beforeEach(() => {
-		cleanup();
-		jest.restoreAllMocks();
-	});
-
-	afterEach(() => {
-		cleanup();
-		jest.restoreAllMocks();
-	});
+	afterEach(cleanup);
 
 	it('adds opacity to all labels which are not being hovered and keep the color of the one hovered', () => {
 		const {container} = render(<Legend {...props} activeIndex={0} />);

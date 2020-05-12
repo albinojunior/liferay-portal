@@ -12,7 +12,7 @@
  * details.
  */
 
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import App from '../../../../src/main/resources/META-INF/resources/js/App.es';
@@ -42,6 +42,8 @@ const props = {
 };
 
 describe('App', () => {
+	afterEach(cleanup);
+
 	it('renders a card for each field', () => {
 		const {container} = render(<App {...props} />);
 

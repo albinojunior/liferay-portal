@@ -17,20 +17,15 @@ import React from 'react';
 
 import PieChart from '../../../../../src/main/resources/META-INF/resources/js/components/chart/pie/PieChart.es';
 
-const mockData = [{count: 2, label: 'Label1'}];
-
 const props = {
-	data: mockData,
+	data: [{count: 2, label: 'Label1'}],
 	height: 300,
 	totalEntries: 2,
 	width: 700,
 };
 
 describe('PieChart', () => {
-	afterEach(() => {
-		cleanup();
-		jest.restoreAllMocks();
-	});
+	afterEach(cleanup);
 
 	it('renders', () => {
 		const {asFragment} = render(<PieChart {...props} />);

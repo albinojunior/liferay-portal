@@ -12,7 +12,7 @@
  * details.
  */
 
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import Index from '../../../src/main/resources/META-INF/resources/js/index.es';
@@ -27,6 +27,8 @@ const props = {
 };
 
 describe('index', () => {
+	afterEach(cleanup);
+
 	it('renders', () => {
 		const {asFragment} = render(<Index {...props} />);
 

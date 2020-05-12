@@ -12,7 +12,7 @@
  * details.
  */
 
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import Card from '../../../../src/main/resources/META-INF/resources/js/components/card/Card.es';
@@ -24,6 +24,8 @@ const props = {
 };
 
 describe('Card', () => {
+	afterEach(cleanup);
+
 	it('shows number of entries in the header', () => {
 		const {container} = render(<Card {...props} />);
 

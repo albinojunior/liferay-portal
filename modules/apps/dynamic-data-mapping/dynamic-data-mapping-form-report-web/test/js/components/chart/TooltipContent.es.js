@@ -12,23 +12,23 @@
  * details.
  */
 
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import TooltipContent from '../../../../src/main/resources/META-INF/resources/js/components/chart/TooltipContent.es';
 
-const payload = [{payload: {count: 2, label: 'Label1'}}];
-
-const props = {
-	active: true,
-	activeIndex: 0,
-	payload,
-	totalEntries: 2,
-};
-
 describe('Tooltip', () => {
+	afterEach(cleanup);
+
 	it('renders label, number of entries and percentage', () => {
-		const {container} = render(<TooltipContent {...props} />);
+		const {container} = render(
+			<TooltipContent
+				active={true}
+				activeIndex={0}
+				payload={[{payload: {count: 2, label: 'Label1'}}]}
+				totalEntries={2}
+			/>
+		);
 
 		const tooltipLabel = container.querySelector('.tooltip-label')
 			.innerHTML;
