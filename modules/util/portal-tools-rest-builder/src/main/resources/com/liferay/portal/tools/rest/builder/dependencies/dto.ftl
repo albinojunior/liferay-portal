@@ -93,6 +93,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 </#if>
 @XmlRootElement(name = "${schemaName}")
 public class ${schemaName} <#if dtoParentClassName?has_content>extends ${dtoParentClassName}</#if> {
+	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 
 	public static ${schemaName} toDTO(String json) {
 		return ObjectMapperUtil.readValue(${schemaName}.class, json);
@@ -311,8 +312,6 @@ public class ${schemaName} <#if dtoParentClassName?has_content>extends ${dtoPare
 
 	@Schema(defaultValue = "${configYAML.apiPackagePath}.dto.${escapedVersion}.${schemaName}", name = "x-class-name")
 	public String xClassName;
-
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 
 	<#list enumSchemas?keys as enumName>
 		@GraphQLName("${enumName}")
