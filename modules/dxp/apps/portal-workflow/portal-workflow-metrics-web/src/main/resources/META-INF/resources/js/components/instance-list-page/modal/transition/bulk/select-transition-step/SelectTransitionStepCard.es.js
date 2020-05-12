@@ -14,7 +14,7 @@ import {ClayInput, ClaySelect} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import ClayList from '@clayui/list';
 import ClayPanel from '@clayui/panel';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import {ModalContext} from '../../../ModalProvider.es';
 
@@ -30,25 +30,21 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 
 	const {errors, onGoing} = transition;
 
-	const handleChange = useCallback(
-		({target}) => {
-			const showError = target.value === '';
-			const cardError = errors;
+	const handleChange = ({target}) => {
+		const showError = target.value === '';
 
-			cardError[cardIndex] = showError;
+		errors[cardIndex] = showError;
 
-			setBulkTransition({
-				transition: {
-					errors: cardError,
-					onGoing,
-				},
-				transitionTasks,
-			});
-			setSelectedTransition(target.value);
-			setHasError(showError);
-		},
-		[cardIndex, errors, onGoing, setBulkTransition, transitionTasks]
-	);
+		setBulkTransition({
+			transition: {
+				errors,
+				onGoing,
+			},
+			transitionTasks,
+		});
+		setHasError(showError);
+		setSelectedTransition(target.value);
+	};
 
 	useEffect(() => {
 		const cardError = errors;
@@ -104,11 +100,7 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 							</ClayList.Item>
 
 							{tasks.map(
-								({
-									id,
-									objectReviewed: {assetTitle, assetType},
-									workflowInstanceId,
-								}) => (
+								({assetTitle, assetType, id, instanceId}) => (
 									<ClayList.Item
 										className="list-item-no-border"
 										flex
@@ -118,7 +110,7 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 											style={{width: '20%'}}
 										>
 											<ClayList.ItemTitle>
-												{workflowInstanceId}
+												{instanceId}
 											</ClayList.ItemTitle>
 										</ClayList.ItemField>
 

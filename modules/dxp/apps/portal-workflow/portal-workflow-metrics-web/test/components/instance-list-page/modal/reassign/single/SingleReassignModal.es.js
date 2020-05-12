@@ -62,15 +62,13 @@ describe('The SingleReassignModal component should', () => {
 				data: {
 					items: [
 						{
+							assetTitle: 'Blog1',
+							assetType: 'Blogs Entry',
 							assigneePerson: {id: 2, name: 'Test Test'},
 							id: 1,
+							instanceId: 1,
 							label: 'Review',
-							objectReviewed: {
-								assetTitle: 'Blog1',
-								assetType: 'Blogs Entry',
-							},
 							status: 'In Progress',
-							workflowInstanceId: 1,
 						},
 					],
 					totalCount: items.length,

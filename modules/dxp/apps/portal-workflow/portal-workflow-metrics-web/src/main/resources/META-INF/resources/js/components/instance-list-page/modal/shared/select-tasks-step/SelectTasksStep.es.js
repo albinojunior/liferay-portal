@@ -21,31 +21,26 @@ import {Header} from './SelectTasksStepHeader.es';
 import {useFetchTasks} from './hooks/useFetchTasks.es';
 
 const SelectTasksStep = ({setErrorToast, withoutUnassigned}) => {
-	const {
-		deltaValues: [initialPageSize],
-	} = useContext(AppContext);
+	const {deltaValues} = useContext(AppContext);
 	const {setSelectTasks} = useContext(ModalContext);
-	const [retry, setRetry] = useState(0);
+
 	const {
 		filterValues: {bulkAssigneeIds, bulkTaskNames},
 	} = useFilter({withoutRouteParams: true});
+
 	const {page, pageSize, pagination} = usePaginationState({
-		initialPageSize,
+		initialPageSize: deltaValues[0],
 	});
 
 	const {data, fetchTasks} = useFetchTasks({
 		page,
 		pageSize,
-		withoutUnassigned,
 	});
 
-	const paginationState = useMemo(
-		() => ({
-			...pagination,
-			totalCount: data.totalCount,
-		}),
-		[data.totalCount, pagination]
-	);
+	const paginationState = {
+		...pagination,
+		totalCount: data.totalCount,
+	};
 
 	useEffect(() => {
 		if (page !== 1) {
@@ -53,6 +48,8 @@ const SelectTasksStep = ({setErrorToast, withoutUnassigned}) => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [bulkAssigneeIds, bulkTaskNames]);
+
+	const [retry, setRetry] = useState(0);
 
 	const promises = useMemo(() => {
 		setErrorToast(false);

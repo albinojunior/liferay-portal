@@ -146,6 +146,7 @@ describe('The SingleReassignModalTable component should', () => {
 			items: [
 				{
 					assigneeRoles: [],
+					classPK: 40324,
 					completed: true,
 					dateCompletion: '2019-12-10T17:45:38Z',
 					dateCreated: '2019-12-10T17:44:45Z',
@@ -155,10 +156,6 @@ describe('The SingleReassignModalTable component should', () => {
 					description: '',
 					instanceId: 40330,
 					name: 'review',
-					objectReviewed: {
-						id: 40324,
-						resourceType: 'BlogPosting',
-					},
 				},
 			],
 		};

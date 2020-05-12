@@ -12,7 +12,7 @@
 import ClayIcon from '@clayui/icon';
 import ClayTable from '@clayui/table';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 
 import {Autocomplete} from '../../../../../shared/components/autocomplete/Autocomplete.es';
 import {useFetch} from '../../../../../shared/hooks/useFetch.es';
@@ -24,14 +24,9 @@ const AssigneeInput = ({setAssigneeId, taskId}) => {
 		url: `/workflow-tasks/${taskId}/assignable-users`,
 	});
 
-	const handleSelect = useCallback(
-		(newAssignee) => {
-			const assigneeId = newAssignee ? newAssignee.id : undefined;
-
-			setAssigneeId(assigneeId);
-		},
-		[setAssigneeId]
-	);
+	const handleSelect = (newAssignee) => {
+		setAssigneeId(newAssignee ? newAssignee.id : undefined);
+	};
 
 	const promises = useMemo(() => [fetchData()], [fetchData]);
 
@@ -45,24 +40,25 @@ const AssigneeInput = ({setAssigneeId, taskId}) => {
 };
 
 const Item = ({
-	assigneePerson = {name: Liferay.Language.get('unassigned')},
+	assetTitle,
+	assetType,
+	assignee = {name: Liferay.Language.get('unassigned')},
 	id,
-	objectReviewed: {assetTitle, assetType},
+	instanceId,
 	setAssigneeId,
 	label,
-	workflowInstanceId,
 }) => {
 	return (
 		<ClayTable.Row>
 			<ClayTable.Cell style={{fontWeight: 'bold'}}>
-				{workflowInstanceId}
+				{instanceId}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>{`${assetType}: ${assetTitle}`} </ClayTable.Cell>
 
 			<ClayTable.Cell>{label}</ClayTable.Cell>
 
-			<ClayTable.Cell>{assigneePerson.name}</ClayTable.Cell>
+			<ClayTable.Cell>{assignee.name}</ClayTable.Cell>
 
 			<ClayTable.Cell>
 				<Table.AssigneeInput

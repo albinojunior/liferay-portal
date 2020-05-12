@@ -24,24 +24,26 @@ const {assignees, items, processSteps} = {
 	assignees: [{id: 1, name: 'Test Test'}],
 	items: [
 		{
+			assetTitle: 'Blog 1',
+			assetType: 'Blog',
 			assigneePerson: {
 				id: 1,
 				name: 'Test Test',
 			},
 			id: 1,
+			instanceId: 1,
 			label: 'Review',
-			objectReviewed: {assetTitle: 'Blog 1', assetType: 'Blog'},
-			workflowInstanceId: 1,
 		},
 		{
+			assetTitle: 'Blog 2',
+			assetType: 'Blog',
 			assigneePerson: {
 				id: 1,
 				name: 'Test Test',
 			},
 			id: 2,
+			instanceId: 2,
 			label: 'Update',
-			objectReviewed: {assetTitle: 'Blog 2', assetType: 'Blog'},
-			workflowInstanceId: 2,
 		},
 	],
 	processSteps: [
@@ -81,30 +83,26 @@ const ContainerMock = ({children}) => {
 		assignees: [{id, name: 'Test Test'}],
 		items: [
 			{
+				assetTitle: 'Blog 1',
+				assetType: 'Blog',
 				assigneePerson: {
 					id,
 					name: 'Test Test',
 				},
 				id,
+				instanceId: 1,
 				label: 'Review',
-				objectReviewed: {
-					assetTitle: 'Blog 1',
-					assetType: 'Blog',
-				},
-				workflowInstanceId: 1,
 			},
 			{
+				assetTitle: 'Blog 2',
+				assetType: 'Blog',
 				assigneePerson: {
 					id,
 					name: 'Test Test',
 				},
 				id: id + 1,
+				instanceId: 2,
 				label: 'Update',
-				objectReviewed: {
-					assetTitle: 'Blog 2',
-					assetType: 'Blog',
-				},
-				workflowInstanceId: 2,
 			},
 		],
 		processSteps: [
