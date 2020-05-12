@@ -27,10 +27,8 @@ const props = {
 };
 
 describe('Tooltip', () => {
-	test('renders label, number of entries and percentage', () => {
-		const {container} = render(
-			<TooltipContent {...props} />
-		);
+	it('renders label, number of entries and percentage', () => {
+		const {container} = render(<TooltipContent {...props} />);
 
 		const tooltipLabel = container.querySelector('.tooltip-label')
 			.innerHTML;

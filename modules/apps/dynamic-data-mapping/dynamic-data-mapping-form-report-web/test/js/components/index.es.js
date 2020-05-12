@@ -28,17 +28,13 @@ const props = {
 
 describe('index', () => {
 	it('renders', () => {
-		const {asFragment} = render(
-			<Index {...props} />
-		);
+		const {asFragment} = render(<Index {...props} />);
 
 		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders nothing when there is no data', () => {
-		const {asFragment} = render(
-			<Index {...props} data={null} />
-		);
+		const {asFragment} = render(<Index {...props} data={null} />);
 
 		expect(asFragment()).toMatchSnapshot();
 	});

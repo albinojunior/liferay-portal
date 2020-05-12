@@ -47,27 +47,21 @@ describe('Legend', () => {
 		jest.restoreAllMocks();
 	});
 
-	test('adds opacity to all labels which are not being hovered and keep the color of the one hovered', () => {
-		const {container} = render(
-			<Legend {...props} activeIndex={0} />
-		);
+	it('adds opacity to all labels which are not being hovered and keep the color of the one hovered', () => {
+		const {container} = render(<Legend {...props} activeIndex={0} />);
 
 		expect(container.querySelectorAll('li')[0].className).toBe('');
 		expect(container.querySelectorAll('li')[1].className).toBe('dim');
 	});
 
-	test('displays showAll button when there are more than 10 items', () => {
-		const {getByText} = render(
-			<Legend {...props} labels={moreThan10} />
-		);
+	it('displays showAll button when there are more than 10 items', () => {
+		const {getByText} = render(<Legend {...props} labels={moreThan10} />);
 
 		expect(getByText('show-all')).not.toBe(null);
 	});
 
-	test('displays showLess button when showAll button is clicked', () => {
-		const {getByText} = render(
-			<Legend {...props} labels={moreThan10} />
-		);
+	it('displays showLess button when showAll button is clicked', () => {
+		const {getByText} = render(<Legend {...props} labels={moreThan10} />);
 
 		const showAllButton = getByText('show-all');
 

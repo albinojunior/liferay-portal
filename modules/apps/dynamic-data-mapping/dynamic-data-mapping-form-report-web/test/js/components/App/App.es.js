@@ -43,9 +43,7 @@ const props = {
 
 describe('App', () => {
 	it('renders a card for each field', () => {
-		const {container} = render(
-			<App {...props} />
-		);
+		const {container} = render(<App {...props} />);
 
 		const totalCards = container.querySelectorAll('.card').length;
 		expect(totalCards).toEqual(props.fields.length);

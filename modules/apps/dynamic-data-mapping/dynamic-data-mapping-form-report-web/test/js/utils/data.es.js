@@ -15,7 +15,7 @@
 import toDataArray from '../../../src/main/resources/META-INF/resources/js/utils/data.es';
 
 describe('toDataArray', () => {
-	test('sorts array from the highest to lower count values ', () => {
+	it('sorts array from the highest to lower count values ', () => {
 		const sorted = toDataArray({
 			label1: 2,
 			label2: 4,

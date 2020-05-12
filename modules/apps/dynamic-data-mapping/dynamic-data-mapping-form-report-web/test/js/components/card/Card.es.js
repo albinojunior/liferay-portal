@@ -24,18 +24,14 @@ const props = {
 };
 
 describe('Card', () => {
-	test('shows number of entries in the header', () => {
-		const {container} = render(
-			<Card {...props} />
-		);
+	it('shows number of entries in the header', () => {
+		const {container} = render(<Card {...props} />);
 
 		expect(container.querySelector('.card-text').title).toBe('10 entries');
 	});
 
-	test('shows "there are not entries" when totalEntries is zero', () => {
-		const {getAllByText} = render(
-			<Card {...props} totalEntries={0} />
-		);
+	it('shows "there are not entries" when totalEntries is zero', () => {
+		const {getAllByText} = render(<Card {...props} totalEntries={0} />);
 
 		expect(getAllByText('there-are-no-entries').length).toBe(2);
 	});

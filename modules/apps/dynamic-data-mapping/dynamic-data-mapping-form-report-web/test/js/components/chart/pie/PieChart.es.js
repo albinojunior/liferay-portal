@@ -32,18 +32,14 @@ describe('PieChart', () => {
 		jest.restoreAllMocks();
 	});
 
-	test('renders', () => {
-		const {asFragment} = render(
-				<PieChart {...props} />
-		);
+	it('renders', () => {
+		const {asFragment} = render(<PieChart {...props} />);
 
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	test('expands a sector with the percentage label when mouse is over', () => {
-		const {container} = render(
-			<PieChart {...props} />
-		);
+	it('expands a sector with the percentage label when mouse is over', () => {
+		const {container} = render(<PieChart {...props} />);
 
 		const sector = container.querySelector('.recharts-pie-sector');
 		fireEvent.mouseOver(sector);
@@ -57,10 +53,8 @@ describe('PieChart', () => {
 		).toBe('100%');
 	});
 
-	test('resets a sector when mouse is out', () => {
-		const {container} = render(
-			<PieChart {...props} />
-		);
+	it('resets a sector when mouse is out', () => {
+		const {container} = render(<PieChart {...props} />);
 
 		const sector = container.querySelector('.recharts-pie-sector');
 		fireEvent.mouseOver(sector);
