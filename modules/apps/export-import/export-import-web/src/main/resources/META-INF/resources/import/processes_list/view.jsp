@@ -28,7 +28,7 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 
 <div id="<portlet:namespace />importProcessesSearchContainer">
 	<clay:container
-		id='<%= portletResponse.getNamespace() + "processesContainer" %>'
+		id='<%= liferayPortletResponse.getNamespace() + "processesContainer" %>'
 	>
 		<liferay-util:include page="/import/processes_list/import_layouts_processes.jsp" servletContext="<%= application %>">
 			<liferay-util:param name="groupId" value="<%= String.valueOf(groupId) %>" />

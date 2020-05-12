@@ -28,7 +28,7 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 
 <div id="<portlet:namespace />exportProcessesSearchContainer">
 	<clay:container
-		id='<%= portletResponse.getNamespace() + "processesContainer" %>'
+		id='<%= liferayPortletResponse.getNamespace() + "processesContainer" %>'
 	>
 		<liferay-util:include page="/export/processes_list/export_layouts_processes.jsp" servletContext="<%= application %>">
 			<liferay-util:param name="groupId" value="<%= String.valueOf(liveGroupId) %>" />
