@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Index render the cards properly 1`] = `
+exports[`index renders 1`] = `
 <DocumentFragment>
   <div
     class="form-report"
@@ -261,4 +261,4 @@ exports[`Index render the cards properly 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Index shows nothing if there are no data 1`] = `<DocumentFragment />`;
+exports[`index renders nothing when there is no data 1`] = `<DocumentFragment />`;

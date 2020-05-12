@@ -24,21 +24,17 @@ const props = {
 };
 
 describe('Card', () => {
-	test('show the number of entries on the header', () => {
+	test('shows number of entries in the header', () => {
 		const {container} = render(
-			<>
-				<Card {...props} />
-			</>
+			<Card {...props} />
 		);
 
 		expect(container.querySelector('.card-text').title).toBe('10 entries');
 	});
 
-	test('show ta card with "No responses yet" status', () => {
+	test('shows "there are not entries" when totalEntries is zero', () => {
 		const {getAllByText} = render(
-			<>
-				<Card {...props} totalEntries={0} />
-			</>
+			<Card {...props} totalEntries={0} />
 		);
 
 		expect(getAllByText('there-are-no-entries').length).toBe(2);

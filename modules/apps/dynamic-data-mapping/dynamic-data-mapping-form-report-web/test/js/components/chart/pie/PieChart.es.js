@@ -26,32 +26,27 @@ const props = {
 	width: 700,
 };
 
-describe('Pie Chart', () => {
+describe('PieChart', () => {
 	afterEach(() => {
 		cleanup();
 		jest.restoreAllMocks();
 	});
 
-	test('renders properly the chart and the legend', () => {
+	test('renders', () => {
 		const {asFragment} = render(
-			<>
 				<PieChart {...props} />
-			</>
 		);
 
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	test('expands a sector with the percentage label when mouse is over it', () => {
+	test('expands a sector with the percentage label when mouse is over', () => {
 		const {container} = render(
-			<>
-				<PieChart {...props} />
-			</>
+			<PieChart {...props} />
 		);
 
-		const pieSector = container.querySelector('.recharts-pie-sector');
-
-		fireEvent.mouseOver(pieSector);
+		const sector = container.querySelector('.recharts-pie-sector');
+		fireEvent.mouseOver(sector);
 
 		expect(
 			container.querySelector('.recharts-pie-sector > g')
@@ -62,22 +57,19 @@ describe('Pie Chart', () => {
 		).toBe('100%');
 	});
 
-	test('reset a sector when mouse out', () => {
+	test('resets a sector when mouse is out', () => {
 		const {container} = render(
-			<>
-				<PieChart {...props} />
-			</>
+			<PieChart {...props} />
 		);
 
-		const pieSector = container.querySelector('.recharts-pie-sector');
+		const sector = container.querySelector('.recharts-pie-sector');
+		fireEvent.mouseOver(sector);
 
-		fireEvent.mouseOver(pieSector);
-
-		const pieSectorOpened = container.querySelector(
+		const expandedSector = container.querySelector(
 			'.recharts-pie-sector g path'
 		);
 
-		fireEvent.mouseOut(pieSectorOpened);
+		fireEvent.mouseOut(expandedSector);
 
 		expect(
 			container.querySelector('.recharts-pie-sector > path')

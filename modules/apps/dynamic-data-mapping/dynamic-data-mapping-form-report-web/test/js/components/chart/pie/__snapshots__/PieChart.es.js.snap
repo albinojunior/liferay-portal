@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Pie Chart renders properly the chart and the legend 1`] = `
+exports[`PieChart renders 1`] = `
 <DocumentFragment>
   <div
     class="recharts-responsive-container"

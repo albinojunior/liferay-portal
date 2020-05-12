@@ -27,11 +27,9 @@ const props = {
 };
 
 describe('Tooltip', () => {
-	test('renders how many picks and the percentage an option of the Single Selection Field has', () => {
+	test('renders label, number of entries and percentage', () => {
 		const {container} = render(
-			<>
-				<TooltipContent {...props} />
-			</>
+			<TooltipContent {...props} />
 		);
 
 		const tooltipLabel = container.querySelector('.tooltip-label')

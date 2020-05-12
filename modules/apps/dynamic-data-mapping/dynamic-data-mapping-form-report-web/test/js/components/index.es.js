@@ -26,22 +26,18 @@ const props = {
 	],
 };
 
-describe('Index', () => {
-	it('render the cards properly', () => {
+describe('index', () => {
+	it('renders', () => {
 		const {asFragment} = render(
-			<>
-				<Index {...props} />
-			</>
+			<Index {...props} />
 		);
 
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	it('shows nothing if there are no data', () => {
+	it('renders nothing when there is no data', () => {
 		const {asFragment} = render(
-			<>
-				<Index {...props} data={null} />
-			</>
+			<Index {...props} data={null} />
 		);
 
 		expect(asFragment()).toMatchSnapshot();
