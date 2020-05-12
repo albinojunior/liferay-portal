@@ -21,7 +21,7 @@ import React, {useContext, useState} from 'react';
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import Button from '../button/Button.es';
 import SearchContext from '../management-toolbar/SearchContext.es';
-import DropDown, {CheckboxGroup, RadioGroup} from './DropDown.es';
+import DropDown, {CheckboxGroup, ItemsGroup, RadioGroup} from './DropDown.es';
 
 const getSortable = (columns, sort = '') => {
 	if (sort.length) {
@@ -102,27 +102,41 @@ export default ({columns = [], disabled, filters = []}) => {
 		}
 	});
 
+	const enableDoneButton = filterItems.length > 0;
+
 	const orderByItems = () => {
 		if (sortableColumns.length === 0) {
-			return null;
+			return [];
 		}
 
-		return (
-			<RadioGroup
-				checked={sortColumn}
-				items={sortableColumns.map(({key, value}) => ({
-					label: value,
-					value: key,
-				}))}
-				label={Liferay.Language.get('order-by')}
-				onChange={setSortColumn}
-			/>
-		);
+		const props = {
+			checked: sortColumn,
+			items: sortableColumns.map(({key, value}) => ({
+				label: value,
+				value: key,
+			})),
+			label: Liferay.Language.get('order-by'),
+		};
+
+		let item = <RadioGroup {...props} onChange={setSortColumn} />;
+
+		if (!enableDoneButton) {
+			item = (
+				<ItemsGroup
+					{...props}
+					onClick={(newColumn) => {
+						setSortColumn(newColumn);
+						onSortButtonClick(asc, newColumn);
+						setDropDownActive(false);
+					}}
+				/>
+			);
+		}
+
+		return [item];
 	};
 
-	const dropDownItems = [...filterItems, orderByItems()];
-
-	const enableDoneButton = filterItems.length > 0;
+	const dropDownItems = [...filterItems, ...orderByItems()];
 
 	const onDropDownActiveChange = (active) => {
 		setDropDownActive(active);
@@ -146,16 +160,9 @@ export default ({columns = [], disabled, filters = []}) => {
 		});
 	};
 
-	useEffect(() => {
-		if (!enableDoneButton) {
-			onDoneButtonClick();
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [sortColumn]);
-
 	return (
 		<>
-			{(columns.length > 0 || filterConfig.length > 0) && (
+			{dropDownItems.length > 0 && (
 				<ClayManagementToolbar.ItemList>
 					<ClayManagementToolbar.Item>
 						<DropDown
@@ -164,7 +171,7 @@ export default ({columns = [], disabled, filters = []}) => {
 								enableDoneButton && (
 									<ClayButton
 										block
-										onClick={() => onDoneButtonClick()}
+										onClick={onDoneButtonClick}
 									>
 										{Liferay.Language.get('done')}
 									</ClayButton>
