@@ -49,7 +49,9 @@ export default ({children, fieldName, totalEntries, type}) => (
 									? `${totalEntries} ${Liferay.Language.get(
 											'entries'
 									  ).toLowerCase()}`
-									: Liferay.Language.get('no-entries-yet')}
+									: Liferay.Language.get(
+											'there-are-no-entries'
+									  )}
 							</ClayCard.Description>
 						</div>
 					</ClayCard.AspectRatio>

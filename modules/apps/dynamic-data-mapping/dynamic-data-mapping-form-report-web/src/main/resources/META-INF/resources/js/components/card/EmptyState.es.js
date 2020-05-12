@@ -19,11 +19,11 @@ export default () => (
 		<div className="taglib-empty-result-message-header"></div>
 		<div className="sheet-text text-center text-muted">
 			<h1 className="text-default">
-				{Liferay.Language.get('no-entries-yet')}
+				{Liferay.Language.get('there-are-no-entries')}
 			</h1>
 			<p className="text-default">
 				{Liferay.Language.get(
-					'entries-submitted-to-this-field-will-show-up-here'
+					'entries-submitted-with-this-field-filled-will-show-up-here'
 				)}
 			</p>
 		</div>
