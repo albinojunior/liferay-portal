@@ -6,13 +6,23 @@
 		"recharts": "1.8.5"
 	},
 	"description": "",
+	"jest": {
+		"collectCoverageFrom": [
+			"src/main/resources/META-INF/resources/js/**/*.es.js"
+		],
+		"testPathIgnorePatterns": [
+			"<rootDir>/test/js/[^/]+\\.js"
+		]
+	},
 	"main": "js/index.es.js",
 	"name": "dynamic-data-mapping-form-report-web",
 	"private": true,
 	"scripts": {
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
-		"format": "liferay-npm-scripts fix"
+		"format": "liferay-npm-scripts fix",
+		"test": "env TZ=utc liferay-npm-scripts test",
+		"test:watch": "env TZ=utc liferay-npm-scripts test --watch"
 	},
 	"version": "1.0.0"
 }
