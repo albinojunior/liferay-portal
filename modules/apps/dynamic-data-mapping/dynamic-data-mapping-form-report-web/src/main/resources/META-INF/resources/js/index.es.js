@@ -23,8 +23,7 @@ export default ({data, fields}) => {
 
 	return (
 		<div className="form-report">
-			{fields}
-			<App data={JSON.parse(data)} />
+			<App data={JSON.parse(data)} fields={fields} />
 		</div>
 	);
 };
