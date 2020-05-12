@@ -29,6 +29,7 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class ${schemaName} implements Cloneable {
+	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 
 	public static ${schemaName} toDTO(String json) {
 		return ${schemaName}SerDes.toDTO(json);
@@ -105,8 +106,6 @@ public class ${schemaName} implements Cloneable {
 	public String toString() {
 		return ${schemaName}SerDes.toJSON(this);
 	}
-
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 
 	<#list enumSchemas?keys as enumName>
 		public static enum ${enumName} {
