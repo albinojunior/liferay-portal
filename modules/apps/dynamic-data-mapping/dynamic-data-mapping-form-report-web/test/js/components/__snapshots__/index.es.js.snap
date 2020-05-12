@@ -40,7 +40,7 @@ exports[`index renders 1`] = `
               >
                 <p
                   class="card-title"
-                  title="Field1"
+                  title="field1"
                 >
                   <span
                     class="text-truncate-inline"
@@ -48,7 +48,7 @@ exports[`index renders 1`] = `
                     <span
                       class="text-truncate"
                     >
-                      Field1
+                      field1
                     </span>
                   </span>
                 </p>
@@ -124,7 +124,7 @@ exports[`index renders 1`] = `
               >
                 <p
                   class="card-title"
-                  title="Field2"
+                  title="field2"
                 >
                   <span
                     class="text-truncate-inline"
@@ -132,7 +132,7 @@ exports[`index renders 1`] = `
                     <span
                       class="text-truncate"
                     >
-                      Field2
+                      field2
                     </span>
                   </span>
                 </p>
@@ -208,7 +208,7 @@ exports[`index renders 1`] = `
               >
                 <p
                   class="card-title"
-                  title="Field3"
+                  title="field3"
                 >
                   <span
                     class="text-truncate-inline"
@@ -216,7 +216,7 @@ exports[`index renders 1`] = `
                     <span
                       class="text-truncate"
                     >
-                      Field3
+                      field3
                     </span>
                   </span>
                 </p>

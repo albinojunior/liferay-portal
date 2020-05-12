@@ -17,29 +17,29 @@ import React from 'react';
 
 import Legend from '../../../../src/main/resources/META-INF/resources/js/components/chart/Legend.es';
 
-const moreThan10 = [
-	'Label1',
-	'Label2',
-	'Label3',
-	'Label4',
-	'Label5',
-	'Label6',
-	'Label7',
-	'Label8',
-	'Label9',
-	'Label10',
-	'Label11',
+const labels = [
+	'label1',
+	'label2',
+	'label3',
+	'label4',
+	'label5',
+	'label6',
+	'label7',
+	'label8',
+	'label9',
+	'label10',
+	'label11',
 ];
 
 const props = {
 	activeIndex: null,
-	labels: ['Label1', 'Label2'],
+	labels: ['label1', 'label2'],
 };
 
 describe('Legend', () => {
 	afterEach(cleanup);
 
-	it('adds opacity to all labels which are not being hovered and keep the color of the one hovered', () => {
+	it('dims all labels except one that is being hovered', () => {
 		const {container} = render(<Legend {...props} activeIndex={0} />);
 
 		expect(container.querySelectorAll('li')[0].className).toBe('');
@@ -47,18 +47,16 @@ describe('Legend', () => {
 	});
 
 	it('displays showAll button when there are more than 10 items', () => {
-		const {getByText} = render(<Legend {...props} labels={moreThan10} />);
+		const {queryByText} = render(<Legend {...props} labels={labels} />);
 
-		expect(getByText('show-all')).not.toBe(null);
+		expect(queryByText('show-all')).toBeTruthy();
 	});
 
 	it('displays showLess button when showAll button is clicked', () => {
-		const {getByText} = render(<Legend {...props} labels={moreThan10} />);
+		const {queryByText} = render(<Legend {...props} labels={labels} />);
 
-		const showAllButton = getByText('show-all');
+		fireEvent.click(queryByText('show-all'));
 
-		fireEvent.click(showAllButton);
-
-		expect(getByText('show-less')).not.toBe(null);
+		expect(queryByText('show-less')).toBeTruthy();
 	});
 });

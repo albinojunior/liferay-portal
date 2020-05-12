@@ -18,7 +18,7 @@ import React from 'react';
 import Card from '../../../../src/main/resources/META-INF/resources/js/components/card/Card.es';
 
 const props = {
-	fieldName: 'fieldName',
+	fieldName: 'name',
 	totalEntries: 10,
 	type: 'radio',
 };
@@ -28,13 +28,11 @@ describe('Card', () => {
 
 	it('shows number of entries in the header', () => {
 		const {container} = render(<Card {...props} />);
-
 		expect(container.querySelector('.card-text').title).toBe('10 entries');
 	});
 
 	it('shows "there are not entries" when totalEntries is zero', () => {
 		const {getAllByText} = render(<Card {...props} totalEntries={0} />);
-
 		expect(getAllByText('there-are-no-entries').length).toBe(2);
 	});
 });

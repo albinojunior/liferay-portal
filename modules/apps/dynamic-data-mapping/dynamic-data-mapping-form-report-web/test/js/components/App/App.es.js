@@ -19,25 +19,25 @@ import App from '../../../../src/main/resources/META-INF/resources/js/App.es';
 
 const props = {
 	data: {
-		Field1: {
+		field1: {
 			type: 'radio',
 			values: {
-				op1: 2,
-				op2: 1,
+				option1: 2,
+				option2: 1,
 			},
 		},
-		Field2: {
+		field2: {
 			type: 'radio',
 			values: {
-				op1: 2,
-				op2: 1,
+				option1: 2,
+				option2: 1,
 			},
 		},
 	},
 	fields: [
-		{name: 'Field1', type: 'radio'},
-		{name: 'Field2', type: 'radio'},
-		{name: 'Field3', type: 'radio'},
+		{name: 'field1', type: 'radio'},
+		{name: 'field2', type: 'radio'},
+		{name: 'field3', type: 'radio'},
 	],
 };
 

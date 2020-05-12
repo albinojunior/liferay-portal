@@ -25,13 +25,14 @@ describe('Tooltip', () => {
 			<TooltipContent
 				active={true}
 				activeIndex={0}
-				payload={[{payload: {count: 2, label: 'Label1'}}]}
+				payload={[{payload: {count: 2, label: 'label1'}}]}
 				totalEntries={2}
 			/>
 		);
 
 		const tooltipLabel = container.querySelector('.tooltip-label')
 			.innerHTML;
-		expect(tooltipLabel).toBe('Label1: 2 entries <b>(100%)</b>');
+
+		expect(tooltipLabel).toBe('label1: 2 entries <b>(100%)</b>');
 	});
 });

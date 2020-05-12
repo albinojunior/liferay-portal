@@ -18,7 +18,7 @@ import React from 'react';
 import PieChart from '../../../../../src/main/resources/META-INF/resources/js/components/chart/pie/PieChart.es';
 
 const props = {
-	data: [{count: 2, label: 'Label1'}],
+	data: [{count: 2, label: 'label1'}],
 	height: 300,
 	totalEntries: 2,
 	width: 700,

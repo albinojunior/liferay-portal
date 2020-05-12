@@ -81,7 +81,7 @@ exports[`PieChart renders 1`] = `
               dy="2em"
               x="2.5em"
             >
-              Label1
+              label1
             </span>
           </p>
         </li>

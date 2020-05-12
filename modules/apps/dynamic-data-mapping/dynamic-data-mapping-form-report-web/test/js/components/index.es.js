@@ -18,11 +18,11 @@ import React from 'react';
 import Index from '../../../src/main/resources/META-INF/resources/js/index.es';
 
 const props = {
-	data: JSON.stringify('{Field1:{values:{Opt1:1},type:"radio"}'),
+	data: JSON.stringify('{field1: {values: {option1: 1}, type:"radio"}'),
 	fields: [
-		{name: 'Field1', type: 'radio'},
-		{name: 'Field2', type: 'radio'},
-		{name: 'Field3', type: 'radio'},
+		{name: 'field1', type: 'radio'},
+		{name: 'field2', type: 'radio'},
+		{name: 'field3', type: 'radio'},
 	],
 };
 
@@ -31,13 +31,11 @@ describe('index', () => {
 
 	it('renders', () => {
 		const {asFragment} = render(<Index {...props} />);
-
 		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders nothing when there is no data', () => {
 		const {asFragment} = render(<Index {...props} data={null} />);
-
 		expect(asFragment()).toMatchSnapshot();
 	});
 });
