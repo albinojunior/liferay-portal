@@ -29,6 +29,7 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class ${schemaName} implements Cloneable {
+
 	public static ${schemaName} toDTO(String json) {
 		return ${schemaName}SerDes.toDTO(json);
 	}
