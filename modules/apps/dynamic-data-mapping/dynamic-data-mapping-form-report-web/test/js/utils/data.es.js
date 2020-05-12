@@ -12,7 +12,19 @@
  * details.
  */
 
-const sortByCount = (array) =>
-	array.sort((a, b) => (a.count > b.count ? -1 : b.count > a.count ? 1 : 0));
+import toDataArray from '../../../src/main/resources/META-INF/resources/js/utils/data.es';
 
-export {sortByCount};
+describe('toDataArray', () => {
+	test('sorts array from the highest to lower count values ', () => {
+		const sorted = toDataArray({
+			label1: 2,
+			label2: 4,
+		});
+
+		const [first, second] = sorted;
+
+		expect(first.label === 'label2').toBeTruthy();
+		expect(second.label === 'label1').toBeTruthy();
+		expect(first.count > second.count).toBeTruthy();
+	});
+});

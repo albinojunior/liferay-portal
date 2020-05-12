@@ -16,26 +16,17 @@ import React from 'react';
 
 import Card from './components/card/Card.es';
 import PieChart from './components/chart/pie/PieChart.es';
-import {sortByCount} from './utils/operations.es';
-
-const toArray = (values) =>
-	Object.entries(values).map(([label, count]) => ({count, label}));
+import toDataArray, {sumTotalEntries} from './utils/data.es';
 
 const chartFactory = (type, values, totalEntries) => {
 	if (type === 'radio') {
 		return (
-			<PieChart
-				data={sortByCount(toArray(values))}
-				totalEntries={totalEntries}
-			/>
+			<PieChart data={toDataArray(values)} totalEntries={totalEntries} />
 		);
 	}
 
 	return null;
 };
-
-const sumTotalEntries = (values) =>
-	Object.values(values).reduce((acc, value) => acc + value, 0);
 
 export default ({data, fields}) =>
 	fields.map(({name, type}, index) => {

@@ -12,17 +12,13 @@
  * details.
  */
 
-import {sortByCount} from '../../../src/main/resources/META-INF/resources/js/utils/operations.es';
+const sumTotalEntries = (values) =>
+	Object.values(values).reduce((acc, value) => acc + value, 0);
 
-const mockData = [
-	{count: 2, label: 'Label1'},
-	{count: 4, label: 'Label2'},
-];
+const toDataArray = (values) =>
+	Object.entries(values)
+		.map(([label, count]) => ({count, label}))
+		.sort((a, b) => (a.count > b.count ? -1 : b.count > a.count ? 1 : 0));
 
-describe('Operation of sort', () => {
-	test('classifies the array from the highest to lower count values ', () => {
-		const sortedData = sortByCount(mockData);
-
-		expect(sortedData[0].count > sortedData[1].count).toEqual(true);
-	});
-});
+export default toDataArray;
+export {sumTotalEntries};
