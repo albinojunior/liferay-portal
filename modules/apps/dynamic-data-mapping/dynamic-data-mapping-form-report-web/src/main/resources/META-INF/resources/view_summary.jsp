@@ -32,7 +32,7 @@ if (ddmFormInstanceReport != null) {
 			HashMapBuilder.<String, Object>put(
 				"data", ddmFormInstanceReportData
 			).put(
-				"fields", ddmFormReportDisplayContext.getFields()
+				"fields", ddmFormReportDisplayContext.getFieldsJSONArray()
 			).build() %>'
 		module="js/index.es"
 	/>

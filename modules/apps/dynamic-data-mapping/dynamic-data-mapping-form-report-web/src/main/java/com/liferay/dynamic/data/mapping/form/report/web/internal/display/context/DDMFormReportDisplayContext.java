@@ -56,25 +56,28 @@ public class DDMFormReportDisplayContext {
 		return _ddmFormInstanceReport;
 	}
 
-	public JSONArray getFields() throws PortalException {
-		DDMFormInstance formInstance =
-			getDDMFormInstanceReport().getFormInstance();
+	public JSONArray getFieldsJSONArray() throws PortalException {
+		JSONArray fieldsJSONArray = JSONFactoryUtil.createJSONArray();
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		if (_ddmFormInstanceReport == null) {
+			return fieldsJSONArray;
+		}
+
+		DDMFormInstance formInstance = _ddmFormInstanceReport.getFormInstance();
 
 		DDMForm ddmForm = formInstance.getDDMForm();
 
 		List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
 
 		ddmFormFields.forEach(
-			ddmFormField -> jsonArray.put(
+			ddmFormField -> fieldsJSONArray.put(
 				JSONUtil.put(
 					"name", ddmFormField.getName()
 				).put(
 					"type", ddmFormField.getType()
 				)));
 
-		return jsonArray;
+		return fieldsJSONArray;
 	}
 
 	public String getLastModifiedDate() {
