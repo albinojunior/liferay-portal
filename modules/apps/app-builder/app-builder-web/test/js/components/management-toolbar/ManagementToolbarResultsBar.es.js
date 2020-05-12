@@ -17,6 +17,7 @@ import React from 'react';
 
 import ManagementToolbarResultsBar from '../../../../src/main/resources/META-INF/resources/js/components/management-toolbar/ManagementToolbarResultsBar.es';
 import SearchContextProviderWrapper from '../../SearchContextProviderWrapper.es';
+import {FILTERS} from '../../constants.es';
 
 describe('ManagementToolbarResultsBar', () => {
 	afterEach(cleanup);
@@ -30,47 +31,34 @@ describe('ManagementToolbarResultsBar', () => {
 	});
 
 	it('renders with selected filters', () => {
-		const filterConfig = [
-			{
-				filterItems: [
-					{label: 'multiple1', value: '1'},
-					{label: 'multiple2', value: '2'},
-					{label: 'multiple3', value: '3'},
-				],
-				filterKey: 'multiple',
-				filterName: 'Multiple Filter',
-				multiple: true,
+		const query = {
+			filters: {
+				active: 'true',
+				deploymentTypes: ['productMenu', 'standalone', 'widget'],
 			},
-			{
-				filterItems: [{label: 'single1', value: '1'}],
-				filterKey: 'single',
-				filterName: 'Single Filter',
-			},
-		];
-
-		const query = {filters: {multiple: ['1', '2', '3'], single: '1'}};
+		};
 
 		const {container, queryAllByText, queryByText} = render(
 			<SearchContextProviderWrapper defaultQuery={query}>
-				<ManagementToolbarResultsBar filterConfig={filterConfig} />
+				<ManagementToolbarResultsBar filters={FILTERS} />
 			</SearchContextProviderWrapper>
 		);
 
 		const clearButton = queryByText('clear-all');
-		let filterResults = queryAllByText(/filter:/i);
+		let filterResults = queryAllByText(/deployment-type|status/i);
 		const closeButtons = container.querySelectorAll('button.close');
 
 		expect(clearButton).toBeTruthy();
 		expect(filterResults.length).toBe(2);
 
-		expect(filterResults[0].textContent).toBe(
-			'Multiple Filter: multiple1, multiple2 and multiple3'
+		expect(filterResults[0].textContent).toBe('status: Deployed');
+		expect(filterResults[1].textContent).toBe(
+			'deployment-type: Product Menu, Standalone and Widget'
 		);
-		expect(filterResults[1].textContent).toBe('Single Filter: single1');
 
 		fireEvent.click(closeButtons[1]);
 
-		filterResults = queryAllByText(/filter:/i);
+		filterResults = queryAllByText(/deployment-type|status/i);
 
 		expect(filterResults.length).toBe(1);
 

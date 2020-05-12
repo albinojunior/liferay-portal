@@ -66,6 +66,27 @@ export const EMPTY_STATE = {
 
 export const ENDPOINT = '/endpoint';
 
+export const FILTERS = [
+	{
+		items: [
+			{label: 'Product Menu', value: 'productMenu'},
+			{label: 'Standalone', value: 'standalone'},
+			{label: 'Widget', value: 'widget'},
+		],
+		key: 'deploymentTypes',
+		multiple: true,
+		name: 'deployment-type',
+	},
+	{
+		items: [
+			{label: 'Deployed', value: 'true'},
+			{label: 'Undeployed', value: 'false'},
+		],
+		key: 'active',
+		name: 'status',
+	},
+];
+
 export const ITEMS = {
 	MANY: (size) => createItems(size),
 	ONE: createItems(1),
