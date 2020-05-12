@@ -29,7 +29,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "Home");
 
-		ProductMenuHelper.openProductMenu();
+		ProductMenuHelper.closeProductMenu();
 
 		Refresh();
 
