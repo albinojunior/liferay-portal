@@ -68,21 +68,20 @@ public class AccountRoleDisplaySearchContainerFactory {
 				keywords, searchContainer.getStart(), searchContainer.getEnd(),
 				new RoleNameComparator(orderByType.equals("asc")));
 
-		List<AccountRoleDisplay> accountRoleDisplayList =
-			TransformUtil.transform(
-				baseModelSearchResult.getBaseModels(),
-				accountRole -> {
-					if (!AccountRoleConstants.isImpliedRole(
-							accountRole.getRole())) {
+		List<AccountRoleDisplay> accountRoleDisplays = TransformUtil.transform(
+			baseModelSearchResult.getBaseModels(),
+			accountRole -> {
+				if (!AccountRoleConstants.isImpliedRole(
+						accountRole.getRole())) {
 
-						return AccountRoleDisplay.of(accountRole);
-					}
+					return AccountRoleDisplay.of(accountRole);
+				}
 
-					return null;
-				});
+				return null;
+			});
 
-		searchContainer.setResults(accountRoleDisplayList);
-		searchContainer.setTotal(accountRoleDisplayList.size());
+		searchContainer.setResults(accountRoleDisplays);
+		searchContainer.setTotal(accountRoleDisplays.size());
 
 		return searchContainer;
 	}
