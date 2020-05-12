@@ -18,6 +18,7 @@ import React, {useContext} from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import lang from '../../utils/lang.es';
+import {concatValues} from '../../utils/utils.es';
 import Button from '../button/Button.es';
 import SearchContext from './SearchContext.es';
 
@@ -55,10 +56,7 @@ export const getSelectedFilters = (filters, appliedFilters) => {
 				: appliedFilters[key] === value;
 		});
 
-		const filterValue = selectedItems
-			.map(({label}) => label)
-			.join(', ')
-			.replace(/, ([^,]*)$/, ' and $1');
+		const value = concatValues(selectedItems.map(({label}) => label));
 
 		selectedFilters.push({
 			filterKey,
