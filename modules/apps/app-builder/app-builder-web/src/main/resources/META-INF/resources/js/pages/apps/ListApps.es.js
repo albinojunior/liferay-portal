@@ -93,30 +93,30 @@ export default ({
 
 	let ENDPOINT = `/o/app-builder/v1.0/apps`;
 
-	const FILTER_CONFIG = [
+	const FILTERS = [
 		{
-			filterItems: [
+			items: [
 				{label: DEPLOYMENT_TYPES.productMenu, value: 'productMenu'},
 				{label: DEPLOYMENT_TYPES.standalone, value: 'standalone'},
 				{label: DEPLOYMENT_TYPES.widget, value: 'widget'},
 			],
-			filterKey: 'deploymentTypes',
-			filterName: 'deployment-type',
+			key: 'deploymentTypes',
 			multiple: true,
+			name: 'deployment-type',
 		},
 		{
-			filterItems: [
+			items: [
 				{label: STATUSES.active, value: 'true'},
 				{label: STATUSES.inactive, value: 'false'},
 			],
-			filterKey: 'active',
-			filterName: 'status',
+			key: 'active',
+			name: 'status',
 		},
 		{
-			filterItems: [{label: Liferay.Language.get('me'), value: userId}],
-			filterKey: 'userIds',
-			filterName: 'author',
+			items: [{label: Liferay.Language.get('me'), value: userId}],
+			key: 'userIds',
 			multiple: true,
+			name: 'author',
 		},
 	];
 
@@ -162,7 +162,7 @@ export default ({
 			columns={COLUMNS}
 			emptyState={EMPTY_STATE}
 			endpoint={ENDPOINT}
-			filterConfig={!dataDefinitionId ? FILTER_CONFIG : []}
+			filters={!dataDefinitionId ? FILTERS : []}
 		>
 			{(item) => ({
 				...item,

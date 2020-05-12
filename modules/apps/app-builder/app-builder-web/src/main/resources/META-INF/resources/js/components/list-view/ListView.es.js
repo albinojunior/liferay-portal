@@ -36,7 +36,7 @@ export default withRouter(
 		columns,
 		emptyState,
 		endpoint,
-		filterConfig = [],
+		filters = [],
 		history,
 		queryParams,
 	}) => {
@@ -112,9 +112,7 @@ export default withRouter(
 			});
 		}
 
-		const [isLoading, setLoading] = useState(true);
-
-		const selectedFilters = getSelectedFilters(filterConfig, filters);
+		const selectedFilters = getSelectedFilters(filters, query.filters);
 		const isEmpty = totalCount === 0;
 		const isFiltered = selectedFilters.length > 0;
 
@@ -124,12 +122,12 @@ export default withRouter(
 					addButton={addButton}
 					columns={columns}
 					disabled={!isFiltered && !query.keywords && isEmpty}
-					filterConfig={filterConfig}
+					filters={filters}
 					totalCount={totalCount}
 				/>
 
 				<ManagementToolbarResultsBar
-					filterConfig={filterConfig}
+					filters={filters}
 					isLoading={isLoading}
 					totalCount={totalCount}
 				/>
