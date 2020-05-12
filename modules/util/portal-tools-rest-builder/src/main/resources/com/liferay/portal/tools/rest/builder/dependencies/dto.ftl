@@ -97,8 +97,10 @@ public class ${schemaName} <#if dtoParentClassName?has_content>extends ${dtoPare
 		return ObjectMapperUtil.readValue(${schemaName}.class, json);
 	}
 
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
-	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
+	<#assign
+		enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema)
+		properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema)
+	/>
 
 	<#list properties?keys as propertyName>
 		<#assign

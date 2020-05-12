@@ -33,8 +33,10 @@ public class ${schemaName} implements Cloneable {
 		return ${schemaName}SerDes.toDTO(json);
 	}
 
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
-	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
+	<#assign
+		enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema)
+		properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema)
+	/>
 
 	<#list properties?keys as propertyName>
 		<#assign capitalizedPropertyName = propertyName?cap_first />
