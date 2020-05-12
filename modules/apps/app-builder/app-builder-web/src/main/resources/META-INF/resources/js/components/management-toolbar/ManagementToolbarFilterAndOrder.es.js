@@ -16,7 +16,7 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import classNames from 'classnames';
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useState} from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import Button from '../button/Button.es';
@@ -46,10 +46,7 @@ export default ({columns = [], disabled, filters = []}) => {
 	const [localFilters, setLocalFilters] = useState(appliedFilters);
 	const [isDropDownActive, setDropDownActive] = useState(false);
 
-	const sortableColumns = useMemo(
-		() => columns.filter(({sortable}) => sortable),
-		[columns]
-	);
+	const sortableColumns = columns.filter(({sortable}) => sortable);
 
 	const {asc, column} = getSortable(sortableColumns, sort);
 	const [sortColumn, setSortColumn] = useState(column);
