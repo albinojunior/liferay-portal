@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class WidgetPermission implements Cloneable {
 
+	public static WidgetPermission toDTO(String json) {
+		return WidgetPermissionSerDes.toDTO(json);
+	}
+
 	public String[] getActionKeys() {
 		return actionKeys;
 	}

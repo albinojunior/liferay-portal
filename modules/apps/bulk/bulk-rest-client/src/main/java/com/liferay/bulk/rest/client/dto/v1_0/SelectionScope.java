@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class SelectionScope implements Cloneable {
 
+	public static SelectionScope toDTO(String json) {
+		return SelectionScopeSerDes.toDTO(json);
+	}
+
 	public Long getFolderId() {
 		return folderId;
 	}

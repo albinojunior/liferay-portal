@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class ProcessMetric implements Cloneable {
 
+	public static ProcessMetric toDTO(String json) {
+		return ProcessMetricSerDes.toDTO(json);
+	}
+
 	public Long getInstanceCount() {
 		return instanceCount;
 	}

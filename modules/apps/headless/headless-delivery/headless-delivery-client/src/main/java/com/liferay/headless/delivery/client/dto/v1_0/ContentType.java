@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class ContentType implements Cloneable {
 
+	public static ContentType toDTO(String json) {
+		return ContentTypeSerDes.toDTO(json);
+	}
+
 	public String getClassName() {
 		return className;
 	}

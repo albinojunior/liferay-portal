@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class WidgetInstance implements Cloneable {
 
+	public static WidgetInstance toDTO(String json) {
+		return WidgetInstanceSerDes.toDTO(json);
+	}
+
 	public Map<String, Object> getWidgetConfig() {
 		return widgetConfig;
 	}

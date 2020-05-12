@@ -30,6 +30,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class App implements Cloneable {
 
+	public static App toDTO(String json) {
+		return AppSerDes.toDTO(json);
+	}
+
 	public Boolean getActive() {
 		return active;
 	}

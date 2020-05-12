@@ -28,35 +28,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class Layout implements Cloneable {
 
-	public static enum ContainerType {
-
-		FIXED("Fixed"), FLUID("Fluid");
-
-		public static ContainerType create(String value) {
-			for (ContainerType containerType : values()) {
-				if (Objects.equals(containerType.getValue(), value)) {
-					return containerType;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private ContainerType(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static Layout toDTO(String json) {
+		return LayoutSerDes.toDTO(json);
 	}
 
 	public ContainerType getContainerType() {
@@ -180,6 +153,37 @@ public class Layout implements Cloneable {
 
 	public String toString() {
 		return LayoutSerDes.toJSON(this);
+	}
+
+	public static enum ContainerType {
+
+		FIXED("Fixed"), FLUID("Fluid");
+
+		public static ContainerType create(String value) {
+			for (ContainerType containerType : values()) {
+				if (Objects.equals(containerType.getValue(), value)) {
+					return containerType;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ContainerType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

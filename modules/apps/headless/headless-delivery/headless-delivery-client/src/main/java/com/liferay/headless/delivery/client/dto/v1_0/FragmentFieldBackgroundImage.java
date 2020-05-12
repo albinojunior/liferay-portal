@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class FragmentFieldBackgroundImage implements Cloneable {
 
+	public static FragmentFieldBackgroundImage toDTO(String json) {
+		return FragmentFieldBackgroundImageSerDes.toDTO(json);
+	}
+
 	public FragmentImage getBackgroundImage() {
 		return backgroundImage;
 	}

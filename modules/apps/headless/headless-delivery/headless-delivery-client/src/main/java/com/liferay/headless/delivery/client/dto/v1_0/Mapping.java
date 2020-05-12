@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Mapping implements Cloneable {
 
+	public static Mapping toDTO(String json) {
+		return MappingSerDes.toDTO(json);
+	}
+
 	public String getCollectionItemFieldKey() {
 		return collectionItemFieldKey;
 	}

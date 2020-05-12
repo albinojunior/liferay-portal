@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class ExperimentRun implements Cloneable {
 
+	public static ExperimentRun toDTO(String json) {
+		return ExperimentRunSerDes.toDTO(json);
+	}
+
 	public Double getConfidenceLevel() {
 		return confidenceLevel;
 	}

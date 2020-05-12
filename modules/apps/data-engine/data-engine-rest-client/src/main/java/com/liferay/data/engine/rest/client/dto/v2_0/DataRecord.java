@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataRecord implements Cloneable {
 
+	public static DataRecord toDTO(String json) {
+		return DataRecordSerDes.toDTO(json);
+	}
+
 	public Long getDataRecordCollectionId() {
 		return dataRecordCollectionId;
 	}

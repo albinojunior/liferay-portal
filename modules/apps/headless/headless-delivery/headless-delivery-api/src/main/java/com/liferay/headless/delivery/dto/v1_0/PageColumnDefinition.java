@@ -22,6 +22,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -46,6 +47,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "PageColumnDefinition")
 public class PageColumnDefinition {
+
+	public static PageColumnDefinition toDTO(String json) {
+		return ObjectMapperUtil.readValue(PageColumnDefinition.class, json);
+	}
 
 	@DecimalMax("12")
 	@DecimalMin("1")

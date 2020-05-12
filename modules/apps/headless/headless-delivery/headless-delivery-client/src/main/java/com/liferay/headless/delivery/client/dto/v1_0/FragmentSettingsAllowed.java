@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class FragmentSettingsAllowed implements Cloneable {
 
+	public static FragmentSettingsAllowed toDTO(String json) {
+		return FragmentSettingsAllowedSerDes.toDTO(json);
+	}
+
 	public Fragment[] getAllowedFragments() {
 		return allowedFragments;
 	}

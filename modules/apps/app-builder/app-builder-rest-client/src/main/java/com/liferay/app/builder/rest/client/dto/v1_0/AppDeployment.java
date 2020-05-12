@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class AppDeployment implements Cloneable {
 
+	public static AppDeployment toDTO(String json) {
+		return AppDeploymentSerDes.toDTO(json);
+	}
+
 	public Map<String, Object> getSettings() {
 		return settings;
 	}

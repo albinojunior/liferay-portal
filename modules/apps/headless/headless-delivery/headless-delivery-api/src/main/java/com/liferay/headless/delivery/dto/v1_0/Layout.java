@@ -24,6 +24,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -48,38 +49,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Layout")
 public class Layout {
 
-	@GraphQLName("ContainerType")
-	public static enum ContainerType {
-
-		FIXED("Fixed"), FLUID("Fluid");
-
-		@JsonCreator
-		public static ContainerType create(String value) {
-			for (ContainerType containerType : values()) {
-				if (Objects.equals(containerType.getValue(), value)) {
-					return containerType;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private ContainerType(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static Layout toDTO(String json) {
+		return ObjectMapperUtil.readValue(Layout.class, json);
 	}
 
 	@Schema
@@ -285,6 +256,40 @@ public class Layout {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("ContainerType")
+	public static enum ContainerType {
+
+		FIXED("Fixed"), FLUID("Fluid");
+
+		@JsonCreator
+		public static ContainerType create(String value) {
+			for (ContainerType containerType : values()) {
+				if (Objects.equals(containerType.getValue(), value)) {
+					return containerType;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ContainerType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);

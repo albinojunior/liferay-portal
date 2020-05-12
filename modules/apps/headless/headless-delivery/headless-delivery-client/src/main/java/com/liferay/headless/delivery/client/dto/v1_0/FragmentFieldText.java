@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class FragmentFieldText implements Cloneable {
 
+	public static FragmentFieldText toDTO(String json) {
+		return FragmentFieldTextSerDes.toDTO(json);
+	}
+
 	public FragmentLink getFragmentLink() {
 		return fragmentLink;
 	}

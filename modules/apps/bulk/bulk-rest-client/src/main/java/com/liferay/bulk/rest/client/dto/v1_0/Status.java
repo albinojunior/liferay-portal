@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Status implements Cloneable {
 
+	public static Status toDTO(String json) {
+		return StatusSerDes.toDTO(json);
+	}
+
 	public Boolean getActionInProgress() {
 		return actionInProgress;
 	}

@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class ReindexStatus implements Cloneable {
 
+	public static ReindexStatus toDTO(String json) {
+		return ReindexStatusSerDes.toDTO(json);
+	}
+
 	public Long getCompletionPercentage() {
 		return completionPercentage;
 	}

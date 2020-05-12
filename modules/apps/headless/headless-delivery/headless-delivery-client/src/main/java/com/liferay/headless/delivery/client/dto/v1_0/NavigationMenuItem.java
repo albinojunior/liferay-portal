@@ -30,6 +30,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class NavigationMenuItem implements Cloneable {
 
+	public static NavigationMenuItem toDTO(String json) {
+		return NavigationMenuItemSerDes.toDTO(json);
+	}
+
 	public Creator getCreator() {
 		return creator;
 	}

@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class GenericError implements Cloneable {
 
+	public static GenericError toDTO(String json) {
+		return GenericErrorSerDes.toDTO(json);
+	}
+
 	public String getMessage() {
 		return message;
 	}

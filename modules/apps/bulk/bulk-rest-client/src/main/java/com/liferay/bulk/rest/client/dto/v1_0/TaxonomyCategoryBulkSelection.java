@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class TaxonomyCategoryBulkSelection implements Cloneable {
 
+	public static TaxonomyCategoryBulkSelection toDTO(String json) {
+		return TaxonomyCategoryBulkSelectionSerDes.toDTO(json);
+	}
+
 	public DocumentBulkSelection getDocumentBulkSelection() {
 		return documentBulkSelection;
 	}

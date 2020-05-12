@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class WorkflowTaskTransition implements Cloneable {
 
+	public static WorkflowTaskTransition toDTO(String json) {
+		return WorkflowTaskTransitionSerDes.toDTO(json);
+	}
+
 	public Transition[] getTransitions() {
 		return transitions;
 	}

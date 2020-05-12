@@ -28,38 +28,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageElement implements Cloneable {
 
-	public static enum Type {
-
-		COLLECTION("Collection"), COLLECTION_ITEM("CollectionItem"),
-		COLUMN("Column"), DROP_ZONE("DropZone"), FRAGMENT("Fragment"),
-		FRAGMENT_DROP_ZONE("FragmentDropZone"), ROOT("Root"), ROW("Row"),
-		SECTION("Section"), WIDGET("Widget");
-
-		public static Type create(String value) {
-			for (Type type : values()) {
-				if (Objects.equals(type.getValue(), value)) {
-					return type;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Type(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static PageElement toDTO(String json) {
+		return PageElementSerDes.toDTO(json);
 	}
 
 	public Object getDefinition() {
@@ -160,6 +130,40 @@ public class PageElement implements Cloneable {
 
 	public String toString() {
 		return PageElementSerDes.toJSON(this);
+	}
+
+	public static enum Type {
+
+		COLLECTION("Collection"), COLLECTION_ITEM("CollectionItem"),
+		COLUMN("Column"), DROP_ZONE("DropZone"), FRAGMENT("Fragment"),
+		FRAGMENT_DROP_ZONE("FragmentDropZone"), ROOT("Root"), ROW("Row"),
+		SECTION("Section"), WIDGET("Widget");
+
+		public static Type create(String value) {
+			for (Type type : values()) {
+				if (Objects.equals(type.getValue(), value)) {
+					return type;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Type(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

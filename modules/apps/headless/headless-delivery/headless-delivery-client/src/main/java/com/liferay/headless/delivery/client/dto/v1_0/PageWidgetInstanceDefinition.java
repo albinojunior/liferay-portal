@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageWidgetInstanceDefinition implements Cloneable {
 
+	public static PageWidgetInstanceDefinition toDTO(String json) {
+		return PageWidgetInstanceDefinitionSerDes.toDTO(json);
+	}
+
 	public WidgetInstance getWidgetInstance() {
 		return widgetInstance;
 	}

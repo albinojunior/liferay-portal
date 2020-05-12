@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class ContentFieldValue implements Cloneable {
 
+	public static ContentFieldValue toDTO(String json) {
+		return ContentFieldValueSerDes.toDTO(json);
+	}
+
 	public String getData() {
 		return data;
 	}

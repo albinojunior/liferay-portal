@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataRule implements Cloneable {
 
+	public static DataRule toDTO(String json) {
+		return DataRuleSerDes.toDTO(json);
+	}
+
 	public Map[] getActions() {
 		return actions;
 	}

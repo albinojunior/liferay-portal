@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DocumentBulkSelection implements Cloneable {
 
+	public static DocumentBulkSelection toDTO(String json) {
+		return DocumentBulkSelectionSerDes.toDTO(json);
+	}
+
 	public String[] getDocumentIds() {
 		return documentIds;
 	}

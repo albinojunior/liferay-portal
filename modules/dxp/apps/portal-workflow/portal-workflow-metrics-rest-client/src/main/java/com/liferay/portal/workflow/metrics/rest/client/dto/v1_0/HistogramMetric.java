@@ -28,36 +28,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class HistogramMetric implements Cloneable {
 
-	public static enum Unit {
-
-		DAYS("Days"), HOURS("Hours"), MONTHS("Months"), WEEKS("Weeks"),
-		YEARS("Years");
-
-		public static Unit create(String value) {
-			for (Unit unit : values()) {
-				if (Objects.equals(unit.getValue(), value)) {
-					return unit;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Unit(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static HistogramMetric toDTO(String json) {
+		return HistogramMetricSerDes.toDTO(json);
 	}
 
 	public Histogram[] getHistograms() {
@@ -158,6 +130,38 @@ public class HistogramMetric implements Cloneable {
 
 	public String toString() {
 		return HistogramMetricSerDes.toJSON(this);
+	}
+
+	public static enum Unit {
+
+		DAYS("Days"), HOURS("Hours"), MONTHS("Months"), WEEKS("Weeks"),
+		YEARS("Years");
+
+		public static Unit create(String value) {
+			for (Unit unit : values()) {
+				if (Objects.equals(unit.getValue(), value)) {
+					return unit;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Unit(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

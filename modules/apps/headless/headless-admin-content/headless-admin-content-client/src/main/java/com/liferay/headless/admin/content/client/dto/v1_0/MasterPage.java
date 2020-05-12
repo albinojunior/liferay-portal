@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class MasterPage implements Cloneable {
 
+	public static MasterPage toDTO(String json) {
+		return MasterPageSerDes.toDTO(json);
+	}
+
 	public String getKey() {
 		return key;
 	}

@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class WorkflowTasksBulkSelection implements Cloneable {
 
+	public static WorkflowTasksBulkSelection toDTO(String json) {
+		return WorkflowTasksBulkSelectionSerDes.toDTO(json);
+	}
+
 	public Boolean getAndOperator() {
 		return andOperator;
 	}

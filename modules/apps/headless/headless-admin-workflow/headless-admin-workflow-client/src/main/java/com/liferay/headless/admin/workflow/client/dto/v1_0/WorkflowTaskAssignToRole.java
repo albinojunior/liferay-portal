@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class WorkflowTaskAssignToRole implements Cloneable {
 
+	public static WorkflowTaskAssignToRole toDTO(String json) {
+		return WorkflowTaskAssignToRoleSerDes.toDTO(json);
+	}
+
 	public String getComment() {
 		return comment;
 	}

@@ -30,6 +30,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataLayout implements Cloneable {
 
+	public static DataLayout toDTO(String json) {
+		return DataLayoutSerDes.toDTO(json);
+	}
+
 	public String getContentType() {
 		return contentType;
 	}

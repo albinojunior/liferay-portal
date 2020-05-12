@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class TimeRange implements Cloneable {
 
+	public static TimeRange toDTO(String json) {
+		return TimeRangeSerDes.toDTO(json);
+	}
+
 	public Date getDateEnd() {
 		return dateEnd;
 	}

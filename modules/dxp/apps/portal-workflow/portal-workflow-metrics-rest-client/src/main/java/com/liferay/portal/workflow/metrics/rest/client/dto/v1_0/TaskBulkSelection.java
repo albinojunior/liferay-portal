@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class TaskBulkSelection implements Cloneable {
 
+	public static TaskBulkSelection toDTO(String json) {
+		return TaskBulkSelectionSerDes.toDTO(json);
+	}
+
 	public Long[] getAssigneeIds() {
 		return assigneeIds;
 	}

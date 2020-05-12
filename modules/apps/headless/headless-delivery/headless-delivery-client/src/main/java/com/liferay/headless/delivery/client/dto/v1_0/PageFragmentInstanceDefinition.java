@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageFragmentInstanceDefinition implements Cloneable {
 
+	public static PageFragmentInstanceDefinition toDTO(String json) {
+		return PageFragmentInstanceDefinitionSerDes.toDTO(json);
+	}
+
 	public Fragment getFragment() {
 		return fragment;
 	}

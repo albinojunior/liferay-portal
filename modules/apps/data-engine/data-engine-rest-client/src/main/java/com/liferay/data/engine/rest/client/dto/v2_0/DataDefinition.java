@@ -30,6 +30,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataDefinition implements Cloneable {
 
+	public static DataDefinition toDTO(String json) {
+		return DataDefinitionSerDes.toDTO(json);
+	}
+
 	public String[] getAvailableLanguageIds() {
 		return availableLanguageIds;
 	}

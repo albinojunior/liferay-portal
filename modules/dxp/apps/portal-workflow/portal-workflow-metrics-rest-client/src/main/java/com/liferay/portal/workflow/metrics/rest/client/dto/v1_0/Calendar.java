@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Calendar implements Cloneable {
 
+	public static Calendar toDTO(String json) {
+		return CalendarSerDes.toDTO(json);
+	}
+
 	public Boolean getDefaultCalendar() {
 		return defaultCalendar;
 	}

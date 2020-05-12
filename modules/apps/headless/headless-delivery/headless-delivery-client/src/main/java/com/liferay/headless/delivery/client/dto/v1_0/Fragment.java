@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Fragment implements Cloneable {
 
+	public static Fragment toDTO(String json) {
+		return FragmentSerDes.toDTO(json);
+	}
+
 	public String getCollectionName() {
 		return collectionName;
 	}

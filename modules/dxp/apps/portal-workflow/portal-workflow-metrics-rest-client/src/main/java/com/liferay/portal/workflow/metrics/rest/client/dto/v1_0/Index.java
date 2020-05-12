@@ -28,35 +28,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class Index implements Cloneable {
 
-	public static enum Group {
-
-		ALL("All"), METRIC("Metric"), SLA("SLA");
-
-		public static Group create(String value) {
-			for (Group group : values()) {
-				if (Objects.equals(group.getValue(), value)) {
-					return group;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Group(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static Index toDTO(String json) {
+		return IndexSerDes.toDTO(json);
 	}
 
 	public Group getGroup() {
@@ -155,6 +128,37 @@ public class Index implements Cloneable {
 
 	public String toString() {
 		return IndexSerDes.toJSON(this);
+	}
+
+	public static enum Group {
+
+		ALL("All"), METRIC("Metric"), SLA("SLA");
+
+		public static Group create(String value) {
+			for (Group group : values()) {
+				if (Objects.equals(group.getValue(), value)) {
+					return group;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Group(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

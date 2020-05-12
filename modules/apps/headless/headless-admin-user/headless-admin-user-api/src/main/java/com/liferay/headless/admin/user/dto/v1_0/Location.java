@@ -22,6 +22,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -45,6 +46,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "Location")
 public class Location {
+
+	public static Location toDTO(String json) {
+		return ObjectMapperUtil.readValue(Location.class, json);
+	}
 
 	@Schema(
 		description = "The organization's country. This follows the [`addressCountry`](https://schema.org/addressCountry) specification."

@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Keyword implements Cloneable {
 
+	public static Keyword toDTO(String json) {
+		return KeywordSerDes.toDTO(json);
+	}
+
 	public String getName() {
 		return name;
 	}

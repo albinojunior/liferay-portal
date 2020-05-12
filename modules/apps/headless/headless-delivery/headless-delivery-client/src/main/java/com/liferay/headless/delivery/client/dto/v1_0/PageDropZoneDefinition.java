@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageDropZoneDefinition implements Cloneable {
 
+	public static PageDropZoneDefinition toDTO(String json) {
+		return PageDropZoneDefinitionSerDes.toDTO(json);
+	}
+
 	public Object getFragmentSettings() {
 		return fragmentSettings;
 	}

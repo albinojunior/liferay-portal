@@ -28,35 +28,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class FragmentLink implements Cloneable {
 
-	public static enum Target {
-
-		BLANK("Blank"), PARENT("Parent"), SELF("Self"), TOP("Top");
-
-		public static Target create(String value) {
-			for (Target target : values()) {
-				if (Objects.equals(target.getValue(), value)) {
-					return target;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Target(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static FragmentLink toDTO(String json) {
+		return FragmentLinkSerDes.toDTO(json);
 	}
 
 	public Object getHref() {
@@ -136,6 +109,37 @@ public class FragmentLink implements Cloneable {
 
 	public String toString() {
 		return FragmentLinkSerDes.toJSON(this);
+	}
+
+	public static enum Target {
+
+		BLANK("Blank"), PARENT("Parent"), SELF("Self"), TOP("Top");
+
+		public static Target create(String value) {
+			for (Target target : values()) {
+				if (Objects.equals(target.getValue(), value)) {
+					return target;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Target(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

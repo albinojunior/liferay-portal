@@ -24,6 +24,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -53,73 +54,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ImportTask")
 public class ImportTask {
 
-	@GraphQLName("ExecuteStatus")
-	public static enum ExecuteStatus {
-
-		COMPLETED("COMPLETED"), FAILED("FAILED"), INITIAL("INITIAL"),
-		STARTED("STARTED");
-
-		@JsonCreator
-		public static ExecuteStatus create(String value) {
-			for (ExecuteStatus executeStatus : values()) {
-				if (Objects.equals(executeStatus.getValue(), value)) {
-					return executeStatus;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private ExecuteStatus(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
-
-	@GraphQLName("Operation")
-	public static enum Operation {
-
-		CREATE("CREATE"), DELETE("DELETE"), UPDATE("UPDATE");
-
-		@JsonCreator
-		public static Operation create(String value) {
-			for (Operation operation : values()) {
-				if (Objects.equals(operation.getValue(), value)) {
-					return operation;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Operation(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static ImportTask toDTO(String json) {
+		return ObjectMapperUtil.readValue(ImportTask.class, json);
 	}
 
 	@Schema(
@@ -521,6 +457,75 @@ public class ImportTask {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("ExecuteStatus")
+	public static enum ExecuteStatus {
+
+		COMPLETED("COMPLETED"), FAILED("FAILED"), INITIAL("INITIAL"),
+		STARTED("STARTED");
+
+		@JsonCreator
+		public static ExecuteStatus create(String value) {
+			for (ExecuteStatus executeStatus : values()) {
+				if (Objects.equals(executeStatus.getValue(), value)) {
+					return executeStatus;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ExecuteStatus(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
+	@GraphQLName("Operation")
+	public static enum Operation {
+
+		CREATE("CREATE"), DELETE("DELETE"), UPDATE("UPDATE");
+
+		@JsonCreator
+		public static Operation create(String value) {
+			for (Operation operation : values()) {
+				if (Objects.equals(operation.getValue(), value)) {
+					return operation;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Operation(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);

@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Selection implements Cloneable {
 
+	public static Selection toDTO(String json) {
+		return SelectionSerDes.toDTO(json);
+	}
+
 	public Long getSize() {
 		return size;
 	}

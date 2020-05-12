@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class FragmentMappedValue implements Cloneable {
 
+	public static FragmentMappedValue toDTO(String json) {
+		return FragmentMappedValueSerDes.toDTO(json);
+	}
+
 	public FragmentInlineValue getDefaultValue() {
 		return defaultValue;
 	}

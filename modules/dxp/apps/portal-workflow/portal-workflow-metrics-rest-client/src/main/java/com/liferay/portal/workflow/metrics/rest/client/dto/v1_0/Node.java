@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Node implements Cloneable {
 
+	public static Node toDTO(String json) {
+		return NodeSerDes.toDTO(json);
+	}
+
 	public Date getDateCreated() {
 		return dateCreated;
 	}

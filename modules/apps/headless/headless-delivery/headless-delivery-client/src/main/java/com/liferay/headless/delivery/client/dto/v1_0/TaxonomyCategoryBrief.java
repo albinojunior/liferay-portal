@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class TaxonomyCategoryBrief implements Cloneable {
 
+	public static TaxonomyCategoryBrief toDTO(String json) {
+		return TaxonomyCategoryBriefSerDes.toDTO(json);
+	}
+
 	public Long getTaxonomyCategoryId() {
 		return taxonomyCategoryId;
 	}

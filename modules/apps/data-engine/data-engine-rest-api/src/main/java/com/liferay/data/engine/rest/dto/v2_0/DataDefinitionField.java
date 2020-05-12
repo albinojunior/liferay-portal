@@ -24,6 +24,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -48,38 +49,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DataDefinitionField")
 public class DataDefinitionField {
 
-	@GraphQLName("IndexType")
-	public static enum IndexType {
-
-		ALL("all"), KEYWORD("keyword"), NONE("none"), TEXT("text");
-
-		@JsonCreator
-		public static IndexType create(String value) {
-			for (IndexType indexType : values()) {
-				if (Objects.equals(indexType.getValue(), value)) {
-					return indexType;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private IndexType(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static DataDefinitionField toDTO(String json) {
+		return ObjectMapperUtil.readValue(DataDefinitionField.class, json);
 	}
 
 	@Schema
@@ -766,6 +737,40 @@ public class DataDefinitionField {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("IndexType")
+	public static enum IndexType {
+
+		ALL("all"), KEYWORD("keyword"), NONE("none"), TEXT("text");
+
+		@JsonCreator
+		public static IndexType create(String value) {
+			for (IndexType indexType : values()) {
+				if (Objects.equals(indexType.getValue(), value)) {
+					return indexType;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private IndexType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);

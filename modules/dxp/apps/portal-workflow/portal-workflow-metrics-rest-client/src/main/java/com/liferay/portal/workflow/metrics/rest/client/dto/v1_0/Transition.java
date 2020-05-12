@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Transition implements Cloneable {
 
+	public static Transition toDTO(String json) {
+		return TransitionSerDes.toDTO(json);
+	}
+
 	public String getLabel() {
 		return label;
 	}

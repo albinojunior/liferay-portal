@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageCollectionDefinition implements Cloneable {
 
+	public static PageCollectionDefinition toDTO(String json) {
+		return PageCollectionDefinitionSerDes.toDTO(json);
+	}
+
 	public Object getCollectionConfig() {
 		return collectionConfig;
 	}

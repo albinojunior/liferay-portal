@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DisplayPageTemplate implements Cloneable {
 
+	public static DisplayPageTemplate toDTO(String json) {
+		return DisplayPageTemplateSerDes.toDTO(json);
+	}
+
 	public ContentSubtype getContentSubtype() {
 		return contentSubtype;
 	}

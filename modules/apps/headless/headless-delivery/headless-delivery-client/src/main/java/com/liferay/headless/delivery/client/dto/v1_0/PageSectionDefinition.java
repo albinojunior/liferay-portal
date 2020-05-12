@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageSectionDefinition implements Cloneable {
 
+	public static PageSectionDefinition toDTO(String json) {
+		return PageSectionDefinitionSerDes.toDTO(json);
+	}
+
 	public String getBackgroundColor() {
 		return backgroundColor;
 	}

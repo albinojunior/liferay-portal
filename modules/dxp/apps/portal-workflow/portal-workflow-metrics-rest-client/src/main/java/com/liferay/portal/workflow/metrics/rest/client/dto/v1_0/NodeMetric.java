@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class NodeMetric implements Cloneable {
 
+	public static NodeMetric toDTO(String json) {
+		return NodeMetricSerDes.toDTO(json);
+	}
+
 	public Long getBreachedInstanceCount() {
 		return breachedInstanceCount;
 	}

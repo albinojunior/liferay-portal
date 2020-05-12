@@ -24,6 +24,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -52,38 +53,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Instance")
 public class Instance {
 
-	@GraphQLName("SLAStatus")
-	public static enum SLAStatus {
-
-		ON_TIME("OnTime"), OVERDUE("Overdue"), UNTRACKED("Untracked");
-
-		@JsonCreator
-		public static SLAStatus create(String value) {
-			for (SLAStatus slaStatus : values()) {
-				if (Objects.equals(slaStatus.getValue(), value)) {
-					return slaStatus;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private SLAStatus(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static Instance toDTO(String json) {
+		return ObjectMapperUtil.readValue(Instance.class, json);
 	}
 
 	@Schema
@@ -978,6 +949,40 @@ public class Instance {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("SLAStatus")
+	public static enum SLAStatus {
+
+		ON_TIME("OnTime"), OVERDUE("Overdue"), UNTRACKED("Untracked");
+
+		@JsonCreator
+		public static SLAStatus create(String value) {
+			for (SLAStatus slaStatus : values()) {
+				if (Objects.equals(slaStatus.getValue(), value)) {
+					return slaStatus;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private SLAStatus(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);

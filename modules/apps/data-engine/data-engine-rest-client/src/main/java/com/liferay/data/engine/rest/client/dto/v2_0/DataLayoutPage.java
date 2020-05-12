@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataLayoutPage implements Cloneable {
 
+	public static DataLayoutPage toDTO(String json) {
+		return DataLayoutPageSerDes.toDTO(json);
+	}
+
 	public DataLayoutRow[] getDataLayoutRows() {
 		return dataLayoutRows;
 	}

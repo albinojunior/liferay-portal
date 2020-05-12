@@ -29,35 +29,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class SLAResult implements Cloneable {
 
-	public static enum Status {
-
-		PAUSED("Paused"), RUNNING("Running"), STOPPED("Stopped");
-
-		public static Status create(String value) {
-			for (Status status : values()) {
-				if (Objects.equals(status.getValue(), value)) {
-					return status;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Status(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static SLAResult toDTO(String json) {
+		return SLAResultSerDes.toDTO(json);
 	}
 
 	public Date getDateOverdue() {
@@ -219,6 +192,37 @@ public class SLAResult implements Cloneable {
 
 	public String toString() {
 		return SLAResultSerDes.toJSON(this);
+	}
+
+	public static enum Status {
+
+		PAUSED("Paused"), RUNNING("Running"), STOPPED("Stopped");
+
+		public static Status create(String value) {
+			for (Status status : values()) {
+				if (Objects.equals(status.getValue(), value)) {
+					return status;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Status(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

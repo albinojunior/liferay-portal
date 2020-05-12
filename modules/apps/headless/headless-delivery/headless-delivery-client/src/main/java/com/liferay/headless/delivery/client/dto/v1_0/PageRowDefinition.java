@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageRowDefinition implements Cloneable {
 
+	public static PageRowDefinition toDTO(String json) {
+		return PageRowDefinitionSerDes.toDTO(json);
+	}
+
 	public Boolean getGutters() {
 		return gutters;
 	}

@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class TaxonomyVocabulary implements Cloneable {
 
+	public static TaxonomyVocabulary toDTO(String json) {
+		return TaxonomyVocabularySerDes.toDTO(json);
+	}
+
 	public Boolean getMultiValued() {
 		return multiValued;
 	}

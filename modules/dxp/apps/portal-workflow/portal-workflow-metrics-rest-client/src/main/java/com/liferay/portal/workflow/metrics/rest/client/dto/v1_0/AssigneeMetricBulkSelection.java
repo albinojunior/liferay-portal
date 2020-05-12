@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class AssigneeMetricBulkSelection implements Cloneable {
 
+	public static AssigneeMetricBulkSelection toDTO(String json) {
+		return AssigneeMetricBulkSelectionSerDes.toDTO(json);
+	}
+
 	public Boolean getCompleted() {
 		return completed;
 	}
