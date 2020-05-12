@@ -54,14 +54,6 @@ public class CTProcessServiceImpl extends CTProcessServiceBaseImpl {
 		long companyId, long userId, String keywords, int status, int start,
 		int end, OrderByComparator<CTProcess> orderByComparator) {
 
-		return _filterFindByC_U_N_D_S(
-			companyId, userId, keywords, status, start, end, orderByComparator);
-	}
-
-	private List<CTProcess> _filterFindByC_U_N_D_S(
-		long companyId, long userId, String keywords, int status, int start,
-		int end, OrderByComparator<CTProcess> orderByComparator) {
-
 		Predicate predicate = CTProcessTable.INSTANCE.companyId.eq(companyId);
 
 		if (userId > 0) {

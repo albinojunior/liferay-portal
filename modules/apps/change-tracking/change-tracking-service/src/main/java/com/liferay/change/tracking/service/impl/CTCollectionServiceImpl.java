@@ -120,7 +120,7 @@ public class CTCollectionServiceImpl extends CTCollectionServiceBaseImpl {
 		).from(
 			CTCollectionTable.INSTANCE
 		).where(
-			_getC_SPredicate(companyId, status, keywords)
+			_getPredicate(companyId, status, keywords)
 		).orderBy(
 			CTCollectionTable.INSTANCE, obc
 		).limit(
@@ -138,7 +138,7 @@ public class CTCollectionServiceImpl extends CTCollectionServiceBaseImpl {
 		).from(
 			CTCollectionTable.INSTANCE
 		).where(
-			_getC_SPredicate(companyId, status, keywords)
+			_getPredicate(companyId, status, keywords)
 		);
 
 		return ctCollectionPersistence.dslQuery(dslQuery);
@@ -183,7 +183,7 @@ public class CTCollectionServiceImpl extends CTCollectionServiceBaseImpl {
 			userId, ctCollectionId, name, description);
 	}
 
-	private Predicate _getC_SPredicate(
+	private Predicate _getPredicate(
 		long companyId, int status, String keywords) {
 
 		Predicate predicate = CTCollectionTable.INSTANCE.companyId.eq(
