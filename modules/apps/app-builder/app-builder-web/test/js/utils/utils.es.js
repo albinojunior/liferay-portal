@@ -12,9 +12,36 @@
  * details.
  */
 
-import {isEqualObjects} from '../../../src/main/resources/META-INF/resources/js/utils/utils.es';
+import {
+	concatValues,
+	isEqualObjects,
+} from '../../../src/main/resources/META-INF/resources/js/utils/utils.es';
 
 describe('Utils', () => {
+	describe('concatValues', () => {
+		it('call with 1 values', () => {
+			const result = concatValues(['Product Menu']);
+
+			expect(result).toBe('Product Menu');
+		});
+
+		it('call with 2 items values', () => {
+			const result = concatValues(['Product Menu', 'Standalone']);
+
+			expect(result).toBe('Product Menu and Standalone');
+		});
+
+		it('call with 2 more items values', () => {
+			const result = concatValues([
+				'Product Menu',
+				'Standalone',
+				'Widget',
+			]);
+
+			expect(result).toBe('Product Menu, Standalone and Widget');
+		});
+	});
+
 	describe('isEqualObjects', () => {
 		it('call without args', () => {
 			expect(isEqualObjects()).toBeTruthy();
