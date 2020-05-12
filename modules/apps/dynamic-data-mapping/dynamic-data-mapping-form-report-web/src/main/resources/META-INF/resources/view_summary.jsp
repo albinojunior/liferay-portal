@@ -24,17 +24,16 @@ String ddmFormInstanceReportData = StringPool.BLANK;
 if (ddmFormInstanceReport != null) {
 	ddmFormInstanceReportData = ddmFormInstanceReport.getData();
 }
-
-Map<String, Object> data = HashMapBuilder.<String, Object>put(
-	"data", ddmFormInstanceReportData
-).put(
-	"fields", ddmFormReportDisplayContext.getFields()
-).build();
 %>
 
 <div id="<portlet:namespace />report">
 	<react:component
-		data="<%= data %>"
+		data='<%=
+			HashMapBuilder.<String, Object>put(
+				"data", ddmFormInstanceReportData
+			).put(
+				"fields", ddmFormReportDisplayContext.getFields()
+			).build() %>'
 		module="js/index.es"
 	/>
 </div>
