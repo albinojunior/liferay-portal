@@ -107,8 +107,8 @@ export const getURL = (path, params) => {
 	return uri.toString();
 };
 
-export const request = (endpoint, method = 'GET') =>
-	fetch(getURL(endpoint), {
+export const request = ({endpoint, method = 'GET', params = {}}) =>
+	fetch(getURL(endpoint, params), {
 		headers: HEADERS,
 		method,
 	}).then((response) => parseResponse(response));
