@@ -130,14 +130,14 @@ public class RoleFinderTest {
 	}
 
 	@Test
-	public void testSQLServerFindByU_G() {
+	public void testFindByU_G() {
 		long userId = RandomTestUtil.nextLong();
 
-		int sqlServerParamLimit = 2100;
+		// See LPS-113146 for the magic number 2100
 
-		long[] groupIds = new long[sqlServerParamLimit];
+		long[] groupIds = new long[2100];
 
-		for (int i = 0; i < sqlServerParamLimit; i++) {
+		for (int i = 0; i < groupIds.length; i++) {
 			groupIds[i] = RandomTestUtil.nextLong();
 		}
 
