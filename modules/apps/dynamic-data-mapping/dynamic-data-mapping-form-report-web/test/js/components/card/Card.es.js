@@ -34,16 +34,6 @@ describe('Card', () => {
 		expect(container.querySelector('.card-text').title).toBe('10 entries');
 	});
 
-	test('show the number of entries on the header', () => {
-		const {container} = render(
-			<>
-				<Card {...props} />
-			</>
-		);
-
-		expect(container.querySelector('.card-text').title).toBe('10 entries');
-	});
-
 	test('show ta card with "No responses yet" status', () => {
 		const {getByText} = render(
 			<>
