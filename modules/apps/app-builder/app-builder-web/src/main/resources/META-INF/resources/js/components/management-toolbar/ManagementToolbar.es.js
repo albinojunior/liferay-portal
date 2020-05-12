@@ -20,7 +20,7 @@ import ManagementToolbarRight from './ManagementToolbarRight.es';
 import ManagementToolbarSearch from './ManagementToolbarSearch';
 import SearchContext from './SearchContext.es';
 
-export default ({addButton, columns, disabled, filterConfig}) => {
+export default ({addButton, columns, disabled, filters}) => {
 	const [{keywords}, dispatch] = useContext(SearchContext);
 	const [showMobile, setShowMobile] = useState(false);
 
@@ -29,7 +29,7 @@ export default ({addButton, columns, disabled, filterConfig}) => {
 			<ManagementToolbarFilterAndOrder
 				columns={columns}
 				disabled={disabled}
-				filterConfig={filterConfig}
+				filters={filters}
 			/>
 
 			<ManagementToolbarSearch

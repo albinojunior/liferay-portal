@@ -39,14 +39,11 @@ const getSortable = (columns, sort = '') => {
 	return {};
 };
 
-export default ({columns = [], disabled, filterConfig = []}) => {
-	const [{filters = {}, sort}, dispatch] = useContext(SearchContext);
-	const [filtersValues, setFiltersValues] = useState(filters);
-
-	useEffect(() => {
-		setFiltersValues(filters);
-	}, [filters]);
-
+export default ({columns = [], disabled, filters = []}) => {
+	const [{filters: appliedFilters = {}, sort}, dispatch] = useContext(
+		SearchContext
+	);
+	const [localFilters, setLocalFilters] = useState(appliedFilters);
 	const [isDropDownActive, setDropDownActive] = useState(false);
 
 	const sortableColumns = useMemo(
@@ -57,58 +54,56 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 	const {asc, column} = getSortable(sortableColumns, sort);
 	const [sortColumn, setSortColumn] = useState(column);
 
-	const filterItems = filterConfig.map(
-		({filterItems, filterKey, filterName, multiple}) => {
-			const props = {
-				checked: filtersValues[filterKey],
-				items: filterItems,
-				label: FILTER_NAMES[filterName][1],
-			};
+	const filterItems = filters.map(({items, key, multiple, name}) => {
+		const props = {
+			checked: localFilters[key],
+			items,
+			label: FILTER_NAMES[name][1],
+		};
 
-			if (multiple) {
-				return (
-					<CheckboxGroup
-						{...props}
-						onAdd={(value) => {
-							setFiltersValues((prevFilterValues) => {
-								const values = filtersValues[filterKey] || [];
+		if (multiple) {
+			return (
+				<CheckboxGroup
+					{...props}
+					onAdd={(value) => {
+						setLocalFilters((prevFilters) => {
+							const values = prevFilters[key] || [];
 
-								return {
-									...prevFilterValues,
-									[filterKey]: values.concat(value),
-								};
-							});
-						}}
-						onRemove={(value) => {
-							setFiltersValues((prevFilterValues) => ({
-								...prevFilterValues,
-								[filterKey]: prevFilterValues[filterKey].filter(
-									(currentValue) => currentValue !== value
-								),
-							}));
-						}}
-					/>
-				);
-			}
-			else {
-				return (
-					<RadioGroup
-						{...props}
-						items={[
-							{label: Liferay.Language.get('any')},
-							...props.items,
-						]}
-						onChange={(value) => {
-							setFiltersValues((prevFilterValues) => ({
-								...prevFilterValues,
-								[filterKey]: value,
-							}));
-						}}
-					/>
-				);
-			}
+							return {
+								...prevFilters,
+								[key]: values.concat(value),
+							};
+						});
+					}}
+					onRemove={(value) => {
+						setLocalFilters((prevFilters) => ({
+							...prevFilters,
+							[key]: prevFilters[key].filter(
+								(currentValue) => currentValue !== value
+							),
+						}));
+					}}
+				/>
+			);
 		}
-	);
+		else {
+			return (
+				<RadioGroup
+					{...props}
+					items={[
+						{label: Liferay.Language.get('any')},
+						...props.items,
+					]}
+					onChange={(value) => {
+						setLocalFilters((prevFilters) => ({
+							...prevFilters,
+							[key]: value,
+						}));
+					}}
+				/>
+			);
+		}
+	});
 
 	const orderByItems = () => {
 		if (sortableColumns.length === 0) {
@@ -134,12 +129,12 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 
 	const onDropDownActiveChange = (active) => {
 		setDropDownActive(active);
-		setFiltersValues(filters);
+		setLocalFilters(appliedFilters);
 	};
 
 	const onDoneButtonClick = () => {
 		dispatch({
-			filters: filtersValues,
+			filters: localFilters,
 			sort: `${sortColumn}:${asc ? 'asc' : 'desc'}`,
 			type: 'UPDATE_FILTERS_AND_SORT',
 		});
