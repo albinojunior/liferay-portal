@@ -24,7 +24,7 @@ export default (endpoint) => {
 	});
 
 	useEffect(() => {
-		request(endpoint)
+		request({endpoint})
 			.then((response) => {
 				setState({
 					error: null,
