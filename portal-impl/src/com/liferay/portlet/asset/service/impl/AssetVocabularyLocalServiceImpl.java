@@ -77,11 +77,9 @@ public class AssetVocabularyLocalServiceImpl
 		long defaultUserId = userLocalService.getDefaultUserId(
 			group.getCompanyId());
 
-		Set<Locale> locales = LanguageUtil.getAvailableLocales(groupId);
-
 		Map<Locale, String> titleMap = new HashMap<>();
 
-		for (Locale locale : locales) {
+		for (Locale locale : LanguageUtil.getAvailableLocales(groupId)) {
 			titleMap.put(
 				locale,
 				LanguageUtil.get(locale, PropsValues.ASSET_VOCABULARY_DEFAULT));
