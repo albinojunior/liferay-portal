@@ -29,46 +29,6 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class ${schemaName} implements Cloneable {
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
-
-	<#list enumSchemas?keys as enumName>
-		public static enum ${enumName} {
-
-			<#list enumSchemas[enumName].enumValues as enumValue>
-				${freeMarkerTool.getEnumFieldName(enumValue)}("${enumValue}")
-
-				<#if enumValue_has_next>
-					,
-				</#if>
-			</#list>;
-
-			public static ${enumName} create(String value) {
-				for (${enumName} ${freeMarkerTool.getSchemaVarName(enumName)} : values()) {
-					if (Objects.equals(${freeMarkerTool.getSchemaVarName(enumName)}.getValue(), value)) {
-						return ${freeMarkerTool.getSchemaVarName(enumName)};
-					}
-				}
-
-				return null;
-			}
-
-			public String getValue() {
-				return _value;
-			}
-
-			@Override
-			public String toString() {
-				return _value;
-			}
-
-			private ${enumName}(String value) {
-				_value = value;
-			}
-
-			private final String _value;
-
-		}
-	</#list>
 
 	public static ${schemaName} toDTO(String json) {
 		return ${schemaName}SerDes.toDTO(json);
@@ -146,4 +106,44 @@ public class ${schemaName} implements Cloneable {
 		return ${schemaName}SerDes.toJSON(this);
 	}
 
+	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
+
+	<#list enumSchemas?keys as enumName>
+		public static enum ${enumName} {
+
+		<#list enumSchemas[enumName].enumValues as enumValue>
+			${freeMarkerTool.getEnumFieldName(enumValue)}("${enumValue}")
+
+			<#if enumValue_has_next>
+				,
+			</#if>
+		</#list>;
+
+		public static ${enumName} create(String value) {
+			for (${enumName} ${freeMarkerTool.getSchemaVarName(enumName)} : values()) {
+				if (Objects.equals(${freeMarkerTool.getSchemaVarName(enumName)}.getValue(), value)) {
+					return ${freeMarkerTool.getSchemaVarName(enumName)};
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ${enumName}(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+		}
+	</#list>
 }
