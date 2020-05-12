@@ -88,7 +88,7 @@ public class RedirectNotFoundEntryLocalServiceImpl
 		OrderByComparator<RedirectNotFoundEntry> obc) {
 
 		return redirectNotFoundEntryLocalService.dynamicQuery(
-			_getSortedRedirectNotFoundEntriesDynamicQuery(
+			_getRedirectNotFoundEntriesDynamicQuery(
 				groupId, ignored, minModifiedDate, obc),
 			start, end);
 	}
@@ -99,7 +99,7 @@ public class RedirectNotFoundEntryLocalServiceImpl
 		OrderByComparator<RedirectNotFoundEntry> obc) {
 
 		return redirectNotFoundEntryLocalService.dynamicQuery(
-			_getSortedRedirectNotFoundEntriesDynamicQuery(
+			_getRedirectNotFoundEntriesDynamicQuery(
 				groupId, null, minModifiedDate, obc),
 			start, end);
 	}
@@ -175,7 +175,7 @@ public class RedirectNotFoundEntryLocalServiceImpl
 		return redirectNotFoundEntriesDynamicQuery;
 	}
 
-	private DynamicQuery _getSortedRedirectNotFoundEntriesDynamicQuery(
+	private DynamicQuery _getRedirectNotFoundEntriesDynamicQuery(
 		long groupId, Boolean ignored, Date minModifiedDate,
 		OrderByComparator<RedirectNotFoundEntry> obc) {
 
