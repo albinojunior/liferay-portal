@@ -145,4 +145,5 @@ public class ${schemaName} implements Cloneable {
 
 		}
 	</#list>
+
 }
