@@ -158,7 +158,7 @@ public class DataDefinitionResourceImpl
 			dataDefinitionId);
 
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
-			_getClassNameId(), dataDefinitionId);
+			_portal.getClassNameId(DDMStructure.class), dataDefinitionId);
 
 		_deDataListViewLocalService.deleteDEDataListViews(dataDefinitionId);
 
@@ -542,7 +542,7 @@ public class DataDefinitionResourceImpl
 		_updateFieldNames(dataDefinitionId, dataDefinition);
 
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
-			_getClassNameId(), dataDefinitionId);
+			_portal.getClassNameId(DDMStructure.class), dataDefinitionId);
 
 		_addDataDefinitionFieldLinks(
 			dataDefinitionId, ddmForm.getDDMFormFields(),
@@ -620,8 +620,9 @@ public class DataDefinitionResourceImpl
 			if (Validator.isNotNull(fieldSetDDMStructureId)) {
 				_deDataDefinitionFieldLinkLocalService.
 					addDEDataDefinitionFieldLink(
-						groupId, _getClassNameId(), dataDefinitionId,
-						fieldSetDDMStructureId, ddmFormField.getName());
+						groupId, _portal.getClassNameId(DDMStructure.class),
+						dataDefinitionId, fieldSetDDMStructureId,
+						ddmFormField.getName());
 			}
 		}
 	}
@@ -676,10 +677,6 @@ public class DataDefinitionResourceImpl
 		}
 
 		return null;
-	}
-
-	private long _getClassNameId() {
-		return _portal.getClassNameId(DDMStructure.class);
 	}
 
 	private DataLayoutResource _getDataLayoutResource(boolean checkPermission) {
