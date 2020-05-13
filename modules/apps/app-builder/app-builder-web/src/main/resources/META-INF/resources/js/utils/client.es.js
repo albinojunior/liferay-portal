@@ -95,13 +95,20 @@ export const getURL = (path, params) => {
 	const uri = new URL(`${window.location.origin}${path}`);
 	const keys = Object.keys(params);
 
-	keys.forEach((key) => uri.searchParams.set(key, params[key]));
+	keys.forEach((key) => {
+		if (Array.isArray(params[key])) {
+			params[key].forEach((value) => uri.searchParams.append(key, value));
+		}
+		else {
+			uri.searchParams.set(key, params[key]);
+		}
+	});
 
 	return uri.toString();
 };
 
-export const request = (endpoint, method = 'GET') =>
-	fetch(getURL(endpoint), {
+export const request = ({endpoint, method = 'GET', params = {}}) =>
+	fetch(getURL(endpoint, params), {
 		headers: HEADERS,
 		method,
 	}).then((response) => parseResponse(response));

@@ -160,7 +160,7 @@ describe('client', () => {
 		const item = {data: 'hello'};
 		fetch.mockResponseOnce(JSON.stringify(item));
 
-		request('/test').then((res) => {
+		request({endpoint: '/test'}).then((res) => {
 			expect(res.data).toEqual('hello');
 		});
 

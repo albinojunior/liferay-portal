@@ -22,8 +22,8 @@ import ListView from '../../components/list-view/ListView.es';
 import useDeployApp from '../../hooks/useDeployApp.es';
 import {confirmDelete} from '../../utils/client.es';
 import {fromNow} from '../../utils/time.es';
-import {DEPLOYMENT_ACTION, DEPLOYMENT_STATUS} from './constants.es';
-import {concatTypes} from './utils.es';
+import {concatValues} from '../../utils/utils.es';
+import {DEPLOYMENT_ACTION, DEPLOYMENT_TYPES, STATUSES} from './constants.es';
 
 export default ({
 	match: {
@@ -31,7 +31,7 @@ export default ({
 		url,
 	},
 }) => {
-	const {getStandaloneURL} = useContext(AppContext);
+	const {getStandaloneURL, userId} = useContext(AppContext);
 	const {deployApp, undeployApp} = useDeployApp();
 
 	const ACTIONS = [
@@ -63,7 +63,7 @@ export default ({
 	let COLUMNS = [
 		{
 			key: 'name',
-			sortable: !!dataDefinitionId,
+			sortable: true,
 			value: Liferay.Language.get('name'),
 		},
 		{
@@ -72,13 +72,13 @@ export default ({
 		},
 		{
 			key: 'dateCreated',
-			sortable: !!dataDefinitionId,
+			sortable: true,
 			value: Liferay.Language.get('create-date'),
 		},
 		{
 			asc: false,
 			key: 'dateModified',
-			sortable: !!dataDefinitionId,
+			sortable: true,
 			value: Liferay.Language.get('modified-date'),
 		},
 		{
@@ -92,6 +92,33 @@ export default ({
 	};
 
 	let ENDPOINT = `/o/app-builder/v1.0/apps`;
+
+	const FILTERS = [
+		{
+			items: [
+				{label: DEPLOYMENT_TYPES.productMenu, value: 'productMenu'},
+				{label: DEPLOYMENT_TYPES.standalone, value: 'standalone'},
+				{label: DEPLOYMENT_TYPES.widget, value: 'widget'},
+			],
+			key: 'deploymentTypes',
+			multiple: true,
+			name: 'deployment-type',
+		},
+		{
+			items: [
+				{label: STATUSES.active, value: 'true'},
+				{label: STATUSES.inactive, value: 'false'},
+			],
+			key: 'active',
+			name: 'status',
+		},
+		{
+			items: [{label: Liferay.Language.get('me'), value: userId}],
+			key: 'userIds',
+			multiple: true,
+			name: 'author',
+		},
+	];
 
 	if (dataDefinitionId) {
 		EMPTY_STATE = {
@@ -135,6 +162,7 @@ export default ({
 			columns={COLUMNS}
 			emptyState={EMPTY_STATE}
 			endpoint={ENDPOINT}
+			filters={!dataDefinitionId ? FILTERS : []}
 		>
 			{(item) => ({
 				...item,
@@ -155,11 +183,11 @@ export default ({
 					<ClayLabel
 						displayType={item.active ? 'success' : 'secondary'}
 					>
-						{DEPLOYMENT_STATUS[item.active]}
+						{STATUSES[item.active ? 'active' : 'inactive']}
 					</ClayLabel>
 				),
-				type: concatTypes(
-					item.appDeployments.map((deployment) => deployment.type)
+				type: concatValues(
+					item.appDeployments.map(({type}) => DEPLOYMENT_TYPES[type])
 				),
 			})}
 		</ListView>

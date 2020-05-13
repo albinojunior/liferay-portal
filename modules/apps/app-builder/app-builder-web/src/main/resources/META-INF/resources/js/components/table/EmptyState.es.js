@@ -16,34 +16,23 @@ import React from 'react';
 
 import lang from '../../utils/lang.es';
 
-const EmptyState = ({emptyState, keywords = ''}) => {
-	const defaultEmpty = {
-		description: null,
+const DEFAULT_EMPTY = {
+	empty: {
+		className: 'taglib-empty-state',
 		title: Liferay.Language.get('there-are-no-entries'),
-	};
-
-	const defaultSearch = {
-		description: lang.sub(
-			Liferay.Language.get('there-are-no-results-for-x'),
-			[keywords]
-		),
+	},
+	search: {
+		className: 'taglib-search-state',
 		title: Liferay.Language.get('no-results-were-found'),
-	};
+	},
+};
 
-	emptyState = {
-		...defaultEmpty,
-		...emptyState,
-	};
-
-	const search = {
-		...defaultSearch,
-		...emptyState.search,
-	};
-
-	const isSearch = keywords !== '';
-	const {button, description, title} = isSearch ? search : emptyState;
-	const className = isSearch ? 'taglib-search-state' : 'taglib-empty-state';
-
+const EmptyState = ({
+	button,
+	className = DEFAULT_EMPTY.empty.className,
+	description,
+	title = DEFAULT_EMPTY.empty.title,
+}) => {
 	return (
 		<div className="taglib-empty-result-message">
 			<div className="text-center">
@@ -67,10 +56,73 @@ const EmptyState = ({emptyState, keywords = ''}) => {
 	);
 };
 
+export const FilteredEmpty = (props) => {
+	const description = Liferay.Language.get(
+		'there-are-no-results-with-these-attributes'
+	);
+
+	return <EmptyState description={description} {...props} />;
+};
+
+export const SearchEmpty = ({keywords, ...otherProps}) => {
+	const description = lang.sub(
+		Liferay.Language.get('there-are-no-results-for-x'),
+		[keywords]
+	);
+
+	return <EmptyState description={description} {...otherProps} />;
+};
+
+export const SearchAndFilteredEmpty = ({keywords, ...otherProps}) => {
+	const description = lang.sub(
+		Liferay.Language.get(
+			'there-are-no-results-for-x-with-these-attributes'
+		),
+		[keywords]
+	);
+
+	return <EmptyState description={description} {...otherProps} />;
+};
+
 export const withEmpty = (Component) => {
-	const Wrapper = ({emptyState, isEmpty, keywords, ...restProps}) => {
+	const Wrapper = ({
+		emptyState,
+		isEmpty,
+		isFiltered,
+		keywords,
+		...restProps
+	}) => {
 		if (isEmpty) {
-			return <EmptyState emptyState={emptyState} keywords={keywords} />;
+			if (keywords.length) {
+				if (isFiltered) {
+					return (
+						<SearchAndFilteredEmpty
+							keywords={keywords}
+							{...DEFAULT_EMPTY.search}
+							{...emptyState.searchAndFiltered}
+						/>
+					);
+				}
+
+				return (
+					<SearchEmpty
+						keywords={keywords}
+						{...DEFAULT_EMPTY.search}
+						{...emptyState.search}
+					/>
+				);
+			}
+
+			if (isFiltered) {
+				return (
+					<FilteredEmpty
+						{...DEFAULT_EMPTY.search}
+						{...emptyState.filtered}
+					/>
+				);
+			}
+
+			return <EmptyState {...emptyState} />;
 		}
 
 		return <Component {...restProps} />;

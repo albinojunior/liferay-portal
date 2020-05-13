@@ -12,22 +12,13 @@
  * details.
  */
 
-import {DEPLOYMENT_TYPES} from './constants.es';
+export const concatValues = (values) =>
+	values.join(', ').replace(/, ([^,]*)$/, ' and $1');
 
-const concatTypes = (types) => {
-	return types.reduce((acc, cur, index) => {
-		if (index < types.length - 2) {
-			return `${acc + DEPLOYMENT_TYPES[cur]}, `;
-		}
+export const isEqualObjects = (firstObj = {}, secondObj = {}) => {
+	if (typeof firstObj !== 'object' || typeof secondObj !== 'object') {
+		return false;
+	}
 
-		if (index == types.length - 2) {
-			return `${acc + DEPLOYMENT_TYPES[cur]} ${Liferay.Language.get(
-				'and'
-			).toLowerCase()} `;
-		}
-
-		return acc + DEPLOYMENT_TYPES[cur];
-	}, '');
+	return JSON.stringify(firstObj) === JSON.stringify(secondObj);
 };
-
-export {concatTypes};

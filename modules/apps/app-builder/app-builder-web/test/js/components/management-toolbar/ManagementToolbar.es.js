@@ -16,73 +16,54 @@ import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import ManagementToolbar from '../../../../src/main/resources/META-INF/resources/js/components/management-toolbar/ManagementToolbar.es';
-import SearchContext from '../../../../src/main/resources/META-INF/resources/js/components/management-toolbar/SearchContext.es';
+import SearchContextProviderWrapper from '../../SearchContextProviderWrapper.es';
 
-const addButton = (onClick) => <button onClick={onClick}>add</button>;
+const createAddButton = (onClick) => <button onClick={onClick}>add</button>;
 
 describe('ManagementToolbar', () => {
-	afterEach(() => {
-		cleanup();
-		jest.restoreAllMocks();
+	afterEach(cleanup);
+
+	it('renders disabled', () => {
+		const onClickButtonCallback = jest.fn();
+
+		const {queryByPlaceholderText, queryByText} = render(
+			<SearchContextProviderWrapper defaultQuery={{sort: 'field1:asc'}}>
+				<ManagementToolbar
+					addButton={() => createAddButton(onClickButtonCallback)}
+					columns={[
+						{key: 'field', sortable: true},
+						{asc: true, key: 'field1', sortable: true},
+					]}
+					disabled
+				/>
+			</SearchContextProviderWrapper>
+		);
+
+		const addButton = queryByText('add');
+		const filterAndOrder = queryByText('filter-and-order');
+		const searchField = queryByPlaceholderText('search...');
+
+		expect(addButton.disabled).toBeFalsy();
+		expect(filterAndOrder.parentElement.disabled).toBeTruthy();
+		expect(searchField.disabled).toBeTruthy();
+
+		fireEvent.click(addButton);
+
+		expect(onClickButtonCallback).toHaveBeenCalled();
 	});
 
-	it('renders ManagementToolbar', () => {
-		const dispatch = jest.fn();
-		const onClickButtonCallback = jest.fn();
-		const query = {
-			keywords: '',
-		};
-
-		const columns = [
-			{
-				key: 'field1',
-			},
-			{
-				asc: true,
-				key: 'field2',
-				sortable: true,
-				value: 'field2',
-			},
-		];
-
-		const {container, queryByText} = render(
-			<SearchContext.Provider value={[query, dispatch]}>
-				<ManagementToolbar
-					addButton={() => addButton(onClickButtonCallback)}
-					columns={columns}
-				/>
-			</SearchContext.Provider>
+	it('renders without filter and order', () => {
+		const {queryByPlaceholderText, queryByText} = render(
+			<ManagementToolbar addButton={createAddButton} columns={[]} />,
+			{wrapper: SearchContextProviderWrapper}
 		);
 
-		const dropDown = queryByText('filter-and-order');
-		const field1 = queryByText('field1');
-		const field2 = queryByText('field2');
-		const add = queryByText('add');
+		const addButton = queryByText('add');
+		const filterAndOrder = queryByText('filter-and-order');
+		const searchField = queryByPlaceholderText('search...');
 
-		expect(field1).toBeFalsy();
-		expect(field2).toBeTruthy();
-		expect(dropDown).toBeTruthy();
-
-		fireEvent.click(dropDown);
-		fireEvent.click(field2);
-
-		expect(dispatch.mock.calls.length).toBe(1);
-
-		const sort = container.querySelector(
-			'ul .nav-item:nth-child(2) button'
-		);
-
-		fireEvent.click(sort);
-
-		expect(dispatch.mock.calls.length).toBe(2);
-
-		const setMobile = container.querySelector(
-			'.nav-item.navbar-breakpoint-d-none > button'
-		);
-
-		fireEvent.click(setMobile);
-		fireEvent.click(add);
-
-		expect(onClickButtonCallback.mock.calls.length).toBe(1);
+		expect(addButton).toBeTruthy();
+		expect(filterAndOrder).toBeFalsy();
+		expect(searchField).toBeTruthy();
 	});
 });
