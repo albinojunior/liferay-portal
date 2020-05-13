@@ -45,9 +45,9 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 	public int doStartTag() throws JspException {
 		int result = super.doStartTag();
 
-		HttpServletRequest httpServletRequest = getRequest();
-
 		try {
+			HttpServletRequest httpServletRequest = getRequest();
+
 			setNamespacedAttribute(
 				httpServletRequest, "dataLayoutBuilderModule",
 				DataLayoutTaglibUtil.resolveModule(

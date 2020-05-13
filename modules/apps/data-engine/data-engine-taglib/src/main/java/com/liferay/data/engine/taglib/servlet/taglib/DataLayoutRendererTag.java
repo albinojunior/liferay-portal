@@ -48,13 +48,13 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 	private String _getContent() {
 		String content = StringPool.BLANK;
 
-		HttpServletRequest httpServletRequest = getRequest();
-
 		try {
 			DataLayoutRendererContext dataLayoutRendererContext =
 				new DataLayoutRendererContext();
 
 			dataLayoutRendererContext.setContainerId(getContainerId());
+
+			HttpServletRequest httpServletRequest = getRequest();
 
 			if (Validator.isNotNull(getDataRecordId())) {
 				dataLayoutRendererContext.setDataRecordValues(
