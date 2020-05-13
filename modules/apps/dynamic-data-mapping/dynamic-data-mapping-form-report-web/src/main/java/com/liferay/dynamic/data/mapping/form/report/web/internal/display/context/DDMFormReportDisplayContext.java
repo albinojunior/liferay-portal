@@ -63,9 +63,9 @@ public class DDMFormReportDisplayContext {
 			return fieldsJSONArray;
 		}
 
-		DDMFormInstance formInstance = _ddmFormInstanceReport.getFormInstance();
+		DDMFormInstance ddmFormInstance = _ddmFormInstanceReport.getFormInstance();
 
-		DDMForm ddmForm = formInstance.getDDMForm();
+		DDMForm ddmForm = ddmFormInstance.getDDMForm();
 
 		List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
 
