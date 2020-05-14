@@ -482,6 +482,16 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		TermsAggregation termsAggregation = _aggregations.terms("name", "name");
 
+		termsAggregation.addChildrenAggregations(
+			_resourceHelper.creatTaskCountScriptedMetricAggregation(
+				ListUtil.fromArray(assigneeIds),
+				ListUtil.fromArray(slaStatuses),
+				ListUtil.fromArray(taskNames)));
+
+		termsAggregation.addOrders(Order.key(true));
+		termsAggregation.addPipelineAggregations(
+			_createBucketSelectorPipelineAggregation());
+
 		termsAggregation.setSize(10000);
 
 		searchSearchRequest.addAggregation(termsAggregation);
@@ -583,12 +593,8 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		termsAggregation.addOrders(Order.key(true));
 		termsAggregation.addPipelineAggregations(
-			_createBucketSelectorPipelineAggregation());
-
-		if (pagination != null) {
-			termsAggregation.addPipelineAggregations(
-				_createBucketSortPipelineAggregation(pagination));
-		}
+			_createBucketSelectorPipelineAggregation(),
+			_createBucketSortPipelineAggregation(pagination));
 
 		termsAggregation.setSize(GetterUtil.getInteger(taskCount));
 
