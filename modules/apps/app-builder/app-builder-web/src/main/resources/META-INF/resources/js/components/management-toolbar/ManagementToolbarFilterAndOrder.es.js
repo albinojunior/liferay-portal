@@ -141,6 +141,7 @@ export default ({columns = [], disabled, filters = []}) => {
 	const onDropDownActiveChange = (active) => {
 		setDropDownActive(active);
 		setLocalFilters(appliedFilters);
+		setSortColumn(column);
 	};
 
 	const onDoneButtonClick = () => {
