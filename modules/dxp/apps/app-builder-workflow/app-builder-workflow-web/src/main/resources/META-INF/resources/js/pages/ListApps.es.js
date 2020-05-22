@@ -9,4 +9,8 @@
  * distribution rights of the Software.
  */
 
-export default class {}
+import React from 'react';
+
+export default () => {
+	return <span>Workflow Apps</span>;
+};

@@ -23,13 +23,20 @@ import useDeployApp from '../../hooks/useDeployApp.es';
 import {confirmDelete} from '../../utils/client.es';
 import {fromNow} from '../../utils/time.es';
 import {concatValues} from '../../utils/utils.es';
-import {DEPLOYMENT_ACTION, DEPLOYMENT_TYPES, STATUSES} from './constants.es';
+import {
+	COLUMNS,
+	DEPLOYMENT_ACTION,
+	DEPLOYMENT_TYPES,
+	FILTERS,
+	STATUSES,
+} from './constants.es';
 
 export default ({
 	match: {
 		params: {dataDefinitionId, objectType},
 		url,
 	},
+	scope = 'standard',
 }) => {
 	const {getStandaloneURL, userId} = useContext(AppContext);
 	const {deployApp, undeployApp} = useDeployApp();
@@ -49,9 +56,9 @@ export default ({
 					window.open(getStandaloneURL(item.id), '_blank')
 				),
 			name: Liferay.Language.get('open-standalone-app'),
-			show: (item) =>
-				item.appDeployments.some(
-					(deployment) => deployment.type === 'standalone'
+			show: ({appDeployments}) =>
+				appDeployments.some(
+					({type}) => type === DEPLOYMENT_TYPES.standalone
 				),
 		},
 		{
@@ -60,32 +67,7 @@ export default ({
 		},
 	];
 
-	let COLUMNS = [
-		{
-			key: 'name',
-			sortable: true,
-			value: Liferay.Language.get('name'),
-		},
-		{
-			key: 'type',
-			value: Liferay.Language.get('deployed-as'),
-		},
-		{
-			key: 'dateCreated',
-			sortable: true,
-			value: Liferay.Language.get('create-date'),
-		},
-		{
-			asc: false,
-			key: 'dateModified',
-			sortable: true,
-			value: Liferay.Language.get('modified-date'),
-		},
-		{
-			key: 'status',
-			value: Liferay.Language.get('status'),
-		},
-	];
+	let columns = [...COLUMNS];
 
 	let EMPTY_STATE = {
 		title: Liferay.Language.get('there-are-no-apps-yet'),
@@ -93,32 +75,17 @@ export default ({
 
 	let ENDPOINT = `/o/app-builder/v1.0/apps`;
 
-	const FILTERS = [
-		{
-			items: [
-				{label: DEPLOYMENT_TYPES.productMenu, value: 'productMenu'},
-				{label: DEPLOYMENT_TYPES.standalone, value: 'standalone'},
-				{label: DEPLOYMENT_TYPES.widget, value: 'widget'},
-			],
-			key: 'deploymentTypes',
-			multiple: true,
-			name: 'deployment-type',
-		},
-		{
-			items: [
-				{label: STATUSES.active, value: 'true'},
-				{label: STATUSES.inactive, value: 'false'},
-			],
-			key: 'active',
-			name: 'status',
-		},
-		{
-			items: [{label: Liferay.Language.get('me'), value: userId}],
-			key: 'userIds',
-			multiple: true,
-			name: 'author',
-		},
-	];
+	const filters = !dataDefinitionId
+		? [
+				...FILTERS,
+				{
+					items: [{label: Liferay.Language.get('me'), value: userId}],
+					key: 'userIds',
+					multiple: true,
+					name: 'author',
+				},
+		  ]
+		: [];
 
 	if (dataDefinitionId) {
 		EMPTY_STATE = {
@@ -138,7 +105,7 @@ export default ({
 	else {
 		const [firstColumn, ...otherColumns] = COLUMNS;
 
-		COLUMNS = [
+		columns = [
 			firstColumn,
 			{key: 'dataDefinitionName', value: Liferay.Language.get('object')},
 			...otherColumns,
@@ -159,14 +126,14 @@ export default ({
 					/>
 				))
 			}
-			columns={COLUMNS}
+			columns={columns}
 			emptyState={EMPTY_STATE}
 			endpoint={ENDPOINT}
-			filters={!dataDefinitionId ? FILTERS : []}
+			filters={filters}
+			queryParams={{scope}}
 		>
 			{(item) => ({
 				...item,
-				active: item.active,
 				dateCreated: fromNow(item.dateCreated),
 				dateModified: fromNow(item.dateModified),
 				name: dataDefinitionId ? (
