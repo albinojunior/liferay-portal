@@ -11,6 +11,6 @@
 
 import React from 'react';
 
-export default () => {
-	return <span>Workflow Powered Apps</span>;
+export default (props) => {
+	return (<span>Workflow Powered Apps {JSON.stringify(props)}</span>);
 };

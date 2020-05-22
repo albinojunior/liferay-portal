@@ -12,5 +12,5 @@
 import React from 'react';
 
 export default () => {
-	return <span>Workflow Powered Apps</span>;
+	return <span>Edit Workflow App</span>;
 };

@@ -17,15 +17,38 @@ import React from 'react';
 import {HashRouter as Router, Route, Switch} from 'react-router-dom';
 
 import {AppContextProvider} from '../../AppContext.es';
-import ListApps from './ListApps.es';
+import useLazy from '../../hooks/useLazy.es';
+import ListAppsTabs from './ListAppsTabs.es';
 
 export default (props) => {
+	const EditPage = useLazy();
+
+	const editRoutes = Object.keys(props.appsTabs).map((tab) => {
+		props.appsTabs[tab] = {
+			...props.appsTabs[tab],
+			editPath: `/${tab}/:dataDefinitionId(\\d+)?/deploy/:appId(\\d+)?`,
+		};
+
+		const {editEntryPoint, editPath} = props.appsTabs[tab];
+
+		return {
+			component: (props) => (
+				<EditPage module={editEntryPoint} props={props} />
+			),
+			path: editPath,
+		};
+	});
+
 	return (
 		<AppContextProvider {...props}>
 			<ClayModalProvider>
 				<Router>
 					<Switch>
-						<Route component={ListApps} path="/" />
+						{editRoutes.map((route, index) => (
+							<Route key={index} {...route} />
+						))}
+
+						<Route component={ListAppsTabs} path="/:tab?" />
 					</Switch>
 				</Router>
 			</ClayModalProvider>

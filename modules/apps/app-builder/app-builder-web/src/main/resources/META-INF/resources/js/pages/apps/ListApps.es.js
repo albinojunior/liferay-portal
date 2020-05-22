@@ -134,8 +134,7 @@ export default ({
 		};
 
 		ENDPOINT = `/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`;
-	}
-	else {
+	} else {
 		const [firstColumn, ...otherColumns] = COLUMNS;
 
 		COLUMNS = [
@@ -166,7 +165,6 @@ export default ({
 		>
 			{(item) => ({
 				...item,
-				active: item.active,
 				dateCreated: fromNow(item.dateCreated),
 				dateModified: fromNow(item.dateModified),
 				name: dataDefinitionId ? (
