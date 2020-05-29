@@ -38,11 +38,11 @@ export default (props) => {
 			tabKey,
 		};
 
-		const {editEntryPoint, editPath} = appsTabs[tabKey];
+		const {editEntryPoint, editPath, scope} = appsTabs[tabKey];
 
 		return {
 			component: (props) => (
-				<EditPage module={editEntryPoint} props={props} />
+				<EditPage module={editEntryPoint} props={{scope, ...props}} />
 			),
 			path: editPath,
 		};
