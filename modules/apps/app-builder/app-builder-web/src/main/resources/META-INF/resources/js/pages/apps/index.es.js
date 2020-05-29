@@ -31,7 +31,10 @@ export default (props) => {
 	const editRoutes = appsTabsKeys.map((tabKey) => {
 		appsTabs[tabKey] = {
 			...appsTabs[tabKey],
-			editPath: `/${tabKey}/:dataDefinitionId(\\d+)?/deploy/:appId(\\d+)?`,
+			editPath: [
+				`/${tabKey}/:dataDefinitionId(\\d+)?/deploy`,
+				`/${tabKey}/:dataDefinitionId(\\d+)?/:appId(\\d+)`,
+			],
 			tabKey,
 		};
 
