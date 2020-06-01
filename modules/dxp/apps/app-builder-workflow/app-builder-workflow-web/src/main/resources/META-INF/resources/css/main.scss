@@ -1,0 +1,27 @@
+.dropdown-button-asset {
+	margin-top: 0.325rem;
+}
+
+.tooltip-icon:hover {
+	fill: #6b6c7e;
+}
+
+.workflow-app-upper-toolbar {
+	width: 100% !important;
+}
+
+.workflow-app-sidebar {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+	margin-top: 0;
+	position: fixed;
+	right: 0;
+	width: 22.87rem;
+
+	.sidebar-header {
+		align-items: center;
+		display: flex;
+		width: 22.87rem;
+	}
+}

@@ -23,12 +23,18 @@ const NewAppPopover = (
 	{alignElement, editPath, history, onCancel, visible},
 	forwardRef
 ) => {
-	const [selectedObject, setSelectedObject] = useState({});
+	const [selectedValue, setSelectedValue] = useState({
+		id: undefined,
+		name: undefined,
+	});
+	const {
+		id: customObjectId,
+		name: customObjectName,
+		type: customObjectType,
+	} = selectedValue;
 
 	const onClick = () => {
-		history.push(
-			compile(editPath[0])({dataDefinitionId: selectedObject.id})
-		);
+		history.push(compile(editPath[0])({dataDefinitionId: customObjectId}));
 	};
 
 	return (
@@ -42,8 +48,12 @@ const NewAppPopover = (
 
 						<SelectObjects
 							alignElement={alignElement}
-							onSelect={setSelectedObject}
-							selectedValue={selectedObject.name}
+							label={Liferay.Language.get('select-object')}
+							onSelect={setSelectedValue}
+							selectedValue={{
+								name: customObjectName,
+								type: customObjectType,
+							}}
 							visible={visible}
 						/>
 					</>
@@ -55,7 +65,7 @@ const NewAppPopover = (
 								className="mr-3"
 								displayType="secondary"
 								onClick={() => {
-									setSelectedObject({});
+									setSelectedValue({});
 									onCancel();
 								}}
 								small
@@ -64,7 +74,7 @@ const NewAppPopover = (
 							</ClayButton>
 
 							<ClayButton
-								disabled={!selectedObject.id}
+								disabled={!customObjectId}
 								onClick={onClick}
 								small
 							>
