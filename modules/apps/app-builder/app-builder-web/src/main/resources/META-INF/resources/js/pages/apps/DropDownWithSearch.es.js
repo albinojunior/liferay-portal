@@ -110,6 +110,7 @@ const EmptyState = ({children, className, label}) => {
 };
 
 export const DropDownWithSearchItems = ({
+	children,
 	emptyResultMessage,
 	namePropertyKey = 'name',
 	onSelect,
@@ -141,21 +142,12 @@ export const DropDownWithSearchItems = ({
 	return (
 		<ClayDropDown.ItemList>
 			{itemList.length > 0
-				? itemList.map(({id, name, type, ...otherProps}, index) => (
+				? itemList.map((item, index) => (
 						<ClayDropDown.Item
 							key={index}
-							onClick={(event) =>
-								handleOnselect(event, {
-									id,
-									name,
-									type,
-								})
-							}
-							{...otherProps}
+							onClick={(event) => handleOnselect(event, item)}
 						>
-							{name}
-
-							{/* <DropDownWithSearchItemsLabel type={type} /> */}
+							{children ? children(item) : item.name}
 						</ClayDropDown.Item>
 				  ))
 				: items.length > 0 && (

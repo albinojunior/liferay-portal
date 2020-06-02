@@ -14,12 +14,12 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import ClayLabel from '@clayui/label';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {getItem} from '../../utils/client.es';
 import DropDownWithSearch, {
 	DropDownWithSearchItems,
-	DropDownWithSearchItemsLabel,
 } from './DropDownWithSearch.es';
 
 export default ({label, onSelect, selectedValue: {name, type}, visible}) => {
@@ -135,11 +135,14 @@ export default ({label, onSelect, selectedValue: {name, type}, visible}) => {
 							symbol="caret-bottom"
 						/>
 
-						<DropDownWithSearchItemsLabel
-							className="dropdown-button-asset"
-							labelProps={labelProps}
-							type={type}
-						/>
+						{type ? (
+							<ClayLabel
+								className="dropdown-button-asset float-right"
+								displayType={labelProps[type].displayType}
+							>
+								{labelProps[type].label}
+							</ClayLabel>
+						) : null}
 					</ClayButton>
 				}
 				visible={visible}
@@ -149,7 +152,19 @@ export default ({label, onSelect, selectedValue: {name, type}, visible}) => {
 						'no-objects-found-with-this-name-try-searching-again-with-a-different-name'
 					)}
 					onSelect={handleOnSelect}
-				/>
+				>
+					{({name, type}) => (
+						<>
+							{name}
+							<ClayLabel
+								className="dropdown-button-asset float-right"
+								displayType={labelProps[type].displayType}
+							>
+								{labelProps[type].label}
+							</ClayLabel>
+						</>
+					)}
+				</DropDownWithSearchItems>
 			</DropDownWithSearch>
 		</>
 	);
