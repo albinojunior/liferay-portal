@@ -178,7 +178,7 @@ export default ({
 
 			<Loading isLoading={isLoading}>
 				<EditAppContext.Provider value={{dispatch, state: {app}}}>
-					<UpperToolbar className="workflow-upper-toolbar">
+					<UpperToolbar>
 						<UpperToolbar.Input
 							onChange={onChangeName}
 							placeholder={Liferay.Language.get('untitled-app')}

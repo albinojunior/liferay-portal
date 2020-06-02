@@ -2,16 +2,12 @@
 	margin-top: 0.325rem;
 }
 
-.teste {
-    color: blue;
-}
-
 .tooltip-icon:hover {
 	fill: #6b6c7e;
 }
 
-.workflow-app-upper-toolbar {
-	width: 100% !important;
+body.open .app-builder-upper-toolbar {
+	width: 100%;
 }
 
 .workflow-app-sidebar {
