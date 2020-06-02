@@ -19,7 +19,6 @@ import {HashRouter as Router, Route, Switch} from 'react-router-dom';
 import {AppContextProvider} from '../../AppContext.es';
 import useLazy from '../../hooks/useLazy.es';
 import ListAppsTabs from './ListAppsTabs.es';
-import EditApp from './edit/EditApp.es';
 
 export default (props) => {
 	const {appsTabs} = props;
@@ -59,10 +58,6 @@ export default (props) => {
 						))}
 
 						<Route component={ListAppsTabs} path="/:tab?" />
-						<Route
-							component={EditApp}
-							path="/standard/deploy/:dataDefinitionId"
-						/>
 					</Switch>
 				</Router>
 			</ClayModalProvider>

@@ -106,6 +106,14 @@ export default ({label, onSelect, selectedValue: {name, type}, visible}) => {
 		},
 	};
 
+	const labelProps = {
+		custom: {
+			displayType: 'success',
+			label: Liferay.Language.get('custom'),
+		},
+		native: {displayType: 'info', label: Liferay.Language.get('native')},
+	};
+
 	return (
 		<>
 			<DropDownWithSearch
@@ -132,6 +140,7 @@ export default ({label, onSelect, selectedValue: {name, type}, visible}) => {
 
 						<DropDownWithSearchItemsLabel
 							className="dropdown-button-asset"
+							labelProps={labelProps}
 							type={type}
 						/>
 					</ClayButton>

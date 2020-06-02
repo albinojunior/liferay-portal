@@ -22,8 +22,6 @@ import React, {
 	useState,
 } from 'react';
 
-import {DROPDOWN_ITEM_LABEL} from './constants.es';
-
 export const DropDownContext = createContext();
 
 const DropDownWithSearch = ({
@@ -176,16 +174,17 @@ export const DropDownWithSearchItems = ({
 
 export const DropDownWithSearchItemsLabel = ({
 	className,
+	labelProps,
 	type,
 	...otherProps
 }) => {
 	return type ? (
 		<ClayLabel
 			className={`${className} float-right`}
-			displayType={DROPDOWN_ITEM_LABEL[type].displayType}
+			displayType={labelProps[type].displayType}
 			{...otherProps}
 		>
-			{DROPDOWN_ITEM_LABEL[type].label}
+			{labelProps[type].label}
 		</ClayLabel>
 	) : null;
 };
