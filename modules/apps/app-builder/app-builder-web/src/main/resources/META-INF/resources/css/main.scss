@@ -37,6 +37,12 @@ body.open .app-builder-upper-toolbar {
 	width: calc(100% - #{$productMenuWidth});
 }
 
+.custom-object-dropdown {
+	margin-bottom: 2rem;
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+}
+
 .custom-object-dropdown-list {
 	.dropdown-item {
 		cursor: pointer;
@@ -70,8 +76,8 @@ body.open .app-builder-upper-toolbar {
 	box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.3);
 }
 
-.drop-down-filter-text {
-	padding: 0.5rem 1.25rem;
+.dropdown-section {
+	padding: 0 0.5rem;
 }
 
 .empty-state-dropdown-menu {
@@ -96,7 +102,7 @@ body.open .app-builder-upper-toolbar {
 	}
 }
 
-.icon {
+.dropdown-button-asset {
 	margin-top: 0.325rem;
 }
 
@@ -165,7 +171,13 @@ body.open .app-builder-upper-toolbar {
 }
 
 .popover {
+	max-width: 27rem;
 	z-index: 999;
+}
+
+.popover-body {
+	padding-bottom: 0px;
+	padding-top: 0px;
 }
 
 .remove-object-field-message {
@@ -181,16 +193,6 @@ body.open .app-builder-upper-toolbar {
 	.panel-header {
 		background-color: #f7f8f9;
 		border-bottom: 1px solid #e7e7ed;
-	}
-}
-
-.select-dropdown-menu {
-	max-height: 200px;
-	max-width: 418px;
-	width: 100%;
-
-	ul > li > button {
-		height: 40px;
 	}
 }
 

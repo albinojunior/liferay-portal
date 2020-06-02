@@ -14,52 +14,22 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
-import {AppContext} from '../../AppContext.es';
-import isClickOutside from '../../utils/clickOutside.es';
-import {addItem, getItem} from '../../utils/client.es';
-import CustomObjectPopover from '../custom-object/CustomObjectPopover.es';
-import DropDownWithSearch from './DropDownWithSearch.es';
+import {getItem} from '../../utils/client.es';
+import DropDownWithSearch, {
+	DropDownWithSearchItems,
+	DropDownWithSearchItemsLabel,
+} from './DropDownWithSearch.es';
 
-export default ({onSelect, selectedValue, visible}) => {
-	const {basePortletURL} = useContext(AppContext);
+export default ({label, onSelect, selectedValue: {name, type}, visible}) => {
 	const [state, setState] = useState({
 		error: null,
 		isLoading: true,
 	});
-	const [isPopoverVisible, setPopoverVisible] = useState(false);
 	const [items, setItems] = useState([]);
 
-	const popoverRef = useRef();
-
 	const selectRef = useRef();
-
-	const onClick = () => {
-		setPopoverVisible(!isPopoverVisible);
-	};
-	const onSubmit = ({isAddFormView, name}) => {
-		const addURL = `/o/data-engine/v2.0/data-definitions/by-content-type/app-builder`;
-
-		addItem(addURL, {
-			availableLanguageIds: ['en_US'],
-			dataDefinitionFields: [],
-			name: {
-				value: name,
-			},
-		}).then(({id}) => {
-			if (isAddFormView) {
-				Liferay.Util.navigate(
-					Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
-						appsPortlet: true,
-						dataDefinitionId: id,
-						mvcRenderCommandName: '/edit_form_view',
-						newCustomObject: true,
-					})
-				);
-			}
-		});
-	};
 
 	const doFetch = () => {
 		const params = {keywords: '', page: -1, pageSize: -1, sort: ''};
@@ -80,11 +50,17 @@ export default ({onSelect, selectedValue, visible}) => {
 			),
 		])
 			.then(([customObjects, nativeObjects]) => {
-				setItems(
-					[...customObjects.items, ...nativeObjects.items].sort(
-						(a, b) => a - b
-					)
-				);
+				customObjects.items = customObjects.items.map((item) => ({
+					...item,
+					type: 'custom',
+				}));
+
+				nativeObjects.items = nativeObjects.items.map((item) => ({
+					...item,
+					type: 'native',
+				}));
+
+				setItems([...customObjects.items, ...nativeObjects.items]);
 				setState({
 					error: null,
 					isLoading: false,
@@ -112,16 +88,9 @@ export default ({onSelect, selectedValue, visible}) => {
 
 	const stateProps = {
 		emptyProps: {
-			children: (
-				<ClayButton
-					className="emptyButton"
-					displayType="secondary"
-					onClick={onClick}
-				>
-					{Liferay.Language.get('new-custom-object')}
-				</ClayButton>
+			label: Liferay.Language.get(
+				'there-are-no-objects-yet-create-your-first-object'
 			),
-			label: Liferay.Language.get('there-are-no-objects-yet'),
 		},
 		errorProps: {
 			children: (
@@ -136,31 +105,20 @@ export default ({onSelect, selectedValue, visible}) => {
 		},
 	};
 
-	useEffect(() => {
-		const handler = ({target}) => {
-			const isOutside = isClickOutside(
-				target,
-				selectRef.current,
-				popoverRef.current
-			);
-
-			if (isOutside) {
-				setPopoverVisible(false);
-			}
-		};
-
-		window.addEventListener('click', handler);
-
-		return () => window.removeEventListener('click', handler);
-	}, [popoverRef]);
+	const labelProps = {
+		custom: {
+			displayType: 'success',
+			label: Liferay.Language.get('custom'),
+		},
+		native: {displayType: 'info', label: Liferay.Language.get('native')},
+	};
 
 	return (
 		<>
 			<DropDownWithSearch
 				{...state}
 				items={items}
-				label={Liferay.Language.get('select-object')}
-				onSelect={handleOnSelect}
+				label={label}
 				stateProps={stateProps}
 				trigger={
 					<ClayButton
@@ -170,29 +128,29 @@ export default ({onSelect, selectedValue, visible}) => {
 							selectRef.current = element;
 						}}
 					>
-						<span className="float-left">
-							{selectedValue ||
-								Liferay.Language.get('select-object')}
-						</span>
+						<span className="float-left">{name || label}</span>
 
 						<ClayIcon
-							className="float-right icon"
+							className="dropdown-button-asset float-right ml-1"
 							symbol="caret-bottom"
+						/>
+
+						<DropDownWithSearchItemsLabel
+							className="dropdown-button-asset"
+							labelProps={labelProps}
+							type={type}
 						/>
 					</ClayButton>
 				}
 				visible={visible}
-			/>
-
-			<CustomObjectPopover
-				alignElement={selectRef.current}
-				onCancel={() => {
-					setPopoverVisible(false);
-				}}
-				onSubmit={onSubmit}
-				ref={popoverRef}
-				visible={isPopoverVisible}
-			/>
+			>
+				<DropDownWithSearchItems
+					emptyResultMessage={Liferay.Language.get(
+						'no-objects-found-with-this-name-try-searching-again-with-a-different-name'
+					)}
+					onSelect={handleOnSelect}
+				/>
+			</DropDownWithSearch>
 		</>
 	);
 };
