@@ -1,0 +1,64 @@
+.dropdown-button-asset {
+	margin-top: 0.25rem;
+}
+
+.tooltip-icon:hover {
+	fill: #6b6c7e;
+}
+
+.app-builder-workflow-app {
+	margin-top: 64px;
+
+	&__sidebar {
+		border-left: 1px solid #e7e7ed;
+		flex-flow: column;
+		height: 100%;
+		position: fixed;
+		right: 0;
+		top: 120px;
+		transform: translateX(0%);
+		width: 366px;
+	}
+
+	.data-layout-builder-sidebar {
+		.sidebar-body {
+			height: calc(100vh - 192px);
+			padding-top: 0;
+
+			.tab-button {
+				width: 100%;
+				padding: 1rem;
+			}
+
+			.main-section {
+				border-bottom: 1px solid #e7e7ed;
+				padding: 1rem 0;
+			}
+		}
+
+		.sidebar-header {
+			padding: 0;
+
+			h3.title {
+				padding: 1rem;
+				margin: 0;
+			}
+
+			.tab-title {
+				align-items: center;
+				display: flex;
+				padding: 1rem;
+				border-bottom: 1px solid #e7e7ed;
+
+				button {
+					padding: 0.25rem;
+					margin-right: 1rem;
+				}
+
+				h3 {
+					margin: 0;
+				}
+			}
+		}
+	}
+}

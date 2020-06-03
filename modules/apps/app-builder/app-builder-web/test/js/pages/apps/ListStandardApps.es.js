@@ -136,7 +136,7 @@ describe('ListStandardApps', () => {
 			'.select-dropdown-menu li > button'
 		);
 
-		expect(dropdownItems[0].textContent).toBe('Object test');
+		expect(dropdownItems[0].textContent).toContain('Object test');
 
 		await fireEvent.click(dropdownItems[0]);
 
