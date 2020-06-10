@@ -146,6 +146,17 @@ $font-weight-semi-bold: 600;
 	}
 }
 
+.sla-result {
+	margin-bottom: 0.5rem;
+
+	.sticker {
+		font-size: 10px;
+		height: 1.5rem;
+		margin-right: 0.5rem;
+		width: 1.5rem;
+	}
+}
+
 .transition-panel-body {
 	display: flex;
 	justify-content: space-between;

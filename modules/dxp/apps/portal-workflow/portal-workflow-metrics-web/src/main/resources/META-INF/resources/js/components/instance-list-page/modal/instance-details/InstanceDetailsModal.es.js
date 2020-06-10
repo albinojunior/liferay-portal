@@ -20,21 +20,22 @@ import {InstanceListContext} from '../../InstanceListPageProvider.es';
 import {ModalContext} from '../ModalProvider.es';
 import {Body} from './InstanceDetailsModalBody.es';
 
-const Header = ({id = '', slaResults = [], slaStatus, status}) => {
-	const getStatus = (status) => (slaResults.length === 0 ? 'Empty' : status);
-	const icons = {
+const Header = ({completed, id = '', slaResults = [], slaStatus}) => {
+	const iconClasses = {
 		Empty: 'hr',
 		Overdue: 'exclamation-circle',
 	};
-	const styles = {
-		Completed: 'text-secondary',
+
+	const iconColors = {
 		Empty: 'text-info',
-		OnTime: 'text-success',
-		Pending: 'text-success',
+		Overdue: 'text-danger',
 	};
 
-	const iconName = icons[getStatus(slaStatus)] || 'check-circle';
-	const styleName = styles[getStatus(status)] || 'text-danger';
+	slaStatus = !slaResults.length ? 'Empty' : slaStatus;
+	slaStatus = completed ? 'Completed' : slaStatus;
+
+	const iconClass = iconClasses[slaStatus] || 'check-circle';
+	const iconColor = iconColors[slaStatus] || 'text-success';
 
 	return (
 		<ClayModal.Header data-testid="instanceDetailsHeader">
@@ -43,8 +44,8 @@ const Header = ({id = '', slaResults = [], slaStatus, status}) => {
 					className="font-weight-medium"
 					data-testid="instanceDetailsTitle"
 				>
-					<span className={`modal-title-indicator ${styleName}`}>
-						<ClayIcon data-testid="iconTitle" symbol={iconName} />
+					<span className={`modal-title-indicator ${iconColor}`}>
+						<ClayIcon data-testid="iconTitle" symbol={iconClass} />
 					</span>
 
 					{`${Liferay.Language.get('item')} #${id}`}
