@@ -16,11 +16,16 @@ import React from 'react';
 import {HashRouter as Router, Route, Switch} from 'react-router-dom';
 
 import {AppContextProvider} from '../../AppContext.es';
-import ListEntries from './ListEntries.es';
+import useLazy from '../../hooks/useLazy.es';
 import {PermissionsContextProvider} from './PermissionsContext.es';
-import ViewEntry from './ViewEntry.es';
 
 export default function (props) {
+	const {appTab} = props;
+	const {listEntryPoint, viewEntryPoint} = appTab;
+
+	const ListPage = useLazy();
+	const ViewPage = useLazy();
+
 	return (
 		<div className="app-builder-root">
 			<AppContextProvider {...props}>
@@ -29,9 +34,23 @@ export default function (props) {
 				>
 					<Router>
 						<Switch>
-							<Route component={ListEntries} exact path="/" />
 							<Route
-								component={ViewEntry}
+								component={(props) => (
+									<ListPage
+										module={listEntryPoint}
+										props={props}
+									/>
+								)}
+								exact
+								path="/"
+							/>
+							<Route
+								component={(props) => (
+									<ViewPage
+										module={viewEntryPoint}
+										props={props}
+									/>
+								)}
 								path="/entries/:entryIndex(\d+)"
 							/>
 						</Switch>
