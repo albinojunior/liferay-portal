@@ -19,12 +19,16 @@ import {AppContextProvider} from '../../AppContext.es';
 import useLazy from '../../hooks/useLazy.es';
 import {PermissionsContextProvider} from './PermissionsContext.es';
 
-export default function (props) {
-	const {appTab} = props;
-	const {listEntryPoint, viewEntryPoint} = appTab;
+export default function ({appTab, ...props}) {
+	const PageComponent = useLazy();
 
-	const ListPage = useLazy();
-	const ViewPage = useLazy();
+	const ListPage = (props) => (
+		<PageComponent module={appTab.listEntryPoint} props={props} />
+	);
+
+	const ViewPage = (props) => (
+		<PageComponent module={appTab.viewEntryPoint} props={props} />
+	);
 
 	return (
 		<div className="app-builder-root">
@@ -34,23 +38,9 @@ export default function (props) {
 				>
 					<Router>
 						<Switch>
+							<Route component={ListPage} exact path="/" />
 							<Route
-								component={(props) => (
-									<ListPage
-										module={listEntryPoint}
-										props={props}
-									/>
-								)}
-								exact
-								path="/"
-							/>
-							<Route
-								component={(props) => (
-									<ViewPage
-										module={viewEntryPoint}
-										props={props}
-									/>
-								)}
+								component={ViewPage}
 								path="/entries/:entryIndex(\d+)"
 							/>
 						</Switch>
