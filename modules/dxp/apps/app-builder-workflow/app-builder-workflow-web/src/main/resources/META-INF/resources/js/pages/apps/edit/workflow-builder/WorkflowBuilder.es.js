@@ -17,7 +17,7 @@ import WorkflowStep from './WorkflowStep.es';
 
 export default function WorkflowBuilder() {
 	const {
-		config: {stepIndex, steps},
+		config: {dataObject, stepIndex, steps},
 		dispatchConfig,
 	} = useContext(EditAppContext);
 
@@ -27,6 +27,13 @@ export default function WorkflowBuilder() {
 		}
 	};
 
+	const stepInfo = [
+		{
+			...dataObject,
+			label: Liferay.Language.get('data-object'),
+		},
+	];
+
 	return (
 		<div className="app-builder-workflow-app__builder">
 			{steps.map((step, index) => (
@@ -35,6 +42,7 @@ export default function WorkflowBuilder() {
 					key={index}
 					onClick={() => onClickStep(index)}
 					selected={stepIndex === index}
+					stepInfo={index < steps.length - 1 ? stepInfo : []}
 				/>
 			))}
 		</div>

@@ -16,24 +16,9 @@ import EditAppContext from 'app-builder-web/js/pages/apps/edit/EditAppContext.es
 import {Sidebar} from 'data-engine-taglib';
 import React, {useContext, useEffect, useState} from 'react';
 
+import ButtonInfo from '../../../../components/button-info/ButtonInfo.es';
 import {UPDATE_STEP} from '../configReducer.es';
 import DataAndViewsTab from './DataAndViewsTab.es';
-
-const TabButtonInfo = ({items}) => {
-	return (
-		<div className="small text-secondary">
-			{items.map(
-				({label, name}, index) =>
-					name && (
-						<div key={index}>
-							<span className="font-weight-bold">{`${label}: `}</span>
-							{name}
-						</div>
-					)
-			)}
-		</div>
-	);
-};
 
 export default function EditAppSidebar() {
 	const {
@@ -135,7 +120,7 @@ export default function EditAppSidebar() {
 										<div className="text-dark">
 											<span>{title}</span>
 
-											<TabButtonInfo items={infoItems} />
+											<ButtonInfo items={infoItems} />
 										</div>
 
 										<ClayIcon
