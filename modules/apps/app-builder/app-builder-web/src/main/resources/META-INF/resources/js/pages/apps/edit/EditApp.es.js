@@ -49,7 +49,9 @@ export default ({
 		},
 	});
 
-	const {backUrl} = toQuery(search, {backUrl: '../'});
+	const {backUrl} = toQuery(search, {
+		backUrl: scope ? '../../${scope}' : '../',
+	});
 
 	useEffect(() => {
 		if (appId) {
