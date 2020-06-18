@@ -105,7 +105,8 @@ export default ({
 					<Link
 						to={compile(editPath[1])({
 							appId: app.id,
-							dataDefinitionId,
+							dataDefinitionId:
+								dataDefinitionId || app.dataDefinitionId,
 							objectType,
 						})}
 					>
