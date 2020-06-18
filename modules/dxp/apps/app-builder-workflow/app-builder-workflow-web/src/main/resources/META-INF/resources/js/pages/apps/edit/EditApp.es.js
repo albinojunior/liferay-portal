@@ -67,15 +67,20 @@ export default ({
 		if (appId) {
 			setLoading(true);
 
-			getItem(`/o/app-builder/v1.0/apps/${appId}/app-workflow`)
-				.then(({app, ...data}) => {
+			Promise.all([
+				getItem(`/o/app-builder/v1.0/apps/${appId}`),
+				getItem(
+					`/o/app-builder-workflow/v1.0/apps/${appId}/app-workflows`
+				),
+			])
+				.then(([app, workflowApp]) => {
 					dispatch({
 						app,
 						type: UPDATE_APP,
 					});
 
 					dispatchConfig({
-						...data,
+						...workflowApp,
 						type: UPDATE_WORKFLOW_APP,
 					});
 

@@ -80,7 +80,6 @@ export default ({onCancel}) => {
 		setDeploying(true);
 
 		const workflowApp = {
-			app,
 			appWorkflowStates: [steps[0], steps.pop()],
 		};
 

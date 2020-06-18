@@ -17,7 +17,17 @@ export const UPDATE_TABLE_VIEW = 'UPDATE_TABLE_VIEW';
 export const UPDATE_WORKFLOW_APP = 'UPDATE_WORKFLOW_APP';
 
 const initialSteps = [
-	{initial: true, name: Liferay.Language.get('initial-step')},
+	{
+		appWorkflowTransitions: [
+			{
+				name: Liferay.Language.get('submit'),
+				primary: true,
+				transitionTo: 'next',
+			},
+		],
+		initial: true,
+		name: Liferay.Language.get('initial-step'),
+	},
 	{initial: false, name: Liferay.Language.get('final-step')},
 ];
 
