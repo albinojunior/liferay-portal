@@ -12,29 +12,21 @@
  * details.
  */
 
-import {DataDefinitionUtils} from 'data-engine-taglib';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext} from 'react';
 import {Link, withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {Loading} from '../../components/loading/Loading.es';
+import useDataListView from '../../hooks/useDataListView.es';
 import {toQuery, toQueryString} from '../../hooks/useQuery.es';
-import {confirmDelete, getItem} from '../../utils/client.es';
-import {errorToast, successToast} from '../../utils/toast.es';
+import {confirmDelete} from '../../utils/client.es';
+import {successToast} from '../../utils/toast.es';
 import {FieldValuePreview} from './FieldPreview.es';
 import {ACTIONS, PermissionsContext} from './PermissionsContext.es';
 
 const ListEntries = withRouter(({history, location}) => {
-	const [state, setState] = useState({
-		dataDefinition: null,
-		dataListView: {
-			fieldNames: [],
-		},
-		isLoading: true,
-	});
-
 	const {
 		basePortletURL,
 		dataDefinitionId,
@@ -46,39 +38,12 @@ const ListEntries = withRouter(({history, location}) => {
 	const hasAddPermission = actionIds.includes(ACTIONS.ADD_DATA_RECORD);
 	const hasViewPermission = actionIds.includes(ACTIONS.VIEW_DATA_RECORD);
 
-	useEffect(() => {
-		Promise.all([
-			getItem(`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}`),
-			getItem(`/o/data-engine/v2.0/data-list-views/${dataListViewId}`),
-		])
-			.then(([dataDefinition, dataListView]) => {
-				setState((prevState) => ({
-					...prevState,
-					dataDefinition: {
-						...prevState.dataDefinition,
-						...dataDefinition,
-					},
-					dataListView: {
-						...prevState.dataListView,
-						...dataListView,
-					},
-					isLoading: false,
-				}));
-			})
-			.catch(() => {
-				setState((prevState) => ({
-					...prevState,
-					isLoading: false,
-				}));
-
-				errorToast(
-					Liferay.Language.get('an-unexpected-error-occurred')
-				);
-			});
-	}, [dataDefinitionId, dataListViewId]);
-
-	const {dataDefinition, dataListView, isLoading} = state;
-	const {fieldNames: columns} = dataListView;
+	const {
+		columns,
+		dataDefinition,
+		dataListView: {fieldNames},
+		isLoading,
+	} = useDataListView(dataListViewId, dataDefinitionId);
 
 	const getEditURL = (dataRecordId = 0) =>
 		Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
@@ -141,14 +106,7 @@ const ListEntries = withRouter(({history, location}) => {
 						/>
 					)
 				}
-				columns={columns.map((column) => ({
-					key: 'dataRecordValues/' + column,
-					sortable: true,
-					value: DataDefinitionUtils.getFieldLabel(
-						dataDefinition,
-						column
-					),
-				}))}
+				columns={columns}
 				emptyState={{
 					button: () =>
 						showFormView &&
@@ -183,7 +141,7 @@ const ListEntries = withRouter(({history, location}) => {
 
 					const displayedDataRecordValues = {};
 
-					columns.forEach((fieldName, columnIndex) => {
+					fieldNames.forEach((fieldName, columnIndex) => {
 						let fieldValuePreview = (
 							<FieldValuePreview
 								dataDefinition={dataDefinition}
