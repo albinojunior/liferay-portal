@@ -20,11 +20,11 @@ import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {Loading} from '../../components/loading/Loading.es';
 import useDataListView from '../../hooks/useDataListView.es';
+import usePermissions from '../../hooks/usePermissions.es';
 import {toQuery, toQueryString} from '../../hooks/useQuery.es';
 import {confirmDelete} from '../../utils/client.es';
 import {successToast} from '../../utils/toast.es';
 import {FieldValuePreview} from './FieldPreview.es';
-import {ACTIONS, PermissionsContext} from './PermissionsContext.es';
 
 const ListEntries = withRouter(({history, location}) => {
 	const {
@@ -34,16 +34,14 @@ const ListEntries = withRouter(({history, location}) => {
 		showFormView,
 	} = useContext(AppContext);
 
-	const actionIds = useContext(PermissionsContext);
-	const hasAddPermission = actionIds.includes(ACTIONS.ADD_DATA_RECORD);
-	const hasViewPermission = actionIds.includes(ACTIONS.VIEW_DATA_RECORD);
-
 	const {
 		columns,
 		dataDefinition,
 		dataListView: {fieldNames},
 		isLoading,
 	} = useDataListView(dataListViewId, dataDefinitionId);
+
+	const permissions = usePermissions();
 
 	const getEditURL = (dataRecordId = 0) =>
 		Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
@@ -58,21 +56,21 @@ const ListEntries = withRouter(({history, location}) => {
 	const actions = [];
 
 	if (showFormView) {
-		if (hasViewPermission) {
+		if (permissions.view) {
 			actions.push({
 				action: ({viewURL}) => Promise.resolve(history.push(viewURL)),
 				name: Liferay.Language.get('view'),
 			});
 		}
 
-		if (actionIds.includes(ACTIONS.UPDATE_DATA_RECORD)) {
+		if (permissions.update) {
 			actions.push({
 				action: ({id}) => Promise.resolve(handleEditItem(id)),
 				name: Liferay.Language.get('edit'),
 			});
 		}
 
-		if (actionIds.includes(ACTIONS.DELETE_DATA_RECORD)) {
+		if (permissions.delete) {
 			actions.push({
 				action: (item) =>
 					confirmDelete('/o/data-engine/v2.0/data-records/')(
@@ -97,7 +95,7 @@ const ListEntries = withRouter(({history, location}) => {
 				actions={actions}
 				addButton={() =>
 					showFormView &&
-					hasAddPermission && (
+					permissions.add && (
 						<Button
 							className="nav-btn nav-btn-monospaced"
 							onClick={() => handleEditItem(0)}
@@ -110,7 +108,7 @@ const ListEntries = withRouter(({history, location}) => {
 				emptyState={{
 					button: () =>
 						showFormView &&
-						hasAddPermission && (
+						permissions.add && (
 							<Button
 								displayType="secondary"
 								onClick={() => handleEditItem(0)}
@@ -151,7 +149,7 @@ const ListEntries = withRouter(({history, location}) => {
 							/>
 						);
 
-						if (columnIndex === 0 && hasViewPermission) {
+						if (columnIndex === 0 && permissions.view) {
 							fieldValuePreview = (
 								<Link to={viewURL}>{fieldValuePreview}</Link>
 							);
