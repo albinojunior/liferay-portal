@@ -13,7 +13,6 @@
  */
 
 import React, {useContext} from 'react';
-import {Link, withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
 import Button from '../../components/button/Button.es';
@@ -21,12 +20,11 @@ import ListView from '../../components/list-view/ListView.es';
 import {Loading} from '../../components/loading/Loading.es';
 import useDataListView from '../../hooks/useDataListView.es';
 import usePermissions from '../../hooks/usePermissions.es';
-import {toQuery, toQueryString} from '../../hooks/useQuery.es';
 import {confirmDelete} from '../../utils/client.es';
 import {successToast} from '../../utils/toast.es';
-import {FieldValuePreview} from './FieldPreview.es';
+import {buildEntries, navigateToEditPage} from './utils.es';
 
-const ListEntries = withRouter(({history, location}) => {
+export default function ListEntries({history}) {
 	const {
 		basePortletURL,
 		dataDefinitionId,
@@ -43,16 +41,6 @@ const ListEntries = withRouter(({history, location}) => {
 
 	const permissions = usePermissions();
 
-	const getEditURL = (dataRecordId = 0) =>
-		Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
-			dataRecordId,
-			mvcPath: '/edit_entry.jsp',
-		});
-
-	const handleEditItem = (dataRecordId) => {
-		Liferay.Util.navigate(getEditURL(dataRecordId));
-	};
-
 	const actions = [];
 
 	if (showFormView) {
@@ -65,7 +53,8 @@ const ListEntries = withRouter(({history, location}) => {
 
 		if (permissions.update) {
 			actions.push({
-				action: ({id}) => Promise.resolve(handleEditItem(id)),
+				action: ({id}) =>
+					Promise.resolve(navigateToEditPage(basePortletURL, id)),
 				name: Liferay.Language.get('edit'),
 			});
 		}
@@ -98,7 +87,7 @@ const ListEntries = withRouter(({history, location}) => {
 					permissions.add && (
 						<Button
 							className="nav-btn nav-btn-monospaced"
-							onClick={() => handleEditItem(0)}
+							onClick={() => navigateToEditPage(basePortletURL)}
 							symbol="plus"
 							tooltip={Liferay.Language.get('new-entry')}
 						/>
@@ -111,7 +100,9 @@ const ListEntries = withRouter(({history, location}) => {
 						permissions.add && (
 							<Button
 								displayType="secondary"
-								onClick={() => handleEditItem(0)}
+								onClick={() =>
+									navigateToEditPage(basePortletURL)
+								}
 							>
 								{Liferay.Language.get('new-entry')}
 							</Button>
@@ -121,54 +112,8 @@ const ListEntries = withRouter(({history, location}) => {
 				endpoint={`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-records`}
 				queryParams={{dataListViewId}}
 			>
-				{(item, index) => {
-					const {dataRecordValues = {}, id} = item;
-					const query = toQuery(location.search, {
-						keywords: '',
-						page: 1,
-						pageSize: 20,
-						sort: '',
-					});
-
-					const entryIndex =
-						query.pageSize * (query.page - 1) + index + 1;
-
-					const viewURL = `/entries/${entryIndex}?${toQueryString(
-						query
-					)}`;
-
-					const displayedDataRecordValues = {};
-
-					fieldNames.forEach((fieldName, columnIndex) => {
-						let fieldValuePreview = (
-							<FieldValuePreview
-								dataDefinition={dataDefinition}
-								dataRecordValues={dataRecordValues}
-								displayType="list"
-								fieldName={fieldName}
-							/>
-						);
-
-						if (columnIndex === 0 && permissions.view) {
-							fieldValuePreview = (
-								<Link to={viewURL}>{fieldValuePreview}</Link>
-							);
-						}
-
-						displayedDataRecordValues[
-							'dataRecordValues/' + fieldName
-						] = fieldValuePreview;
-					});
-
-					return {
-						...displayedDataRecordValues,
-						id,
-						viewURL,
-					};
-				}}
+				{buildEntries(fieldNames, dataDefinition, permissions)}
 			</ListView>
 		</Loading>
 	);
-});
-
-export default ListEntries;
+}
