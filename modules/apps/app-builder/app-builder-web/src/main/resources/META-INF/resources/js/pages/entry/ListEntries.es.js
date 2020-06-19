@@ -19,12 +19,11 @@ import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {Loading} from '../../components/loading/Loading.es';
 import useDataListView from '../../hooks/useDataListView.es';
+import useEntriesActions from '../../hooks/useEntriesActions.es';
 import usePermissions from '../../hooks/usePermissions.es';
-import {confirmDelete} from '../../utils/client.es';
-import {successToast} from '../../utils/toast.es';
 import {buildEntries, navigateToEditPage} from './utils.es';
 
-export default function ListEntries({history}) {
+export default function ListEntries() {
 	const {
 		basePortletURL,
 		dataDefinitionId,
@@ -41,47 +40,10 @@ export default function ListEntries({history}) {
 
 	const permissions = usePermissions();
 
-	const actions = [];
-
-	if (showFormView) {
-		if (permissions.view) {
-			actions.push({
-				action: ({viewURL}) => Promise.resolve(history.push(viewURL)),
-				name: Liferay.Language.get('view'),
-			});
-		}
-
-		if (permissions.update) {
-			actions.push({
-				action: ({id}) =>
-					Promise.resolve(navigateToEditPage(basePortletURL, id)),
-				name: Liferay.Language.get('edit'),
-			});
-		}
-
-		if (permissions.delete) {
-			actions.push({
-				action: (item) =>
-					confirmDelete('/o/data-engine/v2.0/data-records/')(
-						item
-					).then((confirmed) => {
-						if (confirmed) {
-							successToast(
-								Liferay.Language.get('an-entry-was-deleted')
-							);
-						}
-
-						return Promise.resolve(confirmed);
-					}),
-				name: Liferay.Language.get('delete'),
-			});
-		}
-	}
-
 	return (
 		<Loading isLoading={isLoading}>
 			<ListView
-				actions={actions}
+				actions={useEntriesActions()}
 				addButton={() =>
 					showFormView &&
 					permissions.add && (
