@@ -20,22 +20,68 @@ import {withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
+import usePermissions from '../../hooks/usePermissions.es';
+import {confirmDelete} from '../../utils/client.es';
 import {sub} from '../../utils/lang.es';
-import {ACTIONS, PermissionsContext} from './PermissionsContext.es';
+import {successToast} from '../../utils/toast.es';
+import {navigateToEditPage} from './utils.es';
 
-export default withRouter(({onDelete, onEdit, onNext, onPrev, page, total}) => {
-	const {appDeploymentType, showFormView} = useContext(AppContext);
-	const actionIds = useContext(PermissionsContext);
-	const hasDeletePermission = actionIds.includes(ACTIONS.DELETE_DATA_RECORD);
-	const hasEditPermission = actionIds.includes(ACTIONS.UPDATE_DATA_RECORD);
+function ViewEntryUpperToolbar({
+	children,
+	dataRecordId,
+	history,
+	page,
+	totalCount,
+}) {
+	const {appDeploymentType, basePortletURL, showFormView} = useContext(
+		AppContext
+	);
+	const permissions = usePermissions();
+
+	const changeEntryIndex = (entryIndex) => {
+		history.push(`/entries/${entryIndex}?${window.location.search}`);
+	};
+
+	const onDelete = () => {
+		confirmDelete('/o/data-engine/v2.0/data-records/')({
+			id: dataRecordId,
+		}).then((confirmed) => {
+			if (confirmed) {
+				successToast(Liferay.Language.get('an-entry-was-deleted'));
+				history.push('/');
+			}
+		});
+	};
+
+	const onEdit = () => {
+		navigateToEditPage(basePortletURL, {
+			dataRecordId,
+			redirect: location.href,
+		});
+	};
+
+	const onNext = () => {
+		const nextIndex = Math.min(parseInt(page, 10) + 1, totalCount);
+		changeEntryIndex(nextIndex);
+	};
+
+	const onPrev = () => {
+		const prevIndex = Math.max(parseInt(page, 10) - 1, 1);
+		changeEntryIndex(prevIndex);
+	};
 
 	return (
 		<UpperToolbar className={appDeploymentType}>
-			<UpperToolbar.Item className="text-left" expand={true}>
+			<UpperToolbar.Item className="ml-2 text-left">
 				<label>
-					{sub(Liferay.Language.get('x-of-x-entries'), [page, total])}
+					{sub(Liferay.Language.get('x-of-x-entries'), [
+						page,
+						totalCount,
+					])}
 				</label>
 			</UpperToolbar.Item>
+
+			<UpperToolbar.Item expand>{children}</UpperToolbar.Item>
 
 			<UpperToolbar.Group>
 				<ClayTooltipProvider>
@@ -54,7 +100,7 @@ export default withRouter(({onDelete, onEdit, onNext, onPrev, page, total}) => {
 						<ClayButtonWithIcon
 							data-tooltip-align="bottom"
 							data-tooltip-delay="200"
-							disabled={page === total}
+							disabled={page === totalCount}
 							displayType="secondary"
 							onClick={onNext}
 							small
@@ -67,22 +113,39 @@ export default withRouter(({onDelete, onEdit, onNext, onPrev, page, total}) => {
 
 			{showFormView && (
 				<UpperToolbar.Group>
-					{hasDeletePermission && (
-						<UpperToolbar.Button
-							displayType="secondary"
-							onClick={onDelete}
-						>
-							{Liferay.Language.get('delete')}
-						</UpperToolbar.Button>
+					{permissions.delete && (
+						<ClayTooltipProvider>
+							<ClayButtonWithIcon
+								className="ml-2"
+								data-tooltip-align="bottom"
+								data-tooltip-delay="200"
+								displayType="secondary"
+								onClick={onDelete}
+								small
+								symbol="trash"
+								title={Liferay.Language.get('delete')}
+							/>
+						</ClayTooltipProvider>
 					)}
 
-					{hasEditPermission && (
-						<UpperToolbar.Button onClick={onEdit}>
-							{Liferay.Language.get('edit')}
-						</UpperToolbar.Button>
+					{permissions.update && (
+						<ClayTooltipProvider>
+							<ClayButtonWithIcon
+								className="mx-2"
+								data-tooltip-align="bottom"
+								data-tooltip-delay="200"
+								displayType="secondary"
+								onClick={onEdit}
+								small
+								symbol="pencil"
+								title={Liferay.Language.get('edit')}
+							/>
+						</ClayTooltipProvider>
 					)}
 				</UpperToolbar.Group>
 			)}
 		</UpperToolbar>
 	);
-});
+}
+
+export default withRouter(ViewEntryUpperToolbar);
