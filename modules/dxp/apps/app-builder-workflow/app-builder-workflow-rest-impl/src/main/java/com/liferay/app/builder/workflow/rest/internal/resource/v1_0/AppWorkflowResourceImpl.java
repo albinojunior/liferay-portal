@@ -54,12 +54,17 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 
 	@Override
 	public AppWorkflow getAppWorkflow(Long appId) throws Exception {
+		AppBuilderApp appBuilderApp =
+			_appBuilderAppLocalService.getAppBuilderApp(appId);
+
+		WorkflowDefinition workflowDefinition =
+			_appWorkflowResourceHelper.getWorkflowDefinition(appBuilderApp);
+
 		return _toAppWorkflow(
 			_appBuilderWorkflowTaskLinkLocalService.
 				getAppBuilderWorkflowTaskLinks(appId),
-			appId,
-			_appWorkflowResourceHelper.getDefinition(
-				appId, contextCompany.getCompanyId()));
+			appId, _appWorkflowResourceHelper.getDefinition(appBuilderApp),
+			workflowDefinition.getWorkflowDefinitionId());
 	}
 
 	@Override
@@ -97,7 +102,9 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 			AppBuilderApp.class.getName(), appId, 0,
 			workflowDefinition.getName(), workflowDefinition.getVersion());
 
-		return _toAppWorkflow(appBuilderWorkflowTaskLinks, appId, definition);
+		return _toAppWorkflow(
+			appBuilderWorkflowTaskLinks, appId, definition,
+			workflowDefinition.getWorkflowDefinitionId());
 	}
 
 	@Override
@@ -116,11 +123,12 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 
 	private AppWorkflow _toAppWorkflow(
 		List<AppBuilderWorkflowTaskLink> appBuilderWorkflowTaskLinks,
-		Long appWorkflowId, Definition definition) {
+		Long appWorkflowId, Definition definition, Long workflowDefinitionId) {
 
 		return new AppWorkflow() {
 			{
 				appId = appWorkflowId;
+				appWorkflowDefinitionId = workflowDefinitionId;
 
 				setAppWorkflowStates(
 					() -> {
