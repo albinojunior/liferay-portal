@@ -140,6 +140,10 @@ public class AppWorkflowResourceHelper {
 		AppWorkflowTransition[] appWorkflowTransitions, Definition definition,
 		String sourceNodeName) {
 
+		if (Objects.isNull(appWorkflowTransitions)) {
+			return;
+		}
+
 		for (AppWorkflowTransition appWorkflowTransition :
 				appWorkflowTransitions) {
 
