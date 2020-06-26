@@ -102,7 +102,7 @@ export default function ListEntries({history}) {
 					if (response.totalCount > 0) {
 						const classPKs = response.items.map(({id}) => id);
 
-						return getItem(
+						getItem(
 							`/o/portal-workflow-metrics/v1.0/processes/${workflowDefinitionId}/instances`,
 							{classPKs, page: 1, pageSize: response.items.length}
 						).then((workflowResponse) => {
@@ -110,14 +110,16 @@ export default function ListEntries({history}) {
 
 							if (workflowResponse.totalCount > 0) {
 								items = response.items.map((item) => {
-									const workflowData =
+									const {assignees, completed, taskNames} =
 										workflowResponse.items.find(
 											({classPK}) => classPK === item.id
 										) || {};
 
 									return {
 										...item,
-										...workflowData,
+										assignees,
+										completed,
+										taskNames,
 									};
 								});
 							}

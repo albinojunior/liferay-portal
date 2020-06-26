@@ -38,7 +38,9 @@ export default function useEntriesActions(refetch) {
 		if (permissions.update) {
 			actions.push({
 				action: ({id}) =>
-					Promise.resolve(navigateToEditPage(basePortletURL, id)),
+					Promise.resolve(
+						navigateToEditPage(basePortletURL, {dataRecordId: id})
+					),
 				name: Liferay.Language.get('edit'),
 			});
 		}
