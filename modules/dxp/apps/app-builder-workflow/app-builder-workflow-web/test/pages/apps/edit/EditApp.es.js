@@ -117,6 +117,7 @@ describe('EditApp', () => {
 		};
 
 		const {
+			container,
 			getByLabelText,
 			getByPlaceholderText,
 			getByTestId,
@@ -129,10 +130,18 @@ describe('EditApp', () => {
 		const dataAndViewsButton = getByText('data-and-views');
 		const deployButton = getByText('deploy');
 		const nameInput = getByPlaceholderText('untitled-app');
+		const steps = container.querySelectorAll('.step');
+		const stepNameInput = container.querySelector(
+			'.form-group-outlined input'
+		);
 
 		expect(queryByText('step-configuration')).toBeTruthy();
 		expect(queryByText('new-workflow-powered-app')).toBeTruthy();
 		expect(queryByText('cancel')).toBeTruthy();
+		expect(steps.length).toBe(2);
+		expect(steps[0]).toHaveTextContent('initial-step');
+		expect(steps[1]).toHaveTextContent('final-step');
+		expect(stepNameInput.value).toBe('initial-step');
 
 		expect(nameInput.value).toBe('');
 		expect(deployButton).toBeDisabled();
@@ -213,12 +222,12 @@ describe('EditApp', () => {
 						},
 					],
 					initial: true,
-					name: 'Initial Step',
+					name: 'Start',
 				},
 				{
 					appWorkflowTransitions: [],
 					initial: false,
-					name: 'Final Step',
+					name: 'Closed',
 				},
 			],
 		};
@@ -235,16 +244,28 @@ describe('EditApp', () => {
 			match: {params: {appId: '37634'}},
 		};
 
-		const {getByLabelText, getByPlaceholderText, getByText} = render(
-			<EditApp {...routeProps} />,
-			{
-				wrapper: AppContextProviderWrapper,
-			}
-		);
+		const {
+			container,
+			getByLabelText,
+			getByPlaceholderText,
+			getByText,
+		} = render(<EditApp {...routeProps} />, {
+			wrapper: AppContextProviderWrapper,
+		});
 
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
 		);
+
+		const steps = container.querySelectorAll('.step-card');
+		let stepNameInput = container.querySelector(
+			'.form-group-outlined input'
+		);
+
+		expect(steps.length).toBe(2);
+		expect(steps[0]).toHaveTextContent('Start');
+		expect(steps[1]).toHaveTextContent('Closed');
+		expect(stepNameInput.value).toBe('Start');
 
 		await fireEvent.click(getByText('data-and-views'));
 
@@ -260,5 +281,19 @@ describe('EditApp', () => {
 		expect(getByLabelText('form-view')).toHaveTextContent('Form 01');
 		expect(getByLabelText('table-view')).toHaveTextContent('Table 01');
 		expect(getByText('deploy')).toBeEnabled();
+
+		await fireEvent.click(steps[1]);
+
+		stepNameInput = container.querySelector('.form-group-outlined input');
+
+		expect(stepNameInput.value).toBe('Closed');
+		expect(container.querySelector('h3.title')).toHaveTextContent(
+			'step-configuration'
+		);
+
+		await fireEvent.change(stepNameInput, {target: {value: 'End'}});
+
+		expect(stepNameInput.value).toBe('End');
+		expect(steps[1]).toHaveTextContent('End');
 	});
 });
