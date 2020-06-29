@@ -22,10 +22,15 @@ import {successToast} from 'app-builder-web/js/utils/toast.es';
 import {fetch} from 'frontend-js-web';
 import React, {useCallback, useContext} from 'react';
 
+import useAppWorkflow from '../../hooks/useAppWorkflow.es';
+
 export function EditEntry({dataRecordId, ddmForm, redirect}) {
 	const {addEntryURL, appId, basePortletURL, namespace} = useContext(
 		AppContext
 	);
+
+	const {appWorkflowStates: [initialState = {}] = []} = useAppWorkflow(appId);
+	const {appWorkflowTransitions: [transition = {}] = []} = initialState;
 
 	const onCancel = useCallback(() => {
 		if (redirect) {
@@ -88,7 +93,7 @@ export function EditEntry({dataRecordId, ddmForm, redirect}) {
 
 			<ClayButton.Group className="app-builder-form-buttons" spaced>
 				<Button onClick={onSubmit}>
-					{Liferay.Language.get('submit')}
+					{transition.name || Liferay.Language.get('submit')}
 				</Button>
 
 				<Button displayType="secondary" onClick={onCancel}>
