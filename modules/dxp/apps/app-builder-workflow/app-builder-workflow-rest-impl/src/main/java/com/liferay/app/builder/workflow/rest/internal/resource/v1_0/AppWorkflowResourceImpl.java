@@ -99,7 +99,8 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 		}
 
 		Definition definition = _appWorkflowResourceHelper.toDefinition(
-			_appBuilderAppLocalService.getAppBuilderApp(appId), appWorkflow);
+			_appBuilderAppLocalService.getAppBuilderApp(appId), appWorkflow,
+			contextAcceptLanguage.getPreferredLocale());
 
 		WorkflowDefinition workflowDefinition =
 			_appWorkflowResourceHelper.deployWorkflowDefinition(

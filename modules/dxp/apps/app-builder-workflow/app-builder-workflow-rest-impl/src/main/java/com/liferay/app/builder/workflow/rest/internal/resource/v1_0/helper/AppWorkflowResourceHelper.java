@@ -16,30 +16,42 @@ package com.liferay.app.builder.workflow.rest.internal.resource.v1_0.helper;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflow;
+import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowRoleAssignment;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowState;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTask;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTransition;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManager;
 import com.liferay.portal.workflow.kaleo.definition.Action;
+import com.liferay.portal.workflow.kaleo.definition.AssigneesRecipient;
 import com.liferay.portal.workflow.kaleo.definition.Definition;
 import com.liferay.portal.workflow.kaleo.definition.ExecutionType;
 import com.liferay.portal.workflow.kaleo.definition.Node;
+import com.liferay.portal.workflow.kaleo.definition.Notification;
+import com.liferay.portal.workflow.kaleo.definition.NotificationReceptionType;
+import com.liferay.portal.workflow.kaleo.definition.NotificationType;
+import com.liferay.portal.workflow.kaleo.definition.Recipient;
 import com.liferay.portal.workflow.kaleo.definition.RoleAssignment;
 import com.liferay.portal.workflow.kaleo.definition.ScriptLanguage;
 import com.liferay.portal.workflow.kaleo.definition.State;
 import com.liferay.portal.workflow.kaleo.definition.Task;
+import com.liferay.portal.workflow.kaleo.definition.TemplateLanguage;
 import com.liferay.portal.workflow.kaleo.definition.Transition;
+import com.liferay.portal.workflow.kaleo.definition.UserRecipient;
 import com.liferay.portal.workflow.kaleo.definition.export.DefinitionExporter;
 import com.liferay.portal.workflow.kaleo.definition.export.builder.DefinitionBuilder;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -86,7 +98,7 @@ public class AppWorkflowResourceHelper {
 	}
 
 	public Definition toDefinition(
-		AppBuilderApp appBuilderApp, AppWorkflow appWorkflow) {
+		AppBuilderApp appBuilderApp, AppWorkflow appWorkflow, Locale locale) {
 
 		Definition definition = new Definition(
 			appBuilderApp.getUuid(), StringPool.BLANK, StringPool.BLANK, 0);
@@ -120,6 +132,16 @@ public class AppWorkflowResourceHelper {
 					).collect(
 						Collectors.toSet()
 					));
+
+				Set<Notification> notifications = new HashSet<>();
+
+				notifications.add(
+					_createAssigneesNotification(appBuilderApp, locale));
+				notifications.add(
+					_createUserNotification(
+						appBuilderApp, appWorkflowTask, locale));
+
+				task.setNotifications(notifications);
 
 				definition.addNode(task);
 			}
@@ -182,6 +204,66 @@ public class AppWorkflowResourceHelper {
 			"approve", StringPool.BLANK, ExecutionType.ON_ENTRY.getValue(),
 			StringUtil.read(getClass(), "dependencies/approve-script.groovy"),
 			ScriptLanguage.GROOVY.getValue(), StringPool.BLANK, 1);
+	}
+
+	private Notification _createAssigneesNotification(
+		AppBuilderApp appBuilderApp, Locale locale) {
+
+		AssigneesRecipient assigneesRecipient = new AssigneesRecipient();
+
+		assigneesRecipient.setNotificationReceptionType(
+			NotificationReceptionType.TO);
+
+		return _createNotification(
+			LanguageUtil.format(
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					locale, getClass()),
+				"x-notification", appBuilderApp.getName(locale)),
+			ExecutionType.ON_ASSIGNMENT, "Assignees Notification",
+			assigneesRecipient,
+			LanguageUtil.format(
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					locale, getClass()),
+				"x-sent-you-a-x-entry-in-the-workflow",
+				new Object[] {"${userName}", appBuilderApp.getName(locale)}));
+	}
+
+	private Notification _createNotification(
+		String description, ExecutionType executionType, String name,
+		Recipient recipient, String template) {
+
+		Notification notification = new Notification(
+			name, description, executionType.getValue(), template,
+			TemplateLanguage.FREEMARKER.getValue());
+
+		notification.addNotificationType(NotificationType.EMAIL.getValue());
+		notification.addNotificationType(
+			NotificationType.USER_NOTIFICATION.getValue());
+		notification.addRecipients(recipient);
+
+		return notification;
+	}
+
+	private Notification _createUserNotification(
+		AppBuilderApp appBuilderApp, AppWorkflowTask appWorkflowTask,
+		Locale locale) {
+
+		UserRecipient userRecipient = new UserRecipient();
+
+		userRecipient.setNotificationReceptionType(
+			NotificationReceptionType.TO);
+
+		return _createNotification(
+			LanguageUtil.format(
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					locale, getClass()),
+				"x-notification", appBuilderApp.getName(locale)),
+			ExecutionType.ON_EXIT, "User Notification", userRecipient,
+			LanguageUtil.format(
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					locale, getClass()),
+				"the-x-of-your-submission-was-completed",
+				appWorkflowTask.getName()));
 	}
 
 	@Reference
