@@ -25,6 +25,8 @@ import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTransition;
 import com.liferay.app.builder.workflow.rest.internal.resource.v1_0.helper.AppWorkflowResourceHelper;
 import com.liferay.app.builder.workflow.rest.resource.v1_0.AppWorkflowResource;
 import com.liferay.app.builder.workflow.service.AppBuilderWorkflowTaskLinkLocalService;
+import com.liferay.dynamic.data.lists.model.DDLRecord;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
@@ -110,8 +112,10 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 
 		_workflowDefinitionLinkLocalService.addWorkflowDefinitionLink(
 			contextUser.getUserId(), contextCompany.getCompanyId(), 0,
-			AppBuilderApp.class.getName(), appId, 0,
-			workflowDefinition.getName(), workflowDefinition.getVersion());
+			ResourceActionsUtil.getCompositeModelName(
+				AppBuilderApp.class.getName(), DDLRecord.class.getName()),
+			appId, 0, workflowDefinition.getName(),
+			workflowDefinition.getVersion());
 
 		return _toAppWorkflow(
 			appBuilderWorkflowTaskLinks, appId, definition,

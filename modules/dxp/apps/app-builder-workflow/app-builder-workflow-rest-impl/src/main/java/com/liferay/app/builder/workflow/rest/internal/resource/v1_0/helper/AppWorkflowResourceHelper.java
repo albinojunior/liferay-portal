@@ -20,10 +20,12 @@ import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowRoleAssignment;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowState;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTask;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTransition;
+import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
@@ -81,7 +83,9 @@ public class AppWorkflowResourceHelper {
 
 		WorkflowDefinitionLink workflowDefinitionLink =
 			_workflowDefinitionLinkLocalService.getWorkflowDefinitionLink(
-				appBuilderApp.getCompanyId(), 0, AppBuilderApp.class.getName(),
+				appBuilderApp.getCompanyId(), 0,
+				ResourceActionsUtil.getCompositeModelName(
+					AppBuilderApp.class.getName(), DDLRecord.class.getName()),
 				appBuilderApp.getAppBuilderAppId(), 0);
 
 		return _definitionBuilder.buildDefinition(
