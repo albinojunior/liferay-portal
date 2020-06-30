@@ -50,7 +50,8 @@ public class AppBuilderAppWorkflowHandler
 
 	@Override
 	public String getClassName() {
-		return AppBuilderApp.class.getName();
+		return ResourceActionsUtil.getCompositeModelName(
+			AppBuilderApp.class.getName(), DDLRecord.class.getName());
 	}
 
 	@Override
