@@ -50,6 +50,15 @@ public class AppBuilderAppDataRecordLinkLocalServiceImpl
 	}
 
 	@Override
+	public AppBuilderAppDataRecordLink
+			fetchDDLRecordAppBuilderAppDataRecordLink(long ddlRecordId)
+		throws PortalException {
+
+		return appBuilderAppDataRecordLinkPersistence.fetchByDDLRecordId(
+			ddlRecordId);
+	}
+
+	@Override
 	public List<AppBuilderAppDataRecordLink> getAppBuilderAppDataRecordLinks(
 		long appBuilderAppId) {
 
