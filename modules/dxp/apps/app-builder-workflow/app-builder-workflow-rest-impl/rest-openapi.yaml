@@ -25,6 +25,14 @@ components:
                 readOnly:
                     type: boolean
             type: object
+        AppWorkflowRoleAssignment:
+            properties:
+                roleId:
+                    format: int64
+                    type: integer
+                roleName:
+                    type: string
+            type: object
         AppWorkflowState:
             properties:
                 appWorkflowTransitions:
@@ -42,17 +50,16 @@ components:
                     items:
                         $ref: "#/components/schemas/AppWorkflowDataLayoutLink"
                     type: array
+                appWorkflowRoleAssignments:
+                    items:
+                        $ref: "#/components/schemas/AppWorkflowRoleAssignment"
+                    type: array
                 appWorkflowTransitions:
                     items:
                         $ref: "#/components/schemas/AppWorkflowTransition"
                     type: array
                 name:
                     type: string
-                roleIds:
-                    items:
-                        format: int64
-                        type: integer
-                    type: array
             type: object
         AppWorkflowTransition:
             properties:
