@@ -57,6 +57,31 @@ public class AppWorkflowTask implements Cloneable {
 
 	protected AppWorkflowDataLayoutLink[] appWorkflowDataLayoutLinks;
 
+	public AppWorkflowRoleAssignment[] getAppWorkflowRoleAssignments() {
+		return appWorkflowRoleAssignments;
+	}
+
+	public void setAppWorkflowRoleAssignments(
+		AppWorkflowRoleAssignment[] appWorkflowRoleAssignments) {
+
+		this.appWorkflowRoleAssignments = appWorkflowRoleAssignments;
+	}
+
+	public void setAppWorkflowRoleAssignments(
+		UnsafeSupplier<AppWorkflowRoleAssignment[], Exception>
+			appWorkflowRoleAssignmentsUnsafeSupplier) {
+
+		try {
+			appWorkflowRoleAssignments =
+				appWorkflowRoleAssignmentsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected AppWorkflowRoleAssignment[] appWorkflowRoleAssignments;
+
 	public AppWorkflowTransition[] getAppWorkflowTransitions() {
 		return appWorkflowTransitions;
 	}
@@ -99,27 +124,6 @@ public class AppWorkflowTask implements Cloneable {
 	}
 
 	protected String name;
-
-	public Long[] getRoleIds() {
-		return roleIds;
-	}
-
-	public void setRoleIds(Long[] roleIds) {
-		this.roleIds = roleIds;
-	}
-
-	public void setRoleIds(
-		UnsafeSupplier<Long[], Exception> roleIdsUnsafeSupplier) {
-
-		try {
-			roleIds = roleIdsUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected Long[] roleIds;
 
 	@Override
 	public AppWorkflowTask clone() throws CloneNotSupportedException {

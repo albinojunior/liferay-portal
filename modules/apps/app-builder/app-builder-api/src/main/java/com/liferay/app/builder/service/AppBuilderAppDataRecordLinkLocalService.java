@@ -194,6 +194,11 @@ public interface AppBuilderAppDataRecordLinkLocalService
 		long appBuilderAppDataRecordLinkId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public AppBuilderAppDataRecordLink
+			fetchDDLRecordAppBuilderAppDataRecordLink(long ddlRecordId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	/**

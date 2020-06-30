@@ -224,6 +224,14 @@ public class AppBuilderAppDataRecordLinkLocalServiceUtil {
 			appBuilderAppDataRecordLinkId);
 	}
 
+	public static com.liferay.app.builder.model.AppBuilderAppDataRecordLink
+			fetchDDLRecordAppBuilderAppDataRecordLink(long ddlRecordId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().fetchDDLRecordAppBuilderAppDataRecordLink(
+			ddlRecordId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

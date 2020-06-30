@@ -239,6 +239,15 @@ public class AppBuilderAppDataRecordLinkLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.app.builder.model.AppBuilderAppDataRecordLink
+			fetchDDLRecordAppBuilderAppDataRecordLink(long ddlRecordId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _appBuilderAppDataRecordLinkLocalService.
+			fetchDDLRecordAppBuilderAppDataRecordLink(ddlRecordId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

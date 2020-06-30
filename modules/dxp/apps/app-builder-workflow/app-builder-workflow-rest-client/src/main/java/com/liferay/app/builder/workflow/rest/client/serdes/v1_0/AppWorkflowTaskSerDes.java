@@ -15,6 +15,7 @@
 package com.liferay.app.builder.workflow.rest.client.serdes.v1_0;
 
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowDataLayoutLink;
+import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowRoleAssignment;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowTask;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowTransition;
 import com.liferay.app.builder.workflow.rest.client.json.BaseJSONParser;
@@ -86,6 +87,34 @@ public class AppWorkflowTaskSerDes {
 			sb.append("]");
 		}
 
+		if (appWorkflowTask.getAppWorkflowRoleAssignments() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"appWorkflowRoleAssignments\": ");
+
+			sb.append("[");
+
+			for (int i = 0;
+				 i < appWorkflowTask.getAppWorkflowRoleAssignments().length;
+				 i++) {
+
+				sb.append(
+					String.valueOf(
+						appWorkflowTask.getAppWorkflowRoleAssignments()[i]));
+
+				if ((i + 1) <
+						appWorkflowTask.
+							getAppWorkflowRoleAssignments().length) {
+
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (appWorkflowTask.getAppWorkflowTransitions() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -126,26 +155,6 @@ public class AppWorkflowTaskSerDes {
 			sb.append("\"");
 		}
 
-		if (appWorkflowTask.getRoleIds() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"roleIds\": ");
-
-			sb.append("[");
-
-			for (int i = 0; i < appWorkflowTask.getRoleIds().length; i++) {
-				sb.append(appWorkflowTask.getRoleIds()[i]);
-
-				if ((i + 1) < appWorkflowTask.getRoleIds().length) {
-					sb.append(", ");
-				}
-			}
-
-			sb.append("]");
-		}
-
 		sb.append("}");
 
 		return sb.toString();
@@ -175,6 +184,16 @@ public class AppWorkflowTaskSerDes {
 					appWorkflowTask.getAppWorkflowDataLayoutLinks()));
 		}
 
+		if (appWorkflowTask.getAppWorkflowRoleAssignments() == null) {
+			map.put("appWorkflowRoleAssignments", null);
+		}
+		else {
+			map.put(
+				"appWorkflowRoleAssignments",
+				String.valueOf(
+					appWorkflowTask.getAppWorkflowRoleAssignments()));
+		}
+
 		if (appWorkflowTask.getAppWorkflowTransitions() == null) {
 			map.put("appWorkflowTransitions", null);
 		}
@@ -189,13 +208,6 @@ public class AppWorkflowTaskSerDes {
 		}
 		else {
 			map.put("name", String.valueOf(appWorkflowTask.getName()));
-		}
-
-		if (appWorkflowTask.getRoleIds() == null) {
-			map.put("roleIds", null);
-		}
-		else {
-			map.put("roleIds", String.valueOf(appWorkflowTask.getRoleIds()));
 		}
 
 		return map;
@@ -235,6 +247,21 @@ public class AppWorkflowTaskSerDes {
 				}
 			}
 			else if (Objects.equals(
+						jsonParserFieldName, "appWorkflowRoleAssignments")) {
+
+				if (jsonParserFieldValue != null) {
+					appWorkflowTask.setAppWorkflowRoleAssignments(
+						Stream.of(
+							toStrings((Object[])jsonParserFieldValue)
+						).map(
+							object -> AppWorkflowRoleAssignmentSerDes.toDTO(
+								(String)object)
+						).toArray(
+							size -> new AppWorkflowRoleAssignment[size]
+						));
+				}
+			}
+			else if (Objects.equals(
 						jsonParserFieldName, "appWorkflowTransitions")) {
 
 				if (jsonParserFieldValue != null) {
@@ -252,12 +279,6 @@ public class AppWorkflowTaskSerDes {
 			else if (Objects.equals(jsonParserFieldName, "name")) {
 				if (jsonParserFieldValue != null) {
 					appWorkflowTask.setName((String)jsonParserFieldValue);
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "roleIds")) {
-				if (jsonParserFieldValue != null) {
-					appWorkflowTask.setRoleIds(
-						toLongs((Object[])jsonParserFieldValue));
 				}
 			}
 			else {
