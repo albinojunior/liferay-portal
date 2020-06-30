@@ -18,6 +18,7 @@ import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflow;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowDataLayoutLink;
+import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowRoleAssignment;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowState;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowTask;
 import com.liferay.app.builder.workflow.rest.client.dto.v1_0.AppWorkflowTransition;
@@ -145,6 +146,21 @@ public class AppWorkflowResourceTest extends BaseAppWorkflowResourceTestCase {
 										}
 									}
 								};
+							appWorkflowRoleAssignments =
+								new AppWorkflowRoleAssignment[] {
+									new AppWorkflowRoleAssignment() {
+										{
+											Role role =
+												_roleLocalService.getRole(
+													testCompany.getCompanyId(),
+													RoleConstants.
+														PORTAL_CONTENT_REVIEWER);
+
+											roleId = role.getRoleId();
+											roleName = role.getName();
+										}
+									}
+								};
 							appWorkflowTransitions =
 								new AppWorkflowTransition[] {
 									new AppWorkflowTransition() {
@@ -157,15 +173,6 @@ public class AppWorkflowResourceTest extends BaseAppWorkflowResourceTestCase {
 									}
 								};
 							name = appWorkflowTaskName;
-
-							setRoleIds(
-								() -> {
-									Role role = _roleLocalService.getRole(
-										testCompany.getCompanyId(),
-										RoleConstants.PORTAL_CONTENT_REVIEWER);
-
-									return new Long[] {role.getRoleId()};
-								});
 						}
 					}
 				};
