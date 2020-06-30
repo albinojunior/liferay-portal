@@ -22,7 +22,13 @@ import SearchContext from '../management-toolbar/SearchContext.es';
 import {withEmpty} from './EmptyState.es';
 import Table from './Table.es';
 
-const TableWithPagination = ({actions, columns, items, totalCount}) => {
+const TableWithPagination = ({
+	actions,
+	columns,
+	items,
+	noActionsMessage,
+	totalCount,
+}) => {
 	const {deltaValues = [4, 8, 20, 40, 60]} = useContext(AppContext);
 	const [{page, pageSize}, dispatch] = useContext(SearchContext);
 
@@ -30,7 +36,12 @@ const TableWithPagination = ({actions, columns, items, totalCount}) => {
 
 	return (
 		<ClayLayout.ContainerFluid>
-			<Table actions={actions} columns={columns} items={items} />
+			<Table
+				actions={actions}
+				columns={columns}
+				items={items}
+				noActionsMessage={noActionsMessage}
+			/>
 
 			{totalCount > deltaValues[0] && (
 				<div className="taglib-search-iterator-page-iterator-bottom">

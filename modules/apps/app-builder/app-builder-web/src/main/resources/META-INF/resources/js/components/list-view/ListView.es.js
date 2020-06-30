@@ -36,6 +36,7 @@ export default withRouter(
 		endpoint,
 		filters = [],
 		history,
+		noActionsMessage,
 		queryParams,
 	}) => {
 		const {defaultDelta = 20} = useContext(AppContext);
@@ -134,6 +135,7 @@ export default withRouter(
 					isLoading={isLoading}
 					items={items.map((item, index) => children(item, index))}
 					keywords={query.keywords}
+					noActionsMessage={noActionsMessage}
 					totalCount={totalCount}
 				/>
 			</SearchContext.Provider>

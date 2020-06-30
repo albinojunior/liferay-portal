@@ -27,6 +27,7 @@ const Table = ({
 	columns,
 	forwardRef,
 	items,
+	noActionsMessage,
 }) => {
 	return (
 		<div ref={forwardRef}>
@@ -78,7 +79,11 @@ const Table = ({
 							))}
 							{actions && (
 								<Cell>
-									<DropDown actions={actions} item={item} />
+									<DropDown
+										actions={actions}
+										item={item}
+										noActionsMessage={noActionsMessage}
+									/>
 								</Cell>
 							)}
 						</Row>
