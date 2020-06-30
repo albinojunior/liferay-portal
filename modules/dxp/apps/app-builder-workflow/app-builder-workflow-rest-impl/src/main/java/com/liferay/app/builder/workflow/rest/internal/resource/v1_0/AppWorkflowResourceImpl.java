@@ -19,6 +19,7 @@ import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.workflow.model.AppBuilderWorkflowTaskLink;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflow;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowDataLayoutLink;
+import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowRoleAssignment;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowState;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTask;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTransition;
@@ -27,6 +28,7 @@ import com.liferay.app.builder.workflow.rest.resource.v1_0.AppWorkflowResource;
 import com.liferay.app.builder.workflow.service.AppBuilderWorkflowTaskLinkLocalService;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
@@ -181,6 +183,35 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 		};
 	}
 
+	private AppWorkflowRoleAssignment[] _toAppWorkflowRoleAssignments(
+		Task task) {
+
+		return Stream.of(
+			task.getAssignments()
+		).flatMap(
+			Set::stream
+		).filter(
+			RoleAssignment.class::isInstance
+		).map(
+			RoleAssignment.class::cast
+		).map(
+			RoleAssignment::getRoleId
+		).map(
+			_roleLocalService::fetchRole
+		).filter(
+			Objects::nonNull
+		).map(
+			role -> new AppWorkflowRoleAssignment() {
+				{
+					roleId = role.getRoleId();
+					roleName = role.getName();
+				}
+			}
+		).toArray(
+			AppWorkflowRoleAssignment[]::new
+		);
+	}
+
 	private AppWorkflowState[] _toAppWorkflowStates(List<State> states) {
 		return Stream.of(
 			states
@@ -219,10 +250,11 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 							}
 						},
 					AppWorkflowDataLayoutLink.class);
+				appWorkflowRoleAssignments = _toAppWorkflowRoleAssignments(
+					(Task)node);
 				appWorkflowTransitions = _toAppWorkflowTransitions(
 					node.getOutgoingTransitionsList());
 				name = taskName;
-				roleIds = _toRoleIds((Task)node);
 			}
 		};
 	}
@@ -253,22 +285,6 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 		);
 	}
 
-	private Long[] _toRoleIds(Task task) {
-		return Stream.of(
-			task.getAssignments()
-		).flatMap(
-			Set::stream
-		).filter(
-			RoleAssignment.class::isInstance
-		).map(
-			RoleAssignment.class::cast
-		).map(
-			RoleAssignment::getRoleId
-		).toArray(
-			Long[]::new
-		);
-	}
-
 	@Reference
 	private AppBuilderAppLocalService _appBuilderAppLocalService;
 
@@ -278,6 +294,9 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 
 	@Reference
 	private AppWorkflowResourceHelper _appWorkflowResourceHelper;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private WorkflowDefinitionLinkLocalService

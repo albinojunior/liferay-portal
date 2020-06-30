@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManager;
@@ -130,7 +131,9 @@ public class AppWorkflowResourceHelper {
 
 				task.setAssignments(
 					Stream.of(
-						appWorkflowTask.getRoleIds()
+						appWorkflowTask.getAppWorkflowRoleAssignments()
+					).map(
+						AppWorkflowRoleAssignment::getRoleId
 					).map(
 						RoleAssignment::new
 					).collect(
