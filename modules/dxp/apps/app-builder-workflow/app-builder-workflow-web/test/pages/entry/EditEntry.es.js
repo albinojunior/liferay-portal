@@ -22,6 +22,7 @@ const context = {
 	addEntryURL: 'http://liferay.com/',
 	appId: 1,
 	basePortletURL: 'portlet_url',
+	baseResourceURL: 'resource_url?p_p_id=portletId',
 	namespace: 'app_builder',
 };
 
