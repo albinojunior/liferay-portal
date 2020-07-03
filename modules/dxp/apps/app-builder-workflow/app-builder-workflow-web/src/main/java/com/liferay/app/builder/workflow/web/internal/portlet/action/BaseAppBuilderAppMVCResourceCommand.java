@@ -16,8 +16,9 @@ package com.liferay.app.builder.workflow.web.internal.portlet.action;
 
 import com.liferay.app.builder.rest.dto.v1_0.App;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflow;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
@@ -25,12 +26,14 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
 import javax.servlet.http.HttpServletResponse;
+
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Rafael Praxedes
@@ -55,9 +58,10 @@ public abstract class BaseAppBuilderAppMVCResourceCommand
 					JSONPortletResponseUtil.writeJSON(
 						resourceRequest, resourceResponse,
 						JSONUtil.put(
-							"app", app.toString()
+							"app", jsonFactory.createJSONObject(app.toString())
 						).put(
-							"appWorkflow", appWorkflow.toString()
+							"appWorkflow",
+							jsonFactory.createJSONObject(appWorkflow.toString())
 						));
 
 					return null;
@@ -69,7 +73,7 @@ public abstract class BaseAppBuilderAppMVCResourceCommand
 			}
 
 			HttpServletResponse httpServletResponse =
-				PortalUtil.getHttpServletResponse(resourceResponse);
+				portal.getHttpServletResponse(resourceResponse);
 
 			httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
@@ -77,8 +81,8 @@ public abstract class BaseAppBuilderAppMVCResourceCommand
 				resourceRequest, resourceResponse,
 				JSONUtil.put(
 					"errorMessage",
-					LanguageUtil.get(
-						PortalUtil.getHttpServletRequest(resourceRequest),
+					language.get(
+						portal.getHttpServletRequest(resourceRequest),
 						"your-request-failed-to-complete")));
 		}
 	}
@@ -89,6 +93,15 @@ public abstract class BaseAppBuilderAppMVCResourceCommand
 	protected abstract AppWorkflow saveAppWorkflow(
 			App app, ResourceRequest resourceRequest)
 		throws Exception;
+
+	@Reference
+	protected JSONFactory jsonFactory;
+
+	@Reference
+	protected Language language;
+
+	@Reference
+	protected Portal portal;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseAppBuilderAppMVCResourceCommand.class);
