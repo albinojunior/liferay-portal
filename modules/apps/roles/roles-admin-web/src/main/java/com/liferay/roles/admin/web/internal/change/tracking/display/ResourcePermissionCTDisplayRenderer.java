@@ -15,6 +15,7 @@
 package com.liferay.roles.admin.web.internal.change.tracking.display;
 
 import com.liferay.change.tracking.display.CTDisplayRenderer;
+import com.liferay.change.tracking.display.context.DisplayContext;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
@@ -182,15 +183,14 @@ public class ResourcePermissionCTDisplayRenderer
 	}
 
 	@Override
-	public void render(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse,
-			ResourcePermission resourcePermission)
+	public void render(DisplayContext<ResourcePermission> displayContext)
 		throws Exception {
 
-		Locale locale = _portal.getLocale(httpServletRequest);
-
 		Map<String, ResourceAction> resourceActionMap = new TreeMap<>();
+
+		Locale locale = _portal.getLocale(
+			displayContext.getHttpServletRequest());
+		ResourcePermission resourcePermission = displayContext.getModel();
 
 		for (ResourceAction resourceAction :
 				_resourceActionLocalService.getResourceActions(
@@ -201,6 +201,9 @@ public class ResourcePermissionCTDisplayRenderer
 
 			resourceActionMap.put(actionLabel, resourceAction);
 		}
+
+		HttpServletResponse httpServletResponse =
+			displayContext.getHttpServletResponse();
 
 		Writer writer = httpServletResponse.getWriter();
 

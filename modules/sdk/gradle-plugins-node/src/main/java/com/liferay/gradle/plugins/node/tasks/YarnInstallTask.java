@@ -26,6 +26,7 @@ import org.gradle.api.tasks.CacheableTask;
 
 /**
  * @author Peter Shin
+ * @author David Truong
  */
 @CacheableTask
 public class YarnInstallTask extends ExecutePackageManagerTask {
@@ -73,9 +74,7 @@ public class YarnInstallTask extends ExecutePackageManagerTask {
 	}
 
 	private File _getYarnrcFile() {
-		File scriptFile = getScriptFile();
-
-		return new File(scriptFile.getParentFile(), ".yarnrc");
+		return new File(getWorkingDir(), ".yarnrc");
 	}
 
 	private Object _frozenLockFile;

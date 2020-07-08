@@ -15,6 +15,7 @@
 package com.liferay.change.tracking.web.internal.display.company;
 
 import com.liferay.change.tracking.display.CTDisplayRenderer;
+import com.liferay.change.tracking.display.context.DisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Company;
@@ -66,17 +67,27 @@ public class CompanyCTDisplayRenderer implements CTDisplayRenderer<Company> {
 	}
 
 	@Override
-	public void render(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, Company company)
+	public void render(DisplayContext<Company> displayContext)
 		throws Exception {
+
+		HttpServletResponse httpServletResponse =
+			displayContext.getHttpServletResponse();
 
 		Writer writer = httpServletResponse.getWriter();
 
 		writer.write("<p><b>");
+
+		HttpServletRequest httpServletRequest =
+			displayContext.getHttpServletRequest();
+
 		writer.write(_language.get(httpServletRequest, "company-id"));
+
 		writer.write("</b>: ");
+
+		Company company = displayContext.getModel();
+
 		writer.write(String.valueOf(company.getCompanyId()));
+
 		writer.write("</p><p><b>");
 		writer.write(_language.get(httpServletRequest, "name"));
 		writer.write("</b>: ");

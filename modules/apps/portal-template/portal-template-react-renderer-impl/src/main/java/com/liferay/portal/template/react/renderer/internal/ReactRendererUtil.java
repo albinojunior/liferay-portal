@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.servlet.taglib.aui.ScriptData;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.template.react.renderer.ComponentDescriptor;
 
@@ -38,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 public class ReactRendererUtil {
 
 	public static void renderReact(
-			ComponentDescriptor componentDescriptor, Map<String, Object> data,
+			ComponentDescriptor componentDescriptor, Map<String, Object> props,
 			HttpServletRequest httpServletRequest,
 			String npmResolvedPackageName, Portal portal, Writer writer)
 		throws IOException {
@@ -48,68 +49,69 @@ public class ReactRendererUtil {
 		_renderPlaceholder(writer, placeholderId);
 
 		_renderJavaScript(
-			componentDescriptor, data, httpServletRequest,
+			componentDescriptor, props, httpServletRequest,
 			npmResolvedPackageName, placeholderId, portal, writer);
 	}
 
-	private static Map<String, Object> _prepareData(
-		ComponentDescriptor componentDescriptor, Map<String, Object> data,
-		HttpServletRequest httpServletRequest) {
+	private static Map<String, Object> _prepareProps(
+		ComponentDescriptor componentDescriptor, Map<String, Object> props,
+		HttpServletRequest httpServletRequest, Portal portal) {
 
-		Map<String, Object> modifiedData = null;
+		Map<String, Object> modifiedProps = null;
 
-		if (!data.containsKey("componentId")) {
-			if (modifiedData == null) {
-				modifiedData = new HashMap<>(data);
+		if (!props.containsKey("componentId")) {
+			if (modifiedProps == null) {
+				modifiedProps = new HashMap<>(props);
 			}
 
-			modifiedData.put(
+			modifiedProps.put(
 				"componentId", componentDescriptor.getComponentId());
 		}
 
-		if (!data.containsKey("locale")) {
-			if (modifiedData == null) {
-				modifiedData = new HashMap<>(data);
+		if (!props.containsKey("locale")) {
+			if (modifiedProps == null) {
+				modifiedProps = new HashMap<>(props);
 			}
 
-			modifiedData.put("locale", LocaleUtil.getMostRelevantLocale());
+			modifiedProps.put("locale", LocaleUtil.getMostRelevantLocale());
 		}
 
-		if (!data.containsKey("portletId")) {
-			if (modifiedData == null) {
-				modifiedData = new HashMap<>(data);
+		String portletId = (String)props.get("portletId");
+
+		if (portletId == null) {
+			if (modifiedProps == null) {
+				modifiedProps = new HashMap<>(props);
 			}
 
-			modifiedData.put(
-				"portletId",
-				httpServletRequest.getAttribute(WebKeys.PORTLET_ID));
+			portletId = portal.getPortletId(httpServletRequest);
+
+			modifiedProps.put("portletId", portletId);
 		}
 
-		if (!data.containsKey("portletNamespace")) {
-			if (modifiedData == null) {
-				modifiedData = new HashMap<>(data);
+		if ((portletId != null) && !props.containsKey("portletNamespace")) {
+			if (modifiedProps == null) {
+				modifiedProps = new HashMap<>(props);
 			}
 
-			modifiedData.put(
-				"portletNamespace",
-				httpServletRequest.getAttribute(WebKeys.PORTLET_ID));
+			modifiedProps.put(
+				"portletNamespace", portal.getPortletNamespace(portletId));
 		}
 
-		if (modifiedData == null) {
-			return data;
+		if (modifiedProps == null) {
+			return props;
 		}
 
-		return modifiedData;
+		return modifiedProps;
 	}
 
 	private static void _renderJavaScript(
-			ComponentDescriptor componentDescriptor, Map<String, Object> data,
+			ComponentDescriptor componentDescriptor, Map<String, Object> props,
 			HttpServletRequest httpServletRequest,
 			String npmResolvedPackageName, String placeholderId, Portal portal,
 			Writer writer)
 		throws IOException {
 
-		StringBundler dependenciesSB = new StringBundler(7);
+		StringBundler dependenciesSB = new StringBundler(11);
 
 		dependenciesSB.append(npmResolvedPackageName);
 		dependenciesSB.append("/render.es as render");
@@ -119,18 +121,44 @@ public class ReactRendererUtil {
 		dependenciesSB.append(" as renderFunction");
 		dependenciesSB.append(placeholderId);
 
+		String propsTransformer = componentDescriptor.getPropsTransformer();
+
+		if (Validator.isNotNull(propsTransformer)) {
+			dependenciesSB.append(", ");
+			dependenciesSB.append(propsTransformer);
+			dependenciesSB.append(" as propsTransformer");
+			dependenciesSB.append(placeholderId);
+		}
+
 		JSONSerializer jsonSerializer = JSONFactoryUtil.createJSONSerializer();
 
-		StringBundler javascriptSB = new StringBundler(9);
+		StringBundler javascriptSB = new StringBundler(13);
 
 		javascriptSB.append("render");
 		javascriptSB.append(placeholderId);
 		javascriptSB.append(".default(renderFunction");
 		javascriptSB.append(placeholderId);
 		javascriptSB.append(".default, ");
-		javascriptSB.append(
-			jsonSerializer.serializeDeep(
-				_prepareData(componentDescriptor, data, httpServletRequest)));
+
+		if (Validator.isNotNull(propsTransformer)) {
+			javascriptSB.append("propsTransformer");
+			javascriptSB.append(placeholderId);
+			javascriptSB.append(".default(");
+			javascriptSB.append(
+				jsonSerializer.serializeDeep(
+					_prepareProps(
+						componentDescriptor, props, httpServletRequest,
+						portal)));
+			javascriptSB.append(")");
+		}
+		else {
+			javascriptSB.append(
+				jsonSerializer.serializeDeep(
+					_prepareProps(
+						componentDescriptor, props, httpServletRequest,
+						portal)));
+		}
+
 		javascriptSB.append(", '");
 		javascriptSB.append(placeholderId);
 		javascriptSB.append("');");

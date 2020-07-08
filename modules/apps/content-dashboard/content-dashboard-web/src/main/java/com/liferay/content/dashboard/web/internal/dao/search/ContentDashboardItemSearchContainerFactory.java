@@ -17,6 +17,7 @@ package com.liferay.content.dashboard.web.internal.dao.search;
 import com.liferay.content.dashboard.web.internal.item.ContentDashboardItem;
 import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactory;
 import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryTracker;
+import com.liferay.content.dashboard.web.internal.search.request.ContentDashboardItemChecker;
 import com.liferay.content.dashboard.web.internal.search.request.ContentDashboardSearchContextBuilder;
 import com.liferay.content.dashboard.web.internal.searcher.ContentDashboardSearchRequestBuilderFactory;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
@@ -74,7 +75,6 @@ public class ContentDashboardItemSearchContainerFactory {
 				null, "there-is-no-content");
 
 		searchContainer.setOrderByCol(_getOrderByCol());
-
 		searchContainer.setOrderByType(_getOrderByType());
 
 		SearchResponse searchResponse = _getSearchResponse(
@@ -83,6 +83,8 @@ public class ContentDashboardItemSearchContainerFactory {
 		searchContainer.setResults(
 			_getContentDashboardItems(searchResponse.getDocuments71()));
 
+		searchContainer.setRowChecker(
+			new ContentDashboardItemChecker(_renderResponse));
 		searchContainer.setTotal(searchResponse.getTotalHits());
 
 		return searchContainer;

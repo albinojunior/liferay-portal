@@ -57,7 +57,7 @@
 	}
 }
 
-.product-menu {
+.product-menu:not(.light) {
 	.form-control-sm {
 		background-color: #1b2228;
 		border-radius: $border-radius;
@@ -147,6 +147,19 @@
 }
 
 .product-menu {
+	&.light {
+		.sidebar-header {
+			color: $white;
+			font-size: 14px;
+			font-weight: bold;
+			height: $product-menu-header-height;
+		}
+
+		.sidebar-body {
+			border-left: 1px solid $gray-300;
+		}
+	}
+
 	.sidebar-header {
 		background-color: $product-menu-header-bg;
 		color: $product-menu-header-color;

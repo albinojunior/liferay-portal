@@ -137,7 +137,7 @@ definition {
 				locator1 = "PageEditor#CONTAINER_CONTAINER_NESTED_ELEMENT");
 		}
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Container");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Container");
 
 		PageEditorComposition.saveAsFragment(
 			collectionName = "Collection Name",
@@ -324,7 +324,7 @@ definition {
 			key_image = "Document_1.jpg",
 			locator1 = "Fragment#PAGE_EDITOR_FRAGMENT_IMAGE");
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Container");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Container");
 
 		PageEditorComposition.saveAsFragment(
 			fragmentName = "New Fragment Name",
@@ -430,15 +430,18 @@ definition {
 				locator1 = "PageEditor#CONTAINER_CONTAINER_NESTED_ELEMENT");
 		}
 
-		PageEditor.gotoConfiguration(fragmentName = "Heading");
+		PageEditor.gotoStyle(fragmentName = "Heading");
 
 		PageEditor.configureFragment(
-			headingLevel = "H2",
 			marginBottom = "1",
 			textAlign = "Center",
 			textColor = "danger");
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Container");
+		PageEditor.gotoConfiguration(fragmentName = "Heading");
+
+		PageEditor.configureFragment(headingLevel = "H2");
+
+		PageEditor.gotoSaveAsFragment(fragmentName = "Container");
 
 		PageEditorComposition.saveAsFragment(fragmentName = "New Fragment Name");
 
@@ -557,7 +560,7 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Container");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Container");
 
 		PageEditorComposition.saveAsFragment(fragmentName = "New Fragment Name");
 
@@ -708,7 +711,7 @@ definition {
 			fileName = "fragment_freemarker_basic.html",
 			fragmentName = "HTML");
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Row");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Row");
 
 		PageEditorComposition.saveAsFragment(fragmentName = "New Fragment Name");
 
@@ -887,7 +890,7 @@ definition {
 			fileName = "fragment_freemarker_basic.html",
 			fragmentName = "HTML");
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Row");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Row");
 
 		PageEditorComposition.saveAsFragment(
 			fragmentName = "New Fragment Name",
@@ -1061,21 +1064,12 @@ definition {
 
 			AssertElementPresent(locator1 = "//div[contains(@class,'page-editor__fragment-content')][contains(.,'border: solid violet')]");
 
-			PageEditor.gotoConfiguration(fragmentName = "Fragment Name");
+			PageEditor.clickConfigurableField(fragmentName = "Fragment Name");
 
 			AssertTextEquals(
 				key_fieldLabel = "Button Text",
 				locator1 = "TextInput#GENERIC_TEXT_INPUT",
 				value1 = "Go Somewhere");
-
-			AssertClick(
-				locator1 = "Button#RESTORE_VALUES",
-				value1 = "Restore Values");
-
-			AssertTextEquals(
-				key_fieldLabel = "Button Text",
-				locator1 = "TextInput#GENERIC_TEXT_INPUT",
-				value1 = "Description");
 
 			ClickNoError(
 				key_text = "Here we go",

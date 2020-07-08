@@ -16,14 +16,13 @@ package com.liferay.journal.web.internal.portlet.action;
 
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.web.internal.util.ExportTranslationUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Alejandro Tardín
@@ -60,14 +58,17 @@ public class GetExportTranslationAvailableLocalesMVCResourceCommand
 		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		JournalArticle article = ActionUtil.getArticle(resourceRequest);
+
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
-			ExportTranslationUtil.getLocalesJSONJArray(
-				themeDisplay.getLocale(),
-				_getAvailableLocales(
-					_journalArticleLocalService.getArticle(
-						themeDisplay.getScopeGroupId(),
-						ParamUtil.getString(resourceRequest, "articleId")))));
+			JSONUtil.put(
+				"availableLocales",
+				ExportTranslationUtil.getLocalesJSONJArray(
+					themeDisplay.getLocale(), _getAvailableLocales(article))
+			).put(
+				"defaultLanguageId", article.getDefaultLanguageId()
+			));
 	}
 
 	private List<Locale> _getAvailableLocales(JournalArticle journalArticle) {
@@ -80,8 +81,5 @@ public class GetExportTranslationAvailableLocalesMVCResourceCommand
 			Collectors.toList()
 		);
 	}
-
-	@Reference
-	private JournalArticleLocalService _journalArticleLocalService;
 
 }

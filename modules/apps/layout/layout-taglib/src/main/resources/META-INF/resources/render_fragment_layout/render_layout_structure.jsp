@@ -114,7 +114,15 @@ for (String childrenItemId : childrenItemIds) {
 
 			<%
 			ContainerLayoutStructureItem containerLayoutStructureItem = (ContainerLayoutStructureItem)layoutStructureItem;
+
+			String containerLinkHref = renderFragmentLayoutDisplayContext.getContainerLinkHref(containerLayoutStructureItem, request.getAttribute(InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT));
 			%>
+
+			<c:choose>
+				<c:when test="<%= Validator.isNotNull(containerLinkHref) %>">
+					<a href="<%= containerLinkHref %>" style="color: inherit; text-decoration: none;" target="<%= renderFragmentLayoutDisplayContext.getContainerLinkTarget(containerLayoutStructureItem) %>">
+				</c:when>
+			</c:choose>
 
 			<div class="<%= renderFragmentLayoutDisplayContext.getCssClass(containerLayoutStructureItem) %>" style="<%= renderFragmentLayoutDisplayContext.getStyle(containerLayoutStructureItem) %>">
 
@@ -124,6 +132,12 @@ for (String childrenItemId : childrenItemIds) {
 
 				<liferay-util:include page="/render_fragment_layout/render_layout_structure.jsp" servletContext="<%= application %>" />
 			</div>
+
+			<c:choose>
+				<c:when test="<%= Validator.isNotNull(containerLinkHref) %>">
+					</a>
+				</c:when>
+			</c:choose>
 		</c:when>
 		<c:when test="<%= layoutStructureItem instanceof DropZoneLayoutStructureItem %>">
 
@@ -160,10 +174,7 @@ for (String childrenItemId : childrenItemIds) {
 
 			DefaultFragmentRendererContext defaultFragmentRendererContext = new DefaultFragmentRendererContext(fragmentEntryLink);
 
-			Object displayObject = request.getAttribute(InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT);
-
-			defaultFragmentRendererContext.setDisplayObject(displayObject);
-
+			defaultFragmentRendererContext.setDisplayObject(request.getAttribute(InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT));
 			defaultFragmentRendererContext.setFieldValues(fieldValues);
 			defaultFragmentRendererContext.setLocale(locale);
 			defaultFragmentRendererContext.setMode(mode);

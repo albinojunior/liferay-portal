@@ -18,6 +18,7 @@ import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalService;
 import com.liferay.layout.seo.service.LayoutSEOEntryService;
+import com.liferay.layout.seo.web.internal.util.LayoutTypeSettingsUtil;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
@@ -119,7 +120,14 @@ public class EditOpenGraphMVCActionCommand extends BaseMVCActionCommand {
 
 		Layout draftLayout = layout.fetchDraftLayout();
 
+		UnicodeProperties formTypeSettingsUnicodeProperties =
+			PropertiesParamUtil.getProperties(
+				actionRequest, "TypeSettingsProperties--");
+
 		if (draftLayout != null) {
+			draftLayout = LayoutTypeSettingsUtil.updateTypeSettings(
+				draftLayout, _layoutService, formTypeSettingsUnicodeProperties);
+
 			_layoutSEOEntryService.updateLayoutSEOEntry(
 				groupId, privateLayout, draftLayout.getLayoutId(),
 				canonicalURLEnabled, canonicalURLMap,
@@ -128,24 +136,11 @@ public class EditOpenGraphMVCActionCommand extends BaseMVCActionCommand {
 				openGraphTitleEnabled, openGraphTitleMap, serviceContext);
 		}
 
+		layout = LayoutTypeSettingsUtil.updateTypeSettings(
+			layout, _layoutService, formTypeSettingsUnicodeProperties);
+
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
-
-		layout.getTypeSettingsProperties();
-
-		UnicodeProperties formTypeSettingsUnicodeProperties =
-			PropertiesParamUtil.getProperties(
-				actionRequest, "TypeSettingsProperties--");
-
-		UnicodeProperties layoutTypeSettingsUnicodeProperties =
-			layout.getTypeSettingsProperties();
-
-		layoutTypeSettingsUnicodeProperties.putAll(
-			formTypeSettingsUnicodeProperties);
-
-		layout = _layoutService.updateLayout(
-			groupId, privateLayout, layoutId,
-			layoutTypeSettingsUnicodeProperties.toString());
 
 		EventsProcessorUtil.process(
 			PropsKeys.LAYOUT_CONFIGURATION_ACTION_UPDATE,

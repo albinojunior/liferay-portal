@@ -55,7 +55,7 @@ public class DLFileShortcutUADTestUtil {
 
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 
-		InputStream is = new ByteArrayInputStream(bytes);
+		InputStream inputStream = new ByteArrayInputStream(bytes);
 
 		DLFileEntry dlFileEntry = dlFileEntryLocalService.addFileEntry(
 			userId, dlFolder.getGroupId(), dlFolder.getRepositoryId(),
@@ -63,7 +63,7 @@ public class DLFileShortcutUADTestUtil {
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
 			StringPool.BLANK, StringPool.BLANK,
 			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			null, is, bytes.length, serviceContext);
+			null, inputStream, bytes.length, serviceContext);
 
 		return dlFileShortcutLocalService.addFileShortcut(
 			userId, groupId, groupId, dlFolder.getFolderId(),

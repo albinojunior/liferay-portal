@@ -17,44 +17,36 @@
 <%@ include file="/document_library/ct_display/init.jsp" %>
 
 <%
-FileEntry fileEntry = (FileEntry)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY);
+DisplayContext<?> displayContext = (DisplayContext<?>)request.getAttribute("displayContext");
 
-FileVersion fileVersion = (FileVersion)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_VERSION);
+DLFileEntry dlFileEntry = (DLFileEntry)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY);
 
-DLViewFileVersionDisplayContext dlViewFileVersionDisplayContext = dlDisplayContextProvider.getDLViewFileVersionDisplayContext(request, response, fileVersion);
+DLFileVersion dlFileVersion = (DLFileVersion)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_VERSION);
 %>
 
 <p>
-	<b><liferay-ui:message key="id" /></b>: <%= fileEntry.getFileEntryId() %>
+	<b><liferay-ui:message key="id" /></b>: <%= dlFileEntry.getFileEntryId() %>
 </p>
 
 <p>
-	<b><liferay-ui:message key="version" /></b>: <%= fileVersion.getVersion() %>
+	<b><liferay-ui:message key="version" /></b>: <%= dlFileVersion.getVersion() %>
 </p>
 
 <p>
-	<b><liferay-ui:message key="title" /></b>: <%= HtmlUtil.escape(fileVersion.getTitle()) %>
+	<b><liferay-ui:message key="title" /></b>: <%= HtmlUtil.escape(dlFileVersion.getTitle()) %>
 </p>
 
 <p>
-	<b><liferay-ui:message key="description" /></b>: <%= HtmlUtil.escape(fileVersion.getDescription()) %>
+	<b><liferay-ui:message key="description" /></b>: <%= HtmlUtil.escape(dlFileVersion.getDescription()) %>
 </p>
 
-<b><liferay-ui:message key="content" /></b>:
-
-<liferay-util:html-top
-	outputKey="document_library_preview_css"
->
-	<link href="<%= PortalUtil.getStaticResourceURL(request, application.getContextPath() + "/document_library/css/document_library_preview.css") %>" rel="stylesheet" type="text/css" />
-</liferay-util:html-top>
-
-<div class="view">
-	<div class="body-row">
-		<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
-
-		<%
-		dlViewFileVersionDisplayContext.renderPreview(request, response);
-		%>
-
-	</div>
-</div>
+<p>
+	<clay:link
+		buttonStyle="primary"
+		elementClasses="btn-sm"
+		href="<%= displayContext.getDownloadURL(dlFileVersion.getVersion(), dlFileVersion.getSize(), dlFileVersion.getFileName()) %>"
+		icon="download"
+		label='<%= LanguageUtil.get(resourceBundle, "download") %>'
+		title='<%= LanguageUtil.format(resourceBundle, "file-size-x", LanguageUtil.formatStorageSize(dlFileVersion.getSize(), locale), false) %>'
+	/>
+</p>

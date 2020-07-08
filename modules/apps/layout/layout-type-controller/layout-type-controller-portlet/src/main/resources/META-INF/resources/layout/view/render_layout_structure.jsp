@@ -111,7 +111,15 @@ for (String childrenItemId : childrenItemIds) {
 
 			<%
 			ContainerLayoutStructureItem containerLayoutStructureItem = (ContainerLayoutStructureItem)layoutStructureItem;
+
+			String containerLinkHref = portletLayoutDisplayContext.getContainerLinkHref(containerLayoutStructureItem, request.getAttribute(InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT));
 			%>
+
+			<c:choose>
+				<c:when test="<%= Validator.isNotNull(containerLinkHref) %>">
+					<a href="<%= containerLinkHref %>" style="color: inherit; text-decoration: none;" target="<%= portletLayoutDisplayContext.getContainerLinkTarget(containerLayoutStructureItem) %>">
+				</c:when>
+			</c:choose>
 
 			<div class="<%= portletLayoutDisplayContext.getCssClass(containerLayoutStructureItem) %>" style="<%= portletLayoutDisplayContext.getStyle(containerLayoutStructureItem) %>">
 
@@ -121,6 +129,12 @@ for (String childrenItemId : childrenItemIds) {
 
 				<liferay-util:include page="/layout/view/render_layout_structure.jsp" servletContext="<%= application %>" />
 			</div>
+
+			<c:choose>
+				<c:when test="<%= Validator.isNotNull(containerLinkHref) %>">
+					</a>
+				</c:when>
+			</c:choose>
 		</c:when>
 		<c:when test="<%= layoutStructureItem instanceof DropZoneLayoutStructureItem %>">
 
@@ -177,9 +191,7 @@ for (String childrenItemId : childrenItemIds) {
 
 				DefaultFragmentRendererContext defaultFragmentRendererContext = new DefaultFragmentRendererContext(fragmentEntryLink);
 
-				Object displayObject = request.getAttribute("render_layout_structure.jsp-collectionObject");
-
-				defaultFragmentRendererContext.setDisplayObject(displayObject);
+				defaultFragmentRendererContext.setDisplayObject(request.getAttribute("render_layout_structure.jsp-collectionObject"));
 				defaultFragmentRendererContext.setLocale(locale);
 
 				if (LayoutStructureItemUtil.hasAncestor(fragmentLayoutStructureItem.getItemId(), LayoutDataItemTypeConstants.TYPE_COLLECTION_ITEM, layoutStructure)) {

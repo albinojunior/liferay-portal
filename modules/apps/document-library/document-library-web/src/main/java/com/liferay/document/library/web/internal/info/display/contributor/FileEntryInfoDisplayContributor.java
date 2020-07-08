@@ -19,6 +19,7 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.dynamic.data.mapping.info.display.field.DDMFormValuesInfoDisplayFieldProvider;
 import com.liferay.info.display.contributor.InfoDisplayContributor;
 import com.liferay.info.display.contributor.InfoDisplayField;
@@ -85,7 +86,8 @@ public class FileEntryInfoDisplayContributor
 
 		infoDisplayFields.addAll(
 			_expandoInfoDisplayFieldProvider.
-				getContributorExpandoInfoDisplayFields(getClassName(), locale));
+				getContributorExpandoInfoDisplayFields(
+					DLFileEntryConstants.getClassName(), locale));
 
 		return infoDisplayFields;
 	}
@@ -107,13 +109,17 @@ public class FileEntryInfoDisplayContributor
 					getAssetEntryInfoDisplayFieldsValues(
 						DLFileEntryConstants.getClassName(),
 						fileEntry.getFileEntryId(), locale));
+
+			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
+
+			DLFileVersion dlFileVersion = dlFileEntry.getLatestFileVersion(
+				true);
+
 			infoDisplayFieldValues.putAll(
 				_expandoInfoDisplayFieldProvider.
 					getContributorExpandoInfoDisplayFieldsValues(
-						DLFileEntryConstants.getClassName(), fileEntry,
+						DLFileEntryConstants.getClassName(), dlFileVersion,
 						locale));
-
-			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
 
 			DLFileEntryDDMFormValuesReader dlFileEntryDDMFormValuesReader =
 				new DLFileEntryDDMFormValuesReader(

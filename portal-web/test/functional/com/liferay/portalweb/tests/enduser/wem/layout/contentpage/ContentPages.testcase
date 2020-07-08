@@ -1446,7 +1446,7 @@ definition {
 		}
 
 		task ("Configure the Heading") {
-			PageEditor.gotoConfiguration(fragmentName = "Heading");
+			PageEditor.gotoStyle(fragmentName = "Heading");
 
 			PageEditor.configureFragment(textColor = "white");
 
@@ -1833,7 +1833,7 @@ definition {
 				locator1 = "Fragment#FRAGMENT_HEADER");
 		}
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Container");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Container");
 
 		PageEditorComposition.saveAsFragment(fragmentName = "New Fragment Name");
 

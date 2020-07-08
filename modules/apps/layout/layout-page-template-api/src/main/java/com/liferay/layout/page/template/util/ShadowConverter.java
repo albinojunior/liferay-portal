@@ -14,7 +14,6 @@
 
 package com.liferay.layout.page.template.util;
 
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 
 import java.util.Map;
@@ -28,15 +27,13 @@ public class ShadowConverter {
 
 	public static final Map<String, String> externalToInternalValuesMap =
 		HashMapBuilder.put(
-			"Default", StringPool.BLANK
-		).put(
-			"Large", "shadow-large"
+			"Large", "shadow-lg"
 		).put(
 			"None", "shadow-none"
 		).put(
 			"Regular", "shadow"
 		).put(
-			"Small", "shadow-small"
+			"Small", "shadow-sm"
 		).build();
 
 	public static String convertToExternalValue(String value) {

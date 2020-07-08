@@ -15,6 +15,7 @@
 package com.liferay.journal.web.internal.change.tracking.display;
 
 import com.liferay.change.tracking.display.CTDisplayRenderer;
+import com.liferay.change.tracking.display.context.DisplayContext;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.util.JournalContent;
@@ -36,7 +37,6 @@ import javax.portlet.PortletURL;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -101,11 +101,14 @@ public class JournalArticleCTDisplayRenderer
 	}
 
 	@Override
-	public void render(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse,
-			JournalArticle journalArticle)
+	public void render(DisplayContext<JournalArticle> displayContext)
 		throws Exception {
+
+		RequestDispatcher requestDispatcher =
+			_servletContext.getRequestDispatcher("/ct_display/render.jsp");
+
+		HttpServletRequest httpServletRequest =
+			displayContext.getHttpServletRequest();
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
@@ -114,14 +117,12 @@ public class JournalArticleCTDisplayRenderer
 		httpServletRequest.setAttribute(
 			WebKeys.JOURNAL_ARTICLE_DISPLAY,
 			_journalContent.getDisplay(
-				journalArticle, "", "",
+				displayContext.getModel(), "", "",
 				_language.getLanguageId(httpServletRequest), 1, null,
 				themeDisplay));
 
-		RequestDispatcher requestDispatcher =
-			_servletContext.getRequestDispatcher("/ct_display/render.jsp");
-
-		requestDispatcher.include(httpServletRequest, httpServletResponse);
+		requestDispatcher.include(
+			httpServletRequest, displayContext.getHttpServletResponse());
 	}
 
 	@Reference

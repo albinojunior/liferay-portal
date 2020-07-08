@@ -170,7 +170,7 @@ definition {
 			collectionName = "Basic Components",
 			fragmentName = "Video");
 
-		PageEditor.gotoConfiguration(fragmentName = "Video");
+		PageEditor.gotoStyle(fragmentName = "Video");
 
 		PageEditor.addVideoFragmentURL(videoLink = "https://www.youtube.com/watch?v=2EPZxIC5ogU");
 
@@ -268,7 +268,7 @@ definition {
 		AssertVisible(
 			key_content = "Place fragments here.",
 			key_fragmentClass = "content",
-			key_position = "1",
+			key_position = "5",
 			locator1 = "Fragment#PAGE_EDITOR_NO_FRAGMENTS_MESSAGE");
 
 		Navigator.gotoNavTab(navTab = "Widgets");
@@ -1206,7 +1206,7 @@ definition {
 
 			AssetListsAdmin.editAssetList(assetListTitle = "Dynamic Collection");
 
-			AssetListsAdmin.configureAssetEntryType(selectedAsset = "Select More Than One...");
+			AssetListsAdmin.configureAssetEntryType(selectedAsset = "Select Types...");
 
 			for (var key_type : list "Web Content Article,Blogs Entry,Document") {
 				AssertVisible(locator1 = "AssetLists#ASSET_LIST_ENTRY_TYPE_SELECTED");
@@ -1460,7 +1460,7 @@ definition {
 			siteName = "Test Site Name");
 
 		AssertVisible(
-			key_imageFileName = "Document Title",
+			key_imageFileName = "Document+Title",
 			locator1 = "PageEditor#CONTENT_PAGE_IMAGE_CONTENT");
 	}
 
@@ -2249,7 +2249,7 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		PageEditor.gotoConfiguration(fragmentName = "Content Display");
+		PageEditor.clickConfigurableField(fragmentName = "Content Display");
 
 		AssertSelectedLabel(
 			key_fieldLabel = "Template",
@@ -2324,7 +2324,7 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		PageEditor.gotoConfiguration(fragmentName = "Content Display");
+		PageEditor.clickConfigurableField(fragmentName = "Content Display");
 
 		AssertSelectedLabel(
 			key_fieldLabel = "Template",
@@ -2657,7 +2657,7 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		PageEditor.gotoConfiguration(fragmentName = "Content Display");
+		PageEditor.clickConfigurableField(fragmentName = "Content Display");
 
 		AssertSelectedLabel(
 			key_fieldLabel = "Template",
@@ -2772,7 +2772,7 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		PageEditor.gotoConfiguration(fragmentName = "Content Display");
+		PageEditor.clickConfigurableField(fragmentName = "Content Display");
 
 		AssertSelectedLabel(
 			key_fieldLabel = "Template",

@@ -15,10 +15,14 @@
 package com.liferay.layout.taglib.internal.display.context;
 
 import com.liferay.asset.display.page.constants.AssetDisplayPageWebKeys;
+import com.liferay.asset.info.display.contributor.util.ContentAccessor;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.info.display.contributor.InfoDisplayContributor;
 import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
 import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
+import com.liferay.info.field.InfoFieldValue;
+import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.list.renderer.DefaultInfoListRendererContext;
 import com.liferay.info.list.renderer.InfoListRenderer;
 import com.liferay.info.list.renderer.InfoListRendererContext;
@@ -40,6 +44,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.ClassedModel;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletPreferences;
 import com.liferay.portal.kernel.portlet.PortletJSONUtil;
@@ -71,6 +76,7 @@ public class RenderFragmentLayoutDisplayContext {
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse,
 		InfoDisplayContributorTracker infoDisplayContributorTracker,
+		InfoItemServiceTracker infoItemServiceTracker,
 		InfoListRendererTracker infoListRendererTracker,
 		LayoutListRetrieverTracker layoutListRetrieverTracker,
 		ListObjectReferenceFactoryTracker listObjectReferenceFactoryTracker) {
@@ -78,6 +84,7 @@ public class RenderFragmentLayoutDisplayContext {
 		_httpServletRequest = httpServletRequest;
 		_httpServletResponse = httpServletResponse;
 		_infoDisplayContributorTracker = infoDisplayContributorTracker;
+		_infoItemServiceTracker = infoItemServiceTracker;
 		_infoListRendererTracker = infoListRendererTracker;
 		_layoutListRetrieverTracker = layoutListRetrieverTracker;
 		_listObjectReferenceFactoryTracker = listObjectReferenceFactoryTracker;
@@ -140,6 +147,129 @@ public class RenderFragmentLayoutDisplayContext {
 
 		return _infoDisplayContributorTracker.getInfoDisplayContributor(
 			className);
+	}
+
+	public String getContainerLinkHref(
+			ContainerLayoutStructureItem containerLayoutStructureItem,
+			Object displayObject)
+		throws PortalException {
+
+		JSONObject linkJSONObject =
+			containerLayoutStructureItem.getLinkJSONObject();
+
+		if (linkJSONObject == null) {
+			return StringPool.BLANK;
+		}
+
+		String mappedField = linkJSONObject.getString("mappedField");
+
+		if (Validator.isNotNull(mappedField)) {
+			InfoDisplayObjectProvider<Object> infoDisplayObjectProvider =
+				(InfoDisplayObjectProvider<Object>)
+					_httpServletRequest.getAttribute(
+						AssetDisplayPageWebKeys.INFO_DISPLAY_OBJECT_PROVIDER);
+
+			if ((_infoDisplayContributorTracker != null) &&
+				(infoDisplayObjectProvider != null)) {
+
+				InfoDisplayContributor<Object> infoDisplayContributor =
+					(InfoDisplayContributor<Object>)
+						_infoDisplayContributorTracker.
+							getInfoDisplayContributor(
+								PortalUtil.getClassName(
+									infoDisplayObjectProvider.
+										getClassNameId()));
+
+				if (infoDisplayContributor != null) {
+					Object object =
+						infoDisplayContributor.getInfoDisplayFieldValue(
+							infoDisplayObjectProvider.getDisplayObject(),
+							mappedField, LocaleUtil.getDefault());
+
+					if (object instanceof String) {
+						String fieldValue = (String)object;
+
+						if (Validator.isNotNull(fieldValue)) {
+							return fieldValue;
+						}
+
+						return StringPool.BLANK;
+					}
+				}
+			}
+		}
+
+		String fieldId = linkJSONObject.getString("fieldId");
+
+		if (Validator.isNotNull(fieldId)) {
+			long classNameId = linkJSONObject.getLong("classNameId");
+			long classPK = linkJSONObject.getLong("classPK");
+
+			if ((classNameId != 0L) && (classPK != 0L)) {
+				InfoDisplayContributor<Object> infoDisplayContributor =
+					(InfoDisplayContributor<Object>)
+						_infoDisplayContributorTracker.
+							getInfoDisplayContributor(
+								PortalUtil.getClassName(classNameId));
+
+				if (infoDisplayContributor != null) {
+					InfoDisplayObjectProvider<Object>
+						infoDisplayObjectProvider =
+							infoDisplayContributor.getInfoDisplayObjectProvider(
+								classPK);
+
+					if (infoDisplayObjectProvider != null) {
+						Object object =
+							infoDisplayContributor.getInfoDisplayFieldValue(
+								infoDisplayObjectProvider.getDisplayObject(),
+								fieldId, LocaleUtil.getDefault());
+
+						if (object instanceof String) {
+							String fieldValue = (String)object;
+
+							if (Validator.isNotNull(fieldValue)) {
+								return fieldValue;
+							}
+
+							return StringPool.BLANK;
+						}
+					}
+				}
+			}
+		}
+
+		String collectionFieldId = linkJSONObject.getString(
+			"collectionFieldId");
+
+		if (Validator.isNotNull(collectionFieldId)) {
+			String mappedCollectionValue = _getMappedCollectionValue(
+				collectionFieldId, displayObject);
+
+			if (Validator.isNotNull(mappedCollectionValue)) {
+				return mappedCollectionValue;
+			}
+		}
+
+		String href = linkJSONObject.getString("href");
+
+		if (Validator.isNotNull(href)) {
+			return href;
+		}
+
+		return StringPool.BLANK;
+	}
+
+	public String getContainerLinkTarget(
+		ContainerLayoutStructureItem containerLayoutStructureItem) {
+
+		JSONObject linkJSONObject =
+			containerLayoutStructureItem.getLinkJSONObject();
+
+		if (linkJSONObject == null) {
+			return StringPool.BLANK;
+		}
+
+		return linkJSONObject.getString("target");
 	}
 
 	public String getCssClass(
@@ -474,6 +604,60 @@ public class RenderFragmentLayoutDisplayContext {
 			collectionJSONObject);
 	}
 
+	private String _getMappedCollectionValue(
+		String collectionFieldId, Object displayObject) {
+
+		if (!(displayObject instanceof ClassedModel)) {
+			return StringPool.BLANK;
+		}
+
+		ClassedModel classedModel = (ClassedModel)displayObject;
+
+		// LPS-111037
+
+		String className = classedModel.getModelClassName();
+
+		if (classedModel instanceof FileEntry) {
+			className = FileEntry.class.getName();
+		}
+
+		InfoItemFieldValuesProvider<Object> infoItemFieldValuesProvider =
+			_infoItemServiceTracker.getFirstInfoItemService(
+				InfoItemFieldValuesProvider.class, className);
+
+		if (infoItemFieldValuesProvider == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get info item field values provider for class " +
+						className);
+			}
+
+			return StringPool.BLANK;
+		}
+
+		InfoFieldValue<Object> infoFieldValue =
+			infoItemFieldValuesProvider.getInfoItemFieldValue(
+				displayObject, collectionFieldId);
+
+		if (infoFieldValue == null) {
+			return StringPool.BLANK;
+		}
+
+		Object value = infoFieldValue.getValue();
+
+		if (value instanceof ContentAccessor) {
+			ContentAccessor contentAccessor = (ContentAccessor)infoFieldValue;
+
+			return contentAccessor.getContent();
+		}
+
+		if (value instanceof String) {
+			return (String)value;
+		}
+
+		return StringPool.BLANK;
+	}
+
 	private List<Portlet> _getPortlets() {
 		if (_portlets != null) {
 			return _portlets;
@@ -506,6 +690,7 @@ public class RenderFragmentLayoutDisplayContext {
 	private final HttpServletRequest _httpServletRequest;
 	private final HttpServletResponse _httpServletResponse;
 	private final InfoDisplayContributorTracker _infoDisplayContributorTracker;
+	private final InfoItemServiceTracker _infoItemServiceTracker;
 	private final InfoListRendererTracker _infoListRendererTracker;
 	private final LayoutListRetrieverTracker _layoutListRetrieverTracker;
 	private final ListObjectReferenceFactoryTracker

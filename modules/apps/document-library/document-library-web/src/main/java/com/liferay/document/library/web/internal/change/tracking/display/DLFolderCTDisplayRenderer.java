@@ -15,9 +15,9 @@
 package com.liferay.document.library.web.internal.change.tracking.display;
 
 import com.liferay.change.tracking.display.CTDisplayRenderer;
+import com.liferay.change.tracking.display.context.DisplayContext;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.kernel.model.DLFolder;
-import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -35,7 +35,6 @@ import javax.portlet.PortletURL;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -97,24 +96,22 @@ public class DLFolderCTDisplayRenderer implements CTDisplayRenderer<DLFolder> {
 	}
 
 	@Override
-	public void render(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, DLFolder dlFolder)
+	public void render(DisplayContext<DLFolder> displayContext)
 		throws Exception {
-
-		httpServletRequest.setAttribute(
-			WebKeys.DOCUMENT_LIBRARY_FOLDER,
-			_dlAppService.getFolder(dlFolder.getFolderId()));
 
 		RequestDispatcher requestDispatcher =
 			_servletContext.getRequestDispatcher(
 				"/document_library/ct_display/render_folder.jsp");
 
-		requestDispatcher.include(httpServletRequest, httpServletResponse);
-	}
+		HttpServletRequest httpServletRequest =
+			displayContext.getHttpServletRequest();
 
-	@Reference
-	private DLAppService _dlAppService;
+		httpServletRequest.setAttribute(
+			WebKeys.DOCUMENT_LIBRARY_FOLDER, displayContext.getModel());
+
+		requestDispatcher.include(
+			httpServletRequest, displayContext.getHttpServletResponse());
+	}
 
 	@Reference
 	private GroupLocalService _groupLocalService;

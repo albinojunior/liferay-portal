@@ -190,7 +190,7 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Button");
+			PageEditor.gotoStyle(fragmentName = "Button");
 
 			PageEditor.configureFragment(
 				alignment = "Center",
@@ -248,7 +248,7 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Card");
+			PageEditor.clickConfigurableField(fragmentName = "Card");
 
 			PageEditor.configureFragment(
 				borderRadius = "None",
@@ -310,12 +310,15 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Heading");
+			PageEditor.gotoStyle(fragmentName = "Heading");
 
 			PageEditor.configureFragment(
-				headingLevel = "H2",
 				textAlign = "Right",
 				textColor = "secondary");
+
+			PageEditor.gotoConfiguration(fragmentName = "Heading");
+
+			PageEditor.configureFragment(headingLevel = "H2");
 		}
 
 		task ("View the fragment style") {
@@ -368,7 +371,7 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Image");
+			PageEditor.clickConfigurableField(fragmentName = "Image");
 
 			PageEditor.configureFragment(
 				alignment = "Center",
@@ -426,7 +429,7 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Paragraph");
+			PageEditor.clickConfigurableField(fragmentName = "Paragraph");
 
 			PageEditor.configureFragment(
 				textAlign = "Right",
@@ -482,7 +485,7 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Separator");
+			PageEditor.clickConfigurableField(fragmentName = "Separator");
 
 			PageEditor.configureFragment(
 				borderColor = "lighter",
@@ -538,7 +541,7 @@ definition {
 		}
 
 		task ("Configure the fragment") {
-			PageEditor.gotoConfiguration(fragmentName = "Spacer");
+			PageEditor.clickConfigurableField(fragmentName = "Spacer");
 
 			PageEditor.configureFragment(height = "4");
 		}
@@ -935,7 +938,7 @@ definition {
 			key_position = "1",
 			locator1 = "PageEditor#CONTAINER_CONTAINER_NESTED_ELEMENT");
 
-		PageEditor.gotoSaveAsFrgament(fragmentName = "Container");
+		PageEditor.gotoSaveAsFragment(fragmentName = "Container");
 
 		PageEditorComposition.saveAsFragment(fragmentName = "New Fragment Name");
 

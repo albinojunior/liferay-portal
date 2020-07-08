@@ -109,7 +109,8 @@ definition {
 
 		AssetListsAdmin.configureScope(
 			assetListTitle = "Depot Dynamic Asset List",
-			otherSite = "Test Site Name");
+			otherSite = "Test Site Name",
+			selectedAsset = "Any");
 
 		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
@@ -625,6 +626,8 @@ definition {
 			assetType = "Web Content Folder,Web Content Article,Document,Documents Folder",
 			dynamicSelection = "true");
 
+		AssetListsAdmin.configureAssetEntryType(selectedAsset = "Any");
+
 		for (var i : list "1,2,3") {
 			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
@@ -690,7 +693,8 @@ definition {
 
 		AssetListsAdmin.configureScope(
 			assetListTitle = "Depot Dynamic Asset List",
-			otherSite = "Test Site Name");
+			otherSite = "Test Site Name",
+			selectedAsset = "Any");
 
 		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
@@ -827,7 +831,8 @@ definition {
 
 		AssetListsAdmin.configureScope(
 			assetListTitle = "Depot Dynamic Asset List",
-			otherSite = "Test Site Name 1");
+			otherSite = "Test Site Name 1",
+			selectedAsset = "Any");
 
 		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
@@ -865,7 +870,8 @@ definition {
 
 		AssetListsAdmin.configureScope(
 			assetListTitle = "Depot Dynamic Asset List",
-			otherSite = "Test Site Name");
+			otherSite = "Test Site Name",
+			selectedAsset = "Any");
 
 		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 

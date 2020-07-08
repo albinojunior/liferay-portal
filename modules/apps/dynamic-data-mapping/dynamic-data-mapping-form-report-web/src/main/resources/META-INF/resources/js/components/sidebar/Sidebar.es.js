@@ -19,6 +19,7 @@ import React, {useContext} from 'react';
 
 import useRequest from '../../hooks/useRequest.es';
 import List from '../list/List.es';
+import Summary from '../summary/Summary.es';
 import {SidebarContext} from './SidebarContext.es';
 
 export default () => {
@@ -27,6 +28,7 @@ export default () => {
 		formReportRecordsFieldValuesURL,
 		isOpen,
 		portletNamespace,
+		summary = {},
 		toggleSidebar,
 		totalEntries,
 		type,
@@ -55,7 +57,10 @@ export default () => {
 	return (
 		<>
 			<div className="sidebar-backdrop"></div>
-			<div className="open sidebar-container sidebar-reports">
+			<div
+				className="open sidebar-container sidebar-reports"
+				id={`${portletNamespace}-sidebar-reports`}
+			>
 				<div className="sidebar sidebar-light">
 					<nav className="component-tbar tbar">
 						<div className="container-fluid">
@@ -103,6 +108,10 @@ export default () => {
 							<div className="align-items-center d-flex loading-wrapper">
 								<ClayLoadingIndicator />
 							</div>
+						)}
+
+						{!!Object.entries(summary).length && (
+							<Summary summary={summary} />
 						)}
 
 						<List data={data} type={type}></List>

@@ -12,94 +12,64 @@
  * details.
  */
 
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 
 import useSetRef from '../../../core/hooks/useSetRef';
 import {
 	LayoutDataPropTypes,
 	getLayoutDataItemPropTypes,
 } from '../../../prop-types/index';
+import {FRAGMENT_CONFIGURATION_ROLES} from '../../config/constants/fragmentConfigurationRoles';
 import {LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS} from '../../config/constants/layoutDataFloatingToolbarButtons';
 import selectCanUpdateItemConfiguration from '../../selectors/selectCanUpdateItemConfiguration';
-import selectCanUpdatePageStructure from '../../selectors/selectCanUpdatePageStructure';
 import selectShowFloatingToolbar from '../../selectors/selectShowFloatingToolbar';
-import {useDispatch, useSelector} from '../../store/index';
-import duplicateItem from '../../thunks/duplicateItem';
-import {useSelectItem} from '../Controls';
+import {useSelector} from '../../store/index';
 import Topper from '../Topper';
 import FloatingToolbar from '../floating-toolbar/FloatingToolbar';
 import FragmentContent from '../fragment-content/FragmentContent';
 
 const FragmentWithControls = React.forwardRef(({item, layoutData}, ref) => {
-	const dispatch = useDispatch();
-	const canUpdatePageStructure = useSelector(selectCanUpdatePageStructure);
 	const canUpdateItemConfiguration = useSelector(
 		selectCanUpdateItemConfiguration
 	);
 	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
-	const segmentsExperienceId = useSelector(
-		(state) => state.segmentsExperienceId
-	);
-	const selectItem = useSelectItem();
+
 	const showFloatingToolbar = useSelector(selectShowFloatingToolbar);
-	const widgets = useSelector((state) => state.widgets);
 
 	const fragmentEntryLink =
 		fragmentEntryLinks[item.config.fragmentEntryLinkId];
 
 	const [setRef, itemElement] = useSetRef(ref);
 
-	const handleButtonClick = useCallback(
-		(id) => {
-			if (id === LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateItem.id) {
-				dispatch(
-					duplicateItem({
-						itemId: item.itemId,
-						segmentsExperienceId,
-						selectItem,
-					})
-				);
-			}
-		},
-		[dispatch, item.itemId, segmentsExperienceId, selectItem]
-	);
-
 	const floatingToolbarButtons = useMemo(() => {
 		const buttons = [];
 
-		if (canUpdatePageStructure) {
-			const portletId = fragmentEntryLink.editableValues.portletId;
+		const fieldSets = fragmentEntryLink.configuration?.fieldSets;
 
-			const widget = portletId && getWidget(widgets, portletId);
+		const stylesFieldSets = fieldSets?.filter(
+			(fieldSet) =>
+				fieldSet.configurationRole ===
+				FRAGMENT_CONFIGURATION_ROLES.style
+		);
 
-			if (!widget || widget.instanceable) {
-				buttons.push(
-					LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateItem
-				);
-			}
+		const configFieldSets = fieldSets?.filter(
+			(fieldSet) =>
+				fieldSet.configurationRole !==
+				FRAGMENT_CONFIGURATION_ROLES.style
+		);
+
+		if (canUpdateItemConfiguration && stylesFieldSets?.length) {
+			buttons.push(LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.fragmentStyles);
 		}
 
-		const configuration = fragmentEntryLink.configuration;
-
-		if (
-			canUpdateItemConfiguration &&
-			configuration &&
-			Array.isArray(configuration.fieldSets) &&
-			configuration.fieldSets.length
-		) {
+		if (canUpdateItemConfiguration && configFieldSets?.length) {
 			buttons.push(
 				LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.fragmentConfiguration
 			);
 		}
 
 		return buttons;
-	}, [
-		canUpdateItemConfiguration,
-		canUpdatePageStructure,
-		fragmentEntryLink.configuration,
-		fragmentEntryLink.editableValues.portletId,
-		widgets,
-	]);
+	}, [canUpdateItemConfiguration, fragmentEntryLink.configuration]);
 
 	return (
 		<Topper item={item} itemElement={itemElement} layoutData={layoutData}>
@@ -109,7 +79,6 @@ const FragmentWithControls = React.forwardRef(({item, layoutData}, ref) => {
 						buttons={floatingToolbarButtons}
 						item={item}
 						itemElement={itemElement}
-						onButtonClick={handleButtonClick}
 					/>
 				)}
 
@@ -122,30 +91,6 @@ const FragmentWithControls = React.forwardRef(({item, layoutData}, ref) => {
 		</Topper>
 	);
 });
-
-function getWidget(widgets, portletId) {
-	let widget = null;
-
-	const widgetsLength = widgets.length;
-
-	for (let i = 0; i < widgetsLength; i++) {
-		const {categories = [], portlets = []} = widgets[i];
-		const categoryPortlet = portlets.find(
-			(_portlet) => _portlet.portletId === portletId
-		);
-		const subCategoryPortlet = getWidget(categories, portletId);
-
-		if (categoryPortlet) {
-			widget = categoryPortlet;
-		}
-
-		if (subCategoryPortlet) {
-			widget = subCategoryPortlet;
-		}
-	}
-
-	return widget;
-}
 
 FragmentWithControls.displayName = 'FragmentWithControls';
 

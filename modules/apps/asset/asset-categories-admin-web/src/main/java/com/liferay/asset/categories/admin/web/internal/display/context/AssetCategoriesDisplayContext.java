@@ -570,7 +570,7 @@ public class AssetCategoriesDisplayContext {
 
 			AssetVocabularyDisplay assetVocabularyDisplay =
 				AssetVocabularyServiceUtil.searchVocabulariesDisplay(
-					_themeDisplay.getScopeGroupId(), keywords, true,
+					_themeDisplay.getScopeGroupId(), keywords, false,
 					vocabulariesSearchContainer.getStart(),
 					vocabulariesSearchContainer.getEnd(), sort);
 
@@ -588,7 +588,7 @@ public class AssetCategoriesDisplayContext {
 			vocabulariesSearchContainer.setTotal(vocabulariesCount);
 
 			vocabularies = AssetVocabularyServiceUtil.getGroupVocabularies(
-				_themeDisplay.getScopeGroupId(), true,
+				_themeDisplay.getScopeGroupId(), false,
 				vocabulariesSearchContainer.getStart(),
 				vocabulariesSearchContainer.getEnd(),
 				vocabulariesSearchContainer.getOrderByComparator());
@@ -745,13 +745,22 @@ public class AssetCategoriesDisplayContext {
 	private long _getDefaultVocabularyId() throws PortalException {
 		List<AssetVocabulary> vocabularies = getVocabularies();
 
-		if (ListUtil.isEmpty(vocabularies)) {
-			return 0;
+		if (ListUtil.isNotEmpty(vocabularies)) {
+			AssetVocabulary vocabulary = vocabularies.get(0);
+
+			return vocabulary.getVocabularyId();
 		}
 
-		AssetVocabulary vocabulary = vocabularies.get(0);
+		List<AssetVocabulary> inheritedVocabularies =
+			getInheritedVocabularies();
 
-		return vocabulary.getVocabularyId();
+		if (ListUtil.isNotEmpty(inheritedVocabularies)) {
+			AssetVocabulary vocabulary = inheritedVocabularies.get(0);
+
+			return vocabulary.getVocabularyId();
+		}
+
+		return 0;
 	}
 
 	private PortletURL _getIteratorURL() throws PortalException {

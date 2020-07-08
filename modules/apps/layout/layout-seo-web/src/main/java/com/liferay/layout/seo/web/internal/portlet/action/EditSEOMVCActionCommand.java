@@ -16,9 +16,9 @@ package com.liferay.layout.seo.web.internal.portlet.action;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.seo.service.LayoutSEOEntryService;
+import com.liferay.layout.seo.web.internal.util.LayoutTypeSettingsUtil;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.MultiSessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -129,8 +128,8 @@ public class EditSEOMVCActionCommand extends BaseMVCActionCommand {
 				draftLayout.getFriendlyURLMap(), draftLayout.isIconImage(),
 				null, serviceContext);
 
-			draftLayout = _updateTypeSettings(
-				draftLayout, formTypeSettingsUnicodeProperties);
+			draftLayout = LayoutTypeSettingsUtil.updateTypeSettings(
+				draftLayout, _layoutService, formTypeSettingsUnicodeProperties);
 
 			_layoutSEOEntryService.updateLayoutSEOEntry(
 				groupId, privateLayout, draftLayout.getLayoutId(),
@@ -139,7 +138,8 @@ public class EditSEOMVCActionCommand extends BaseMVCActionCommand {
 
 		themeDisplay.clearLayoutFriendlyURL(layout);
 
-		layout = _updateTypeSettings(layout, formTypeSettingsUnicodeProperties);
+		layout = LayoutTypeSettingsUtil.updateTypeSettings(
+			layout, _layoutService, formTypeSettingsUnicodeProperties);
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
@@ -163,48 +163,6 @@ public class EditSEOMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, portletResource + "layoutUpdated", layout);
 
 		actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
-	}
-
-	private Layout _updateTypeSettings(
-			Layout layout, UnicodeProperties formTypeSettingsUnicodeProperties)
-		throws Exception {
-
-		UnicodeProperties layoutTypeSettingsUnicodeProperties =
-			layout.getTypeSettingsProperties();
-
-		String type = layout.getType();
-
-		if (type.equals(LayoutConstants.TYPE_PORTLET)) {
-			layoutTypeSettingsUnicodeProperties.putAll(
-				formTypeSettingsUnicodeProperties);
-
-			boolean layoutCustomizable = GetterUtil.getBoolean(
-				layoutTypeSettingsUnicodeProperties.get(
-					LayoutConstants.CUSTOMIZABLE_LAYOUT));
-
-			if (!layoutCustomizable) {
-				LayoutTypePortlet layoutTypePortlet =
-					(LayoutTypePortlet)layout.getLayoutType();
-
-				layoutTypePortlet.removeCustomization(
-					layoutTypeSettingsUnicodeProperties);
-			}
-
-			return _layoutService.updateLayout(
-				layout.getGroupId(), layout.isPrivateLayout(),
-				layout.getLayoutId(),
-				layoutTypeSettingsUnicodeProperties.toString());
-		}
-
-		layoutTypeSettingsUnicodeProperties.putAll(
-			formTypeSettingsUnicodeProperties);
-
-		layoutTypeSettingsUnicodeProperties.putAll(
-			layout.getTypeSettingsProperties());
-
-		return _layoutService.updateLayout(
-			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
-			layoutTypeSettingsUnicodeProperties.toString());
 	}
 
 	@Reference

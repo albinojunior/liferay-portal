@@ -209,6 +209,11 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 	}
 
 	@Override
+	public String getInfoPanelId() {
+		return "infoPanelId";
+	}
+
+	@Override
 	public PortletURL getPortletURL() {
 		try {
 			return PortletURLUtil.clone(currentURLObj, liferayPortletResponse);
@@ -239,12 +244,12 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 	}
 
 	@Override
-	public Boolean isDisabled() {
-		return false;
+	public String getSearchContainerId() {
+		return "content";
 	}
 
 	@Override
-	public Boolean isSelectable() {
+	public Boolean isDisabled() {
 		return false;
 	}
 

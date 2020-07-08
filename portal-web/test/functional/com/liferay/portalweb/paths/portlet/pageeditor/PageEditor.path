@@ -246,13 +246,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>FRAGMENT_BODY_TOOLBAR_SAVE_AS_FRAGMENT_BUTTON</td>
-	<td>//button[@*='Save as Fragment']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FRAGMENT_BODY_TOOLBAR_DUPLICATE_BUTTON</td>
-	<td>//button[@*='Duplicate']</td>
+	<td>FRAGMENT_BODY_TOOLBAR_STYLE_BUTTON</td>
+	<td>//button[@*='${key_elementType} Styles']</td>
 	<td></td>
 </tr>
 <tr>
@@ -468,11 +463,6 @@
 <tr>
 	<td>LAYOUT_ELEMENTS_HEADER</td>
 	<td>//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'${key_elementType}')][${key_position}]//li[contains(@class,'title')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>LAYOUT_ELEMENTS_HEADER_DELETE_BUTTON</td>
-	<td>//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'${key_elementType}')][${key_position}]//button[*[name()='svg'][*[contains(@class,'times-circle')]]]</td>
 	<td></td>
 </tr>
 <tr>

@@ -221,6 +221,16 @@ public class NodePlugin implements Plugin<Project> {
 
 			});
 
+		downloadNodeTask.setYarnUrl(
+			new Callable<String>() {
+
+				@Override
+				public String call() throws Exception {
+					return nodeExtension.getYarnUrl();
+				}
+
+			});
+
 		downloadNodeTask.onlyIf(
 			new Spec<Task>() {
 
@@ -588,9 +598,9 @@ public class NodePlugin implements Plugin<Project> {
 						return project.file("node_modules");
 					}
 
-					File scriptFile = executePackageManagerTask.getScriptFile();
+					Project rootProject = project.getRootProject();
 
-					return new File(scriptFile.getParent(), "node_modules");
+					return rootProject.file("node_modules");
 				}
 
 			});

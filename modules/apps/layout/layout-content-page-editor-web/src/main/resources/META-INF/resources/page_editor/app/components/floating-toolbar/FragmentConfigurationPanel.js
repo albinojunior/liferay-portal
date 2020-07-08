@@ -12,51 +12,16 @@
  * details.
  */
 
-import ClayButton from '@clayui/button';
-import ClayIcon from '@clayui/icon';
 import PropTypes from 'prop-types';
 import React, {useCallback} from 'react';
 
-import {
-	ConfigurationFieldPropTypes,
-	getLayoutDataItemPropTypes,
-} from '../../../prop-types/index';
+import {getLayoutDataItemPropTypes} from '../../../prop-types/index';
+import {FRAGMENT_CONFIGURATION_ROLES} from '../../config/constants/fragmentConfigurationRoles';
 import {FREEMARKER_FRAGMENT_ENTRY_PROCESSOR} from '../../config/constants/freemarkerFragmentEntryProcessor';
 import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
 import {useDispatch, useSelector} from '../../store/index';
 import updateFragmentConfiguration from '../../thunks/updateFragmentConfiguration';
-import {FRAGMENT_CONFIGURATION_FIELDS} from '../fragment-configuration-fields/index';
-
-const FieldSet = ({configurationValues, fields, label, onValueSelect}) => {
-	return (
-		<>
-			{label && <p className="mb-3 sheet-subtitle">{label}</p>}
-
-			{fields.map((field, index) => {
-				const FieldComponent =
-					field.type && FRAGMENT_CONFIGURATION_FIELDS[field.type];
-
-				const fieldValue = configurationValues[field.name];
-
-				return (
-					<FieldComponent
-						field={field}
-						key={index}
-						onValueSelect={onValueSelect}
-						value={fieldValue}
-					/>
-				);
-			})}
-		</>
-	);
-};
-
-FieldSet.propTypes = {
-	configurationValues: PropTypes.object,
-	fields: PropTypes.arrayOf(PropTypes.shape(ConfigurationFieldPropTypes)),
-	label: PropTypes.string,
-	onValueSelect: PropTypes.func.isRequired,
-};
+import {FieldSet} from './FieldSet';
 
 export const FragmentConfigurationPanel = ({item}) => {
 	const dispatch = useDispatch();
@@ -67,19 +32,13 @@ export const FragmentConfigurationPanel = ({item}) => {
 
 	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
-	const configuration = fragmentEntryLink.configuration;
+	const fieldSets = fragmentEntryLink.configuration?.fieldSets.filter(
+		(fieldSet) =>
+			fieldSet.configurationRole !== FRAGMENT_CONFIGURATION_ROLES.style
+	);
+
 	const defaultConfigurationValues =
 		fragmentEntryLink.defaultConfigurationValues;
-
-	const onRestoreButtonClick = () => {
-		dispatch(
-			updateFragmentConfiguration({
-				configurationValues: defaultConfigurationValues,
-				fragmentEntryLink,
-				segmentsExperienceId,
-			})
-		);
-	};
 
 	const onValueSelect = useCallback(
 		(name, value) => {
@@ -111,7 +70,11 @@ export const FragmentConfigurationPanel = ({item}) => {
 
 	return (
 		<>
-			{configuration.fieldSets.map((fieldSet, index) => {
+			<div className="page-editor__floating-toolbar__panel-header">
+				<p>{Liferay.Language.get('general')}</p>
+			</div>
+
+			{fieldSets.map((fieldSet, index) => {
 				return (
 					<FieldSet
 						configurationValues={getConfigurationValues(
@@ -125,7 +88,6 @@ export const FragmentConfigurationPanel = ({item}) => {
 					/>
 				);
 			})}
-			<RestoreButton onRestoreButtonClick={onRestoreButtonClick} />
 		</>
 	);
 };
@@ -136,23 +98,6 @@ FragmentConfigurationPanel.propTypes = {
 			fragmentEntryLinkId: PropTypes.string.isRequired,
 		}).isRequired,
 	}),
-};
-
-const RestoreButton = ({onRestoreButtonClick}) => (
-	<ClayButton
-		borderless
-		className="w-100"
-		displayType="secondary"
-		onClick={onRestoreButtonClick}
-		small
-	>
-		<ClayIcon symbol="restore" />
-		<span className="ml-2">{Liferay.Language.get('restore-values')}</span>
-	</ClayButton>
-);
-
-RestoreButton.propTypes = {
-	onRestoreButtonClick: PropTypes.func.isRequired,
 };
 
 function getConfigurationValues(defaultConfigurationValues, fragmentEntryLink) {

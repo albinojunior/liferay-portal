@@ -56,13 +56,19 @@ else if (Validator.isNull(defaultLanguageId)) {
 
 String languageId = ParamUtil.getString(request, "languageId", defaultLanguageId);
 
-Locale defaultEditLocale = LocaleUtil.fromLanguageId(ddmStructure.getDefaultLanguageId());
+Locale defaultEditLocale = null;
 
-if (ArrayUtil.contains(ddmStructure.getAvailableLanguageIds(), themeDisplay.getLanguageId())) {
-	defaultEditLocale = themeDisplay.getLocale();
-}
-else if (ArrayUtil.contains(ddmStructure.getAvailableLanguageIds(), user.getLanguageId())) {
-	defaultEditLocale = user.getLocale();
+if (ddmFormValues != null) {
+	defaultEditLocale = ddmFormValues.getDefaultLocale();
+
+	String[] ddmFormValuesAvailableLocales = LocaleUtil.toLanguageIds(ddmFormValues.getAvailableLocales());
+
+	if (ArrayUtil.contains(ddmFormValuesAvailableLocales, themeDisplay.getLanguageId())) {
+		defaultEditLocale = themeDisplay.getLocale();
+	}
+	else if (ArrayUtil.contains(ddmFormValuesAvailableLocales, user.getLanguageId())) {
+		defaultEditLocale = user.getLocale();
+	}
 }
 
 boolean translating = false;

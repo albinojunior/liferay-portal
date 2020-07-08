@@ -15,6 +15,7 @@
 package com.liferay.change.tracking.web.internal.display.user;
 
 import com.liferay.change.tracking.display.CTDisplayRenderer;
+import com.liferay.change.tracking.display.context.DisplayContext;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -70,17 +71,25 @@ public class UserCTDisplayRenderer implements CTDisplayRenderer<User> {
 	}
 
 	@Override
-	public void render(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, User user)
-		throws Exception {
+	public void render(DisplayContext<User> displayContext) throws Exception {
+		HttpServletResponse httpServletResponse =
+			displayContext.getHttpServletResponse();
 
 		Writer writer = httpServletResponse.getWriter();
 
 		writer.write("<p><b>");
+
+		HttpServletRequest httpServletRequest =
+			displayContext.getHttpServletRequest();
+
 		writer.write(_language.get(httpServletRequest, "user-id"));
+
 		writer.write("</b>: ");
+
+		User user = displayContext.getModel();
+
 		writer.write(String.valueOf(user.getUserId()));
+
 		writer.write("</p><p><b>");
 		writer.write(_language.get(httpServletRequest, "name"));
 		writer.write("</b>: ");

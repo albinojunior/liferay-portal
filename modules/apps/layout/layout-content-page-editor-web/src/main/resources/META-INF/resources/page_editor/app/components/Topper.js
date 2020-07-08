@@ -16,7 +16,7 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
 	LayoutDataPropTypes,
@@ -28,7 +28,6 @@ import {config} from '../config/index';
 import selectCanUpdateItemConfiguration from '../selectors/selectCanUpdateItemConfiguration';
 import selectCanUpdatePageStructure from '../selectors/selectCanUpdatePageStructure';
 import {useDispatch, useSelector} from '../store/index';
-import deleteItem from '../thunks/deleteItem';
 import moveItem from '../thunks/moveItem';
 import getLayoutDataItemLabel from '../utils/getLayoutDataItemLabel';
 import {
@@ -37,14 +36,12 @@ import {
 	useDropTarget,
 } from '../utils/useDragAndDrop';
 import {
-	useActiveItemId,
 	useHoverItem,
-	useHoveredItemId,
 	useIsActive,
 	useIsHovered,
 	useSelectItem,
 } from './Controls';
-import hasDropZoneChild from './layout-data-items/hasDropZoneChild';
+import ItemActions from './ItemActions';
 
 const TOPPER_BAR_HEIGHT = 24;
 
@@ -75,32 +72,49 @@ TopperListItem.propTypes = {
 	expand: PropTypes.bool,
 };
 
-export default function ({children, item, ...props}) {
+const MemoizedTopperContent = React.memo(TopperContent);
+
+export default function Topper({children, item, ...props}) {
 	const canUpdatePageStructure = useSelector(selectCanUpdatePageStructure);
 	const canUpdateItemConfiguration = useSelector(
 		selectCanUpdateItemConfiguration
 	);
+	const isHovered = useIsHovered();
+	const isActive = useIsActive();
 
 	if (canUpdatePageStructure || canUpdateItemConfiguration) {
 		return (
-			<Topper item={item} {...props}>
+			<MemoizedTopperContent
+				isActive={isActive(item.itemId)}
+				isHovered={isHovered(item.itemId)}
+				item={item}
+				{...props}
+			>
 				{children}
-			</Topper>
+			</MemoizedTopperContent>
 		);
 	}
 
 	return children;
 }
 
-function Topper({children, className, item, itemElement, layoutData}) {
+function TopperContent({
+	children,
+	className,
+	isActive,
+	isHovered,
+	item,
+	itemElement,
+	layoutData,
+}) {
 	const canUpdatePageStructure = useSelector(selectCanUpdatePageStructure);
 	const dispatch = useDispatch();
+	const segmentsExperienceId = useSelector(
+		(state) => state.segmentsExperienceId
+	);
 	const store = useSelector((state) => state);
-	const activeItemId = useActiveItemId();
-	const hoveredItemId = useHoveredItemId();
 	const hoverItem = useHoverItem();
-	const isHovered = useIsHovered();
-	const isActive = useIsActive();
+
 	const selectItem = useSelectItem();
 
 	const {
@@ -119,14 +133,9 @@ function Topper({children, className, item, itemElement, layoutData}) {
 					itemId: item.itemId,
 					parentItemId,
 					position,
-					store,
+					segmentsExperienceId,
 				})
 			)
-	);
-
-	const itemIsRemovable = useMemo(
-		() => canUpdatePageStructure && isRemovable(item, layoutData),
-		[canUpdatePageStructure, item, layoutData]
 	);
 
 	const commentsPanelId = config.sidebarPanels?.comments?.sidebarPanelId;
@@ -135,27 +144,6 @@ function Topper({children, className, item, itemElement, layoutData}) {
 
 	const [isInset, setIsInset] = useState(false);
 	const [windowScrollPosition, setWindowScrollPosition] = useState(0);
-
-	const fragmentShouldBeHovered = () => {
-		const [activeItemfragmentEntryLinkId] = activeItemId
-			? activeItemId.split('-')
-			: '';
-		const [hoveredItemfragmentEntryLinkId] = hoveredItemId
-			? hoveredItemId.split('-')
-			: '';
-
-		const childIsActive =
-			Number(activeItemfragmentEntryLinkId) ===
-			item.config.fragmentEntryLinkId;
-		const childIsHovered =
-			Number(hoveredItemfragmentEntryLinkId) ===
-			item.config.fragmentEntryLinkId;
-
-		return (
-			item.type === LAYOUT_DATA_ITEM_TYPES.fragment &&
-			(isHovered(item.itemId) || (childIsActive && childIsHovered))
-		);
-	};
 
 	useEffect(() => {
 		const handleWindowScroll = () => {
@@ -201,7 +189,7 @@ function Topper({children, className, item, itemElement, layoutData}) {
 	return (
 		<div
 			className={classNames(className, 'page-editor__topper', {
-				active: isActive(item.itemId),
+				active: isActive,
 				'drag-over-bottom':
 					isOverTarget && targetPosition === TARGET_POSITION.BOTTOM,
 				'drag-over-middle':
@@ -209,7 +197,7 @@ function Topper({children, className, item, itemElement, layoutData}) {
 				'drag-over-top':
 					isOverTarget && targetPosition === TARGET_POSITION.TOP,
 				dragged: isDraggingSource,
-				hovered: isHovered(item.itemId) || fragmentShouldBeHovered(),
+				hovered: isHovered,
 				'not-droppable': !!notDroppableMessage,
 				'page-editor__topper--mapped': itemIsMappedCollection(item),
 			})}
@@ -229,7 +217,7 @@ function Topper({children, className, item, itemElement, layoutData}) {
 					return;
 				}
 
-				if (isHovered(item.itemId)) {
+				if (isHovered) {
 					hoverItem(null);
 				}
 			}}
@@ -290,29 +278,9 @@ function Topper({children, className, item, itemElement, layoutData}) {
 							</ClayButton>
 						</TopperListItem>
 					)}
-					{itemIsRemovable && (
+					{canUpdatePageStructure && (
 						<TopperListItem>
-							<ClayButton
-								displayType="unstyled"
-								onClick={(event) => {
-									event.stopPropagation();
-
-									dispatch(
-										deleteItem({
-											itemId: item.itemId,
-											selectItem,
-											store,
-										})
-									);
-								}}
-								small
-								title={Liferay.Language.get('remove')}
-							>
-								<ClayIcon
-									className="page-editor__topper__icon"
-									symbol="times-circle"
-								/>
-							</ClayButton>
+							<ItemActions item={item}></ItemActions>
 						</TopperListItem>
 					)}
 				</ul>
@@ -331,19 +299,8 @@ function Topper({children, className, item, itemElement, layoutData}) {
 	);
 }
 
-Topper.propTypes = {
+TopperContent.propTypes = {
 	item: getLayoutDataItemPropTypes().isRequired,
 	itemElement: PropTypes.object,
 	layoutData: LayoutDataPropTypes.isRequired,
 };
-
-function isRemovable(item, layoutData) {
-	if (
-		item.type === LAYOUT_DATA_ITEM_TYPES.dropZone ||
-		item.type === LAYOUT_DATA_ITEM_TYPES.column
-	) {
-		return false;
-	}
-
-	return !hasDropZoneChild(item, layoutData);
-}

@@ -645,10 +645,6 @@ definition {
 
 		Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 
-		Click.clickNoMouseOver(
-			key_elementType = "Collection Display",
-			locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
-
 		Click(locator1 = "PageEditor#FRAGMENT_BODY_FLOATING_TOOLBAR_PLUS_BUTTON");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
@@ -723,10 +719,6 @@ definition {
 			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 		}
 
-		Click.clickNoMouseOver(
-			key_elementType = "Fragment",
-			locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
-
 		if (isSet(inCollectionDisplay)) {
 			Select(
 				key_fieldLabel = "Template",
@@ -754,9 +746,11 @@ definition {
 					key_contentName = "${imageFileName}",
 					locator1 = "FragmentEditor#FRAGMENTS_EDITOR_FLOATING_TOOLBAR_INPUT");
 
+				var key_imageName = StringUtil.replace("${imageFileName}", " ", "+");
+
 				AssertElementPresent(
 					key_fragmentName = "${fragmentName}",
-					key_imageName = "${imageFileName}",
+					key_imageName = "${key_imageName}",
 					locator1 = "Fragment#FRAGMENT_CONTENT_BACKGROUND_IMAGE");
 			}
 
@@ -929,8 +923,6 @@ definition {
 			Click.clickNoWaitForVisible(locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
 		}
 
-		Click.clickNoMouseOver(locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
-
 		if (isSet(backgroundColor)) {
 			Click(
 				key_paletteItem = "${backgroundColor}",
@@ -1064,8 +1056,6 @@ definition {
 			Click.clickNoWaitForVisible(locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
 		}
 
-		Click.clickNoMouseOver(locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
-
 		if (isSet(columnCount)) {
 			Select(
 				key_fieldLabel = "Number of Columns",
@@ -1161,16 +1151,9 @@ definition {
 			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 		}
 
-		if (!(isSet(elementType))) {
-			Click(
-				key_elementType = "Fragment",
-				locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
-		}
-		else {
-			Click(
-				key_elementType = "${elementType}",
-				locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
-		}
+		Click(
+			key_elementType = "Fragment",
+			locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_CONFIGURATION_BUTTON");
 	}
 
 	macro gotoContentConfiguration {
@@ -1195,6 +1178,8 @@ definition {
 	}
 
 	macro gotoDuplicate {
+		var key_fragmentName = "${fragmentName}";
+
 		PageEditor.clickConfigurableField(fragmentName = "${fragmentName}");
 
 		PageEditor.gotoTab(tabName = "Page Structure");
@@ -1205,7 +1190,9 @@ definition {
 				locator1 = "Treeview#PAGE_STRUCTURE_TREE_NODE");
 		}
 
-		Click(locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_DUPLICATE_BUTTON");
+		Click.waitForMenuToggleJSClick(locator1 = "Fragment#FRAGMENT_HEADER_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Duplicate");
 	}
 
 	macro gotoEditableFieldEdit {
@@ -1226,7 +1213,7 @@ definition {
 		Click(locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_IMAGE_PROPERTIES_BUTTON");
 	}
 
-	macro gotoSaveAsFrgament {
+	macro gotoSaveAsFragment {
 		PageEditor.clickConfigurableField(fragmentName = "${fragmentName}");
 
 		PageEditor.gotoTab(tabName = "Page Structure");
@@ -1243,7 +1230,9 @@ definition {
 			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 		}
 
-		Click(locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_SAVE_AS_FRAGMENT_BUTTON");
+		Click.waitForMenuToggleJSClick(locator1 = "Fragment#FRAGMENT_HEADER_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Save Composition");
 	}
 
 	macro gotoSelectPanel {
@@ -1256,6 +1245,20 @@ definition {
 		Click(locator1 = "PageEditor#FRAGMENT_BODY_FLOATING_TOOLBAR_PLUS_BUTTON");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+	}
+
+	macro gotoStyle {
+		key_fragmentName = "${fragmentName}";
+
+		PageEditor.clickConfigurableField(fragmentName = "${fragmentName}");
+
+		if (IsNotVisible(locator1 = "Fragment#FRAGMENT_HEADER")) {
+			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
+		}
+
+		Click(
+			key_elementType = "Fragment",
+			locator1 = "PageEditor#FRAGMENT_BODY_TOOLBAR_STYLE_BUTTON");
 	}
 
 	macro gotoTab {
@@ -1288,9 +1291,9 @@ definition {
 			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 		}
 
-		Click(
-			key_fragmentName = "${fragmentName}",
-			locator1 = "Fragment#FRAGMENT_HEADER_DELETE_BUTTON");
+		Click.waitForMenuToggleJSClick(locator1 = "Fragment#FRAGMENT_HEADER_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Delete");
 
 		if (!(isSet(duplicateFragment))) {
 			AssertElementNotPresent(
@@ -1318,19 +1321,6 @@ definition {
 				key_fragmentName = "${fragmentName}",
 				locator1 = "Fragment#FRAGMENT_HEADER");
 		}
-
-		PageEditor.waitForAutoSave();
-	}
-
-	macro removeLayoutElement {
-		var key_elementType = "${elementType}";
-		var key_position = "${position}";
-
-		if (IsNotVisible(locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER")) {
-			Click.clickNoWaitForVisible(locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
-		}
-
-		Click(locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER_DELETE_BUTTON");
 
 		PageEditor.waitForAutoSave();
 	}

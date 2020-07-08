@@ -12,7 +12,9 @@
  * details.
  */
 
-import React, {createContext, useState} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
+
+import isClickOutside from '../../hooks/useOnClickOutside.es';
 
 const SidebarContext = createContext({});
 
@@ -28,10 +30,31 @@ const SidebarContextProvider = ({
 		type: null,
 	});
 
-	const toggleSidebar = (field, totalEntries, type) => {
+	useEffect(() => {
+		const eventHandler = ({target}) => {
+			if (
+				isClickOutside(
+					target,
+					'#' + portletNamespace + '-sidebar-reports',
+					'#' + portletNamespace + '-see-more'
+				)
+			) {
+				setSidebarState(() => ({
+					isOpen: false,
+				}));
+			}
+		};
+
+		window.addEventListener('click', eventHandler);
+
+		return () => window.removeEventListener('click', eventHandler);
+	});
+
+	const toggleSidebar = (field, summary, totalEntries, type) => {
 		setSidebarState(() => ({
 			field,
 			isOpen: field !== null,
+			summary,
 			totalEntries,
 			type,
 		}));
