@@ -14,6 +14,7 @@
 
 package com.liferay.app.builder.web.internal.portlet;
 
+import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.web.internal.constants.AppBuilderWebKeys;
@@ -22,19 +23,28 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizer
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 
 import java.io.IOException;
 
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -149,6 +159,77 @@ public class AppPortlet extends MVCPortlet {
 			AppBuilderWebKeys.SHOW_TABLE_VIEW, _showTableView);
 
 		super.render(renderRequest, renderResponse);
+	}
+
+	@Override
+	protected boolean callResourceMethod(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws PortletException {
+
+		try {
+			checkPermissions(resourceRequest);
+		}
+		catch (Exception exception) {
+			throw new PortletException(exception);
+		}
+
+		String resourceID = GetterUtil.getString(
+			resourceRequest.getResourceID());
+
+		Map<String, MVCResourceCommand> mvcResourceCommandMap =
+			_getMVCResourceCommands(_appBuilderApp);
+
+		MVCResourceCommand mvcResourceCommand = mvcResourceCommandMap.get(
+			resourceID);
+
+		if (!Objects.isNull(mvcResourceCommand)) {
+			mvcResourceCommand.serveResource(resourceRequest, resourceResponse);
+
+			return true;
+		}
+
+		return super.callResourceMethod(resourceRequest, resourceResponse);
+	}
+
+	private Map<String, MVCResourceCommand> _getMVCResourceCommands(
+		AppBuilderApp appBuilderApp) {
+
+		Map<String, MVCResourceCommand> mvcResourceCommandMap =
+			_getMVCResourceCommands(AppBuilderAppConstants.SCOPE_STANDARD);
+
+		if (!Objects.equals(
+				appBuilderApp.getScope(),
+				AppBuilderAppConstants.SCOPE_STANDARD)) {
+
+			mvcResourceCommandMap.putAll(
+				_getMVCResourceCommands(appBuilderApp.getScope()));
+		}
+
+		return mvcResourceCommandMap;
+	}
+
+	private Map<String, MVCResourceCommand> _getMVCResourceCommands(
+		String scope) {
+
+		List<ServiceWrapper<MVCResourceCommand>>
+			mvcResourceCommandServiceWrappers =
+				_appPortletMVCResourceCommandServiceTrackerMap.getService(
+					scope);
+
+		if (Objects.isNull(mvcResourceCommandServiceWrappers)) {
+			return new HashMap<>();
+		}
+
+		return Stream.of(
+			mvcResourceCommandServiceWrappers
+		).flatMap(
+			List::stream
+		).collect(
+			Collectors.toMap(
+				serviceWrapper -> MapUtil.getString(
+					serviceWrapper.getProperties(), "mvc.command.name"),
+				ServiceWrapper::getService)
+		);
 	}
 
 	private final AppBuilderApp _appBuilderApp;
