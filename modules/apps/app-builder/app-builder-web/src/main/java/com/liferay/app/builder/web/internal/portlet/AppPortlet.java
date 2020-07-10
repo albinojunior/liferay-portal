@@ -18,10 +18,8 @@ import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.web.internal.constants.AppBuilderWebKeys;
-import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory.ServiceWrapper;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
-import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -46,48 +44,46 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
-
 /**
  * @author Gabriel Albuquerque
  */
 public class AppPortlet extends MVCPortlet {
 
 	public AppPortlet(
-		AppBuilderApp appBuilderApp, String appDeploymentType, String appName,
+		AppBuilderApp appBuilderApp,
+		ServiceTrackerMap<String, AppBuilderAppPortletTab>
+			appBuilderAppPortletTabServiceTrackerMap,
+		String appDeploymentType, String appName,
+		ServiceTrackerMap<String, List<ServiceWrapper<MVCResourceCommand>>>
+			appPortletMVCResourceCommandServiceTrackerMap,
 		String portletName) {
 
 		this(
-			appBuilderApp, appDeploymentType, appName, portletName, true, true);
+			appBuilderApp, appBuilderAppPortletTabServiceTrackerMap,
+			appDeploymentType, appName,
+			appPortletMVCResourceCommandServiceTrackerMap, portletName, true,
+			true);
 	}
 
 	public AppPortlet(
-		AppBuilderApp appBuilderApp, String appDeploymentType, String appName,
+		AppBuilderApp appBuilderApp,
+		ServiceTrackerMap<String, AppBuilderAppPortletTab>
+			appBuilderAppPortletTabServiceTrackerMap,
+		String appDeploymentType, String appName,
+		ServiceTrackerMap<String, List<ServiceWrapper<MVCResourceCommand>>>
+			appPortletMVCResourceCommandServiceTrackerMap,
 		String portletName, boolean showFormView, boolean showTableView) {
 
 		_appBuilderApp = appBuilderApp;
+		_appBuilderAppPortletTabServiceTrackerMap =
+			appBuilderAppPortletTabServiceTrackerMap;
 		_appDeploymentType = appDeploymentType;
 		_appName = appName;
+		_appPortletMVCResourceCommandServiceTrackerMap =
+			appPortletMVCResourceCommandServiceTrackerMap;
 		_portletName = portletName;
 		_showFormView = showFormView;
 		_showTableView = showTableView;
-
-		Bundle bundle = FrameworkUtil.getBundle(AppPortlet.class);
-
-		_appBuilderAppPortletTabServiceTrackerMap =
-			ServiceTrackerMapFactory.openSingleValueMap(
-				bundle.getBundleContext(), AppBuilderAppPortletTab.class,
-				"app.builder.app.tab.name");
-
-		_appPortletMVCResourceCommandServiceTrackerMap =
-			ServiceTrackerMapFactory.openMultiValueMap(
-				bundle.getBundleContext(), MVCResourceCommand.class,
-				"app.builder.app.scope",
-				ServiceTrackerCustomizerFactory.
-					<MVCResourceCommand>serviceWrapper(
-						bundle.getBundleContext()));
-
 		_viewTemplate = showTableView ? "/view_entries.jsp" : "/edit_entry.jsp";
 	}
 
