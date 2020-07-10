@@ -15,13 +15,19 @@
 package com.liferay.app.builder.web.internal.deploy;
 
 import com.liferay.app.builder.deploy.AppDeployer;
+import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.web.internal.portlet.AppPortlet;
 import com.liferay.application.list.PanelApp;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.model.LayoutTypeAccessPolicy;
 import com.liferay.portal.kernel.model.LayoutTypeController;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,12 +52,26 @@ public abstract class BaseAppDeployer implements AppDeployer {
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
+
+		appBuilderAppPortletTabServiceTrackerMap =
+			ServiceTrackerMapFactory.openSingleValueMap(
+				bundleContext, AppBuilderAppPortletTab.class,
+				"app.builder.app.tab.name");
+
+		appPortletMVCResourceCommandServiceTrackerMap =
+			ServiceTrackerMapFactory.openMultiValueMap(
+				bundleContext, MVCResourceCommand.class,
+				"app.builder.app.scope",
+				ServiceTrackerCustomizerFactory.
+					<MVCResourceCommand>serviceWrapper(bundleContext));
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_bundleContext = null;
 
+		appBuilderAppPortletTabServiceTrackerMap.close();
+		appPortletMVCResourceCommandServiceTrackerMap.close();
 		serviceRegistrationsMap.clear();
 	}
 
@@ -91,6 +111,14 @@ public abstract class BaseAppDeployer implements AppDeployer {
 	@Reference
 	protected AppBuilderAppLocalService appBuilderAppLocalService;
 
+	protected ServiceTrackerMap<String, AppBuilderAppPortletTab>
+		appBuilderAppPortletTabServiceTrackerMap;
+	protected ServiceTrackerMap
+		<String,
+		 List
+			 <ServiceTrackerCustomizerFactory.ServiceWrapper
+				 <MVCResourceCommand>>>
+					appPortletMVCResourceCommandServiceTrackerMap;
 	protected final ConcurrentHashMap<Long, ServiceRegistration<?>[]>
 		serviceRegistrationsMap = new ConcurrentHashMap<>();
 
