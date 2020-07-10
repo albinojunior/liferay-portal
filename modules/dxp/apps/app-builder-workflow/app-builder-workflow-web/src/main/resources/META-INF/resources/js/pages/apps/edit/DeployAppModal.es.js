@@ -59,7 +59,7 @@ export default ({onCancel}) => {
 		);
 	};
 
-	const onSuccess = ({app}) => {
+	const onSuccess = (app) => {
 		onClose();
 		successToast(
 			<>
