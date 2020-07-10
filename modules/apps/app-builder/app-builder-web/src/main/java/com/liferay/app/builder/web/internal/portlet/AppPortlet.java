@@ -17,6 +17,8 @@ package com.liferay.app.builder.web.internal.portlet;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.web.internal.constants.AppBuilderWebKeys;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory.ServiceWrapper;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
@@ -27,6 +29,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import java.io.IOException;
 
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 
 import javax.portlet.PortletException;
@@ -66,6 +69,14 @@ public class AppPortlet extends MVCPortlet {
 			ServiceTrackerMapFactory.openSingleValueMap(
 				bundle.getBundleContext(), AppBuilderAppPortletTab.class,
 				"app.builder.app.tab.name");
+
+		_appPortletMVCResourceCommandServiceTrackerMap =
+			ServiceTrackerMapFactory.openMultiValueMap(
+				bundle.getBundleContext(), MVCResourceCommand.class,
+				"app.builder.app.scope",
+				ServiceTrackerCustomizerFactory.
+					<MVCResourceCommand>serviceWrapper(
+						bundle.getBundleContext()));
 
 		_viewTemplate = showTableView ? "/view_entries.jsp" : "/edit_entry.jsp";
 	}
@@ -145,6 +156,9 @@ public class AppPortlet extends MVCPortlet {
 		_appBuilderAppPortletTabServiceTrackerMap;
 	private final String _appDeploymentType;
 	private final String _appName;
+	private final ServiceTrackerMap
+		<String, List<ServiceWrapper<MVCResourceCommand>>>
+			_appPortletMVCResourceCommandServiceTrackerMap;
 	private final String _portletName;
 	private final boolean _showFormView;
 	private final boolean _showTableView;
