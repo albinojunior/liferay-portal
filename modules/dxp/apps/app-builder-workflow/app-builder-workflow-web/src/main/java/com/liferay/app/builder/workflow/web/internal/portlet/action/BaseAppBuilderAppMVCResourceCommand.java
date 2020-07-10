@@ -14,7 +14,6 @@
 
 package com.liferay.app.builder.workflow.web.internal.portlet.action;
 
-import com.liferay.app.builder.rest.dto.v1_0.App;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -40,7 +39,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Rafael Praxedes
  */
-public abstract class BaseAppBuilderAppMVCResourceCommand
+public abstract class BaseAppBuilderAppMVCResourceCommand<T>
 	extends BaseMVCResourceCommand {
 
 	@Override
@@ -52,17 +51,13 @@ public abstract class BaseAppBuilderAppMVCResourceCommand
 			TransactionInvokerUtil.invoke(
 				_transactionConfig,
 				() -> {
-					Optional<App> appOptional = doTransactionalCommand(
+					Optional<T> resultOptional = doTransactionalCommand(
 						resourceRequest);
 
-					if (appOptional.isPresent()) {
-						App app = appOptional.get();
-
+					if (resultOptional.isPresent()) {
 						JSONPortletResponseUtil.writeJSON(
 							resourceRequest, resourceResponse,
-							JSONUtil.put(
-								"app",
-								jsonFactory.createJSONObject(app.toString())));
+							resultOptional.get());
 					}
 
 					return null;
@@ -82,7 +77,7 @@ public abstract class BaseAppBuilderAppMVCResourceCommand
 		}
 	}
 
-	protected abstract Optional<App> doTransactionalCommand(
+	protected abstract Optional<T> doTransactionalCommand(
 			ResourceRequest resourceRequest)
 		throws Exception;
 
