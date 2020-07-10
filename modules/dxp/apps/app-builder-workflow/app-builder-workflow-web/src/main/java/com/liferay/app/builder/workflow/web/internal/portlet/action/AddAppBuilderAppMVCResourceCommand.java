@@ -41,7 +41,7 @@ import org.osgi.service.component.annotations.Component;
 	service = MVCResourceCommand.class
 )
 public class AddAppBuilderAppMVCResourceCommand
-	extends BaseAppBuilderAppMVCResourceCommand {
+	extends BaseAppBuilderAppMVCResourceCommand<App> {
 
 	@Override
 	protected Optional<App> doTransactionalCommand(
