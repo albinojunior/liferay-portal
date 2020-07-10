@@ -18,8 +18,10 @@ import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.workflow.model.AppBuilderWorkflowTaskLink;
 import com.liferay.app.builder.workflow.service.AppBuilderWorkflowTaskLinkLocalService;
+import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.portal.kernel.model.WorkflowInstanceLink;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
 
 import java.util.Collections;
@@ -47,7 +49,9 @@ public class WorkflowAppBuilderAppPortletTab
 		WorkflowInstanceLink workflowInstanceLink =
 			_workflowInstanceLinkLocalService.fetchWorkflowInstanceLink(
 				appBuilderApp.getCompanyId(), appBuilderApp.getGroupId(),
-				AppBuilderApp.class.getName(), dataRecordId);
+				ResourceActionsUtil.getCompositeModelName(
+					AppBuilderApp.class.getName(), DDLRecord.class.getName()),
+				dataRecordId);
 
 		if (workflowInstanceLink == null) {
 			return Collections.singletonList(
