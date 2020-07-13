@@ -15,18 +15,20 @@
 package com.liferay.app.builder.web.internal.deploy;
 
 import com.liferay.app.builder.deploy.AppDeployer;
-import com.liferay.app.builder.service.AppBuilderAppDataRecordLinkLocalService;
+import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.web.internal.portlet.AppPortlet;
-import com.liferay.app.builder.web.internal.portlet.action.AddDataRecordMVCResourceCommand;
 import com.liferay.application.list.PanelApp;
-import com.liferay.dynamic.data.lists.service.DDLRecordLocalService;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory.ServiceWrapper;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.model.LayoutTypeAccessPolicy;
 import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,16 +54,25 @@ public abstract class BaseAppDeployer implements AppDeployer {
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
 
-		_addDataRecordMVCResourceCommand = new AddDataRecordMVCResourceCommand(
-			appBuilderAppDataRecordLinkLocalService, appBuilderAppLocalService,
-			ddlRecordLocalService);
+		appBuilderAppPortletTabServiceTrackerMap =
+			ServiceTrackerMapFactory.openSingleValueMap(
+				bundleContext, AppBuilderAppPortletTab.class,
+				"app.builder.app.tab.name");
+
+		appPortletMVCResourceCommandServiceTrackerMap =
+			ServiceTrackerMapFactory.openMultiValueMap(
+				bundleContext, MVCResourceCommand.class,
+				"app.builder.app.scope",
+				ServiceTrackerCustomizerFactory.
+					<MVCResourceCommand>serviceWrapper(bundleContext));
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		_addDataRecordMVCResourceCommand = null;
 		_bundleContext = null;
 
+		appBuilderAppPortletTabServiceTrackerMap.close();
+		appPortletMVCResourceCommandServiceTrackerMap.close();
 		serviceRegistrationsMap.clear();
 	}
 
@@ -91,39 +102,24 @@ public abstract class BaseAppDeployer implements AppDeployer {
 	protected ServiceRegistration<?>[] deployPortlet(
 		AppPortlet appPortlet, Map<String, Object> customProperties) {
 
-		Dictionary<String, Object> properties = appPortlet.getProperties(
-			customProperties);
-
 		return new ServiceRegistration<?>[] {
 			_bundleContext.registerService(
-				Portlet.class, appPortlet, properties),
-			_bundleContext.registerService(
-				MVCResourceCommand.class, _addDataRecordMVCResourceCommand,
-				new HashMapDictionary<String, Object>() {
-					{
-						put(
-							"javax.portlet.name",
-							properties.get("javax.portlet.name"));
-						put("mvc.command.name", "/app_builder/add_data_record");
-					}
-				})
+				Portlet.class, appPortlet,
+				appPortlet.getProperties(customProperties))
 		};
 	}
 
 	@Reference
-	protected AppBuilderAppDataRecordLinkLocalService
-		appBuilderAppDataRecordLinkLocalService;
-
-	@Reference
 	protected AppBuilderAppLocalService appBuilderAppLocalService;
 
-	@Reference
-	protected DDLRecordLocalService ddlRecordLocalService;
-
+	protected ServiceTrackerMap<String, AppBuilderAppPortletTab>
+		appBuilderAppPortletTabServiceTrackerMap;
+	protected ServiceTrackerMap
+		<String, List<ServiceWrapper<MVCResourceCommand>>>
+			appPortletMVCResourceCommandServiceTrackerMap;
 	protected final ConcurrentHashMap<Long, ServiceRegistration<?>[]>
 		serviceRegistrationsMap = new ConcurrentHashMap<>();
 
-	private AddDataRecordMVCResourceCommand _addDataRecordMVCResourceCommand;
 	private BundleContext _bundleContext;
 
 }

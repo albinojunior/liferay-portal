@@ -194,7 +194,10 @@ public class StandaloneAppDeployer extends BaseAppDeployer {
 		AppBuilderApp appBuilderApp, String appName, String portletName) {
 
 		return deployPortlet(
-			new AppPortlet(appBuilderApp, "standalone", appName, portletName),
+			new AppPortlet(
+				appBuilderApp, appBuilderAppPortletTabServiceTrackerMap,
+				"standalone", appName,
+				appPortletMVCResourceCommandServiceTrackerMap, portletName),
 			HashMapBuilder.<String, Object>put(
 				"com.liferay.portlet.application-type", "full-page-application"
 			).build());

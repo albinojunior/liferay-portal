@@ -27,7 +27,7 @@ const mockToast = jest.fn();
 jest.mock('app-builder-web/js/utils/client.es', () => ({
 	parseResponse: jest
 		.fn()
-		.mockReturnValueOnce({app: {appDeployments: [{type: 'standalone'}]}})
+		.mockReturnValueOnce({appDeployments: [{type: 'standalone'}]})
 		.mockRejectedValue({errorMessage: 'App name can not be null'}),
 }));
 

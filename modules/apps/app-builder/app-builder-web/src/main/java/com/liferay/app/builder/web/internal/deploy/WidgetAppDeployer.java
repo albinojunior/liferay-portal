@@ -65,8 +65,10 @@ public class WidgetAppDeployer extends BaseAppDeployer {
 
 		return deployPortlet(
 			new AppPortlet(
-				appBuilderApp, "widget", appName, portletName, showFormView,
-				showTableView),
+				appBuilderApp, appBuilderAppPortletTabServiceTrackerMap,
+				"widget", appName,
+				appPortletMVCResourceCommandServiceTrackerMap, portletName,
+				showFormView, showTableView),
 			HashMapBuilder.<String, Object>put(
 				"com.liferay.portlet.display-category", "category.app_builder"
 			).build());

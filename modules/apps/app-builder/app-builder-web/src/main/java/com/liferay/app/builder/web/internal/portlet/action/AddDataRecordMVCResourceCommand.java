@@ -14,6 +14,7 @@
 
 package com.liferay.app.builder.web.internal.portlet.action;
 
+import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.AppBuilderAppDataRecordLinkLocalService;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
@@ -26,6 +27,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -33,7 +35,7 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 
@@ -42,22 +44,21 @@ import javax.portlet.ResourceResponse;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Rafael Praxedes
  */
+@Component(
+	immediate = true,
+	property = {
+		"app.builder.app.scope=" + AppBuilderAppConstants.SCOPE_STANDARD,
+		"mvc.command.name=/app_builder/add_data_record"
+	},
+	service = MVCResourceCommand.class
+)
 public class AddDataRecordMVCResourceCommand extends BaseMVCResourceCommand {
-
-	public AddDataRecordMVCResourceCommand(
-		AppBuilderAppDataRecordLinkLocalService
-			appBuilderAppDataRecordLinkLocalService,
-		AppBuilderAppLocalService appBuilderAppLocalService,
-		DDLRecordLocalService ddlRecordLocalService) {
-
-		_appBuilderAppDataRecordLinkLocalService =
-			appBuilderAppDataRecordLinkLocalService;
-		_appBuilderAppLocalService = appBuilderAppLocalService;
-		_ddlRecordLocalService = ddlRecordLocalService;
-	}
 
 	@Override
 	protected void doServeResource(
@@ -81,7 +82,7 @@ public class AddDataRecordMVCResourceCommand extends BaseMVCResourceCommand {
 			_log.error(throwable, throwable);
 
 			HttpServletResponse httpServletResponse =
-				PortalUtil.getHttpServletResponse(resourceResponse);
+				_portal.getHttpServletResponse(resourceResponse);
 
 			httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -137,9 +138,17 @@ public class AddDataRecordMVCResourceCommand extends BaseMVCResourceCommand {
 		_transactionConfig = builder.build();
 	}
 
-	private final AppBuilderAppDataRecordLinkLocalService
+	@Reference
+	private AppBuilderAppDataRecordLinkLocalService
 		_appBuilderAppDataRecordLinkLocalService;
-	private final AppBuilderAppLocalService _appBuilderAppLocalService;
-	private final DDLRecordLocalService _ddlRecordLocalService;
+
+	@Reference
+	private AppBuilderAppLocalService _appBuilderAppLocalService;
+
+	@Reference
+	private DDLRecordLocalService _ddlRecordLocalService;
+
+	@Reference
+	private Portal _portal;
 
 }
