@@ -9,7 +9,6 @@
  * distribution rights of the Software.
  */
 
-import ClayButton from '@clayui/button';
 import {AppContext} from 'app-builder-web/js/AppContext.es';
 import ControlMenu from 'app-builder-web/js/components/control-menu/ControlMenu.es';
 import {Loading} from 'app-builder-web/js/components/loading/Loading.es';
@@ -17,7 +16,7 @@ import useDataLayout from 'app-builder-web/js/hooks/useDataLayout.es';
 import useQuery from 'app-builder-web/js/hooks/useQuery.es';
 import {ViewDataLayoutPageValues} from 'app-builder-web/js/pages/entry/ViewEntry.es';
 import ViewEntryUpperToolbar from 'app-builder-web/js/pages/entry/ViewEntryUpperToolbar.es';
-import {addItem, getItem} from 'app-builder-web/js/utils/client.es';
+import {getItem} from 'app-builder-web/js/utils/client.es';
 import {errorToast} from 'app-builder-web/js/utils/toast.es';
 import {isEqualObjects} from 'app-builder-web/js/utils/utils.es';
 import {usePrevious} from 'frontend-js-react-web';
@@ -50,7 +49,6 @@ export default function ViewEntry({
 		totalCount: 0,
 		workflowInfo: null,
 	});
-	const [transitioning, setTransitioning] = useState(false);
 
 	const {dataRecordValues = {}, id: dataRecordId} = dataRecord;
 
@@ -114,90 +112,6 @@ export default function ViewEntry({
 		}
 	};
 
-	const onCancel = () => {
-		history.push('/');
-	};
-
-	const onClickTransition = ({instanceId, stepName, transitionName}) => {
-		setTransitioning(true);
-
-		getItem(
-			`/o/headless-admin-workflow/v1.0/workflow-instances/${instanceId}/workflow-tasks`,
-			{completed: false}
-		)
-			.then(({items = []}) => {
-				const {id} = items.find(({name}) => name === stepName) || {};
-
-				return addItem(
-					`/o/headless-admin-workflow/v1.0/workflow-tasks/${id}/change-transition`,
-					{transitionName, workflowTaskId: id}
-				).then(() => {
-					setTransitioning(false);
-					onCancel();
-				});
-			})
-			.catch(({title}) => {
-				setTransitioning(false);
-				errorToast(title);
-			});
-	};
-
-	const transitions = [];
-
-	if (workflowInfo) {
-		const {
-			assignees = [],
-			completed,
-			id,
-			tasks = [],
-			taskNames = [],
-		} = workflowInfo;
-
-		const stepName = taskNames[0];
-
-		if (!completed) {
-			const {appWorkflowTransitions = []} =
-				tasks.find(({name}) => name === stepName) || {};
-
-			const userId = Number(themeDisplay.getUserId());
-			const assigned = assignees.findIndex(({id}) => id === userId) > -1;
-
-			if (assigned) {
-				transitions.push(
-					...appWorkflowTransitions.map(({name, primary}, key) => (
-						<ClayButton
-							className="mr-3"
-							disabled={transitioning}
-							displayType={primary ? 'primary' : 'secondary'}
-							key={key}
-							onClick={() =>
-								onClickTransition({
-									instanceId: id,
-									stepName,
-									transitionName: name,
-								})
-							}
-						>
-							{name}
-						</ClayButton>
-					))
-				);
-
-				if (transitions.length) {
-					transitions.push(
-						<ClayButton
-							disabled={transitioning}
-							displayType="secondary"
-							onClick={onCancel}
-						>
-							{Liferay.Language.get('cancel')}
-						</ClayButton>
-					);
-				}
-			}
-		}
-	}
-
 	useEffect(() => {
 		if (!isEqualObjects(query, previousQuery) || !previousIndex) {
 			doFetch(appWorkflowDefinitionId);
@@ -239,12 +153,6 @@ export default function ViewEntry({
 											dataRecordValues={dataRecordValues}
 											key={index}
 										/>
-
-										{transitions.length > 0 && (
-											<div className="mb-4">
-												{transitions}
-											</div>
-										)}
 									</div>
 								))}
 						</div>
