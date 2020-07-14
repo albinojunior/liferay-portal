@@ -16,10 +16,14 @@ package com.liferay.app.builder.web.internal.portlet.tab;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutService;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
+import com.liferay.portal.kernel.exception.PortalException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -43,6 +47,17 @@ public class StandardAppBuilderAppPortletTab
 	}
 
 	@Override
+	public Map<DDMStructureLayout, Boolean> getDataLayouts(
+			AppBuilderApp appBuilderApp, long dataRecordId)
+		throws PortalException {
+
+		return Collections.singletonMap(
+			_ddmStructureLayoutService.getDDMStructureLayout(
+				appBuilderApp.getDdmStructureLayoutId()),
+			false);
+	}
+
+	@Override
 	public String getEditEntryPoint() {
 		return _npmResolver.resolveModuleName(
 			"app-builder-web/js/pages/entry/EditEntry.es");
@@ -59,6 +74,9 @@ public class StandardAppBuilderAppPortletTab
 		return _npmResolver.resolveModuleName(
 			"app-builder-web/js/pages/entry/ViewEntry.es");
 	}
+
+	@Reference
+	private DDMStructureLayoutService _ddmStructureLayoutService;
 
 	@Reference
 	private NPMResolver _npmResolver;

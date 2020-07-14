@@ -18,8 +18,10 @@ import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.web.internal.constants.AppBuilderWebKeys;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory.ServiceWrapper;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -34,6 +36,7 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -142,11 +145,30 @@ public class AppPortlet extends MVCPortlet {
 				"viewEntryPoint", appBuilderAppPortletTab.getViewEntryPoint()
 			).build());
 
-		renderRequest.setAttribute(
-			AppBuilderWebKeys.DATA_LAYOUT_IDS,
-			appBuilderAppPortletTab.getDataLayoutIds(
-				_appBuilderApp,
-				ParamUtil.getLong(renderRequest, "dataRecordId")));
+		try {
+			Map<DDMStructureLayout, Boolean> dataLayoutMap =
+				appBuilderAppPortletTab.getDataLayouts(
+					_appBuilderApp,
+					ParamUtil.getLong(renderRequest, "dataRecordId"));
+
+			renderRequest.setAttribute(
+				AppBuilderWebKeys.DATA_LAYOUT_MAP, dataLayoutMap);
+
+			renderRequest.setAttribute(
+				AppBuilderWebKeys.DATA_LAYOUT_IDS,
+				Stream.of(
+					dataLayoutMap.keySet()
+				).flatMap(
+					Set::stream
+				).map(
+					DDMStructureLayout::getStructureLayoutId
+				).toArray(
+					Long[]::new
+				));
+		}
+		catch (PortalException portalException) {
+			throw new PortletException(portalException);
+		}
 
 		renderRequest.setAttribute(
 			AppBuilderWebKeys.SHOW_FORM_VIEW, _showFormView);
