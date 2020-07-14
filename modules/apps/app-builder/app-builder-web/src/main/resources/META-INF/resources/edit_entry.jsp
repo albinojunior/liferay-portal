@@ -18,7 +18,8 @@
 
 <%
 AppBuilderApp appBuilderApp = (AppBuilderApp)request.getAttribute(AppBuilderWebKeys.APP);
-List<Long> dataLayoutIds = (List<Long>)request.getAttribute(AppBuilderWebKeys.DATA_LAYOUT_IDS);
+Map<DDMStructureLayout, Boolean> dataLayouts = (Map<DDMStructureLayout, Boolean>)request.getAttribute(AppBuilderWebKeys.DATA_LAYOUT_MAP);
+Long[] dataLayoutIds = (Long[])request.getAttribute(AppBuilderWebKeys.DATA_LAYOUT_IDS);
 %>
 
 <div class="app-builder-root">
@@ -37,15 +38,27 @@ List<Long> dataLayoutIds = (List<Long>)request.getAttribute(AppBuilderWebKeys.DA
 					<div class="card-body px-0">
 
 						<%
-						for (Long dataLayoutId : dataLayoutIds) {
+						for (Map.Entry<DDMStructureLayout, Boolean> entry : dataLayouts.entrySet()) {
+							DDMStructureLayout ddmStructureLayout = entry.getKey();
+
+							if (dataLayouts.size() > 1) {
 						%>
 
-							<aui:form name='<%= dataLayoutId + "_fm" %>'>
+								<h3>
+									<%= ddmStructureLayout.getName(locale) %>
+								</h3>
+
+							<%
+							}
+							%>
+
+							<aui:form name='<%= ddmStructureLayout.getStructureLayoutId() + "_fm" %>'>
 								<liferay-data-engine:data-layout-renderer
-									containerId='<%= liferayPortletResponse.getNamespace() + "container" + dataLayoutId %>'
-									dataLayoutId="<%= dataLayoutId %>"
+									containerId='<%= liferayPortletResponse.getNamespace() + "container" + ddmStructureLayout.getStructureLayoutId() %>'
+									dataLayoutId="<%= ddmStructureLayout.getStructureLayoutId() %>"
 									dataRecordId='<%= ParamUtil.getLong(request, "dataRecordId") %>'
 									namespace="<%= liferayPortletResponse.getNamespace() %>"
+									readOnly="<%= entry.getValue() %>"
 								/>
 							</aui:form>
 
@@ -68,7 +81,7 @@ List<Long> dataLayoutIds = (List<Long>)request.getAttribute(AppBuilderWebKeys.DA
 							).put(
 								"baseResourceURL", String.valueOf(baseResourceURL)
 							).put(
-								"containerElementId", liferayPortletResponse.getNamespace() + "container" + dataLayoutIds.get(0)
+								"containerElementId", liferayPortletResponse.getNamespace() + "container" + dataLayoutIds[0]
 							).put(
 								"controlMenuElementId", liferayPortletResponse.getNamespace() + "-control-menu"
 							).put(

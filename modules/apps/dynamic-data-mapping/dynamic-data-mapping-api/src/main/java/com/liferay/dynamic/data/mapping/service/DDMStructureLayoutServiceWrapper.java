@@ -34,6 +34,14 @@ public class DDMStructureLayoutServiceWrapper
 		_ddmStructureLayoutService = ddmStructureLayoutService;
 	}
 
+	@Override
+	public DDMStructureLayout getDDMStructureLayout(long structureLayoutId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmStructureLayoutService.getDDMStructureLayout(
+			structureLayoutId);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *

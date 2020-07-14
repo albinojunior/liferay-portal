@@ -19,13 +19,22 @@ import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.workflow.model.AppBuilderWorkflowTaskLink;
 import com.liferay.app.builder.workflow.service.AppBuilderWorkflowTaskLinkLocalService;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutService;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.WorkflowInstanceLink;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
 
+import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,6 +81,60 @@ public class WorkflowAppBuilderAppPortletTab
 	}
 
 	@Override
+	public Map<DDMStructureLayout, Boolean> getDataLayouts(
+			AppBuilderApp appBuilderApp, long dataRecordId)
+		throws PortalException {
+
+		WorkflowInstanceLink workflowInstanceLink =
+			_workflowInstanceLinkLocalService.fetchWorkflowInstanceLink(
+				appBuilderApp.getCompanyId(), appBuilderApp.getGroupId(),
+				ResourceActionsUtil.getCompositeModelName(
+					AppBuilderApp.class.getName(), DDLRecord.class.getName()),
+				dataRecordId);
+
+		if (workflowInstanceLink == null) {
+			return Collections.singletonMap(
+				_ddmStructureLayoutService.getDDMStructureLayout(
+					appBuilderApp.getDdmStructureLayoutId()),
+				false);
+		}
+
+		return Stream.of(
+			_appBuilderWorkflowTaskLinkLocalService.
+				getAppBuilderWorkflowTaskLinks(
+					appBuilderApp.getAppBuilderAppId())
+		).flatMap(
+			List::stream
+		).map(
+			appBuilderWorkflowTask -> {
+				DDMStructureLayout ddmStructureLayout;
+
+				try {
+					ddmStructureLayout =
+						_ddmStructureLayoutService.getDDMStructureLayout(
+							appBuilderApp.getDdmStructureLayoutId());
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException, portalException);
+					}
+
+					return null;
+				}
+
+				return new AbstractMap.SimpleEntry<>(
+					ddmStructureLayout, appBuilderWorkflowTask.getReadOnly());
+			}
+		).filter(
+			Objects::nonNull
+		).collect(
+			LinkedHashMap::new,
+			(map, entry) -> map.put(entry.getKey(), entry.getValue()),
+			Map::putAll
+		);
+	}
+
+	@Override
 	public String getEditEntryPoint() {
 		return _npmResolver.resolveModuleName(
 			"app-builder-workflow-web/js/pages/entry/EditEntry.es");
@@ -94,9 +157,15 @@ public class WorkflowAppBuilderAppPortletTab
 		_appBuilderWorkflowTaskLinkLocalService;
 
 	@Reference
+	private DDMStructureLayoutService _ddmStructureLayoutService;
+
+	@Reference
 	private NPMResolver _npmResolver;
 
 	@Reference
 	private WorkflowInstanceLinkLocalService _workflowInstanceLinkLocalService;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		WorkflowAppBuilderAppPortletTab.class);
 
 }

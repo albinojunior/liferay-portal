@@ -37,6 +37,13 @@ import org.osgi.service.component.annotations.Component;
 public class DDMStructureLayoutServiceImpl
 	extends DDMStructureLayoutServiceBaseImpl {
 
+	public DDMStructureLayout getDDMStructureLayout(long structureLayoutId)
+		throws PortalException {
+
+		return ddmStructureLayoutPersistence.findByPrimaryKey(
+			structureLayoutId);
+	}
+
 	@Override
 	public List<DDMStructureLayout> getStructureLayouts(
 			long groupId, int start, int end)

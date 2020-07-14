@@ -15,8 +15,11 @@
 package com.liferay.app.builder.portlet.tab;
 
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.portal.kernel.exception.PortalException;
 
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -26,8 +29,17 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface AppBuilderAppPortletTab {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getDataLayouts(AppBuilderApp, long)}
+	 */
+	@Deprecated
 	public List<Long> getDataLayoutIds(
 		AppBuilderApp appBuilderApp, long dataRecordId);
+
+	public Map<DDMStructureLayout, Boolean> getDataLayouts(
+			AppBuilderApp appBuilderApp, long dataRecordId)
+		throws PortalException;
 
 	public String getEditEntryPoint();
 

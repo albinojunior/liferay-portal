@@ -54,6 +54,9 @@ public interface DDMStructureLayoutService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link DDMStructureLayoutServiceUtil} to access the ddm structure layout remote service. Add custom service methods to <code>com.liferay.dynamic.data.mapping.service.impl.DDMStructureLayoutServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMStructureLayout getDDMStructureLayout(long structureLayoutId)
+		throws PortalException;
 
 	/**
 	 * Returns the OSGi service identifier.
