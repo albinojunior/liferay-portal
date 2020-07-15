@@ -24,7 +24,6 @@ export const UPDATE_STEP_ACTION = 'UPDATE_STEP_ACTION';
 export const UPDATE_STEP_FORM_VIEW = 'UPDATE_STEP_FORM_VIEW';
 export const UPDATE_STEP_INDEX = 'UPDATE_STEP_INDEX';
 export const UPDATE_TABLE_VIEW = 'UPDATE_TABLE_VIEW';
-export const UPDATE_WORKFLOW_APP = 'UPDATE_WORKFLOW_APP';
 
 export const getInitialConfig = () => {
 	const initialSteps = [
@@ -138,17 +137,9 @@ export default (state, action) => {
 			return {...state, steps: [...workflowSteps]};
 		}
 		case UPDATE_CONFIG: {
-			const {
-				dataObject = {},
-				formView = {},
-				tableView = {},
-			} = action.config;
-
 			return {
 				...state,
-				dataObject,
-				formView,
-				tableView,
+				...action.config,
 			};
 		}
 		case REMOVE_STEP_ACTION: {
@@ -244,18 +235,6 @@ export default (state, action) => {
 			return {
 				...state,
 				tableView: action.tableView,
-			};
-		}
-		case UPDATE_WORKFLOW_APP: {
-			const {appWorkflowStates = [], appWorkflowTasks = []} = action;
-
-			const initialState = appWorkflowStates.find(({initial}) => initial);
-			const finalState = appWorkflowStates.find(({initial}) => !initial);
-
-			return {
-				...state,
-				currentStep: initialState,
-				steps: [initialState, ...appWorkflowTasks, finalState],
 			};
 		}
 		default: {
