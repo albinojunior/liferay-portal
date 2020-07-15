@@ -20,10 +20,7 @@ import EditAppContext, {
 } from 'app-builder-web/js/pages/apps/edit/EditAppContext.es';
 import React, {useContext} from 'react';
 
-import {
-	SelectFormView,
-	SelectTableView,
-} from '../../../../components/select-dropdown/SelectDropdown.es';
+import SelectDropdown from '../../../../components/select-dropdown/SelectDropdown.es';
 import {
 	ADD_STEP_FORM_VIEW,
 	UPDATE_DATA_OBJECT,
@@ -48,7 +45,47 @@ const NoObjectEmptyState = () => (
 	</div>
 );
 
-export default () => {
+const SelectFormView = (props) => {
+	props = {
+		...props,
+		emptyResultMessage: Liferay.Language.get(
+			'no-form-views-were-found-with-this-name-try-searching-again-with-a-different-name'
+		),
+		label: Liferay.Language.get('select-a-form-view'),
+		stateProps: {
+			emptyProps: {
+				label: Liferay.Language.get('there-are-no-form-views-yet'),
+			},
+			loadingProps: {
+				label: Liferay.Language.get('retrieving-all-form-views'),
+			},
+		},
+	};
+
+	return <SelectDropdown {...props} />;
+};
+
+const SelectTableView = (props) => {
+	props = {
+		...props,
+		emptyResultMessage: Liferay.Language.get(
+			'no-table-views-were-found-with-this-name-try-searching-again-with-a-different-name'
+		),
+		label: Liferay.Language.get('select-a-table-view'),
+		stateProps: {
+			emptyProps: {
+				label: Liferay.Language.get('there-are-no-table-views-yet'),
+			},
+			loadingProps: {
+				label: Liferay.Language.get('retrieving-all-table-views'),
+			},
+		},
+	};
+
+	return <SelectDropdown {...props} />;
+};
+
+export default function DataAndViewsTab() {
 	const {
 		config: {currentStep, dataObject, formView, stepIndex, tableView},
 		dispatch,
@@ -207,4 +244,4 @@ export default () => {
 			)}
 		</>
 	);
-};
+}
