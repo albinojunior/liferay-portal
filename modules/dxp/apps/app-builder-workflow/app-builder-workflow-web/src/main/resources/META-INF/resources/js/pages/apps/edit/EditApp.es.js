@@ -19,7 +19,6 @@ import EditAppContext, {
 } from 'app-builder-web/js/pages/apps/edit/EditAppContext.es';
 import {getItem} from 'app-builder-web/js/utils/client.es';
 import {errorToast} from 'app-builder-web/js/utils/toast.es';
-import {getTranslatedValue} from 'app-builder-web/js/utils/utils.es';
 import React, {useEffect, useReducer, useState} from 'react';
 
 import '../../../../css/EditApp.scss';
@@ -37,6 +36,7 @@ import configReducer, {
 	getInitialConfig,
 } from './configReducer.es';
 import EditAppSidebar from './sidebar/EditAppSidebar.es';
+import {canDeployApp} from './utils.es';
 import WorkflowBuilder from './workflow-builder/WorkflowBuilder.es';
 
 export default ({
@@ -191,18 +191,7 @@ export default ({
 
 	const maxLength = 30;
 
-	const isDeployButtonDisabled =
-		!app.dataDefinitionId ||
-		!app.dataLayoutId ||
-		!app.dataListViewId ||
-		!getTranslatedValue(app, 'name') ||
-		config.steps.some(
-			({appWorkflowRoleAssignments, name}) =>
-				(appWorkflowRoleAssignments &&
-					appWorkflowRoleAssignments.length === 0) ||
-				!name ||
-				name.trim().length === 0
-		);
+	const isDeployButtonDisabled = !canDeployApp(app, config);
 
 	return (
 		<div className="app-builder-workflow-app">
