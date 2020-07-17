@@ -16,10 +16,11 @@ package com.liferay.app.builder.web.internal.portlet.tab;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
+import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTabContext;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
-
-import java.util.Collections;
-import java.util.List;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -35,11 +36,23 @@ public class StandardAppBuilderAppPortletTab
 	implements AppBuilderAppPortletTab {
 
 	@Override
-	public List<Long> getDataLayoutIds(
+	public AppBuilderAppPortletTabContext getAppBuilderAppPortletTabContext(
 		AppBuilderApp appBuilderApp, long dataRecordId) {
 
-		return Collections.singletonList(
-			appBuilderApp.getDdmStructureLayoutId());
+		AppBuilderAppPortletTabContext appBuilderAppPortletTabContext =
+			new AppBuilderAppPortletTabContext();
+
+		DDMStructureLayout ddmStructureLayout =
+			_ddmStructureLayoutLocalService.fetchDDMStructureLayout(
+				appBuilderApp.getDdmStructureLayoutId());
+
+		return appBuilderAppPortletTabContext.addDataLayoutProperties(
+			appBuilderApp.getDdmStructureLayoutId(),
+			HashMapBuilder.<String, Object>put(
+				"nameMap", ddmStructureLayout.getNameMap()
+			).put(
+				"readOnly", false
+			).build());
 	}
 
 	@Override
@@ -59,6 +72,9 @@ public class StandardAppBuilderAppPortletTab
 		return _npmResolver.resolveModuleName(
 			"app-builder-web/js/pages/entry/ViewEntry.es");
 	}
+
+	@Reference
+	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
 
 	@Reference
 	private NPMResolver _npmResolver;
