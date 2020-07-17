@@ -96,6 +96,7 @@ export default ({onCancel}) => {
 					appWorkflowDataLayoutLinks: appWorkflowDataLayoutLinks.map(
 						({dataLayoutId, readOnly}) => ({dataLayoutId, readOnly})
 					),
+					errors: undefined,
 				})
 			),
 		};
