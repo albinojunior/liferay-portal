@@ -26,8 +26,22 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface AppBuilderAppPortletTab {
 
-	public List<Long> getDataLayoutIds(
+	public AppBuilderAppPortletTabContext getAppBuilderAppPortletTabContext(
 		AppBuilderApp appBuilderApp, long dataRecordId);
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getAppBuilderAppPortletTabContext(AppBuilderApp, long)}
+	 */
+	@Deprecated
+	public default List<Long> getDataLayoutIds(
+		AppBuilderApp appBuilderApp, long dataRecordId) {
+
+		AppBuilderAppPortletTabContext appBuilderAppPortletTabContext =
+			getAppBuilderAppPortletTabContext(appBuilderApp, dataRecordId);
+
+		return appBuilderAppPortletTabContext.getDataLayoutIds();
+	}
 
 	public String getEditEntryPoint();
 
