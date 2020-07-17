@@ -9,7 +9,8 @@
  * distribution rights of the Software.
  */
 
-import ClayButton from '@clayui/button';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
+import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import SelectObjects from 'app-builder-web/js/pages/apps/SelectObjectsDropDown.es';
@@ -27,6 +28,7 @@ import {
 	UPDATE_DATA_OBJECT,
 	UPDATE_FORM_VIEW,
 	UPDATE_STEP_FORM_VIEW,
+	UPDATE_STEP_FORM_VIEW_READONLY,
 	UPDATE_TABLE_VIEW,
 } from '../configReducer.es';
 
@@ -156,6 +158,14 @@ export default function DataAndViewsTab() {
 		});
 	};
 
+	const updateStepFormViewReadOnly = (readOnly, index) => {
+		dispatchConfig({
+			index,
+			readOnly,
+			type: UPDATE_STEP_FORM_VIEW_READONLY,
+		});
+	};
+
 	const updateTableView = (tableView) => {
 		dispatchConfig({
 			tableView,
@@ -172,37 +182,73 @@ export default function DataAndViewsTab() {
 		<>
 			{stepIndex > 0 ? (
 				<>
-					{stepFormViews.map(({name}, index) => (
-						<div className="step-form-view" key={index}>
-							<label id="form-view-label">
-								{Liferay.Language.get('form-view')}
-							</label>
+					{stepFormViews.map(
+						({dataLayoutId, name, readOnly}, index) => (
+							<div className="step-form-view" key={index}>
+								<label id="form-view-label">
+									{Liferay.Language.get('form-view')}
+								</label>
 
-							<SelectFormView
-								ariaLabelId="form-view-label"
-								items={availableFormViews}
-								onSelect={(formView) =>
-									updateStepFormView(formView, index)
-								}
-								selectedValue={name}
-							/>
+								<SelectFormView
+									ariaLabelId="form-view-label"
+									items={availableFormViews}
+									onSelect={(formView) =>
+										updateStepFormView(formView, index)
+									}
+									selectedValue={name}
+								/>
 
-							{stepFormViews.length > 1 && (
-								<div className="text-right">
-									<ClayButton
-										className="border-0 mt-2"
-										displayType="secondary"
-										onClick={() =>
-											removeStepFormView(index)
+								<div className="d-flex justify-content-between mt-2">
+									<ClayRadioGroup
+										className="pt-1"
+										inline
+										onSelectedValueChange={(readOnly) =>
+											updateStepFormViewReadOnly(
+												readOnly,
+												index
+											)
 										}
-										small
+										selectedValue={readOnly}
 									>
-										{Liferay.Language.get('remove')}
-									</ClayButton>
+										<ClayRadio
+											disabled={!dataLayoutId}
+											label={Liferay.Language.get(
+												'editable'
+											)}
+											value={false}
+										/>
+
+										<ClayRadio
+											disabled={!dataLayoutId}
+											label={Liferay.Language.get(
+												'read-only'
+											)}
+											value={true}
+										/>
+									</ClayRadioGroup>
+
+									{stepFormViews.length > 1 && (
+										<ClayTooltipProvider>
+											<ClayButtonWithIcon
+												borderless
+												data-tooltip-align="bottom"
+												data-tooltip-delay="0"
+												displayType="secondary"
+												onClick={() =>
+													removeStepFormView(index)
+												}
+												small
+												symbol="trash"
+												title={Liferay.Language.get(
+													'remove'
+												)}
+											/>
+										</ClayTooltipProvider>
+									)}
 								</div>
-							)}
-						</div>
-					))}
+							</div>
+						)
+					)}
 
 					<ClayButton
 						className="w-100"
