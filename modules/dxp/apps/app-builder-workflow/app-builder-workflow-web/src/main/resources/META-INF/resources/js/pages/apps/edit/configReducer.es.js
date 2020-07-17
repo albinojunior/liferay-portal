@@ -11,6 +11,8 @@
 
 import {sub} from 'app-builder-web/js/utils/lang.es';
 
+import {getFormViewFields, validateSelectedFormViews} from './utils.es';
+
 export const ADD_STEP = 'ADD_STEP';
 export const ADD_STEP_ACTION = 'ADD_STEP_ACTION';
 export const ADD_STEP_FORM_VIEW = 'ADD_STEP_FORM_VIEW';
@@ -63,6 +65,7 @@ export const getInitialConfig = () => {
 export default (state, action) => {
 	switch (action.type) {
 		case ADD_STEP: {
+			const appWorkflowDataLayoutLinks = [];
 			const stepIndex = action.stepIndex + 1;
 			const workflowSteps = [...state.steps];
 
@@ -70,14 +73,16 @@ export default (state, action) => {
 			const nextStep = workflowSteps[stepIndex];
 			const previousStep = workflowSteps[action.stepIndex];
 
+			if (state.formView.id) {
+				appWorkflowDataLayoutLinks.push({
+					...state.formView,
+					dataLayoutId: state.formView.id,
+					readOnly: true,
+				});
+			}
+
 			const currentStep = {
-				appWorkflowDataLayoutLinks: [
-					{
-						...state.formView,
-						dataLayoutId: state.formView.id,
-						readOnly: true,
-					},
-				],
+				appWorkflowDataLayoutLinks,
 				appWorkflowRoleAssignments: [],
 				appWorkflowTransitions: [
 					{
@@ -86,6 +91,12 @@ export default (state, action) => {
 						transitionTo: nextStep?.name ?? finalStep.name,
 					},
 				],
+				errors: {
+					formViews: {
+						duplicatedFields: [],
+						errorIndexes: [],
+					},
+				},
 				name: sub(Liferay.Language.get('step-x'), [
 					state.steps.length - 1,
 				]),
@@ -133,14 +144,13 @@ export default (state, action) => {
 			return {...state, currentStep: state.steps[state.stepIndex]};
 		}
 		case ADD_STEP_FORM_VIEW: {
-			const workflowSteps = [...state.steps];
-
-			workflowSteps[state.stepIndex].appWorkflowDataLayoutLinks.push({
+			state.steps[state.stepIndex].appWorkflowDataLayoutLinks.push({
 				dataLayoutId: undefined,
+				fields: [],
 				readOnly: false,
 			});
 
-			return {...state, steps: [...workflowSteps]};
+			return {...state};
 		}
 		case REMOVE_STEP_ACTION: {
 			state.steps[state.stepIndex].appWorkflowTransitions.pop();
@@ -148,12 +158,14 @@ export default (state, action) => {
 			return {...state, currentStep: state.steps[state.stepIndex]};
 		}
 		case REMOVE_STEP_FORM_VIEW: {
-			state.steps[state.stepIndex].appWorkflowDataLayoutLinks.splice(
-				action.index,
-				1
+			const currentStep = state.steps[state.stepIndex];
+
+			currentStep.appWorkflowDataLayoutLinks.splice(action.index, 1);
+			currentStep.errors.formViews = validateSelectedFormViews(
+				currentStep.appWorkflowDataLayoutLinks
 			);
 
-			return {...state, steps: [...state.steps]};
+			return {...state, currentStep};
 		}
 		case UPDATE_CONFIG: {
 			return {
@@ -168,27 +180,29 @@ export default (state, action) => {
 			};
 		}
 		case UPDATE_FORM_VIEW: {
-			let workflowSteps = [...state.steps];
+			const workflowSteps = [...state.steps];
 
 			const initialStep = workflowSteps.shift();
 			const finalStep = workflowSteps.pop();
 
-			if (workflowSteps.length > 0) {
-				workflowSteps = workflowSteps.map((step) => ({
-					...step,
-					appWorkflowDataLayoutLinks: [
-						{
-							dataLayoutId: action.formView.id,
-							name: action.formView.name,
-							readOnly: true,
-						},
-					],
-				}));
-			}
+			const formView = {
+				...action.formView,
+				fields: getFormViewFields(action.formView),
+			};
+
+			workflowSteps.forEach((step) => {
+				if (step.appWorkflowDataLayoutLinks.length === 0) {
+					step.appWorkflowDataLayoutLinks.push({
+						...formView,
+						dataLayoutId: formView.id,
+						readOnly: true,
+					});
+				}
+			});
 
 			return {
 				...state,
-				formView: action.formView,
+				formView,
 				steps: [initialStep, ...workflowSteps, finalStep],
 			};
 		}
@@ -232,15 +246,20 @@ export default (state, action) => {
 			return {...state, currentStep: state.steps[state.stepIndex]};
 		}
 		case UPDATE_STEP_FORM_VIEW: {
-			const appWorkflowDataLayoutLinks =
-				state.steps[state.stepIndex].appWorkflowDataLayoutLinks;
+			const currentStep = state.steps[state.stepIndex];
 
-			appWorkflowDataLayoutLinks[action.index].dataLayoutId =
-				action.formView.id;
-			appWorkflowDataLayoutLinks[action.index].name =
-				action.formView.name;
+			const formViews = currentStep.appWorkflowDataLayoutLinks;
 
-			return {...state, currentStep: state.steps[state.stepIndex]};
+			formViews[action.index] = {
+				...formViews[action.index],
+				dataLayoutId: action.formView.id,
+				fields: getFormViewFields(action.formView),
+				name: action.formView.name,
+			};
+
+			currentStep.errors.formViews = validateSelectedFormViews(formViews);
+
+			return {...state, currentStep};
 		}
 		case UPDATE_STEP_FORM_VIEW_READONLY: {
 			const currentStep = state.steps[state.stepIndex];

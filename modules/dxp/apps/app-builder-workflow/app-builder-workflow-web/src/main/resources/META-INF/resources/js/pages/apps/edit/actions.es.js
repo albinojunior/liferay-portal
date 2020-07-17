@@ -12,6 +12,8 @@
 import {getItem} from 'app-builder-web/js/utils/client.es';
 import {getTranslatedValue} from 'app-builder-web/js/utils/utils.es';
 
+import {getFormViewFields, validateSelectedFormViews} from './utils.es';
+
 const PARAMS = {keywords: '', page: -1, pageSize: -1, sort: ''};
 
 export function getAssigneeRoles() {
@@ -78,17 +80,23 @@ export function populateConfigData([
 	appWorkflow.appWorkflowTasks.forEach((task) => {
 		task.appWorkflowDataLayoutLinks = task.appWorkflowDataLayoutLinks.map(
 			(item) => {
-				const {name} = parseItem(
+				const {name, ...formView} = parseItem(
 					formViews.find(({id}) => id === item.dataLayoutId)
 				);
 
-				return {...item, name};
+				return {...item, fields: getFormViewFields(formView), name};
 			}
 		);
 
 		task.appWorkflowTransitions.sort(
 			(actionA, actionB) => actionB.primary - actionA.primary
 		);
+
+		task.errors = {
+			formViews: validateSelectedFormViews(
+				task.appWorkflowDataLayoutLinks
+			),
+		};
 	});
 
 	const {appWorkflowStates = [], appWorkflowTasks = []} = appWorkflow;
