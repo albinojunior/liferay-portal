@@ -23,6 +23,7 @@ export const UPDATE_LIST_ITEMS = 'UPDATE_LIST_ITEMS';
 export const UPDATE_STEP = 'UPDATE_STEP';
 export const UPDATE_STEP_ACTION = 'UPDATE_STEP_ACTION';
 export const UPDATE_STEP_FORM_VIEW = 'UPDATE_STEP_FORM_VIEW';
+export const UPDATE_STEP_FORM_VIEW_READONLY = 'UPDATE_STEP_FORM_VIEW_READONLY';
 export const UPDATE_STEP_INDEX = 'UPDATE_STEP_INDEX';
 export const UPDATE_TABLE_VIEW = 'UPDATE_TABLE_VIEW';
 
@@ -240,6 +241,16 @@ export default (state, action) => {
 				action.formView.name;
 
 			return {...state, currentStep: state.steps[state.stepIndex]};
+		}
+		case UPDATE_STEP_FORM_VIEW_READONLY: {
+			const currentStep = state.steps[state.stepIndex];
+
+			currentStep.appWorkflowDataLayoutLinks[action.index] = {
+				...currentStep.appWorkflowDataLayoutLinks[action.index],
+				readOnly: action.readOnly,
+			};
+
+			return {...state, currentStep};
 		}
 		case UPDATE_STEP_INDEX: {
 			return {
