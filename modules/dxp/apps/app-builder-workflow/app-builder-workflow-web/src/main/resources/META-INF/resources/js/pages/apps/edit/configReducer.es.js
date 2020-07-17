@@ -62,34 +62,18 @@ export const getInitialConfig = () => {
 export default (state, action) => {
 	switch (action.type) {
 		case ADD_STEP: {
+			const stepIndex = action.stepIndex + 1;
 			const workflowSteps = [...state.steps];
 
 			const finalStep = workflowSteps.pop();
-
-			let dataLayoutLinks = [{dataLayoutId: '', name: ''}];
-
-			if (action.stepIndex > 0) {
-				dataLayoutLinks =
-					workflowSteps[action.stepIndex].appWorkflowDataLayoutLinks;
-			}
-
-			const stepDataLayoutInfo = {
-				false: {
-					id: dataLayoutLinks[0].dataLayoutId,
-					name: dataLayoutLinks[0].name,
-				},
-				true: {
-					id: state.formView.id,
-					name: state.formView.name,
-				},
-			};
-			const stepIndex = action.stepIndex + 1;
+			const nextStep = workflowSteps[stepIndex];
+			const previousStep = workflowSteps[action.stepIndex];
 
 			const currentStep = {
 				appWorkflowDataLayoutLinks: [
 					{
-						dataLayoutId: stepDataLayoutInfo[stepIndex === 1].id,
-						name: stepDataLayoutInfo[stepIndex === 1].name,
+						...state.formView,
+						dataLayoutId: state.formView.id,
 						readOnly: true,
 					},
 				],
@@ -98,7 +82,7 @@ export default (state, action) => {
 					{
 						name: Liferay.Language.get('submit'),
 						primary: true,
-						transitionTo: finalStep.name,
+						transitionTo: nextStep?.name ?? finalStep.name,
 					},
 				],
 				name: sub(Liferay.Language.get('step-x'), [
@@ -106,10 +90,30 @@ export default (state, action) => {
 				]),
 			};
 
+			if (stepIndex > 1) {
+				currentStep.appWorkflowDataLayoutLinks = previousStep.appWorkflowDataLayoutLinks.map(
+					(dataLayout) => ({
+						...dataLayout,
+						readOnly: true,
+					})
+				);
+
+				previousStep.appWorkflowTransitions.forEach((action) => {
+					if (action.primary) {
+						action.transitionTo = currentStep.name;
+					}
+				});
+			}
+
+			if (nextStep) {
+				nextStep.appWorkflowTransitions.forEach((action) => {
+					if (!action.primary) {
+						action.transitionTo = currentStep.name;
+					}
+				});
+			}
+
 			workflowSteps.splice(stepIndex, 0, currentStep);
-			workflowSteps[
-				action.stepIndex
-			].appWorkflowTransitions[0].transitionTo = currentStep.name;
 
 			return {
 				...state,
@@ -132,7 +136,7 @@ export default (state, action) => {
 
 			workflowSteps[state.stepIndex].appWorkflowDataLayoutLinks.push({
 				dataLayoutId: undefined,
-				readOnly: true,
+				readOnly: false,
 			});
 
 			return {...state, steps: [...workflowSteps]};
