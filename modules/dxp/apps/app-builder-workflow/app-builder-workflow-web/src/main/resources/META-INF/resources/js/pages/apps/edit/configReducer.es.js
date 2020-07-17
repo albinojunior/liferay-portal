@@ -230,10 +230,11 @@ export default (state, action) => {
 			const appWorkflowDataLayoutLinks =
 				state.steps[state.stepIndex].appWorkflowDataLayoutLinks;
 
-			appWorkflowDataLayoutLinks[action.index].dataLayoutId =
-				action.formView.id;
-			appWorkflowDataLayoutLinks[action.index].name =
-				action.formView.name;
+			appWorkflowDataLayoutLinks[action.index] = {
+				dataLayoutId: action.formView.id,
+				name: action.formView.name,
+				readOnly: action.formView.readOnly,
+			};
 
 			return {...state, currentStep: state.steps[state.stepIndex]};
 		}
