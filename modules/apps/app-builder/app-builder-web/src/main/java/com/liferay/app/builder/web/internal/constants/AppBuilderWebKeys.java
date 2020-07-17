@@ -25,8 +25,14 @@ public class AppBuilderWebKeys {
 
 	public static final String APP_TAB = "APP_TAB";
 
+	public static final String APP_TAB_CONTEXT = "APP_TAB_CONTEXT";
+
 	public static final String APPS_TABS = "APPS_TABS";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	public static final String DATA_LAYOUT_IDS = "DATA_LAYOUT_IDS";
 
 	public static final String SHOW_FORM_VIEW = "SHOW_FORM_VIEW";
