@@ -18,7 +18,9 @@
 
 <%
 AppBuilderApp appBuilderApp = (AppBuilderApp)request.getAttribute(AppBuilderWebKeys.APP);
-List<Long> dataLayoutIds = (List<Long>)request.getAttribute(AppBuilderWebKeys.DATA_LAYOUT_IDS);
+AppBuilderAppPortletTabContext appBuilderAppPortletTabContext = (AppBuilderAppPortletTabContext)request.getAttribute(AppBuilderWebKeys.APP_TAB_CONTEXT);
+
+List<Long> dataLayoutIds = appBuilderAppPortletTabContext.getDataLayoutIds();
 %>
 
 <div class="app-builder-root">
@@ -38,7 +40,16 @@ List<Long> dataLayoutIds = (List<Long>)request.getAttribute(AppBuilderWebKeys.DA
 
 						<%
 						for (Long dataLayoutId : dataLayoutIds) {
+							if (dataLayoutIds.size() > 1) {
 						%>
+
+								<h3 class="px-4">
+									<%= appBuilderAppPortletTabContext.getName(dataLayoutId, locale) %>
+								</h3>
+
+							<%
+							}
+							%>
 
 							<aui:form name='<%= dataLayoutId + "_fm" %>'>
 								<liferay-data-engine:data-layout-renderer
@@ -46,6 +57,7 @@ List<Long> dataLayoutIds = (List<Long>)request.getAttribute(AppBuilderWebKeys.DA
 									dataLayoutId="<%= dataLayoutId %>"
 									dataRecordId='<%= ParamUtil.getLong(request, "dataRecordId") %>'
 									namespace="<%= liferayPortletResponse.getNamespace() %>"
+									readOnly="<%= appBuilderAppPortletTabContext.isReadOnly(dataLayoutId) %>"
 								/>
 							</aui:form>
 
