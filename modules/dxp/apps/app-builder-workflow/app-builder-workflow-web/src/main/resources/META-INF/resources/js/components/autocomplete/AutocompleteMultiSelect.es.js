@@ -13,13 +13,9 @@ import ClayAutocomplete from '@clayui/autocomplete';
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
+import isClickOutside from 'app-builder-web/js/utils/clickOutside.es';
 import React, {useEffect, useRef, useState} from 'react';
 
-import {
-	addClickOutsideListener,
-	handleClickOutside,
-	removeClickOutsideListener,
-} from '../filter/util/filterEvents.es';
 import {Autocomplete} from './Autocomplete.es';
 
 const AutocompleteMultiSelect = ({
@@ -57,27 +53,22 @@ const AutocompleteMultiSelect = ({
 		target.value = '';
 	};
 
-	const onKeyDown = ({keyCode}) => {
-		const keyArrowDown = 40;
-		const keyArrowUp = 38;
-		const keyEnter = 13;
-		const keyTab = 9;
-
+	const onKeyDown = ({key}) => {
 		const item = filteredItems[currentIndex];
 
-		if (keyCode === keyArrowUp && currentIndex > 0) {
+		if (key === 'ArrowUp' && currentIndex > 0) {
 			setCurrentIndex(currentIndex - 1);
 		}
-		else if (
-			keyCode === keyArrowDown &&
-			currentIndex < filteredItems.length - 1
-		) {
+
+		if (key === 'ArrowDown' && currentIndex < filteredItems.length - 1) {
 			setCurrentIndex(currentIndex + 1);
 		}
-		else if (keyCode === keyEnter && item) {
+
+		if (key === 'Enter' && item) {
 			onSelect(item);
 		}
-		else if (keyCode === keyTab) {
+
+		if (key === 'Tab') {
 			onBlur();
 		}
 	};
@@ -98,19 +89,24 @@ const AutocompleteMultiSelect = ({
 	};
 
 	useEffect(() => {
-		const listener = handleClickOutside((event) => {
-			const listenerCallback = handleClickOutside(
-				onBlur,
-				document.getElementById(`dropDownList${id}`)
-			);
+		const listener = (event) => {
+			const dropdown = document.getElementById(`dropDownList${id}`);
 
-			listenerCallback(event);
-		}, wrapperRef.current);
+			if (
+				isClickOutside(
+					event.target,
+					dropdown?.parentNode,
+					wrapperRef.current
+				)
+			) {
+				onBlur(event);
+			}
+		};
 
-		addClickOutsideListener(listener);
+		document.addEventListener('mousedown', listener);
 
 		return () => {
-			removeClickOutsideListener(listener);
+			document.removeEventListener('mousedown', listener);
 		};
 	}, [id, wrapperRef]);
 
@@ -155,7 +151,6 @@ const AutocompleteMultiSelect = ({
 					{selectedItems.length > 0 && (
 						<ClayTooltipProvider>
 							<ClayButton
-								borderless
 								className="ml-2 pl-0 pr-1 py-0"
 								displayType="light"
 								onClick={() => {
@@ -192,9 +187,9 @@ const AutocompleteMultiSelect = ({
 	);
 };
 
-const Item = ({key, name, onRemove}) => {
+const Item = ({name, onRemove}) => {
 	return (
-		<span className="label label-dismissible label-secondary" key={key}>
+		<span className="label label-dismissible label-secondary">
 			<span className="label-item label-item-expand">{name}</span>
 
 			<span className="label-item label-item-after">
