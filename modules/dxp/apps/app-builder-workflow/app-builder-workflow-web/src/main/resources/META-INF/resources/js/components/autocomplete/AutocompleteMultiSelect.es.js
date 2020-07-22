@@ -56,12 +56,24 @@ const AutocompleteMultiSelect = ({
 	const onKeyDown = ({key}) => {
 		const item = filteredItems[currentIndex];
 
+		const updateIndex = (index) => {
+			setCurrentIndex(index);
+
+			const element = document.querySelector(
+				`#dropDownList${id} > li:nth-child(${index})`
+			);
+
+			if (typeof element?.scrollIntoView === 'function') {
+				element.scrollIntoView();
+			}
+		};
+
 		if (key === 'ArrowUp' && currentIndex > 0) {
-			setCurrentIndex(currentIndex - 1);
+			updateIndex(currentIndex - 1);
 		}
 
 		if (key === 'ArrowDown' && currentIndex < filteredItems.length - 1) {
-			setCurrentIndex(currentIndex + 1);
+			updateIndex(currentIndex + 1);
 		}
 
 		if (key === 'Enter' && item) {

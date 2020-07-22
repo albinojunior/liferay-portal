@@ -8,10 +8,11 @@ $navbarHeight: 120px;
 	&__builder {
 		display: flex;
 		flex-flow: column;
-		height: calc(100vh - #{$navbarHeight} + 56px);
+		height: calc(100vh - #{$navbarHeight});
+		max-height: calc(100vh - #{$navbarHeight});
 		overflow: auto;
-		padding-bottom: 55px;
-		padding-top: 56px;
+		padding: 3.5rem 0;
+		position: fixed;
 		width: calc(100vw - #{$sidebarWidth});
 
 		.arrow {
@@ -42,12 +43,12 @@ $navbarHeight: 120px;
 			}
 
 			.arrow-body {
-				align-items: end;
 				display: flex;
 				flex-flow: wrap-reverse;
 				justify-content: center;
 
 				.arrow-head {
+					align-self: flex-start;
 					margin-bottom: -4px;
 					margin-top: 4px;
 				}
@@ -100,6 +101,7 @@ $navbarHeight: 120px;
 			border-radius: 0.25rem;
 			cursor: pointer;
 			display: flex;
+			font-weight: 600;
 			justify-content: space-between;
 			margin-bottom: unset;
 			margin-left: 16px;

@@ -13,6 +13,8 @@ import ClayAutocomplete from '@clayui/autocomplete';
 import ClayDropDown from '@clayui/drop-down';
 import React from 'react';
 
+import '../../../css/AutocompleteDropDown.scss';
+
 const DropDown = ({
 	active,
 	activeItem,
