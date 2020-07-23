@@ -7,13 +7,11 @@ $navbarHeight: 120px;
 	margin-top: 64px;
 
 	&__builder {
-		display: flex;
-		flex-flow: column;
-		height: calc(100vh - #{$navbarHeight} + 56px);
+		height: calc(100vh - #{$navbarHeight});
 		margin-right: 350px;
+		max-height: calc(100vh - #{$navbarHeight});
 		overflow: auto;
-		padding-bottom: 55px;
-		padding-top: 56px;
+		position: fixed;
 		width: calc(100vw - #{$sidebarWidth});
 
 		.arrow {
@@ -81,6 +79,14 @@ $navbarHeight: 120px;
 		.step {
 			display: flex;
 			width: 100%;
+
+			&:first-of-type .step-wrapper {
+				margin-top: 3.5rem;
+			}
+
+			&:last-of-type .step-wrapper {
+				margin-bottom: 3.5rem;
+			}
 		}
 
 		.step-badge {
