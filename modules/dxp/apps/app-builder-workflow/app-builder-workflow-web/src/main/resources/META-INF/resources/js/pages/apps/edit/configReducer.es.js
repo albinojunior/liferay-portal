@@ -222,6 +222,13 @@ export default (state, action) => {
 				if (step.appWorkflowDataLayoutLinks) {
 					step.appWorkflowDataLayoutLinks = [];
 				}
+
+				if (step?.errors?.formViews) {
+					step.errors.formViews = {
+						duplicatedFields: [],
+						errorIndexes: [],
+					};
+				}
 			});
 
 			return {
