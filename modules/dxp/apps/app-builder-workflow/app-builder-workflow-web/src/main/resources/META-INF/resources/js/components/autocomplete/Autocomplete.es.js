@@ -97,6 +97,10 @@ const Autocomplete = ({
 		if (key === 'Enter' && item) {
 			handleSelect(item);
 		}
+
+		if (key === 'Tab') {
+			onBlur();
+		}
 	};
 
 	useEffect(() => {
@@ -123,16 +127,6 @@ const Autocomplete = ({
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [value]);
-
-	useEffect(() => {
-		const element = document.querySelector(
-			`#dropDownList${id} > li:nth-child(${activeItem})`
-		);
-
-		if (typeof element?.scrollIntoView === 'function') {
-			element.scrollIntoView();
-		}
-	}, [activeItem, id]);
 
 	return (
 		<>
