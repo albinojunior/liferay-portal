@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
@@ -176,11 +177,15 @@ public abstract class BaseAppWorkflowResourceTestCase {
 
 		AppWorkflow appWorkflow = randomAppWorkflow();
 
+		appWorkflow.setAppVersion(regex);
+
 		String json = AppWorkflowSerDes.toJSON(appWorkflow);
 
 		Assert.assertFalse(json.contains(regex));
 
 		appWorkflow = AppWorkflowSerDes.toDTO(json);
+
+		Assert.assertEquals(regex, appWorkflow.getAppVersion());
 	}
 
 	@Test
@@ -280,6 +285,14 @@ public abstract class BaseAppWorkflowResourceTestCase {
 
 			if (Objects.equals("appId", additionalAssertFieldName)) {
 				if (appWorkflow.getAppId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("appVersion", additionalAssertFieldName)) {
+				if (appWorkflow.getAppVersion() == null) {
 					valid = false;
 				}
 
@@ -416,6 +429,17 @@ public abstract class BaseAppWorkflowResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("appVersion", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						appWorkflow1.getAppVersion(),
+						appWorkflow2.getAppVersion())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals(
 					"appWorkflowDefinitionId", additionalAssertFieldName)) {
 
@@ -540,6 +564,14 @@ public abstract class BaseAppWorkflowResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("appVersion")) {
+			sb.append("'");
+			sb.append(String.valueOf(appWorkflow.getAppVersion()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("appWorkflowDefinitionId")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -600,6 +632,8 @@ public abstract class BaseAppWorkflowResourceTestCase {
 		return new AppWorkflow() {
 			{
 				appId = RandomTestUtil.randomLong();
+				appVersion = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				appWorkflowDefinitionId = RandomTestUtil.randomLong();
 			}
 		};
