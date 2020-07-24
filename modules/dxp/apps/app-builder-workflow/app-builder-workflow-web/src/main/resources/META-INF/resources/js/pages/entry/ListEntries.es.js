@@ -173,8 +173,7 @@ export default function ListEntries({history}) {
 								workflowValues[key] = roleNames.length
 									? concatValues(roleNames)
 									: emptyValue;
-							}
-							else {
+							} else {
 								workflowValues[key] = name;
 							}
 
@@ -191,8 +190,7 @@ export default function ListEntries({history}) {
 										{Liferay.Language.get('pending')}
 									</ClayLabel>
 								);
-							}
-							else {
+							} else {
 								workflowValues[key] = emptyValue;
 							}
 
@@ -231,6 +229,9 @@ export default function ListEntries({history}) {
 
 	const isEmpty = totalCount === 0;
 	const showAddButton = showFormView && permissions.add;
+	const showOptions = {
+		update: ({completed}) => !completed,
+	};
 
 	return (
 		<Loading isLoading={isLoading}>
@@ -257,7 +258,7 @@ export default function ListEntries({history}) {
 				/>
 
 				<TableWithPagination
-					actions={useEntriesActions(refetch)}
+					actions={useEntriesActions({refetch, showOptions})}
 					columns={COLUMNS}
 					emptyState={{
 						button: () =>

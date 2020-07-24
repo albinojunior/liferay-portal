@@ -12,7 +12,6 @@
 import {AppContext} from 'app-builder-web/js/AppContext.es';
 import ControlMenu from 'app-builder-web/js/components/control-menu/ControlMenu.es';
 import {Loading} from 'app-builder-web/js/components/loading/Loading.es';
-import useDataLayout from 'app-builder-web/js/hooks/useDataLayout.es';
 import useQuery from 'app-builder-web/js/hooks/useQuery.es';
 import {ViewDataLayoutPageValues} from 'app-builder-web/js/pages/entry/ViewEntry.es';
 import ViewEntryUpperToolbar from 'app-builder-web/js/pages/entry/ViewEntryUpperToolbar.es';
@@ -24,6 +23,7 @@ import React, {useContext, useEffect, useState} from 'react';
 
 import WorkflowInfoBar from '../../components/workflow-info-bar/WorkflowInfoBar.es';
 import useAppWorkflow from '../../hooks/useAppWorkflow.es';
+import useDataLayouts from '../../hooks/useDataLayouts.es';
 
 export default function ViewEntry({
 	history,
@@ -31,17 +31,28 @@ export default function ViewEntry({
 		params: {entryIndex},
 	},
 }) {
-	const {appId, dataDefinitionId, dataLayoutId} = useContext(AppContext);
+	const {appId, dataDefinitionId} = useContext(AppContext);
 	const {
 		appVersion,
 		appWorkflowDefinitionId,
 		appWorkflowTasks,
 	} = useAppWorkflow(appId);
+
+	const dataLayoutLinks = appWorkflowTasks?.map(
+		({appWorkflowDataLayoutLinks}) =>
+			appWorkflowDataLayoutLinks?.reduce(({dataLayoutId, readOnly}) => {
+				return {
+					dataLayoutId,
+					readOnly,
+				};
+			})
+	);
+
 	const {
 		dataDefinition,
 		dataLayout: {dataLayoutPages},
 		isLoading,
-	} = useDataLayout(dataLayoutId, dataDefinitionId);
+	} = useDataLayouts(dataLayoutLinks, dataDefinitionId);
 
 	const [
 		{dataRecord, isFetching, page, totalCount, workflowInfo},
