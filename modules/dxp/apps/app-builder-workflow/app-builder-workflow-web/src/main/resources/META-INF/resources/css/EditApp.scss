@@ -78,11 +78,11 @@ $navbarHeight: 120px;
 			display: flex;
 			width: 100%;
 
-			&:first-of-type .step-wrapper {
+			&:first-child {
 				margin-top: 3.5rem;
 			}
 
-			&:last-of-type .step-wrapper {
+			&:last-child {
 				margin-bottom: 3.5rem;
 			}
 		}
