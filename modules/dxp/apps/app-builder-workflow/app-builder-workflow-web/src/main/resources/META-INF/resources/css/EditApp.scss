@@ -3,12 +3,10 @@ $navbarHeight: 120px;
 
 .app-builder-workflow-app {
 	display: flex;
-	justify-content: center;
 	margin-top: 64px;
 
 	&__builder {
 		height: calc(100vh - #{$navbarHeight});
-		margin-right: 350px;
 		max-height: calc(100vh - #{$navbarHeight});
 		overflow: auto;
 		position: fixed;
