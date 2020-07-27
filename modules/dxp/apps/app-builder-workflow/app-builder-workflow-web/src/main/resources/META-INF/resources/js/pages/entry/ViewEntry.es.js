@@ -41,7 +41,7 @@ export default function ViewEntry({
 		appWorkflowTasks,
 	} = useAppWorkflow(appId);
 
-	const dataLayoutLinks = appWorkflowTasks?.reduce(
+	const dataLayoutIds = appWorkflowTasks?.reduce(
 		(dataLayoutIds, {appWorkflowDataLayoutLinks}) => [
 			...dataLayoutIds,
 			appWorkflowDataLayoutLinks?.reduce(
@@ -56,7 +56,7 @@ export default function ViewEntry({
 	);
 
 	const {dataDefinition, dataLayouts, isLoading} = useDataLayouts(
-		dataLayoutLinks,
+		dataLayoutIds,
 		dataDefinitionId
 	);
 
