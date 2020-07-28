@@ -12,6 +12,8 @@
  * details.
  */
 
+ import {getLocalizedValue} from './lang.es'
+
 export const concatValues = (values) =>
 	values
 		.join(', ')
@@ -32,6 +34,6 @@ export const getTranslatedValue = (item, propertyKey) => {
 	} = item;
 
 	return typeof value === 'object'
-		? value[themeDisplay.getLanguageId()] || value[defaultLanguageId]
+		? getLocalizedValue(defaultLanguageId, value)
 		: value;
 };
