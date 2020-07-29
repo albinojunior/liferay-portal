@@ -15,10 +15,17 @@ import {ControlMenuBase} from 'app-builder-web/js/components/control-menu/Contro
 import {getItem} from 'app-builder-web/js/utils/client.es';
 import {successToast} from 'app-builder-web/js/utils/toast.es';
 import {createResourceURL, fetch} from 'frontend-js-web';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {createPortal} from 'react-dom';
 
 import WorkflowInfoBar from '../../components/workflow-info-bar/WorkflowInfoBar.es';
+import useAppDataRecordLinks from '../../hooks/useAppDataRecordLinks.es';
 import useAppWorkflow from '../../hooks/useAppWorkflow.es';
 import useDDMForms from '../../hooks/useDDMForms.es';
 
@@ -57,12 +64,17 @@ export default function EditEntry({dataRecordId, redirect}) {
 		namespace,
 	} = useContext(AppContext);
 
+	const dataRecordIds = useMemo(() => [dataRecordId], [dataRecordId]);
+
+	const appWorkflow = useAppWorkflow(appId);
+	const appDataRecordLinks = useAppDataRecordLinks(appId, dataRecordIds);
+
 	const {
 		appVersion,
 		appWorkflowDefinitionId,
 		appWorkflowStates: [initialState = {}] = [],
 		appWorkflowTasks,
-	} = useAppWorkflow(appId);
+	} = appDataRecordLinks[dataRecordId] ?? appWorkflow;
 
 	const {appWorkflowTransitions: [transition = {}] = []} = initialState;
 
@@ -81,8 +93,7 @@ export default function EditEntry({dataRecordId, redirect}) {
 
 		if (redirect) {
 			Liferay.Util.navigate(redirect);
-		}
-		else {
+		} else {
 			Liferay.Util.navigate(basePortletURL);
 		}
 	}, [basePortletURL, redirect]);
@@ -190,8 +201,7 @@ export default function EditEntry({dataRecordId, redirect}) {
 				});
 			}
 		}
-	}
-	else {
+	} else {
 		actionButtons.push(
 			<ClayButton
 				disabled={transitioning}
