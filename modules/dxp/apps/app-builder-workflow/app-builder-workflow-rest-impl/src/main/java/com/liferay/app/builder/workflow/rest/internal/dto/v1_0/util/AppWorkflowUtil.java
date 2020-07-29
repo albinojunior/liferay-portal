@@ -30,55 +30,11 @@ import java.util.stream.Stream;
 
 public class AppWorkflowUtil {
 
-	private static AppWorkflowState[] _toAppWorkflowStates(List<State> states) {
-		return Stream.of(
-			states
-		).flatMap(
-			List::stream
-		).map(
-			state -> new AppWorkflowState() {
-				{
-					appWorkflowTransitions = _toAppWorkflowTransitions(
-						state.getOutgoingTransitionsList());
-					initial = state.isInitial();
-					name = state.getName();
-				}
-			}
-		).toArray(
-			AppWorkflowState[]::new
-		);
-	}
-
-	private static AppWorkflowTransition[] _toAppWorkflowTransitions(
-		List<Transition> transitions) {
-
-		return Stream.of(
-			transitions
-		).flatMap(
-			List::stream
-		).map(
-			transition -> new AppWorkflowTransition() {
-				{
-					name = transition.getName();
-					primary = transition.isDefault();
-
-					setTransitionTo(
-						() -> {
-							Node targetNode = transition.getTargetNode();
-
-							return targetNode.getName();
-						});
-				}
-			}
-		).toArray(
-			AppWorkflowTransition[]::new
-		);
-	}
-
 	public static AppWorkflow toAppWorkflow(
 		AppBuilderAppVersion appBuilderAppVersion,
 		List<AppBuilderWorkflowTaskLink> appBuilderWorkflowTaskLinks,
-		Long appWorkflowId, Definition definition, Function<Long, Role> roleFunction, Long workflowDefinitionId) {
+		Long appWorkflowId, Definition definition,
+		Function<Long, Role> roleFunction, Long workflowDefinitionId) {
 
 		return new AppWorkflow() {
 			{
@@ -111,42 +67,14 @@ public class AppWorkflowUtil {
 
 						List<AppWorkflowTask> appWorkflowTasks =
 							TransformUtil.transform(
-							map.entrySet(),
-							entry -> _toAppWorkflowTask(
-								entry.getValue(),
-								definition.getNode(entry.getKey()),
-								roleFunction, entry.getKey()));
+								map.entrySet(),
+								entry -> _toAppWorkflowTask(
+									entry.getValue(),
+									definition.getNode(entry.getKey()),
+									roleFunction, entry.getKey()));
 
 						return appWorkflowTasks.toArray(new AppWorkflowTask[0]);
 					});
-			}
-		};
-	}
-
-	private static AppWorkflowTask _toAppWorkflowTask(
-		List<AppBuilderWorkflowTaskLink> appBuilderWorkflowTaskLinks, Node node,
-		Function<Long, Role> roleFunction, String taskName) {
-
-		return new AppWorkflowTask() {
-			{
-				appWorkflowDataLayoutLinks = TransformUtil.transformToArray(
-					appBuilderWorkflowTaskLinks,
-					appBuilderWorkflowTaskLink ->
-						new AppWorkflowDataLayoutLink() {
-							{
-								dataLayoutId =
-									appBuilderWorkflowTaskLink.
-										getDdmStructureLayoutId();
-								readOnly =
-									appBuilderWorkflowTaskLink.getReadOnly();
-							}
-						},
-					AppWorkflowDataLayoutLink.class);
-				appWorkflowRoleAssignments = _toAppWorkflowRoleAssignments(
-					roleFunction, (Task)node);
-				appWorkflowTransitions = _toAppWorkflowTransitions(
-					node.getOutgoingTransitionsList());
-				name = taskName;
 			}
 		};
 	}
@@ -180,5 +108,79 @@ public class AppWorkflowUtil {
 		);
 	}
 
+	private static AppWorkflowState[] _toAppWorkflowStates(List<State> states) {
+		return Stream.of(
+			states
+		).flatMap(
+			List::stream
+		).map(
+			state -> new AppWorkflowState() {
+				{
+					appWorkflowTransitions = _toAppWorkflowTransitions(
+						state.getOutgoingTransitionsList());
+					initial = state.isInitial();
+					name = state.getName();
+				}
+			}
+		).toArray(
+			AppWorkflowState[]::new
+		);
+	}
+
+	private static AppWorkflowTask _toAppWorkflowTask(
+		List<AppBuilderWorkflowTaskLink> appBuilderWorkflowTaskLinks, Node node,
+		Function<Long, Role> roleFunction, String taskName) {
+
+		return new AppWorkflowTask() {
+			{
+				appWorkflowDataLayoutLinks = TransformUtil.transformToArray(
+					appBuilderWorkflowTaskLinks,
+					appBuilderWorkflowTaskLink ->
+						new AppWorkflowDataLayoutLink() {
+							{
+								dataLayoutId =
+									appBuilderWorkflowTaskLink.
+										getDdmStructureLayoutId();
+								readOnly =
+									appBuilderWorkflowTaskLink.getReadOnly();
+							}
+						},
+					AppWorkflowDataLayoutLink.class);
+				appWorkflowRoleAssignments = _toAppWorkflowRoleAssignments(
+					roleFunction, (Task)node);
+				appWorkflowTransitions = _toAppWorkflowTransitions(
+					node.getOutgoingTransitionsList());
+				name = taskName;
+			}
+		};
+	}
+
+	private static AppWorkflowTransition[] _toAppWorkflowTransitions(
+		List<Transition> transitions) {
+
+		return Stream.of(
+			transitions
+		).flatMap(
+			List::stream
+		).map(
+			transition -> new AppWorkflowTransition() {
+				{
+					name = transition.getName();
+					primary = transition.isDefault();
+
+					setTransitionTo(
+						() -> {
+							Node targetNode = transition.getTargetNode();
+
+							return targetNode.getName();
+						});
+				}
+			}
+		).toArray(
+			AppWorkflowTransition[]::new
+		);
+	}
+
 	private static RoleLocalService _roleLocalService;
+
 }

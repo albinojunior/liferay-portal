@@ -97,7 +97,8 @@ public class AppWorkflowResourceHelper {
 			workflowDefinitionLink.getWorkflowDefinitionVersion());
 	}
 
-	public WorkflowDefinition getLatestWorkflowDefinition(long appId, long companyId)
+	public WorkflowDefinition getLatestWorkflowDefinition(
+			long appId, long companyId)
 		throws PortalException {
 
 		try {

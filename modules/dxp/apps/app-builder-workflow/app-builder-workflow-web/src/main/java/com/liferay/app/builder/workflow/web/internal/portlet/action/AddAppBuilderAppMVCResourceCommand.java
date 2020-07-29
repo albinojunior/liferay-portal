@@ -25,7 +25,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.Optional;
-
 import javax.portlet.ResourceRequest;
 
 import org.osgi.service.component.annotations.Component;
