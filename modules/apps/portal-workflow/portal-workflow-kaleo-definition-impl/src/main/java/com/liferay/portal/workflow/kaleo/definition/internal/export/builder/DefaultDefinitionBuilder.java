@@ -16,8 +16,9 @@ package com.liferay.portal.workflow.kaleo.definition.internal.export.builder;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.workflow.kaleo.definition.Definition;
 import com.liferay.portal.workflow.kaleo.definition.Node;
 import com.liferay.portal.workflow.kaleo.definition.Transition;
@@ -46,37 +47,41 @@ public class DefaultDefinitionBuilder implements DefinitionBuilder {
 	public Definition buildDefinition(long kaleoDefinitionId)
 		throws PortalException {
 
+		KaleoDefinition kaleoDefinition =
+			_kaleoDefinitionLocalService.getKaleoDefinition(kaleoDefinitionId);
+
 		return doBuildDefinition(
-			_kaleoDefinitionLocalService.getKaleoDefinition(kaleoDefinitionId));
+			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersion(
+				kaleoDefinition.getCompanyId(), kaleoDefinition.getName(),
+				StringBundler.concat(
+					kaleoDefinition.getVersion(), CharPool.PERIOD, 0)));
 	}
 
 	@Override
 	public Definition buildDefinition(long companyId, String name, int version)
 		throws PortalException {
 
-		ServiceContext serviceContext = new ServiceContext();
-
-		serviceContext.setCompanyId(companyId);
-
-		KaleoDefinition kaleoDefinition =
-			_kaleoDefinitionLocalService.getKaleoDefinition(
-				name, serviceContext);
-
-		return doBuildDefinition(kaleoDefinition);
+		return doBuildDefinition(
+			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersion(
+				companyId, name,
+				StringBundler.concat(version, CharPool.PERIOD, 0)));
 	}
 
-	protected Definition doBuildDefinition(KaleoDefinition kaleoDefinition)
+	private int _getVersion(String version) {
+		int[] versionParts = StringUtil.split(version, StringPool.PERIOD, 0);
+
+		return versionParts[0];
+	}
+
+	protected Definition doBuildDefinition(
+			KaleoDefinitionVersion kaleoDefinitionVersion)
 		throws PortalException {
 
 		Definition definition = new Definition(
-			kaleoDefinition.getName(), kaleoDefinition.getDescription(),
-			kaleoDefinition.getContent(), kaleoDefinition.getVersion());
-
-		KaleoDefinitionVersion kaleoDefinitionVersion =
-			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersion(
-				kaleoDefinition.getCompanyId(), kaleoDefinition.getName(),
-				StringBundler.concat(
-					kaleoDefinition.getVersion(), CharPool.PERIOD, 0));
+			kaleoDefinitionVersion.getName(),
+			kaleoDefinitionVersion.getDescription(),
+			kaleoDefinitionVersion.getContent(),
+			_getVersion(kaleoDefinitionVersion.getVersion()));
 
 		List<KaleoNode> kaleoNodes =
 			_kaleoNodeLocalService.getKaleoDefinitionVersionKaleoNodes(
