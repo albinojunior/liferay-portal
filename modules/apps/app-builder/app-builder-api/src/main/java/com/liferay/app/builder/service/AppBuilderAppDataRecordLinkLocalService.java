@@ -252,6 +252,10 @@ public interface AppBuilderAppDataRecordLinkLocalService
 	public List<AppBuilderAppDataRecordLink> getAppBuilderAppDataRecordLinks(
 		long appBuilderAppId);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderAppDataRecordLink> getAppBuilderAppDataRecordLinks(
+		long appBuilderAppId, long[] ddlRecordIds);
+
 	/**
 	 * Returns the number of app builder app data record links.
 	 *

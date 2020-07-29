@@ -15,6 +15,9 @@
 package com.liferay.app.builder.workflow.rest.internal.graphql.mutation.v1_0;
 
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflow;
+import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowDataRecordLink;
+import com.liferay.app.builder.workflow.rest.dto.v1_0.DataRecordIds;
+import com.liferay.app.builder.workflow.rest.resource.v1_0.AppWorkflowDataRecordLinkResource;
 import com.liferay.app.builder.workflow.rest.resource.v1_0.AppWorkflowResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
@@ -22,6 +25,7 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.pagination.Page;
 
 import java.util.function.BiFunction;
 
@@ -47,6 +51,15 @@ public class Mutation {
 
 		_appWorkflowResourceComponentServiceObjects =
 			appWorkflowResourceComponentServiceObjects;
+	}
+
+	public static void
+		setAppWorkflowDataRecordLinkResourceComponentServiceObjects(
+			ComponentServiceObjects<AppWorkflowDataRecordLinkResource>
+				appWorkflowDataRecordLinkResourceComponentServiceObjects) {
+
+		_appWorkflowDataRecordLinkResourceComponentServiceObjects =
+			appWorkflowDataRecordLinkResourceComponentServiceObjects;
 	}
 
 	@GraphQLField
@@ -86,6 +99,26 @@ public class Mutation {
 			this::_populateResourceContext,
 			appWorkflowResource -> appWorkflowResource.putAppWorkflow(
 				appId, appWorkflow));
+	}
+
+	@GraphQLField
+	public java.util.Collection<AppWorkflowDataRecordLink>
+			createAppAppWorkflowDataRecordLinksPage(
+				@GraphQLName("appId") Long appId,
+				@GraphQLName("dataRecordIds") DataRecordIds dataRecordIds)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_appWorkflowDataRecordLinkResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			appWorkflowDataRecordLinkResource -> {
+				Page paginationPage =
+					appWorkflowDataRecordLinkResource.
+						postAppAppWorkflowDataRecordLinksPage(
+							appId, dataRecordIds);
+
+				return paginationPage.getItems();
+			});
 	}
 
 	private <T, R, E1 extends Throwable, E2 extends Throwable> R
@@ -138,8 +171,25 @@ public class Mutation {
 		appWorkflowResource.setContextUser(_user);
 	}
 
+	private void _populateResourceContext(
+			AppWorkflowDataRecordLinkResource appWorkflowDataRecordLinkResource)
+		throws Exception {
+
+		appWorkflowDataRecordLinkResource.setContextAcceptLanguage(
+			_acceptLanguage);
+		appWorkflowDataRecordLinkResource.setContextCompany(_company);
+		appWorkflowDataRecordLinkResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		appWorkflowDataRecordLinkResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		appWorkflowDataRecordLinkResource.setContextUriInfo(_uriInfo);
+		appWorkflowDataRecordLinkResource.setContextUser(_user);
+	}
+
 	private static ComponentServiceObjects<AppWorkflowResource>
 		_appWorkflowResourceComponentServiceObjects;
+	private static ComponentServiceObjects<AppWorkflowDataRecordLinkResource>
+		_appWorkflowDataRecordLinkResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
 	private com.liferay.portal.kernel.model.Company _company;

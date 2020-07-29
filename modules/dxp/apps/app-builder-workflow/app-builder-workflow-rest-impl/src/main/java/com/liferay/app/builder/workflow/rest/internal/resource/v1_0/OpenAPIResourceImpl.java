@@ -82,6 +82,8 @@ public class OpenAPIResourceImpl {
 		{
 			add(AppWorkflowResourceImpl.class);
 
+			add(AppWorkflowDataRecordLinkResourceImpl.class);
+
 			add(OpenAPIResourceImpl.class);
 		}
 	};

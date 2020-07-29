@@ -97,7 +97,7 @@ public class AppWorkflowResourceHelper {
 			workflowDefinitionLink.getWorkflowDefinitionVersion());
 	}
 
-	public WorkflowDefinition getWorkflowDefinition(long appId, long companyId)
+	public WorkflowDefinition getLatestWorkflowDefinition(long appId, long companyId)
 		throws PortalException {
 
 		try {
@@ -194,7 +194,7 @@ public class AppWorkflowResourceHelper {
 			long appId, long companyId, long userId)
 		throws PortalException {
 
-		WorkflowDefinition workflowDefinition = getWorkflowDefinition(
+		WorkflowDefinition workflowDefinition = getLatestWorkflowDefinition(
 			appId, companyId);
 
 		_workflowDefinitionManager.updateActive(

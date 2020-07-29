@@ -304,6 +304,15 @@ public class AppBuilderAppDataRecordLinkLocalServiceUtil {
 		return getService().getAppBuilderAppDataRecordLinks(appBuilderAppId);
 	}
 
+	public static java.util.List
+		<com.liferay.app.builder.model.AppBuilderAppDataRecordLink>
+			getAppBuilderAppDataRecordLinks(
+				long appBuilderAppId, long[] ddlRecordIds) {
+
+		return getService().getAppBuilderAppDataRecordLinks(
+			appBuilderAppId, ddlRecordIds);
+	}
+
 	/**
 	 * Returns the number of app builder app data record links.
 	 *
