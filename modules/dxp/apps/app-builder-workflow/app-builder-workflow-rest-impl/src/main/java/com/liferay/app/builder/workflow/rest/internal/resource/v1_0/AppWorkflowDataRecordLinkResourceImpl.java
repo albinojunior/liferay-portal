@@ -73,7 +73,7 @@ public class AppWorkflowDataRecordLinkResourceImpl
 		List<WorkflowInstance> workflowInstances =
 			_workflowInstanceManager.getWorkflowInstances(
 				contextCompany.getCompanyId(), null, null,
-				appBuilderAppDataRecordLink.getDdlRecordId(), false, 0, 1,
+				appBuilderAppDataRecordLink.getDdlRecordId(), null, 0, 1,
 				null);
 
 		WorkflowInstance workflowInstance = workflowInstances.get(0);
