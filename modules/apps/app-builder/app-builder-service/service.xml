@@ -97,6 +97,10 @@
 		<finder name="DDLRecordId" return-type="AppBuilderAppDataRecordLink">
 			<finder-column name="ddlRecordId" />
 		</finder>
+		<finder name="A_D" return-type="Collection">
+			<finder-column name="appBuilderAppId" />
+			<finder-column arrayable-operator="OR" name="ddlRecordId" />
+		</finder>
 	</entity>
 	<entity local-service="true" name="AppBuilderAppDeployment" remote-service="false">
 
