@@ -45,7 +45,7 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 		defaultLanguageId
 	);
 
-	const appName = app.name[editingLanguageId];
+	const name = app.name[editingLanguageId];
 	const availableLanguages = availableLanguageIds.reduce(
 		(languages, languageId) => ({
 			...languages,
@@ -56,7 +56,7 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 
 	const onAppNameChange = ({target}) => {
 		dispatch({
-			appName: {
+			name: {
 				...app.name,
 				[editingLanguageId]: target.value,
 			},
@@ -70,7 +70,7 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 
 			if (!app.name[newEditingLanguageId]) {
 				dispatch({
-					appName: {
+					name: {
 						...app.name,
 						[newEditingLanguageId]: app.name[editingLanguageId],
 					},
@@ -93,7 +93,7 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 	const onClickUndeploy = () => {
 		undeployApp({
 			...app,
-			appName,
+			name,
 		})
 			.then(() => {
 				dispatch({
@@ -110,10 +110,10 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 		}
 
 		dispatch({
-			appName: availableLanguageIds.reduce(
+			name: availableLanguageIds.reduce(
 				(name, languageId) => ({
 					...name,
-					[languageId]: app.name[languageId] || appName,
+					[languageId]: app.name[languageId] || name,
 				}),
 				{}
 			),
@@ -124,7 +124,7 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 	}, [availableLanguageIds, defaultLanguageId]);
 
 	const isDisabledSaveButton =
-		!canDeployApp({...app, appName}, config) || isSaving;
+		!canDeployApp({...app, name}, config) || isSaving;
 
 	return (
 		<UpperToolbar className="align-items-center">
@@ -140,7 +140,7 @@ export default function EditAppToolbar({isSaving, onCancel, onSave}) {
 				maxLength={30}
 				onChange={onAppNameChange}
 				placeholder={Liferay.Language.get('untitled-app')}
-				value={appName}
+				value={name}
 			/>
 
 			<UpperToolbar.Group>
