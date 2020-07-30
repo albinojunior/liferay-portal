@@ -34,6 +34,7 @@ import {usePrevious} from 'frontend-js-react-web';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 
 import useAppWorkflow from '../../hooks/useAppWorkflow.es';
+import useDataRecordApps from '../../hooks/useDataRecordApps.es';
 
 const WORKFLOW_COLUMNS = [
 	{key: 'status', value: Liferay.Language.get('status')},
@@ -55,9 +56,10 @@ export default function ListEntries({history}) {
 		update: ({completed}) => !completed,
 	});
 
-	const {appWorkflowDefinitionId, appWorkflowTasks = []} = useAppWorkflow(
-		appId
-	);
+	const [dataRecordIds, setDataRecordIds] = useState([]);
+
+	const {appWorkflowDefinitionId} = useAppWorkflow(appId);
+	const dataRecordApps = useDataRecordApps(appId, dataRecordIds);
 
 	const {
 		columns,
@@ -108,6 +110,8 @@ export default function ListEntries({history}) {
 					if (response.items.length > 0) {
 						const classPKs = response.items.map(({id}) => id);
 
+						setDataRecordIds(classPKs);
+
 						getItem(
 							`/o/portal-workflow-metrics/v1.0/processes/${workflowDefinitionId}/instances`,
 							{classPKs, page: 1, pageSize: response.items.length}
@@ -140,7 +144,7 @@ export default function ListEntries({history}) {
 				})
 				.catch(() => {
 					errorToast();
-
+					setDataRecordIds([]);
 					setFetchState((prevState) => ({
 						...prevState,
 						isFetching: false,
@@ -165,6 +169,9 @@ export default function ListEntries({history}) {
 							const {name = emptyValue, id} = assignees[0];
 
 							if (id === -1) {
+								const {appWorkflowTasks = []} =
+									dataRecordApps[entry.id] || {};
+
 								const {appWorkflowRoleAssignments = []} =
 									appWorkflowTasks.find(
 										({name}) => name === taskNames[0]

@@ -15,12 +15,19 @@ import {ControlMenuBase} from 'app-builder-web/js/components/control-menu/Contro
 import {getItem} from 'app-builder-web/js/utils/client.es';
 import {successToast} from 'app-builder-web/js/utils/toast.es';
 import {createResourceURL, fetch} from 'frontend-js-web';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {createPortal} from 'react-dom';
 
 import WorkflowInfoBar from '../../components/workflow-info-bar/WorkflowInfoBar.es';
 import useAppWorkflow from '../../hooks/useAppWorkflow.es';
 import useDDMForms from '../../hooks/useDDMForms.es';
+import useDataRecordApps from '../../hooks/useDataRecordApps.es';
 
 const createWorkflowInfoPortal = (props) => {
 	const portalElementId = 'workflowInfoBar';
@@ -57,12 +64,19 @@ export default function EditEntry({dataRecordId, redirect}) {
 		namespace,
 	} = useContext(AppContext);
 
+	const dataRecordApps = useDataRecordApps(
+		appId,
+		useMemo(() => [dataRecordId], [dataRecordId])
+	);
+
+	const appWorkflow = useAppWorkflow(appId);
+
 	const {
 		appVersion,
 		appWorkflowDefinitionId,
 		appWorkflowStates: [initialState = {}] = [],
 		appWorkflowTasks,
-	} = useAppWorkflow(appId);
+	} = dataRecordApps[dataRecordId] ?? appWorkflow;
 
 	const {appWorkflowTransitions: [transition = {}] = []} = initialState;
 
