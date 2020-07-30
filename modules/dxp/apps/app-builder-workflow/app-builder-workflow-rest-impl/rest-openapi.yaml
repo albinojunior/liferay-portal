@@ -27,6 +27,14 @@ components:
                 readOnly:
                     type: boolean
             type: object
+        AppWorkflowDataRecordLink:
+            properties:
+                appWorkflow:
+                    $ref: "#/components/schemas/AppWorkflow"
+                dataRecordId:
+                    format: int64
+                    type: integer
+            type: object
         AppWorkflowRoleAssignment:
             properties:
                 roleId:
@@ -71,6 +79,14 @@ components:
                     type: boolean
                 transitionTo:
                     type: string
+            type: object
+        DataRecordIds:
+            properties:
+                dataRecordIds:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
             type: object
 info:
     description:
@@ -180,3 +196,37 @@ paths:
                     description:
                         ""
             tags: ["AppWorkflow"]
+    "/apps/{appId}/app-workflows/data-record-links":
+        post:
+            operationId: postAppAppWorkflowDataRecordLinksPage
+            parameters:
+                - in: path
+                  name: appId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DataRecordIds"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DataRecordIds"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AppWorkflowDataRecordLink"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AppWorkflowDataRecordLink"
+                                type: array
+                    description:
+                        ""
+            tags: ["AppWorkflowDataRecordLink"]
