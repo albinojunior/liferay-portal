@@ -35,53 +35,55 @@ const createItems = (size) => {
 	return items;
 };
 
+const APP_WORKFLOW = {
+	appVersion: '1.0',
+	appWorkflowDefinitionId: 1,
+	appWorkflowStates: [
+		{
+			appWorkflowTransitions: [
+				{
+					name: 'Submit',
+					primary: true,
+					transitionTo: 'Review',
+				},
+			],
+			initial: true,
+			name: 'Created',
+		},
+		{
+			appWorkflowTransitions: [],
+			initial: false,
+			name: 'Closed',
+		},
+	],
+	appWorkflowTasks: [
+		{
+			appWorkflowDataLayoutLinks: [
+				{
+					dataLayoutId: 1,
+					readOnly: false,
+				},
+			],
+			appWorkflowRoleAssignments: [
+				{
+					roleId: 1,
+					roleName: 'Administrator',
+				},
+			],
+			appWorkflowTransitions: [
+				{
+					name: 'Close',
+					primary: true,
+					transitionTo: 'Closed',
+				},
+			],
+			name: 'Review',
+		},
+	],
+};
+
 export const ENTRY = {
-	APP_WORKFLOW: {
-		appVersion: '1.0',
-		appWorkflowDefinitionId: 1,
-		appWorkflowStates: [
-			{
-				appWorkflowTransitions: [
-					{
-						name: 'Submit',
-						primary: true,
-						transitionTo: 'Review',
-					},
-				],
-				initial: true,
-				name: 'Created',
-			},
-			{
-				appWorkflowTransitions: [],
-				initial: false,
-				name: 'Closed',
-			},
-		],
-		appWorkflowTasks: [
-			{
-				appWorkflowDataLayoutLinks: [
-					{
-						dataLayoutId: 1,
-						readOnly: false,
-					},
-				],
-				appWorkflowRoleAssignments: [
-					{
-						roleId: 1,
-						roleName: 'Administrator',
-					},
-				],
-				appWorkflowTransitions: [
-					{
-						name: 'Close',
-						primary: true,
-						transitionTo: 'Closed',
-					},
-				],
-				name: 'Review',
-			},
-		],
-	},
+	APP_WORKFLOW,
 	DATA_DEFINITION: {
 		availableLanguageIds: ['en_US'],
 		contentType: 'app-builder',
@@ -190,6 +192,16 @@ export const ENTRY = {
 		},
 		sortField: '',
 	},
+	DATA_RECORD_APPS: (size) => ({
+		items: Array.apply(null, Array(size)).map((_, dataRecordId) => ({
+			appWorkflow: APP_WORKFLOW,
+			dataRecordId,
+		})),
+		lastPage: 1,
+		page: 1,
+		pageSize: size,
+		totalCount: size,
+	}),
 	DATA_RECORDS: (size = 1) => ({
 		items: Array.apply(null, Array(size)).map((_, id) => ({
 			dataRecordCollectionId: id,
