@@ -134,6 +134,8 @@ public class KaleoWorkflowModelConverterImpl
 
 			defaultWorkflowDefinition.setActive(kaleoDefinition.isActive());
 			defaultWorkflowDefinition.setScope(kaleoDefinition.getScope());
+			defaultWorkflowDefinition.setWorkflowDefinitionId(
+				kaleoDefinition.getKaleoDefinitionId());
 		}
 		catch (PortalException portalException) {
 			if (_log.isWarnEnabled()) {
