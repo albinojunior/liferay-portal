@@ -41,6 +41,7 @@ jest.mock('frontend-js-web', () => ({
 	fetch: jest.fn().mockResolvedValue(),
 }));
 
+const mockAddItem = jest.fn().mockResolvedValue(ENTRY.DATA_RECORD_APPS(1));
 const mockGetItem = jest
 	.fn()
 	.mockResolvedValueOnce(ENTRY.APP_WORKFLOW)
@@ -58,6 +59,7 @@ const mockGetItem = jest
 	});
 
 jest.mock('app-builder-web/js/utils/client.es', () => ({
+	addItem: () => mockAddItem(),
 	getItem: () => mockGetItem(),
 }));
 

@@ -62,6 +62,7 @@ describe('ListEntries', () => {
 		fetch.mockResponseOnce(JSON.stringify(ENTRY.DATA_LIST_VIEW));
 		fetch.mockResponseOnce(JSON.stringify(ENTRY.DATA_RECORDS(5)));
 		fetch.mockResponseOnce(JSON.stringify(instances));
+		fetch.mockResponseOnce(JSON.stringify(ENTRY.DATA_RECORD_APPS(1)));
 
 		const {container} = render(
 			<AppContextProviderWrapper appContext={context}>
