@@ -21,10 +21,8 @@ import com.liferay.app.builder.service.AppBuilderAppVersionLocalService;
 import com.liferay.app.builder.workflow.model.AppBuilderWorkflowTaskLink;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflow;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowDataLayoutLink;
-import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowRoleAssignment;
-import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowState;
 import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTask;
-import com.liferay.app.builder.workflow.rest.dto.v1_0.AppWorkflowTransition;
+import com.liferay.app.builder.workflow.rest.internal.dto.v1_0.util.AppWorkflowUtil;
 import com.liferay.app.builder.workflow.rest.internal.resource.v1_0.helper.AppWorkflowResourceHelper;
 import com.liferay.app.builder.workflow.rest.resource.v1_0.AppWorkflowResource;
 import com.liferay.app.builder.workflow.service.AppBuilderWorkflowTaskLinkLocalService;
@@ -35,20 +33,10 @@ import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.workflow.kaleo.definition.Definition;
-import com.liferay.portal.workflow.kaleo.definition.Node;
-import com.liferay.portal.workflow.kaleo.definition.RoleAssignment;
-import com.liferay.portal.workflow.kaleo.definition.State;
-import com.liferay.portal.workflow.kaleo.definition.Task;
-import com.liferay.portal.workflow.kaleo.definition.Transition;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -87,7 +75,7 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 			_appWorkflowResourceHelper.getWorkflowDefinition(
 				appId, contextCompany.getCompanyId());
 
-		return _toAppWorkflow(
+		return AppWorkflowUtil.toAppWorkflow(
 			latestAppBuilderAppVersion,
 			_appBuilderWorkflowTaskLinkLocalService.
 				getAppBuilderWorkflowTaskLinks(
@@ -96,7 +84,8 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 			appId,
 			_appWorkflowResourceHelper.getDefinition(
 				appId, contextCompany.getCompanyId()),
-			workflowDefinition.getWorkflowDefinitionId());
+			_roleLocalService::fetchRole,
+			latestWorkflowDefinition.getWorkflowDefinitionId());
 	}
 
 	@Override
@@ -147,9 +136,10 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 			appId, 0, workflowDefinition.getName(),
 			workflowDefinition.getVersion());
 
-		return _toAppWorkflow(
+		return AppWorkflowUtil.toAppWorkflow(
 			latestAppBuilderAppVersion, appBuilderWorkflowTaskLinks, appId,
-			definition, workflowDefinition.getWorkflowDefinitionId());
+			definition, _roleLocalService::fetchRole,
+			workflowDefinition.getWorkflowDefinitionId());
 	}
 
 	@Override
@@ -171,155 +161,6 @@ public class AppWorkflowResourceImpl extends BaseAppWorkflowResourceImpl {
 			appId, 0);
 
 		return postAppWorkflow(appId, appWorkflow);
-	}
-
-	private AppWorkflow _toAppWorkflow(
-		AppBuilderAppVersion appBuilderAppVersion,
-		List<AppBuilderWorkflowTaskLink> appBuilderWorkflowTaskLinks,
-		Long appWorkflowId, Definition definition, Long workflowDefinitionId) {
-
-		return new AppWorkflow() {
-			{
-				appId = appWorkflowId;
-				appVersion = appBuilderAppVersion.getVersion();
-				appWorkflowDefinitionId = workflowDefinitionId;
-
-				setAppWorkflowStates(
-					() -> {
-						List<State> states = new ArrayList<>();
-
-						states.add(definition.getInitialState());
-						states.addAll(definition.getTerminalStates());
-
-						return _toAppWorkflowStates(states);
-					});
-				setAppWorkflowTasks(
-					() -> {
-						Map<String, List<AppBuilderWorkflowTaskLink>> map =
-							Stream.of(
-								appBuilderWorkflowTaskLinks
-							).flatMap(
-								List::stream
-							).collect(
-								Collectors.groupingBy(
-									AppBuilderWorkflowTaskLink::
-										getWorkflowTaskName,
-									LinkedHashMap::new, Collectors.toList())
-							);
-
-						List<AppWorkflowTask> appWorkflowTasks = transform(
-							map.entrySet(),
-							entry -> _toAppWorkflowTask(
-								entry.getValue(),
-								definition.getNode(entry.getKey()),
-								entry.getKey()));
-
-						return appWorkflowTasks.toArray(new AppWorkflowTask[0]);
-					});
-			}
-		};
-	}
-
-	private AppWorkflowRoleAssignment[] _toAppWorkflowRoleAssignments(
-		Task task) {
-
-		return Stream.of(
-			task.getAssignments()
-		).flatMap(
-			Set::stream
-		).filter(
-			RoleAssignment.class::isInstance
-		).map(
-			RoleAssignment.class::cast
-		).map(
-			RoleAssignment::getRoleId
-		).map(
-			_roleLocalService::fetchRole
-		).filter(
-			Objects::nonNull
-		).map(
-			role -> new AppWorkflowRoleAssignment() {
-				{
-					roleId = role.getRoleId();
-					roleName = role.getName();
-				}
-			}
-		).toArray(
-			AppWorkflowRoleAssignment[]::new
-		);
-	}
-
-	private AppWorkflowState[] _toAppWorkflowStates(List<State> states) {
-		return Stream.of(
-			states
-		).flatMap(
-			List::stream
-		).map(
-			state -> new AppWorkflowState() {
-				{
-					appWorkflowTransitions = _toAppWorkflowTransitions(
-						state.getOutgoingTransitionsList());
-					initial = state.isInitial();
-					name = state.getName();
-				}
-			}
-		).toArray(
-			AppWorkflowState[]::new
-		);
-	}
-
-	private AppWorkflowTask _toAppWorkflowTask(
-		List<AppBuilderWorkflowTaskLink> appBuilderWorkflowTaskLinks, Node node,
-		String taskName) {
-
-		return new AppWorkflowTask() {
-			{
-				appWorkflowDataLayoutLinks = transformToArray(
-					appBuilderWorkflowTaskLinks,
-					appBuilderWorkflowTaskLink ->
-						new AppWorkflowDataLayoutLink() {
-							{
-								dataLayoutId =
-									appBuilderWorkflowTaskLink.
-										getDdmStructureLayoutId();
-								readOnly =
-									appBuilderWorkflowTaskLink.getReadOnly();
-							}
-						},
-					AppWorkflowDataLayoutLink.class);
-				appWorkflowRoleAssignments = _toAppWorkflowRoleAssignments(
-					(Task)node);
-				appWorkflowTransitions = _toAppWorkflowTransitions(
-					node.getOutgoingTransitionsList());
-				name = taskName;
-			}
-		};
-	}
-
-	private AppWorkflowTransition[] _toAppWorkflowTransitions(
-		List<Transition> transitions) {
-
-		return Stream.of(
-			transitions
-		).flatMap(
-			List::stream
-		).map(
-			transition -> new AppWorkflowTransition() {
-				{
-					name = transition.getName();
-					primary = transition.isDefault();
-
-					setTransitionTo(
-						() -> {
-							Node targetNode = transition.getTargetNode();
-
-							return targetNode.getName();
-						});
-				}
-			}
-		).toArray(
-			AppWorkflowTransition[]::new
-		);
 	}
 
 	@Reference
