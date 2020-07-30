@@ -328,6 +328,16 @@ public class AppBuilderAppDataRecordLinkLocalServiceWrapper
 			getAppBuilderAppDataRecordLinks(appBuilderAppId);
 	}
 
+	@Override
+	public java.util.List
+		<com.liferay.app.builder.model.AppBuilderAppDataRecordLink>
+			getAppBuilderAppDataRecordLinks(
+				long appBuilderAppId, long[] ddlRecordIds) {
+
+		return _appBuilderAppDataRecordLinkLocalService.
+			getAppBuilderAppDataRecordLinks(appBuilderAppId, ddlRecordIds);
+	}
+
 	/**
 	 * Returns the number of app builder app data record links.
 	 *

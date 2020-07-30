@@ -183,6 +183,21 @@ public class AppBuilderAppDataRecordLinkPersistenceTest {
 	}
 
 	@Test
+	public void testCountByA_D() throws Exception {
+		_persistence.countByA_D(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+
+		_persistence.countByA_D(0L, 0L);
+	}
+
+	@Test
+	public void testCountByA_DArrayable() throws Exception {
+		_persistence.countByA_D(
+			RandomTestUtil.nextLong(),
+			new long[] {RandomTestUtil.nextLong(), 0L});
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		AppBuilderAppDataRecordLink newAppBuilderAppDataRecordLink =
 			addAppBuilderAppDataRecordLink();

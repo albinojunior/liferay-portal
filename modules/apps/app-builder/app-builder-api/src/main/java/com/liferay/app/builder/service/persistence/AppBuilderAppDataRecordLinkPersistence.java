@@ -231,6 +231,241 @@ public interface AppBuilderAppDataRecordLinkPersistence
 	public int countByDDLRecordId(long ddlRecordId);
 
 	/**
+	 * Returns all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @return the matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long ddlRecordId);
+
+	/**
+	 * Returns a range of all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param start the lower bound of the range of app builder app data record links
+	 * @param end the upper bound of the range of app builder app data record links (not inclusive)
+	 * @return the range of matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long ddlRecordId, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param start the lower bound of the range of app builder app data record links
+	 * @param end the upper bound of the range of app builder app data record links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long ddlRecordId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<AppBuilderAppDataRecordLink> orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param start the lower bound of the range of app builder app data record links
+	 * @param end the upper bound of the range of app builder app data record links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long ddlRecordId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<AppBuilderAppDataRecordLink> orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first app builder app data record link in the ordered set where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching app builder app data record link
+	 * @throws NoSuchAppDataRecordLinkException if a matching app builder app data record link could not be found
+	 */
+	public AppBuilderAppDataRecordLink findByA_D_First(
+			long appBuilderAppId, long ddlRecordId,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<AppBuilderAppDataRecordLink> orderByComparator)
+		throws NoSuchAppDataRecordLinkException;
+
+	/**
+	 * Returns the first app builder app data record link in the ordered set where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching app builder app data record link, or <code>null</code> if a matching app builder app data record link could not be found
+	 */
+	public AppBuilderAppDataRecordLink fetchByA_D_First(
+		long appBuilderAppId, long ddlRecordId,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<AppBuilderAppDataRecordLink> orderByComparator);
+
+	/**
+	 * Returns the last app builder app data record link in the ordered set where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching app builder app data record link
+	 * @throws NoSuchAppDataRecordLinkException if a matching app builder app data record link could not be found
+	 */
+	public AppBuilderAppDataRecordLink findByA_D_Last(
+			long appBuilderAppId, long ddlRecordId,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<AppBuilderAppDataRecordLink> orderByComparator)
+		throws NoSuchAppDataRecordLinkException;
+
+	/**
+	 * Returns the last app builder app data record link in the ordered set where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching app builder app data record link, or <code>null</code> if a matching app builder app data record link could not be found
+	 */
+	public AppBuilderAppDataRecordLink fetchByA_D_Last(
+		long appBuilderAppId, long ddlRecordId,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<AppBuilderAppDataRecordLink> orderByComparator);
+
+	/**
+	 * Returns the app builder app data record links before and after the current app builder app data record link in the ordered set where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppDataRecordLinkId the primary key of the current app builder app data record link
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next app builder app data record link
+	 * @throws NoSuchAppDataRecordLinkException if a app builder app data record link with the primary key could not be found
+	 */
+	public AppBuilderAppDataRecordLink[] findByA_D_PrevAndNext(
+			long appBuilderAppDataRecordLinkId, long appBuilderAppId,
+			long ddlRecordId,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<AppBuilderAppDataRecordLink> orderByComparator)
+		throws NoSuchAppDataRecordLinkException;
+
+	/**
+	 * Returns all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = any &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordIds the ddl record IDs
+	 * @return the matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long[] ddlRecordIds);
+
+	/**
+	 * Returns a range of all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = any &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordIds the ddl record IDs
+	 * @param start the lower bound of the range of app builder app data record links
+	 * @param end the upper bound of the range of app builder app data record links (not inclusive)
+	 * @return the range of matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long[] ddlRecordIds, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = any &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordIds the ddl record IDs
+	 * @param start the lower bound of the range of app builder app data record links
+	 * @param end the upper bound of the range of app builder app data record links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long[] ddlRecordIds, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<AppBuilderAppDataRecordLink> orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63;, optionally using the finder cache.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AppBuilderAppDataRecordLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @param start the lower bound of the range of app builder app data record links
+	 * @param end the upper bound of the range of app builder app data record links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching app builder app data record links
+	 */
+	public java.util.List<AppBuilderAppDataRecordLink> findByA_D(
+		long appBuilderAppId, long[] ddlRecordIds, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<AppBuilderAppDataRecordLink> orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Removes all the app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63; from the database.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 */
+	public void removeByA_D(long appBuilderAppId, long ddlRecordId);
+
+	/**
+	 * Returns the number of app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordId the ddl record ID
+	 * @return the number of matching app builder app data record links
+	 */
+	public int countByA_D(long appBuilderAppId, long ddlRecordId);
+
+	/**
+	 * Returns the number of app builder app data record links where appBuilderAppId = &#63; and ddlRecordId = any &#63;.
+	 *
+	 * @param appBuilderAppId the app builder app ID
+	 * @param ddlRecordIds the ddl record IDs
+	 * @return the number of matching app builder app data record links
+	 */
+	public int countByA_D(long appBuilderAppId, long[] ddlRecordIds);
+
+	/**
 	 * Caches the app builder app data record link in the entity cache if it is enabled.
 	 *
 	 * @param appBuilderAppDataRecordLink the app builder app data record link
