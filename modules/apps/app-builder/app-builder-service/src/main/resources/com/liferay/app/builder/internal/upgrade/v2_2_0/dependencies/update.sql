@@ -7,7 +7,7 @@ create table AppBuilderAppDataRecordLink (
 	ddlRecordId LONG
 );
 
-create index IX_22C0B8B0 on AppBuilderAppDataRecordLink (appBuilderAppId);
+create index IX_E17BD0D8 on AppBuilderAppDataRecordLink (appBuilderAppId, ddlRecordId);
 create index IX_CF7CED86 on AppBuilderAppDataRecordLink (ddlRecordId);
 
 create table AppBuilderAppVersion (
