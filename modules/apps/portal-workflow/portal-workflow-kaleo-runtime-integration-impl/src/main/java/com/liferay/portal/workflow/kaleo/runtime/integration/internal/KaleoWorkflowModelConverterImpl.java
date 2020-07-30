@@ -152,7 +152,9 @@ public class KaleoWorkflowModelConverterImpl
 		if (Validator.isNull(content)) {
 			try {
 				content = _definitionExporter.export(
-					kaleoDefinitionVersion.getKaleoDefinitionVersionId());
+					kaleoDefinitionVersion.getCompanyId(),
+					kaleoDefinitionVersion.getName(),
+					getVersion(kaleoDefinitionVersion.getVersion()));
 
 				kaleoDefinitionVersion.setContent(content);
 
