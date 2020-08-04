@@ -25,6 +25,7 @@ import {buildEntries, navigateToEditPage} from './utils.es';
 
 export default function ListEntries() {
 	const {
+		appId,
 		basePortletURL,
 		dataDefinitionId,
 		dataListViewId,
@@ -76,8 +77,14 @@ export default function ListEntries() {
 					'you-do-not-have-the-permission-to-manage-this-entry'
 				)}
 				queryParams={{dataListViewId}}
+				scope={appId}
 			>
-				{buildEntries(fieldNames, dataDefinition, permissions)}
+				{buildEntries({
+					dataDefinition,
+					fieldNames,
+					permissions,
+					scope: appId,
+				})}
 			</ListView>
 		</Loading>
 	);

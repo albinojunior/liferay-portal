@@ -75,13 +75,17 @@ export default function ListEntries({history}) {
 		totalCount: 0,
 	});
 
-	const [query, setQuery] = useQuery(history, {
-		dataListViewId,
-		keywords: '',
-		page: 1,
-		pageSize: defaultDelta,
-		sort: '',
-	});
+	const [query, setQuery] = useQuery(
+		history,
+		{
+			dataListViewId,
+			keywords: '',
+			page: 1,
+			pageSize: defaultDelta,
+			sort: '',
+		},
+		appId
+	);
 
 	const dispatch = useCallback((action) => setQuery(reducer(query, action)), [
 		query,
@@ -157,7 +161,14 @@ export default function ListEntries({history}) {
 
 	const buildWorkflowItems = (items) => {
 		return items
-			.map(buildEntries(fieldNames, dataDefinition, permissions))
+			.map(
+				buildEntries({
+					dataDefinition,
+					fieldNames,
+					permissions,
+					scope: appId,
+				})
+			)
 			.map((entry) => {
 				const workflowValues = {};
 				const emptyValue = '--';
