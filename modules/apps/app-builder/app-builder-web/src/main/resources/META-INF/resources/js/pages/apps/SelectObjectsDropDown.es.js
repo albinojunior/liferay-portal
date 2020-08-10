@@ -22,31 +22,16 @@ import {getLocalizedValue} from '../../utils/lang.es';
 import DropDownWithSearch from './DropDownWithSearch.es';
 
 export function getDataObjects() {
-	const PARAMS = {keywords: '', page: -1, pageSize: -1, sort: ''};
-
-	return Promise.all([
-		getItem(
-			'/o/data-engine/v2.0/data-definitions/by-content-type/app-builder',
-			PARAMS
-		).then(({items}) => items),
-		getItem(
-			'/o/data-engine/v2.0/data-definitions/by-content-type/native-object',
-			PARAMS
-		).then(({items}) => items),
-	]).then(([customObjects, nativeObjects]) => {
-		return [
-			...customObjects.map((item) => ({
-				...item,
-				name: getLocalizedValue(item.defaultLanguageId, item.name),
-				type: 'custom',
-			})),
-			...nativeObjects.map((item) => ({
-				...item,
-				name: getLocalizedValue(item.defaultLanguageId, item.name),
-				type: 'native',
-			})),
-		];
-	});
+	return getItem(
+		'/o/data-engine/v2.0/data-definitions/by-content-type/app-builder',
+		{keywords: '', page: -1, pageSize: -1, sort: ''}
+	).then(({items}) =>
+		items.map((item) => ({
+			...item,
+			name: getLocalizedValue(item.defaultLanguageId, item.name),
+			type: 'custom',
+		}))
+	);
 }
 
 export default ({defaultValue, label, onSelect, selectedValue, visible}) => {
