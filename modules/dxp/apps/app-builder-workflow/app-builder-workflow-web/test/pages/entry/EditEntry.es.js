@@ -10,6 +10,7 @@
  */
 
 import '@testing-library/jest-dom/extend-expect';
+import {waitForElementToBeRemoved} from '@testing-library/dom';
 import {
 	act,
 	cleanup,
@@ -107,14 +108,18 @@ describe('EditEntry', () => {
 			{wrapper: PermissionsContextProviderWrapper}
 		);
 
-		const buttons = queryAllByRole('button');
-
 		expect(
 			container.querySelector('.control-menu-level-1-heading')
 		).toHaveTextContent('add-entry');
 
+		await waitForElementToBeRemoved(() =>
+			container.querySelector('span.loading-animation')
+		);
+
+		const buttons = queryAllByRole('button');
+
 		expect(buttons.length).toBe(2);
-		expect(buttons[0]).toHaveTextContent('submit');
+		expect(buttons[0]).toHaveTextContent('Submit');
 		expect(buttons[1]).toHaveTextContent('cancel');
 
 		await act(async () => {
@@ -134,14 +139,18 @@ describe('EditEntry', () => {
 			{wrapper: PermissionsContextProviderWrapper}
 		);
 
-		const buttons = queryAllByRole('button');
-
 		expect(
 			container.querySelector('.control-menu-level-1-heading')
 		).toHaveTextContent('edit-entry');
 
+		await waitForElementToBeRemoved(() =>
+			container.querySelector('span.loading-animation')
+		);
+
+		const buttons = queryAllByRole('button');
+
 		expect(buttons.length).toBe(2);
-		expect(buttons[0]).toHaveTextContent('submit');
+		expect(buttons[0]).toHaveTextContent('Close');
 		expect(buttons[1]).toHaveTextContent('cancel');
 
 		await waitForElement(() => document.getElementById('workflowInfoBar'));
