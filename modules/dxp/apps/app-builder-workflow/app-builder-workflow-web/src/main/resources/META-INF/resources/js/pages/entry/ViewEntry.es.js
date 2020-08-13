@@ -37,7 +37,16 @@ export default function ViewEntry({
 	);
 	const [dataLayoutIds, setDataLayoutIds] = useState([]);
 
-	const getDataLayoutIds = (tasks) => {
+	const getDataLayoutIds = ({completed, taskNames = [], tasks}) => {
+		const initialIds = [];
+
+		if (!completed) {
+			tasks = tasks.filter(({name}) => taskNames.includes(name));
+		}
+		else {
+			initialIds.push(Number(dataLayoutId));
+		}
+
 		return tasks.reduce(
 			(dataLayoutIds, {appWorkflowDataLayoutLinks}) => [
 				...dataLayoutIds,
@@ -49,7 +58,7 @@ export default function ViewEntry({
 					[]
 				),
 			],
-			[Number(dataLayoutId)]
+			initialIds
 		);
 	};
 
@@ -108,18 +117,20 @@ export default function ViewEntry({
 									},
 								} = items.pop();
 
-								setDataLayoutIds(getDataLayoutIds(tasks));
-
 								return getItem(
 									`/o/portal-workflow-metrics/v1.0/processes/${appWorkflowDefinitionId}/instances`,
 									{classPKs: dataRecordIds}
-								).then((workflowResponse) => {
-									if (workflowResponse.totalCount > 0) {
+								).then(({items}) => {
+									if (items.length > 0) {
 										state.workflowInfo = {
-											...workflowResponse.items.pop(),
+											...items.pop(),
 											appVersion,
 											tasks,
 										};
+
+										setDataLayoutIds(
+											getDataLayoutIds(state.workflowInfo)
+										);
 									}
 
 									setState((prevState) => ({
