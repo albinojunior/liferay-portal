@@ -103,6 +103,14 @@ jest.mock('app-builder-web/js/utils/toast.es', () => ({
 }));
 
 describe('EditEntry', () => {
+	const dataRecord = JSON.stringify({
+		dataRecordValues: {
+			Text: {en_US: 'text'},
+			Text1: {en_US: ['text1']},
+			Text2: '',
+		},
+	});
+
 	afterEach(cleanup);
 
 	afterAll(() => {
@@ -171,8 +179,7 @@ describe('EditEntry', () => {
 			{
 				body: {
 					appBuilderAppId: 1,
-					dataRecord:
-						'{"dataRecordValues":{"Text":{"en_US":"text"},"Text1":{"en_US":["text1"]},"Text2":""}}',
+					dataRecord,
 					dataRecordId: '0',
 				},
 				method: 'POST',
@@ -215,13 +222,7 @@ describe('EditEntry', () => {
 			{
 				body: {
 					appBuilderAppId: 1,
-					dataRecord: JSON.stringify({
-						dataRecordValues: {
-							Text: {en_US: 'text'},
-							Text1: {en_US: ['text1']},
-							Text2: '',
-						},
-					}),
+					dataRecord,
 					dataRecordId: '1',
 					taskName: 'Review',
 					transitionName: 'Close',
