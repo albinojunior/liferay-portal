@@ -12,14 +12,16 @@
  * details.
  */
 
-import ClayButton from '@clayui/button';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
+import {ClayTooltipProvider} from '@clayui/tooltip';
 import React, {useEffect, useState} from 'react';
 
 import {getItem} from '../../utils/client.es';
 import {getLocalizedValue} from '../../utils/lang.es';
-import DropDownWithSearch from './DropDownWithSearch.es';
+import DropDownWithSearch from '../dropdown-with-search/DropDownWithSearch.es';
+import NewCustomObjectModal from './NewCustomObjectModal.es';
 
 export function getDataObjects() {
 	return getItem(
@@ -34,12 +36,19 @@ export function getDataObjects() {
 	);
 }
 
-export default ({defaultValue, label, onSelect, selectedValue, visible}) => {
+export default function SelectObjects({
+	defaultValue,
+	label,
+	onSelect,
+	selectedValue,
+	visible,
+}) {
 	const [state, setState] = useState({
 		error: null,
 		isLoading: true,
 	});
 	const [items, setItems] = useState([]);
+	const [isModalVisible, setModalVisible] = useState(false);
 
 	const doFetch = () => {
 		setState({
@@ -127,6 +136,22 @@ export default ({defaultValue, label, onSelect, selectedValue, visible}) => {
 		<>
 			<DropDownWithSearch
 				{...state}
+				addButton={
+					<ClayTooltipProvider>
+						<ClayButtonWithIcon
+							className="mr-2"
+							data-tooltip-align="bottom"
+							data-tooltip-delay="0"
+							displayType="secondary"
+							onClick={() => setModalVisible(true)}
+							small
+							symbol="plus"
+							title={Liferay.Language.get(
+								'create-new-custom-object'
+							)}
+						/>
+					</ClayTooltipProvider>
+				}
 				isEmpty={items.length === 0}
 				label={label}
 				stateProps={stateProps}
@@ -156,6 +181,12 @@ export default ({defaultValue, label, onSelect, selectedValue, visible}) => {
 					{ItemWithLabel}
 				</DropDownWithSearch.Items>
 			</DropDownWithSearch>
+
+			{isModalVisible && (
+				<NewCustomObjectModal
+					onCloseModal={() => setModalVisible(false)}
+				/>
+			)}
 		</>
 	);
-};
+}
