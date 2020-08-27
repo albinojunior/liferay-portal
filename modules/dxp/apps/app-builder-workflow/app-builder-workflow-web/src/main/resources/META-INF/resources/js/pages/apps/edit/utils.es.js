@@ -13,18 +13,17 @@ import {isEqualObjects} from 'app-builder-web/js/utils/utils.es';
 
 export function canDeployApp(app, config) {
 	const isValidSteps = config.steps.every((step) => {
-		const assigneeRoles = step?.appWorkflowRoleAssignments || [{}];
-		const duplicatedFields =
-			step?.errors?.formViews?.duplicatedFields || [];
+		const assigneeRoles = step.appWorkflowRoleAssignments || [{}];
+		const duplicatedFields = step.errors?.formViews.duplicatedFields || [];
 		const isValidFormViews = step.appWorkflowDataLayoutLinks?.every(
 			({dataLayoutId}) => dataLayoutId
 		);
 
 		return (
-			assigneeRoles.length > 0 &&
-			duplicatedFields.length === 0 &&
+			assigneeRoles.length &&
+			!duplicatedFields.length &&
 			(isValidFormViews || step.initial !== undefined) &&
-			step.name.trim().length > 0
+			step.name.trim().length
 		);
 	});
 
@@ -32,7 +31,7 @@ export function canDeployApp(app, config) {
 		app.dataDefinitionId &&
 		app.dataLayoutId &&
 		app.dataListViewId &&
-		app.appName?.trim().length > 0 &&
+		app.appName?.trim().length &&
 		isValidSteps
 	);
 }
