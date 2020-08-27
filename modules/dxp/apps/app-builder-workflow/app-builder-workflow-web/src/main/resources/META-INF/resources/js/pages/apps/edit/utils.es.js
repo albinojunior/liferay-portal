@@ -16,10 +16,14 @@ export function canDeployApp(app, config) {
 		const assigneeRoles = step?.appWorkflowRoleAssignments || [{}];
 		const duplicatedFields =
 			step?.errors?.formViews?.duplicatedFields || [];
+		const isValidFormViews = step.appWorkflowDataLayoutLinks?.every(
+			({dataLayoutId}) => dataLayoutId
+		);
 
 		return (
 			assigneeRoles.length > 0 &&
 			duplicatedFields.length === 0 &&
+			(isValidFormViews || step.initial !== undefined) &&
 			step.name.trim().length > 0
 		);
 	});
