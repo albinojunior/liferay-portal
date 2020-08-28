@@ -19,6 +19,7 @@ import {
 	DragTypes,
 	FieldTypeList,
 } from 'data-engine-taglib';
+import {FormSupport} from 'dynamic-data-mapping-form-renderer';
 import React, {useContext} from 'react';
 
 import useDoubleClick from '../../hooks/useDoubleClick.es';
@@ -155,8 +156,7 @@ const getFieldTypes = ({
 
 		if (dataDefinitionField.isCustomField) {
 			customDataDefinitionFields.push(dataDefinitionField);
-		}
-		else {
+		} else {
 			nativeDataDefinitionFields.push(dataDefinitionField);
 		}
 	};
@@ -199,10 +199,11 @@ export default ({keywords}) => {
 	};
 	const onDoubleClick = ({name}) => {
 		const {activePage, pages} = dataLayoutBuilder.getStore();
+		const isEmptyPage = FormSupport.isEmptyPage(pages, activePage);
 		const indexes = {
 			columnIndex: 0,
 			pageIndex: activePage,
-			rowIndex: pages[activePage].rows.length,
+			rowIndex: isEmptyPage ? 0 : pages[activePage].rows.length,
 		};
 
 		const {

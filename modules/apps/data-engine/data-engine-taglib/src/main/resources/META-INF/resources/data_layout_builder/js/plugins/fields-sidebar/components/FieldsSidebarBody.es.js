@@ -12,6 +12,7 @@
  * details.
  */
 
+import {FormSupport} from 'dynamic-data-mapping-form-renderer';
 import React, {useContext} from 'react';
 
 import AppContext from '../../../AppContext.es';
@@ -32,6 +33,7 @@ export default function ({keywords, setKeywords}) {
 
 	const onDoubleClick = ({name}) => {
 		const {activePage, pages} = dataLayoutBuilder.getStore();
+		const isEmptyPage = FormSupport.isEmptyPage(pages, activePage);
 
 		dataLayoutBuilder.dispatch(
 			'fieldAdded',
@@ -42,7 +44,7 @@ export default function ({keywords, setKeywords}) {
 				indexes: {
 					columnIndex: 0,
 					pageIndex: activePage,
-					rowIndex: pages[activePage].rows.length,
+					rowIndex: isEmptyPage ? 0 : pages[activePage].rows.length,
 				},
 			})
 		);

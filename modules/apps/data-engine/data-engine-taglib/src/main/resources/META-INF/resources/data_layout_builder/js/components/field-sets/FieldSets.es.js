@@ -13,6 +13,7 @@
  */
 
 import ClayButton from '@clayui/button';
+import {FormSupport} from 'dynamic-data-mapping-form-renderer';
 import React, {useContext, useState} from 'react';
 
 import AppContext from '../../AppContext.es';
@@ -95,6 +96,7 @@ export default function FieldSets({keywords}) {
 
 	const onDoubleClick = ({fieldSet: {name: fieldName}, fieldSet}) => {
 		const {activePage, pages} = dataLayoutBuilder.getStore();
+		const isEmptyPage = FormSupport.isEmptyPage(pages, activePage);
 
 		dataLayoutBuilder.dispatch(
 			'fieldSetAdded',
@@ -105,7 +107,7 @@ export default function FieldSets({keywords}) {
 				indexes: {
 					columnIndex: 0,
 					pageIndex: activePage,
-					rowIndex: pages[activePage].rows.length,
+					rowIndex: isEmptyPage ? 0 : pages[activePage].rows.length,
 				},
 			})
 		);
