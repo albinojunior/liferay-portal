@@ -678,16 +678,7 @@ class DataLayoutBuilder extends React.Component {
 						description: '',
 						localizedDescription: emptyLocalizableValue,
 						localizedTitle: emptyLocalizableValue,
-						rows: [
-							{
-								columns: [
-									{
-										fields: [],
-										size: 12,
-									},
-								],
-							},
-						],
+						rows: [],
 						title: '',
 					},
 				],
