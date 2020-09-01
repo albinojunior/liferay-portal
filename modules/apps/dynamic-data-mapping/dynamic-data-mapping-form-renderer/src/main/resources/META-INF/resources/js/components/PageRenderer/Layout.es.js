@@ -24,12 +24,15 @@ import {getFormId, getFormNode} from '../../util/formId.es';
 import {Field} from '../Field/Field.es';
 import * as DefaultVariant from './DefaultVariant.es';
 
-export const Layout = ({components: Components = DefaultVariant, rows}) => {
+export const Layout = ({
+	components: Components = DefaultVariant,
+	editable,
+	rows,
+}) => {
 	const {
 		activePage,
 		allowNestedFields,
 		containerElement,
-		editable,
 		pageIndex,
 		spritemap,
 	} = usePage();
