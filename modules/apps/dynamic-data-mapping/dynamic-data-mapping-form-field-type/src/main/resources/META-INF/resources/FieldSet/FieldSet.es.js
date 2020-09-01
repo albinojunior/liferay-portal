@@ -61,6 +61,12 @@ const FieldSet = ({
 	...otherProps
 }) => {
 	const repeatedIndex = useMemo(() => getRepeatedIndex(name), [name]);
+	const renderLayout = ({ddmStructureId, type}) => (
+		<Layout
+			editable={type === 'fieldset' && !ddmStructureId}
+			rows={getRows(rows, nestedFields)}
+		/>
+	);
 
 	return (
 		<FieldBase
@@ -92,10 +98,10 @@ const FieldSet = ({
 						}
 						title={label}
 					>
-						<Layout rows={getRows(rows, nestedFields)} />
+						{renderLayout(otherProps)}
 					</Panel>
 				) : (
-					<Layout rows={getRows(rows, nestedFields)} />
+					renderLayout(otherProps)
 				)}
 			</div>
 		</FieldBase>
