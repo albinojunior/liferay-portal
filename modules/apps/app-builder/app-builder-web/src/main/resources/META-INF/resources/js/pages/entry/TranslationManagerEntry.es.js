@@ -13,7 +13,7 @@
  */
 
 import {TranslationManager} from 'data-engine-taglib';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import {AppContext} from '../../AppContext.es';
@@ -52,20 +52,28 @@ export default ({
 
 	const defaultLanguageId = dataDefinition.defaultLanguageId;
 
+	const appName = useMemo(
+		() =>
+			getLocalizedUserPreferenceValue(
+				app.name,
+				userLanguageId,
+				defaultLanguageId
+			),
+		[app.name, defaultLanguageId, userLanguageId]
+	);
+
 	const onEditingLanguageIdChange = (languageId) => {
 		setStorageLanguageId(appId, languageId);
 		setUserLanguageId(languageId);
 	};
 
 	useEffect(() => {
-		if (showAppName) {
-			getItem(`/o/app-builder/v1.0/apps/${appId}`).then((app) =>
-				setState((prevState) => ({
-					...prevState,
-					app,
-				}))
-			);
-		}
+		getItem(`/o/app-builder/v1.0/apps/${appId}`).then((app) =>
+			setState((prevState) => ({
+				...prevState,
+				app,
+			}))
+		);
 	}, [appId, showAppName]);
 
 	useEffect(() => {
@@ -80,6 +88,18 @@ export default ({
 			);
 		}
 	}, [dataDefinitionId]);
+
+	useEffect(() => {
+		if (appName) {
+			const titles = document.title.split(' - ');
+
+			if (titles.length > 1) {
+				titles[1] = `${appName}`;
+
+				document.title = titles.join(' - ');
+			}
+		}
+	}, [appName]);
 
 	const availableLanguageIds = dataDefinition.availableLanguageIds.reduce(
 		(acc, cur) => {
@@ -107,14 +127,7 @@ export default ({
 		<div>
 			{showAppName &&
 				appStandaloneName &&
-				createPortal(
-					getLocalizedUserPreferenceValue(
-						app.name,
-						userLanguageId,
-						defaultLanguageId
-					),
-					appStandaloneName
-				)}
+				createPortal(appName, appStandaloneName)}
 
 			{appTranslationManager &&
 				createPortal(

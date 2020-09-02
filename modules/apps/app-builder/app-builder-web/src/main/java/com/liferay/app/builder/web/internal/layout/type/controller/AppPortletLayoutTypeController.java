@@ -95,19 +95,6 @@ public class AppPortletLayoutTypeController
 		return true;
 	}
 
-	@Override
-	protected void addAttributes(HttpServletRequest httpServletRequest) {
-		super.addAttributes(httpServletRequest);
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		PortalUtil.setPageTitle(
-			_appNameMap.getOrDefault(themeDisplay.getLocale(), _appName),
-			httpServletRequest);
-	}
-
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #createServletResponse(HttpServletResponse,

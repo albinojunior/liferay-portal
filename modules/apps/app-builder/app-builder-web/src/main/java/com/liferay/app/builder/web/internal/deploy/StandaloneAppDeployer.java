@@ -154,7 +154,7 @@ public class StandaloneAppDeployer extends BaseAppDeployer {
 
 		return _layoutLocalService.addLayout(
 			defaultUserId, groupId, false,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "Shared",
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "App",
 			StringPool.BLANK, StringPool.BLANK, portletName, true, null,
 			serviceContext);
 	}
