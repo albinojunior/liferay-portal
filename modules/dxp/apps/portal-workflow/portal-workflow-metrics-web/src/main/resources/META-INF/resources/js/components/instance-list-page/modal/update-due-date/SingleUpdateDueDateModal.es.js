@@ -52,6 +52,7 @@ const SingleUpdateDueDateModal = () => {
 			dueDate: undefined,
 		});
 	};
+
 	const {observer, onClose} = useModal({
 		onClose: onCloseModal,
 	});

@@ -24,7 +24,7 @@ const ModalProvider = ({children, processId}) => {
 		transition: {errors: {}, onGoing: false},
 		transitionTasks: [],
 	});
-	const [fetchOnClose, setFetchOnClose] = useState(true);
+	const [fetchOnClose, setFetchOnClose] = useState(false);
 	const [selectTasks, setSelectTasks] = useState({
 		selectAll: false,
 		tasks: [],

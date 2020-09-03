@@ -58,6 +58,7 @@ const SingleTransitionModal = () => {
 			transitionName: '',
 		});
 	};
+
 	const {observer, onClose} = useModal({
 		onClose: onCloseModal,
 	});

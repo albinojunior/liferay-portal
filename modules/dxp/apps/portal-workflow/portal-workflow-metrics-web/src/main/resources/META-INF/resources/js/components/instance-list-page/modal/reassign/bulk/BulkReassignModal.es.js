@@ -56,6 +56,7 @@ const BulkReassignModal = () => {
 		setCurrentStep('selectTasks');
 		setErrorToast(false);
 	};
+
 	const {observer, onClose} = useModal({
 		onClose: onCloseModal,
 	});
@@ -105,8 +106,6 @@ const BulkReassignModal = () => {
 
 		patchData()
 			.then(() => {
-				onCloseModal(true);
-
 				toaster.success(
 					reassignedTasks.length > 1
 						? sub(
@@ -118,6 +117,7 @@ const BulkReassignModal = () => {
 						: Liferay.Language.get('this-task-has-been-reassigned')
 				);
 
+				onCloseModal(true);
 				setSelectedItems([]);
 				setSelectAll(false);
 			})

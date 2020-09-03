@@ -79,7 +79,7 @@ const InstanceDetailsModal = () => {
 
 	const {observer} = useModal({
 		onClose: () => {
-			closeModal(false);
+			closeModal();
 			setInstanceId();
 		},
 	});

@@ -18,16 +18,12 @@ function PromisesResolver({children, promises}) {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		setError(() => null);
-		setLoading(() => true);
+		setError(null);
+		setLoading(true);
 
 		Promise.all(promises)
-			.then(() => {
-				setLoading(() => false);
-			})
-			.catch((error) => {
-				setError(() => error);
-			});
+			.then(() => setLoading(false))
+			.catch(setError);
 	}, [promises]);
 
 	return (

@@ -53,6 +53,7 @@ const BulkUpdateDueDateModal = () => {
 		setCurrentStep('selectTasks');
 		setErrorToast(false);
 	};
+
 	const {observer, onClose} = useModal({
 		onClose: onCloseModal,
 	});

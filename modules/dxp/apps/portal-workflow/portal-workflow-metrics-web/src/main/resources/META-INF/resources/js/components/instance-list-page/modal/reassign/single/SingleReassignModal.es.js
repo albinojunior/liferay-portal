@@ -65,8 +65,8 @@ const SingleReassignModal = () => {
 	});
 
 	const reassignButtonHandler = useCallback(() => {
-		setErrorToast(() => false);
-		setSendingPost(() => true);
+		setErrorToast(false);
+		setSendingPost(true);
 		postData()
 			.then(() => {
 				toaster.success(
