@@ -13,6 +13,7 @@
  */
 
 import ClayButton from '@clayui/button';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import {useAppState} from './Context';
@@ -75,5 +76,9 @@ function ActiveFiltersBar({disabled}) {
 		</div>
 	) : null;
 }
+
+ActiveFiltersBar.propTypes = {
+	disabled: PropTypes.bool,
+};
 
 export default ActiveFiltersBar;

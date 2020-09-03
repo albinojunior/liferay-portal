@@ -40,7 +40,9 @@ function NavBar({creationMenu, showSearch, views}) {
 					</div>
 				)}
 				<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down pl-0">
-					{views?.length > 1 && <ActiveViewSelector views={views} />}
+					{views?.length > 1 ? (
+						<ActiveViewSelector views={views} />
+					) : null}
 				</div>
 				{creationMenu && <CreationMenu {...creationMenu} />}
 			</div>

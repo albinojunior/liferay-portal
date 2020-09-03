@@ -67,6 +67,8 @@ if (cpDisplayLayout != null) {
 
 				<liferay-asset:asset-categories-selector
 					categoryIds="<%= StringUtil.merge(assetCategoryIds, StringPool.COMMA) %>"
+					className="<%= CPDisplayLayout.class.getName() %>"
+					classTypePK="<%= AssetCategoryConstants.ALL_CLASS_NAME_ID %>"
 					hiddenInput="classPK"
 					singleSelect="<%= true %>"
 				/>
@@ -91,9 +93,7 @@ if (cpDisplayLayout != null) {
 					</p>
 				</aui:field-wrapper>
 
-				<aui:button-row>
-					<aui:button name="chooseDisplayPage" value="choose" />
-				</aui:button-row>
+				<aui:button name="chooseDisplayPage" value="choose" />
 			</aui:fieldset>
 		</aui:fieldset-group>
 

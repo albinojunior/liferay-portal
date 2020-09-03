@@ -1255,15 +1255,19 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			"com.liferay.portal.file.install.internal.configuration." +
 				"ConfigurationFileInstaller");
 
-		Method method = configurationFileInstallerClass.getDeclaredMethod(
-			"transformURL", File.class);
-
 		Constructor<?> constructor =
 			configurationFileInstallerClass.getDeclaredConstructor(
 				classLoader.loadClass("org.osgi.service.cm.ConfigurationAdmin"),
 				String.class);
 
 		constructor.setAccessible(true);
+
+		Method canTransformURLMethod =
+			configurationFileInstallerClass.getDeclaredMethod(
+				"canTransformURL", File.class);
+		Method transformURLMethod =
+			configurationFileInstallerClass.getDeclaredMethod(
+				"transformURL", File.class);
 
 		String encoding = bundleContext.getProperty(
 			"file.install.configEncoding");
@@ -1283,7 +1287,11 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		dir = dir.getCanonicalFile();
 
 		for (File file : _listConfigs(dir)) {
-			method.invoke(configurationFileInstaller, file);
+			if ((boolean)canTransformURLMethod.invoke(
+					configurationFileInstaller, file)) {
+
+				transformURLMethod.invoke(configurationFileInstaller, file);
+			}
 		}
 	}
 

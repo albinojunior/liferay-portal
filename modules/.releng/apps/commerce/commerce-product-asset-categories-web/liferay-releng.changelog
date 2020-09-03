@@ -2,3 +2,8 @@
 # Bundle Version 3.0.0
 #
 cfd7f0a7cd3bcf01055455fbc4d1b47e7a61570a^..beacbc7fd36b33f98d5d4f4acced225f9f5a5894=COMMERCE-4052 COMMERCE-4072
+
+#
+# Bundle Version 3.0.2
+#
+beacbc7fd36b33f98d5d4f4acced225f9f5a5894^..e59fd69b99b4d4cbd7d54109139a1041834f1498=COMMERCE-4586 COMMERCE-4620

@@ -22,7 +22,7 @@ export function delay(duration) {
 	});
 }
 
-function getAcceptLanguageHeaderParam() {
+export function getAcceptLanguageHeaderParam() {
 	const browserLang = navigator.language ?? navigator.userLanguage;
 	const themeLang = Liferay.ThemeDisplay.getLanguageId().replace('_', '-');
 
@@ -59,6 +59,25 @@ export function liferayNavigate(url) {
 	else {
 		window.location.href = url;
 	}
+}
+
+export function isValuesArrayChanged(prevValue = [], newValue = []) {
+	if (prevValue.length !== newValue.length) {
+		return true;
+	}
+
+	const prevValues = prevValue.map((el) => el.value || el).sort();
+	const newValues = newValue.map((el) => el.value || el).sort();
+
+	let changed = false;
+
+	prevValues.forEach((element, i) => {
+		if (element !== newValues[i]) {
+			changed = true;
+		}
+	});
+
+	return changed;
 }
 
 export function getValueFromItem(item, fieldName) {
@@ -128,21 +147,53 @@ export function createSortingString(values) {
 		.join(',');
 }
 
+export function getFiltersString(odataFiltersStrings, providedFilters) {
+	let filtersString = '';
+
+	if (providedFilters) {
+		filtersString += providedFilters;
+	}
+
+	if (providedFilters && odataFiltersStrings.length) {
+		filtersString += ' and ';
+	}
+
+	if (odataFiltersStrings.length) {
+		filtersString += createOdataFilter(odataFiltersStrings);
+	}
+
+	return filtersString;
+}
+
 export function loadData(
 	apiURL,
 	currentURL,
-	filters,
+	odataFiltersStrings,
 	searchParam,
 	delta,
 	page = 1,
 	sorting = []
 ) {
-	const url = new URL(apiURL, themeDisplay.getPortalURL());
+	let providedFilters = '';
+
+	const formattedUrl = apiURL.replace(
+		/[?|&]filter=(.*)[&.+]?/gm,
+		(matched) => {
+			providedFilters = matched.replace(/[?|&]filter=/, '');
+
+			return '';
+		}
+	);
+
+	const url = new URL(formattedUrl, themeDisplay.getPortalURL());
 
 	url.searchParams.append('currentURL', currentURL);
 
-	if (filters.length) {
-		url.searchParams.append('filter', createOdataFilter(filters));
+	if (providedFilters || odataFiltersStrings.length) {
+		url.searchParams.append(
+			'filter',
+			getFiltersString(odataFiltersStrings, providedFilters)
+		);
 	}
 
 	url.searchParams.append('page', page);

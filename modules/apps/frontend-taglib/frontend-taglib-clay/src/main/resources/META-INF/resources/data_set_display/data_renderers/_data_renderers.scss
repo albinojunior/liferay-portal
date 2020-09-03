@@ -1,9 +1,10 @@
-.status {
+.status.workflow-status-data-renderer {
 	background-color: #fff;
 	border-color: $info-secondary;
 	color: $info-primary;
 
 	&.awaiting-pickup,
+	&.expired,
 	&.in-progress,
 	&.partially-refunded,
 	&.partially-shipped,
@@ -15,6 +16,7 @@
 		color: $warning-primary;
 	}
 
+	&.denied,
 	&.disputed,
 	&.cancelled,
 	&.declined {
@@ -22,6 +24,7 @@
 		color: $danger-primary;
 	}
 
+	&.approved,
 	&.refunded,
 	&.subscription,
 	&.completed {

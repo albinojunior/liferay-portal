@@ -375,7 +375,7 @@ definition {
 
 			PageEditor.configureFragment(
 				alignment = "Right",
-				textColor = "6C757D");
+				textColor = "Blockquote Small Color");
 
 			PageEditor.gotoConfiguration(fragmentName = "Heading");
 
@@ -402,7 +402,7 @@ definition {
 			AssertCssValue(
 				locator1 = "//div[contains(@class,'text-right')][//h2[contains(@class,'component-heading')]]",
 				locator2 = "color",
-				value1 = "rgba(108, 117, 125, 1)");
+				value1 = "rgba(107, 108, 126, 1)");
 		}
 
 		task ("Remove the fragment") {
@@ -511,7 +511,7 @@ definition {
 
 			PageEditor.configureFragment(
 				alignment = "Right",
-				textColor = "B95000");
+				textColor = "Warning");
 		}
 
 		task ("View the fragment style") {
@@ -566,7 +566,7 @@ definition {
 			PageEditor.gotoStyle(fragmentName = "Separator");
 
 			PageEditor.configureFragment(
-				borderColor = "F7F8F9",
+				borderColor = "Gray 100",
 				bottomSpacing = "1");
 		}
 
@@ -720,8 +720,8 @@ definition {
 				position = "1");
 
 			PageEditor.editLayoutContainer(
-				backgroundColor = "B95000",
-				borderColor = "DA1414",
+				backgroundColor = "Warning",
+				borderColor = "Danger",
 				borderRadius = "Border Radius Large",
 				borderWidth = "5",
 				boxShadow = "Box Shadow Large",

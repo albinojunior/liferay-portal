@@ -59,7 +59,7 @@ export function Filter(props) {
 	}, [moduleURL]);
 
 	return Component ? (
-		<div className="data-set-filter test">
+		<div className="data-set-filter">
 			<Component {...props} />
 		</div>
 	) : (

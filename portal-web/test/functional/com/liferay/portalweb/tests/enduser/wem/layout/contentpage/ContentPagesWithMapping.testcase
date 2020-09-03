@@ -1232,6 +1232,8 @@ definition {
 	@description = "This is a test for LPS-118979. The mappable fields are grouped by fieldset in content page."
 	@priority = "5"
 	test ViewMappableFieldsAreGroupedByFieldset {
+		property portal.acceptance = "true";
+
 		task ("Add a web content article based on Basic Web Content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -1363,7 +1365,7 @@ definition {
 					locator1 = "Select#GROUPED_SELECT_VALUE");
 			}
 
-			for (var field : list "All Categories,Tags") {
+			for (var field : list "All Categories,Topic,Tags") {
 				AssertElementPresent(
 					key_fieldLabel = "Field",
 					key_groupLabel = "Categorization",
@@ -1401,7 +1403,7 @@ definition {
 				key_value = "Text",
 				locator1 = "Select#GROUPED_SELECT_VALUE");
 
-			for (var field : list "All Categories,Tags") {
+			for (var field : list "All Categories,Topic,Tags") {
 				AssertElementPresent(
 					key_fieldLabel = "Field",
 					key_groupLabel = "Categorization",
@@ -1628,7 +1630,7 @@ definition {
 					locator1 = "Select#GROUPED_SELECT_VALUE");
 			}
 
-			for (var field : list "All Categories,Tags") {
+			for (var field : list "All Categories,Topic,Tags") {
 				AssertElementPresent(
 					key_fieldLabel = "Field",
 					key_groupLabel = "Categorization",
@@ -1689,7 +1691,7 @@ definition {
 				key_value = "Text",
 				locator1 = "Select#GROUPED_SELECT_VALUE");
 
-			for (var field : list "All Categories,Tags") {
+			for (var field : list "All Categories,Topic,Tags") {
 				AssertElementPresent(
 					key_fieldLabel = "Field",
 					key_groupLabel = "Categorization",

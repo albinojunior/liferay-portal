@@ -13,6 +13,7 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayDropDown from '@clayui/drop-down';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
@@ -21,56 +22,61 @@ function getOdataString() {
 	return `test ne 4`;
 }
 
-function TestFilter({actions, id, inputText, label, value: valueProp}) {
+function TestFilter({actions, id, inputText, value: valueProp}) {
 	const [value, setValue] = useState(valueProp);
 
 	return (
-		<div className="form-group">
-			<div className="input-group">
-				<div
-					className={classNames('input-group-item', {
-						'input-group-prepend': inputText,
-					})}
-				>
-					<input
-						aria-label={label}
-						className="form-control"
-						onChange={(e) => setValue(e.target.value)}
-						type="text"
-						value={value || ''}
-					/>
+		<ClayDropDown.Caption>
+			<div className="form-group">
+				<div className="input-group">
+					<div
+						className={classNames('input-group-item', {
+							'input-group-prepend': inputText,
+						})}
+					>
+						<input
+							className="form-control"
+							onChange={(e) => setValue(e.target.value)}
+							type="text"
+							value={value || ''}
+						/>
+					</div>
+					<div className="input-group-append input-group-item input-group-item-shrink">
+						<span className="input-group-text">
+							{Liferay.Language.get('test')}
+						</span>
+					</div>
 				</div>
-				<div className="input-group-append input-group-item input-group-item-shrink">
-					<span className="input-group-text">
-						{Liferay.Language.get('test')}
-					</span>
+
+				<div className="mt-3">
+					<ClayButton
+						disabled={value === valueProp}
+						onClick={() =>
+							actions.updateFilterState(
+								id,
+								value,
+								value,
+								getOdataString(value, id)
+							)
+						}
+						small
+					>
+						{valueProp
+							? Liferay.Language.get('edit-filter')
+							: Liferay.Language.get('add-filter')}
+					</ClayButton>
 				</div>
 			</div>
-			<div className="mt-3">
-				<ClayButton
-					className="btn-sm"
-					disabled={value === valueProp}
-					onClick={() =>
-						actions.updateFilterState(
-							id,
-							value,
-							getOdataString(value, id)
-						)
-					}
-				>
-					{valueProp
-						? Liferay.Language.get('edit-filter')
-						: Liferay.Language.get('add-filter')}
-				</ClayButton>
-			</div>
-		</div>
+		</ClayDropDown.Caption>
 	);
 }
 
 TestFilter.propTypes = {
+	actions: PropTypes.shape({
+		updateFilterState: PropTypes.func.isRequired,
+	}),
 	id: PropTypes.string.isRequired,
-	invisible: PropTypes.bool,
-	label: PropTypes.string.isRequired,
+	inputText: PropTypes.string,
 	value: PropTypes.string,
 };
 

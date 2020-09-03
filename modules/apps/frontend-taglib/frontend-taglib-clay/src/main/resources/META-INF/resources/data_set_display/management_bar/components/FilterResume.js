@@ -36,7 +36,7 @@ function FilterResume(props) {
 			closeButtonProps={{
 				className: 'filter-resume-close',
 				disabled: props.disabled,
-				onClick: () => actions.updateFilterState(props.id, null),
+				onClick: () => actions.updateFilterState(props.id),
 			}}
 			role="button"
 		>
@@ -59,11 +59,8 @@ function FilterResume(props) {
 			onActiveChange={setOpen}
 			trigger={label}
 		>
-			<ClayDropDown.ItemList>
-				<div className="p-3">
-					<Filter {...props} actions={actions} />
-				</div>
-			</ClayDropDown.ItemList>
+			<li className="dropdown-subheader">{props.label}</li>
+			<Filter actions={actions} {...props} />
 		</ClayDropDown>
 	);
 

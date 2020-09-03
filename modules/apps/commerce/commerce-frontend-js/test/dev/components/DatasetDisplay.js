@@ -17,8 +17,6 @@ import React from 'react';
 import datasetDisplayLauncher from '../../../src/main/resources/META-INF/resources/components/dataset_display/entry';
 import sidePanelLauncher from '../../../src/main/resources/META-INF/resources/components/side_panel/entry';
 
-import '../../../src/main/resources/META-INF/resources/styles/main.scss';
-
 const fluidDataSetDisplayProps = {
 	activeView: 2,
 	apiUrl: '/dataset-display-nested-items',

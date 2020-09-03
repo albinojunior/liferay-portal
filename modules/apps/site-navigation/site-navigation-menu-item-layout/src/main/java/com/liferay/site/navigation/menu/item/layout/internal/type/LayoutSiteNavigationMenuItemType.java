@@ -422,10 +422,12 @@ public class LayoutSiteNavigationMenuItemType
 		List<SiteNavigationMenuItem> siteNavigationMenuItems =
 			_siteNavigationMenuItemLocalService.dynamicQuery(dynamicQuery);
 
-		for (SiteNavigationMenuItem siteNavigationMenuItem2 :
+		for (SiteNavigationMenuItem curSiteNavigationMenuItem :
 				siteNavigationMenuItems) {
 
-			if (_isAncestor(siteNavigationMenuItem, siteNavigationMenuItem2)) {
+			if (_isAncestor(
+					siteNavigationMenuItem, curSiteNavigationMenuItem)) {
+
 				return true;
 			}
 		}

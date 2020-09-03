@@ -22,7 +22,7 @@ function getOdataString(value, key) {
 	return `${key} eq '${value}'`;
 }
 
-function TextFilter({actions, id, inputText, label, value: valueProp}) {
+function TextFilter({actions, id, inputText, value: valueProp}) {
 	const [value, setValue] = useState(valueProp);
 
 	let actionType = 'edit';
@@ -30,7 +30,8 @@ function TextFilter({actions, id, inputText, label, value: valueProp}) {
 	if (valueProp && !value) {
 		actionType = 'delete';
 	}
-	else if (!valueProp && value) {
+
+	if (!valueProp && value) {
 		actionType = 'add';
 	}
 
@@ -45,7 +46,6 @@ function TextFilter({actions, id, inputText, label, value: valueProp}) {
 							})}
 						>
 							<input
-								aria-label={label}
 								className="form-control"
 								onChange={(e) => setValue(e.target.value)}
 								type="text"
@@ -65,7 +65,7 @@ function TextFilter({actions, id, inputText, label, value: valueProp}) {
 			<ClayDropDown.Divider />
 			<ClayDropDown.Caption>
 				<ClayButton
-					disabled={(!value && value) || value !== value}
+					disabled={(!valueProp && value) || valueProp !== value}
 					onClick={() =>
 						actions.updateFilterState(
 							id,
@@ -88,11 +88,11 @@ function TextFilter({actions, id, inputText, label, value: valueProp}) {
 }
 
 TextFilter.propTypes = {
+	actions: PropTypes.shape({
+		updateFilterState: PropTypes.func.isRequired,
+	}),
 	id: PropTypes.string.isRequired,
 	inputText: PropTypes.string,
-	invisible: PropTypes.bool,
-	label: PropTypes.string.isRequired,
-	type: PropTypes.oneOf(['text']).isRequired,
 	value: PropTypes.string,
 };
 

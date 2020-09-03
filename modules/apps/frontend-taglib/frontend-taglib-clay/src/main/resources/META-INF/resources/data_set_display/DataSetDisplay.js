@@ -112,10 +112,18 @@ function DataSetDisplay({
 	const {apiURL} = useContext(AppContext);
 
 	const requestData = useCallback(() => {
+		const activeFiltersOdataStrings = filters.reduce(
+			(activeFilters, filter) =>
+				filter.odataFilterString
+					? [...activeFilters, filter.odataFilterString]
+					: activeFilters,
+			[]
+		);
+
 		return loadData(
 			apiURL,
 			currentURL,
-			filters,
+			activeFiltersOdataStrings,
 			searchParam,
 			delta,
 			pageNumber,

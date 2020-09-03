@@ -14,7 +14,8 @@
 
 import ClayAutocomplete from '@clayui/autocomplete';
 import ClayButton from '@clayui/button';
-import {ClayCheckbox, ClayRadio} from '@clayui/form';
+import ClayDropDown from '@clayui/drop-down';
+import {ClayCheckbox, ClayRadio, ClayToggle} from '@clayui/form';
 import ClayLabel from '@clayui/label';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {useIsMounted} from 'frontend-js-react-web';
@@ -22,21 +23,30 @@ import {fetch} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 
-import {fetchParams, getValueFromItem} from '../../../utilities/index';
+import {
+	getAcceptLanguageHeaderParam,
+	getValueFromItem,
+	isValuesArrayChanged,
+} from '../../../utilities/index';
 import {logError} from '../../../utilities/logError';
 
 const DEFAULT_PAGE_SIZE = 10;
 
 function fetchData(apiURL, searchParam, currentPage = 1) {
-	return fetch(
-		`${apiURL}?page=${currentPage}&pageSize=${DEFAULT_PAGE_SIZE}${
-			searchParam ? `&search=${encodeURIComponent(searchParam)}` : ''
-		}`,
-		{
-			...fetchParams,
-			method: 'GET',
-		}
-	).then((response) => response.json());
+	const url = new URL(apiURL, themeDisplay.getPortalURL());
+
+	url.searchParams.append('page', currentPage);
+	url.searchParams.append('pageSize', DEFAULT_PAGE_SIZE);
+
+	if (searchParam) {
+		url.searchParams.append('search', encodeURIComponent(searchParam));
+	}
+
+	return fetch(url, {
+		headers: {
+			'Accept-Language': getAcceptLanguageHeaderParam(),
+		},
+	}).then((response) => response.json());
 }
 
 function Item(props) {
@@ -62,33 +72,51 @@ Item.propTypes = {
 	value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
-function getOdataString(value, key, selectionType) {
-	if (!value || !value.length) {
-		return null;
-	}
-
-	return selectionType === 'multiple'
-		? `${key}/any(x:${value
-				.map(
-					(v) =>
-						`(x eq ${
-							typeof v.value === 'string'
-								? `'${v.value}'`
-								: v.value
-						})`
-				)
-				.join(' or ')})`
-		: `${key} eq ${
-				typeof value[0].value === 'string'
-					? `'${value[0].value}'`
-					: value[0].value
-		  }`;
+function composeMultipleValuesOdataString(key, values, exclude) {
+	return `${key}/any(x:${values
+		.map(
+			(value) =>
+				`(x ${exclude ? 'ne' : 'eq'} ${
+					typeof value === 'string' ? `'${value}'` : value
+				})`
+		)
+		.join(exclude ? ' and ' : ' or ')})`;
 }
 
-function AutocompleteFilter(props) {
+function composeSingleValuesOdataString(key, value, exclude) {
+	return `${key} ${exclude ? 'ne' : 'eq'} ${
+		typeof value === 'string' ? `'${value}'` : value
+	}`;
+}
+
+const formatValue = (value, exclude) =>
+	(exclude ? `(${Liferay.Language.get('exclude')}) ` : '') +
+	value.map((el) => el.label).join(', ');
+
+function getOdataString(selectedItems, key, selectionType, exclude) {
+	if (selectedItems?.length) {
+		const values = selectedItems.map((item) => item.value);
+
+		return selectionType === 'multiple'
+			? composeMultipleValuesOdataString(key, values, exclude)
+			: composeSingleValuesOdataString(key, values[0], exclude);
+	}
+
+	return null;
+}
+function AutocompleteFilter({
+	actions,
+	apiURL,
+	id,
+	inputPlaceholder,
+	itemKey,
+	itemLabel: itemLabelProp,
+	selectionType,
+	value: valueProp,
+}) {
 	const [query, setQuery] = useState('');
 	const [search, setSearch] = useState('');
-	const [selectedItems, setSelectedItems] = useState(props.value || []);
+	const [selectedItems, setSelectedItems] = useState(valueProp?.items || []);
 	const [items, updateItems] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -97,12 +125,13 @@ function AutocompleteFilter(props) {
 	const [scrollingAreaRendered, setScrollingAreaRendered] = useState(false);
 	const infiniteLoader = useRef(null);
 	const [infiniteLoaderRendered, setInfiniteLoaderRendered] = useState(false);
+	const [exclude, setExclude] = useState(!!valueProp?.exclude);
 
 	const loaderVisible = items && items.length < total;
 
 	useEffect(() => {
-		setSelectedItems(props.value || []);
-	}, [props.value]);
+		setSelectedItems(valueProp?.items || []);
+	}, [valueProp]);
 
 	useEffect(() => {
 		if (query === search) {
@@ -116,22 +145,20 @@ function AutocompleteFilter(props) {
 
 	useEffect(() => {
 		setLoading(true);
-		fetchData(props.apiURL, search, currentPage)
+		fetchData(apiURL, search, currentPage)
 			.then((data) => {
 				if (!isMounted()) {
 					return;
 				}
 
 				setLoading(false);
-
 				if (currentPage === 1) {
 					updateItems(data.items);
 				}
 				else {
 					updateItems((items) => [...items, ...data.items]);
 				}
-
-				updateTotal(data.total);
+				updateTotal(data.totalCount);
 			})
 			.catch((error) => {
 				logError(error);
@@ -140,7 +167,7 @@ function AutocompleteFilter(props) {
 					setLoading(false);
 				}
 			});
-	}, [currentPage, isMounted, props.apiURL, search]);
+	}, [currentPage, isMounted, search, apiURL]);
 
 	const setScrollingArea = useCallback((node) => {
 		scrollingArea.current = node;
@@ -164,7 +191,11 @@ function AutocompleteFilter(props) {
 	]);
 
 	const setObserver = useCallback(() => {
-		if (!scrollingArea.current || !infiniteLoader.current) {
+		if (
+			!scrollingArea.current ||
+			!infiniteLoader.current ||
+			!IntersectionObserver
+		) {
 			return;
 		}
 
@@ -184,140 +215,204 @@ function AutocompleteFilter(props) {
 		observer.observe(infiniteLoader.current);
 	}, []);
 
-	function isValueChanged(prevValue = [], newValue = []) {
-		if (prevValue.length !== newValue.length) {
-			return true;
-		}
+	let actionType = 'edit';
 
-		const prevValues = prevValue.map((element) => element.value).sort();
-		const newValues = newValue.map((element) => element.value).sort();
+	if (valueProp?.items && !selectedItems.length) {
+		actionType = 'delete';
+	}
 
-		return prevValues.some((element, i) => element !== newValues[i]);
+	if (!valueProp) {
+		actionType = 'add';
+	}
+
+	let submitDisabled = true;
+
+	if (
+		actionType === 'delete' ||
+		(!valueProp && selectedItems.length) ||
+		(valueProp && isValuesArrayChanged(valueProp.items, selectedItems)) ||
+		(valueProp && selectedItems.length && valueProp.exclude !== exclude)
+	) {
+		submitDisabled = false;
 	}
 
 	return (
-		<div className="form-group">
-			<ClayAutocomplete className="mb-2">
-				<ClayAutocomplete.Input
-					onChange={(event) => setQuery(event.target.value)}
-				/>
-				{loading && <ClayAutocomplete.LoadingIndicator />}
-			</ClayAutocomplete>
-			<div className="selected-elements-wrapper">
-				{selectedItems.map((selectedItem) => {
-					return (
-						<ClayLabel
-							closeButtonProps={{
-								onClick: () =>
-									setSelectedItems((items) =>
-										items.filter(
-											(item) =>
-												item.value !==
-												selectedItem.value
-										)
-									),
-							}}
-							key={selectedItem.value}
-						>
-							{selectedItem.label}
-						</ClayLabel>
-					);
-				})}
-			</div>
-			{items && items.length ? (
-				<ul
-					className="inline-scroller mt-2 mx-n3 px-3"
-					ref={setScrollingArea}
-				>
-					{items.map((item) => {
-						const itemValue = item[props.itemKey];
-						const itemLabel = getValueFromItem(
-							item,
-							props.itemLabel
-						);
-						const newValue = {
-							label: itemLabel,
-							value: itemValue,
-						};
-
-						return (
-							<Item
-								key={itemValue}
-								label={itemLabel}
-								onChange={() => {
-									setSelectedItems(
-										selectedItems.find(
-											(el) => el.value === itemValue
-										)
-											? selectedItems.filter(
-													(el) =>
-														el.value !== itemValue
-											  )
-											: props.selectionType === 'multiple'
-											? [...selectedItems, newValue]
-											: [newValue]
-									);
+		<>
+			<ClayDropDown.Caption>
+				<ClayAutocomplete>
+					<ClayAutocomplete.Input
+						onChange={(event) => setQuery(event.target.value)}
+						placeholder={inputPlaceholder}
+					/>
+					{loading && <ClayAutocomplete.LoadingIndicator />}
+				</ClayAutocomplete>
+				{selectedItems.length ? (
+					<div className="mt-2 selected-elements-wrapper">
+						{selectedItems.map((selectedItem) => (
+							<ClayLabel
+								closeButtonProps={{
+									onClick: () =>
+										setSelectedItems((items) =>
+											items.filter(
+												(item) =>
+													item.value !==
+													selectedItem.value
+											)
+										),
 								}}
-								selected={Boolean(
-									selectedItems.find(
-										(el) => el.value === itemValue
-									)
-								)}
-								selectionType={props.selectionType}
-								value={itemValue}
-							/>
-						);
-					})}
-					{loaderVisible && (
-						<ClayLoadingIndicator ref={setInfiniteLoader} small />
-					)}
-				</ul>
-			) : (
-				<div className="mt-2 p-2 text-muted">
-					{Liferay.Language.get('no-items-were-found')}
+								key={selectedItem.value}
+							>
+								{selectedItem.label}
+							</ClayLabel>
+						))}
+					</div>
+				) : null}
+			</ClayDropDown.Caption>
+			<ClayDropDown.Divider />
+			<ClayDropDown.Caption className="py-0">
+				<div className="row">
+					<div className="col">
+						<label htmlFor={`autocomplete-exclude-${id}`}>
+							{Liferay.Language.get('exclude')}
+						</label>
+					</div>
+					<div className="col-auto">
+						<ClayToggle
+							id={`autocomplete-exclude-${id}`}
+							onToggle={() => setExclude(!exclude)}
+							toggled={exclude}
+						/>
+					</div>
 				</div>
-			)}
-			<div className="mt-3">
+			</ClayDropDown.Caption>
+			<ClayDropDown.Divider />
+			<ClayDropDown.Caption>
+				<div className="form-group">
+					{items && items.length ? (
+						<ul
+							className="inline-scroller mb-n2 mx-n2 px-2"
+							ref={setScrollingArea}
+						>
+							{items.map((item) => {
+								const itemValue = item[itemKey];
+								const itemLabel = getValueFromItem(
+									item,
+									itemLabelProp
+								);
+								const newValue = {
+									label: itemLabel,
+									value: itemValue,
+								};
+
+								return (
+									<Item
+										key={itemValue}
+										label={itemLabel}
+										onChange={() => {
+											setSelectedItems(
+												selectedItems.find(
+													(el) =>
+														el.value === itemValue
+												)
+													? selectedItems.filter(
+															(el) =>
+																el.value !==
+																itemValue
+													  )
+													: selectionType ===
+													  'multiple'
+													? [
+															...selectedItems,
+															newValue,
+													  ]
+													: [newValue]
+											);
+										}}
+										selected={Boolean(
+											selectedItems.find(
+												(el) => el.value === itemValue
+											)
+										)}
+										selectionType={selectionType}
+										value={itemValue}
+									/>
+								);
+							})}
+							{loaderVisible && (
+								<ClayLoadingIndicator
+									ref={setInfiniteLoader}
+									small
+								/>
+							)}
+						</ul>
+					) : (
+						<div className="mt-2 p-2 text-muted">
+							{Liferay.Language.get('no-items-were-found')}
+						</div>
+					)}
+				</div>
+			</ClayDropDown.Caption>
+			<ClayDropDown.Divider />
+			<ClayDropDown.Caption>
 				<ClayButton
-					className="btn-sm"
-					disabled={!isValueChanged(props.value || [], selectedItems)}
+					disabled={submitDisabled}
 					onClick={() =>
-						props.actions.updateFilterState(
-							props.id,
-							selectedItems.length ? selectedItems : null,
-							getOdataString(
-								selectedItems,
-								props.id,
-								props.selectionType
-							)
-						)
+						actionType !== 'delete'
+							? actions.updateFilterState(
+									id,
+									{
+										exclude,
+										items: selectedItems,
+									},
+									formatValue(selectedItems, exclude),
+									getOdataString(
+										selectedItems,
+										id,
+										selectionType,
+										exclude
+									)
+							  )
+							: actions.updateFilterState(id)
 					}
+					small
 				>
-					{props.value
-						? Liferay.Language.get('edit-filter')
-						: Liferay.Language.get('add-filter')}
+					{actionType === 'add' && Liferay.Language.get('add-filter')}
+					{actionType === 'edit' &&
+						Liferay.Language.get('edit-filter')}
+					{actionType === 'delete' &&
+						Liferay.Language.get('delete-filter')}
 				</ClayButton>
-			</div>
-		</div>
+			</ClayDropDown.Caption>
+		</>
 	);
 }
 
 AutocompleteFilter.propTypes = {
+	actions: PropTypes.shape({
+		updateFilterState: PropTypes.func.isRequired,
+	}),
+	apiURL: PropTypes.string.isRequired,
 	id: PropTypes.string.isRequired,
 	inputPlaceholder: PropTypes.string,
-	invisible: PropTypes.bool,
 	itemKey: PropTypes.string.isRequired,
 	itemLabel: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
 		.isRequired,
-	label: PropTypes.string.isRequired,
 	selectionType: PropTypes.oneOf(['single', 'multiple']).isRequired,
-	type: PropTypes.oneOf(['autocomplete']).isRequired,
-	value: PropTypes.arrayOf(
-		PropTypes.shape({
-			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-			label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-		})
-	),
+	value: PropTypes.shape({
+		exclude: PropTypes.bool,
+		items: PropTypes.arrayOf(
+			PropTypes.shape({
+				label: PropTypes.oneOfType([
+					PropTypes.string,
+					PropTypes.number,
+				]),
+				value: PropTypes.oneOfType([
+					PropTypes.string,
+					PropTypes.number,
+				]),
+			})
+		),
+	}),
 };
 
 AutocompleteFilter.defaultProps = {

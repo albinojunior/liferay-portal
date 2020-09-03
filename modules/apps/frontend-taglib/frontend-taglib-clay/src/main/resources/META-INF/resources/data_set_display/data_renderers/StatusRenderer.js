@@ -20,7 +20,7 @@ function StatusRenderer(props) {
 		<span className="taglib-workflow-status">
 			<span className="workflow-status">
 				<strong
-					className={`label status workflow-status-${props.value.label} ${props.value.label} workflow-value`}
+					className={`label status workflow-status-data-renderer workflow-status-${props.value.label} ${props.value.label} workflow-value`}
 				>
 					{props.value.label_i18n}
 				</strong>

@@ -12,21 +12,23 @@
  * details.
  */
 
-package com.liferay.roles.admin.role.type.mapper;
+package com.liferay.users.admin.item.selector.web.internal.servlet.taglib.clay;
+
+import com.liferay.frontend.taglib.clay.servlet.taglib.soy.BaseUserCard;
+import com.liferay.portal.kernel.dao.search.RowChecker;
+import com.liferay.portal.kernel.model.User;
+
+import javax.portlet.RenderRequest;
 
 /**
- * Defines a mapping between role types and a panel category. When implemented,
- * the returned role types will be able to define permissions for apps under the
- * returned panel category. This will be visible in the Define Permissions view
- * in the Roles Admin portlet.
- *
- * @author Drew Brokke
- * @review
+ * @author Sarai Díaz
  */
-public interface PanelCategoryRoleTypeMapper {
+public class SelectUserUserCard extends BaseUserCard {
 
-	public String getPanelCategoryKey();
+	public SelectUserUserCard(
+		User user, RenderRequest renderRequest, RowChecker rowChecker) {
 
-	public int[] getRoleTypes();
+		super(user, renderRequest, rowChecker);
+	}
 
 }

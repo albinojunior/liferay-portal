@@ -109,17 +109,26 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 
 		if (Validator.isNotNull(href)) {
 			linkElement.attr("href", href);
-			linkElement.html(
-				replaceLink ? firstChildElement.html() : element.html());
 
-			if ((linkElement != element) || processEditableTag) {
+			_replaceLinkContent(
+				element, firstChildElement, linkElement, replaceLink);
+
+			if (((linkElement != element) || processEditableTag) &&
+				Validator.isNotNull(element.html())) {
+
 				element.html(linkElement.outerHtml());
+			}
+			else if ((linkElement != element) &&
+					 Validator.isNull(element.html())) {
+
+				element.replaceWith(linkElement);
 			}
 		}
 		else if (assetDisplayPage && Validator.isNotNull(mappedField)) {
 			linkElement.attr("href", "${" + mappedField + "}");
-			linkElement.html(
-				replaceLink ? firstChildElement.html() : element.html());
+
+			_replaceLinkContent(
+				element, firstChildElement, linkElement, replaceLink);
 
 			if (processEditableTag) {
 				element.html(
@@ -134,6 +143,24 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 							linkElement.outerHtml(),
 							fragmentEntryProcessorContext)));
 			}
+		}
+	}
+
+	private void _replaceLinkContent(
+		Element element, Element firstChildElement, Element linkElement,
+		boolean replaceLink) {
+
+		if (replaceLink && Validator.isNull(firstChildElement.html())) {
+			linkElement.html(firstChildElement.outerHtml());
+		}
+		else if (replaceLink && Validator.isNotNull(firstChildElement.html())) {
+			linkElement.html(firstChildElement.html());
+		}
+		else if (Validator.isNull(element.html())) {
+			linkElement.html(element.outerHtml());
+		}
+		else {
+			linkElement.html(element.html());
 		}
 	}
 

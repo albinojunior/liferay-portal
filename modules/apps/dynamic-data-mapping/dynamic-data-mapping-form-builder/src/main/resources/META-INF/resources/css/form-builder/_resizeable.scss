@@ -62,6 +62,8 @@ $c: '.ddm-form-builder';
 }
 
 .ddm-resize-handle {
+	border: none !important;
+	border-radius: unset !important;
 	height: 8px;
 	position: absolute;
 	width: 8px;

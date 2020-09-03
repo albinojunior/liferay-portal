@@ -61,7 +61,7 @@ const renderComponent = ({
 } = {}) => {
 	return render(
 		<StoreAPIContextProvider
-			dispatch={() => {}}
+			dispatch={() => Promise.resolve({})}
 			getState={() => ({
 				masterLayout: {
 					masterLayoutPlid: '0',
@@ -85,6 +85,17 @@ describe('PageDesignOptionsSidebar', () => {
 		const {getByText} = renderComponent();
 
 		expect(getByText('page-design-options')).toBeInTheDocument();
+	});
+
+	it('calls changeMasterLayout when a master layout is selected', () => {
+		const {getByLabelText} = renderComponent();
+		const button = getByLabelText('Pablo Master Layout');
+
+		userEvent.click(button);
+
+		expect(changeMasterLayout).toBeCalledWith(
+			expect.objectContaining({masterLayoutPlid: '15'})
+		);
 	});
 
 	it('calls changeStyleBookEntry when a style is selected', () => {

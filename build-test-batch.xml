@@ -1340,13 +1340,13 @@ app.server.type=@{app.server.type}]]></echo>
 
 							<antcall inheritAll="false" target="prepare-system-ext-properties" />
 
-							<property name="blacklist.cfg.name" value="com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.cfg" />
+							<property name="blacklist.config.name" value="com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config" />
 
 							<gradle-execute dir="modules/apps/static/portal-bundle-blacklist/portal-bundle-blacklist-test" task="test">
 								<arg value="test" />
 								<arg value="--tests" />
 								<arg value="*.BundleBlacklistSetUpBatchTest" />
-								<arg value="-Dblacklist.cfg.name=${blacklist.cfg.name}" />
+								<arg value="-Dblacklist.config.name=${blacklist.config.name}" />
 								<arg value="-Dliferay.home=${liferay.home}" />
 							</gradle-execute>
 
@@ -1370,7 +1370,7 @@ app.server.type=@{app.server.type}]]></echo>
 
 							<antcall inheritall="false" target="stop-app-server" />
 
-							<delete file="${liferay.home}/osgi/configs/${blacklist.cfg.name}" />
+							<delete file="${liferay.home}/osgi/configs/${blacklist.config.name}" />
 
 							<trycatch>
 								<try>
@@ -3540,8 +3540,6 @@ log.sanitizer.enabled=false</echo>
 
 				<delete file="${app.server.tomcat.classes.portal.dir}/portal-ext.properties" />
 
-				<remake-dir dir="tools/zip_tmpl/license" />
-
 				<ant antfile="build-dist.xml" target="zip-tomcat" />
 
 				<propertyfile file="${blade.samples.dir}/liferay-workspace/gradle.properties">
@@ -4249,6 +4247,48 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
 
+	<target name="functional-smoke-bundle-jboss-mysql57-jdk8">
+		<run-functional-test
+			app.server.type="jboss"
+			database.type="mysql"
+			database.version="5.7"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.portal.log.assert="true"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-smoke-bundle-tcserver-mysql57-jdk8">
+		<run-functional-test
+			app.server.type="tcserver"
+			database.type="mysql"
+			database.version="5.7"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.portal.log.assert="true"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
 	<target name="functional-smoke-bundle-tomcat-mysql56-jdk8">
 		<antcall target="functional-bundle-tomcat-mysql56-jdk8" />
 	</target>
@@ -4259,6 +4299,69 @@ log.sanitizer.enabled=false</echo>
 
 	<target name="functional-smoke-bundle-tomcat-mysql57-jdk11_open">
 		<antcall target="functional-bundle-tomcat-mysql57-jdk11_open" />
+	</target>
+
+	<target name="functional-smoke-bundle-weblogic-mysql57-jdk8">
+		<run-functional-test
+			app.server.type="weblogic"
+			database.type="mysql"
+			database.version="5.7"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.portal.log.assert="true"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-smoke-bundle-websphere-mysql57-jdk8">
+		<run-functional-test
+			app.server.type="websphere"
+			database.type="mysql"
+			database.version="5.7"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.portal.log.assert="true"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-smoke-bundle-wildfly-mysql57-jdk8">
+		<run-functional-test
+			app.server.type="wildfly"
+			database.type="mysql"
+			database.version="5.7"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.portal.log.assert="true"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
 	</target>
 
 	<target name="functional-smoke-jboss72-mysql57-jdk8">
@@ -4407,19 +4510,19 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="websphere" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
 
-	<target name="functional-smoke-wildfly160-mariadb102-jdk8">
+	<target name="functional-smoke-wildfly140-mariadb102-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" test.portal.log.assert="true" />
 	</target>
 
-	<target name="functional-smoke-wildfly160-mariadb102-jdk11_open">
+	<target name="functional-smoke-wildfly140-mariadb102-jdk11_open">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" test.portal.log.assert="true" />
 	</target>
 
-	<target name="functional-smoke-wildfly160-mariadb104-jdk8">
+	<target name="functional-smoke-wildfly140-mariadb104-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" test.portal.log.assert="true" />
 	</target>
 
-	<target name="functional-smoke-wildfly160-mariadb104-jdk11_open">
+	<target name="functional-smoke-wildfly140-mariadb104-jdk11_open">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" test.portal.log.assert="true" />
 	</target>
 
@@ -4719,19 +4822,19 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="websphere" database.type="mysql" database.version="5.7" />
 	</target>
 
-	<target name="functional-upgrade-wildfly160-mariadb102-jdk8">
+	<target name="functional-upgrade-wildfly140-mariadb102-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
-	<target name="functional-upgrade-wildfly160-mariadb102-jdk11_open">
+	<target name="functional-upgrade-wildfly140-mariadb102-jdk11_open">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
-	<target name="functional-upgrade-wildfly160-mariadb104-jdk8">
+	<target name="functional-upgrade-wildfly140-mariadb104-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
-	<target name="functional-upgrade-wildfly160-mariadb104-jdk11_open">
+	<target name="functional-upgrade-wildfly140-mariadb104-jdk11_open">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
@@ -4751,15 +4854,15 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="websphere" database.type="mysql" />
 	</target>
 
-	<target name="functional-wildfly160-mariadb102-jdk8">
+	<target name="functional-wildfly140-mariadb102-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
-	<target name="functional-wildfly160-mariadb104-jdk8">
+	<target name="functional-wildfly140-mariadb104-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
-	<target name="functional-wildfly160-mysql57-jdk8">
+	<target name="functional-wildfly140-mysql57-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mysql" />
 	</target>
 

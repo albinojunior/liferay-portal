@@ -215,7 +215,11 @@ const Renderer = ({
 				page={page}
 				pageIndex={pageIndex}
 			>
-				<Layout components={Components} rows={page.rows} />
+				<Layout
+					components={Components}
+					editable={editable}
+					rows={page.rows}
+				/>
 			</Components.Page>
 		</Components.Container>
 	);
