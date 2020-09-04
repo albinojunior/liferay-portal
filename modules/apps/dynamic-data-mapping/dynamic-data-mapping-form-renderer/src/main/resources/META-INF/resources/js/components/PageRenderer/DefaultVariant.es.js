@@ -77,10 +77,60 @@ export const Column = ({
 		'data-ddm-field-row': rowIndex,
 	};
 
-	const firstField = column.fields[0];
-	const rootParentField = parentField.root ?? firstField;
-	const isFieldSetOrGroup = firstField.type === 'fieldset';
-	const isFieldSet = isFieldSetOrGroup && firstField.ddmStructureId;
+	const renderFields = () => {
+		const firstField = column.fields[0];
+		const rootParentField = parentField.root ?? firstField;
+		const isFieldSetOrGroup = firstField.type === 'fieldset';
+		const isFieldSet = isFieldSetOrGroup && firstField.ddmStructureId;
+
+		return (
+			<div
+				className={classnames('ddm-field-container ddm-target h-100', {
+					'active-drop-child':
+						isFieldSetOrGroup &&
+						overTarget &&
+						!rootParentField.ddmStructureId,
+					'ddm-fieldset': isFieldSet,
+					'fields-group': isFieldSetOrGroup,
+					selected: firstField.selected,
+					'target-over targetOver':
+						!rootParentField.ddmStructureId && overTarget,
+				})}
+				data-field-name={firstField.fieldName}
+			>
+				<div
+					className={classnames(
+						'ddm-resize-handle ddm-resize-handle-left',
+						{hide: !(firstField.hovered || firstField.selected)}
+					)}
+					{...addr}
+				/>
+
+				<div
+					className={classnames('ddm-drag', {
+						'py-0': isFieldSetOrGroup,
+					})}
+					ref={
+						allowNestedFields && !rootParentField.ddmStructureId
+							? drop
+							: undefined
+					}
+				>
+					{column.fields.map((field, index) =>
+						children({field, index})
+					)}
+				</div>
+
+				<div
+					className={classnames(
+						'ddm-resize-handle ddm-resize-handle-right',
+						{hide: !(firstField.hovered || firstField.selected)}
+					)}
+					{...addr}
+				/>
+			</div>
+		);
+	};
 
 	return (
 		<ClayLayout.Col
@@ -89,56 +139,7 @@ export const Column = ({
 			key={index}
 			md={column.size}
 		>
-			{column.fields.length && (
-				<div
-					className={classnames(
-						'ddm-field-container ddm-target h-100',
-						{
-							'active-drop-child':
-								isFieldSetOrGroup &&
-								overTarget &&
-								!rootParentField.ddmStructureId,
-							'ddm-fieldset': isFieldSet,
-							'fields-group': isFieldSetOrGroup,
-							selected: firstField.selected,
-							'target-over targetOver':
-								!rootParentField.ddmStructureId && overTarget,
-						}
-					)}
-					data-field-name={firstField.fieldName}
-				>
-					<div
-						className={classnames(
-							'ddm-resize-handle ddm-resize-handle-left',
-							{hide: !(firstField.hovered || firstField.selected)}
-						)}
-						{...addr}
-					/>
-
-					<div
-						className={classnames('ddm-drag', {
-							'py-0': isFieldSetOrGroup,
-						})}
-						ref={
-							allowNestedFields && !rootParentField.ddmStructureId
-								? drop
-								: undefined
-						}
-					>
-						{column.fields.map((field, index) =>
-							children({field, index})
-						)}
-					</div>
-
-					<div
-						className={classnames(
-							'ddm-resize-handle ddm-resize-handle-right',
-							{hide: !(firstField.hovered || firstField.selected)}
-						)}
-						{...addr}
-					/>
-				</div>
-			)}
+			{column.fields.length > 0 && renderFields()}
 		</ClayLayout.Col>
 	);
 };
