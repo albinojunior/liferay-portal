@@ -115,7 +115,7 @@ const ContainerMock = ({children}) => {
 };
 
 describe('The BulkReassignModal component should', () => {
-	let getAllByTestId, getByTestId, renderResult;
+	let getAllByTestId, getByTestId, getByText, renderResult;
 
 	beforeAll(() => {
 		renderResult = render(<BulkUpdateDueDateModal />, {
@@ -124,6 +124,7 @@ describe('The BulkReassignModal component should', () => {
 
 		getAllByTestId = renderResult.getAllByTestId;
 		getByTestId = renderResult.getByTestId;
+		getByText = renderResult.getByText;
 
 		jest.runAllTimers();
 	});
@@ -154,7 +155,7 @@ describe('The BulkReassignModal component should', () => {
 		const checkbox = getAllByTestId('itemCheckbox');
 		const checkAllButton = getByTestId('checkAllButton');
 		const processStepFilter = getByTestId('processStepFilter');
-		const assigneeFilter = getByTestId('assigneeFilter');
+		const assigneeFilter = getByText('assignee');
 
 		const content = modal.children[0].children[0];
 		const header = content.children[0];
