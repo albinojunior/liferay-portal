@@ -21,6 +21,7 @@ const FilterItem = ({
 	multiple,
 	name,
 	onClick,
+	preventClick,
 	...otherProps
 }) => {
 	const [checked, setChecked] = useState(active);
@@ -32,7 +33,6 @@ const FilterItem = ({
 		),
 		dropdown: getClassName(
 			'dropdown-item',
-
 			checked && 'active',
 			description && 'with-description',
 			hideControl && 'control-hidden'
@@ -46,7 +46,10 @@ const FilterItem = ({
 
 	const onClickFilter = (event) => {
 		onClick(event);
-		setChecked(!checked);
+
+		if (!preventClick) {
+			setChecked(!checked);
+		}
 	};
 
 	return (

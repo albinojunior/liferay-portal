@@ -229,6 +229,7 @@ const Filter = ({
 								labelPropertyName={labelPropertyName}
 								multiple={multiple}
 								onClick={() => onSelect(item)}
+								preventClick={preventClick}
 							/>
 						))}
 					</ul>
