@@ -120,7 +120,7 @@
 </tr>
 <tr>
 	<td>WORKFLOW_ALL_ITEMS_FILTER_TITLE</td>
-	<td>//div[@class='portlet-body']//ul[@class='navbar-nav']/li//strong[contains(.,'Filter By')]</td>
+	<td>//div[@class='portlet-body']//ul[contains(@class,'navbar-nav')]/li//strong[contains(.,'Filter By')]</td>
 	<td></td>
 </tr>
 <tr>
