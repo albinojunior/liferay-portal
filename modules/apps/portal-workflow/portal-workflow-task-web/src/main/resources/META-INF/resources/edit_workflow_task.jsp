@@ -89,10 +89,10 @@ renderResponse.setTitle(headerTitle);
 				>
 					<aui:field-wrapper label="assigned-to">
 						<aui:fieldset>
-							<div class="card-row">
+							<div class="align-items-center card-row">
 								<c:choose>
 									<c:when test="<%= workflowTask.isAssignedToSingleUser() %>">
-										<div class="card-col-field">
+										<div class="card-col-field mr-2">
 											<div class="list-group-card-icon">
 												<liferay-ui:user-portrait
 													userId="<%= workflowTask.getAssigneeUserId() %>"
