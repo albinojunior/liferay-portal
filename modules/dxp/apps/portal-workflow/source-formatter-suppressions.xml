@@ -8,6 +8,5 @@
 	</checkstyle>
 	<source-check>
 		<suppress checks="JSONPackageJSONCheck" files="portal-workflow-kaleo-designer-web/package\.json" />
-		<suppress checks="JSONPackageJSONCheck" files="portal-workflow-metrics-web/package\.json" />
 	</source-check>
 </suppressions>
