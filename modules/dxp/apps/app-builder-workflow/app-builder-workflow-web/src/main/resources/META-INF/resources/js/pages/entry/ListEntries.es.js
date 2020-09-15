@@ -28,6 +28,7 @@ import {
 	navigateToEditPage,
 } from 'app-builder-web/js/pages/entry/utils.es';
 import {getItem} from 'app-builder-web/js/utils/client.es';
+import {getLocalizedUserPreferenceValue} from 'app-builder-web/js/utils/lang.es';
 import {errorToast} from 'app-builder-web/js/utils/toast.es';
 import {concatValues, isEqualObjects} from 'app-builder-web/js/utils/utils.es';
 import {usePrevious} from 'frontend-js-react-web';
@@ -51,6 +52,7 @@ export default function ListEntries({history}) {
 		dataListViewId,
 		defaultDelta = 20,
 		showFormView,
+		userLanguageId,
 	} = useContext(AppContext);
 
 	const [dataRecordIds, setDataRecordIds] = useState([]);
@@ -162,7 +164,10 @@ export default function ListEntries({history}) {
 		}
 	};
 
-	const onClickAddButton = () => navigateToEditPage(basePortletURL);
+	const onClickAddButton = () =>
+		navigateToEditPage(basePortletURL, {
+			languageId: userLanguageId,
+		});
 
 	const onCloseModal = (isRefetch) => {
 		setModalVisible(false);
@@ -290,7 +295,11 @@ export default function ListEntries({history}) {
 	const COLUMNS = [
 		...columns.map(({value, ...column}) => ({
 			...column,
-			value: value[themeDisplay.getLanguageId()],
+			value: getLocalizedUserPreferenceValue(
+				value,
+				userLanguageId,
+				dataDefinition.defaultLanguageId
+			),
 		})),
 		...WORKFLOW_COLUMNS,
 	];
