@@ -252,15 +252,18 @@ export default function EditEntry({
 	useDDMFormsSubmit(ddmForms, onSubmit);
 
 	useEffect(() => {
-		ddmForms.forEach((ddmForm) => {
-			const ddmReactForm = ddmForm.reactComponentRef.current;
+		if (dataLayoutIds.length === ddmForms.length) {
+			ddmForms.forEach((ddmForm) => {
+				const ddmReactForm = ddmForm.reactComponentRef.current;
 
-			ddmReactForm.updateEditingLanguageId({
-				editingLanguageId: userLanguageId,
-				preserveValue: true,
+				ddmReactForm.updateEditingLanguageId({
+					editingLanguageId: userLanguageId,
+					preserveValue: true,
+				});
 			});
-		});
-	}, [ddmForms, userLanguageId]);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ddmForms.length, userLanguageId]);
 
 	useEffect(() => {
 		doFetch();
