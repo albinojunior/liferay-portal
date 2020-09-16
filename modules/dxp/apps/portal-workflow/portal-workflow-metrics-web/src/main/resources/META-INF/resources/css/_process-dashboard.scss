@@ -163,6 +163,8 @@ $c: '.workflow-process-dashboard';
 	.assignee-name {
 		font-size: 0.75rem;
 		font-weight: bold;
+		width: auto;
+		word-break: break-all;
 	}
 
 	.empty-message {
