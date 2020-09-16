@@ -113,7 +113,7 @@ export default withRouter(
 		}
 
 		const selectedFilters = getSelectedFilters(filters, query.filters);
-		const isEmpty = totalCount === 0;
+		const isEmpty = totalCount === 0 || items.length === 0;
 		const isFiltered = selectedFilters.length > 0;
 
 		return (
