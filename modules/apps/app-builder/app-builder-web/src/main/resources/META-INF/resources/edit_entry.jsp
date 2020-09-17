@@ -43,7 +43,7 @@ List<Long> dataLayoutIds = appBuilderAppPortletTabContext.getDataLayoutIds();
 							if (dataLayoutIds.size() > 1) {
 						%>
 
-								<h3 class="px-4" id="<%= dataLayoutId %>_name" />
+								<h3 class="px-4" id="<%= dataLayoutId %>_name"></h3>
 
 							<%
 							}
