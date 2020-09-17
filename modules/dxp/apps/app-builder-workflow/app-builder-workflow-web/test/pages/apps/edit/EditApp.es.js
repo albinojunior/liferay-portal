@@ -41,6 +41,12 @@ const app = (active) => {
 	};
 };
 
+const appContextMock = {
+	baseResourceUrl: '',
+	namespace: '',
+	showTranslationManager: true,
+};
+
 const customObjectItems = {
 	items: [
 		{
@@ -283,7 +289,10 @@ describe('EditApp', () => {
 
 		it('selects language and clicks on undeploy button', async () => {
 			const {getAllByText, getByText} = render(
-				<AppContextProviderWrapper history={history}>
+				<AppContextProviderWrapper
+					appContext={appContextMock}
+					history={history}
+				>
 					<EditApp {...routeProps} />
 				</AppContextProviderWrapper>
 			);
@@ -322,7 +331,7 @@ describe('EditApp', () => {
 				queryByText,
 			} = render(
 				<AppContextProviderWrapper
-					appContext={{baseResourceUrl: '', namespace: ''}}
+					appContext={appContextMock}
 					history={history}
 				>
 					<EditApp {...routeProps} />
@@ -491,7 +500,10 @@ describe('EditApp', () => {
 
 		beforeAll(() => {
 			const renderResult = render(
-				<AppContextProviderWrapper history={history}>
+				<AppContextProviderWrapper
+					appContext={appContextMock}
+					history={history}
+				>
 					<EditApp {...routeProps} />
 				</AppContextProviderWrapper>
 			);
