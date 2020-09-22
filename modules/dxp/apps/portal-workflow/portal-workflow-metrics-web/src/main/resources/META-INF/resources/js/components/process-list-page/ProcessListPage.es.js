@@ -54,7 +54,7 @@ const ProcessListPage = ({history, query, routeParams}) => {
 	usePageTitle(Liferay.Language.get('metrics'));
 
 	const {page, pageSize, sort} = routeParams;
-	const {search = null} = parse(query);
+	const {search = ''} = parse(query);
 
 	const {data, fetchData} = useFetch({
 		params: {

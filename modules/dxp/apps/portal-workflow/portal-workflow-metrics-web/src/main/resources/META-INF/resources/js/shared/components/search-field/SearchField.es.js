@@ -25,9 +25,9 @@ const SearchField = ({
 	const routerProps = useRouter();
 
 	const query = parse(routerProps.location.search);
-	const {search = null} = query;
+	const {search = ''} = query;
 
-	const [searchValue, setSearchValue] = useState(null);
+	const [searchValue, setSearchValue] = useState('');
 
 	useEffect(() => {
 		setSearchValue(search);
