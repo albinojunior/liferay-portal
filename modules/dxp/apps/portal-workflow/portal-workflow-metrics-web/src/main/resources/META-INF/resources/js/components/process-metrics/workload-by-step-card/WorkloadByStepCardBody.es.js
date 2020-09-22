@@ -11,10 +11,10 @@
 
 import React from 'react';
 
-import Panel from '../../../shared/components/Panel.es';
 import ContentView from '../../../shared/components/content-view/ContentView.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
 import PaginationBar from '../../../shared/components/pagination-bar/PaginationBar.es';
+import Panel from '../../../shared/components/panel/Panel.es';
 import {Table} from './WorkloadByStepCardTable.es';
 
 const Body = ({items, page, pageSize, processId, totalCount}) => {

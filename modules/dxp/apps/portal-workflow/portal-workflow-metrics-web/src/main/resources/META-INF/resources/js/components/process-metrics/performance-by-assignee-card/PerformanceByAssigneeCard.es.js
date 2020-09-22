@@ -12,7 +12,7 @@
 import ClayLayout from '@clayui/layout';
 import React, {useMemo} from 'react';
 
-import Panel from '../../../shared/components/Panel.es';
+import Panel from '../../../shared/components/panel/Panel.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
 import {usePost} from '../../../shared/hooks/usePost.es';

@@ -11,9 +11,9 @@
 
 import React from 'react';
 
-import Panel from '../../../shared/components/Panel.es';
 import ContentView from '../../../shared/components/content-view/ContentView.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
+import Panel from '../../../shared/components/panel/Panel.es';
 import {formatNumber} from '../../../shared/util/numeral.es';
 import VelocityChart from './VelocityChart.es';
 

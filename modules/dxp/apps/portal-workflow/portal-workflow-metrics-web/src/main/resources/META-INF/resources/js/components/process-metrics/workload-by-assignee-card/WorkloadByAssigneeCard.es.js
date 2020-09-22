@@ -11,7 +11,7 @@
 
 import React, {useMemo, useState} from 'react';
 
-import Panel from '../../../shared/components/Panel.es';
+import Panel from '../../../shared/components/panel/Panel.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import Tabs from '../../../shared/components/tabs/Tabs.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';

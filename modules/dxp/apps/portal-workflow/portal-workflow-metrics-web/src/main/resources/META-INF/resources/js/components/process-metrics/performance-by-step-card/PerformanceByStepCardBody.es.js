@@ -12,9 +12,9 @@
 import ClayIcon from '@clayui/icon';
 import React, {useContext} from 'react';
 
-import Panel from '../../../shared/components/Panel.es';
 import ContentView from '../../../shared/components/content-view/ContentView.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
+import Panel from '../../../shared/components/panel/Panel.es';
 import ChildLink from '../../../shared/components/router/ChildLink.es';
 import {AppContext} from '../../AppContext.es';
 import {Table} from './PerformanceByStepCardTable.es';
