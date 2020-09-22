@@ -59,6 +59,7 @@ const FilterItem = ({
 					<input
 						checked={checked}
 						className="custom-control-input"
+						onChange={onClickFilter}
 						type={multiple ? 'checkbox' : 'radio'}
 					/>
 
