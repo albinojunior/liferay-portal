@@ -14,7 +14,7 @@ import React from 'react';
 
 import '@testing-library/jest-dom/extend-expect';
 
-import Panel from '../../../src/main/resources/META-INF/resources/js/shared/components/Panel.es';
+import Panel from '../../../../src/main/resources/META-INF/resources/js/shared/components/panel/Panel.es';
 
 describe('The Panel component should', () => {
 	afterEach(cleanup);

@@ -62,7 +62,7 @@ const HeaderWithOptions = ({
 	return (
 		<Header elementClasses={elementClasses}>
 			<ClayLayout.ContentRow>
-				<ClayLayout.ContentRow className="flex-row" expand>
+				<ClayLayout.ContentRow className="flex-row" expand="true">
 					<span className="mr-2">{title}</span>
 
 					<ClayTooltipProvider>
