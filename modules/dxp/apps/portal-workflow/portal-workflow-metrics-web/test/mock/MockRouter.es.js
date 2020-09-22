@@ -21,7 +21,7 @@ const withParamsMock = (...components) => ({
 	location: {search: query},
 	match: {params: routeParams},
 }) => {
-	return components.map((component) => {
+	return components.map((component, key) => {
 		if (routeParams.sort) {
 			routeParams.sort = decodeURIComponent(routeParams.sort);
 		}
@@ -29,6 +29,7 @@ const withParamsMock = (...components) => ({
 		return cloneElement(component, {
 			...routeParams,
 			history,
+			key,
 			query,
 			routeParams,
 		});
