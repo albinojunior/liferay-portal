@@ -17,28 +17,26 @@ import React from 'react';
 import EditApp from '../../../../src/main/resources/META-INF/resources/js/pages/apps/edit/EditApp.es';
 import AppContextProviderWrapper from '../../../AppContextProviderWrapper.es';
 
-const app = (active) => {
-	return {
-		active,
-		appDeployments: [
-			{
-				settings: {},
-				type: 'standalone',
-			},
-		],
-		dataDefinitionId: 37497,
-		dataDefinitionName: 'Object 01',
-		dataLayoutId: 37625,
-		dataListViewId: 37628,
-		dateCreated: '2020-06-08T12:13:14Z',
-		dateModified: '2020-06-08T12:13:14Z',
-		id: 37634,
-		name: {
-			en_US: 'Test',
+const app = {
+	active: false,
+	appDeployments: [
+		{
+			settings: {},
+			type: 'standalone',
 		},
-		siteId: 20124,
-		userId: 20126,
-	};
+	],
+	dataDefinitionId: 37497,
+	dataDefinitionName: 'Object 01',
+	dataLayoutId: 37625,
+	dataListViewId: 37628,
+	dateCreated: '2020-06-08T12:13:14Z',
+	dateModified: '2020-06-08T12:13:14Z',
+	id: 37634,
+	name: {
+		en_US: 'Test',
+	},
+	siteId: 20124,
+	userId: 20126,
 };
 
 const appContextMock = {
@@ -50,7 +48,7 @@ const appContextMock = {
 const customObjectItems = {
 	items: [
 		{
-			availableLanguageIds: ['en_US'],
+			availableLanguageIds: ['en_US', 'pt_BR'],
 			contentType: 'app-builder',
 			dataDefinitionKey: '37496',
 			dateCreated: '2020-06-05T13:43:16Z',
@@ -158,6 +156,12 @@ const roleItems = {
 	],
 };
 
+const routeProps = {
+	match: {
+		params: {},
+	},
+};
+
 const tableViewItems = {
 	items: [
 		{
@@ -233,22 +237,12 @@ const mockGetItem = jest
 	.fn()
 	.mockResolvedValueOnce(roleItems)
 	.mockResolvedValueOnce(customObjectItems)
-	.mockResolvedValueOnce(app(true))
-	.mockResolvedValueOnce(workflow)
-	.mockResolvedValueOnce(customObjectItems.items[0])
-	.mockResolvedValueOnce(formViewItems)
-	.mockResolvedValueOnce(tableViewItems)
+	.mockResolvedValueOnce(customObjectItems)
 	.mockResolvedValueOnce(formViewItems)
 	.mockResolvedValueOnce(tableViewItems)
 	.mockResolvedValueOnce(roleItems)
 	.mockResolvedValueOnce(customObjectItems)
-	.mockResolvedValueOnce(customObjectItems)
-	.mockResolvedValueOnce(formViewItems)
-	.mockResolvedValueOnce(tableViewItems)
-	.mockResolvedValueOnce(customObjectItems)
-	.mockResolvedValueOnce(roleItems)
-	.mockResolvedValueOnce(customObjectItems)
-	.mockResolvedValueOnce(app(false))
+	.mockResolvedValueOnce(app)
 	.mockResolvedValueOnce(workflow)
 	.mockResolvedValueOnce(customObjectItems.items[0])
 	.mockResolvedValueOnce(formViewItems)
@@ -278,17 +272,11 @@ jest.mock('app-builder-web/js/utils/toast.es', () => ({
 }));
 
 describe('EditApp', () => {
-	afterEach(() => {
-		jest.restoreAllMocks();
-	});
+	describe('Creating a new app', () => {
+		let result;
 
-	describe('Changing app language and clicking on undeploy button', () => {
-		const routeProps = {
-			match: {params: {appId: '37634'}},
-		};
-
-		it('selects language and clicks on undeploy button', async () => {
-			const {getAllByText, getByText} = render(
+		it('render upper toolbar and set the app name', async () => {
+			result = render(
 				<AppContextProviderWrapper
 					appContext={appContextMock}
 					history={history}
@@ -297,94 +285,86 @@ describe('EditApp', () => {
 				</AppContextProviderWrapper>
 			);
 
-			await waitForElementToBeRemoved(() =>
-				document.querySelector('span.loading-animation')
-			);
+			const nameInput = result.getByPlaceholderText('untitled-app');
 
-			await fireEvent.click(getAllByText('en-US')[1]);
+			expect(
+				result.getByText('new-workflow-powered-app')
+			).toBeInTheDocument();
+			expect(nameInput.value).toBe('');
+			expect(result.getByText('cancel')).toBeEnabled();
+			expect(result.getByText('save')).toBeDisabled();
 
-			await fireEvent.click(getByText('undeploy'));
+			await act(async () => {
+				await fireEvent.change(nameInput, {
+					target: {value: 'Workflow App Test'},
+				});
+			});
 
-			cleanup();
+			expect(nameInput.value).toBe('Workflow App Test');
 		});
-	});
 
-	describe('Creating an app', () => {
-		let getByTextFunc;
+		it('render sidebar, workflow steps builder', async () => {
+			expect(result.getByText('step-configuration')).toBeInTheDocument();
 
-		it('renders control menu, upperToolbar, sidebar and steps components correctly when creating a new app', async () => {
-			const params = {};
-
-			const routeProps = {
-				match: {params},
-			};
-
-			const {
-				container,
-				getAllByText,
-				getAllByTitle,
-				getByDisplayValue,
-				getByLabelText,
-				getByPlaceholderText,
-				getByText,
-				getByTitle,
-				queryByText,
-			} = render(
-				<AppContextProviderWrapper
-					appContext={appContextMock}
-					history={history}
-				>
-					<EditApp {...routeProps} />
-				</AppContextProviderWrapper>
-			);
-
-			getByTextFunc = getByText;
-
-			expect(queryByText('step-configuration')).toBeTruthy();
-			expect(queryByText('new-workflow-powered-app')).toBeTruthy();
-			expect(queryByText('cancel')).toBeTruthy();
-			expect(getByText('save')).toBeDisabled();
-
-			const steps = container.querySelectorAll('.step');
+			const steps = result.container.querySelectorAll('.step');
 
 			expect(steps.length).toBe(2);
 			expect(steps[0]).toHaveTextContent('initial-step');
 			expect(steps[1]).toHaveTextContent('final-step');
 
-			let stepNameInput = container.querySelector(
+			const stepNameInput = result.container.querySelector(
 				'.form-group-outlined input'
 			);
 
 			expect(stepNameInput.value).toBe('initial-step');
+		});
 
-			const nameInput = getByPlaceholderText('untitled-app');
+		it('rename default steps', async () => {
+			expect(result.getByText('step-configuration')).toBeInTheDocument();
 
-			expect(nameInput.value).toBe('');
-
-			await fireEvent.click(getByText('data-and-views'));
-
-			expect(queryByText('step-configuration')).toBeNull();
-
-			const sidebarHeader = document.querySelector('div.tab-title');
-
-			expect(sidebarHeader.children.length).toBe(2);
-			expect(sidebarHeader.children[1]).toHaveTextContent(
-				'data-and-views'
+			const stepNameInput = result.container.querySelector(
+				'.form-group-outlined input'
 			);
+
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Created'},
+			});
+
+			expect(result.getByText('Created')).toBeInTheDocument();
+
+			await fireEvent.click(result.getByText('final-step'));
+
+			expect(stepNameInput.value).toBe('final-step');
+
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Closed'},
+			});
+
+			await fireEvent.click(result.getByText('Created'));
+
+			expect(stepNameInput.value).toBe('Created');
+		});
+
+		it('configure first step data', async () => {
+			await fireEvent.click(result.getByText('data-and-views'));
+
+			expect(
+				result.container.querySelector('div.tab-title')
+			).toHaveTextContent('data-and-views');
 
 			await waitForElementToBeRemoved(() =>
 				document.querySelector('span.loading-animation')
 			);
 
-			await fireEvent.click(getByText('Object 01'));
+			await fireEvent.click(result.getByText('Object 01'));
 
-			expect(getByLabelText('main-data-object')).toHaveTextContent(
+			expect(result.getByLabelText('main-data-object')).toHaveTextContent(
 				'Object 01'
 			);
-			expect(getByLabelText('form-view')).toHaveTextContent(
+			expect(result.getByLabelText('form-view')).toHaveTextContent(
 				'select-a-form-view'
 			);
-			expect(getByLabelText('table-view')).toHaveTextContent(
+			expect(result.getByLabelText('table-view')).toHaveTextContent(
 				'select-a-table-view'
 			);
 
@@ -392,93 +372,219 @@ describe('EditApp', () => {
 				document.querySelector('span.loading-animation')
 			);
 
-			await fireEvent.click(getByText('Table 01'));
+			await fireEvent.click(result.getByText('Form 01'));
 
-			expect(getByLabelText('table-view')).toHaveTextContent('Table 01');
+			expect(result.getByLabelText('form-view')).toHaveTextContent(
+				'Form 01'
+			);
 
-			await fireEvent.change(nameInput, {target: {value: 'Test'}});
+			await fireEvent.click(result.getByText('Form 02'));
 
-			const deployButton = getByText('deploy');
+			expect(result.getByLabelText('form-view')).toHaveTextContent(
+				'Form 02'
+			);
+
+			await fireEvent.click(result.getByText('Table 01'));
+
+			expect(result.getByLabelText('table-view')).toHaveTextContent(
+				'Table 01'
+			);
+		});
+
+		it('change app name language and set translated name', async () => {
+			const nameInput = result.getByPlaceholderText('untitled-app');
+
+			await fireEvent.click(result.getByText('pt-BR'));
+
+			await act(async () => {
+				await fireEvent.change(nameInput, {
+					target: {value: 'Workflow App Test PT'},
+				});
+			});
+
+			expect(nameInput.value).toBe('Workflow App Test PT');
+
+			await fireEvent.click(result.getByText('en-US'));
+
+			expect(nameInput.value).toBe('Workflow App Test');
+		});
+
+		it('add a new step, set the assignees and forms', async () => {
+			await fireEvent.click(result.getByTitle('create-new-step'));
+
+			expect(result.getByText('step-configuration')).toBeInTheDocument();
+
+			const deployButton = result.getByText('deploy');
 
 			expect(deployButton).toBeDisabled();
 
-			await fireEvent.click(getByTitle('create-new-step'));
-
-			stepNameInput = container.querySelector(
+			const stepNameInput = result.container.querySelector(
 				'.form-group-outlined input'
 			);
 
 			expect(stepNameInput.value).toBe('step-x');
 
-			await fireEvent.mouseDown(getByText('Account Manager'));
-
-			expect(
-				container.querySelector('.label-dismissible span')
-			).toHaveTextContent('Account Manager');
-
-			await fireEvent.click(getByText('initial-step'));
-
-			await fireEvent.click(getByText('data-and-views'));
-
-			await waitForElementToBeRemoved(() =>
-				document.querySelector('span.loading-animation')
-			);
-
-			await fireEvent.click(getByText('Form 01'));
-
-			expect(getByLabelText('form-view')).toHaveTextContent('Form 01');
-
-			expect(deployButton).toBeEnabled();
-
-			await fireEvent.click(getByText('step-x'));
-
-			await fireEvent.click(getByText('data-and-views'));
-
-			await fireEvent.click(getByText('add-new-form-view'));
-
-			const stepFormViews = container.querySelectorAll('.step-form-view');
-
-			expect(stepFormViews[0]).toHaveTextContent('Form 01');
-
-			await fireEvent.click(getAllByText('Form 02')[1]);
-
-			expect(stepFormViews[1]).toHaveTextContent('Form 02');
-
-			await fireEvent.click(getAllByTitle('remove')[1]);
-
-			await fireEvent.click(getByTitle('create-new-step'));
-
-			await fireEvent.click(getByText('actions'));
-
-			await fireEvent.change(getByDisplayValue('submit'), {
-				target: {value: 'Submit to'},
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Initial Review'},
 			});
 
-			await fireEvent.click(getByText('add-new-action'));
+			await fireEvent.mouseDown(result.getByText('Account Manager'));
 
-			await fireEvent.click(getAllByText('step-x')[0]);
-
-			await fireEvent.click(getByTitle('create-new-step'));
-
-			await fireEvent.click(getAllByText('delete-step')[1]);
-
-			await fireEvent.click(getAllByText('step-x')[1]);
-
-			await fireEvent.click(getByText('actions'));
-
-			await fireEvent.click(getByText('remove'));
-
-			await fireEvent.click(getAllByText('delete-step')[1]);
+			expect(
+				result.container.querySelector('.label-dismissible span')
+			).toHaveTextContent('Account Manager');
 
 			expect(deployButton).toBeEnabled();
 
-			await fireEvent.click(getByText('save'));
+			await fireEvent.click(result.getByText('data-and-views'));
+
+			await fireEvent.click(result.getByText('add-new-form-view'));
+
+			const stepFormViews = result.container.querySelectorAll(
+				'.step-form-view'
+			);
+
+			expect(stepFormViews[0]).toHaveTextContent('Form 02');
+
+			await fireEvent.click(result.getAllByText('editable')[0]);
+
+			await fireEvent.click(result.getAllByText('Form 01')[1]);
+
+			expect(stepFormViews[1]).toHaveTextContent('Form 01');
+
+			await fireEvent.click(result.getAllByTitle('remove')[0]);
+		});
+
+		it('add a new other step and set primary and secondary actions', async () => {
+			await fireEvent.click(result.getByTitle('create-new-step'));
+
+			const stepNameInput = result.container.querySelector(
+				'.form-group-outlined input'
+			);
+
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Secondary Review'},
+			});
+
+			await fireEvent.click(result.getByText('actions'));
+
+			const title = result.container.querySelector('div.tab-title');
+
+			expect(title).toHaveTextContent('actions');
+
+			await fireEvent.change(result.getByDisplayValue('submit'), {
+				target: {value: 'Close'},
+			});
+
+			await fireEvent.click(result.getByText('add-new-action'));
+
+			await fireEvent.click(result.getByText('remove'));
+
+			await fireEvent.click(result.getByText('add-new-action'));
+
+			await fireEvent.change(
+				result.getByDisplayValue('secondary-action'),
+				{target: {value: 'Reject'}}
+			);
+
+			const backButton = title.children[0];
+
+			await fireEvent.click(backButton);
+
+			expect(result.getByText('Close → Closed')).toBeInTheDocument();
+			expect(
+				result.getByText('Reject → Initial Review')
+			).toBeInTheDocument();
+		});
+
+		it('add a new intermediate step and remove', async () => {
+			await fireEvent.click(result.getByText('Initial Review'));
+
+			await fireEvent.click(result.getByTitle('create-new-step'));
+
+			const stepNameInput = result.container.querySelector(
+				'.form-group-outlined input'
+			);
+
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Intermediate'},
+			});
+
+			await fireEvent.click(result.getByText('Initial Review'));
+
+			expect(
+				result.getByText('submit → Intermediate')
+			).toBeInTheDocument();
+
+			await fireEvent.click(result.getByText('Secondary Review'));
+
+			expect(result.getByText('Close → Closed')).toBeInTheDocument();
+			expect(
+				result.getByText('Reject → Intermediate')
+			).toBeInTheDocument();
+
+			await fireEvent.click(result.getAllByText('delete-step')[1]);
+
+			expect(result.getByText('Close → Closed')).toBeInTheDocument();
+			expect(
+				result.getByText('Reject → Initial Review')
+			).toBeInTheDocument();
+		});
+
+		it('renaming steps and validate actions', async () => {
+			await fireEvent.click(result.getByText('Initial Review'));
+
+			const stepNameInput = result.container.querySelector(
+				'.form-group-outlined input'
+			);
+
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Review'},
+			});
+
+			await fireEvent.click(result.getByText('Closed'));
+
+			await fireEvent.change(stepNameInput, {
+				target: {value: 'Finished'},
+			});
+
+			await fireEvent.click(result.getByText('Secondary Review'));
+
+			expect(result.getByText('Close → Finished')).toBeInTheDocument();
+			expect(result.getByText('Reject → Review')).toBeInTheDocument();
+		});
+
+		it('delete the created steps and save', async () => {
+			const saveButton = result.getByText('save');
+			let steps = result.container.querySelectorAll('.step');
+
+			expect(saveButton).toBeDisabled();
+			expect(steps.length).toBe(4);
+
+			await fireEvent.click(result.getAllByText('delete-step')[1]);
+
+			steps = result.container.querySelectorAll('.step');
+
+			expect(steps.length).toBe(3);
+
+			await fireEvent.click(result.getByText('Review'));
+
+			expect(result.getByText('submit → Finished')).toBeInTheDocument();
+
+			await fireEvent.click(result.getByText('delete-step'));
+
+			steps = result.container.querySelectorAll('.step');
+
+			expect(steps.length).toBe(2);
+			expect(saveButton).toBeEnabled();
+
+			await fireEvent.click(saveButton);
 		});
 
 		it('calls error toast after saving', async () => {
 			expect(mockToast).toHaveBeenCalledWith(errorMessage);
 
-			await fireEvent.click(getByTextFunc('save'));
+			await fireEvent.click(result.getByText('save'));
 		});
 
 		it('calls success toast after saving', () => {
@@ -492,14 +598,12 @@ describe('EditApp', () => {
 	});
 
 	describe('Editing an existing app', () => {
-		const routeProps = {
-			match: {params: {appId: '37634'}},
-		};
+		let result;
 
-		let container, getByLabelText, getByPlaceholderText, getByText;
+		it('render upper toolbar', async () => {
+			routeProps.match.params.appId = '37634';
 
-		beforeAll(() => {
-			const renderResult = render(
+			result = render(
 				<AppContextProviderWrapper
 					appContext={appContextMock}
 					history={history}
@@ -508,31 +612,37 @@ describe('EditApp', () => {
 				</AppContextProviderWrapper>
 			);
 
-			container = renderResult.container;
-			getByLabelText = renderResult.getByLabelText;
-			getByPlaceholderText = renderResult.getByPlaceholderText;
-			getByText = renderResult.getByText;
-		});
+			expect(
+				result.getByText('edit-workflow-powered-app')
+			).toBeInTheDocument();
 
-		it('renders upperToolbar and data and views with respective infos when editing an app', async () => {
 			await waitForElementToBeRemoved(() =>
 				document.querySelector('span.loading-animation')
 			);
 
-			const steps = container.querySelectorAll('.step-card');
+			expect(result.getByText('cancel')).toBeEnabled();
+			expect(result.getByText('save')).toBeEnabled();
+			expect(result.getByText('deploy')).toBeEnabled();
+			expect(result.getByPlaceholderText('untitled-app').value).toBe(
+				'Test'
+			);
+		});
+
+		it('render sidebar, workflow steps builder', async () => {
+			const steps = result.container.querySelectorAll('.step-card');
 
 			expect(steps.length).toBe(3);
 			expect(steps[0]).toHaveTextContent('Start');
 			expect(steps[1]).toHaveTextContent('Step 1');
 			expect(steps[2]).toHaveTextContent('Closed');
 
-			let stepNameInput = container.querySelector(
+			let stepNameInput = result.container.querySelector(
 				'.form-group-outlined input'
 			);
 
 			expect(stepNameInput.value).toBe('Start');
 
-			const dataAndViewsButton = container.querySelectorAll(
+			const dataAndViewsButton = result.container.querySelectorAll(
 				'.sidebar-body button'
 			)[0];
 
@@ -545,35 +655,38 @@ describe('EditApp', () => {
 				document.querySelector('span.loading-animation')
 			);
 
-			expect(getByPlaceholderText('untitled-app').value).toBe('Test');
-			expect(getByLabelText('main-data-object')).toHaveTextContent(
+			expect(result.getByLabelText('main-data-object')).toHaveTextContent(
 				'Object 01'
 			);
-			expect(getByLabelText('form-view')).toHaveTextContent('Form 01');
-			expect(getByLabelText('table-view')).toHaveTextContent('Table 01');
-			expect(getByText('deploy')).toBeEnabled();
+			expect(result.getByLabelText('form-view')).toHaveTextContent(
+				'Form 01'
+			);
+			expect(result.getByLabelText('table-view')).toHaveTextContent(
+				'Table 01'
+			);
 
 			await fireEvent.click(steps[1]);
 
-			expect(container.querySelector('h3.title')).toHaveTextContent(
-				'step-configuration'
-			);
+			expect(result.getByText('step-configuration')).toBeInTheDocument();
 			expect(
-				container.querySelector('.label-dismissible span')
+				result.container.querySelector('.label-dismissible span')
 			).toHaveTextContent('Account Manager');
 			expect(
-				container.querySelectorAll('.tab-button span')[1].parentElement
+				result.container.querySelectorAll('.tab-button span')[1]
+					.parentElement
 			).toHaveTextContent('Form 01');
 
-			stepNameInput = container.querySelector(
+			stepNameInput = result.container.querySelector(
 				'.form-group-outlined input'
 			);
 
 			expect(stepNameInput.value).toBe('Step 1');
+		});
 
-			await fireEvent.click(steps[2]);
+		it('rename final step', async () => {
+			await fireEvent.click(result.getByText('Closed'));
 
-			stepNameInput = container.querySelector(
+			const stepNameInput = result.container.querySelector(
 				'.form-group-outlined input'
 			);
 
@@ -581,20 +694,27 @@ describe('EditApp', () => {
 
 			await fireEvent.change(stepNameInput, {target: {value: 'End'}});
 
-			expect(stepNameInput.value).toBe('End');
-			expect(steps[2]).toHaveTextContent('End');
-
-			await fireEvent.click(getByText('save'));
+			expect(result.getByText('End')).toBeInTheDocument();
 		});
 
-		it('clicks cancel and navigate to list apps', async () => {
+		it('update deploy settings and save', async () => {
 			jest.useFakeTimers();
 
-			act(() => {
-				jest.runAllTimers();
+			await fireEvent.click(result.getByText('deploy'));
+
+			await act(async () => {
+				await jest.runAllTimers();
 			});
 
-			await fireEvent.click(getByText('cancel'));
+			await act(async () => {
+				await fireEvent.click(result.getByText('done'));
+			});
+		});
+
+		it('calls success toast after saving', () => {
+			expect(mockToast).toHaveBeenCalledWith(
+				'the-app-was-saved-successfully'
+			);
 
 			expect(history.push).toHaveBeenCalled();
 		});
