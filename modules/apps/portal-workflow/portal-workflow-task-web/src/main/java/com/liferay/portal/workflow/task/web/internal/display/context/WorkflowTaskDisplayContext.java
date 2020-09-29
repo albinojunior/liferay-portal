@@ -344,14 +344,19 @@ public class WorkflowTaskDisplayContext {
 	public String getPreviewOfTitle(WorkflowTask workflowTask)
 		throws PortalException {
 
-		String className = _getWorkflowContextEntryClassName(workflowTask);
+		HttpServletRequest httpServletRequest =
+			_workflowTaskRequestHelper.getRequest();
 
-		String modelResource = ResourceActionsUtil.getModelResource(
-			getTaskContentLocale(), className);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		return LanguageUtil.format(
-			_workflowTaskRequestHelper.getRequest(), "preview-of-x",
-			modelResource, false);
+			themeDisplay.getLocale(), "preview-of-x",
+			ResourceActionsUtil.getModelResource(
+				themeDisplay.getLocale(),
+				_getWorkflowContextEntryClassName(workflowTask)),
+			false);
 	}
 
 	public String getPreviousAssigneeMessageArguments(WorkflowLog workflowLog) {
