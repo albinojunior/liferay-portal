@@ -13,7 +13,7 @@ import React from 'react';
 
 const ButtonInfo = ({items}) => {
 	return (
-		<div className="small text-secondary">
+		<small className="button-info">
 			{items.map(
 				({label, name}, index) =>
 					name && (
@@ -23,7 +23,7 @@ const ButtonInfo = ({items}) => {
 						</div>
 					)
 			)}
-		</div>
+		</small>
 	);
 };
 

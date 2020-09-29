@@ -131,6 +131,7 @@ $navbarHeight: 120px;
 			padding: 1rem;
 			position: relative;
 			width: 392px;
+			word-break: break-all;
 
 			&:hover {
 				border: 2px solid #80acff;
@@ -182,6 +183,11 @@ $navbarHeight: 120px;
 
 .border-error {
 	border-color: #da1414 !important;
+}
+
+.button-info {
+	color: #6b6c7e;
+	word-break: break-all;
 }
 
 .circle-icon {

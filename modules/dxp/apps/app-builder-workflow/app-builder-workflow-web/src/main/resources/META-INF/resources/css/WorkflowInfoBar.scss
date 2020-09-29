@@ -7,6 +7,10 @@
 		border-radius: 4px;
 		font-size: 0.875rem;
 		margin: 0 1rem;
+		max-width: 30%;
+		overflow: hidden;
 		padding: 0.25rem 0.5rem;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 }

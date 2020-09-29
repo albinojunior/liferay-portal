@@ -49,6 +49,11 @@ export default function WorkflowInfo({
 		assignee = roleNames.length ? concatValues(roleNames) : emptyValue;
 	}
 
+	const tooltipProps = {
+		'data-tooltip-align': 'bottom',
+		'data-tooltip-delay': '0',
+	};
+
 	const items = [
 		{
 			label: Liferay.Language.get('status'),
@@ -63,15 +68,18 @@ export default function WorkflowInfo({
 		{
 			label: Liferay.Language.get('assignee'),
 			show: !hideColumns.includes('assignee'),
+			tooltip: {
+				title: assignee,
+				...tooltipProps,
+			},
 			value: assignee,
 		},
 		{
 			label: Liferay.Language.get('version'),
 			show: !hideColumns.includes('status'),
 			tooltip: {
-				'data-tooltip-align': 'bottom',
-				'data-tooltip-delay': '0',
 				title: Liferay.Language.get('app-version'),
+				...tooltipProps,
 			},
 			value: appVersion ?? '1.0',
 		},
