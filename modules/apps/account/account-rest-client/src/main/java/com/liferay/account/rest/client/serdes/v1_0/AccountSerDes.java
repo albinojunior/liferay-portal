@@ -91,6 +91,20 @@ public class AccountSerDes {
 			sb.append("]");
 		}
 
+		if (account.getExternalReferenceCode() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"externalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(account.getExternalReferenceCode()));
+
+			sb.append("\"");
+		}
+
 		if (account.getId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -113,6 +127,26 @@ public class AccountSerDes {
 			sb.append(_escape(account.getName()));
 
 			sb.append("\"");
+		}
+
+		if (account.getOrganizationIds() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"organizationIds\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < account.getOrganizationIds().length; i++) {
+				sb.append(account.getOrganizationIds()[i]);
+
+				if ((i + 1) < account.getOrganizationIds().length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (account.getParentAccountId() != null) {
@@ -167,6 +201,15 @@ public class AccountSerDes {
 			map.put("domains", String.valueOf(account.getDomains()));
 		}
 
+		if (account.getExternalReferenceCode() == null) {
+			map.put("externalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"externalReferenceCode",
+				String.valueOf(account.getExternalReferenceCode()));
+		}
+
 		if (account.getId() == null) {
 			map.put("id", null);
 		}
@@ -179,6 +222,15 @@ public class AccountSerDes {
 		}
 		else {
 			map.put("name", String.valueOf(account.getName()));
+		}
+
+		if (account.getOrganizationIds() == null) {
+			map.put("organizationIds", null);
+		}
+		else {
+			map.put(
+				"organizationIds",
+				String.valueOf(account.getOrganizationIds()));
 		}
 
 		if (account.getParentAccountId() == null) {
@@ -228,6 +280,14 @@ public class AccountSerDes {
 						toStrings((Object[])jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
+				if (jsonParserFieldValue != null) {
+					account.setExternalReferenceCode(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
 					account.setId(Long.valueOf((String)jsonParserFieldValue));
@@ -236,6 +296,12 @@ public class AccountSerDes {
 			else if (Objects.equals(jsonParserFieldName, "name")) {
 				if (jsonParserFieldValue != null) {
 					account.setName((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "organizationIds")) {
+				if (jsonParserFieldValue != null) {
+					account.setOrganizationIds(
+						toLongs((Object[])jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "parentAccountId")) {
@@ -250,9 +316,8 @@ public class AccountSerDes {
 						Integer.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -308,10 +373,13 @@ public class AccountSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

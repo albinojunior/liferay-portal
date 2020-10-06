@@ -22,15 +22,22 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Generated;
+
+import javax.validation.Valid;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -44,21 +51,55 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Task")
 public class Task {
 
-	@Schema
-	public Long getBreachedInstanceCount() {
-		return breachedInstanceCount;
+	public static Task toDTO(String json) {
+		return ObjectMapperUtil.readValue(Task.class, json);
 	}
 
-	public void setBreachedInstanceCount(Long breachedInstanceCount) {
-		this.breachedInstanceCount = breachedInstanceCount;
+	@Schema
+	public String getAssetTitle() {
+		return assetTitle;
+	}
+
+	public void setAssetTitle(String assetTitle) {
+		this.assetTitle = assetTitle;
 	}
 
 	@JsonIgnore
-	public void setBreachedInstanceCount(
-		UnsafeSupplier<Long, Exception> breachedInstanceCountUnsafeSupplier) {
+	public void setAssetTitle(
+		UnsafeSupplier<String, Exception> assetTitleUnsafeSupplier) {
 
 		try {
-			breachedInstanceCount = breachedInstanceCountUnsafeSupplier.get();
+			assetTitle = assetTitleUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String assetTitle;
+
+	@Schema
+	@Valid
+	public Map<String, String> getAssetTitle_i18n() {
+		return assetTitle_i18n;
+	}
+
+	public void setAssetTitle_i18n(Map<String, String> assetTitle_i18n) {
+		this.assetTitle_i18n = assetTitle_i18n;
+	}
+
+	@JsonIgnore
+	public void setAssetTitle_i18n(
+		UnsafeSupplier<Map<String, String>, Exception>
+			assetTitle_i18nUnsafeSupplier) {
+
+		try {
+			assetTitle_i18n = assetTitle_i18nUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -70,27 +111,53 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long breachedInstanceCount;
+	protected Map<String, String> assetTitle_i18n;
 
 	@Schema
-	public Double getBreachedInstancePercentage() {
-		return breachedInstancePercentage;
+	public String getAssetType() {
+		return assetType;
 	}
 
-	public void setBreachedInstancePercentage(
-		Double breachedInstancePercentage) {
-
-		this.breachedInstancePercentage = breachedInstancePercentage;
+	public void setAssetType(String assetType) {
+		this.assetType = assetType;
 	}
 
 	@JsonIgnore
-	public void setBreachedInstancePercentage(
-		UnsafeSupplier<Double, Exception>
-			breachedInstancePercentageUnsafeSupplier) {
+	public void setAssetType(
+		UnsafeSupplier<String, Exception> assetTypeUnsafeSupplier) {
 
 		try {
-			breachedInstancePercentage =
-				breachedInstancePercentageUnsafeSupplier.get();
+			assetType = assetTypeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String assetType;
+
+	@Schema
+	@Valid
+	public Map<String, String> getAssetType_i18n() {
+		return assetType_i18n;
+	}
+
+	public void setAssetType_i18n(Map<String, String> assetType_i18n) {
+		this.assetType_i18n = assetType_i18n;
+	}
+
+	@JsonIgnore
+	public void setAssetType_i18n(
+		UnsafeSupplier<Map<String, String>, Exception>
+			assetType_i18nUnsafeSupplier) {
+
+		try {
+			assetType_i18n = assetType_i18nUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -102,23 +169,24 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Double breachedInstancePercentage;
+	protected Map<String, String> assetType_i18n;
 
 	@Schema
-	public Long getDurationAvg() {
-		return durationAvg;
+	@Valid
+	public Assignee getAssignee() {
+		return assignee;
 	}
 
-	public void setDurationAvg(Long durationAvg) {
-		this.durationAvg = durationAvg;
+	public void setAssignee(Assignee assignee) {
+		this.assignee = assignee;
 	}
 
 	@JsonIgnore
-	public void setDurationAvg(
-		UnsafeSupplier<Long, Exception> durationAvgUnsafeSupplier) {
+	public void setAssignee(
+		UnsafeSupplier<Assignee, Exception> assigneeUnsafeSupplier) {
 
 		try {
-			durationAvg = durationAvgUnsafeSupplier.get();
+			assignee = assigneeUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -130,23 +198,23 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long durationAvg;
+	protected Assignee assignee;
 
 	@Schema
-	public Long getInstanceCount() {
-		return instanceCount;
+	public String getClassName() {
+		return className;
 	}
 
-	public void setInstanceCount(Long instanceCount) {
-		this.instanceCount = instanceCount;
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 	@JsonIgnore
-	public void setInstanceCount(
-		UnsafeSupplier<Long, Exception> instanceCountUnsafeSupplier) {
+	public void setClassName(
+		UnsafeSupplier<String, Exception> classNameUnsafeSupplier) {
 
 		try {
-			instanceCount = instanceCountUnsafeSupplier.get();
+			className = classNameUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -158,21 +226,23 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long instanceCount;
+	protected String className;
 
 	@Schema
-	public String getKey() {
-		return key;
+	public Long getClassPK() {
+		return classPK;
 	}
 
-	public void setKey(String key) {
-		this.key = key;
+	public void setClassPK(Long classPK) {
+		this.classPK = classPK;
 	}
 
 	@JsonIgnore
-	public void setKey(UnsafeSupplier<String, Exception> keyUnsafeSupplier) {
+	public void setClassPK(
+		UnsafeSupplier<Long, Exception> classPKUnsafeSupplier) {
+
 		try {
-			key = keyUnsafeSupplier.get();
+			classPK = classPKUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -184,7 +254,257 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String key;
+	protected Long classPK;
+
+	@Schema
+	public Boolean getCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(Boolean completed) {
+		this.completed = completed;
+	}
+
+	@JsonIgnore
+	public void setCompleted(
+		UnsafeSupplier<Boolean, Exception> completedUnsafeSupplier) {
+
+		try {
+			completed = completedUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean completed;
+
+	@Schema
+	public Long getCompletionUserId() {
+		return completionUserId;
+	}
+
+	public void setCompletionUserId(Long completionUserId) {
+		this.completionUserId = completionUserId;
+	}
+
+	@JsonIgnore
+	public void setCompletionUserId(
+		UnsafeSupplier<Long, Exception> completionUserIdUnsafeSupplier) {
+
+		try {
+			completionUserId = completionUserIdUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long completionUserId;
+
+	@Schema
+	public Date getDateCompletion() {
+		return dateCompletion;
+	}
+
+	public void setDateCompletion(Date dateCompletion) {
+		this.dateCompletion = dateCompletion;
+	}
+
+	@JsonIgnore
+	public void setDateCompletion(
+		UnsafeSupplier<Date, Exception> dateCompletionUnsafeSupplier) {
+
+		try {
+			dateCompletion = dateCompletionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date dateCompletion;
+
+	@Schema
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	@JsonIgnore
+	public void setDateCreated(
+		UnsafeSupplier<Date, Exception> dateCreatedUnsafeSupplier) {
+
+		try {
+			dateCreated = dateCreatedUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date dateCreated;
+
+	@Schema
+	public Date getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(Date dateModified) {
+		this.dateModified = dateModified;
+	}
+
+	@JsonIgnore
+	public void setDateModified(
+		UnsafeSupplier<Date, Exception> dateModifiedUnsafeSupplier) {
+
+		try {
+			dateModified = dateModifiedUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date dateModified;
+
+	@Schema
+	public Long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
+
+	@JsonIgnore
+	public void setDuration(
+		UnsafeSupplier<Long, Exception> durationUnsafeSupplier) {
+
+		try {
+			duration = durationUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long duration;
+
+	@Schema
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	@JsonIgnore
+	public void setId(UnsafeSupplier<Long, Exception> idUnsafeSupplier) {
+		try {
+			id = idUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long id;
+
+	@Schema
+	public Long getInstanceId() {
+		return instanceId;
+	}
+
+	public void setInstanceId(Long instanceId) {
+		this.instanceId = instanceId;
+	}
+
+	@JsonIgnore
+	public void setInstanceId(
+		UnsafeSupplier<Long, Exception> instanceIdUnsafeSupplier) {
+
+		try {
+			instanceId = instanceIdUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long instanceId;
+
+	@Schema
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	@JsonIgnore
+	public void setLabel(
+		UnsafeSupplier<String, Exception> labelUnsafeSupplier) {
+
+		try {
+			label = labelUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String label;
 
 	@Schema
 	public String getName() {
@@ -213,20 +533,20 @@ public class Task {
 	protected String name;
 
 	@Schema
-	public Long getOnTimeInstanceCount() {
-		return onTimeInstanceCount;
+	public Long getNodeId() {
+		return nodeId;
 	}
 
-	public void setOnTimeInstanceCount(Long onTimeInstanceCount) {
-		this.onTimeInstanceCount = onTimeInstanceCount;
+	public void setNodeId(Long nodeId) {
+		this.nodeId = nodeId;
 	}
 
 	@JsonIgnore
-	public void setOnTimeInstanceCount(
-		UnsafeSupplier<Long, Exception> onTimeInstanceCountUnsafeSupplier) {
+	public void setNodeId(
+		UnsafeSupplier<Long, Exception> nodeIdUnsafeSupplier) {
 
 		try {
-			onTimeInstanceCount = onTimeInstanceCountUnsafeSupplier.get();
+			nodeId = nodeIdUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -238,23 +558,23 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long onTimeInstanceCount;
+	protected Long nodeId;
 
 	@Schema
-	public Long getOverdueInstanceCount() {
-		return overdueInstanceCount;
+	public Long getProcessId() {
+		return processId;
 	}
 
-	public void setOverdueInstanceCount(Long overdueInstanceCount) {
-		this.overdueInstanceCount = overdueInstanceCount;
+	public void setProcessId(Long processId) {
+		this.processId = processId;
 	}
 
 	@JsonIgnore
-	public void setOverdueInstanceCount(
-		UnsafeSupplier<Long, Exception> overdueInstanceCountUnsafeSupplier) {
+	public void setProcessId(
+		UnsafeSupplier<Long, Exception> processIdUnsafeSupplier) {
 
 		try {
-			overdueInstanceCount = overdueInstanceCountUnsafeSupplier.get();
+			processId = processIdUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -266,7 +586,35 @@ public class Task {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long overdueInstanceCount;
+	protected Long processId;
+
+	@Schema
+	public String getProcessVersion() {
+		return processVersion;
+	}
+
+	public void setProcessVersion(String processVersion) {
+		this.processVersion = processVersion;
+	}
+
+	@JsonIgnore
+	public void setProcessVersion(
+		UnsafeSupplier<String, Exception> processVersionUnsafeSupplier) {
+
+		try {
+			processVersion = processVersionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String processVersion;
 
 	@Override
 	public boolean equals(Object object) {
@@ -295,56 +643,193 @@ public class Task {
 
 		sb.append("{");
 
-		if (breachedInstanceCount != null) {
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		if (assetTitle != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"breachedInstanceCount\": ");
-
-			sb.append(breachedInstanceCount);
-		}
-
-		if (breachedInstancePercentage != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"breachedInstancePercentage\": ");
-
-			sb.append(breachedInstancePercentage);
-		}
-
-		if (durationAvg != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"durationAvg\": ");
-
-			sb.append(durationAvg);
-		}
-
-		if (instanceCount != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"instanceCount\": ");
-
-			sb.append(instanceCount);
-		}
-
-		if (key != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"key\": ");
+			sb.append("\"assetTitle\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(key));
+			sb.append(_escape(assetTitle));
+
+			sb.append("\"");
+		}
+
+		if (assetTitle_i18n != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetTitle_i18n\": ");
+
+			sb.append(_toJSON(assetTitle_i18n));
+		}
+
+		if (assetType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetType\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(assetType));
+
+			sb.append("\"");
+		}
+
+		if (assetType_i18n != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetType_i18n\": ");
+
+			sb.append(_toJSON(assetType_i18n));
+		}
+
+		if (assignee != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assignee\": ");
+
+			sb.append(String.valueOf(assignee));
+		}
+
+		if (className != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"className\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(className));
+
+			sb.append("\"");
+		}
+
+		if (classPK != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"classPK\": ");
+
+			sb.append(classPK);
+		}
+
+		if (completed != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"completed\": ");
+
+			sb.append(completed);
+		}
+
+		if (completionUserId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"completionUserId\": ");
+
+			sb.append(completionUserId);
+		}
+
+		if (dateCompletion != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateCompletion\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateCompletion));
+
+			sb.append("\"");
+		}
+
+		if (dateCreated != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateCreated\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateCreated));
+
+			sb.append("\"");
+		}
+
+		if (dateModified != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateModified\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateModified));
+
+			sb.append("\"");
+		}
+
+		if (duration != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"duration\": ");
+
+			sb.append(duration);
+		}
+
+		if (id != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"id\": ");
+
+			sb.append(id);
+		}
+
+		if (instanceId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"instanceId\": ");
+
+			sb.append(instanceId);
+		}
+
+		if (label != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"label\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(label));
 
 			sb.append("\"");
 		}
@@ -363,24 +848,38 @@ public class Task {
 			sb.append("\"");
 		}
 
-		if (onTimeInstanceCount != null) {
+		if (nodeId != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"onTimeInstanceCount\": ");
+			sb.append("\"nodeId\": ");
 
-			sb.append(onTimeInstanceCount);
+			sb.append(nodeId);
 		}
 
-		if (overdueInstanceCount != null) {
+		if (processId != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"overdueInstanceCount\": ");
+			sb.append("\"processId\": ");
 
-			sb.append(overdueInstanceCount);
+			sb.append(processId);
+		}
+
+		if (processVersion != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"processVersion\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(processVersion));
+
+			sb.append("\"");
 		}
 
 		sb.append("}");
@@ -400,6 +899,16 @@ public class Task {
 		return string.replaceAll("\"", "\\\\\"");
 	}
 
+	private static boolean _isArray(Object value) {
+		if (value == null) {
+			return false;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		return clazz.isArray();
+	}
+
 	private static String _toJSON(Map<String, ?> map) {
 		StringBuilder sb = new StringBuilder("{");
 
@@ -415,9 +924,42 @@ public class Task {
 			sb.append("\"");
 			sb.append(entry.getKey());
 			sb.append("\":");
-			sb.append("\"");
-			sb.append(entry.getValue());
-			sb.append("\"");
+
+			Object value = entry.getValue();
+
+			if (_isArray(value)) {
+				sb.append("[");
+
+				Object[] valueArray = (Object[])value;
+
+				for (int i = 0; i < valueArray.length; i++) {
+					if (valueArray[i] instanceof String) {
+						sb.append("\"");
+						sb.append(valueArray[i]);
+						sb.append("\"");
+					}
+					else {
+						sb.append(valueArray[i]);
+					}
+
+					if ((i + 1) < valueArray.length) {
+						sb.append(", ");
+					}
+				}
+
+				sb.append("]");
+			}
+			else if (value instanceof Map) {
+				sb.append(_toJSON((Map<String, ?>)value));
+			}
+			else if (value instanceof String) {
+				sb.append("\"");
+				sb.append(value);
+				sb.append("\"");
+			}
+			else {
+				sb.append(value);
+			}
 
 			if (iterator.hasNext()) {
 				sb.append(",");

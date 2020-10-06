@@ -14,11 +14,11 @@ definition {
 		Page.tearDownCP();
 	}
 
+	@ignore = "true"
 	@priority = "4"
 	test ViewCacheConfiguration {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Test Cache Configuration Page");

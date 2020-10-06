@@ -1,7 +1,8 @@
 buildscript {
 	dependencies {
-		classpath(group: "com.liferay", name: "com.liferay.gradle.plugins", version: "4.5.43") {
+		classpath(group: "com.liferay", name: "com.liferay.gradle.plugins", version: "11.0.59") {
 			exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
+			exclude group: "com.liferay", module: "com.liferay.gradle.util"
 		}
 	}
 

@@ -39,6 +39,10 @@ public class CompanyInfoLocalServiceUtil {
 	/**
 	 * Adds the company info to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was added
 	 */
@@ -73,6 +77,10 @@ public class CompanyInfoLocalServiceUtil {
 	/**
 	 * Deletes the company info from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was removed
 	 */
@@ -84,6 +92,10 @@ public class CompanyInfoLocalServiceUtil {
 
 	/**
 	 * Deletes the company info with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyInfoId the primary key of the company info
 	 * @return the company info that was removed
@@ -105,6 +117,12 @@ public class CompanyInfoLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -278,6 +296,10 @@ public class CompanyInfoLocalServiceUtil {
 
 	/**
 	 * Updates the company info in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was updated

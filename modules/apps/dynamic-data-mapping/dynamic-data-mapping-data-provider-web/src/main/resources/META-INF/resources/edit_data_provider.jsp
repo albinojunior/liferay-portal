@@ -24,8 +24,6 @@ DDMDataProviderInstance ddmDataProviderInstance = ddmDataProviderDisplayContext.
 long dataProviderInstanceId = BeanParamUtil.getLong(ddmDataProviderInstance, request, "dataProviderInstanceId");
 
 long groupId = BeanParamUtil.getLong(ddmDataProviderInstance, request, "groupId", scopeGroupId);
-String name = BeanParamUtil.getString(ddmDataProviderInstance, request, "name");
-String description = BeanParamUtil.getString(ddmDataProviderInstance, request, "description");
 String type = BeanParamUtil.getString(ddmDataProviderInstance, request, "type");
 
 portletDisplay.setShowBackIcon(true);
@@ -51,7 +49,9 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 
 	<%@ include file="/exceptions.jspf" %>
 
-	<div class="container-fluid-1280 lfr-ddm-edit-data-provider">
+	<clay:container-fluid
+		cssClass="lfr-ddm-edit-data-provider"
+	>
 		<aui:fieldset-group markupView="lexicon">
 			<aui:fieldset>
 				<liferay-util:buffer
@@ -60,7 +60,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 					<span class="hide-accessible"><liferay-ui:message key="required" />&nbsp;</span>
 
 					<svg aria-hidden="true" class="lexicon-icon lexicon-icon-asterisk reference-mark">
-						<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#asterisk" />
+						<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#asterisk" />
 					</svg>
 				</liferay-util:buffer>
 
@@ -85,16 +85,16 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 				</aui:fieldset>
 			</c:if>
 		</aui:fieldset-group>
-	</div>
+	</clay:container-fluid>
 
 	<c:if test="<%= !windowState.equals(LiferayWindowState.POP_UP) %>">
-		<div class="container-fluid-1280">
+		<clay:container-fluid>
 			<aui:button-row>
 				<aui:button id="submit" label="save" type="submit" />
 
 				<aui:button href="<%= redirect %>" name="cancelButton" type="cancel" />
 			</aui:button-row>
-		</div>
+		</clay:container-fluid>
 	</c:if>
 
 	<aui:button cssClass="hide" type="submit" />
@@ -115,7 +115,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 						cssClass: 'btn-primary',
 						label: '<liferay-ui:message key="save" />',
 						on: {
-							click: function() {
+							click: function () {
 								document.<portlet:namespace />fm.submit();
 							},
 						},
@@ -124,7 +124,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 						cssClass: 'btn-link',
 						label: '<liferay-ui:message key="cancel" />',
 						on: {
-							click: function() {
+							click: function () {
 								location.href = '<%= viewDataProviderURL.toString() %>';
 							},
 						},

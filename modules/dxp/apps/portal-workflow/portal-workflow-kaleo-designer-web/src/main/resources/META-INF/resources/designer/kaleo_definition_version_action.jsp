@@ -42,28 +42,33 @@ String kaleoNamespace = PortalUtil.getPortletNamespace(KaleoDesignerPortletKeys.
 	message="<%= StringPool.BLANK %>"
 	showWhenSingleIcon="<%= true %>"
 >
-	<liferay-portlet:renderURL portletName="<%= KaleoDesignerPortletKeys.KALEO_DESIGNER %>" var="editURL">
-		<portlet:param name="mvcPath" value='<%= "/designer/edit_kaleo_definition_version.jsp" %>' />
+	<liferay-portlet:renderURL portletName="<%= KaleoDesignerPortletKeys.KALEO_DESIGNER %>" var="viewURL">
+		<portlet:param name="mvcPath" value="/designer/edit_kaleo_definition_version.jsp" />
 		<portlet:param name="redirect" value="<%= currentURL %>" />
 		<portlet:param name="name" value="<%= kaleoDefinitionVersion.getName() %>" />
 		<portlet:param name="draftVersion" value="<%= kaleoDefinitionVersion.getVersion() %>" />
+		<portlet:param name="<%= WorkflowWebKeys.WORKFLOW_JSP_STATE %>" value="view" />
 	</liferay-portlet:renderURL>
 
-	<c:choose>
-		<c:when test="<%= KaleoDefinitionVersionPermission.contains(permissionChecker, kaleoDefinitionVersion, ActionKeys.UPDATE) %>">
-			<liferay-ui:icon
-				message="edit"
-				method="get"
-				url="<%= editURL %>"
-			/>
-		</c:when>
-		<c:otherwise>
-			<liferay-ui:icon
-				message="view"
-				url="<%= editURL %>"
-			/>
-		</c:otherwise>
-	</c:choose>
+	<liferay-ui:icon
+		message="view"
+		url="<%= viewURL %>"
+	/>
+
+	<c:if test="<%= KaleoDefinitionVersionPermission.contains(permissionChecker, kaleoDefinitionVersion, ActionKeys.UPDATE) %>">
+		<liferay-portlet:renderURL portletName="<%= KaleoDesignerPortletKeys.KALEO_DESIGNER %>" var="editURL">
+			<portlet:param name="mvcPath" value='<%= "/designer/edit_kaleo_definition_version.jsp" %>' />
+			<portlet:param name="redirect" value="<%= currentURL %>" />
+			<portlet:param name="name" value="<%= kaleoDefinitionVersion.getName() %>" />
+			<portlet:param name="draftVersion" value="<%= kaleoDefinitionVersion.getVersion() %>" />
+		</liferay-portlet:renderURL>
+
+		<liferay-ui:icon
+			message="edit"
+			method="get"
+			url="<%= editURL %>"
+		/>
+	</c:if>
 
 	<c:if test="<%= (kaleoDefinition != null) && kaleoDesignerDisplayContext.canPublishWorkflowDefinition() %>">
 		<liferay-ui:icon
@@ -115,7 +120,7 @@ String kaleoNamespace = PortalUtil.getPortletNamespace(KaleoDesignerPortletKeys.
 
 				<liferay-ui:icon
 					message="delete"
-					onClick='<%= renderResponse.getNamespace() + "confirmDeleteDefinition('" + deleteURL + "'); return false;" %>'
+					onClick='<%= liferayPortletResponse.getNamespace() + "confirmDeleteDefinition('" + deleteURL + "'); return false;" %>'
 					url="<%= deleteURL %>"
 				/>
 			</c:if>
@@ -130,18 +135,27 @@ String kaleoNamespace = PortalUtil.getPortletNamespace(KaleoDesignerPortletKeys.
 			<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 			<aui:input name="name" type="hidden" value="<%= PortalUUIDUtil.generate() %>" />
 			<aui:input name="content" type="hidden" value="<%= kaleoDefinition.getContent() %>" />
-			<aui:input name="duplicatedDefinitionTitle" type="hidden" value="<%= kaleoDefinition.getTitle(LanguageUtil.getLanguageId(request)) %>" />
 			<aui:input name="defaultDuplicationTitle" type="hidden" value="<%= duplicateTitle %>" />
 			<aui:input name="duplicatedDefinitionName" type="hidden" value="<%= kaleoDefinition.getName() %>" />
+			<aui:input name="duplicatedDefinitionTitle" type="hidden" value="<%= kaleoDefinition.getTitle(LanguageUtil.getLanguageId(request)) %>" />
 
 			<aui:fieldset>
-				<aui:col>
-					<aui:input label="title" name='<%= randomNamespace + "title" %>' placeholder="<%= duplicateTitle %>" type="text" />
-				</aui:col>
+				<clay:col
+					size="12"
+				>
+					<aui:field-wrapper label="title">
+						<liferay-ui:input-localized
+							name='<%= randomNamespace + "title" %>'
+							xml="<%= duplicateTitle %>"
+						/>
+					</aui:field-wrapper>
+				</clay:col>
 
-				<aui:col>
+				<clay:col
+					size="12"
+				>
 					<liferay-ui:message key="copy-does-not-include-revisions" />
-				</aui:col>
+				</clay:col>
 			</aui:fieldset>
 		</aui:form>
 	</div>

@@ -22,6 +22,7 @@ import com.liferay.account.model.AccountEntryOrganizationRel;
 import com.liferay.account.model.AccountEntryOrganizationRelModel;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
+import com.liferay.account.service.test.util.AccountEntryTestUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.exception.NoSuchOrganizationException;
 import com.liferay.portal.kernel.model.Organization;
@@ -239,6 +240,44 @@ public class AccountEntryOrganizationRelLocalServiceTest {
 			ArrayUtil.containsAll(expectedAccountEntryIds, accountEntryIds));
 		Assert.assertTrue(
 			ArrayUtil.containsAll(accountEntryIds, expectedAccountEntryIds));
+	}
+
+	@Test
+	public void testSetAccountEntryOrganizationRels() throws Exception {
+		for (int i = 0; i < 10; i++) {
+			_organizations.add(OrganizationTestUtil.addOrganization());
+		}
+
+		_testSetAccountEntryOrganizationRels(_organizations.subList(0, 4));
+		_testSetAccountEntryOrganizationRels(_organizations.subList(5, 9));
+		_testSetAccountEntryOrganizationRels(_organizations.subList(3, 7));
+	}
+
+	private void _testSetAccountEntryOrganizationRels(
+			List<Organization> organizations)
+		throws Exception {
+
+		_accountEntryOrganizationRelLocalService.
+			setAccountEntryOrganizationRels(
+				_accountEntry.getAccountEntryId(),
+				ListUtil.toLongArray(
+					organizations, Organization.ORGANIZATION_ID_ACCESSOR));
+
+		List<Long> expectedOrganizationIdsList = ListUtil.toList(
+			organizations, Organization.ORGANIZATION_ID_ACCESSOR);
+		List<Long> actualOrganizationIdsList = ListUtil.toList(
+			_accountEntryOrganizationRelLocalService.
+				getAccountEntryOrganizationRels(
+					_accountEntry.getAccountEntryId()),
+			AccountEntryOrganizationRel::getOrganizationId);
+
+		Assert.assertEquals(
+			actualOrganizationIdsList.toString(),
+			expectedOrganizationIdsList.size(),
+			actualOrganizationIdsList.size());
+
+		Assert.assertTrue(
+			expectedOrganizationIdsList.containsAll(actualOrganizationIdsList));
 	}
 
 	@DeleteAfterTestRun

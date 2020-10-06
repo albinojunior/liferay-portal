@@ -15,7 +15,6 @@
 package com.liferay.portal.search.elasticsearch7.internal;
 
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchPaginationUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -36,8 +35,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.aggregation.Aggregation;
 import com.liferay.portal.search.aggregation.pipeline.PipelineAggregation;
 import com.liferay.portal.search.constants.SearchContextAttributes;
-import com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration;
 import com.liferay.portal.search.elasticsearch7.constants.ElasticsearchSearchContextAttributes;
+import com.liferay.portal.search.elasticsearch7.internal.configuration.ElasticsearchConfigurationWrapper;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.search.BaseSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.BaseSearchResponse;
@@ -57,9 +56,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.StopWatch;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -67,7 +64,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Milen Dyankov
  */
 @Component(
-	configurationPid = "com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration",
 	immediate = true, property = "search.engine.impl=Elasticsearch",
 	service = IndexSearcher.class
 )
@@ -165,7 +161,7 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		}
 		catch (RuntimeException runtimeException) {
 			if (!handle(runtimeException)) {
-				if (_logExceptionsOnly) {
+				if (_elasticsearchConfigurationWrapper.logExceptionsOnly()) {
 					_log.error(runtimeException, runtimeException);
 				}
 				else {
@@ -215,7 +211,7 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		}
 		catch (RuntimeException runtimeException) {
 			if (!handle(runtimeException)) {
-				if (_logExceptionsOnly) {
+				if (_elasticsearchConfigurationWrapper.logExceptionsOnly()) {
 					_log.error(runtimeException, runtimeException);
 				}
 				else {
@@ -241,15 +237,6 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 	@Reference(target = "(search.engine.impl=Elasticsearch)", unbind = "-")
 	public void setQuerySuggester(QuerySuggester querySuggester) {
 		super.setQuerySuggester(querySuggester);
-	}
-
-	@Activate
-	@Modified
-	protected void activate(Map<String, Object> properties) {
-		_elasticsearchConfiguration = ConfigurableUtil.createConfigurable(
-			ElasticsearchConfiguration.class, properties);
-
-		_logExceptionsOnly = _elasticsearchConfiguration.logExceptionsOnly();
 	}
 
 	protected CountSearchRequest createCountSearchRequest(
@@ -325,10 +312,11 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		searchSearchRequest.setSize(size);
 
 		searchSearchRequest.setStart(start);
-
 		searchSearchRequest.setSorts(searchContext.getSorts());
 		searchSearchRequest.setSorts(searchRequest.getSorts());
 		searchSearchRequest.setStats(searchContext.getStats());
+		searchSearchRequest.setTrackTotalHits(
+			_elasticsearchConfigurationWrapper.trackTotalHits());
 
 		return searchSearchRequest;
 	}
@@ -369,7 +357,8 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		}
 
 		if (message.contains(
-				"Fielddata is disabled on text fields by default.")) {
+				"Text fields are not optimised for operations that require " +
+					"per-document field data")) {
 
 			_log.error(
 				"Unable to aggregate facet on a nonkeyword field", exception);
@@ -445,6 +434,13 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		BaseSearchRequest baseSearchRequest, SearchRequest searchRequest) {
 
 		baseSearchRequest.setConnectionId(searchRequest.getConnectionId());
+	}
+
+	@Reference(unbind = "-")
+	protected void setElasticsearchConfigurationWrapper(
+		ElasticsearchConfigurationWrapper elasticsearchConfigurationWrapper) {
+
+		_elasticsearchConfigurationWrapper = elasticsearchConfigurationWrapper;
 	}
 
 	@Reference(unbind = "-")
@@ -532,9 +528,9 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 	private static final Log _log = LogFactoryUtil.getLog(
 		ElasticsearchIndexSearcher.class);
 
-	private volatile ElasticsearchConfiguration _elasticsearchConfiguration;
+	private volatile ElasticsearchConfigurationWrapper
+		_elasticsearchConfigurationWrapper;
 	private IndexNameBuilder _indexNameBuilder;
-	private boolean _logExceptionsOnly;
 	private Props _props;
 	private SearchEngineAdapter _searchEngineAdapter;
 	private SearchRequestBuilderFactory _searchRequestBuilderFactory;

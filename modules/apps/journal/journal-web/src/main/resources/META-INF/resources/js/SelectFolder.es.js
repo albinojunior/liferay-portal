@@ -14,6 +14,7 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import {ClayInput} from '@clayui/form';
+import ClayLayout from '@clayui/layout';
 import {Treeview} from 'frontend-js-components-web';
 import React, {useCallback, useMemo, useState} from 'react';
 
@@ -36,13 +37,13 @@ const SelectFolder = ({itemSelectorSaveEvent, nodes}) => {
 		return result;
 	}, [nodes]);
 
-	const handleQueryChange = useCallback(event => {
+	const handleQueryChange = useCallback((event) => {
 		const value = event.target.value;
 
 		setFilterQuery(value);
 	}, []);
 
-	const handleSelectionChange = selectedNodeIds => {
+	const handleSelectionChange = (selectedNodeIds) => {
 		const node = nodesById[[...selectedNodeIds][0]];
 
 		if (node) {
@@ -56,7 +57,7 @@ const SelectFolder = ({itemSelectorSaveEvent, nodes}) => {
 	};
 
 	return (
-		<div className="container-fluid-1280 select-folder">
+		<ClayLayout.ContainerFluid className="select-folder">
 			<nav className="collapse-basic-search navbar navbar-default navbar-no-collapse">
 				<ClayInput.Group className="basic-search">
 					<ClayInput.GroupItem prepend>
@@ -78,15 +79,13 @@ const SelectFolder = ({itemSelectorSaveEvent, nodes}) => {
 			</nav>
 
 			<Treeview
-				filterQuery={filterQuery}
 				NodeComponent={Treeview.Card}
+				filterQuery={filterQuery}
 				nodes={nodes}
 				onSelectedNodesChange={handleSelectionChange}
 			/>
-		</div>
+		</ClayLayout.ContainerFluid>
 	);
 };
 
-export default function(props) {
-	return <SelectFolder {...props} />;
-}
+export default SelectFolder;

@@ -56,6 +56,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowInstance;
@@ -65,6 +66,7 @@ import com.liferay.portal.kernel.workflow.WorkflowLogManagerUtil;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
 import com.liferay.portal.kernel.workflow.comparator.WorkflowComparatorFactoryUtil;
+import com.liferay.portal.kernel.workflow.search.WorkflowModelSearchResult;
 import com.liferay.portal.workflow.task.web.internal.display.context.util.WorkflowTaskRequestHelper;
 import com.liferay.portal.workflow.task.web.internal.search.WorkflowTaskSearch;
 import com.liferay.portal.workflow.task.web.internal.util.WorkflowTaskPortletUtil;
@@ -187,7 +189,7 @@ public class WorkflowTaskDisplayContext {
 	public String getAssignedTheTaskMessageKey(WorkflowLog workflowLog)
 		throws PortalException {
 
-		User user = _users.get(workflowLog.getUserId());
+		User user = _getUser(workflowLog.getUserId());
 
 		if (user.isMale()) {
 			return "x-assigned-the-task-to-himself";
@@ -202,7 +204,8 @@ public class WorkflowTaskDisplayContext {
 		return new Object[] {
 			HtmlUtil.escape(
 				PortalUtil.getUserName(
-					workflowLog.getAuditUserId(), StringPool.BLANK)),
+					workflowLog.getAuditUserId(),
+					String.valueOf(workflowLog.getAuditUserId()))),
 			HtmlUtil.escape(_getActorName(workflowLog))
 		};
 	}
@@ -260,15 +263,13 @@ public class WorkflowTaskDisplayContext {
 		return DropdownItemListBuilder.addGroup(
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
-					new DropdownItemList() {
-						{
-							add(_getFilterNavigationDropdownItem("all"));
-
-							add(_getFilterNavigationDropdownItem("pending"));
-
-							add(_getFilterNavigationDropdownItem("completed"));
-						}
-					});
+					DropdownItemListBuilder.add(
+						_getFilterNavigationDropdownItem("all")
+					).add(
+						_getFilterNavigationDropdownItem("pending")
+					).add(
+						_getFilterNavigationDropdownItem("completed")
+					).build());
 				dropdownGroupItem.setLabel(
 					LanguageUtil.get(
 						_workflowTaskRequestHelper.getRequest(), "filter"));
@@ -276,13 +277,11 @@ public class WorkflowTaskDisplayContext {
 		).addGroup(
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
-					new DropdownItemList() {
-						{
-							add(_getOrderByDropdownItem("last-activity-date"));
-
-							add(_getOrderByDropdownItem("due-date"));
-						}
-					});
+					DropdownItemListBuilder.add(
+						_getOrderByDropdownItem("last-activity-date")
+					).add(
+						_getOrderByDropdownItem("due-date")
+					).build());
 				dropdownGroupItem.setLabel(
 					LanguageUtil.get(
 						_workflowTaskRequestHelper.getRequest(), "order-by"));
@@ -345,19 +344,25 @@ public class WorkflowTaskDisplayContext {
 	public String getPreviewOfTitle(WorkflowTask workflowTask)
 		throws PortalException {
 
-		String className = _getWorkflowContextEntryClassName(workflowTask);
+		HttpServletRequest httpServletRequest =
+			_workflowTaskRequestHelper.getRequest();
 
-		String modelResource = ResourceActionsUtil.getModelResource(
-			getTaskContentLocale(), className);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		return LanguageUtil.format(
-			_workflowTaskRequestHelper.getRequest(), "preview-of-x",
-			modelResource, false);
+			themeDisplay.getLocale(), "preview-of-x",
+			ResourceActionsUtil.getModelResource(
+				themeDisplay.getLocale(),
+				_getWorkflowContextEntryClassName(workflowTask)),
+			false);
 	}
 
 	public String getPreviousAssigneeMessageArguments(WorkflowLog workflowLog) {
 		String userName = PortalUtil.getUserName(
-			workflowLog.getPreviousUserId(), StringPool.BLANK);
+			workflowLog.getPreviousUserId(),
+			String.valueOf(workflowLog.getPreviousUserId()));
 
 		return HtmlUtil.escape(userName);
 	}
@@ -416,6 +421,7 @@ public class WorkflowTaskDisplayContext {
 			_workflowTaskRequestHelper.getThemeDisplay();
 
 		editPortletURL.setParameter("redirect", themeDisplay.getURLCurrent());
+
 		editPortletURL.setParameter("portletResource", getPortletResource());
 		editPortletURL.setParameter(
 			"refererPlid", String.valueOf(themeDisplay.getPlid()));
@@ -463,7 +469,8 @@ public class WorkflowTaskDisplayContext {
 		return new Object[] {
 			HtmlUtil.escape(
 				PortalUtil.getUserName(
-					workflowLog.getAuditUserId(), StringPool.BLANK)),
+					workflowLog.getAuditUserId(),
+					String.valueOf(workflowLog.getAuditUserId()))),
 			HtmlUtil.escape(
 				LanguageUtil.get(
 					_workflowTaskRequestHelper.getRequest(),
@@ -491,8 +498,11 @@ public class WorkflowTaskDisplayContext {
 		return HtmlUtil.escape(workflowTask.getName());
 	}
 
-	public Object getTaskUpdateMessageArguments(WorkflowLog workflowLog) {
-		return HtmlUtil.escape(_getActorName(workflowLog));
+	public String getTaskUpdateMessageArguments(WorkflowLog workflowLog) {
+		return HtmlUtil.escape(
+			PortalUtil.getUserName(
+				workflowLog.getAuditUserId(),
+				String.valueOf(workflowLog.getAuditUserId())));
 	}
 
 	public int getTotalItems() throws PortalException {
@@ -511,7 +521,10 @@ public class WorkflowTaskDisplayContext {
 
 	public Object getTransitionMessageArguments(WorkflowLog workflowLog) {
 		return new Object[] {
-			HtmlUtil.escape(_getActorName(workflowLog)),
+			HtmlUtil.escape(
+				PortalUtil.getUserName(
+					workflowLog.getAuditUserId(),
+					String.valueOf(workflowLog.getAuditUserId()))),
 			HtmlUtil.escape(workflowLog.getPreviousState()),
 			HtmlUtil.escape(
 				LanguageUtil.get(
@@ -530,7 +543,7 @@ public class WorkflowTaskDisplayContext {
 	}
 
 	public String getUserFullName(WorkflowLog workflowLog) {
-		User user = _users.get(workflowLog.getUserId());
+		User user = _getUser(workflowLog.getUserId());
 
 		return HtmlUtil.escape(user.getFullName());
 	}
@@ -598,7 +611,8 @@ public class WorkflowTaskDisplayContext {
 
 	public String getWorkflowTaskAssigneeUserName(WorkflowTask workflowTask) {
 		return PortalUtil.getUserName(
-			workflowTask.getAssigneeUserId(), StringPool.BLANK);
+			workflowTask.getAssigneeUserId(),
+			String.valueOf(workflowTask.getAssigneeUserId()));
 	}
 
 	public String getWorkflowTaskRandomId() {
@@ -625,27 +639,13 @@ public class WorkflowTaskDisplayContext {
 			_liferayPortletRequest, _getCurParam(searchByUserRoles),
 			_getPortletURL());
 
-		DisplayTerms searchTerms = _workflowTaskSearch.getDisplayTerms();
+		WorkflowModelSearchResult<WorkflowTask> workflowModelSearchResult =
+			_getWorkflowModelSearchResult(
+				_workflowTaskSearch.getDisplayTerms(), searchByUserRoles);
 
-		int total = WorkflowTaskManagerUtil.searchCount(
-			_workflowTaskRequestHelper.getCompanyId(),
-			_workflowTaskRequestHelper.getUserId(), searchTerms.getKeywords(),
-			new String[] {searchTerms.getKeywords()},
-			_getAssetType(searchTerms.getKeywords()), null, null, null, null,
-			_getCompleted(), searchByUserRoles, null, false);
-
-		_workflowTaskSearch.setTotal(total);
-
-		List<WorkflowTask> results = WorkflowTaskManagerUtil.search(
-			_workflowTaskRequestHelper.getCompanyId(),
-			_workflowTaskRequestHelper.getUserId(), searchTerms.getKeywords(),
-			new String[] {searchTerms.getKeywords()},
-			_getAssetType(searchTerms.getKeywords()), null, null, null, null,
-			_getCompleted(), searchByUserRoles, null, false,
-			_workflowTaskSearch.getStart(), _workflowTaskSearch.getEnd(),
-			_workflowTaskSearch.getOrderByComparator());
-
-		_workflowTaskSearch.setResults(results);
+		_workflowTaskSearch.setResults(
+			workflowModelSearchResult.getWorkflowModels());
+		_workflowTaskSearch.setTotal(workflowModelSearchResult.getLength());
 
 		_setWorkflowTaskSearchEmptyResultsMessage(
 			_workflowTaskSearch, searchByUserRoles, _getCompleted());
@@ -701,15 +701,11 @@ public class WorkflowTaskDisplayContext {
 	}
 
 	public boolean isAuditUser(WorkflowLog workflowLog) {
-		User user = null;
-
-		if (workflowLog.getUserId() != 0) {
-			user = _users.get(workflowLog.getUserId());
+		if (workflowLog.getUserId() == 0) {
+			return false;
 		}
 
-		if ((user != null) &&
-			(workflowLog.getAuditUserId() == user.getUserId())) {
-
+		if (workflowLog.getAuditUserId() == workflowLog.getUserId()) {
 			return true;
 		}
 
@@ -741,13 +737,9 @@ public class WorkflowTaskDisplayContext {
 				LanguageUtil.getLanguageId(_httpServletRequest));
 		}
 		else if (workflowLog.getUserId() != 0) {
-			User user = _getUser(workflowLog.getUserId());
-
-			if (user == null) {
-				return String.valueOf(workflowLog.getUserId());
-			}
-
-			return user.getFullName();
+			return PortalUtil.getUserName(
+				workflowLog.getUserId(),
+				String.valueOf(workflowLog.getUserId()));
 		}
 
 		return StringPool.BLANK;
@@ -1018,6 +1010,30 @@ public class WorkflowTaskDisplayContext {
 		return null;
 	}
 
+	private WorkflowModelSearchResult<WorkflowTask>
+			_getWorkflowModelSearchResult(
+				DisplayTerms displayTerms, boolean searchByUserRoles)
+		throws WorkflowException {
+
+		if (Objects.nonNull(_workflowModelSearchResult)) {
+			return _workflowModelSearchResult;
+		}
+
+		_workflowModelSearchResult =
+			WorkflowTaskManagerUtil.searchWorkflowTasks(
+				_workflowTaskRequestHelper.getCompanyId(),
+				_workflowTaskRequestHelper.getUserId(),
+				displayTerms.getKeywords(),
+				new String[] {displayTerms.getKeywords()},
+				_getAssetType(displayTerms.getKeywords()), null, null, null,
+				null, null, _getCompleted(), searchByUserRoles, null, null,
+				false, _workflowTaskSearch.getStart(),
+				_workflowTaskSearch.getEnd(),
+				_workflowTaskSearch.getOrderByComparator());
+
+		return _workflowModelSearchResult;
+	}
+
 	private boolean _isAssignedToMyRolesTabSelected() {
 		String tabs1 = _getTabs1();
 
@@ -1092,6 +1108,7 @@ public class WorkflowTaskDisplayContext {
 	private String _portletResource;
 	private final Map<Long, Role> _roles = new HashMap<>();
 	private final Map<Long, User> _users = new HashMap<>();
+	private WorkflowModelSearchResult<WorkflowTask> _workflowModelSearchResult;
 	private final WorkflowTaskRequestHelper _workflowTaskRequestHelper;
 	private WorkflowTaskSearch _workflowTaskSearch;
 

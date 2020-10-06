@@ -12,51 +12,34 @@
  * details.
  */
 
-import {ItemSelectorDialog} from 'frontend-js-web';
+import {openSelectionModal} from 'frontend-js-web';
 
 import {config} from '../app/config/index';
 
 export function openImageSelector(callback, destroyedCallback = null) {
-	const itemSelectorDialog = new ItemSelectorDialog({
-		eventName: `${config.portletNamespace}selectImage`,
-		singleSelect: true,
-		title: Liferay.Language.get('select'),
-		url: config.imageSelectorURL,
-	});
+	openSelectionModal({
+		onClose: destroyedCallback,
+		onSelect: (selectedItem) => {
+			const {returnType, value} = selectedItem;
 
-	itemSelectorDialog.on('selectedItemChange', event => {
-		const selectedItem = event.selectedItem || {};
-
-		const {returnType, value} = selectedItem;
-
-		if (returnType) {
 			const selectedImage = {};
 
 			if (returnType === 'URL') {
-				selectedImage.title = value;
+				selectedImage.title = '';
 				selectedImage.url = value;
 			}
 			else {
 				const fileEntry = JSON.parse(value);
 
+				selectedImage.fileEntryId = fileEntry.fileEntryId;
 				selectedImage.title = fileEntry.title;
 				selectedImage.url = fileEntry.url;
 			}
 
 			callback(selectedImage);
-		}
-		else {
-			if (destroyedCallback) {
-				destroyedCallback();
-			}
-		}
+		},
+		selectEventName: `${config.portletNamespace}selectImage`,
+		title: Liferay.Language.get('select'),
+		url: config.imageSelectorURL,
 	});
-
-	itemSelectorDialog.on('visibleChange', () => {
-		if (destroyedCallback) {
-			destroyedCallback();
-		}
-	});
-
-	itemSelectorDialog.open();
 }

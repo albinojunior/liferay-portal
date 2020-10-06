@@ -488,33 +488,41 @@ public class LayoutCTTest {
 		String tagName1 = "layoutcttesttag1";
 		String tagName2 = "layoutcttesttag2";
 
-		Layout layout = LayoutTestUtil.addLayout(_group);
+		Layout layout1 = LayoutTestUtil.addLayout(_group);
+		Layout layout2 = LayoutTestUtil.addLayout(_group);
 
 		_layoutLocalService.updateAsset(
-			layout.getUserId(), layout, null, new String[] {tagName1});
+			layout1.getUserId(), layout1, null, new String[] {tagName1});
 
-		AssetEntry assetEntry = _assetEntryLocalService.getEntry(
-			Layout.class.getName(), layout.getPlid());
+		AssetEntry assetEntry1 = _assetEntryLocalService.getEntry(
+			Layout.class.getName(), layout1.getPlid());
+		AssetEntry assetEntry2 = _assetEntryLocalService.getEntry(
+			Layout.class.getName(), layout2.getPlid());
 
 		try (SafeClosable safeClosable =
 				CTCollectionThreadLocal.setCTCollectionId(
 					_ctCollection.getCtCollectionId())) {
 
 			_layoutLocalService.updateAsset(
-				layout.getUserId(), layout, null, new String[] {tagName2});
+				layout1.getUserId(), layout1, null, new String[] {tagName2});
 
 			List<AssetTag> assetTags = _assetTagLocalService.getEntryTags(
-				assetEntry.getEntryId());
+				assetEntry1.getEntryId());
 
 			Assert.assertEquals(assetTags.toString(), 1, assetTags.size());
 
 			AssetTag assetTag = assetTags.get(0);
 
 			Assert.assertEquals(tagName2, assetTag.getName());
+
+			assetTags = _assetTagLocalService.getEntryTags(
+				assetEntry2.getEntryId());
+
+			Assert.assertTrue(assetTags.toString(), assetTags.isEmpty());
 		}
 
 		List<AssetTag> assetTags = _assetTagLocalService.getEntryTags(
-			assetEntry.getEntryId());
+			assetEntry1.getEntryId());
 
 		Assert.assertEquals(assetTags.toString(), 1, assetTags.size());
 
@@ -525,13 +533,15 @@ public class LayoutCTTest {
 		_ctProcessLocalService.addCTProcess(
 			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
 
-		assetTags = _assetTagLocalService.getEntryTags(assetEntry.getEntryId());
+		assetTags = _assetTagLocalService.getEntryTags(
+			assetEntry1.getEntryId());
 
 		Assert.assertEquals(assetTags.toString(), 1, assetTags.size());
 
 		assetTag = assetTags.get(0);
 
 		Assert.assertEquals(tagName2, assetTag.getName());
+		Assert.assertEquals(1, assetTag.getAssetCount());
 	}
 
 	@Test
@@ -580,18 +590,18 @@ public class LayoutCTTest {
 				CTCollectionThreadLocal.setCTCollectionId(
 					_ctCollection.getCtCollectionId())) {
 
-			Layout layout = _layoutLocalService.fetchLayout(layout1.getPlid());
+			Layout layout3 = _layoutLocalService.fetchLayout(layout1.getPlid());
 
-			Assert.assertNotNull(layout);
+			Assert.assertNotNull(layout3);
 
-			Assert.assertEquals(layout.getFriendlyURL(), friendlyURL);
+			Assert.assertEquals(layout3.getFriendlyURL(), friendlyURL);
 		}
 
-		Layout layout = _layoutLocalService.fetchLayout(layout2.getPlid());
+		Layout layout4 = _layoutLocalService.fetchLayout(layout2.getPlid());
 
-		Assert.assertNotNull(layout);
+		Assert.assertNotNull(layout4);
 
-		Assert.assertEquals(layout.getFriendlyURL(), friendlyURL);
+		Assert.assertEquals(layout4.getFriendlyURL(), friendlyURL);
 	}
 
 	@Test
@@ -642,10 +652,7 @@ public class LayoutCTTest {
 
 			String message = throwable.getMessage();
 
-			Assert.assertTrue(
-				message,
-				message.startsWith(
-					"Unable to auto resolve publication conflict "));
+			Assert.assertTrue(message, message.startsWith("Unable to publish"));
 		}
 
 		layout = _layoutLocalService.fetchLayout(layout.getPlid());
@@ -869,7 +876,7 @@ public class LayoutCTTest {
 
 			String message = throwable.toString();
 
-			Assert.assertTrue(message, message.contains("Size mismatch "));
+			Assert.assertTrue(message, message.contains("Unable to publish "));
 		}
 	}
 

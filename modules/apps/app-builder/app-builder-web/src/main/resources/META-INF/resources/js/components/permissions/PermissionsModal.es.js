@@ -14,26 +14,27 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import ClayManagementToolbar from '@clayui/management-toolbar';
 import ClayModal, {useModal} from '@clayui/modal';
 import {SearchInput} from 'data-engine-taglib';
 import React, {useEffect, useState} from 'react';
 
 import {Loading} from '../../components/loading/Loading.es';
-import ManagementToolbar from '../../components/management-toolbar/ManagementToolbar.es';
 import Table from '../../components/table/Table.es';
 import {getItem, updateItem} from '../../utils/client.es';
+import {errorToast, successToast} from '../../utils/toast.es';
 
 export default ({
 	actions,
 	endpoint,
 	isDisabled = () => false,
 	isOpen,
-	onClose,
+	onClose = () => {},
 	onSave = () => Promise.resolve(),
 	rolesFilter = () => true,
 	title,
 }) => {
-	const {observer} = useModal({
+	const {observer, onClose: close} = useModal({
 		onClose,
 	});
 
@@ -69,24 +70,24 @@ export default ({
 			.then(({items: roles = []}) => {
 				roles = roles.filter(rolesFilter);
 
-				setState(prevState => ({
+				setState((prevState) => ({
 					...prevState,
 					roles,
 				}));
 
-				const roleNames = roles.map(({name}) => name);
+				const roleNames = roles.map(({name}) => name).join(',');
 
 				return getItem(endpoint, {roleNames});
 			})
 			.then(({items: permissions = []}) => {
-				setState(prevState => ({
+				setState((prevState) => ({
 					...prevState,
 					isLoading: false,
 					permissions,
 				}));
 			})
-			.catch(_ =>
-				setState(prevState => ({
+			.catch(() =>
+				setState((prevState) => ({
 					...prevState,
 					isLoading: false,
 				}))
@@ -107,9 +108,12 @@ export default ({
 
 	const handleOnSave = () =>
 		Promise.all([
-			updateItem(endpoint, permissions),
+			updateItem({endpoint, item: permissions}),
 			onSave(permissions),
-		]).then(() => onClose());
+		])
+			.then(() => close())
+			.then(() => successToast())
+			.catch(() => errorToast());
 
 	const togglePermission = (roleName, actionId) => {
 		const exists = permissions.some(
@@ -120,7 +124,7 @@ export default ({
 			? permissions
 			: permissions.concat({actionIds: [], roleName});
 
-		newPermissions = newPermissions.map(permission => {
+		newPermissions = newPermissions.map((permission) => {
 			if (permission.roleName !== roleName) {
 				return permission;
 			}
@@ -130,12 +134,12 @@ export default ({
 			return {
 				...permission,
 				actionIds: actionIds.includes(actionId)
-					? actionIds.filter(id => id !== actionId)
+					? actionIds.filter((id) => id !== actionId)
 					: actionIds.concat(actionId),
 			};
 		});
 
-		setState(prevState => ({
+		setState((prevState) => ({
 			...prevState,
 			permissions: newPermissions,
 		}));
@@ -177,18 +181,17 @@ export default ({
 				{title || Liferay.Language.get('permissions')}
 			</ClayModal.Header>
 			<ClayModal.Body>
-				<ManagementToolbar>
+				<ClayManagementToolbar>
 					<SearchInput
-						onChange={searchText =>
-							setState(prevState => ({
+						onChange={(searchText) =>
+							setState((prevState) => ({
 								...prevState,
 								searchText,
 							}))
 						}
 						searchText={searchText}
 					/>
-				</ManagementToolbar>
-
+				</ClayManagementToolbar>
 				<Loading isLoading={isLoading}>
 					<Table
 						align="center"
@@ -202,7 +205,7 @@ export default ({
 					<ClayButton.Group spaced>
 						<ClayButton
 							displayType="secondary"
-							onClick={() => onClose()}
+							onClick={() => close()}
 						>
 							{Liferay.Language.get('cancel')}
 						</ClayButton>

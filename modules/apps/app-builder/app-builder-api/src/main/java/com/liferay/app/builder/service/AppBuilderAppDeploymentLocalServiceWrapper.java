@@ -38,6 +38,10 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 	/**
 	 * Adds the app builder app deployment to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was added
 	 */
@@ -89,6 +93,10 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 	/**
 	 * Deletes the app builder app deployment from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was removed
 	 */
@@ -104,6 +112,10 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 
 	/**
 	 * Deletes the app builder app deployment with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppDeploymentId the primary key of the app builder app deployment
 	 * @return the app builder app deployment that was removed
@@ -128,6 +140,11 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 
 		return _appBuilderAppDeploymentLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _appBuilderAppDeploymentLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -256,7 +273,7 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 	@Override
 	public com.liferay.app.builder.model.AppBuilderAppDeployment
 			getAppBuilderAppDeployment(long appBuilderAppId, String type)
-		throws Exception {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _appBuilderAppDeploymentLocalService.getAppBuilderAppDeployment(
 			appBuilderAppId, type);
@@ -332,6 +349,10 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 
 	/**
 	 * Updates the app builder app deployment in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was updated

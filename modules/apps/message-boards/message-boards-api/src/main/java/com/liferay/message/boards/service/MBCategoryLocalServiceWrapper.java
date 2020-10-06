@@ -14,7 +14,10 @@
 
 package com.liferay.message.boards.service;
 
+import com.liferay.message.boards.model.MBCategory;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 /**
  * Provides a wrapper for {@link MBCategoryLocalService}.
@@ -33,7 +36,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory addCategory(
+	public MBCategory addCategory(
 			long userId, long parentCategoryId, String name, String description,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -43,7 +46,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory addCategory(
+	public MBCategory addCategory(
 			long userId, long parentCategoryId, String name, String description,
 			String displayStyle, String emailAddress, String inProtocol,
 			String inServerName, int inServerPort, boolean inUseSSL,
@@ -86,8 +89,8 @@ public class MBCategoryLocalServiceWrapper
 
 	@Override
 	public void addCategoryResources(
-			com.liferay.message.boards.model.MBCategory category,
-			boolean addGroupPermissions, boolean addGuestPermissions)
+			MBCategory category, boolean addGroupPermissions,
+			boolean addGuestPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_mbCategoryLocalService.addCategoryResources(
@@ -96,7 +99,7 @@ public class MBCategoryLocalServiceWrapper
 
 	@Override
 	public void addCategoryResources(
-			com.liferay.message.boards.model.MBCategory category,
+			MBCategory category,
 			com.liferay.portal.kernel.service.permission.ModelPermissions
 				modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -108,13 +111,15 @@ public class MBCategoryLocalServiceWrapper
 	/**
 	 * Adds the message boards category to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was added
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory addMBCategory(
-		com.liferay.message.boards.model.MBCategory mbCategory) {
-
+	public MBCategory addMBCategory(MBCategory mbCategory) {
 		return _mbCategoryLocalService.addMBCategory(mbCategory);
 	}
 
@@ -125,9 +130,7 @@ public class MBCategoryLocalServiceWrapper
 	 * @return the new message boards category
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory createMBCategory(
-		long categoryId) {
-
+	public MBCategory createMBCategory(long categoryId) {
 		return _mbCategoryLocalService.createMBCategory(categoryId);
 	}
 
@@ -157,8 +160,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public void deleteCategory(
-			com.liferay.message.boards.model.MBCategory category)
+	public void deleteCategory(MBCategory category)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_mbCategoryLocalService.deleteCategory(category);
@@ -166,8 +168,7 @@ public class MBCategoryLocalServiceWrapper
 
 	@Override
 	public void deleteCategory(
-			com.liferay.message.boards.model.MBCategory category,
-			boolean includeTrashedEntries)
+			MBCategory category, boolean includeTrashedEntries)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_mbCategoryLocalService.deleteCategory(category, includeTrashedEntries);
@@ -176,13 +177,16 @@ public class MBCategoryLocalServiceWrapper
 	/**
 	 * Deletes the message boards category with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param categoryId the primary key of the message boards category
 	 * @return the message boards category that was removed
 	 * @throws PortalException if a message boards category with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory deleteMBCategory(
-			long categoryId)
+	public MBCategory deleteMBCategory(long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.deleteMBCategory(categoryId);
@@ -191,13 +195,15 @@ public class MBCategoryLocalServiceWrapper
 	/**
 	 * Deletes the message boards category from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was removed
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory deleteMBCategory(
-		com.liferay.message.boards.model.MBCategory mbCategory) {
-
+	public MBCategory deleteMBCategory(MBCategory mbCategory) {
 		return _mbCategoryLocalService.deleteMBCategory(mbCategory);
 	}
 
@@ -210,6 +216,11 @@ public class MBCategoryLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _mbCategoryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -303,9 +314,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory fetchMBCategory(
-		long categoryId) {
-
+	public MBCategory fetchMBCategory(long categoryId) {
 		return _mbCategoryLocalService.fetchMBCategory(categoryId);
 	}
 
@@ -317,8 +326,8 @@ public class MBCategoryLocalServiceWrapper
 	 * @return the matching message boards category, or <code>null</code> if a matching message boards category could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory
-		fetchMBCategoryByUuidAndGroupId(String uuid, long groupId) {
+	public MBCategory fetchMBCategoryByUuidAndGroupId(
+		String uuid, long groupId) {
 
 		return _mbCategoryLocalService.fetchMBCategoryByUuidAndGroupId(
 			uuid, groupId);
@@ -332,71 +341,61 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(long groupId) {
-
+	public java.util.List<MBCategory> getCategories(long groupId) {
 		return _mbCategoryLocalService.getCategories(groupId);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(long groupId, int status) {
-
+	public java.util.List<MBCategory> getCategories(long groupId, int status) {
 		return _mbCategoryLocalService.getCategories(groupId, status);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(long groupId, long parentCategoryId, int start, int end) {
+	public java.util.List<MBCategory> getCategories(
+		long groupId, long parentCategoryId, int start, int end) {
 
 		return _mbCategoryLocalService.getCategories(
 			groupId, parentCategoryId, start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(
-			long groupId, long parentCategoryId, int status, int start,
-			int end) {
+	public java.util.List<MBCategory> getCategories(
+		long groupId, long parentCategoryId, int status, int start, int end) {
 
 		return _mbCategoryLocalService.getCategories(
 			groupId, parentCategoryId, status, start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(
-			long groupId, long excludedCategoryId, long parentCategoryId,
-			int status, int start, int end) {
+	public java.util.List<MBCategory> getCategories(
+		long groupId, long excludedCategoryId, long parentCategoryId,
+		int status, int start, int end) {
 
 		return _mbCategoryLocalService.getCategories(
 			groupId, excludedCategoryId, parentCategoryId, status, start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(
-			long groupId, long[] parentCategoryIds, int start, int end) {
+	public java.util.List<MBCategory> getCategories(
+		long groupId, long[] parentCategoryIds, int start, int end) {
 
 		return _mbCategoryLocalService.getCategories(
 			groupId, parentCategoryIds, start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(
-			long groupId, long[] parentCategoryIds, int status, int start,
-			int end) {
+	public java.util.List<MBCategory> getCategories(
+		long groupId, long[] parentCategoryIds, int status, int start,
+		int end) {
 
 		return _mbCategoryLocalService.getCategories(
 			groupId, parentCategoryIds, status, start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCategories(
-			long groupId, long[] excludedCategoryIds, long[] parentCategoryIds,
-			int status, int start, int end) {
+	public java.util.List<MBCategory> getCategories(
+		long groupId, long[] excludedCategoryIds, long[] parentCategoryIds,
+		int status, int start, int end) {
 
 		return _mbCategoryLocalService.getCategories(
 			groupId, excludedCategoryIds, parentCategoryIds, status, start,
@@ -498,16 +497,15 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory getCategory(
-			long categoryId)
+	public MBCategory getCategory(long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.getCategory(categoryId);
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getCompanyCategories(long companyId, int start, int end) {
+	public java.util.List<MBCategory> getCompanyCategories(
+		long companyId, int start, int end) {
 
 		return _mbCategoryLocalService.getCompanyCategories(
 			companyId, start, end);
@@ -547,9 +545,7 @@ public class MBCategoryLocalServiceWrapper
 	 * @return the range of message boards categories
 	 */
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getMBCategories(int start, int end) {
-
+	public java.util.List<MBCategory> getMBCategories(int start, int end) {
 		return _mbCategoryLocalService.getMBCategories(start, end);
 	}
 
@@ -561,8 +557,8 @@ public class MBCategoryLocalServiceWrapper
 	 * @return the matching message boards categories, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getMBCategoriesByUuidAndCompanyId(String uuid, long companyId) {
+	public java.util.List<MBCategory> getMBCategoriesByUuidAndCompanyId(
+		String uuid, long companyId) {
 
 		return _mbCategoryLocalService.getMBCategoriesByUuidAndCompanyId(
 			uuid, companyId);
@@ -579,12 +575,10 @@ public class MBCategoryLocalServiceWrapper
 	 * @return the range of matching message boards categories, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getMBCategoriesByUuidAndCompanyId(
-			String uuid, long companyId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBCategory>
-					orderByComparator) {
+	public java.util.List<MBCategory> getMBCategoriesByUuidAndCompanyId(
+		String uuid, long companyId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<MBCategory>
+			orderByComparator) {
 
 		return _mbCategoryLocalService.getMBCategoriesByUuidAndCompanyId(
 			uuid, companyId, start, end, orderByComparator);
@@ -608,8 +602,7 @@ public class MBCategoryLocalServiceWrapper
 	 * @throws PortalException if a message boards category with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory getMBCategory(
-			long categoryId)
+	public MBCategory getMBCategory(long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.getMBCategory(categoryId);
@@ -624,8 +617,7 @@ public class MBCategoryLocalServiceWrapper
 	 * @throws PortalException if a matching message boards category could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory
-			getMBCategoryByUuidAndGroupId(String uuid, long groupId)
+	public MBCategory getMBCategoryByUuidAndGroupId(String uuid, long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.getMBCategoryByUuidAndGroupId(
@@ -662,8 +654,8 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBCategory>
-		getSubscribedCategories(long groupId, long userId, int start, int end) {
+	public java.util.List<MBCategory> getSubscribedCategories(
+		long groupId, long userId, int start, int end) {
 
 		return _mbCategoryLocalService.getSubscribedCategories(
 			groupId, userId, start, end);
@@ -683,7 +675,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory moveCategory(
+	public MBCategory moveCategory(
 			long categoryId, long parentCategoryId,
 			boolean mergeWithParentCategory)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -693,7 +685,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory moveCategoryFromTrash(
+	public MBCategory moveCategoryFromTrash(
 			long userId, long categoryId, long newCategoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -702,8 +694,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory moveCategoryToTrash(
-			long userId, long categoryId)
+	public MBCategory moveCategoryToTrash(long userId, long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.moveCategoryToTrash(userId, categoryId);
@@ -732,7 +723,7 @@ public class MBCategoryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory updateCategory(
+	public MBCategory updateCategory(
 			long categoryId, long parentCategoryId, String name,
 			String description, String displayStyle, String emailAddress,
 			String inProtocol, String inServerName, int inServerPort,
@@ -756,43 +747,43 @@ public class MBCategoryLocalServiceWrapper
 	/**
 	 * Updates the message boards category in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was updated
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBCategory updateMBCategory(
-		com.liferay.message.boards.model.MBCategory mbCategory) {
-
+	public MBCategory updateMBCategory(MBCategory mbCategory) {
 		return _mbCategoryLocalService.updateMBCategory(mbCategory);
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory updateMessageCount(
-		long categoryId) {
-
-		return _mbCategoryLocalService.updateMessageCount(categoryId);
-	}
-
-	@Override
-	public com.liferay.message.boards.model.MBCategory updateStatistics(
-		long categoryId) {
-
-		return _mbCategoryLocalService.updateStatistics(categoryId);
-	}
-
-	@Override
-	public com.liferay.message.boards.model.MBCategory updateStatus(
-			long userId, long categoryId, int status)
+	public MBCategory updateStatus(long userId, long categoryId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbCategoryLocalService.updateStatus(userId, categoryId, status);
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBCategory updateThreadCount(
-		long categoryId) {
+	public CTPersistence<MBCategory> getCTPersistence() {
+		return _mbCategoryLocalService.getCTPersistence();
+	}
 
-		return _mbCategoryLocalService.updateThreadCount(categoryId);
+	@Override
+	public Class<MBCategory> getModelClass() {
+		return _mbCategoryLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<MBCategory>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _mbCategoryLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

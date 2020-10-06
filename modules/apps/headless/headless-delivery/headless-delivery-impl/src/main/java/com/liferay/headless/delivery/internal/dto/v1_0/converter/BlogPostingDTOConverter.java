@@ -27,6 +27,7 @@ import com.liferay.headless.delivery.dto.v1_0.BlogPosting;
 import com.liferay.headless.delivery.dto.v1_0.Image;
 import com.liferay.headless.delivery.dto.v1_0.TaxonomyCategoryBrief;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.AggregateRatingUtil;
+import com.liferay.headless.delivery.internal.dto.v1_0.util.ContentValueUtil;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.CustomFieldsUtil;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.RelatedContentUtil;
@@ -75,7 +76,8 @@ public class BlogPostingDTOConverter
 				alternativeHeadline = blogsEntry.getSubtitle();
 				articleBody = blogsEntry.getContent();
 				creator = CreatorUtil.toCreator(
-					_portal, _userLocalService.getUser(blogsEntry.getUserId()));
+					_portal, dtoConverterContext.getUriInfoOptional(),
+					_userLocalService.fetchUser(blogsEntry.getUserId()));
 				customFields = CustomFieldsUtil.toCustomFields(
 					dtoConverterContext.isAcceptAllLanguages(),
 					BlogsEntry.class.getName(), blogsEntry.getEntryId(),
@@ -88,7 +90,7 @@ public class BlogPostingDTOConverter
 				friendlyUrlPath = blogsEntry.getUrlTitle();
 				headline = blogsEntry.getTitle();
 				id = blogsEntry.getEntryId();
-				image = _getImage(blogsEntry);
+				image = _getImage(blogsEntry, dtoConverterContext);
 				keywords = ListUtil.toArray(
 					_assetTagLocalService.getTags(
 						BlogsEntry.class.getName(), blogsEntry.getEntryId()),
@@ -106,14 +108,16 @@ public class BlogPostingDTOConverter
 						BlogsEntry.class.getName(), blogsEntry.getEntryId()),
 					assetCategory ->
 						TaxonomyCategoryBriefUtil.toTaxonomyCategoryBrief(
-							dtoConverterContext.isAcceptAllLanguages(),
-							assetCategory, dtoConverterContext.getLocale()),
+							assetCategory, dtoConverterContext),
 					TaxonomyCategoryBrief.class);
 			}
 		};
 	}
 
-	private Image _getImage(BlogsEntry blogsEntry) throws Exception {
+	private Image _getImage(
+			BlogsEntry blogsEntry, DTOConverterContext dtoConverterContext)
+		throws Exception {
+
 		long coverImageFileEntryId = blogsEntry.getCoverImageFileEntryId();
 
 		if (coverImageFileEntryId == 0) {
@@ -128,6 +132,9 @@ public class BlogPostingDTOConverter
 				contentUrl = _dlURLHelper.getPreviewURL(
 					fileEntry, fileEntry.getFileVersion(), null, "", false,
 					false);
+				contentValue = ContentValueUtil.toContentValue(
+					"image.contentValue", fileEntry::getContentStream,
+					dtoConverterContext.getUriInfoOptional());
 				imageId = coverImageFileEntryId;
 			}
 		};

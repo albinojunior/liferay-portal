@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -83,6 +85,10 @@ public abstract class DefinitionLocalServiceBaseImpl
 	/**
 	 * Adds the definition to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param definition the definition
 	 * @return the definition that was added
 	 */
@@ -109,6 +115,10 @@ public abstract class DefinitionLocalServiceBaseImpl
 	/**
 	 * Deletes the definition with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param definitionId the primary key of the definition
 	 * @return the definition that was removed
 	 * @throws PortalException if a definition with the primary key could not be found
@@ -124,6 +134,10 @@ public abstract class DefinitionLocalServiceBaseImpl
 	/**
 	 * Deletes the definition from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param definition the definition
 	 * @return the definition that was removed
 	 * @throws PortalException
@@ -134,6 +148,11 @@ public abstract class DefinitionLocalServiceBaseImpl
 		throws PortalException {
 
 		return definitionPersistence.remove(definition);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return definitionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -385,6 +404,10 @@ public abstract class DefinitionLocalServiceBaseImpl
 			(Definition)persistedModel);
 	}
 
+	public BasePersistence<Definition> getBasePersistence() {
+		return definitionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -471,6 +494,10 @@ public abstract class DefinitionLocalServiceBaseImpl
 
 	/**
 	 * Updates the definition in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param definition the definition
 	 * @return the definition that was updated

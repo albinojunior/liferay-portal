@@ -2,6 +2,24 @@
 	margin: 0 !important;
 }
 
+.assignments-cell-editor {
+	max-height: 35vh;
+	overflow: auto;
+
+	.checkbox {
+		align-items: center;
+		display: flex;
+
+		.assignments-cell-editor-input {
+			position: absolute;
+		}
+
+		.celleditor-label-checkbox {
+			min-height: 16px;
+		}
+	}
+}
+
 .actions-cell-editor-hidden,
 .assignments-cell-editor-hidden,
 .forms-cell-editor-hidden,
@@ -241,7 +259,7 @@
 	}
 }
 
-.dialog-iframe-popup,
+.portal-popup,
 .info-bar-container {
 	background: #fff;
 }
@@ -270,6 +288,17 @@
 .info-title {
 	font-size: 0.875rem;
 	font-weight: 600;
+}
+
+.lfr-alert-container {
+	display: flex;
+	justify-content: center;
+	position: relative;
+
+	> div {
+		position: absolute;
+		width: 100%;
+	}
 }
 
 .lfr-portlet-workflowdesigner-draft-version {

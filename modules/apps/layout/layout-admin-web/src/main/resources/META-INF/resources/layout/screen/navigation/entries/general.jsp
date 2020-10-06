@@ -75,13 +75,13 @@ renderResponse.setTitle(selLayout.getName(locale));
 			<aui:button cssClass="remove-layout" id="deleteLayoutButton" name="deleteLayout" value="delete-in-all-pages-variations" />
 
 			<script>
-				(function() {
+				(function () {
 					var enableLayoutButton = document.getElementById(
 						'<portlet:namespace />enableLayoutButton'
 					);
 
 					if (enableLayoutButton) {
-						enableLayoutButton.addEventListener('click', function(event) {
+						enableLayoutButton.addEventListener('click', function (event) {
 							<portlet:actionURL name="/layout/enable_layout" var="enableLayoutURL">
 								<portlet:param name="redirect" value="<%= currentURL %>" />
 								<portlet:param name="incompleteLayoutRevisionId" value="<%= String.valueOf(layoutRevision.getLayoutRevisionId()) %>" />
@@ -96,12 +96,11 @@ renderResponse.setTitle(selLayout.getName(locale));
 					);
 
 					if (deleteLayoutButton) {
-						deleteLayoutButton.addEventListener('click', function(event) {
+						deleteLayoutButton.addEventListener('click', function (event) {
 							<portlet:actionURL name="/layout/delete_layout" var="deleteLayoutURL">
 								<portlet:param name="redirect" value="<%= currentURL %>" />
 								<portlet:param name="selPlid" value="<%= String.valueOf(layoutsAdminDisplayContext.getSelPlid()) %>" />
 								<portlet:param name="layoutSetBranchId" value="0" />
-								<portlet:param name="selPlid" value="<%= String.valueOf(selLayout.getParentPlid()) %>" />
 							</portlet:actionURL>
 
 							submitForm(document.hrefFm, '<%= deleteLayoutURL %>');
@@ -143,12 +142,12 @@ renderResponse.setTitle(selLayout.getName(locale));
 
 			</c:if>
 
-			<div class="sheet sheet-lg">
-				<div class="sheet-header">
+			<clay:sheet>
+				<clay:sheet-header>
 					<h2 class="sheet-title"><liferay-ui:message key="general" /></h2>
-				</div>
+				</clay:sheet-header>
 
-				<div class="sheet-section">
+				<clay:sheet-section>
 					<liferay-ui:success key="layoutAdded" message="the-page-was-created-succesfully" />
 
 					<liferay-ui:error exception="<%= LayoutTypeException.class %>">
@@ -164,7 +163,7 @@ renderResponse.setTitle(selLayout.getName(locale));
 						</c:if>
 
 						<c:if test="<%= lte.getType() == LayoutTypeException.FIRST_LAYOUT_PERMISSION %>">
-							<liferay-ui:message key="you-cannot-delete-this-page-because-the-next-page-is-not-vieweable-by-unathenticated-users-and-so-cannot-be-the-first-page" />
+							<liferay-ui:message key="you-cannot-delete-this-page-because-the-next-page-is-not-viewable-by-unauthenticated-users-and-so-cannot-be-the-first-page" />
 						</c:if>
 
 						<c:if test="<%= lte.getType() == LayoutTypeException.NOT_INSTANCEABLE %>">
@@ -236,9 +235,9 @@ renderResponse.setTitle(selLayout.getName(locale));
 						id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_LAYOUT %>"
 						showButtons="<%= false %>"
 					/>
-				</div>
+				</clay:sheet-section>
 
-				<div class="sheet-footer">
+				<clay:sheet-footer>
 					<c:if test="<%= (selLayout.getGroupId() == layoutsAdminDisplayContext.getGroupId()) && SitesUtil.isLayoutUpdateable(selLayout) && LayoutPermissionUtil.contains(permissionChecker, selLayout, ActionKeys.UPDATE) %>">
 						<aui:button type="submit" />
 
@@ -246,8 +245,8 @@ renderResponse.setTitle(selLayout.getName(locale));
 							<aui:button href="<%= backURL %>" name="cancelButton" type="cancel" />
 						</c:if>
 					</c:if>
-				</div>
-			</div>
+				</clay:sheet-footer>
+			</clay:sheet>
 		</aui:form>
 	</c:otherwise>
 </c:choose>
@@ -255,7 +254,7 @@ renderResponse.setTitle(selLayout.getName(locale));
 <aui:script>
 	var form = document.getElementById('<portlet:namespace />editLayoutFm');
 
-	form.addEventListener('submit', function(event) {
+	form.addEventListener('submit', function (event) {
 		var applyLayoutPrototype = document.getElementById(
 			'<portlet:namespace />applyLayoutPrototype'
 		);

@@ -14,44 +14,36 @@
 
 package com.liferay.asset.list.web.internal.portlet;
 
+import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.list.asset.entry.provider.AssetListAssetEntryProvider;
 import com.liferay.asset.list.constants.AssetListPortletKeys;
-import com.liferay.asset.list.constants.AssetListWebKeys;
 import com.liferay.asset.list.exception.AssetListEntryTitleException;
 import com.liferay.asset.list.exception.DuplicateAssetListEntryTitleException;
 import com.liferay.asset.list.model.AssetListEntry;
+import com.liferay.asset.list.web.internal.constants.AssetListWebKeys;
 import com.liferay.asset.list.web.internal.display.context.AssetListDisplayContext;
+import com.liferay.asset.list.web.internal.display.context.AssetListItemsDisplayContext;
 import com.liferay.asset.list.web.internal.display.context.EditAssetListDisplayContext;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.storage.Field;
-import com.liferay.dynamic.data.mapping.storage.Fields;
-import com.liferay.dynamic.data.mapping.util.DDMUtil;
+import com.liferay.asset.list.web.internal.display.context.InfoListProviderDisplayContext;
+import com.liferay.asset.list.web.internal.display.context.InfoListProviderItemsDisplayContext;
+import com.liferay.asset.list.web.internal.servlet.taglib.util.ListItemsActionDropdownItems;
+import com.liferay.asset.util.AssetRendererFactoryClassProvider;
+import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.dynamic.data.mapping.util.DDMIndexer;
+import com.liferay.info.display.url.provider.InfoEditURLProviderTracker;
+import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.list.provider.InfoListProviderTracker;
 import com.liferay.item.selector.ItemSelector;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
-import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextFactory;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
-import java.io.Serializable;
-
-import java.text.DateFormat;
-
-import java.util.Date;
 
 import javax.portlet.Portlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -66,6 +58,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.display-category=category.hidden",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
 		"com.liferay.portlet.preferences-owned-by-group=true",
+		"com.liferay.portlet.preferences-unique-per-layout=false",
 		"com.liferay.portlet.private-request-attributes=false",
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=50",
@@ -81,131 +74,48 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class AssetListPortlet extends MVCPortlet {
 
-	public void getFieldValue(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws PortletException {
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		try {
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				resourceRequest);
-
-			long structureId = ParamUtil.getLong(
-				resourceRequest, "structureId");
-
-			Fields fields = (Fields)serviceContext.getAttribute(
-				Fields.class.getName() + structureId);
-
-			if (fields == null) {
-				String fieldsNamespace = ParamUtil.getString(
-					resourceRequest, "fieldsNamespace");
-
-				fields = DDMUtil.getFields(
-					structureId, fieldsNamespace, serviceContext);
-			}
-
-			String fieldName = ParamUtil.getString(resourceRequest, "name");
-
-			Field field = fields.get(fieldName);
-
-			Serializable fieldValue = field.getValue(
-				themeDisplay.getLocale(), 0);
-
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-			if (fieldValue != null) {
-				jsonObject.put("success", true);
-			}
-			else {
-				jsonObject.put("success", false);
-
-				writeJSON(resourceRequest, resourceResponse, jsonObject);
-
-				return;
-			}
-
-			DDMStructure ddmStructure = field.getDDMStructure();
-
-			String type = ddmStructure.getFieldType(fieldName);
-
-			Serializable displayValue = DDMUtil.getDisplayFieldValue(
-				themeDisplay, fieldValue, type);
-
-			jsonObject.put("displayValue", String.valueOf(displayValue));
-
-			if (fieldValue instanceof Boolean) {
-				jsonObject.put("value", (Boolean)fieldValue);
-			}
-			else if (fieldValue instanceof Date) {
-				DateFormat dateFormat =
-					DateFormatFactoryUtil.getSimpleDateFormat(
-						"yyyyMM ddHHmmss");
-
-				jsonObject.put("value", dateFormat.format(fieldValue));
-			}
-			else if (fieldValue instanceof Double) {
-				jsonObject.put("value", (Double)fieldValue);
-			}
-			else if (fieldValue instanceof Float) {
-				jsonObject.put("value", (Float)fieldValue);
-			}
-			else if (fieldValue instanceof Integer) {
-				jsonObject.put("value", (Integer)fieldValue);
-			}
-			else if (fieldValue instanceof Number) {
-				jsonObject.put("value", String.valueOf(fieldValue));
-			}
-			else {
-				jsonObject.put("value", (String)fieldValue);
-			}
-
-			writeJSON(resourceRequest, resourceResponse, jsonObject);
-		}
-		catch (Exception exception) {
-			throw new PortletException(exception);
-		}
-	}
-
-	@Override
-	public void serveResource(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws IOException, PortletException {
-
-		String resourceID = GetterUtil.getString(
-			resourceRequest.getResourceID());
-
-		if (resourceID.equals("getFieldValue")) {
-			getFieldValue(resourceRequest, resourceResponse);
-		}
-		else {
-			super.serveResource(resourceRequest, resourceResponse);
-		}
-
-		super.serveResource(resourceRequest, resourceResponse);
-	}
-
 	@Override
 	protected void doDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
 
 		renderRequest.setAttribute(
-			AssetListWebKeys.ASSET_LIST_ASSET_ENTRY_PROVIDER,
-			_assetListAssetEntryProvider);
+			AssetListWebKeys.ASSET_LIST_ITEMS_DISPLAY_CONTEXT,
+			new AssetListItemsDisplayContext(
+				_assetListAssetEntryProvider, renderRequest, renderResponse));
 
 		AssetListDisplayContext assetListDisplayContext =
-			new AssetListDisplayContext(renderRequest, renderResponse);
+			new AssetListDisplayContext(
+				_assetRendererFactoryClassProvider, renderRequest,
+				renderResponse);
 
 		renderRequest.setAttribute(
 			AssetListWebKeys.ASSET_LIST_DISPLAY_CONTEXT,
 			assetListDisplayContext);
+
+		renderRequest.setAttribute(AssetListWebKeys.DDM_INDEXER, _ddmIndexer);
 		renderRequest.setAttribute(
 			AssetListWebKeys.EDIT_ASSET_LIST_DISPLAY_CONTEXT,
 			new EditAssetListDisplayContext(
-				_itemSelector, renderRequest, renderResponse,
+				_assetRendererFactoryClassProvider, _itemSelector,
+				renderRequest, renderResponse,
 				_getUnicodeProperties(assetListDisplayContext)));
+
+		renderRequest.setAttribute(
+			AssetListWebKeys.INFO_LIST_PROVIDER_DISPLAY_CONTEXT,
+			new InfoListProviderDisplayContext(
+				_infoItemServiceTracker, _infoListProviderTracker,
+				renderRequest, renderResponse));
+		renderRequest.setAttribute(
+			AssetListWebKeys.INFO_LIST_PROVIDER_ITEMS_DISPLAY_CONTEXT,
+			new InfoListProviderItemsDisplayContext(
+				_infoItemServiceTracker, renderRequest, renderResponse));
+		renderRequest.setAttribute(
+			AssetListWebKeys.LIST_ITEMS_ACTION_DROPDOWN_ITEMS,
+			new ListItemsActionDropdownItems(
+				_assetDisplayPageFriendlyURLProvider, _dlAppService,
+				_infoEditURLProviderTracker, _infoItemServiceTracker,
+				_portal.getHttpServletRequest(renderRequest)));
 
 		renderRequest.setAttribute(
 			AssetListWebKeys.ITEM_SELECTOR, _itemSelector);
@@ -214,14 +124,14 @@ public class AssetListPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof AssetListEntryTitleException ||
-			cause instanceof DuplicateAssetListEntryTitleException) {
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof AssetListEntryTitleException ||
+			throwable instanceof DuplicateAssetListEntryTitleException) {
 
 			return true;
 		}
 
-		return super.isSessionErrorException(cause);
+		return super.isSessionErrorException(throwable);
 	}
 
 	private UnicodeProperties _getUnicodeProperties(
@@ -235,19 +145,45 @@ public class AssetListPortlet extends MVCPortlet {
 			return new UnicodeProperties();
 		}
 
-		UnicodeProperties properties = new UnicodeProperties();
+		UnicodeProperties unicodeProperties = new UnicodeProperties();
 
-		properties.load(
+		unicodeProperties.load(
 			assetListEntry.getTypeSettings(
 				assetListDisplayContext.getSegmentsEntryId()));
 
-		return properties;
+		return unicodeProperties;
 	}
+
+	@Reference
+	private AssetDisplayPageFriendlyURLProvider
+		_assetDisplayPageFriendlyURLProvider;
 
 	@Reference
 	private AssetListAssetEntryProvider _assetListAssetEntryProvider;
 
 	@Reference
+	private AssetRendererFactoryClassProvider
+		_assetRendererFactoryClassProvider;
+
+	@Reference
+	private DDMIndexer _ddmIndexer;
+
+	@Reference
+	private DLAppService _dlAppService;
+
+	@Reference
+	private InfoEditURLProviderTracker _infoEditURLProviderTracker;
+
+	@Reference
+	private InfoItemServiceTracker _infoItemServiceTracker;
+
+	@Reference
+	private InfoListProviderTracker _infoListProviderTracker;
+
+	@Reference
 	private ItemSelector _itemSelector;
+
+	@Reference
+	private Portal _portal;
 
 }

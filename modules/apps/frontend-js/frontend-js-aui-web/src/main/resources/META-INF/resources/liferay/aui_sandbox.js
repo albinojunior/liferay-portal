@@ -12,7 +12,10 @@
  * details.
  */
 
-(function() {
+/**
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
+ */
+(function () {
 	var ALLOY = YUI();
 
 	if (ALLOY.html5shiv) {
@@ -21,7 +24,7 @@
 
 	var originalUse = ALLOY.use;
 
-	ALLOY.use = function() {
+	ALLOY.use = function () {
 		var args = Array.prototype.slice.call(arguments, 0);
 
 		var currentURL = Liferay.currentURL;
@@ -29,7 +32,7 @@
 		var originalCallback = args[args.length - 1];
 
 		if (typeof originalCallback === 'function') {
-			args[args.length - 1] = function() {
+			args[args.length - 1] = function () {
 				if (Liferay.currentURL === currentURL) {
 					originalCallback.apply(this, arguments);
 				}
@@ -39,7 +42,7 @@
 		return originalUse.apply(this, args);
 	};
 
-	window.AUI = function() {
+	window.AUI = function () {
 		return ALLOY;
 	};
 

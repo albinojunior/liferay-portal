@@ -73,7 +73,25 @@ public class AddItemMVCActionCommand extends BaseMVCActionCommand {
 
 		JSONObject layoutDataJSONObject = null;
 
-		if (Objects.equals(itemType, LayoutDataItemTypeConstants.TYPE_ROW)) {
+		if (Objects.equals(
+				itemType, LayoutDataItemTypeConstants.TYPE_COLLECTION)) {
+
+			layoutDataJSONObject =
+				LayoutStructureUtil.updateLayoutPageTemplateData(
+					themeDisplay.getScopeGroupId(), segmentsExperienceId,
+					themeDisplay.getPlid(),
+					layoutStructure -> {
+						LayoutStructureItem layoutStructureItem =
+							layoutStructure.addCollectionLayoutStructureItem(
+								parentItemId, position);
+
+						jsonObject.put(
+							"addedItemId", layoutStructureItem.getItemId());
+					});
+		}
+		else if (Objects.equals(
+					itemType, LayoutDataItemTypeConstants.TYPE_ROW)) {
+
 			layoutDataJSONObject =
 				LayoutStructureUtil.updateLayoutPageTemplateData(
 					themeDisplay.getScopeGroupId(), segmentsExperienceId,

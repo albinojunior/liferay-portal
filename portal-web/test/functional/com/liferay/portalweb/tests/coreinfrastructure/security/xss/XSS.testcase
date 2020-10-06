@@ -3,7 +3,7 @@ definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
-	property test.assert.warning.exceptions = "true";
+	property test.assert.warning.exceptions = "false";
 	property testray.main.component.name = "XSS";
 
 	setUp {
@@ -46,7 +46,7 @@ definition {
 			''';
 
 		var maliciousURL5 = '''
-				${portalURL}/web/guest/home?p_p_id=113&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&_113_tabs1=background-styles
+				${portalURL}/web/guest/search?p_p_id=113&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&_113_tabs1=background-styles
 			''';
 
 		Navigator.openSpecificURL(url = "${maliciousURL1}");
@@ -110,7 +110,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Settings");
 
 		Site.editGoogleAnalyticsIDCP(googleAnalyticsID = '''']);alert(/googleAnalyticsId/);//''');
@@ -156,7 +155,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Asset Publisher Page");
@@ -182,7 +180,6 @@ definition {
 	test ViewLookAndFeel {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = '''<script>alert(123);</script>''');
@@ -209,9 +206,10 @@ definition {
 	@description = "This is a use case for LPS-42750."
 	@priority = "3"
 	test ViewMobileDeviceFamilies {
+		property test.name.skip.portal.instance = "XSS#ViewMobileDeviceFamilies";
+
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Mobile Device Families");
 
 		MobileDevice.addDeviceFamilyCP(deviceFamilyName = '''<script>alert(123);</script>''');
@@ -220,12 +218,11 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
-			pageName = "Home");
+			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Advanced");
 
@@ -255,7 +252,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Blogs");
 
 		BlogsNavigator.gotoAddEntry();
@@ -273,7 +269,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Blogs");
 
 		BlogsNavigator.moveToRecycleBinCP(entryTitle = "${entryTitle}");
@@ -282,7 +277,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.restoreCP(
@@ -303,14 +297,14 @@ definition {
 
 	@priority = "4"
 	test ViewRoles {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
 		Role.add(roleTitle = '''<script>alert(123);</script>''');
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -322,7 +316,11 @@ definition {
 
 		Navigator.openURL();
 
-		Portlet.addPG(portletName = "Sign In");
+		Click(locator1 = "Icon#EDIT_PENCIL");
+
+		PageEditor.addWidget(
+			portletName = "Sign In",
+			targetFragmentName = "Container");
 
 		PermissionsInline.gotoConfigurationPG(portletName = "Sign In");
 
@@ -342,14 +340,14 @@ definition {
 
 		var siteName = '''<script>alert(123);</script>''';
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
 
 		Site.addBlankCP(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -428,7 +426,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Web Content");
 
 		WebContentNavigator.gotoAddCP();
@@ -445,7 +442,11 @@ definition {
 
 		Navigator.openURL();
 
-		Portlet.addPG(portletName = "Web Content Display");
+		Click(locator1 = "Icon#EDIT_PENCIL");
+
+		PageEditor.addWidget(
+			portletName = "Web Content Display",
+			targetFragmentName = "Container");
 
 		WebContentDisplayPortlet.selectWebContent(webContentTitle = '''<script>alert(123);</script>''');
 
@@ -453,7 +454,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Web Content");
 
 		WebContentNavigator.gotoEditCP(
@@ -490,7 +490,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");

@@ -11,21 +11,40 @@
 
 import {fetch} from 'frontend-js-web';
 
-function APIService({endpoints, namespace, page}) {
-	const {
-		getAnalyticsReportsHistoricalReadsURL,
-		getAnalyticsReportsHistoricalViewsURL,
-		getAnalyticsReportsTotalReadsURL,
-		getAnalyticsReportsTotalViewsURL,
-	} = endpoints;
-	const {plid} = page;
+function APIService({
+	endpoints: {
+		analyticsReportsHistoricalReadsURL,
+		analyticsReportsHistoricalViewsURL,
+		analyticsReportsTotalReadsURL,
+		analyticsReportsTotalViewsURL,
+		analyticsReportsTrafficSourcesURL,
+	},
+	namespace,
+	page: {plid},
+}) {
+	function getHistoricalReads({timeSpanKey, timeSpanOffset}) {
+		const body = {plid, timeSpanKey, timeSpanOffset};
+
+		return _fetchWithError(analyticsReportsHistoricalReadsURL, {
+			body: _getFormDataRequest(body, namespace),
+			method: 'POST',
+		});
+	}
+
+	function getHistoricalViews({timeSpanKey, timeSpanOffset}) {
+		const body = {plid, timeSpanKey, timeSpanOffset};
+
+		return _fetchWithError(analyticsReportsHistoricalViewsURL, {
+			body: _getFormDataRequest(body, namespace),
+			method: 'POST',
+		});
+	}
 
 	function getTotalReads() {
 		const body = {plid};
 
-		return _fetchWithError(getAnalyticsReportsTotalReadsURL, {
+		return _fetchWithError(analyticsReportsTotalReadsURL, {
 			body: _getFormDataRequest(body, namespace),
-			credentials: 'include',
 			method: 'POST',
 		});
 	}
@@ -33,29 +52,17 @@ function APIService({endpoints, namespace, page}) {
 	function getTotalViews() {
 		const body = {plid};
 
-		return _fetchWithError(getAnalyticsReportsTotalViewsURL, {
+		return _fetchWithError(analyticsReportsTotalViewsURL, {
 			body: _getFormDataRequest(body, namespace),
-			credentials: 'include',
 			method: 'POST',
 		});
 	}
 
-	function getHistoricalReads() {
+	function getTrafficSources() {
 		const body = {plid};
 
-		return _fetchWithError(getAnalyticsReportsHistoricalReadsURL, {
+		return _fetchWithError(analyticsReportsTrafficSourcesURL, {
 			body: _getFormDataRequest(body, namespace),
-			credentials: 'include',
-			method: 'POST',
-		});
-	}
-
-	function getHistoricalViews() {
-		const body = {plid};
-
-		return _fetchWithError(getAnalyticsReportsHistoricalViewsURL, {
-			body: _getFormDataRequest(body, namespace),
-			credentials: 'include',
 			method: 'POST',
 		});
 	}
@@ -65,6 +72,7 @@ function APIService({endpoints, namespace, page}) {
 		getHistoricalViews,
 		getTotalReads,
 		getTotalViews,
+		getTrafficSources,
 	};
 }
 
@@ -92,8 +100,8 @@ export function _getFormDataRequest(body, prefix, formData = new FormData()) {
  */
 function _fetchWithError(url, options = {}) {
 	return fetch(url, options)
-		.then(response => response.json())
-		.then(objectResponse => {
+		.then((response) => response.json())
+		.then((objectResponse) => {
 			if (objectResponse.error) {
 				throw objectResponse.error;
 			}

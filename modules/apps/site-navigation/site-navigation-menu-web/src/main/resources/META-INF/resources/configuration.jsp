@@ -50,8 +50,10 @@ else {
 	<aui:input name="redirect" type="hidden" value="<%= configurationRenderURL %>" />
 
 	<liferay-frontend:edit-form-body>
-		<aui:row>
-			<aui:col width="<%= 50 %>">
+		<clay:row>
+			<clay:col
+				md="6"
+			>
 				<liferay-frontend:fieldset-group>
 					<liferay-frontend:fieldset
 						cssClass="p-3"
@@ -111,17 +113,21 @@ else {
 						label="menu-items-to-show"
 					>
 						<div id="<portlet:namespace />customDisplayOptions">
-							<aui:row>
-								<aui:col width="<%= 75 %>">
+							<clay:row>
+								<clay:col
+									md="9"
+								>
 									<aui:select id="rootMenuItemType" label="start-with-menu-items-in" name="preferences--rootMenuItemType--" value="<%= rootMenuItemType %>">
 										<aui:option label="level" value="absolute" />
 										<aui:option label="level-relative-to-the-current-menu-item" value="relative" />
-										<aui:option label="select" value="select" />
+										<aui:option label="select-parent" value="select" />
 									</aui:select>
-								</aui:col>
+								</clay:col>
 
-								<aui:col width="<%= 25 %>">
-									<div class="mt-4 <%= (rootMenuItemType.equals("parent-at-level") || rootMenuItemType.equals("relative-parent-up-by")) ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />rootMenuItemLevel">
+								<clay:col
+									md="3"
+								>
+									<div class="mt-4 pt-1 <%= (rootMenuItemType.equals("parent-at-level") || rootMenuItemType.equals("relative-parent-up-by")) ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />rootMenuItemLevel">
 										<aui:select label="" name="preferences--rootMenuItemLevel--">
 
 											<%
@@ -136,11 +142,13 @@ else {
 
 										</aui:select>
 									</div>
-								</aui:col>
-							</aui:row>
+								</clay:col>
+							</clay:row>
 
-							<aui:row>
-								<aui:col width="<%= 80 %>">
+							<clay:row>
+								<clay:col
+									md="10"
+								>
 									<div class="mb-3 <%= rootMenuItemType.equals("select") ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />rootMenuItemIdPanel">
 										<aui:input id="rootMenuItemId" ignoreRequestValue="<%= true %>" name="preferences--rootMenuItemId--" type="hidden" value="<%= siteNavigationMenuDisplayContext.getRootMenuItemId() %>" />
 
@@ -158,30 +166,43 @@ else {
 										}
 										%>
 
-										<div class="card card-horizontal taglib-horizontal-card">
-											<div class="card-body ">
-												<div class="card-col-field">
-													<div class="sticker sticker-secondary sticker-static">
-														<aui:icon image="blogs" markupView="lexicon" />
-													</div>
-												</div>
+										<div class="card card-horizontal card-type-directory">
+											<div class="card-body">
+												<clay:content-row
+													verticalAlign="center"
+												>
+													<clay:content-col>
+														<clay:sticker
+															cssClass="sticker-static"
+															displayType="secondary"
+															icon="blogs"
+														/>
+													</clay:content-col>
 
-												<div class="card-col-content card-col-gutters">
-													<span class="lfr-card-title-text text-truncate" id="<portlet:namespace />rootMenuItemName">
-														<%= HtmlUtil.escape(rootMenuItemName) %>
-													</span>
-												</div>
+													<clay:content-col
+														expand="<%= true %>"
+														gutters="<%= true %>"
+													>
+														<h3 class="card-title">
+															<span class="text-truncate-inline">
+																<span class="text-truncate" id="<portlet:namespace />rootMenuItemName"><%= HtmlUtil.escape(rootMenuItemName) %></span>
+															</span>
+														</h3>
+													</clay:content-col>
+												</clay:content-row>
 											</div>
 										</div>
 
 										<aui:button name="chooseRootMenuItem" value="menu-item" />
 									</div>
-								</aui:col>
-							</aui:row>
+								</clay:col>
+							</clay:row>
 
-							<aui:row>
-								<aui:col width="<%= 50 %>">
-									<aui:select label="sublevels-to-display" name="preferences--displayDepth--">
+							<clay:row>
+								<clay:col
+									md="6"
+								>
+									<aui:select label="levels-to-display" name="preferences--displayDepth--">
 										<aui:option label="unlimited" value="0" />
 
 										<%
@@ -195,27 +216,31 @@ else {
 										%>
 
 									</aui:select>
-								</aui:col>
+								</clay:col>
 
-								<aui:col width="<%= 50 %>">
+								<clay:col
+									md="6"
+								>
 									<aui:select label="expand-sublevels" name="preferences--expandedLevels--" value="<%= siteNavigationMenuDisplayContext.getExpandedLevels() %>">
 										<aui:option label="auto" />
 										<aui:option label="all" />
 									</aui:select>
-								</aui:col>
-							</aui:row>
+								</clay:col>
+							</clay:row>
 						</div>
 					</liferay-frontend:fieldset>
 				</liferay-frontend:fieldset-group>
-			</aui:col>
+			</clay:col>
 
-			<aui:col width="<%= 50 %>">
+			<clay:col
+				md="6"
+			>
 				<liferay-portlet:preview
 					portletName="<%= portletResource %>"
 					showBorders="<%= true %>"
 				/>
-			</aui:col>
-		</aui:row>
+			</clay:col>
+		</clay:row>
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
@@ -225,13 +250,13 @@ else {
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
 
-<aui:script require="metal-dom/src/dom as dom, frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
+<aui:script require="metal-dom/src/dom as dom">
 	var form = document.<portlet:namespace />fm;
 
-	form.addEventListener('change', <portlet:namespace/>resetPreview);
-	form.addEventListener('select', <portlet:namespace/>resetPreview);
+	form.addEventListener('change', <portlet:namespace />resetPreview);
+	form.addEventListener('select', <portlet:namespace />resetPreview);
 
-	function <portlet:namespace/>resetPreview() {
+	function <portlet:namespace />resetPreview() {
 		var displayDepthSelect = Liferay.Util.getFormElement(form, 'displayDepth');
 		var displayStyleSelect = Liferay.Util.getFormElement(form, 'displayStyle');
 		var expandedLevelsSelect = Liferay.Util.getFormElement(
@@ -314,7 +339,7 @@ else {
 		selectSiteNavigationMenuTypeSelect &&
 		siteNavigationMenuIdInput
 	) {
-		chooseRootMenuItemButton.addEventListener('click', function(event) {
+		chooseRootMenuItemButton.addEventListener('click', function (event) {
 			event.preventDefault();
 
 			var uri =
@@ -331,29 +356,23 @@ else {
 				uri
 			);
 
-			var itemSelectorDialog = new ItemSelectorDialog.default({
-				eventName:
+			Liferay.Util.openSelectionModal({
+				onSelect: function (selectedItem) {
+					if (selectedItem) {
+						rootMenuItemIdInput.value =
+							selectedItem.selectSiteNavigationMenuItemId;
+						rootMenuItemNameSpan.innerText =
+							selectedItem.selectSiteNavigationMenuItemName;
+
+						<portlet:namespace />resetPreview();
+					}
+				},
+				selectEventName:
 					'<%= siteNavigationMenuDisplayContext.getRootMenuItemEventName() %>',
-				singleSelect: true,
 				title:
 					'<liferay-ui:message key="select-site-navigation-menu-item" />',
 				url: uri,
 			});
-
-			itemSelectorDialog.on('selectedItemChange', function(event) {
-				var selectedItem = event.selectedItem;
-
-				if (selectedItem) {
-					rootMenuItemIdInput.value =
-						selectedItem.selectSiteNavigationMenuItemId;
-					rootMenuItemNameSpan.innerText =
-						selectedItem.selectSiteNavigationMenuItemName;
-
-					<portlet:namespace/>resetPreview();
-				}
-			});
-
-			itemSelectorDialog.open();
 		});
 	}
 
@@ -375,23 +394,10 @@ else {
 		rootMenuItemNameSpan &&
 		siteNavigationMenuIdInput
 	) {
-		chooseSiteNavigationMenuButton.addEventListener('click', function(event) {
-			Liferay.Util.selectEntity(
-				{
-					dialog: {
-						constrain: true,
-						destroyOnHide: true,
-						modal: true,
-					},
-					eventName:
-						'<%= siteNavigationMenuDisplayContext.getSiteNavigationMenuEventName() %>',
-					id: '<portlet:namespace />selectSiteNavigationMenu',
-					title:
-						'<liferay-ui:message key="select-site-navigation-menu" />',
-					uri:
-						'<%= siteNavigationMenuDisplayContext.getSiteNavigationMenuItemSelectorURL() %>',
-				},
-				function(selectedItem) {
+		chooseSiteNavigationMenuButton.addEventListener('click', function (event) {
+			Liferay.Util.openSelectionModal({
+				id: '<portlet:namespace />selectSiteNavigationMenu',
+				onSelect: function (selectedItem) {
 					if (selectedItem) {
 						navigationMenuName.innerText = selectedItem.name;
 						rootMenuItemIdInput.value = '0';
@@ -400,10 +406,15 @@ else {
 
 						dom.toggleClasses(removeSiteNavigationMenu, 'hide');
 
-						<portlet:namespace/>resetPreview();
+						<portlet:namespace />resetPreview();
 					}
-				}
-			);
+				},
+				selectEventName:
+					'<%= siteNavigationMenuDisplayContext.getSiteNavigationMenuEventName() %>',
+				title: '<liferay-ui:message key="select-site-navigation-menu" />',
+				url:
+					'<%= siteNavigationMenuDisplayContext.getSiteNavigationMenuItemSelectorURL() %>',
+			});
 		});
 	}
 
@@ -419,7 +430,7 @@ else {
 		rootMenuItemNameSpan &&
 		siteNavigationMenuIdInput
 	) {
-		removeSiteNavigationMenuButton.addEventListener('click', function(event) {
+		removeSiteNavigationMenuButton.addEventListener('click', function (event) {
 			navigationMenuName.innerText = '';
 			rootMenuItemIdInput.value = '0';
 			rootMenuItemNameSpan.innerText = '';
@@ -427,7 +438,7 @@ else {
 
 			dom.toggleClasses(removeSiteNavigationMenu, 'hide');
 
-			<portlet:namespace/>resetPreview();
+			<portlet:namespace />resetPreview();
 		});
 	}
 
@@ -439,7 +450,7 @@ else {
 
 	Liferay.Util.toggleSelectBox(
 		'<portlet:namespace />rootMenuItemType',
-		function(currentValue, value) {
+		function (currentValue, value) {
 			return currentValue === 'absolute' || currentValue === 'relative';
 		},
 		'<portlet:namespace />rootMenuItemLevel'
@@ -454,7 +465,7 @@ else {
 		selectSiteNavigationMenuTypeSelect &&
 		siteNavigationMenuType
 	) {
-		selectSiteNavigationMenuTypeSelect.addEventListener('change', function() {
+		selectSiteNavigationMenuTypeSelect.addEventListener('change', function () {
 			var selectedSelectSiteNavigationMenuType = document.querySelector(
 				'#<portlet:namespace />selectSiteNavigationMenuType option:checked'
 			);
@@ -483,7 +494,7 @@ else {
 			document.<portlet:namespace />fm,
 			'change',
 			'.select-navigation',
-			function() {
+			function () {
 				var siteNavigationDisabled =
 					selectSiteNavigationMenuTypeSelect.disabled;
 
@@ -502,7 +513,7 @@ else {
 
 				removeSiteNavigationMenu.classList.add('hide');
 
-				<portlet:namespace/>resetPreview();
+				<portlet:namespace />resetPreview();
 			}
 		);
 	}

@@ -16,15 +16,18 @@ package com.liferay.fragment.service.impl;
 
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.base.FragmentEntryLinkServiceBaseImpl;
+import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.BaseModelPermissionCheckerUtil;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
-import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Map;
 import java.util.Objects;
@@ -45,21 +48,43 @@ import org.osgi.service.component.annotations.Reference;
 public class FragmentEntryLinkServiceImpl
 	extends FragmentEntryLinkServiceBaseImpl {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #addFragmentEntryLink(long, long, long, long, long, String,
+	 *             String, String, String, String, String, int, String,
+	 *             ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntryLink addFragmentEntryLink(
 			long groupId, long originalFragmentEntryLinkId,
-			long fragmentEntryId, long classNameId, long classPK, String css,
-			String html, String js, String configuration, String editableValues,
-			String namespace, int position, String rendererKey,
-			ServiceContext serviceContext)
+			long fragmentEntryId, long segmentsExperienceId, long classNameId,
+			long classPK, String css, String html, String js,
+			String configuration, String editableValues, String namespace,
+			int position, String rendererKey, ServiceContext serviceContext)
 		throws PortalException {
 
-		_checkPermission(groupId, _portal.getClassName(classNameId), classPK);
+		return addFragmentEntryLink(
+			groupId, originalFragmentEntryLinkId, fragmentEntryId,
+			segmentsExperienceId, classPK, css, html, js, configuration,
+			editableValues, namespace, position, rendererKey, serviceContext);
+	}
+
+	@Override
+	public FragmentEntryLink addFragmentEntryLink(
+			long groupId, long originalFragmentEntryLinkId,
+			long fragmentEntryId, long segmentsExperienceId, long plid,
+			String css, String html, String js, String configuration,
+			String editableValues, String namespace, int position,
+			String rendererKey, ServiceContext serviceContext)
+		throws PortalException {
+
+		_checkPermission(groupId, plid, false);
 
 		return fragmentEntryLinkLocalService.addFragmentEntryLink(
 			getUserId(), groupId, originalFragmentEntryLinkId, fragmentEntryId,
-			classNameId, classPK, css, html, js, configuration, editableValues,
-			namespace, position, rendererKey, serviceContext);
+			segmentsExperienceId, plid, css, html, js, configuration,
+			editableValues, namespace, position, rendererKey, serviceContext);
 	}
 
 	@Override
@@ -70,8 +95,7 @@ public class FragmentEntryLinkServiceImpl
 			fragmentEntryLinkPersistence.findByPrimaryKey(fragmentEntryLinkId);
 
 		_checkPermission(
-			fragmentEntryLink.getGroupId(), fragmentEntryLink.getClassName(),
-			fragmentEntryLink.getClassPK());
+			fragmentEntryLink.getGroupId(), fragmentEntryLink.getPlid(), false);
 
 		return fragmentEntryLinkLocalService.deleteFragmentEntryLink(
 			fragmentEntryLinkId);
@@ -96,13 +120,18 @@ public class FragmentEntryLinkServiceImpl
 			fragmentEntryLinkPersistence.findByPrimaryKey(fragmentEntryLinkId);
 
 		_checkPermission(
-			fragmentEntryLink.getGroupId(), fragmentEntryLink.getClassName(),
-			fragmentEntryLink.getClassPK());
+			fragmentEntryLink.getGroupId(), fragmentEntryLink.getPlid(), true);
 
 		return fragmentEntryLinkLocalService.updateFragmentEntryLink(
 			fragmentEntryLinkId, editableValues, updateClassedModel);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #updateFragmentEntryLinks(long, long, long[], String,
+	 *             ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public void updateFragmentEntryLinks(
 			long groupId, long classNameId, long classPK,
@@ -110,11 +139,21 @@ public class FragmentEntryLinkServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		_checkPermission(groupId, _portal.getClassName(classNameId), classPK);
+		updateFragmentEntryLinks(
+			groupId, classPK, fragmentEntryIds, editableValues, serviceContext);
+	}
+
+	@Override
+	public void updateFragmentEntryLinks(
+			long groupId, long plid, long[] fragmentEntryIds,
+			String editableValues, ServiceContext serviceContext)
+		throws PortalException {
+
+		_checkPermission(groupId, plid, true);
 
 		fragmentEntryLinkLocalService.updateFragmentEntryLinks(
-			getUserId(), groupId, classNameId, classPK, fragmentEntryIds,
-			editableValues, serviceContext);
+			getUserId(), groupId, plid, fragmentEntryIds, editableValues,
+			serviceContext);
 	}
 
 	@Override
@@ -129,24 +168,48 @@ public class FragmentEntryLinkServiceImpl
 				fragmentEntryLinkPersistence.findByPrimaryKey(entry.getKey());
 
 			_checkPermission(
-				fragmentEntryLink.getGroupId(),
-				fragmentEntryLink.getClassName(),
-				fragmentEntryLink.getClassPK());
+				fragmentEntryLink.getGroupId(), fragmentEntryLink.getPlid(),
+				true);
 		}
 
 		fragmentEntryLinkLocalService.updateFragmentEntryLinks(
 			fragmentEntryLinksEditableValuesMap);
 	}
 
-	private void _checkPermission(long groupId, String className, long classPK)
+	private void _checkPermission(
+			long groupId, long plid, boolean checkUpdateLayoutContentPermission)
 		throws PortalException {
+
+		String className = Layout.class.getName();
+		long classPK = plid;
+
+		long layoutPageTemplateEntryPlid = plid;
+
+		Layout layout = _layoutLocalService.fetchLayout(plid);
+
+		if (Validator.isNotNull(layout.getClassNameId()) &&
+			(layout.getClassPK() > 0)) {
+
+			layoutPageTemplateEntryPlid = layout.getClassPK();
+		}
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(layoutPageTemplateEntryPlid);
+
+		if (layoutPageTemplateEntry != null) {
+			className = LayoutPageTemplateEntry.class.getName();
+			classPK = layoutPageTemplateEntry.getLayoutPageTemplateEntryId();
+		}
 
 		Boolean containsPermission = Boolean.valueOf(
 			BaseModelPermissionCheckerUtil.containsBaseModelPermission(
 				getPermissionChecker(), groupId, className, classPK,
 				ActionKeys.UPDATE));
 
-		if (Objects.equals(className, Layout.class.getName())) {
+		if (checkUpdateLayoutContentPermission &&
+			Objects.equals(className, Layout.class.getName())) {
+
 			containsPermission =
 				containsPermission ||
 				LayoutPermissionUtil.contains(
@@ -161,6 +224,10 @@ public class FragmentEntryLinkServiceImpl
 	}
 
 	@Reference
-	private Portal _portal;
+	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 }

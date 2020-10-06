@@ -3,6 +3,7 @@
 <model-hints>
 	<model name="com.liferay.account.model.AccountEntry">
 		<field name="mvccVersion" type="long" />
+		<field name="externalReferenceCode" type="String" />
 		<field name="accountEntryId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
@@ -21,6 +22,8 @@
 			<hint name="max-length">4000</hint>
 		</field>
 		<field name="logoId" type="long" />
+		<field name="taxIdNumber" type="String" />
+		<field name="type" type="String" />
 		<field name="status" type="int" />
 	</model>
 	<model name="com.liferay.account.model.AccountEntryOrganizationRel">
@@ -36,6 +39,25 @@
 		<field name="companyId" type="long" />
 		<field name="accountEntryId" type="long" />
 		<field name="accountUserId" type="long" />
+	</model>
+	<model name="com.liferay.account.model.AccountGroup">
+		<field name="mvccVersion" type="long" />
+		<field name="externalReferenceCode" type="String" />
+		<field name="accountGroupId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
+		<field name="name" type="String" />
+		<field name="description" type="String" />
+	</model>
+	<model name="com.liferay.account.model.AccountGroupAccountEntryRel">
+		<field name="mvccVersion" type="long" />
+		<field name="AccountGroupAccountEntryRelId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="accountGroupId" type="long" />
+		<field name="accountEntryId" type="long" />
 	</model>
 	<model name="com.liferay.account.model.AccountRole">
 		<field name="mvccVersion" type="long" />

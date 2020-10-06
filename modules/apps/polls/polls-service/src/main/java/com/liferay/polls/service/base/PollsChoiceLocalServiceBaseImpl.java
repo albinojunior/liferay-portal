@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.polls.model.PollsChoice;
 import com.liferay.polls.service.PollsChoiceLocalService;
 import com.liferay.polls.service.persistence.PollsChoicePersistence;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -80,6 +82,10 @@ public abstract class PollsChoiceLocalServiceBaseImpl
 	/**
 	 * Adds the polls choice to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsChoiceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pollsChoice the polls choice
 	 * @return the polls choice that was added
 	 */
@@ -106,6 +112,10 @@ public abstract class PollsChoiceLocalServiceBaseImpl
 	/**
 	 * Deletes the polls choice with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsChoiceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param choiceId the primary key of the polls choice
 	 * @return the polls choice that was removed
 	 * @throws PortalException if a polls choice with the primary key could not be found
@@ -119,6 +129,10 @@ public abstract class PollsChoiceLocalServiceBaseImpl
 	/**
 	 * Deletes the polls choice from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsChoiceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pollsChoice the polls choice
 	 * @return the polls choice that was removed
 	 */
@@ -126,6 +140,11 @@ public abstract class PollsChoiceLocalServiceBaseImpl
 	@Override
 	public PollsChoice deletePollsChoice(PollsChoice pollsChoice) {
 		return pollsChoicePersistence.remove(pollsChoice);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return pollsChoicePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -376,6 +395,10 @@ public abstract class PollsChoiceLocalServiceBaseImpl
 			(PollsChoice)persistedModel);
 	}
 
+	public BasePersistence<PollsChoice> getBasePersistence() {
+		return pollsChoicePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -462,6 +485,10 @@ public abstract class PollsChoiceLocalServiceBaseImpl
 
 	/**
 	 * Updates the polls choice in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsChoiceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsChoice the polls choice
 	 * @return the polls choice that was updated

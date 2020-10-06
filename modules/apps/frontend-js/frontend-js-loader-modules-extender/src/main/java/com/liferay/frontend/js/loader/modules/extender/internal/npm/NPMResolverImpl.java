@@ -101,7 +101,7 @@ public class NPMResolverImpl implements NPMResolver {
 		return sb.toString();
 	}
 
-	private static Map<String, String> _loadPackageNamesMap(
+	private Map<String, String> _loadPackageNamesMap(
 		Bundle bundle, JSONFactory jsonFactory) {
 
 		try {
@@ -117,10 +117,10 @@ public class NPMResolverImpl implements NPMResolver {
 				JSONObject packagesJSONObject = jsonObject.getJSONObject(
 					"packages");
 
-				Iterator<String> packageIds = packagesJSONObject.keys();
+				Iterator<String> iterator = packagesJSONObject.keys();
 
-				while (packageIds.hasNext()) {
-					String packageId = packageIds.next();
+				while (iterator.hasNext()) {
+					String packageId = iterator.next();
 
 					JSONObject packageJSONObject =
 						packagesJSONObject.getJSONObject(packageId);
@@ -143,7 +143,7 @@ public class NPMResolverImpl implements NPMResolver {
 		}
 	}
 
-	private static String _resolveJSPackageIdentifier(
+	private String _resolveJSPackageIdentifier(
 		Bundle bundle, JSONFactory jsonFactory) {
 
 		try {

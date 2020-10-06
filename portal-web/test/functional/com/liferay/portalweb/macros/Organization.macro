@@ -204,17 +204,18 @@ definition {
 
 		AssertElementPresent.assertVisible(locator1 = "Button#DONE");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
-
-		var key_userScreenName = "${userScreenName}";
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertTextEquals(
+			key_userScreenName = "${userScreenName}",
 			locator1 = "UserGroupsAssignUsers#USER_TABLE_SCREEN_NAME",
 			value1 = "${userScreenName}");
 
-		Check(locator1 = "UserGroupsAssignUsers#USER_TABLE_CHECKBOX");
+		Check(
+			key_userScreenName = "${userScreenName}",
+			locator1 = "UserGroupsAssignUsers#USER_TABLE_CHECKBOX");
 
-		Pause(locator1 = "5000");
+		Pause(locator1 = "3000");
 
 		SelectFrameTop();
 
@@ -270,10 +271,10 @@ definition {
 			key_toggleSwitchLabel = "Create Site",
 			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 
-		if (("${organizationSite}" == "Community Site") || ("${organizationSite}" == "Intranet Site")) {
+		if (isSet(siteTemplateName)) {
 			Select(
 				locator1 = "UserGroupsEditUserGroup#PUBLIC_PAGES_SELECT",
-				value1 = "${organizationSite}");
+				value1 = "${siteTemplateName}");
 
 			if ("${checkEnablePropagationCheckbox}" == "true") {
 				AssertChecked(locator1 = "UserGroupsEditUserGroup#ENABLE_PROPAGATION_PUBLIC_PAGE_CHECKBOX");
@@ -340,31 +341,33 @@ definition {
 	macro assignOrgRoleCP {
 		Organization.gotoActionsCmd(orgName = "${orgName}");
 
-		var key_orgName = "${orgName}";
-
-		Pause(locator1 = "5000");
+		Pause(locator1 = "3000");
 
 		MenuItem.click(menuItem = "Assign Organization Roles");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertTextEquals(
+			key_roleTitle = "${roleTitle}",
 			locator1 = "UsersAndOrganizationsAssignOrganizationalRoles#ROLE_TITLE",
 			value1 = "${roleTitle}");
 
-		Click(locator1 = "UsersAndOrganizationsAssignOrganizationalRoles#ROLE_TITLE");
+		Click(
+			key_roleTitle = "${roleTitle}",
+			locator1 = "UsersAndOrganizationsAssignOrganizationalRoles#ROLE_TITLE");
 
 		Navigator.gotoNavItem(navItem = "Available");
 
 		Search.searchCP(searchTerm = "${userScreenName}");
 
-		var key_userScreenName = "${userScreenName}";
-
 		AssertTextEquals(
+			key_userScreenName = "${userScreenName}",
 			locator1 = "UserGroupsAssignUsers#USER_TABLE_SCREEN_NAME",
 			value1 = "${userScreenName}");
 
-		Check(locator1 = "UserGroupsAssignUsers#USER_TABLE_CHECKBOX");
+		Check(
+			key_userScreenName = "${userScreenName}",
+			locator1 = "UserGroupsAssignUsers#USER_TABLE_CHECKBOX");
 
 		AssertClick(
 			locator1 = "Button#UPDATE_ASSOCIATIONS",
@@ -375,10 +378,12 @@ definition {
 		Navigator.gotoNavItem(navItem = "Current");
 
 		AssertTextEquals(
+			key_userScreenName = "${userScreenName}",
 			locator1 = "UsersAndOrganizationsAssignUsers#USER_TABLE_USER_NAME",
 			value1 = "${userFirstName} ${userLastName}");
 
 		AssertTextEquals(
+			key_userScreenName = "${userScreenName}",
 			locator1 = "UserGroupsAssignUsers#USER_TABLE_SCREEN_NAME",
 			value1 = "${userScreenName}");
 
@@ -531,30 +536,6 @@ definition {
 		LexiconEntry.openEntryMenu(rowEntry = "${memberName}");
 	}
 
-	macro manageMembershipOptionsInSites {
-		Organization.gotoActionsCmd(orgName = "${orgName}");
-
-		var key_orgName = "${orgName}";
-
-		MenuItem.click(menuItem = "Manage Site");
-
-		if ("${selectMembershipType}" == "true") {
-			AssertTextEquals(
-				locator1 = "SitesEditSite#MEMBERSHIP_OPTIONS_MEMBERSHIP_TYPE_LABEL",
-				value1 = "Membership Type");
-
-			Select(
-				locator1 = "SitesEditSite#MEMBERSHIP_OPTIONS_MEMBERSHIP_TYPE",
-				value1 = "${membershipType}");
-		}
-
-		if ("${allowManualMembershipManagement}" == "true") {
-			Check.checkToggleSwitch(locator1 = "Checkbox#ALLOW_MANUAL_MEMBERSHIP_MANAGEMENT");
-		}
-
-		PortletEntry.save();
-	}
-
 	macro removeMemberCP {
 		Organization.gotoMemberActionsCmd(
 			memberName = "${userFullName}",
@@ -612,7 +593,7 @@ definition {
 	}
 
 	macro tearDownCP {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");

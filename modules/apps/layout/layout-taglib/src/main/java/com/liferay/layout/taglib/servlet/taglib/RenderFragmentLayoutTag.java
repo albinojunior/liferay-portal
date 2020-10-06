@@ -14,6 +14,7 @@
 
 package com.liferay.layout.taglib.servlet.taglib;
 
+import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
@@ -25,11 +26,12 @@ import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.impl.VirtualLayout;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.constants.SegmentsWebKeys;
 import com.liferay.taglib.util.IncludeTag;
@@ -52,6 +54,10 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 		return _groupId;
 	}
 
+	public String getMainItemId() {
+		return _mainItemId;
+	}
+
 	public String getMode() {
 		return _mode;
 	}
@@ -70,6 +76,10 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 
 	public void setGroupId(long groupId) {
 		_groupId = groupId;
+	}
+
+	public void setMainItemId(String mainItemId) {
+		_mainItemId = mainItemId;
 	}
 
 	public void setMode(String mode) {
@@ -98,7 +108,8 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 		_fieldValues = null;
 		_groupId = 0;
 		_layoutStructure = null;
-		_mode = null;
+		_mainItemId = null;
+		_mode = FragmentEntryLinkConstants.VIEW;
 		_plid = 0;
 		_showPreview = false;
 	}
@@ -116,40 +127,47 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 			"liferay-layout:render-fragment-layout:fieldValues", _fieldValues);
 		httpServletRequest.setAttribute(
 			"liferay-layout:render-fragment-layout:layoutStructure",
-			_getLayoutStructure());
+			_getLayoutStructure(httpServletRequest));
+		httpServletRequest.setAttribute(
+			"liferay-layout:render-fragment-layout:mainItemId", _mainItemId);
 		httpServletRequest.setAttribute(
 			"liferay-layout:render-fragment-layout:mode", _mode);
 		httpServletRequest.setAttribute(
-			"liferay-layout:render-fragment-layout:previewClassNameId",
-			_getPreviewClassNameId());
-		httpServletRequest.setAttribute(
-			"liferay-layout:render-fragment-layout:previewClassPK",
-			_getPreviewClassPK());
-		httpServletRequest.setAttribute(
-			"liferay-layout:render-fragment-layout:previewType",
-			_getPreviewType());
-		httpServletRequest.setAttribute(
-			"liferay-layout:render-fragment-layout:segmentsExperienceIds",
-			_getSegmentsExperienceIds());
+			"liferay-layout:render-fragment-layout:showPreview", _showPreview);
 	}
 
-	private LayoutStructure _getLayoutStructure() {
+	private Layout _getLayout(HttpServletRequest httpServletRequest) {
+		Layout layout = LayoutLocalServiceUtil.fetchLayout(
+			_getPlid(httpServletRequest));
+
+		if (layout instanceof VirtualLayout) {
+			VirtualLayout virtualLayout = (VirtualLayout)layout;
+
+			layout = virtualLayout.getSourceLayout();
+		}
+
+		return layout;
+	}
+
+	private LayoutStructure _getLayoutStructure(
+		HttpServletRequest httpServletRequest) {
+
 		if (_layoutStructure != null) {
 			return _layoutStructure;
 		}
 
 		try {
+			Layout layout = _getLayout(httpServletRequest);
+
 			LayoutPageTemplateStructure layoutPageTemplateStructure =
 				LayoutPageTemplateStructureLocalServiceUtil.
 					fetchLayoutPageTemplateStructure(
-						getGroupId(),
-						PortalUtil.getClassNameId(Layout.class.getName()),
-						getPlid(), true);
+						layout.getGroupId(), layout.getPlid(), true);
 
 			String data = layoutPageTemplateStructure.getData(
 				_getSegmentsExperienceIds());
 
-			String masterLayoutData = _getMasterLayoutData();
+			String masterLayoutData = _getMasterLayoutData(httpServletRequest);
 
 			if (Validator.isNull(masterLayoutData)) {
 				_layoutStructure = LayoutStructure.of(data);
@@ -168,8 +186,8 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 		}
 	}
 
-	private String _getMasterLayoutData() {
-		Layout layout = LayoutLocalServiceUtil.fetchLayout(_plid);
+	private String _getMasterLayoutData(HttpServletRequest httpServletRequest) {
+		Layout layout = _getLayout(httpServletRequest);
 
 		LayoutPageTemplateEntry masterLayoutPageTemplateEntry =
 			LayoutPageTemplateEntryLocalServiceUtil.
@@ -184,35 +202,24 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 			LayoutPageTemplateStructureLocalServiceUtil.
 				fetchLayoutPageTemplateStructure(
 					masterLayoutPageTemplateEntry.getGroupId(),
-					PortalUtil.getClassNameId(Layout.class),
 					masterLayoutPageTemplateEntry.getPlid());
 
 		return masterLayoutPageTemplateStructure.getData(
 			SegmentsExperienceConstants.ID_DEFAULT);
 	}
 
-	private long _getPreviewClassNameId() {
-		if (!_showPreview) {
-			return 0;
+	private long _getPlid(HttpServletRequest httpServletRequest) {
+		long plid = getPlid();
+
+		if (plid > 0) {
+			return plid;
 		}
 
-		return ParamUtil.getLong(request, "previewClassNameId");
-	}
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-	private long _getPreviewClassPK() {
-		if (!_showPreview) {
-			return 0;
-		}
-
-		return ParamUtil.getLong(request, "previewClassPK");
-	}
-
-	private int _getPreviewType() {
-		if (!_showPreview) {
-			return 0;
-		}
-
-		return ParamUtil.getInteger(request, "previewType");
+		return themeDisplay.getPlid();
 	}
 
 	private long[] _getSegmentsExperienceIds() {
@@ -260,7 +267,8 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 	private Map<String, Object> _fieldValues;
 	private long _groupId;
 	private LayoutStructure _layoutStructure;
-	private String _mode;
+	private String _mainItemId;
+	private String _mode = FragmentEntryLinkConstants.VIEW;
 	private long _plid;
 	private boolean _showPreview;
 

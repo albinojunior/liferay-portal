@@ -21,7 +21,9 @@
 		boolean curValue = true;
 
 		if (defaultValue != null) {
-			curValue = ((Boolean)defaultValue).booleanValue();
+			Boolean defaultValueBoolean = (Boolean)defaultValue;
+
+			curValue = defaultValueBoolean.booleanValue();
 		}
 		%>
 
@@ -129,8 +131,8 @@
 
 		<aui:script require="map-common/js/MapBase.es as MapBase">
 			var geolocationField = {
-				init: function() {
-					Liferay.MapBase.get('<portlet:namespace /><%= name %>', function(map) {
+				init: function () {
+					Liferay.MapBase.get('<portlet:namespace /><%= name %>', function (map) {
 						map.on(
 							'positionChange',
 							geolocationField.onPositionChange,
@@ -138,7 +140,7 @@
 						);
 					});
 				},
-				onPositionChange: function(event) {
+				onPositionChange: function (event) {
 					var inputName = '<portlet:namespace /><%= name %>';
 					var inputNode = document.querySelector('[name="' + inputName + '"]');
 
@@ -200,7 +202,7 @@
 
 		<c:if test="<%= ((type == ExpandoColumnConstants.STRING) || (type == ExpandoColumnConstants.STRING_LOCALIZED)) && (expandoColumn == null) %>">
 			<div id="<portlet:namespace />textFieldLocalizedCheckbox">
-				<aui:input label="make-field-localizable" name="Property--localize-field--" onChange='<%= renderResponse.getNamespace() + "onLocalizeFieldChange(event);" %>' type="checkbox" value="<%= type == ExpandoColumnConstants.STRING_LOCALIZED %>" />
+				<aui:input label="make-field-localizable" name="Property--localize-field--" onChange='<%= liferayPortletResponse.getNamespace() + "onLocalizeFieldChange(event);" %>' type="checkbox" value="<%= type == ExpandoColumnConstants.STRING_LOCALIZED %>" />
 
 				<aui:script>
 					Liferay.Util.toggleBoxes(
@@ -321,7 +323,7 @@
 	}
 
 	function updateElement(formElementIds, action) {
-		formElementIds.forEach(function(formElementId) {
+		formElementIds.forEach(function (formElementId) {
 			var formElement = document.getElementById(
 				'<portlet:namespace />' + formElementId
 			);

@@ -5,19 +5,26 @@ let videoContainer = null;
 let errorMessage = null;
 let loadingIndicator = null;
 
+let height = configuration.videoHeight ?
+	configuration.videoHeight.replace('px', '') : configuration.videoHeight;
+let width = configuration.videoWidth ?
+	configuration.videoWidth.replace('px', '') : configuration.videoWidth;
+
 function resize() {
-	content.style.width = '';
 	content.style.height = '';
+	content.style.width = '';
 
 	requestAnimationFrame(function() {
 		try {
 			const boundingClientRect = content.getBoundingClientRect();
 
-			const width = configuration.width || boundingClientRect.width;
-			const height = configuration.height || width * 0.5625;
+			const contentWidth = width || boundingClientRect.width;
 
-			content.style.height = height + 'px';
-			content.style.width = width +'px';
+			const contentHeight =
+				height || contentWidth * 0.5625;
+
+			content.style.height = contentHeight + 'px';
+			content.style.width = contentWidth + 'px';
 		} catch (error) {
 			window.removeEventListener('resize', resize);
 		}
@@ -91,14 +98,15 @@ const youtubeProvider = {
 	showVideo: function(parameters) {
 		const handleAPIReady = function () {
 			const player = new YT.Player(videoContainer, {
-				height: configuration.height,
-				width: configuration.width,
+				height: height,
+				width: width,
 				videoId: parameters.videoId,
 				playerVars: {
 					autoplay: configuration.autoPlay,
 					controls: configuration.hideControls ? 0 : 1,
-					loop: configuration.loop ? 0 : 1,
-					start: !parameters.start ? 0 : parameters.start
+					loop: configuration.loop ? 1 : 0,
+					playlist: configuration.loop ? parameters.videoId : undefined,
+					start: !parameters.start ? 0 : parameters.start,
 				},
 				events: {
 					onReady: function() {

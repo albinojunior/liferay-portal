@@ -25,19 +25,18 @@ import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.notifications.UserNotificationDeliveryType;
 import com.liferay.portal.kernel.notifications.UserNotificationManagerUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.UserNotificationDeliveryLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.subscription.model.Subscription;
 import com.liferay.subscription.service.SubscriptionLocalService;
-
-import java.io.IOException;
 
 import java.util.ResourceBundle;
 
@@ -359,7 +358,7 @@ public class NotificationsPortlet extends MVCPortlet {
 	}
 
 	private void _deleteSubscription(long userId, long subscriptionId)
-		throws PortalException {
+		throws Exception {
 
 		Subscription subscription = _subscriptionLocalService.fetchSubscription(
 			subscriptionId);
@@ -377,7 +376,7 @@ public class NotificationsPortlet extends MVCPortlet {
 
 	private void _deleteUserNotificationEvent(
 			long userId, long userNotificationEventId)
-		throws PortalException {
+		throws Exception {
 
 		UserNotificationEvent userNotificationEvent =
 			_userNotificationEventLocalService.fetchUserNotificationEvent(
@@ -397,18 +396,18 @@ public class NotificationsPortlet extends MVCPortlet {
 
 	private void _sendRedirect(
 			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws IOException {
+		throws Exception {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
 		if (Validator.isNotNull(redirect)) {
-			actionResponse.sendRedirect(redirect);
+			actionResponse.sendRedirect(_portal.escapeRedirect(redirect));
 		}
 	}
 
 	private void _updateUserNotificationDelivery(
 			long userId, long userNotificationDeliveryId, boolean deliver)
-		throws PortalException {
+		throws Exception {
 
 		UserNotificationDelivery userNotificationDelivery =
 			_userNotificationDeliveryLocalService.fetchUserNotificationDelivery(
@@ -439,6 +438,9 @@ public class NotificationsPortlet extends MVCPortlet {
 		_userNotificationDeliveryLocalService.updateUserNotificationDelivery(
 			userNotificationDeliveryId, deliver);
 	}
+
+	@Reference
+	private Portal _portal;
 
 	@Reference(target = "(bundle.symbolic.name=com.liferay.notifications.web)")
 	private ResourceBundleLoader _resourceBundleLoader;

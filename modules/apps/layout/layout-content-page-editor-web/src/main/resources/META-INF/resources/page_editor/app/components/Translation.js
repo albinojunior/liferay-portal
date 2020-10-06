@@ -12,8 +12,9 @@
  * details.
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
+import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, {useMemo, useState} from 'react';
@@ -22,17 +23,15 @@ import {updateLanguageId} from '../actions/index';
 import {BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/backgroundImageFragmentEntryProcessor';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/editableFragmentEntryProcessor';
 import {TRANSLATION_STATUS_TYPE} from '../config/constants/translationStatusType';
-import selectPrefixedSegmentsExperienceId from '../selectors/selectPrefixedSegmentsExperienceId';
-import {useSelector} from '../store/index';
 
-const getEditableValues = fragmentEntryLinks =>
+const getEditableValues = (fragmentEntryLinks) =>
 	Object.values(fragmentEntryLinks)
 		.filter(
-			fragmentEntryLink =>
+			(fragmentEntryLink) =>
 				!fragmentEntryLink.masterLayout &&
 				fragmentEntryLink.editableValues
 		)
-		.map(fragmentEntryLink => [
+		.map((fragmentEntryLink) => [
 			...Object.values(
 				fragmentEntryLink.editableValues[
 					EDITABLE_FRAGMENT_ENTRY_PROCESSOR
@@ -52,10 +51,7 @@ const getEditableValues = fragmentEntryLinks =>
 			[]
 		);
 
-const isTranslated = (editableValue, languageId, segmentExperienceId) =>
-	editableValue[languageId] ||
-	(segmentExperienceId in editableValue &&
-		editableValue[segmentExperienceId][languageId]);
+const isTranslated = (editableValue, languageId) => editableValue[languageId];
 
 const getTranslationStatus = ({
 	editableValuesLength,
@@ -108,7 +104,7 @@ const TranslationItem = ({
 			) : (
 				<span>{languageLabel}</span>
 			)}
-			<span className="dropdown-item-indicator-end">
+			<span className="dropdown-item-indicator-end page-editor__translation__label-wrapper">
 				<div
 					className={classNames(
 						'page-editor__translation__label label',
@@ -131,11 +127,9 @@ export default function Translation({
 	dispatch,
 	fragmentEntryLinks,
 	languageId,
+	showNotTranslated = true,
 }) {
 	const [active, setActive] = useState(false);
-	const segmentsExperienceId = useSelector(
-		selectPrefixedSegmentsExperienceId
-	);
 	const editableValues = useMemo(
 		() => getEditableValues(fragmentEntryLinks),
 		[fragmentEntryLinks]
@@ -150,20 +144,30 @@ export default function Translation({
 		return Object.keys({
 			[defaultLanguageId]: defaultLanguage,
 			...availableLanguagesMut,
-		}).map(languageId => ({
-			languageId,
-			values: editableValues.filter(editableValue =>
-				isTranslated(editableValue, languageId, segmentsExperienceId)
-			),
-		}));
+		})
+			.filter(
+				(languageId) =>
+					showNotTranslated ||
+					editableValues.filter(
+						(editableValue) =>
+							isTranslated(editableValue, languageId) ||
+							languageId === defaultLanguageId
+					).length > 0
+			)
+			.map((languageId) => ({
+				languageId,
+				values: editableValues.filter((editableValue) =>
+					isTranslated(editableValue, languageId)
+				),
+			}));
 	}, [
 		availableLanguages,
 		defaultLanguageId,
 		editableValues,
-		segmentsExperienceId,
+		showNotTranslated,
 	]);
 
-	const {languageIcon} = availableLanguages[languageId];
+	const {languageIcon, languageLabel} = availableLanguages[languageId];
 
 	return (
 		<ClayDropDown
@@ -175,15 +179,19 @@ export default function Translation({
 			}}
 			onActiveChange={setActive}
 			trigger={
-				<ClayButtonWithIcon
+				<ClayButton
+					aria-pressed={active}
+					className="btn-monospaced"
 					displayType="secondary"
 					small
-					symbol={languageIcon}
-				/>
+				>
+					<ClayIcon symbol={languageIcon} />
+					<span className="sr-only">{languageLabel}</span>
+				</ClayButton>
 			}
 		>
 			<ClayDropDown.ItemList>
-				{languageValues.map(language => (
+				{languageValues.map((language) => (
 					<TranslationItem
 						editableValuesLength={editableValues.length}
 						isDefault={language.languageId === defaultLanguageId}

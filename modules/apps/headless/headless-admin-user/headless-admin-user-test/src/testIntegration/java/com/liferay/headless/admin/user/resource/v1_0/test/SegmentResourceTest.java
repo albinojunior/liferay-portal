@@ -19,7 +19,7 @@ import com.liferay.headless.admin.user.client.dto.v1_0.Segment;
 import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.pagination.Pagination;
 import com.liferay.headless.admin.user.client.resource.v1_0.SegmentResource;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
@@ -29,9 +29,16 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
+import com.liferay.portal.test.rule.SynchronousMailTestRule;
 import com.liferay.segments.constants.SegmentsEntryConstants;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.test.util.SegmentsTestUtil;
@@ -41,7 +48,8 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,16 +59,37 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 
+	@ClassRule
+	@Rule
+	public static final SynchronousMailTestRule synchronousMailTestRule =
+		SynchronousMailTestRule.INSTANCE;
+
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
 		_adminUser = UserTestUtil.addGroupAdminUser(testGroup);
-		_user = UserTestUtil.addGroupUser(testGroup, RoleConstants.POWER_USER);
+
+		_user = UserTestUtil.addUser(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			RandomTestUtil.randomString(),
+			RandomTestUtil.randomString() + StringPool.AT + "liferay.com",
+			RandomTestUtil.randomString(), LocaleUtil.getDefault(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(), null,
+			ServiceContextTestUtil.getServiceContext());
+
+		UserLocalServiceUtil.updateEmailAddressVerified(
+			_user.getUserId(), true);
+
+		Role role = RoleLocalServiceUtil.getRole(
+			testCompany.getCompanyId(), RoleConstants.POWER_USER);
+
+		UserGroupRoleLocalServiceUtil.addUserGroupRoles(
+			new long[] {_user.getUserId()}, testGroup.getGroupId(),
+			role.getRoleId());
 	}
 
-	@Ignore
 	@Test
 	public void testGetSiteSegmentsPageWithDefaultPermissions()
 		throws Exception {
@@ -89,7 +118,6 @@ public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 		assertValid(page);
 	}
 
-	@Ignore
 	@Test
 	public void testGetSiteSegmentsPageWithoutViewPermissions()
 		throws Exception {
@@ -128,6 +156,9 @@ public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 
 		Assert.assertEquals(1, page.getTotalCount());
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
@@ -186,9 +217,7 @@ public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 			testGroup.getGroupId(), randomSegment());
 	}
 
-	private Segment _addSegment(Long siteId, Segment segment)
-		throws PortalException {
-
+	private Segment _addSegment(Long siteId, Segment segment) throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
 				siteId, _adminUser.getUserId());

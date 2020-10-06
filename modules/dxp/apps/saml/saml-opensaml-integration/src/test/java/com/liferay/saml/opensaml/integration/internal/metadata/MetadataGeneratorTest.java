@@ -45,6 +45,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 public class MetadataGeneratorTest extends BaseSamlTestCase {
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 	}
@@ -57,10 +58,8 @@ public class MetadataGeneratorTest extends BaseSamlTestCase {
 			getMockHttpServletRequest(
 				"http://localhost:8080/c/portal/saml/metadata");
 
-		EntityDescriptor entityDescriptor =
-			metadataManagerImpl.getEntityDescriptor(mockHttpServletRequest);
-
-		Assert.assertNotNull(entityDescriptor);
+		Assert.assertNotNull(
+			metadataManagerImpl.getEntityDescriptor(mockHttpServletRequest));
 	}
 
 	@Test

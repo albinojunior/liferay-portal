@@ -82,7 +82,7 @@ definition {
 
 		User.loginPG();
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -94,7 +94,7 @@ definition {
 			resourceName = "com.liferay.portal.kernel.model.Layout",
 			roleTitle = "Regrole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -135,7 +135,7 @@ definition {
 	@description = "This case ensures that the user can mention the other user in a comment."
 	@priority = "5"
 	test ViewCommentMentionedUser {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -162,8 +162,7 @@ definition {
 			fragmentComment = "Comment by Test",
 			fragmentName = "Title",
 			mentionsUserFullName = "userfn userln",
-			mentionsUserScreenName = "user2",
-			position = "1");
+			mentionsUserScreenName = "user2");
 
 		PageEditor.viewComment(
 			fragmentComment = "Comment by Test ",
@@ -174,7 +173,7 @@ definition {
 	@description = "This case ensures a user cannot access a comment he is mentioned on after his permissions are revoked."
 	@priority = "5"
 	test ViewMentionAfterRevokingPermissions {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -186,7 +185,7 @@ definition {
 			resourceName = "com.liferay.portal.kernel.model.Layout",
 			roleTitle = "Regrole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -213,8 +212,7 @@ definition {
 			fragmentComment = "Comment by Test",
 			fragmentName = "Title",
 			mentionsUserFullName = "userfn userln",
-			mentionsUserScreenName = "user2",
-			position = "1");
+			mentionsUserScreenName = "user2");
 
 		PageEditor.viewComment(
 			fragmentComment = "Comment by Test ",

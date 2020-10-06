@@ -61,7 +61,7 @@ public interface PowwowMeetingLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link PowwowMeetingLocalServiceUtil} to access the powwow meeting local service. Add custom service methods to <code>com.liferay.powwow.service.impl.PowwowMeetingLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.powwow.service.impl.PowwowMeetingLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the powwow meeting local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link PowwowMeetingLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public PowwowMeeting addPowwowMeeting(
@@ -75,6 +75,10 @@ public interface PowwowMeetingLocalService
 
 	/**
 	 * Adds the powwow meeting to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param powwowMeeting the powwow meeting
 	 * @return the powwow meeting that was added
@@ -109,6 +113,10 @@ public interface PowwowMeetingLocalService
 	/**
 	 * Deletes the powwow meeting with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param powwowMeetingId the primary key of the powwow meeting
 	 * @return the powwow meeting that was removed
 	 * @throws PortalException if a powwow meeting with the primary key could not be found
@@ -119,6 +127,10 @@ public interface PowwowMeetingLocalService
 
 	/**
 	 * Deletes the powwow meeting from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param powwowMeeting the powwow meeting
 	 * @return the powwow meeting that was removed
@@ -213,7 +225,7 @@ public interface PowwowMeetingLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PowwowMeeting> getParticipantPowwowMeetings(
 		long userId, int[] statuses, int start, int end,
-		OrderByComparator orderByComparator);
+		OrderByComparator<PowwowMeeting> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getParticipantPowwowMeetingsCount(long userId, int[] statuses);
@@ -256,7 +268,8 @@ public interface PowwowMeetingLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PowwowMeeting> getPowwowMeetings(
-		long groupId, int start, int end, OrderByComparator obc);
+		long groupId, int start, int end,
+		OrderByComparator<PowwowMeeting> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PowwowMeeting> getPowwowMeetings(
@@ -298,6 +311,10 @@ public interface PowwowMeetingLocalService
 
 	/**
 	 * Updates the powwow meeting in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param powwowMeeting the powwow meeting
 	 * @return the powwow meeting that was updated

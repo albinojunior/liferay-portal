@@ -13,6 +13,11 @@
 	<td>//*[contains(@class, 'text-center')]//*[contains(text(),'Banner Title Example')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>FRAGMENT_HEADING</td>
+	<td>//*[contains(@class, 'component-heading') and contains(@class, 'text-break')]</td>
+	<td></td>
+</tr>
 </tbody>
 </table>
 </body>

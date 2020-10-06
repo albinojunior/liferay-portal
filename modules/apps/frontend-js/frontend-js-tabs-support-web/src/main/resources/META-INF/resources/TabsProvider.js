@@ -90,12 +90,16 @@ class TabsProvider {
 			return;
 		}
 
-		const activePanel = panel.parentElement.querySelector(
-			`.${CssClass.SHOW}`
-		);
+		const panels = Array.from(panel.parentElement.children);
 
-		if (activePanel) {
-			Liferay.on(this.EVENT_HIDDEN, event => {
+		const activePanels = panels.filter((item) => {
+			return item.classList.contains(CssClass.SHOW);
+		});
+
+		if (activePanels.length) {
+			const activePanel = activePanels[0];
+
+			Liferay.on(this.EVENT_HIDDEN, (event) => {
 				if (event.panel === activePanel) {
 					this.show({panel, trigger});
 				}
@@ -124,7 +128,7 @@ class TabsProvider {
 		return document.querySelector(`[href="#${panel.getAttribute('id')}"]`);
 	}
 
-	_onTriggerClick = event => {
+	_onTriggerClick = (event) => {
 		const trigger = event.delegateTarget;
 
 		if (trigger.tagName === 'A') {
@@ -133,13 +137,8 @@ class TabsProvider {
 
 		const panel = this._getPanel(trigger);
 
-		if (panel) {
-			if (panel.classList.contains(CssClass.SHOW)) {
-				this.hide({panel, trigger});
-			}
-			else {
-				this.show({panel, trigger});
-			}
+		if (panel && !panel.classList.contains(CssClass.SHOW)) {
+			this.show({panel, trigger});
 		}
 	};
 
@@ -155,7 +154,7 @@ class TabsProvider {
 
 		let eventName = false;
 
-		Object.keys(transitionEndEvents).some(name => {
+		Object.keys(transitionEndEvents).some((name) => {
 			if (sampleElement.style[name] !== undefined) {
 				eventName = transitionEndEvents[name];
 

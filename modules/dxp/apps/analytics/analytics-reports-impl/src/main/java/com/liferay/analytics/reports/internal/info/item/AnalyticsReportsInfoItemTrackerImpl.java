@@ -16,7 +16,7 @@ package com.liferay.analytics.reports.internal.info.item;
 
 import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItem;
 import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItemTracker;
-import com.liferay.analytics.reports.internal.util.GenericsUtil;
+import com.liferay.petra.reflect.GenericUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -36,7 +36,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 public class AnalyticsReportsInfoItemTrackerImpl
 	implements AnalyticsReportsInfoItemTracker {
 
-	public AnalyticsReportsInfoItem getAnalyticsReportsInfoItem(String key) {
+	@Override
+	public AnalyticsReportsInfoItem<?> getAnalyticsReportsInfoItem(String key) {
 		if (Validator.isNull(key)) {
 			return null;
 		}
@@ -44,7 +45,8 @@ public class AnalyticsReportsInfoItemTrackerImpl
 		return _analyticsReportsInfoItems.get(key);
 	}
 
-	public List<AnalyticsReportsInfoItem> getAnalyticsReportsInfoItems() {
+	@Override
+	public List<AnalyticsReportsInfoItem<?>> getAnalyticsReportsInfoItems() {
 		return new ArrayList<>(_analyticsReportsInfoItems.values());
 	}
 
@@ -52,22 +54,22 @@ public class AnalyticsReportsInfoItemTrackerImpl
 		cardinality = ReferenceCardinality.MULTIPLE,
 		policy = ReferencePolicy.DYNAMIC
 	)
-	protected void setInfoItemSelector(
-		AnalyticsReportsInfoItem analyticsReportsInfo) {
+	protected void setAnalyticsReportsInfoItem(
+		AnalyticsReportsInfoItem<?> analyticsReportsInfo) {
 
 		_analyticsReportsInfoItems.put(
-			GenericsUtil.getItemClassName(analyticsReportsInfo),
+			GenericUtil.getGenericClassName(analyticsReportsInfo),
 			analyticsReportsInfo);
 	}
 
-	protected void unsetInfoItemSelector(
-		AnalyticsReportsInfoItem analyticsReportsInfo) {
+	protected void unsetAnalyticsReportsInfoItem(
+		AnalyticsReportsInfoItem<?> analyticsReportsInfo) {
 
 		_analyticsReportsInfoItems.remove(
-			GenericsUtil.getItemClassName(analyticsReportsInfo));
+			GenericUtil.getGenericClassName(analyticsReportsInfo));
 	}
 
-	private final Map<String, AnalyticsReportsInfoItem>
+	private final Map<String, AnalyticsReportsInfoItem<?>>
 		_analyticsReportsInfoItems = new ConcurrentHashMap<>();
 
 }

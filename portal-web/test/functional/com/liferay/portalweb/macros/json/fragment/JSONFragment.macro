@@ -10,6 +10,7 @@ definition {
 			site = "${site}");
 
 		JSONFragmentAPI._addFragmentCollection(
+			description = "${description}",
 			groupId = "${groupId}",
 			name = "${name}");
 	}
@@ -34,7 +35,7 @@ definition {
 			html = "${html}");
 
 		var status = JSONFragmentSetter.setStatus(
-			status = "${status}");
+			fragmentStatus = "${fragmentStatus}");
 
 		var type = JSONFragmentSetter.setType(
 			type = "${type}");

@@ -125,7 +125,7 @@ public abstract class BaseBuildAutoUpgradeTestCase {
 		}
 
 		Release release = _releaseLocalService.fetchRelease(
-			BUNDLE_SYMBOLICNAME);
+			BUNDLE_SYMBOLIC_NAME);
 
 		if (release != null) {
 			_releaseLocalService.deleteRelease(release);
@@ -393,7 +393,7 @@ public abstract class BaseBuildAutoUpgradeTestCase {
 		throws IOException;
 
 	protected String toCreateSQL(Object[][] tableColumns) {
-		StringBundler sb = new StringBundler(tableColumns.length * 5 + 1);
+		StringBundler sb = new StringBundler((tableColumns.length * 5) + 1);
 
 		sb.append("create table BuildAutoUpgradeTestEntity (");
 
@@ -432,7 +432,7 @@ public abstract class BaseBuildAutoUpgradeTestCase {
 		return sb.toString();
 	}
 
-	protected static final String BUNDLE_SYMBOLICNAME =
+	protected static final String BUNDLE_SYMBOLIC_NAME =
 		"build.auto.upgrade.test";
 
 	protected static final String ENTITY_PATH;

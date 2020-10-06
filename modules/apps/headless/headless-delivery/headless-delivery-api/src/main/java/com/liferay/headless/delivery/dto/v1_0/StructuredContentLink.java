@@ -22,6 +22,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -31,6 +32,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Generated;
+
+import javax.validation.Valid;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -43,6 +46,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "StructuredContentLink")
 public class StructuredContentLink {
+
+	public static StructuredContentLink toDTO(String json) {
+		return ObjectMapperUtil.readValue(StructuredContentLink.class, json);
+	}
 
 	@Schema
 	public String getContentType() {
@@ -71,6 +78,43 @@ public class StructuredContentLink {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String contentType;
+
+	@Schema(
+		description = "optional field with the structured content, can be embedded with nestedFields"
+	)
+	@Valid
+	public StructuredContent getEmbeddedStructuredContent() {
+		return embeddedStructuredContent;
+	}
+
+	public void setEmbeddedStructuredContent(
+		StructuredContent embeddedStructuredContent) {
+
+		this.embeddedStructuredContent = embeddedStructuredContent;
+	}
+
+	@JsonIgnore
+	public void setEmbeddedStructuredContent(
+		UnsafeSupplier<StructuredContent, Exception>
+			embeddedStructuredContentUnsafeSupplier) {
+
+		try {
+			embeddedStructuredContent =
+				embeddedStructuredContentUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "optional field with the structured content, can be embedded with nestedFields"
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected StructuredContent embeddedStructuredContent;
 
 	@Schema(description = "The resource's ID.")
 	public Long getId() {
@@ -168,6 +212,16 @@ public class StructuredContentLink {
 			sb.append("\"");
 		}
 
+		if (embeddedStructuredContent != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"embeddedStructuredContent\": ");
+
+			sb.append(String.valueOf(embeddedStructuredContent));
+		}
+
 		if (id != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -209,6 +263,16 @@ public class StructuredContentLink {
 		return string.replaceAll("\"", "\\\\\"");
 	}
 
+	private static boolean _isArray(Object value) {
+		if (value == null) {
+			return false;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		return clazz.isArray();
+	}
+
 	private static String _toJSON(Map<String, ?> map) {
 		StringBuilder sb = new StringBuilder("{");
 
@@ -224,9 +288,42 @@ public class StructuredContentLink {
 			sb.append("\"");
 			sb.append(entry.getKey());
 			sb.append("\":");
-			sb.append("\"");
-			sb.append(entry.getValue());
-			sb.append("\"");
+
+			Object value = entry.getValue();
+
+			if (_isArray(value)) {
+				sb.append("[");
+
+				Object[] valueArray = (Object[])value;
+
+				for (int i = 0; i < valueArray.length; i++) {
+					if (valueArray[i] instanceof String) {
+						sb.append("\"");
+						sb.append(valueArray[i]);
+						sb.append("\"");
+					}
+					else {
+						sb.append(valueArray[i]);
+					}
+
+					if ((i + 1) < valueArray.length) {
+						sb.append(", ");
+					}
+				}
+
+				sb.append("]");
+			}
+			else if (value instanceof Map) {
+				sb.append(_toJSON((Map<String, ?>)value));
+			}
+			else if (value instanceof String) {
+				sb.append("\"");
+				sb.append(value);
+				sb.append("\"");
+			}
+			else {
+				sb.append(value);
+			}
 
 			if (iterator.hasNext()) {
 				sb.append(",");

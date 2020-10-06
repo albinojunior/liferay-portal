@@ -16,17 +16,20 @@ package com.liferay.analytics.message.sender.internal.messaging;
 
 import com.liferay.analytics.message.sender.constants.AnalyticsMessagesDestinationNames;
 import com.liferay.analytics.message.sender.constants.AnalyticsMessagesProcessorCommand;
-import com.liferay.analytics.message.sender.model.EntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.EntityModelListener;
+import com.liferay.analytics.settings.configuration.AnalyticsConfigurationTracker;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.ShardedModel;
 
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Rachael Koestartyo
@@ -40,6 +43,10 @@ public class AddAnalyticsMessagesMessageListener extends BaseMessageListener {
 
 	@Override
 	protected void doReceive(Message message) {
+		if (!_analyticsConfigurationTracker.isActive()) {
+			return;
+		}
+
 		AnalyticsMessagesProcessorCommand analyticsMessagesProcessorCommand =
 			(AnalyticsMessagesProcessorCommand)message.get("command");
 
@@ -55,9 +62,14 @@ public class AddAnalyticsMessagesMessageListener extends BaseMessageListener {
 		List<? extends BaseModel> baseModels =
 			(List<? extends BaseModel>)message.getPayload();
 
-		for (BaseModel baseModel : baseModels) {
+		for (BaseModel<?> baseModel : baseModels) {
+			ShardedModel shardedModel = (ShardedModel)baseModel;
+
 			entityModelListener.addAnalyticsMessage(
-				"update", entityModelListener.getAttributeNames(), baseModel);
+				"update",
+				entityModelListener.getAttributeNames(
+					shardedModel.getCompanyId()),
+				baseModel);
 		}
 
 		if (_log.isInfoEnabled()) {
@@ -67,5 +79,8 @@ public class AddAnalyticsMessagesMessageListener extends BaseMessageListener {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AddAnalyticsMessagesMessageListener.class);
+
+	@Reference
+	private AnalyticsConfigurationTracker _analyticsConfigurationTracker;
 
 }

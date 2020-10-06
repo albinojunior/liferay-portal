@@ -451,8 +451,9 @@
 	</xs:simpleType>
 	<xs:simpleType name="role-type">
 		<xs:restriction base="xs:string">
-			<xs:enumeration value="regular" />
+			<xs:enumeration value="depot" />
 			<xs:enumeration value="organization" />
+			<xs:enumeration value="regular" />
 			<xs:enumeration value="site" />
 		</xs:restriction>
 	</xs:simpleType>

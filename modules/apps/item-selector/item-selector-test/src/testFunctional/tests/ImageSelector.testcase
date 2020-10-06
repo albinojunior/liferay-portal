@@ -78,7 +78,9 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		IFrame.closeFrame();
+		Click(
+			key_modalTitle = "Select File",
+			locator1 = "Button#CLOSE_MODAL");
 
 		for (var coverImageName : list "Document_1,Document_2,Document_3") {
 			AssertElementNotPresent(
@@ -97,6 +99,8 @@ definition {
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
 
 		BlogsNavigator.gotoAddEntry();
+
+		Pause(locator1 = "3000");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -132,7 +136,9 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		IFrame.closeFrame();
+		Click(
+			key_modalTitle = "Select File",
+			locator1 = "Button#CLOSE_MODAL");
 
 		for (var coverImageName : list "Document_1,Document_2,Document_3") {
 			AssertElementNotPresent(
@@ -174,6 +180,55 @@ definition {
 		AssertElementNotPresent(locator1 = "ItemSelector#VIEWER_LEFT");
 
 		AssertElementNotPresent(locator1 = "ItemSelector#VIEWER_RIGHT");
+	}
+
+	@priority = "4"
+	test RotateImageViaDMSiteAdmin {
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "Document_2.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_2.jpg");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		AssertVisible(
+			locator1 = "Portlet#HEADER",
+			value1 = "Documents and Media");
+
+		ImageEditor.gotoImageEditorViaDM(dmDocumentTitle = "Document_2.jpg");
+
+		ImageEditor.rotateImage(rotateDirection = "left");
+
+		Pause(locator1 = "3000");
+
+		ImageEditor.applyChangesAndSaveFile();
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_2.jpg");
+
+		DMDocument.viewDocumentVersionNumberCmdPG(dmDocumentVersionNumber = "1.1");
+	}
+
+	@priority = "5"
+	test ViewImageEditorControls {
+		property environment.acceptance = "true";
+		property portal.acceptance = "true";
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "Document_1.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		ImageEditor.gotoImageEditorViaDM(dmDocumentTitle = "Document_1.jpg");
+
+		ImageEditor.viewBaseControls();
 	}
 
 }

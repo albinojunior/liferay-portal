@@ -11,6 +11,7 @@
 	<short-name>liferay-asset</short-name>
 	<uri>http://liferay.com/tld/asset</uri>
 	<tag>
+		<description>Deprecated as of 7.3.0, with no direct replacement.</description>
 		<name>asset-add-button</name>
 		<tag-class>com.liferay.asset.taglib.servlet.taglib.AssetAddButtonTag</tag-class>
 		<body-content>JSP</body-content>
@@ -56,6 +57,7 @@
 		</attribute>
 	</tag>
 	<tag>
+		<description>Deprecated as of 7.3.0, with no direct replacement.</description>
 		<name>asset-addon-entry-display</name>
 		<tag-class>com.liferay.asset.taglib.servlet.taglib.AssetAddonEntryDisplayTag</tag-class>
 		<body-content>JSP</body-content>
@@ -66,6 +68,7 @@
 		</attribute>
 	</tag>
 	<tag>
+		<description>Deprecated as of 7.3.0, with no direct replacement.</description>
 		<name>asset-addon-entry-selector</name>
 		<tag-class>com.liferay.asset.taglib.servlet.taglib.AssetAddonEntrySelectorTag</tag-class>
 		<body-content>JSP</body-content>
@@ -136,6 +139,7 @@
 		</attribute>
 	</tag>
 	<tag>
+		<description>Creates a selectable listing of categories for an entity or group of entities.</description>
 		<name>asset-categories-selector</name>
 		<tag-class>com.liferay.asset.taglib.servlet.taglib.AssetCategoriesSelectorTag</tag-class>
 		<body-content>JSP</body-content>
@@ -145,21 +149,25 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>The class name of the entity. Available vocabularies are not filtered by this class name.</description>
 			<name>className</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>The ID (class primary key) of the entity.</description>
 			<name>classPK</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>The class type of the entity. Available vocabularies are filtered by this class type.</description>
 			<name>classTypePK</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>An array of group IDs. Available vocabularies are filtered by these group IDs.</description>
 			<name>groupIds</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -181,6 +189,7 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>Whether to show only vocabularies marked as required. The default value is <![CDATA[<code>false</code>]]>.</description>
 			<name>showOnlyRequiredVocabularies</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -191,7 +200,14 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>Whether to restrict selection to one asset category at a time. The default value is <![CDATA[<code>false</code>]]>.</description>
 			<name>singleSelect</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Vocabulary visibility types (public or internal) to show. The default value is <![CDATA[<code>AssetVocabularyConstants.VISIBILITY_TYPE_PUBLIC</code>]]>.</description>
+			<name>visibilityTypes</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -227,6 +243,11 @@
 		</attribute>
 		<attribute>
 			<name>portletURL</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>visibleTypes</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>

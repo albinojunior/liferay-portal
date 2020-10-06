@@ -16,6 +16,7 @@ package com.liferay.push.notifications.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -26,15 +27,17 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.push.notifications.exception.NoSuchDeviceException;
 import com.liferay.push.notifications.model.PushNotificationsDevice;
+import com.liferay.push.notifications.model.PushNotificationsDeviceTable;
 import com.liferay.push.notifications.model.impl.PushNotificationsDeviceImpl;
 import com.liferay.push.notifications.model.impl.PushNotificationsDeviceModelImpl;
 import com.liferay.push.notifications.service.persistence.PushNotificationsDevicePersistence;
@@ -44,13 +47,17 @@ import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -219,11 +226,6 @@ public class PushNotificationsDevicePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(
-						_finderPathFetchByToken, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -306,8 +308,6 @@ public class PushNotificationsDevicePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -508,10 +508,6 @@ public class PushNotificationsDevicePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1024,11 +1020,6 @@ public class PushNotificationsDevicePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(
-						_finderPathWithPaginationFindByU_P, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1113,8 +1104,6 @@ public class PushNotificationsDevicePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1204,9 +1193,6 @@ public class PushNotificationsDevicePersistenceImpl
 					_finderPathWithPaginationCountByU_P, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(
-					_finderPathWithPaginationCountByU_P, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1234,6 +1220,8 @@ public class PushNotificationsDevicePersistenceImpl
 
 		setModelImplClass(PushNotificationsDeviceImpl.class);
 		setModelPKClass(long.class);
+
+		setTable(PushNotificationsDeviceTable.INSTANCE);
 	}
 
 	/**
@@ -1244,15 +1232,13 @@ public class PushNotificationsDevicePersistenceImpl
 	@Override
 	public void cacheResult(PushNotificationsDevice pushNotificationsDevice) {
 		entityCache.putResult(
-			entityCacheEnabled, PushNotificationsDeviceImpl.class,
+			PushNotificationsDeviceImpl.class,
 			pushNotificationsDevice.getPrimaryKey(), pushNotificationsDevice);
 
 		finderCache.putResult(
 			_finderPathFetchByToken,
 			new Object[] {pushNotificationsDevice.getToken()},
 			pushNotificationsDevice);
-
-		pushNotificationsDevice.resetOriginalValues();
 	}
 
 	/**
@@ -1268,13 +1254,10 @@ public class PushNotificationsDevicePersistenceImpl
 				pushNotificationsDevices) {
 
 			if (entityCache.getResult(
-					entityCacheEnabled, PushNotificationsDeviceImpl.class,
+					PushNotificationsDeviceImpl.class,
 					pushNotificationsDevice.getPrimaryKey()) == null) {
 
 				cacheResult(pushNotificationsDevice);
-			}
-			else {
-				pushNotificationsDevice.resetOriginalValues();
 			}
 		}
 	}
@@ -1305,33 +1288,18 @@ public class PushNotificationsDevicePersistenceImpl
 	@Override
 	public void clearCache(PushNotificationsDevice pushNotificationsDevice) {
 		entityCache.removeResult(
-			entityCacheEnabled, PushNotificationsDeviceImpl.class,
-			pushNotificationsDevice.getPrimaryKey());
-
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(
-			(PushNotificationsDeviceModelImpl)pushNotificationsDevice, true);
+			PushNotificationsDeviceImpl.class, pushNotificationsDevice);
 	}
 
 	@Override
 	public void clearCache(
 		List<PushNotificationsDevice> pushNotificationsDevices) {
 
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (PushNotificationsDevice pushNotificationsDevice :
 				pushNotificationsDevices) {
 
 			entityCache.removeResult(
-				entityCacheEnabled, PushNotificationsDeviceImpl.class,
-				pushNotificationsDevice.getPrimaryKey());
-
-			clearUniqueFindersCache(
-				(PushNotificationsDeviceModelImpl)pushNotificationsDevice,
-				true);
+				PushNotificationsDeviceImpl.class, pushNotificationsDevice);
 		}
 	}
 
@@ -1343,8 +1311,7 @@ public class PushNotificationsDevicePersistenceImpl
 
 		for (Serializable primaryKey : primaryKeys) {
 			entityCache.removeResult(
-				entityCacheEnabled, PushNotificationsDeviceImpl.class,
-				primaryKey);
+				PushNotificationsDeviceImpl.class, primaryKey);
 		}
 	}
 
@@ -1360,31 +1327,6 @@ public class PushNotificationsDevicePersistenceImpl
 		finderCache.putResult(
 			_finderPathFetchByToken, args, pushNotificationsDeviceModelImpl,
 			false);
-	}
-
-	protected void clearUniqueFindersCache(
-		PushNotificationsDeviceModelImpl pushNotificationsDeviceModelImpl,
-		boolean clearCurrent) {
-
-		if (clearCurrent) {
-			Object[] args = new Object[] {
-				pushNotificationsDeviceModelImpl.getToken()
-			};
-
-			finderCache.removeResult(_finderPathCountByToken, args);
-			finderCache.removeResult(_finderPathFetchByToken, args);
-		}
-
-		if ((pushNotificationsDeviceModelImpl.getColumnBitmask() &
-			 _finderPathFetchByToken.getColumnBitmask()) != 0) {
-
-			Object[] args = new Object[] {
-				pushNotificationsDeviceModelImpl.getOriginalToken()
-			};
-
-			finderCache.removeResult(_finderPathCountByToken, args);
-			finderCache.removeResult(_finderPathFetchByToken, args);
-		}
 	}
 
 	/**
@@ -1528,10 +1470,8 @@ public class PushNotificationsDevicePersistenceImpl
 		try {
 			session = openSession();
 
-			if (pushNotificationsDevice.isNew()) {
+			if (isNew) {
 				session.save(pushNotificationsDevice);
-
-				pushNotificationsDevice.setNew(false);
 			}
 			else {
 				pushNotificationsDevice =
@@ -1546,57 +1486,15 @@ public class PushNotificationsDevicePersistenceImpl
 			closeSession(session);
 		}
 
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (!_columnBitmaskEnabled) {
-			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-		else if (isNew) {
-			Object[] args = new Object[] {
-				pushNotificationsDeviceModelImpl.getUserId(),
-				pushNotificationsDeviceModelImpl.getPlatform()
-			};
-
-			finderCache.removeResult(_finderPathCountByU_P, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByU_P, args);
-
-			finderCache.removeResult(_finderPathCountAll, FINDER_ARGS_EMPTY);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
-		}
-		else {
-			if ((pushNotificationsDeviceModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByU_P.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					pushNotificationsDeviceModelImpl.getOriginalUserId(),
-					pushNotificationsDeviceModelImpl.getOriginalPlatform()
-				};
-
-				finderCache.removeResult(_finderPathCountByU_P, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByU_P, args);
-
-				args = new Object[] {
-					pushNotificationsDeviceModelImpl.getUserId(),
-					pushNotificationsDeviceModelImpl.getPlatform()
-				};
-
-				finderCache.removeResult(_finderPathCountByU_P, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByU_P, args);
-			}
-		}
-
 		entityCache.putResult(
-			entityCacheEnabled, PushNotificationsDeviceImpl.class,
-			pushNotificationsDevice.getPrimaryKey(), pushNotificationsDevice,
-			false);
+			PushNotificationsDeviceImpl.class, pushNotificationsDeviceModelImpl,
+			false, true);
 
-		clearUniqueFindersCache(pushNotificationsDeviceModelImpl, false);
 		cacheUniqueFindersCache(pushNotificationsDeviceModelImpl);
+
+		if (isNew) {
+			pushNotificationsDevice.setNew(false);
+		}
 
 		pushNotificationsDevice.resetOriginalValues();
 
@@ -1784,10 +1682,6 @@ public class PushNotificationsDevicePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1834,9 +1728,6 @@ public class PushNotificationsDevicePersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1871,74 +1762,73 @@ public class PushNotificationsDevicePersistenceImpl
 	 * Initializes the push notifications device persistence.
 	 */
 	@Activate
-	public void activate() {
-		PushNotificationsDeviceModelImpl.setEntityCacheEnabled(
-			entityCacheEnabled);
-		PushNotificationsDeviceModelImpl.setFinderCacheEnabled(
-			finderCacheEnabled);
+	public void activate(BundleContext bundleContext) {
+		_bundleContext = bundleContext;
 
-		_finderPathWithPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			PushNotificationsDeviceImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+		_argumentsResolverServiceRegistration = _bundleContext.registerService(
+			ArgumentsResolver.class,
+			new PushNotificationsDeviceModelArgumentsResolver(),
+			MapUtil.singletonDictionary(
+				"model.class.name", PushNotificationsDevice.class.getName()));
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			PushNotificationsDeviceImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
 
-		_finderPathCountAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 
-		_finderPathFetchByToken = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			PushNotificationsDeviceImpl.class, FINDER_CLASS_NAME_ENTITY,
-			"fetchByToken", new String[] {String.class.getName()},
-			PushNotificationsDeviceModelImpl.TOKEN_COLUMN_BITMASK);
+		_finderPathFetchByToken = _createFinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByToken",
+			new String[] {String.class.getName()}, new String[] {"token"},
+			true);
 
-		_finderPathCountByToken = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByToken = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByToken",
-			new String[] {String.class.getName()});
+			new String[] {String.class.getName()}, new String[] {"token"},
+			false);
 
-		_finderPathWithPaginationFindByU_P = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			PushNotificationsDeviceImpl.class,
+		_finderPathWithPaginationFindByU_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_P",
 			new String[] {
 				Long.class.getName(), String.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"userId", "platform"}, true);
 
-		_finderPathWithoutPaginationFindByU_P = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			PushNotificationsDeviceImpl.class,
+		_finderPathWithoutPaginationFindByU_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByU_P",
 			new String[] {Long.class.getName(), String.class.getName()},
-			PushNotificationsDeviceModelImpl.USERID_COLUMN_BITMASK |
-			PushNotificationsDeviceModelImpl.PLATFORM_COLUMN_BITMASK);
+			new String[] {"userId", "platform"}, true);
 
-		_finderPathCountByU_P = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByU_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_P",
-			new String[] {Long.class.getName(), String.class.getName()});
+			new String[] {Long.class.getName(), String.class.getName()},
+			new String[] {"userId", "platform"}, false);
 
-		_finderPathWithPaginationCountByU_P = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathWithPaginationCountByU_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "countByU_P",
-			new String[] {Long.class.getName(), String.class.getName()});
+			new String[] {Long.class.getName(), String.class.getName()},
+			new String[] {"userId", "platform"}, false);
 	}
 
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(PushNotificationsDeviceImpl.class.getName());
-		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 	}
 
 	@Override
@@ -1947,12 +1837,6 @@ public class PushNotificationsDevicePersistenceImpl
 		unbind = "-"
 	)
 	public void setConfiguration(Configuration configuration) {
-		super.setConfiguration(configuration);
-
-		_columnBitmaskEnabled = GetterUtil.getBoolean(
-			configuration.get(
-				"value.object.column.bitmask.enabled.com.liferay.push.notifications.model.PushNotificationsDevice"),
-			true);
 	}
 
 	@Override
@@ -1973,7 +1857,7 @@ public class PushNotificationsDevicePersistenceImpl
 		super.setSessionFactory(sessionFactory);
 	}
 
-	private boolean _columnBitmaskEnabled;
+	private BundleContext _bundleContext;
 
 	@Reference
 	protected EntityCache entityCache;
@@ -2013,6 +1897,110 @@ public class PushNotificationsDevicePersistenceImpl
 		catch (ClassNotFoundException classNotFoundException) {
 			throw new ExceptionInInitializerError(classNotFoundException);
 		}
+	}
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			_serviceRegistrations.add(
+				_bundleContext.registerService(
+					FinderPath.class, finderPath,
+					MapUtil.singletonDictionary("cache.name", cacheName)));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class PushNotificationsDeviceModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			PushNotificationsDeviceModelImpl pushNotificationsDeviceModelImpl =
+				(PushNotificationsDeviceModelImpl)baseModel;
+
+			long columnBitmask =
+				pushNotificationsDeviceModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(
+					pushNotificationsDeviceModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						pushNotificationsDeviceModelImpl.getColumnBitmask(
+							columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(
+					pushNotificationsDeviceModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			PushNotificationsDeviceModelImpl pushNotificationsDeviceModelImpl,
+			String[] columnNames, boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] =
+						pushNotificationsDeviceModelImpl.getColumnOriginalValue(
+							columnName);
+				}
+				else {
+					arguments[i] =
+						pushNotificationsDeviceModelImpl.getColumnValue(
+							columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
 	}
 
 }

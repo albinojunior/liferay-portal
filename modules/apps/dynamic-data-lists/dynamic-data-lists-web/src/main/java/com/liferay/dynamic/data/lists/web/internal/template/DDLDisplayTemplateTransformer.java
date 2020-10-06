@@ -25,8 +25,6 @@ import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil;
-import com.liferay.portal.kernel.template.TemplateManager;
-import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -56,13 +54,6 @@ public class DDLDisplayTemplateTransformer {
 	public String transform() throws Exception {
 		Transformer transformer = TransformerHolder.getTransformer();
 
-		String viewMode = Constants.VIEW;
-
-		if (_renderRequest != null) {
-			viewMode = ParamUtil.getString(
-				_renderRequest, "viewMode", Constants.VIEW);
-		}
-
 		Map<String, Object> contextObjects = HashMapBuilder.<String, Object>put(
 			DDLConstants.RESERVED_DDM_STRUCTURE_ID,
 			_recordSet.getDDMStructureId()
@@ -79,7 +70,15 @@ public class DDLDisplayTemplateTransformer {
 		).put(
 			TemplateConstants.TEMPLATE_ID, _ddmTemplateId
 		).put(
-			"viewMode", viewMode
+			"viewMode",
+			() -> {
+				if (_renderRequest != null) {
+					return ParamUtil.getString(
+						_renderRequest, "viewMode", Constants.VIEW);
+				}
+
+				return Constants.VIEW;
+			}
 		).build();
 
 		DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(
@@ -88,23 +87,17 @@ public class DDLDisplayTemplateTransformer {
 		contextObjects.put(
 			TemplateConstants.CLASS_NAME_ID, ddmTemplate.getClassNameId());
 
-		TemplateManager templateManager =
-			TemplateManagerUtil.getTemplateManager(ddmTemplate.getLanguage());
-
 		TemplateHandler templateHandler =
 			TemplateHandlerRegistryUtil.getTemplateHandler(
 				DDLRecordSet.class.getName());
 
-		templateManager.addContextObjects(
-			contextObjects, templateHandler.getCustomContextObjects());
-
-		templateManager.addTaglibSupport(
-			contextObjects, PortalUtil.getHttpServletRequest(_renderRequest),
-			_themeDisplay.getResponse());
+		contextObjects.putAll(templateHandler.getCustomContextObjects());
 
 		return transformer.transform(
 			_themeDisplay, contextObjects, ddmTemplate.getScript(),
-			ddmTemplate.getLanguage(), new UnsyncStringWriter());
+			ddmTemplate.getLanguage(), new UnsyncStringWriter(),
+			PortalUtil.getHttpServletRequest(_renderRequest),
+			_themeDisplay.getResponse());
 	}
 
 	private final long _ddmTemplateId;

@@ -22,10 +22,13 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.permission.OrganizationPermissionUtil;
 import com.liferay.portal.kernel.service.persistence.OrganizationFinder;
 import com.liferay.portal.kernel.service.persistence.OrganizationUtil;
 import com.liferay.portal.kernel.service.persistence.UserUtil;
@@ -303,10 +306,10 @@ public class OrganizationFinderImpl
 
 			int count = 0;
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Long l = itr.next();
+			while (iterator.hasNext()) {
+				Long l = iterator.next();
 
 				if (l != null) {
 					count += l.intValue();
@@ -362,10 +365,10 @@ public class OrganizationFinderImpl
 
 			int count = 0;
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Long l = itr.next();
+			while (iterator.hasNext()) {
+				Long l = iterator.next();
 
 				if (l != null) {
 					count += l.intValue();
@@ -387,7 +390,7 @@ public class OrganizationFinderImpl
 		long companyId, long parentOrganizationId,
 		String parentOrganizationIdComparator, String keywords, String type,
 		Long regionId, Long countryId, LinkedHashMap<String, Object> params,
-		int start, int end, OrderByComparator<Organization> obc) {
+		int start, int end, OrderByComparator<Organization> orderByComparator) {
 
 		String[] names = null;
 		String[] streets = null;
@@ -408,7 +411,7 @@ public class OrganizationFinderImpl
 		return findO_ByC_PO_N_T_S_C_Z_R_C(
 			companyId, parentOrganizationId, parentOrganizationIdComparator,
 			names, type, streets, cities, zips, regionId, countryId, params,
-			andOperator, start, end, obc);
+			andOperator, start, end, orderByComparator);
 	}
 
 	@Override
@@ -485,7 +488,7 @@ public class OrganizationFinderImpl
 		String parentOrganizationIdComparator, String name, String type,
 		String street, String city, String zip, Long regionId, Long countryId,
 		LinkedHashMap<String, Object> params, boolean andOperator, int start,
-		int end, OrderByComparator<Organization> obc) {
+		int end, OrderByComparator<Organization> orderByComparator) {
 
 		String[] names = CustomSQLUtil.keywords(name);
 		String[] streets = CustomSQLUtil.keywords(street);
@@ -495,7 +498,7 @@ public class OrganizationFinderImpl
 		return findO_ByC_PO_N_T_S_C_Z_R_C(
 			companyId, parentOrganizationId, parentOrganizationIdComparator,
 			names, type, streets, cities, zips, regionId, countryId, params,
-			andOperator, start, end, obc);
+			andOperator, start, end, orderByComparator);
 	}
 
 	@Override
@@ -505,7 +508,7 @@ public class OrganizationFinderImpl
 		String[] streets, String[] cities, String[] zips, Long regionId,
 		Long countryId, LinkedHashMap<String, Object> params,
 		boolean andOperator, int start, int end,
-		OrderByComparator<Organization> obc) {
+		OrderByComparator<Organization> orderByComparator) {
 
 		names = CustomSQLUtil.keywords(names);
 		streets = CustomSQLUtil.keywords(streets);
@@ -573,7 +576,7 @@ public class OrganizationFinderImpl
 		}
 
 		sql = CustomSQLUtil.replaceAndOperator(sql, andOperator);
-		sql = CustomSQLUtil.replaceOrderBy(sql, obc);
+		sql = CustomSQLUtil.replaceOrderBy(sql, orderByComparator);
 
 		Session session = null;
 
@@ -617,11 +620,11 @@ public class OrganizationFinderImpl
 
 			List<Organization> organizations = new ArrayList<>();
 
-			Iterator<Long> itr = (Iterator<Long>)QueryUtil.iterate(
+			Iterator<Long> iterator = (Iterator<Long>)QueryUtil.iterate(
 				sqlQuery, getDialect(), start, end);
 
-			while (itr.hasNext()) {
-				Long organizationId = itr.next();
+			while (iterator.hasNext()) {
+				Long organizationId = iterator.next();
 
 				Organization organization = OrganizationUtil.findByPrimaryKey(
 					organizationId.longValue());
@@ -681,27 +684,27 @@ public class OrganizationFinderImpl
 
 			List<Object> models = new ArrayList<>();
 
-			Iterator<Object[]> itr = (Iterator<Object[]>)QueryUtil.iterate(
+			Iterator<Object[]> iterator = (Iterator<Object[]>)QueryUtil.iterate(
 				sqlQuery, getDialect(), queryDefinition.getStart(),
 				queryDefinition.getEnd());
 
-			while (itr.hasNext()) {
-				Object[] array = itr.next();
+			while (iterator.hasNext()) {
+				Object[] array = iterator.next();
 
 				long organizationId = (Long)array[0];
 
-				Object obj = null;
+				Object object = null;
 
 				if (organizationId > 0) {
-					obj = OrganizationUtil.findByPrimaryKey(organizationId);
+					object = OrganizationUtil.findByPrimaryKey(organizationId);
 				}
 				else {
 					long userId = (Long)array[1];
 
-					obj = UserUtil.findByPrimaryKey(userId);
+					object = UserUtil.findByPrimaryKey(userId);
 				}
 
-				models.add(obj);
+				models.add(object);
 			}
 
 			return models;
@@ -715,8 +718,9 @@ public class OrganizationFinderImpl
 	}
 
 	protected int countO_ByOrganizationId(
-		Session session, long organizationId,
-		LinkedHashMap<String, Object> params) {
+			Session session, long organizationId,
+			LinkedHashMap<String, Object> params)
+		throws PortalException {
 
 		String sql = CustomSQLUtil.get(COUNT_O_BY_ORGANIZATION_ID);
 
@@ -733,10 +737,10 @@ public class OrganizationFinderImpl
 
 		queryPos.add(organizationId);
 
-		Iterator<Long> itr = sqlQuery.iterate();
+		Iterator<Long> iterator = sqlQuery.iterate();
 
-		if (itr.hasNext()) {
-			Long count = itr.next();
+		if (iterator.hasNext()) {
+			Long count = iterator.next();
 
 			if (count != null) {
 				return count.intValue();
@@ -851,7 +855,7 @@ public class OrganizationFinderImpl
 			}
 			else {
 				StringBundler sb = new StringBundler(
-					organizationIds.length * 2 + 1);
+					(organizationIds.length * 2) + 1);
 
 				sb.append("WHERE (");
 
@@ -880,7 +884,7 @@ public class OrganizationFinderImpl
 				}
 				else {
 					StringBundler sb = new StringBundler(
-						organizationGroupIds.length * 2 + 1);
+						(organizationGroupIds.length * 2) + 1);
 
 					sb.append("WHERE (");
 
@@ -913,7 +917,7 @@ public class OrganizationFinderImpl
 				join = "WHERE (Organization_.treePath = '')";
 			}
 			else {
-				StringBundler sb = new StringBundler(size * 2 + 1);
+				StringBundler sb = new StringBundler((size * 2) + 1);
 
 				sb.append("WHERE (");
 
@@ -954,7 +958,8 @@ public class OrganizationFinderImpl
 	}
 
 	protected void setJoin(
-		QueryPos queryPos, LinkedHashMap<String, Object> params) {
+			QueryPos queryPos, LinkedHashMap<String, Object> params)
+		throws PortalException {
 
 		if (params == null) {
 			return;
@@ -975,10 +980,10 @@ public class OrganizationFinderImpl
 				List<Organization> organizationsTree =
 					(List<Organization>)value;
 
-				PermissionChecker permissionChecker =
-					PermissionThreadLocal.getPermissionChecker();
-
 				if (!organizationsTree.isEmpty()) {
+					PermissionChecker permissionChecker =
+						PermissionThreadLocal.getPermissionChecker();
+
 					for (Organization organization : organizationsTree) {
 						StringBundler sb = new StringBundler(5);
 
@@ -991,7 +996,10 @@ public class OrganizationFinderImpl
 							(permissionChecker.isOrganizationAdmin(
 								organization.getOrganizationId()) ||
 							 permissionChecker.isOrganizationOwner(
-								 organization.getOrganizationId()))) {
+								 organization.getOrganizationId()) ||
+							 OrganizationPermissionUtil.contains(
+								 permissionChecker, organization,
+								 ActionKeys.MANAGE_SUBORGANIZATIONS))) {
 
 							sb.append(StringPool.PERCENT);
 						}

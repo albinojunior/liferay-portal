@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
@@ -71,13 +72,14 @@ public class AccountEntryModelImpl
 	public static final String TABLE_NAME = "AccountEntry";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"accountEntryId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
-		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
-		{"modifiedDate", Types.TIMESTAMP},
+		{"mvccVersion", Types.BIGINT}, {"externalReferenceCode", Types.VARCHAR},
+		{"accountEntryId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
+		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
 		{"parentAccountEntryId", Types.BIGINT}, {"name", Types.VARCHAR},
 		{"description", Types.VARCHAR}, {"domains", Types.VARCHAR},
-		{"logoId", Types.BIGINT}, {"status", Types.INTEGER}
+		{"logoId", Types.BIGINT}, {"taxIdNumber", Types.VARCHAR},
+		{"type_", Types.VARCHAR}, {"status", Types.INTEGER}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -85,6 +87,7 @@ public class AccountEntryModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("accountEntryId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
@@ -96,11 +99,13 @@ public class AccountEntryModelImpl
 		TABLE_COLUMNS_MAP.put("description", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("domains", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("logoId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("taxIdNumber", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("type_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("status", Types.INTEGER);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table AccountEntry (mvccVersion LONG default 0 not null,accountEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentAccountEntryId LONG,name VARCHAR(100) null,description STRING null,domains STRING null,logoId LONG,status INTEGER)";
+		"create table AccountEntry (mvccVersion LONG default 0 not null,externalReferenceCode VARCHAR(75) null,accountEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentAccountEntryId LONG,name VARCHAR(100) null,description STRING null,domains STRING null,logoId LONG,taxIdNumber VARCHAR(75) null,type_ VARCHAR(75) null,status INTEGER)";
 
 	public static final String TABLE_SQL_DROP = "drop table AccountEntry";
 
@@ -115,18 +120,43 @@ public class AccountEntryModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 
-	public static final long STATUS_COLUMN_BITMASK = 2L;
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
+	public static final long EXTERNALREFERENCECODE_COLUMN_BITMASK = 2L;
 
-	public static final long NAME_COLUMN_BITMASK = 4L;
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
+	public static final long STATUS_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
+	public static final long NAME_COLUMN_BITMASK = 8L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	/**
@@ -134,7 +164,9 @@ public class AccountEntryModelImpl
 	 *
 	 * @param soapModel the soap model instance to convert
 	 * @return the normal model instance
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static AccountEntry toModel(AccountEntrySoap soapModel) {
 		if (soapModel == null) {
 			return null;
@@ -143,6 +175,7 @@ public class AccountEntryModelImpl
 		AccountEntry model = new AccountEntryImpl();
 
 		model.setMvccVersion(soapModel.getMvccVersion());
+		model.setExternalReferenceCode(soapModel.getExternalReferenceCode());
 		model.setAccountEntryId(soapModel.getAccountEntryId());
 		model.setCompanyId(soapModel.getCompanyId());
 		model.setUserId(soapModel.getUserId());
@@ -154,6 +187,8 @@ public class AccountEntryModelImpl
 		model.setDescription(soapModel.getDescription());
 		model.setDomains(soapModel.getDomains());
 		model.setLogoId(soapModel.getLogoId());
+		model.setTaxIdNumber(soapModel.getTaxIdNumber());
+		model.setType(soapModel.getType());
 		model.setStatus(soapModel.getStatus());
 
 		return model;
@@ -164,7 +199,9 @@ public class AccountEntryModelImpl
 	 *
 	 * @param soapModels the soap model instances to convert
 	 * @return the normal model instances
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static List<AccountEntry> toModels(AccountEntrySoap[] soapModels) {
 		if (soapModels == null) {
 			return null;
@@ -231,9 +268,6 @@ public class AccountEntryModelImpl
 				attributeName,
 				attributeGetterFunction.apply((AccountEntry)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -313,6 +347,12 @@ public class AccountEntryModelImpl
 			"mvccVersion",
 			(BiConsumer<AccountEntry, Long>)AccountEntry::setMvccVersion);
 		attributeGetterFunctions.put(
+			"externalReferenceCode", AccountEntry::getExternalReferenceCode);
+		attributeSetterBiConsumers.put(
+			"externalReferenceCode",
+			(BiConsumer<AccountEntry, String>)
+				AccountEntry::setExternalReferenceCode);
+		attributeGetterFunctions.put(
 			"accountEntryId", AccountEntry::getAccountEntryId);
 		attributeSetterBiConsumers.put(
 			"accountEntryId",
@@ -358,6 +398,14 @@ public class AccountEntryModelImpl
 		attributeGetterFunctions.put("logoId", AccountEntry::getLogoId);
 		attributeSetterBiConsumers.put(
 			"logoId", (BiConsumer<AccountEntry, Long>)AccountEntry::setLogoId);
+		attributeGetterFunctions.put(
+			"taxIdNumber", AccountEntry::getTaxIdNumber);
+		attributeSetterBiConsumers.put(
+			"taxIdNumber",
+			(BiConsumer<AccountEntry, String>)AccountEntry::setTaxIdNumber);
+		attributeGetterFunctions.put("type", AccountEntry::getType);
+		attributeSetterBiConsumers.put(
+			"type", (BiConsumer<AccountEntry, String>)AccountEntry::setType);
 		attributeGetterFunctions.put("status", AccountEntry::getStatus);
 		attributeSetterBiConsumers.put(
 			"status",
@@ -377,7 +425,40 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public String getExternalReferenceCode() {
+		if (_externalReferenceCode == null) {
+			return "";
+		}
+		else {
+			return _externalReferenceCode;
+		}
+	}
+
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_externalReferenceCode = externalReferenceCode;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalExternalReferenceCode() {
+		return getColumnOriginalValue("externalReferenceCode");
 	}
 
 	@JSON
@@ -388,6 +469,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setAccountEntryId(long accountEntryId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_accountEntryId = accountEntryId;
 	}
 
@@ -399,19 +484,21 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
-		_columnBitmask |= COMPANYID_COLUMN_BITMASK;
-
-		if (!_setOriginalCompanyId) {
-			_setOriginalCompanyId = true;
-
-			_originalCompanyId = _companyId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_companyId = companyId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalCompanyId() {
-		return _originalCompanyId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("companyId"));
 	}
 
 	@JSON
@@ -422,6 +509,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setUserId(long userId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userId = userId;
 	}
 
@@ -454,6 +545,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setUserName(String userName) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userName = userName;
 	}
 
@@ -465,6 +560,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setCreateDate(Date createDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_createDate = createDate;
 	}
 
@@ -482,6 +581,10 @@ public class AccountEntryModelImpl
 	public void setModifiedDate(Date modifiedDate) {
 		_setModifiedDate = true;
 
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_modifiedDate = modifiedDate;
 	}
 
@@ -493,6 +596,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setParentAccountEntryId(long parentAccountEntryId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_parentAccountEntryId = parentAccountEntryId;
 	}
 
@@ -509,7 +616,9 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setName(String name) {
-		_columnBitmask = -1L;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
 
 		_name = name;
 	}
@@ -527,6 +636,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setDescription(String description) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_description = description;
 	}
 
@@ -543,6 +656,10 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setDomains(String domains) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_domains = domains;
 	}
 
@@ -554,7 +671,51 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setLogoId(long logoId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_logoId = logoId;
+	}
+
+	@JSON
+	@Override
+	public String getTaxIdNumber() {
+		if (_taxIdNumber == null) {
+			return "";
+		}
+		else {
+			return _taxIdNumber;
+		}
+	}
+
+	@Override
+	public void setTaxIdNumber(String taxIdNumber) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_taxIdNumber = taxIdNumber;
+	}
+
+	@JSON
+	@Override
+	public String getType() {
+		if (_type == null) {
+			return "";
+		}
+		else {
+			return _type;
+		}
+	}
+
+	@Override
+	public void setType(String type) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_type = type;
 	}
 
 	@JSON
@@ -565,22 +726,42 @@ public class AccountEntryModelImpl
 
 	@Override
 	public void setStatus(int status) {
-		_columnBitmask |= STATUS_COLUMN_BITMASK;
-
-		if (!_setOriginalStatus) {
-			_setOriginalStatus = true;
-
-			_originalStatus = _status;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_status = status;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public int getOriginalStatus() {
-		return _originalStatus;
+		return GetterUtil.getInteger(
+			this.<Integer>getColumnOriginalValue("status"));
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -617,6 +798,7 @@ public class AccountEntryModelImpl
 		AccountEntryImpl accountEntryImpl = new AccountEntryImpl();
 
 		accountEntryImpl.setMvccVersion(getMvccVersion());
+		accountEntryImpl.setExternalReferenceCode(getExternalReferenceCode());
 		accountEntryImpl.setAccountEntryId(getAccountEntryId());
 		accountEntryImpl.setCompanyId(getCompanyId());
 		accountEntryImpl.setUserId(getUserId());
@@ -628,6 +810,8 @@ public class AccountEntryModelImpl
 		accountEntryImpl.setDescription(getDescription());
 		accountEntryImpl.setDomains(getDomains());
 		accountEntryImpl.setLogoId(getLogoId());
+		accountEntryImpl.setTaxIdNumber(getTaxIdNumber());
+		accountEntryImpl.setType(getType());
 		accountEntryImpl.setStatus(getStatus());
 
 		accountEntryImpl.resetOriginalValues();
@@ -649,16 +833,16 @@ public class AccountEntryModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AccountEntry)) {
+		if (!(object instanceof AccountEntry)) {
 			return false;
 		}
 
-		AccountEntry accountEntry = (AccountEntry)obj;
+		AccountEntry accountEntry = (AccountEntry)object;
 
 		long primaryKey = accountEntry.getPrimaryKey();
 
@@ -675,32 +859,31 @@ public class AccountEntryModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		AccountEntryModelImpl accountEntryModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		accountEntryModelImpl._originalCompanyId =
-			accountEntryModelImpl._companyId;
+		_setModifiedDate = false;
 
-		accountEntryModelImpl._setOriginalCompanyId = false;
-
-		accountEntryModelImpl._setModifiedDate = false;
-
-		accountEntryModelImpl._originalStatus = accountEntryModelImpl._status;
-
-		accountEntryModelImpl._setOriginalStatus = false;
-
-		accountEntryModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -709,6 +892,18 @@ public class AccountEntryModelImpl
 			new AccountEntryCacheModel();
 
 		accountEntryCacheModel.mvccVersion = getMvccVersion();
+
+		accountEntryCacheModel.externalReferenceCode =
+			getExternalReferenceCode();
+
+		String externalReferenceCode =
+			accountEntryCacheModel.externalReferenceCode;
+
+		if ((externalReferenceCode != null) &&
+			(externalReferenceCode.length() == 0)) {
+
+			accountEntryCacheModel.externalReferenceCode = null;
+		}
 
 		accountEntryCacheModel.accountEntryId = getAccountEntryId();
 
@@ -770,6 +965,22 @@ public class AccountEntryModelImpl
 
 		accountEntryCacheModel.logoId = getLogoId();
 
+		accountEntryCacheModel.taxIdNumber = getTaxIdNumber();
+
+		String taxIdNumber = accountEntryCacheModel.taxIdNumber;
+
+		if ((taxIdNumber != null) && (taxIdNumber.length() == 0)) {
+			accountEntryCacheModel.taxIdNumber = null;
+		}
+
+		accountEntryCacheModel.type = getType();
+
+		String type = accountEntryCacheModel.type;
+
+		if ((type != null) && (type.length() == 0)) {
+			accountEntryCacheModel.type = null;
+		}
+
 		accountEntryCacheModel.status = getStatus();
 
 		return accountEntryCacheModel;
@@ -781,7 +992,7 @@ public class AccountEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -813,7 +1024,7 @@ public class AccountEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -845,14 +1056,10 @@ public class AccountEntryModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _mvccVersion;
+	private String _externalReferenceCode;
 	private long _accountEntryId;
 	private long _companyId;
-	private long _originalCompanyId;
-	private boolean _setOriginalCompanyId;
 	private long _userId;
 	private String _userName;
 	private Date _createDate;
@@ -863,9 +1070,115 @@ public class AccountEntryModelImpl
 	private String _description;
 	private String _domains;
 	private long _logoId;
+	private String _taxIdNumber;
+	private String _type;
 	private int _status;
-	private int _originalStatus;
-	private boolean _setOriginalStatus;
+
+	public <T> T getColumnValue(String columnName) {
+		columnName = _attributeNames.getOrDefault(columnName, columnName);
+
+		Function<AccountEntry, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((AccountEntry)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put(
+			"externalReferenceCode", _externalReferenceCode);
+		_columnOriginalValues.put("accountEntryId", _accountEntryId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("userId", _userId);
+		_columnOriginalValues.put("userName", _userName);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put(
+			"parentAccountEntryId", _parentAccountEntryId);
+		_columnOriginalValues.put("name", _name);
+		_columnOriginalValues.put("description", _description);
+		_columnOriginalValues.put("domains", _domains);
+		_columnOriginalValues.put("logoId", _logoId);
+		_columnOriginalValues.put("taxIdNumber", _taxIdNumber);
+		_columnOriginalValues.put("type_", _type);
+		_columnOriginalValues.put("status", _status);
+	}
+
+	private static final Map<String, String> _attributeNames;
+
+	static {
+		Map<String, String> attributeNames = new HashMap<>();
+
+		attributeNames.put("type_", "type");
+
+		_attributeNames = Collections.unmodifiableMap(attributeNames);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("externalReferenceCode", 2L);
+
+		columnBitmasks.put("accountEntryId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("userId", 16L);
+
+		columnBitmasks.put("userName", 32L);
+
+		columnBitmasks.put("createDate", 64L);
+
+		columnBitmasks.put("modifiedDate", 128L);
+
+		columnBitmasks.put("parentAccountEntryId", 256L);
+
+		columnBitmasks.put("name", 512L);
+
+		columnBitmasks.put("description", 1024L);
+
+		columnBitmasks.put("domains", 2048L);
+
+		columnBitmasks.put("logoId", 4096L);
+
+		columnBitmasks.put("taxIdNumber", 8192L);
+
+		columnBitmasks.put("type_", 16384L);
+
+		columnBitmasks.put("status", 32768L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private AccountEntry _escapedModel;
 

@@ -58,6 +58,26 @@ public abstract class FragmentEntryVerticalCard
 	}
 
 	@Override
+	public String getInputName() {
+		return rowChecker.getRowIds() + FragmentEntry.class.getSimpleName();
+	}
+
+	@Override
+	public String getInputValue() {
+		return String.valueOf(fragmentEntry.getFragmentEntryId());
+	}
+
+	@Override
+	public String getStickerCssClass() {
+		return "fragment-entry-sticker";
+	}
+
+	@Override
+	public String getStickerIcon() {
+		return getIcon();
+	}
+
+	@Override
 	public String getTitle() {
 		return HtmlUtil.escape(fragmentEntry.getName());
 	}

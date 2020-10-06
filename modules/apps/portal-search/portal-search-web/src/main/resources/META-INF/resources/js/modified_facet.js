@@ -14,14 +14,13 @@
 
 AUI.add(
 	'liferay-search-modified-facet',
-	A => {
+	(A) => {
 		var DEFAULTS_FORM_VALIDATOR = A.config.FormValidator;
 
 		var FacetUtil = Liferay.Search.FacetUtil;
-		var Language = Liferay.Language;
 		var Util = Liferay.Util;
 
-		var ModifiedFacetFilter = function(config) {
+		var ModifiedFacetFilter = function (config) {
 			var instance = this;
 
 			instance.form = config.form;
@@ -62,7 +61,7 @@ AUI.add(
 				A.mix(
 					DEFAULTS_FORM_VALIDATOR.STRINGS,
 					{
-						[dateRangeRuleName]: Language.get(
+						[dateRangeRuleName]: Liferay.Language.get(
 							'search-custom-range-invalid-date-range'
 						),
 					},
@@ -109,7 +108,7 @@ AUI.add(
 					},
 				});
 
-				var onRangeSelectionChange = function() {
+				var onRangeSelectionChange = function () {
 					customRangeValidator.validate();
 				};
 
@@ -171,6 +170,17 @@ AUI.add(
 					paramTo,
 					parameterArray
 				);
+
+				var startParameterNameElement = document.getElementById(
+					instance.namespace + 'start-parameter-name'
+				);
+
+				if (startParameterNameElement) {
+					parameterArray = FacetUtil.removeURLParameters(
+						startParameterNameElement.value,
+						parameterArray
+					);
+				}
 
 				parameterArray = FacetUtil.addURLParameter(
 					paramFrom,

@@ -104,27 +104,46 @@ public class CountryModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.Country"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean ENTITY_CACHE_ENABLED = true;
 
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.Country"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean FINDER_CACHE_ENABLED = true;
 
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.Country"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean COLUMN_BITMASK_ENABLED = true;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long A2_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long A3_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long ACTIVE_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long NAME_COLUMN_BITMASK = 8L;
 
 	/**
@@ -132,7 +151,9 @@ public class CountryModelImpl
 	 *
 	 * @param soapModel the soap model instance to convert
 	 * @return the normal model instance
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static Country toModel(CountrySoap soapModel) {
 		if (soapModel == null) {
 			return null;
@@ -158,7 +179,9 @@ public class CountryModelImpl
 	 *
 	 * @param soapModels the soap model instances to convert
 	 * @return the normal model instances
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static List<Country> toModels(CountrySoap[] soapModels) {
 		if (soapModels == null) {
 			return null;
@@ -227,9 +250,6 @@ public class CountryModelImpl
 			attributes.put(
 				attributeName, attributeGetterFunction.apply((Country)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -345,6 +365,10 @@ public class CountryModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
 	}
 
@@ -356,6 +380,10 @@ public class CountryModelImpl
 
 	@Override
 	public void setCountryId(long countryId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_countryId = countryId;
 	}
 
@@ -372,17 +400,20 @@ public class CountryModelImpl
 
 	@Override
 	public void setName(String name) {
-		_columnBitmask = -1L;
-
-		if (_originalName == null) {
-			_originalName = _name;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_name = name;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalName() {
-		return GetterUtil.getString(_originalName);
+		return getColumnOriginalValue("name");
 	}
 
 	@JSON
@@ -398,17 +429,20 @@ public class CountryModelImpl
 
 	@Override
 	public void setA2(String a2) {
-		_columnBitmask |= A2_COLUMN_BITMASK;
-
-		if (_originalA2 == null) {
-			_originalA2 = _a2;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_a2 = a2;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalA2() {
-		return GetterUtil.getString(_originalA2);
+		return getColumnOriginalValue("a2");
 	}
 
 	@JSON
@@ -424,17 +458,20 @@ public class CountryModelImpl
 
 	@Override
 	public void setA3(String a3) {
-		_columnBitmask |= A3_COLUMN_BITMASK;
-
-		if (_originalA3 == null) {
-			_originalA3 = _a3;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_a3 = a3;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalA3() {
-		return GetterUtil.getString(_originalA3);
+		return getColumnOriginalValue("a3");
 	}
 
 	@JSON
@@ -450,6 +487,10 @@ public class CountryModelImpl
 
 	@Override
 	public void setNumber(String number) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_number = number;
 	}
 
@@ -466,6 +507,10 @@ public class CountryModelImpl
 
 	@Override
 	public void setIdd(String idd) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_idd = idd;
 	}
 
@@ -483,6 +528,10 @@ public class CountryModelImpl
 
 	@Override
 	public void setZipRequired(boolean zipRequired) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_zipRequired = zipRequired;
 	}
 
@@ -500,22 +549,42 @@ public class CountryModelImpl
 
 	@Override
 	public void setActive(boolean active) {
-		_columnBitmask |= ACTIVE_COLUMN_BITMASK;
-
-		if (!_setOriginalActive) {
-			_setOriginalActive = true;
-
-			_originalActive = _active;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_active = active;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public boolean getOriginalActive() {
-		return _originalActive;
+		return GetterUtil.getBoolean(
+			this.<Boolean>getColumnOriginalValue("active_"));
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -580,16 +649,16 @@ public class CountryModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Country)) {
+		if (!(object instanceof Country)) {
 			return false;
 		}
 
-		Country country = (Country)obj;
+		Country country = (Country)object;
 
 		long primaryKey = country.getPrimaryKey();
 
@@ -606,11 +675,19 @@ public class CountryModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
 		return ENTITY_CACHE_ENABLED;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
 		return FINDER_CACHE_ENABLED;
@@ -618,19 +695,9 @@ public class CountryModelImpl
 
 	@Override
 	public void resetOriginalValues() {
-		CountryModelImpl countryModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		countryModelImpl._originalName = countryModelImpl._name;
-
-		countryModelImpl._originalA2 = countryModelImpl._a2;
-
-		countryModelImpl._originalA3 = countryModelImpl._a3;
-
-		countryModelImpl._originalActive = countryModelImpl._active;
-
-		countryModelImpl._setOriginalActive = false;
-
-		countryModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -694,7 +761,7 @@ public class CountryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -726,7 +793,7 @@ public class CountryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -761,17 +828,97 @@ public class CountryModelImpl
 	private long _mvccVersion;
 	private long _countryId;
 	private String _name;
-	private String _originalName;
 	private String _a2;
-	private String _originalA2;
 	private String _a3;
-	private String _originalA3;
 	private String _number;
 	private String _idd;
 	private boolean _zipRequired;
 	private boolean _active;
-	private boolean _originalActive;
-	private boolean _setOriginalActive;
+
+	public <T> T getColumnValue(String columnName) {
+		columnName = _attributeNames.getOrDefault(columnName, columnName);
+
+		Function<Country, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((Country)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("countryId", _countryId);
+		_columnOriginalValues.put("name", _name);
+		_columnOriginalValues.put("a2", _a2);
+		_columnOriginalValues.put("a3", _a3);
+		_columnOriginalValues.put("number_", _number);
+		_columnOriginalValues.put("idd_", _idd);
+		_columnOriginalValues.put("zipRequired", _zipRequired);
+		_columnOriginalValues.put("active_", _active);
+	}
+
+	private static final Map<String, String> _attributeNames;
+
+	static {
+		Map<String, String> attributeNames = new HashMap<>();
+
+		attributeNames.put("number_", "number");
+		attributeNames.put("idd_", "idd");
+		attributeNames.put("active_", "active");
+
+		_attributeNames = Collections.unmodifiableMap(attributeNames);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("countryId", 2L);
+
+		columnBitmasks.put("name", 4L);
+
+		columnBitmasks.put("a2", 8L);
+
+		columnBitmasks.put("a3", 16L);
+
+		columnBitmasks.put("number_", 32L);
+
+		columnBitmasks.put("idd_", 64L);
+
+		columnBitmasks.put("zipRequired", 128L);
+
+		columnBitmasks.put("active_", 256L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private Country _escapedModel;
 

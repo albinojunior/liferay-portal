@@ -87,6 +87,20 @@ public class StructuredContentSerDes {
 			sb.append(String.valueOf(structuredContent.getAggregateRating()));
 		}
 
+		if (structuredContent.getAssetLibraryKey() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraryKey\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(structuredContent.getAssetLibraryKey()));
+
+			sb.append("\"");
+		}
+
 		if (structuredContent.getAvailableLanguages() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -545,6 +559,15 @@ public class StructuredContentSerDes {
 				String.valueOf(structuredContent.getAggregateRating()));
 		}
 
+		if (structuredContent.getAssetLibraryKey() == null) {
+			map.put("assetLibraryKey", null);
+		}
+		else {
+			map.put(
+				"assetLibraryKey",
+				String.valueOf(structuredContent.getAssetLibraryKey()));
+		}
+
 		if (structuredContent.getAvailableLanguages() == null) {
 			map.put("availableLanguages", null);
 		}
@@ -588,19 +611,35 @@ public class StructuredContentSerDes {
 				String.valueOf(structuredContent.getCustomFields()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(structuredContent.getDateCreated()));
+		if (structuredContent.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(
+					structuredContent.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(
-				structuredContent.getDateModified()));
+		if (structuredContent.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(
+					structuredContent.getDateModified()));
+		}
 
-		map.put(
-			"datePublished",
-			liferayToJSONDateFormat.format(
-				structuredContent.getDatePublished()));
+		if (structuredContent.getDatePublished() == null) {
+			map.put("datePublished", null);
+		}
+		else {
+			map.put(
+				"datePublished",
+				liferayToJSONDateFormat.format(
+					structuredContent.getDatePublished()));
+		}
 
 		if (structuredContent.getDescription() == null) {
 			map.put("description", null);
@@ -786,6 +825,12 @@ public class StructuredContentSerDes {
 					structuredContent.setAggregateRating(
 						AggregateRatingSerDes.toDTO(
 							(String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "assetLibraryKey")) {
+				if (jsonParserFieldValue != null) {
+					structuredContent.setAssetLibraryKey(
+						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(
@@ -987,9 +1032,8 @@ public class StructuredContentSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -1045,10 +1089,13 @@ public class StructuredContentSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

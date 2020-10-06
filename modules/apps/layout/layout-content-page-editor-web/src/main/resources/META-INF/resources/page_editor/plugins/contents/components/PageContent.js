@@ -16,7 +16,9 @@ import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
+import ClayLayout from '@clayui/layout';
 import classNames from 'classnames';
+import {openModal} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
 
@@ -30,7 +32,7 @@ export default function PageContent(props) {
 	const {editURL, permissionsURL, viewUsagesURL} = props.actions;
 	const hoverItem = useHoverItem();
 	const hoveredItemId = useHoveredItemId();
-	const fragmentEntryLinks = useSelector(state => state.fragmentEntryLinks);
+	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
 	const [isHovered, setIsHovered] = useState(false);
 
 	useEffect(() => {
@@ -60,20 +62,6 @@ export default function PageContent(props) {
 		}
 	}, [fragmentEntryLinks, hoveredItemId, props.classPK]);
 
-	const openWindow = (uri, title) => {
-		Liferay.Util.openWindow({
-			dialog: {
-				destroyOnHide: true,
-				modal: true,
-			},
-			dialogIframe: {
-				bodyCssClass: 'dialog-with-footer',
-			},
-			title,
-			uri,
-		});
-	};
-
 	const handleMouseOver = () => {
 		setIsHovered(true);
 
@@ -96,7 +84,7 @@ export default function PageContent(props) {
 			onMouseOver={handleMouseOver}
 		>
 			<div className="d-flex pl-3 pr-2 py-3">
-				<div className="autofit-col autofit-col-expand">
+				<ClayLayout.ContentCol expand>
 					<strong className="list-group-title text-truncate">
 						{props.title}
 					</strong>
@@ -122,7 +110,7 @@ export default function PageContent(props) {
 							{props.status.label}
 						</ClayLabel>
 					</div>
-				</div>
+				</ClayLayout.ContentCol>
 
 				{(editURL || permissionsURL || viewUsagesURL) && (
 					<ClayDropDown
@@ -150,12 +138,14 @@ export default function PageContent(props) {
 							{permissionsURL && (
 								<ClayDropDown.Item
 									key="permissionsURL"
-									onClick={() =>
-										openWindow(
-											permissionsURL,
-											Liferay.Language.get('permissions')
-										)
-									}
+									onClick={() => {
+										openModal({
+											title: Liferay.Language.get(
+												'permissions'
+											),
+											url: permissionsURL,
+										});
+									}}
 								>
 									{Liferay.Language.get('permissions')}
 								</ClayDropDown.Item>
@@ -164,12 +154,14 @@ export default function PageContent(props) {
 							{viewUsagesURL && (
 								<ClayDropDown.Item
 									key="viewUsagesURL"
-									onClick={() =>
-										openWindow(
-											viewUsagesURL,
-											Liferay.Language.get('view-usages')
-										)
-									}
+									onClick={() => {
+										openModal({
+											title: Liferay.Language.get(
+												'view-usages'
+											),
+											url: viewUsagesURL,
+										});
+									}}
 								>
 									{Liferay.Language.get('view-usages')}
 								</ClayDropDown.Item>

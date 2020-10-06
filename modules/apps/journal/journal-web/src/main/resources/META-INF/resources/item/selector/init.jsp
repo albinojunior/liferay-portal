@@ -34,10 +34,10 @@ page import="com.liferay.journal.web.internal.dao.search.JournalResultRowSplitte
 page import="com.liferay.journal.web.internal.display.context.JournalArticleItemSelectorViewDisplayContext" %><%@
 page import="com.liferay.journal.web.internal.display.context.JournalArticleItemSelectorViewManagementToolbarDisplayContext" %><%@
 page import="com.liferay.journal.web.internal.servlet.taglib.clay.JournalArticleItemSelectorVerticalCard" %><%@
-page import="com.liferay.journal.web.internal.servlet.taglib.clay.JournalFolderItemSelectorHorizontalCard" %><%@
 page import="com.liferay.portal.kernel.json.JSONObject" %><%@
 page import="com.liferay.portal.kernel.json.JSONUtil" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
+page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
@@ -45,7 +45,6 @@ page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %>
 
 <%@ page import="java.util.Date" %><%@
-page import="java.util.HashMap" %><%@
 page import="java.util.Map" %><%@
 page import="java.util.Objects" %>
 

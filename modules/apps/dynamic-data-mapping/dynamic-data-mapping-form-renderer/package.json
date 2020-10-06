@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@clayui/layout": "3.2.0",
 		"frontend-js-web": "*",
 		"incremental-dom-string": "0.0.2",
 		"metal-component": "2.16.8",
@@ -11,9 +12,6 @@
 		],
 		"snapshotSerializers": [
 			"metal-jest-serializer"
-		],
-		"testPathIgnorePatterns": [
-			"FormRenderer"
 		]
 	},
 	"main": "index.js",
@@ -23,7 +21,7 @@
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix",
-		"test": "liferay-npm-scripts test"
+		"test": "metalsoy -s \"test/**/*.soy\" -d \"test\" && liferay-npm-scripts test"
 	},
-	"version": "5.0.5"
+	"version": "5.0.35"
 }

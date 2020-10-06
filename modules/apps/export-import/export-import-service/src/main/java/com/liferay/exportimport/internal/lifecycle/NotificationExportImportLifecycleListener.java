@@ -20,8 +20,8 @@ import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleListener;
 import com.liferay.exportimport.kernel.lifecycle.ProcessAwareExportImportLifecycleListener;
 import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
+import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -70,7 +70,7 @@ public class NotificationExportImportLifecycleListener
 		sendNotification(BackgroundTaskConstants.STATUS_SUCCESSFUL);
 	}
 
-	protected JSONObject getPayload(
+	protected JSONObject getPayloadJSONObject(
 		long backgroundTaskId, long exportImportConfigurationId, int status) {
 
 		JSONObject jsonObject = _jsonFactory.createJSONObject();
@@ -101,7 +101,8 @@ public class NotificationExportImportLifecycleListener
 		_userNotificationEventLocalService.sendUserNotificationEvents(
 			backgroundTask.getUserId(), ExportImportPortletKeys.EXPORT_IMPORT,
 			UserNotificationDeliveryConstants.TYPE_WEBSITE,
-			getPayload(backgroundTaskId, exportImportConfigurationId, status));
+			getPayloadJSONObject(
+				backgroundTaskId, exportImportConfigurationId, status));
 	}
 
 	@Reference

@@ -53,11 +53,11 @@ definition {
 			${portalURL}/api/jsonws/assetcategory/get-vocabulary-categories \
 				-u test@liferay.com:test \
 				-d groupId=${groupId} \
-				-d name=${categoryName} \
+				-d <CURL_DATA[name=${categoryName}]CURL_DATA> \
 				-d vocabularyId=${vocabularyId} \
 				-d <CURL_DATA[start=-1]CURL_DATA> \
 				-d <CURL_DATA[end=-1]CURL_DATA> \
-				-d -obc=
+				-d -orderByComparator=
 		''';
 
 		var categoryId = JSONCurlUtil.post("${curl}", "$.[?(@['titleCurrentValue'] == '${categoryName}')]['categoryId']");

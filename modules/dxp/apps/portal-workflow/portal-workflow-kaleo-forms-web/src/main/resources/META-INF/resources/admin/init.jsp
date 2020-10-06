@@ -16,33 +16,33 @@
 
 <%@ include file="/init.jsp" %>
 
-<%@ taglib uri="http://liferay.com/tld/clay" prefix="clay" %>
-
-<%@ page import="com.liferay.dynamic.data.lists.exception.RecordSetDDMStructureIdException" %><%@
+<%@ page import="com.liferay.dynamic.data.lists.constants.DDLRecordConstants" %><%@
+page import="com.liferay.dynamic.data.lists.exception.RecordSetDDMStructureIdException" %><%@
 page import="com.liferay.dynamic.data.lists.exception.RecordSetNameException" %><%@
-page import="com.liferay.dynamic.data.lists.model.DDLRecordConstants" %><%@
 page import="com.liferay.dynamic.data.lists.model.DDLRecordVersion" %><%@
 page import="com.liferay.dynamic.data.lists.service.DDLRecordServiceUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.constants.DDMPortletKeys" %><%@
+page import="com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.RequiredStructureException" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMFormField" %><%@
-page import="com.liferay.dynamic.data.mapping.model.DDMTemplateConstants" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStructureServiceUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.util.DDMDisplay" %><%@
 page import="com.liferay.dynamic.data.mapping.util.DDMUtil" %><%@
+page import="com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateComparator" %><%@
 page import="com.liferay.petra.string.CharPool" %><%@
+page import="com.liferay.petra.string.StringBundler" %><%@
 page import="com.liferay.portal.kernel.dao.search.DisplayTerms" %><%@
 page import="com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker" %><%@
 page import="com.liferay.portal.kernel.exception.PortalException" %><%@
 page import="com.liferay.portal.kernel.json.JSONArray" %><%@
 page import="com.liferay.portal.kernel.json.JSONFactoryUtil" %><%@
 page import="com.liferay.portal.kernel.json.JSONObject" %><%@
+page import="com.liferay.portal.kernel.json.JSONUtil" %><%@
 page import="com.liferay.portal.kernel.language.UnicodeLanguageUtil" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.portlet.PortletURLFactoryUtil" %><%@
 page import="com.liferay.portal.kernel.util.HttpUtil" %><%@
-page import="com.liferay.portal.kernel.util.StringBundler" %><%@
 page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.workflow.RequiredWorkflowDefinitionException" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowDefinition" %><%@
@@ -67,8 +67,6 @@ page import="com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion" %>
 page import="javax.portlet.WindowState" %>
 
 <%
-String refererPortletName = ParamUtil.getString(request, "refererPortletName", portletName);
-
 KaleoFormsAdminDisplayContext kaleoFormsAdminDisplayContext = (KaleoFormsAdminDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
 
 DDMDisplay ddmDisplay = kaleoFormsAdminDisplayContext.getDDMDisplay();

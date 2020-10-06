@@ -1,4 +1,5 @@
 @import 'atlas-variables';
+@import 'display_page_templates';
 
 .preview-seo {
 	$component: &;
@@ -13,6 +14,10 @@
 	&-title,
 	&-url {
 		min-height: $line-height-base * 1em;
+	}
+
+	&-description {
+		word-break: break-all;
 	}
 
 	&-title {

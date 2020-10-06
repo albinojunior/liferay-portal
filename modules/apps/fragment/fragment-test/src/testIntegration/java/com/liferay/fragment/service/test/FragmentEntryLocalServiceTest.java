@@ -77,6 +77,9 @@ public class FragmentEntryLocalServiceTest {
 
 		_fragmentCollection = FragmentTestUtil.addFragmentCollection(
 			_group.getGroupId());
+
+		_updatedFragmentCollection = FragmentTestUtil.addFragmentCollection(
+			_group.getGroupId());
 	}
 
 	@Test
@@ -91,7 +94,7 @@ public class FragmentEntryLocalServiceTest {
 		String configuration = _read("configuration-valid-complete.json");
 		long previewFileEntryId = RandomTestUtil.randomLong();
 		int type = FragmentConstants.TYPE_COMPONENT;
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -133,7 +136,7 @@ public class FragmentEntryLocalServiceTest {
 		String html = RandomTestUtil.randomString();
 		String js = RandomTestUtil.randomString();
 		long previewFileEntryId = RandomTestUtil.randomLong();
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -173,7 +176,7 @@ public class FragmentEntryLocalServiceTest {
 		String js = RandomTestUtil.randomString();
 		long previewFileEntryId = RandomTestUtil.randomLong();
 		int type = FragmentConstants.TYPE_COMPONENT;
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -213,7 +216,7 @@ public class FragmentEntryLocalServiceTest {
 		String html = RandomTestUtil.randomString();
 		String js = RandomTestUtil.randomString();
 		int type = FragmentConstants.TYPE_COMPONENT;
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -249,7 +252,7 @@ public class FragmentEntryLocalServiceTest {
 		String name = RandomTestUtil.randomString();
 		long previewFileEntryId = RandomTestUtil.randomLong();
 		int type = FragmentConstants.TYPE_COMPONENT;
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_DRAFT;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -308,7 +311,7 @@ public class FragmentEntryLocalServiceTest {
 		String css = RandomTestUtil.randomString();
 		String html = RandomTestUtil.randomString();
 		String js = RandomTestUtil.randomString();
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -341,7 +344,7 @@ public class FragmentEntryLocalServiceTest {
 		String html = RandomTestUtil.randomString();
 		String js = RandomTestUtil.randomString();
 		long previewFileEntryId = RandomTestUtil.randomLong();
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -377,7 +380,7 @@ public class FragmentEntryLocalServiceTest {
 		String js = RandomTestUtil.randomString();
 		long previewFileEntryId = RandomTestUtil.randomLong();
 		int type = FragmentConstants.TYPE_COMPONENT;
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -413,7 +416,7 @@ public class FragmentEntryLocalServiceTest {
 		String html = RandomTestUtil.randomString();
 		String js = RandomTestUtil.randomString();
 		int type = FragmentConstants.TYPE_COMPONENT;
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -838,6 +841,39 @@ public class FragmentEntryLocalServiceTest {
 	}
 
 	@Test
+	public void testUpdateFragmentCollectionId() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		FragmentEntry fragmentEntry =
+			_fragmentEntryLocalService.addFragmentEntry(
+				TestPropsValues.getUserId(), _group.getGroupId(),
+				_fragmentCollection.getFragmentCollectionId(),
+				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(), "<H1>A</H1>",
+				RandomTestUtil.randomString(), null,
+				RandomTestUtil.randomLong(), FragmentConstants.TYPE_COMPONENT,
+				WorkflowConstants.STATUS_APPROVED, serviceContext);
+
+		_fragmentEntryLocalService.updateFragmentEntry(
+			fragmentEntry.getUserId(), fragmentEntry.getFragmentEntryId(),
+			_updatedFragmentCollection.getFragmentCollectionId(),
+			fragmentEntry.getName(), fragmentEntry.getCss(),
+			fragmentEntry.getHtml(), fragmentEntry.getJs(), false, null,
+			fragmentEntry.getPreviewFileEntryId(),
+			WorkflowConstants.STATUS_APPROVED);
+
+		FragmentEntry persistedFragmentEntry =
+			_fragmentEntryPersistence.fetchByPrimaryKey(
+				fragmentEntry.getFragmentEntryId());
+
+		Assert.assertEquals(
+			_updatedFragmentCollection.getFragmentCollectionId(),
+			persistedFragmentEntry.getFragmentCollectionId());
+	}
+
+	@Test
 	public void testUpdateFragmentEntryName() throws Exception {
 		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
 			_fragmentCollection.getFragmentCollectionId(),
@@ -863,7 +899,7 @@ public class FragmentEntryLocalServiceTest {
 		String html = RandomTestUtil.randomString();
 		String js = RandomTestUtil.randomString();
 		String configuration = _read("configuration-valid-complete.json");
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
 			_fragmentCollection.getFragmentCollectionId());
@@ -895,7 +931,7 @@ public class FragmentEntryLocalServiceTest {
 		String js = RandomTestUtil.randomString();
 		String configuration = _read("configuration-valid-complete.json");
 		long previewFileEntryId = RandomTestUtil.randomLong();
-		int status = WorkflowConstants.STATUS_PENDING;
+		int status = WorkflowConstants.STATUS_APPROVED;
 
 		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
 			_fragmentCollection.getFragmentCollectionId());
@@ -1002,5 +1038,7 @@ public class FragmentEntryLocalServiceTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	private FragmentCollection _updatedFragmentCollection;
 
 }

@@ -69,6 +69,18 @@ public class StructuredContentLinkSerDes {
 			sb.append("\"");
 		}
 
+		if (structuredContentLink.getEmbeddedStructuredContent() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"embeddedStructuredContent\": ");
+
+			sb.append(
+				String.valueOf(
+					structuredContentLink.getEmbeddedStructuredContent()));
+		}
+
 		if (structuredContentLink.getId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -123,6 +135,16 @@ public class StructuredContentLinkSerDes {
 				String.valueOf(structuredContentLink.getContentType()));
 		}
 
+		if (structuredContentLink.getEmbeddedStructuredContent() == null) {
+			map.put("embeddedStructuredContent", null);
+		}
+		else {
+			map.put(
+				"embeddedStructuredContent",
+				String.valueOf(
+					structuredContentLink.getEmbeddedStructuredContent()));
+		}
+
 		if (structuredContentLink.getId() == null) {
 			map.put("id", null);
 		}
@@ -164,6 +186,15 @@ public class StructuredContentLinkSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "embeddedStructuredContent")) {
+
+				if (jsonParserFieldValue != null) {
+					structuredContentLink.setEmbeddedStructuredContent(
+						StructuredContentSerDes.toDTO(
+							(String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
 					structuredContentLink.setId(
@@ -176,9 +207,8 @@ public class StructuredContentLinkSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -234,10 +264,13 @@ public class StructuredContentLinkSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

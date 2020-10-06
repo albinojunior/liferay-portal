@@ -35,6 +35,10 @@ public class KaleoTimerLocalServiceWrapper
 	/**
 	 * Adds the kaleo timer to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTimerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTimer the kaleo timer
 	 * @return the kaleo timer that was added
 	 */
@@ -47,15 +51,15 @@ public class KaleoTimerLocalServiceWrapper
 
 	@Override
 	public com.liferay.portal.workflow.kaleo.model.KaleoTimer addKaleoTimer(
-			String kaleoClassName, long kaleoClassPK,
+			String kaleoClassName, long kaleoClassPK, long kaleoDefinitionId,
 			long kaleoDefinitionVersionId,
 			com.liferay.portal.workflow.kaleo.definition.Timer timer,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kaleoTimerLocalService.addKaleoTimer(
-			kaleoClassName, kaleoClassPK, kaleoDefinitionVersionId, timer,
-			serviceContext);
+			kaleoClassName, kaleoClassPK, kaleoDefinitionId,
+			kaleoDefinitionVersionId, timer, serviceContext);
 	}
 
 	/**
@@ -85,6 +89,10 @@ public class KaleoTimerLocalServiceWrapper
 	/**
 	 * Deletes the kaleo timer from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTimerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTimer the kaleo timer
 	 * @return the kaleo timer that was removed
 	 */
@@ -97,6 +105,10 @@ public class KaleoTimerLocalServiceWrapper
 
 	/**
 	 * Deletes the kaleo timer with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTimerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTimerId the primary key of the kaleo timer
 	 * @return the kaleo timer that was removed
@@ -119,6 +131,11 @@ public class KaleoTimerLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kaleoTimerLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _kaleoTimerLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -315,6 +332,10 @@ public class KaleoTimerLocalServiceWrapper
 
 	/**
 	 * Updates the kaleo timer in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTimerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTimer the kaleo timer
 	 * @return the kaleo timer that was updated

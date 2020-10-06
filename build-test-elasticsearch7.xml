@@ -25,53 +25,7 @@ xpack.security.transport.ssl.verification_mode: certificate</echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="configure-elasticsearch7-test-properties">
-		<sequential>
-			<var name="elastic.kibana.dir" unset="true" />
-			<var name="elastic.kibana.tar.name.linux" unset="true" />
-			<var name="elastic.kibana.tar.name.mac" unset="true" />
-			<var name="elastic.kibana.tar.url.linux" unset="true" />
-			<var name="elastic.kibana.tar.url.mac" unset="true" />
-			<var name="elastic.kibana.zip.name.windows" unset="true" />
-			<var name="elastic.kibana.zip.url.windows" unset="true" />
-			<var name="elasticsearch.version" unset="true" />
-			<var name="elasticsearch.dir" unset="true" />
-			<var name="elasticsearch.analysis-icu.zip.name" unset="true" />
-			<var name="elasticsearch.analysis-icu.zip.url" unset="true" />
-			<var name="elasticsearch.analysis-kuromoji.zip.name" unset="true" />
-			<var name="elasticsearch.analysis-kuromoji.zip.url" unset="true" />
-			<var name="elasticsearch.analysis-smartcn.zip.name" unset="true" />
-			<var name="elasticsearch.analysis-smartcn.zip.url" unset="true" />
-			<var name="elasticsearch.analysis-stempel.zip.name" unset="true" />
-			<var name="elasticsearch.analysis-stempel.zip.url" unset="true" />
-
-			<property name="elasticsearch.version" value="7.6.0" />
-			<property name="elastic.kibana.dir" value="${app.server.parent.dir}/kibana-${elasticsearch.version}" />
-			<property name="elastic.kibana.tar.name.linux" value="kibana-${elasticsearch.version}-linux-x86_64.tar.gz" />
-			<property name="elastic.kibana.tar.name.mac" value="kibana-${elasticsearch.version}-darwin-x86_64.tar.gz" />
-			<property name="elastic.kibana.tar.url.linux" value="https://artifacts.elastic.co/downloads/kibana/${elastic.kibana.tar.name.linux}" />
-			<property name="elastic.kibana.tar.url.mac" value="https://artifacts.elastic.co/downloads/kibana/${elastic.kibana.tar.name.mac}" />
-			<property name="elastic.kibana.zip.name.windows" value="kibana-${elasticsearch.version}-windows-x86_64.zip" />
-			<property name="elastic.kibana.zip.url.windows" value="https://artifacts.elastic.co/downloads/kibana/${elastic.kibana.zip.name.windows}" />
-			<property name="elasticsearch.dir" value="${app.server.parent.dir}/elasticsearch-${elasticsearch.version}" />
-			<property name="elasticsearch.analysis-icu.zip.name" value="analysis-icu-${elasticsearch.version}.zip" />
-			<property name="elasticsearch.analysis-icu.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-icu/${elasticsearch.analysis-icu.zip.name}" />
-			<property name="elasticsearch.analysis-kuromoji.zip.name" value="analysis-kuromoji-${elasticsearch.version}.zip" />
-			<property name="elasticsearch.analysis-kuromoji.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-kuromoji/${elasticsearch.analysis-kuromoji.zip.name}" />
-			<property name="elasticsearch.analysis-smartcn.zip.name" value="analysis-smartcn-${elasticsearch.version}.zip" />
-			<property name="elasticsearch.analysis-smartcn.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-smartcn/${elasticsearch.analysis-smartcn.zip.name}" />
-			<property name="elasticsearch.analysis-stempel.zip.name" value="analysis-stempel-${elasticsearch.version}.zip" />
-			<property name="elasticsearch.analysis-stempel.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-stempel/${elasticsearch.analysis-stempel.zip.name}" />
-			<property name="elasticsearch.tar.name.linux" value="elasticsearch-${elasticsearch.version}-linux-x86_64.tar.gz" />
-			<property name="elasticsearch.tar.name.mac" value="elasticsearch-${elasticsearch.version}-darwin-x86_64.tar.gz" />
-			<property name="elasticsearch.zip.name.windows" value="elasticsearch-${elasticsearch.version}-windows-x86_64.zip" />
-			<property name="elasticsearch.tar.url.linux" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.tar.name.linux}" />
-			<property name="elasticsearch.tar.url.mac" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.tar.name.mac}" />
-			<property name="elasticsearch.zip.url.windows" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.zip.name.windows}" />
-		</sequential>
-	</macrodef>
-
-	<macrodef name="configure-elasticsearch75-ltr-test-properties">
+	<macrodef name="configure-elasticsearch76-ltr-test-properties">
 		<sequential>
 			<var name="elasticsearch.version" unset="true" />
 			<var name="elasticsearch.dir" unset="true" />
@@ -90,7 +44,7 @@ xpack.security.transport.ssl.verification_mode: certificate</echo>
 			<var name="elasticsearch.tar.url.mac" unset="true" />
 			<var name="elasticsearch.zip.url.windows" unset="true" />
 
-			<property name="elasticsearch.version" value="7.5.1" />
+			<property name="elasticsearch.version" value="7.6.0" />
 			<property name="elasticsearch.dir" value="${app.server.parent.dir}/elasticsearch-${elasticsearch.version}" />
 			<property name="elasticsearch.analysis-icu.zip.name" value="analysis-icu-${elasticsearch.version}.zip" />
 			<property name="elasticsearch.analysis-icu.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-icu/${elasticsearch.analysis-icu.zip.name}" />
@@ -106,7 +60,7 @@ xpack.security.transport.ssl.verification_mode: certificate</echo>
 			<property name="elasticsearch.tar.url.linux" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.tar.name.linux}" />
 			<property name="elasticsearch.tar.url.mac" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.tar.name.mac}" />
 			<property name="elasticsearch.zip.url.windows" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.zip.name.windows}" />
-			<property name="elasticsearch.ltr.version" value="1.1.2" />
+			<property name="elasticsearch.ltr.version" value="1.2.0" />
 			<property name="elasticsearch.ltr-linear-regression-model.zip.name" value="ltr-linear-regression-model.zip" />
 			<property name="elasticsearch.ltr-linear-regression-model.zip.url" value="http://files.liferay.com/private/apps/elastic/elasticsearch/${elasticsearch.ltr-linear-regression-model.zip.name}" />
 			<property name="elasticsearch.ltr.zip.name" value="ltr-${elasticsearch.ltr.version}-es${elasticsearch.version}.zip" />
@@ -118,7 +72,7 @@ xpack.security.transport.ssl.verification_mode: certificate</echo>
 		<sequential>
 			<echo append="true" file="${elastic.kibana.dir}/config/kibana.yml">${line.separator}elasticsearch.hosts: "http://localhost:9200"
 pid.file: ${elastic.kibana.dir}/bin/pid-kibana
-server.basePath: "/o/portal-search-elasticsearch-xpack-monitoring/xpack-monitoring-proxy"
+server.basePath: "/o/portal-search-elasticsearch-monitoring/monitoring-proxy"
 server.rewriteBasePath: false</echo>
 		</sequential>
 	</macrodef>
@@ -155,13 +109,14 @@ xpack.ml.enabled: false</echo>
 
 	<macrodef name="configure-portal-remote-elasticsearch-osgi-properties">
 		<sequential>
-			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">${line.separator}operationMode="REMOTE"
-remoteClusterConnectionId="remote"</echo>
+			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">${line.separator}productionModeEnabled="true"</echo>
 		</sequential>
 	</macrodef>
 
 	<macrodef name="configure-portal-x-pack-osgi-properties">
 		<sequential>
+			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">${line.separator}remoteClusterConnectionId="xpack"</echo>
+
 			<propertyregex
 				defaultValue="${elastic.xpack.elastic.user.password}"
 				input="${elastic.xpack.elastic.user.password}"
@@ -171,13 +126,13 @@ remoteClusterConnectionId="remote"</echo>
 				replace="\\\\="
 			/>
 
-			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch6.xpack.monitoring.web.internal.configuration.XPackMonitoringConfiguration.config">kibanaPassword="${osgi.config.elastic.user.password}"
+			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch.monitoring.web.internal.configuration.MonitoringConfiguration.config">kibanaPassword="${osgi.config.elastic.user.password}"
 kibanaURL="https://localhost:5601"
 proxyServletLogEnable="true"</echo>
 
 			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConnectionConfiguration-remote.config">${line.separator}active="true"
 authenticationEnabled="true"
-connectionId="remote"
+connectionId="xpack"
 httpSSLEnabled="true"
 networkHostAddresses=["https://localhost:9200"]
 password="${osgi.config.elastic.user.password}"
@@ -509,7 +464,11 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 	<macrodef name="start-ccr-trial">
 		<sequential>
 			<exec executable="curl" outputproperty="curl.output.trial.remote.cluster">
-				<arg line="-X POST &quot;http://localhost:9200/_license/start_trial?acknowledge=true&quot; -H &apos;Content-Type:application/json&apos;" />
+				<arg value="-H" />
+				<arg value="Content-Type:application/json" />
+				<arg value="-X" />
+				<arg value="POST" />
+				<arg value="http://localhost:9200/_license/start_trial?acknowledge=true" />
 			</exec>
 
 			<echo>${curl.output.trial.remote.cluster}</echo>
@@ -525,7 +484,11 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 			</if>
 
 			<exec executable="curl" outputproperty="curl.output.trial.local.cluster">
-				<arg line="-X POST &quot;http://localhost:9202/_license/start_trial?acknowledge=true&quot; -H &apos;Content-Type:application/json&apos;" />
+				<arg value="-H" />
+				<arg value="Content-Type:application/json" />
+				<arg value="-X" />
+				<arg value="POST" />
+				<arg value="http://localhost:9202/_license/start_trial?acknowledge=true" />
 			</exec>
 
 			<echo>${curl.output.trial.local.cluster}</echo>
@@ -756,6 +719,16 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 					</then>
 				</elseif>
 			</if>
+
+			<chmod
+				maxparallel="10"
+				perm="a+rwx"
+				type="both"
+			>
+				<fileset
+					dir="${elastic.kibana.dir}"
+				/>
+			</chmod>
 		</sequential>
 	</macrodef>
 
@@ -794,7 +767,7 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 	</target>
 
 	<target name="add-ltr-linear-regression-model">
-		<configure-elasticsearch75-ltr-test-properties />
+		<configure-elasticsearch76-ltr-test-properties />
 
 		<unzip-ltr-linear-regression-model />
 
@@ -827,67 +800,6 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 xpack.monitoring.collection.enabled: true</echo>
 	</target>
 
-	<target name="create-follower-indices">
-		<exec executable="curl" outputproperty="companyId">
-			<arg value="http://localhost:8080/api/jsonws/company/get-company-by-virtual-host/virtual-host/localhost" />
-			<arg value="-u" />
-			<arg value="test@liferay.com:test" />
-		</exec>
-
-		<propertyregex
-			input="${companyId}"
-			override="true"
-			property="companyId"
-			regexp="(?&lt;=companyId&quot;:&quot;)(.*)(?=&quot;,&quot;home)"
-			select="\1"
-		/>
-
-		<exec executable="curl" outputproperty="curl.output.companyId">
-			<arg line="-X PUT &quot;localhost:9202/_cluster/settings&quot; -H &apos;Content-Type: application/json&apos; -d &apos;{&quot;persistent&quot;:{&quot;cluster&quot;:{&quot;remote&quot;:{&quot;leader&quot;:{&quot;seeds&quot;:[&quot;127.0.0.1:9300&quot;]}}}}}&apos;" />
-		</exec>
-
-		<echo>${curl.output.companyId}</echo>
-
-		<exec executable="curl" outputproperty="curl.output.follower.liferay.index">
-			<arg line="-X PUT &quot;localhost:9202/liferay-${companyId}/_ccr/follow?wait_for_active_shards=1&quot; -H &apos;Content-Type: application/json&apos; -d &apos;{&quot;remote_cluster&quot;: &quot;leader&quot;,&quot;leader_index&quot;: &quot;liferay-${companyId}&quot;}&apos;" />
-		</exec>
-
-		<echo>${curl.output.follower.liferay.index}</echo>
-
-		<exec executable="curl" outputproperty="curl.output.follower.synonyms.index">
-			<arg line="-X PUT &quot;localhost:9202/liferay-search-tuning-synonyms-liferay-${companyId}/_ccr/follow?wait_for_active_shards=1&quot; -H &apos;Content-Type: application/json&apos; -d &apos;{&quot;remote_cluster&quot;: &quot;leader&quot;,&quot;leader_index&quot;: &quot;liferay-search-tuning-synonyms-liferay-${companyId}&quot;}&apos;" />
-		</exec>
-
-		<echo>${curl.output.follower.synonyms.index}</echo>
-
-		<exec executable="curl" outputproperty="curl.output.follower.indices">
-			<arg line="-X GET &quot;localhost:9202/_cat/indices&quot;" />
-		</exec>
-
-		<echo>${curl.output.follower.indices}</echo>
-
-		<if>
-			<and>
-				<contains string="${curl.output.follower.indices}" substring="liferay-${companyId}" />
-				<contains string="${curl.output.follower.indices}" substring="liferay-search-tuning-synonyms-liferay-${companyId}" />
-			</and>
-			<then>
-				<echo>Created follower indices.</echo>
-			</then>
-			<else>
-				<fail>Failed to create follower indices.</fail>
-			</else>
-		</if>
-	</target>
-
-	<target name="deploy-elasticsearch7">
-		<gradle-execute dir="${project.dir}/modules/apps/portal-search-elasticsearch7" task="deploy">
-			<arg value="clean" />
-		</gradle-execute>
-
-		<echo file="${liferay.home}/osgi/configs/com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config">blacklistBundleSymbolicNames=&quot;com.liferay.portal.mobile.device.detection.fiftyonedegrees.api,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise.test.data,com.liferay.portal.mobile.device.detection.fiftyonedegrees,com.liferay.portal.search.elasticsearch6.spi,com.liferay.portal.search.elasticsearch6.api,com.liferay.portal.search.elasticsearch6.impl,com.liferay.portal.search.elasticsearch6.xpack.security.impl&quot;</echo>
-	</target>
-
 	<target name="prepare-additional-elasticsearch-dirs">
 		<var name="elasticsearch.node.number" value="0" />
 
@@ -909,40 +821,198 @@ xpack.monitoring.collection.enabled: true</echo>
 					dir="${elasticsearch.dir}"
 				/>
 			</copy>
+
+			<chmod
+				maxparallel="10"
+				perm="a+rwx"
+				type="both"
+			>
+				<fileset
+					dir="${elasticsearch.dir}-${elasticsearch.node.number}"
+				/>
+			</chmod>
 		</antelope:repeat>
 
 		<delete dir="${elasticsearch.dir}" />
 	</target>
 
 	<target name="print-elasticsearch-indices">
+		<get-testcase-property property.name="test.name.skip.portal.instance" />
+
+		<if>
+			<and>
+				<not>
+					<isset property="test.name.skip.portal.instance" />
+				</not>
+				<equals arg1="test.portal.instance" arg2="true" />
+			</and>
+			<then>
+				<var name="portalInstanceName" value="${env.HOSTNAME}" />
+			</then>
+			<else>
+				<var name="portalInstanceName" value="localhost" />
+			</else>
+		</if>
+
+		<exec executable="curl" outputproperty="companyId">
+			<arg value="http://localhost:8080/api/jsonws/company/get-company-by-virtual-host/virtual-host/${portalInstanceName}" />
+			<arg value="-u" />
+			<arg value="test@liferay.com:test" />
+		</exec>
+
+		<propertyregex
+			input="${companyId}"
+			override="true"
+			property="companyId"
+			regexp="(?&lt;=companyId&quot;:&quot;)(.*)(?=&quot;,&quot;home)"
+			select="\1"
+		/>
+
 		<get-testcase-property property.name="remote.elasticsearch.enabled" />
 
 		<condition else="9201" property="elasticsearch.port" value="9200">
 			<equals arg1="${remote.elasticsearch.enabled}" arg2="true" />
 		</condition>
 
-		<exec executable="curl" outputproperty="curl.output.elasticsearch.indices">
-			<arg line="&apos;localhost:${elasticsearch.port}/liferay-${companyId}/_search?pretty&apos; -H &apos;Content-Type: application/json&apos; -d&apos;{&quot;query&quot;: {&quot;bool&quot;: {&quot;must&quot;: [{ &quot;match&quot;: { &quot;userName&quot;: &quot;test test&quot; } }],&quot;must_not&quot;: [{ &quot;match&quot;: { &quot;hidden&quot;: &quot;true&quot; } }, { &quot;match&quot;: { &quot;entryClassName&quot;: &quot;com.liferay.portal.kernel.model.Layout&quot; } }, { &quot;match&quot;: { &quot;entryClassName&quot;: &quot;com.liferay.calendar.model.Calendar&quot; } }]}}}&apos;" />
+		<property name="company.index.query">
+			<![CDATA[
+				{
+					"query": {
+						"bool": {
+							"must": [
+								{
+									"match": {
+										"userName": "test test"
+									}
+								}
+							],
+							"must_not": [
+								{
+									"match": {
+										"entryClassName": "com.liferay.calendar.model.Calendar"
+									}
+								},
+								{
+									"match": {
+										"entryClassName": "com.liferay.portal.kernel.model.Layout"
+									}
+								},
+								{
+									"match": {
+										"hidden": "true"
+									}
+								}
+							]
+						}
+					}
+				}
+			]]>
+		</property>
+
+		<exec executable="curl" outputproperty="curl.output.company.index">
+			<arg value="-H" />
+			<arg value="Content-Type: application/json" />
+			<arg value="localhost:${elasticsearch.port}/liferay-${companyId}/_search?pretty" />
+			<arg value="-d" />
+			<arg value="${company.index.query}" />
 		</exec>
 
 		<echo></echo>
 		<echo>##</echo>
-		<echo>## Elasticsearch Indices</echo>
+		<echo>## Elasticsearch Liferay Company Index</echo>
 		<echo>##</echo>
 		<echo></echo>
-		<echo>${curl.output.elasticsearch.indices}</echo>
+		<echo>${curl.output.company.index}</echo>
 		<echo></echo>
+
+		<get-testcase-property property.name="remote.elasticsearch.clusters.enabled" />
+
+		<if>
+			<and>
+				<equals arg1="${remote.elasticsearch.clusters.enabled}" arg2="true" />
+				<not>
+					<contains string="${test.name.skip.portal.instance}" substring="Smoke" />
+				</not>
+			</and>
+			<then>
+				<exec executable="curl" outputproperty="curl.output.local.cluster.company.index">
+					<arg value="-H" />
+					<arg value="Content-Type: application/json" />
+					<arg value="localhost:9202/liferay-${companyId}/_search?pretty" />
+					<arg value="-d" />
+					<arg value="${company.index.query}" />
+				</exec>
+
+				<echo></echo>
+				<echo>##</echo>
+				<echo>## Local Elasticsearch Cluster Liferay Company Index</echo>
+				<echo>##</echo>
+				<echo></echo>
+				<echo>${curl.output.local.cluster.company.index}</echo>
+				<echo></echo>
+
+				<exec executable="curl" outputproperty="curl.output.local.cluster.indices">
+					<arg value="-X" />
+					<arg value="GET" />
+					<arg value="localhost:9202/_cat/indices?h=idx" />
+					<arg value="-s" />
+				</exec>
+
+				<echo></echo>
+				<echo>##</echo>
+				<echo>## Local Elasticsearch Cluster Indices</echo>
+				<echo>##</echo>
+				<echo></echo>
+				<echo>${curl.output.local.cluster.indices}</echo>
+				<echo></echo>
+			</then>
+		</if>
 	</target>
 
 	<target name="restore-backup">
+		<property name="register.repository">
+			<![CDATA[
+				{
+					"settings": {
+						"location": "${liferay.home}/data/elasticsearch7/repo"
+					},
+					"type": "fs"
+				}
+			]]>
+		</property>
+
 		<exec executable="curl" outputproperty="curl.output">
-			<arg line="-X PUT &quot;localhost:${elasticsearch.port}/_snapshot/my_backup&quot; -H &apos;Content-Type: application/json&apos; -d&apos;{&quot;type&quot;: &quot;fs&quot;,&quot;settings&quot;: {&quot;location&quot;: &quot;${liferay.home}/data/elasticsearch7/repo&quot;}}&apos;" />
+			<arg value="-H" />
+			<arg value="Content-Type: application/json" />
+			<arg value="-X" />
+			<arg value="PUT" />
+			<arg value="localhost:${elasticsearch.port}/_snapshot/my_backup" />
+			<arg value="-d" />
+			<arg value="${register.repository}" />
 		</exec>
 
 		<echo>Defining snapshot repository.${line.separator}${curl.output}</echo>
 
+		<property name="restore.repository">
+			<![CDATA[
+				{
+					"ignore_unavailable": true,
+					"include_global_state": true,
+					"indices": "${backup.index}",
+					"rename_pattern": "index_(.+)",
+					"rename_replacement": "restored_index_$1"
+				}
+			]]>
+		</property>
+
 		<exec executable="curl" outputproperty="curl.output">
-			<arg line="-X POST &quot;localhost:${elasticsearch.port}/_snapshot/my_backup/snapshot_2/_restore&quot; -H &apos;Content-Type: application/json&apos; -d&apos;{&quot;indices&quot;: &quot;${backup.index}&quot;,&quot;ignore_unavailable&quot;: true,&quot;include_global_state&quot;: true,&quot;rename_pattern&quot;: &quot;index_(.+)&quot;,&quot;rename_replacement&quot;: &quot;restored_index_$1&quot;}&apos;" />
+			<arg value="-H" />
+			<arg value="Content-Type: application/json" />
+			<arg value="-X" />
+			<arg value="POST" />
+			<arg value="localhost:${elasticsearch.port}/_snapshot/my_backup/snapshot_2/_restore" />
+			<arg value="-d" />
+			<arg value="${restore.repository}" />
 		</exec>
 
 		<echo>Restoring snapshot.${line.separator}${curl.output}</echo>
@@ -956,11 +1026,8 @@ xpack.monitoring.collection.enabled: true</echo>
 		<if>
 			<equals arg1="${remote.elasticsearch.ltr.enabled}" arg2="true" />
 			<then>
-				<configure-elasticsearch75-ltr-test-properties />
+				<configure-elasticsearch76-ltr-test-properties />
 			</then>
-			<else>
-				<configure-elasticsearch7-test-properties />
-			</else>
 		</if>
 
 		<unzip-elasticsearch />
@@ -1023,15 +1090,13 @@ xpack.monitoring.collection.enabled: true</echo>
 			</then>
 		</if>
 
-		<get-testcase-property property.name="remote.elasticsearch.ccr.enabled" />
+		<antcall target="configure-elasticsearch-cluster-properties" />
+
+		<get-testcase-property property.name="remote.elasticsearch.clusters.enabled" />
 
 		<if>
-			<equals arg1="${remote.elasticsearch.ccr.enabled}" arg2="true" />
+			<equals arg1="${remote.elasticsearch.clusters.enabled}" arg2="true" />
 			<then>
-				<antcall target="configure-elasticsearch-cluster-properties">
-					<param name="remote.elasticsearch.cluster.size" value="2" />
-				</antcall>
-
 				<antcall target="prepare-additional-elasticsearch-dirs">
 					<param name="remote.elasticsearch.cluster.size" value="2" />
 				</antcall>
@@ -1043,8 +1108,6 @@ xpack.monitoring.collection.enabled: true</echo>
 				</antcall>
 			</then>
 			<else>
-				<antcall target="configure-elasticsearch-cluster-properties" />
-
 				<antcall target="prepare-additional-elasticsearch-dirs" />
 
 				<antcall target="start-elasticsearch-node" />
@@ -1067,7 +1130,7 @@ xpack.monitoring.collection.enabled: true</echo>
 				<lstopwatch action="total" name="start.elasticsearch" />
 			</then>
 			<else>
-				<waitfor maxwait="30" maxwaitunit="second" timeoutproperty="elasticsearch.server.not.started">
+				<waitfor maxwait="120" maxwaitunit="second" timeoutproperty="elasticsearch.server.not.started">
 					<http url="http://localhost:9200/" />
 				</waitfor>
 
@@ -1087,7 +1150,7 @@ xpack.monitoring.collection.enabled: true</echo>
 					<print-file file.name="${elasticsearch.dir}-${elasticsearch.node.number}/logs/LiferayElasticsearchCluster.log" />
 
 					<if>
-						<equals arg1="${remote.elasticsearch.ccr.enabled}" arg2="true" />
+						<equals arg1="${remote.elasticsearch.clusters.enabled}" arg2="true" />
 						<then>
 							<waitfor maxwait="30" maxwaitunit="second" timeoutproperty="elasticsearch.server.not.started">
 								<http url="http://localhost:9202/" />
@@ -1102,7 +1165,7 @@ xpack.monitoring.collection.enabled: true</echo>
 		</if>
 
 		<if>
-			<equals arg1="${remote.elasticsearch.ccr.enabled}" arg2="true" />
+			<equals arg1="${remote.elasticsearch.clusters.enabled}" arg2="true" />
 			<then>
 				<start-ccr-trial />
 			</then>
@@ -1117,15 +1180,6 @@ xpack.monitoring.collection.enabled: true</echo>
 
 			<get-java-jdk-home />
 
-			<get-testcase-property property.name="remote.elasticsearch.ccr.enabled" />
-
-			<if>
-				<equals arg1="${remote.elasticsearch.ccr.enabled}" arg2="true" />
-				<then>
-					<configure-elasticsearch7-test-properties />
-				</then>
-			</if>
-
 			<antelope:repeat count="${remote.elasticsearch.cluster.size}">
 				<math
 					datatype="int"
@@ -1135,30 +1189,32 @@ xpack.monitoring.collection.enabled: true</echo>
 					result="elasticsearch.node.number"
 				/>
 
-				<chmod
-					maxparallel="10"
-					perm="a+rwx"
-					type="both"
-				>
-					<fileset
-						dir="${elasticsearch.dir}-${elasticsearch.node.number}"
-					/>
-				</chmod>
-
 				<if>
 					<os family="mac" />
 					<then>
 						<exec dir="${elasticsearch.dir}-${elasticsearch.node.number}/bin" executable="/bin/bash">
 							<arg value="-c" />
-							<arg value="./elasticsearch -d -p pid-elasticsearch" />
+							<arg value="./elasticsearch -d -v -p pid-elasticsearch" />
 						</exec>
 					</then>
+					<elseif>
+						<and>
+							<isset property="env.JENKINS_HOME" />
+							<os family="unix" />
+						</and>
+						<then>
+							<exec dir="${elasticsearch.dir}-${elasticsearch.node.number}/bin" executable="/bin/bash">
+								<arg value="-c" />
+								<arg value="sudo -H -u shutdown bash -c 'export JAVA_HOME=${java.jdk.home} &amp;&amp; ./elasticsearch -d -v -p pid-elasticsearch'" />
+							</exec>
+						</then>
+					</elseif>
 					<elseif>
 						<os family="unix" />
 						<then>
 							<exec dir="${elasticsearch.dir}-${elasticsearch.node.number}/bin" executable="/bin/bash">
 								<arg value="-c" />
-								<arg value="sudo -H -u shutdown bash -c 'export JAVA_HOME=${java.jdk.home} &amp;&amp; ./elasticsearch -d -p pid-elasticsearch'" />
+								<arg value="./elasticsearch -d -v -p pid-elasticsearch" />
 							</exec>
 						</then>
 					</elseif>
@@ -1167,7 +1223,7 @@ xpack.monitoring.collection.enabled: true</echo>
 						<then>
 							<exec dir="${elasticsearch.dir}-${elasticsearch.node.number}/bin" executable="cmd" spawn="true">
 								<arg value="/c" />
-								<arg value="elasticsearch -d -p pid-elasticsearch" />
+								<arg value="elasticsearch -d -v -p pid-elasticsearch" />
 							</exec>
 						</then>
 					</elseif>
@@ -1181,26 +1237,7 @@ xpack.monitoring.collection.enabled: true</echo>
 	<target name="start-kibana">
 		<lstopwatch action="start" name="start.kibana" />
 
-		<configure-elasticsearch7-test-properties />
-
 		<unzip-kibana />
-
-		<chmod
-			maxparallel="10"
-			perm="a+x"
-			type="both"
-		>
-			<fileset
-				dir="${elastic.kibana.dir}/bin"
-			>
-				<include name="**" />
-			</fileset>
-			<fileset
-				dir="${elastic.kibana.dir}/node"
-			>
-				<include name="**" />
-			</fileset>
-		</chmod>
 
 		<get-testcase-property property.name="elastic.xpack.enabled" />
 
@@ -1236,8 +1273,6 @@ xpack.monitoring.collection.enabled: true</echo>
 	</target>
 
 	<target name="stop-elasticsearch">
-		<configure-elasticsearch7-test-properties />
-
 		<get-testcase-property property.name="remote.elasticsearch.cluster.size" />
 
 		<if>
@@ -1308,8 +1343,6 @@ xpack.monitoring.collection.enabled: true</echo>
 	</target>
 
 	<target name="stop-elasticsearch-local-cluster">
-		<configure-elasticsearch7-test-properties />
-
 		<if>
 			<os family="unix" />
 			<then>
@@ -1346,8 +1379,6 @@ xpack.monitoring.collection.enabled: true</echo>
 	</target>
 
 	<target name="stop-kibana">
-		<configure-elasticsearch7-test-properties />
-
 		<if>
 			<os family="unix" />
 			<then>

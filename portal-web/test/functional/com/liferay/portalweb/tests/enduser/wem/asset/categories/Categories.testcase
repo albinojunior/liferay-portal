@@ -444,7 +444,7 @@ definition {
 
 	@priority = "3"
 	test DeleteAssociatedAssetTypeViaVocabulary {
-		LexiconEntry.gotoAdd();
+		Vocabulary.gotoAddVocabulary();
 
 		PortletEntry.inputName(name = "Vocabulary Name 1");
 
@@ -459,7 +459,11 @@ definition {
 			required = "true",
 			rowNumber = "2");
 
-		Button.clickSave();
+		Button.clickNoError(button = "Save");
+
+		AssertConfirm.assertPartialConfirmation(value1 = "Are you sure you want to create this vocabulary with public visibility?");
+
+		Alert.viewSuccessMessage();
 
 		Vocabulary.deleteAssociatedAssetTypeViaVocabularyCP(vocabularyName = "Vocabulary Name 1");
 
@@ -494,6 +498,8 @@ definition {
 
 	@priority = "5"
 	test DeleteCategory {
+		property portal.acceptance = "true";
+
 		JSONCategory.addCategory(
 			groupName = "Test Site Name",
 			title = "Category Name 1",
@@ -584,6 +590,8 @@ definition {
 
 	@priority = "5"
 	test DeleteSubcategoryViaMenu {
+		property portal.acceptance = "true";
+
 		JSONCategory.addCategory(
 			groupName = "Test Site Name",
 			title = "Category Name 1",
@@ -745,7 +753,7 @@ definition {
 
 	@priority = "3"
 	test ValidateClickingCloseButtonDoesNotSaveVocabulary {
-		LexiconEntry.gotoAdd();
+		Vocabulary.gotoAddVocabulary();
 
 		PortletEntry.inputName(name = "Vocabulary Name Test Close");
 

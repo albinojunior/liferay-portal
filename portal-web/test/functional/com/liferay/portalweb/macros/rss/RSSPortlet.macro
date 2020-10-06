@@ -5,9 +5,7 @@ definition {
 		var key_feedRowIndexNumber = "${feedRowIndexNumber}";
 		var key_feedTitle = "${feedTitle}";
 
-		SelectFrame(locator1 = "RSSFeed#RSS_CONFIGURATION_IFRAME");
-
-		Panel.expandPanel(panel = "Feeds");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		if (isSet(buttonRowIndexNumber)) {
 			Click(locator1 = "RSSFeed#FEEDS_ADD_ROW_BUTTON");
@@ -37,20 +35,29 @@ definition {
 		var key_fromRowNumber = "${fromRowNumber}";
 		var key_toRowNumber = "${toRowNumber}";
 
-		Panel.expandPanel(panel = "Feeds");
-
 		DragAndDrop(
 			locator1 = "RSSFeed#FEEDS_1",
 			locator2 = "RSSFeed#FEEDS_2",
 			value1 = "${rowLocation}");
 	}
 
+	macro changeNumberOfEntriesPerFeed {
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		Navigator.gotoNavTab(navTab = "Display Settings");
+
+		Type(
+			key_fieldLabel = "# of Entries Per Feed",
+			locator1 = "FormFields#NUMBER_FIELD",
+			value1 = "${numberOfEntries}");
+	}
+
 	macro configureFeedDisplayStyle {
 		SelectFrame(value1 = "relative=top");
 
-		SelectFrame(locator1 = "RSSFeed#RSS_CONFIGURATION_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-		Panel.expandPanel(panel = "Feeds");
+		Navigator.gotoNavTab(navTab = "Display Settings");
 
 		Select(
 			locator1 = "Select#DISPLAY_TEMPLATE",
@@ -60,9 +67,7 @@ definition {
 	macro deleteFeed {
 		var key_buttonRowIndexNumber = "${buttonRowIndexNumber}";
 
-		SelectFrame(locator1 = "RSSFeed#RSS_CONFIGURATION_IFRAME");
-
-		Panel.expandPanel(panel = "Feeds");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Click(locator1 = "RSSFeed#FEEDS_DELETE_ROW_BUTTON");
 
@@ -72,9 +77,9 @@ definition {
 	}
 
 	macro disableShowFeedTitle {
-		SelectFrame(locator1 = "RSSFeed#RSS_CONFIGURATION_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-		Panel.expandPanel(panel = "Feeds");
+		Navigator.gotoNavTab(navTab = "Display Settings");
 
 		Uncheck.uncheckToggleSwitch(
 			locator1 = "RSSFeed#DISPLAY_SETTINGS_SHOW_FEED_TITLE",
@@ -165,9 +170,7 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		SelectFrame(locator1 = "RSSFeed#RSS_CONFIGURATION_IFRAME");
-
-		Panel.expandPanel(panel = "Feeds");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertElementPresent(locator1 = "RSSFeed#FEEDS_DEFAULT");
 
@@ -178,7 +181,7 @@ definition {
 
 	macro viewPortletConfigurationInfo {
 		AssertTextEquals(
-			locator1 = "Message#INFO",
+			locator1 = "Message#INFO_MAIN_CONTENT",
 			value1 = "This application is not visible to users yet. Select at least one valid rss feed to make it visible.");
 	}
 

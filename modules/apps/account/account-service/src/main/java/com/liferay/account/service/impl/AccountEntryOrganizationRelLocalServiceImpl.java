@@ -15,6 +15,7 @@
 package com.liferay.account.service.impl;
 
 import com.liferay.account.exception.DuplicateAccountEntryOrganizationRelException;
+import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountEntryOrganizationRel;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.base.AccountEntryOrganizationRelLocalServiceBaseImpl;
@@ -23,8 +24,13 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -60,6 +66,7 @@ public class AccountEntryOrganizationRelLocalServiceImpl
 		accountEntryOrganizationRel = updateAccountEntryOrganizationRel(
 			accountEntryOrganizationRel);
 
+		_reindexAccountEntry(accountEntryId);
 		_reindexOrganization(organizationId);
 
 		return accountEntryOrganizationRel;
@@ -83,6 +90,7 @@ public class AccountEntryOrganizationRelLocalServiceImpl
 		accountEntryOrganizationRelPersistence.removeByA_O(
 			accountEntryId, organizationId);
 
+		_reindexAccountEntry(accountEntryId);
 		_reindexOrganization(organizationId);
 	}
 
@@ -133,8 +141,58 @@ public class AccountEntryOrganizationRelLocalServiceImpl
 		return false;
 	}
 
+	/**
+	 * Creates an AccountEntryOrganizationRel for each given organizationId,
+	 * unless it already exists, and removes existing
+	 * AccountEntryOrganizationRels if their organizationId is not present in
+	 * the given organizationIds.
+	 *
+	 * @param  accountEntryId
+	 * @param  organizationIds
+	 * @throws PortalException
+	 * @review
+	 */
+	@Override
+	public void setAccountEntryOrganizationRels(
+			long accountEntryId, long[] organizationIds)
+		throws PortalException {
+
+		if (organizationIds == null) {
+			return;
+		}
+
+		Set<Long> newOrganizationIdsSet = SetUtil.fromArray(organizationIds);
+
+		Set<Long> oldOrganizationIdsSet = SetUtil.fromCollection(
+			ListUtil.toList(
+				getAccountEntryOrganizationRels(accountEntryId),
+				AccountEntryOrganizationRel::getOrganizationId));
+
+		Set<Long> removeOrganizationIdsSet = new HashSet<>(
+			oldOrganizationIdsSet);
+
+		removeOrganizationIdsSet.removeAll(newOrganizationIdsSet);
+
+		deleteAccountEntryOrganizationRels(
+			accountEntryId, ArrayUtil.toLongArray(removeOrganizationIdsSet));
+
+		newOrganizationIdsSet.removeAll(oldOrganizationIdsSet);
+
+		addAccountEntryOrganizationRels(
+			accountEntryId, ArrayUtil.toLongArray(newOrganizationIdsSet));
+	}
+
 	@Reference
 	protected AccountEntryLocalService accountEntryLocalService;
+
+	private void _reindexAccountEntry(long accountEntryId)
+		throws PortalException {
+
+		Indexer<AccountEntry> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			AccountEntry.class);
+
+		indexer.reindex(AccountEntry.class.getName(), accountEntryId);
+	}
 
 	private void _reindexOrganization(long organizationId)
 		throws PortalException {

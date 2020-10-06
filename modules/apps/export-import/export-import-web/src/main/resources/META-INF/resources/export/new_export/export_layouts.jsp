@@ -88,7 +88,7 @@ portletDisplay.setURLBack(backURL);
 renderResponse.setTitle(!configuredExport ? LanguageUtil.get(request, "new-custom-export") : LanguageUtil.format(request, "new-export-based-on-x", exportImportConfiguration.getName(), false));
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<portlet:actionURL name="editExportConfiguration" var="restoreTrashEntriesURL">
 		<portlet:param name="mvcRenderCommandName" value="exportLayouts" />
 		<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.RESTORE %>" />
@@ -147,7 +147,7 @@ renderResponse.setTitle(!configuredExport ? LanguageUtil.get(request, "new-custo
 					exportImportConfigurationId="<%= exportImportConfigurationId %>"
 				/>
 
-				<c:if test="<%= !group.isLayoutPrototype() && !group.isCompany() %>">
+				<c:if test="<%= !group.isDepot() && !group.isCompany() && !group.isLayoutPrototype() %>">
 					<liferay-staging:select-pages
 						action="<%= Constants.EXPORT %>"
 						disableInputs="<%= configuredExport %>"
@@ -182,7 +182,7 @@ renderResponse.setTitle(!configuredExport ? LanguageUtil.get(request, "new-custo
 			<aui:button href="<%= backURL %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script use="liferay-export-import-export-import">
 	var exportImport = new Liferay.ExportImport({
@@ -213,7 +213,7 @@ renderResponse.setTitle(!configuredExport ? LanguageUtil.get(request, "new-custo
 
 	var form = liferayForm.formNode;
 
-	form.on('submit', function(event) {
+	form.on('submit', function (event) {
 		event.halt();
 
 		var exportImport = Liferay.component(
@@ -234,7 +234,7 @@ renderResponse.setTitle(!configuredExport ? LanguageUtil.get(request, "new-custo
 
 	var fieldRules = [
 		{
-			body: function(val, fieldNode, ruleValue) {
+			body: function (val, fieldNode, ruleValue) {
 
 				<%
 				JSONArray blacklistCharJSONArray = JSONFactoryUtil.createJSONArray();

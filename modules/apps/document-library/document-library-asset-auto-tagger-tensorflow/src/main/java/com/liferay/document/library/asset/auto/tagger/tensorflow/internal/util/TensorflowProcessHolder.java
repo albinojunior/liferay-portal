@@ -106,7 +106,7 @@ public class TensorflowProcessHolder {
 		}
 	}
 
-	private static String _createClassPath(Bundle bundle, Path tempPath)
+	private String _createClassPath(Bundle bundle, Path tempPath)
 		throws IOException {
 
 		StringBundler sb = new StringBundler();
@@ -157,8 +157,7 @@ public class TensorflowProcessHolder {
 		return sb.toString();
 	}
 
-	private static ProcessConfig _createProcessConfig(
-			Bundle bundle, Path tempPath)
+	private ProcessConfig _createProcessConfig(Bundle bundle, Path tempPath)
 		throws IOException {
 
 		ProcessConfig.Builder builder = new ProcessConfig.Builder();
@@ -202,8 +201,6 @@ public class TensorflowProcessHolder {
 	private ProcessChannel<String> _startProcess(
 		ProcessExecutor processExecutor, int maxRelaunch, long timeout) {
 
-		ProcessChannel<String> processChannel;
-
 		if (_processChannel == null) {
 			try {
 				if ((System.currentTimeMillis() - _lastLaunchTime) > timeout) {
@@ -235,9 +232,7 @@ public class TensorflowProcessHolder {
 			}
 		}
 
-		processChannel = _processChannel;
-
-		return processChannel;
+		return _processChannel;
 	}
 
 	private synchronized void _stop() {

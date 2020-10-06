@@ -66,7 +66,6 @@ import java.util.Map;
 
 import org.apache.http.util.EntityUtils;
 
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
@@ -80,8 +79,9 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.xcontent.XContentType;
 
@@ -102,8 +102,7 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 	public static void setUpClass() throws Exception {
 		setUpJSONFactoryUtil();
 
-		_elasticsearchFixture = new ElasticsearchFixture(
-			ElasticsearchSearchEngineAdapterIndexRequestTest.class);
+		_elasticsearchFixture = new ElasticsearchFixture();
 
 		_elasticsearchFixture.setUp();
 
@@ -317,7 +316,7 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 			"Close request not acknowledged",
 			closeIndexResponse.isAcknowledged());
 
-		assertIndexMetaDataState(_INDEX_NAME, IndexMetaData.State.CLOSE);
+		assertIndexMetadataState(_INDEX_NAME, IndexMetadata.State.CLOSE);
 	}
 
 	@Test
@@ -452,23 +451,21 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 		GetMappingIndexResponse getMappingIndexResponse =
 			_searchEngineAdapter.execute(getMappingIndexRequest);
 
-		Map<String, String> indexMappings =
-			getMappingIndexResponse.getIndexMappings();
-
-		String string = indexMappings.toString();
+		String string = String.valueOf(
+			getMappingIndexResponse.getIndexMappings());
 
 		Assert.assertTrue(string.contains(mappingSource));
 	}
 
 	@Test
 	public void testExecuteIndicesExistsIndexRequest() {
-		IndicesExistsIndexRequest indicesExistsIndexRequest =
+		IndicesExistsIndexRequest indicesExistsIndexRequest1 =
 			new IndicesExistsIndexRequest(_INDEX_NAME);
 
-		IndicesExistsIndexResponse indicesExistsIndexResponse =
-			_searchEngineAdapter.execute(indicesExistsIndexRequest);
+		IndicesExistsIndexResponse indicesExistsIndexResponse1 =
+			_searchEngineAdapter.execute(indicesExistsIndexRequest1);
 
-		Assert.assertTrue(indicesExistsIndexResponse.isExists());
+		Assert.assertTrue(indicesExistsIndexResponse1.isExists());
 
 		IndicesExistsIndexRequest indicesExistsIndexRequest2 =
 			new IndicesExistsIndexRequest("test_index_2");
@@ -483,7 +480,7 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 	public void testExecuteOpenIndexRequest() {
 		_closeIndex(_INDEX_NAME);
 
-		assertIndexMetaDataState(_INDEX_NAME, IndexMetaData.State.CLOSE);
+		assertIndexMetadataState(_INDEX_NAME, IndexMetadata.State.CLOSE);
 
 		OpenIndexRequest openIndexRequest = new OpenIndexRequest(_INDEX_NAME);
 
@@ -500,7 +497,7 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 			"Open request not acknowledged",
 			openIndexResponse.isAcknowledged());
 
-		assertIndexMetaDataState(_INDEX_NAME, IndexMetaData.State.OPEN);
+		assertIndexMetadataState(_INDEX_NAME, IndexMetadata.State.OPEN);
 	}
 
 	@Test
@@ -521,17 +518,17 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 		GetMappingsResponse getMappingsResponse = _getGetMappingsResponse(
 			_INDEX_NAME, mappingName);
 
-		ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>>
+		ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>>
 			immutableOpenMap1 = getMappingsResponse.getMappings();
 
-		ImmutableOpenMap<String, MappingMetaData> immutableOpenMap2 =
+		ImmutableOpenMap<String, MappingMetadata> immutableOpenMap2 =
 			immutableOpenMap1.get(_INDEX_NAME);
 
-		MappingMetaData mappingMetaData = immutableOpenMap2.get(mappingName);
+		MappingMetadata mappingMetadata = immutableOpenMap2.get(mappingName);
 
-		String mappingMetaDataSource = String.valueOf(mappingMetaData.source());
+		String mappingMetadataSource = String.valueOf(mappingMetadata.source());
 
-		Assert.assertTrue(mappingMetaDataSource.contains(mappingSource));
+		Assert.assertTrue(mappingMetadataSource.contains(mappingSource));
 	}
 
 	@Test
@@ -643,8 +640,8 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 			expectedTokens);
 	}
 
-	protected void assertIndexMetaDataState(
-		String indexName, IndexMetaData.State indexMetaDataState) {
+	protected void assertIndexMetadataState(
+		String indexName, IndexMetadata.State indexMetadataState) {
 
 		RestHighLevelClient restHighLevelClient =
 			_elasticsearchFixture.getRestHighLevelClient();
@@ -673,19 +670,19 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 
 			String state = GetterUtil.getString(indexJSONObject.get("state"));
 
-			Assert.assertEquals(translateState(indexMetaDataState), state);
+			Assert.assertEquals(translateState(indexMetadataState), state);
 		}
 		catch (Exception exception) {
 			throw new SystemException(exception);
 		}
 	}
 
-	protected String translateState(IndexMetaData.State state) {
-		if (state == IndexMetaData.State.OPEN) {
+	protected String translateState(IndexMetadata.State state) {
+		if (state == IndexMetadata.State.OPEN) {
 			return "open";
 		}
 
-		if (state == IndexMetaData.State.CLOSE) {
+		if (state == IndexMetadata.State.CLOSE) {
 			return "close";
 		}
 
@@ -693,10 +690,10 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 	}
 
 	private void _closeIndex(String indexName) {
-		org.elasticsearch.action.admin.indices.close.CloseIndexRequest
+		org.elasticsearch.client.indices.CloseIndexRequest
 			elasticsearchCloseIndexRequest =
-				new org.elasticsearch.action.admin.indices.close.
-					CloseIndexRequest(indexName);
+				new org.elasticsearch.client.indices.CloseIndexRequest(
+					indexName);
 
 		try {
 			_indicesClient.close(
@@ -708,10 +705,10 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 	}
 
 	private void _createIndex(String indexName) {
-		org.elasticsearch.action.admin.indices.create.CreateIndexRequest
+		org.elasticsearch.client.indices.CreateIndexRequest
 			elasticsearchCreateIndexRequest =
-				new org.elasticsearch.action.admin.indices.create.
-					CreateIndexRequest(indexName);
+				new org.elasticsearch.client.indices.CreateIndexRequest(
+					indexName);
 
 		try {
 			_indicesClient.create(
@@ -769,9 +766,7 @@ public class ElasticsearchSearchEngineAdapterIndexRequestTest {
 	}
 
 	private boolean _indiciesExists(String indexName) {
-		GetIndexRequest getIndexRequest = new GetIndexRequest();
-
-		getIndexRequest.indices(indexName);
+		GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
 
 		try {
 			return _indicesClient.exists(

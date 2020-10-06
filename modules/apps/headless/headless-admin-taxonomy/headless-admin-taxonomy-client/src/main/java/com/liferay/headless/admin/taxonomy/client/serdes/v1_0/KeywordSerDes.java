@@ -69,6 +69,20 @@ public class KeywordSerDes {
 			sb.append(_toJSON(keyword.getActions()));
 		}
 
+		if (keyword.getAssetLibraryKey() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraryKey\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(keyword.getAssetLibraryKey()));
+
+			sb.append("\"");
+		}
+
 		if (keyword.getCreator() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -180,6 +194,15 @@ public class KeywordSerDes {
 			map.put("actions", String.valueOf(keyword.getActions()));
 		}
 
+		if (keyword.getAssetLibraryKey() == null) {
+			map.put("assetLibraryKey", null);
+		}
+		else {
+			map.put(
+				"assetLibraryKey",
+				String.valueOf(keyword.getAssetLibraryKey()));
+		}
+
 		if (keyword.getCreator() == null) {
 			map.put("creator", null);
 		}
@@ -187,13 +210,23 @@ public class KeywordSerDes {
 			map.put("creator", String.valueOf(keyword.getCreator()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(keyword.getDateCreated()));
+		if (keyword.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(keyword.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(keyword.getDateModified()));
+		if (keyword.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(keyword.getDateModified()));
+		}
 
 		if (keyword.getId() == null) {
 			map.put("id", null);
@@ -251,6 +284,11 @@ public class KeywordSerDes {
 						(Map)KeywordSerDes.toMap((String)jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "assetLibraryKey")) {
+				if (jsonParserFieldValue != null) {
+					keyword.setAssetLibraryKey((String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "creator")) {
 				if (jsonParserFieldValue != null) {
 					keyword.setCreator(
@@ -291,9 +329,8 @@ public class KeywordSerDes {
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -349,10 +386,13 @@ public class KeywordSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

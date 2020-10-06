@@ -72,11 +72,11 @@ public class WikiNodeLocalServiceTest {
 			"/com/liferay/wiki/service/test/dependencies" +
 				"/liferay_media_wiki.xml");
 
-		InputStream is = new ByteArrayInputStream(bytes);
+		InputStream inputStream = new ByteArrayInputStream(bytes);
 
 		WikiNodeLocalServiceUtil.importPages(
 			TestPropsValues.getUserId(), _node.getNodeId(), "MediaWiki",
-			new InputStream[] {is, null, null},
+			new InputStream[] {inputStream, null, null},
 			Collections.<String, String[]>emptyMap());
 
 		WikiPage importedPage = WikiPageLocalServiceUtil.fetchPage(
@@ -119,9 +119,7 @@ public class WikiNodeLocalServiceTest {
 		Company company = CompanyLocalServiceUtil.getCompany(
 			_node.getCompanyId());
 
-		String portalURL = company.getPortalURL(_node.getGroupId());
-
-		themeDisplay.setPortalURL(portalURL);
+		themeDisplay.setPortalURL(company.getPortalURL(_node.getGroupId()));
 
 		WikiPage sharedImagesPage = WikiPageLocalServiceUtil.fetchPage(
 			_node.getNodeId(), "SharedImages");

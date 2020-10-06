@@ -12,15 +12,44 @@
  * details.
  */
 
-import './PasswordRegister.soy';
+import React, {useState} from 'react';
 
-import Soy from 'metal-soy';
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
-import Text from '../Text/Text.es';
-import templates from './Password.soy';
+const Password = ({
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	placeholder,
+	predefinedValue,
+	readOnly: disabled,
+	value: initialValue,
+	...otherProps
+}) => {
+	const [value, setValue] = useState(
+		initialValue ? initialValue : predefinedValue
+	);
 
-class Password extends Text {}
-
-Soy.register(Password, templates);
+	return (
+		<FieldBase {...otherProps} name={name} readOnly={disabled}>
+			<input
+				className="ddm-field-text form-control"
+				disabled={disabled}
+				id={name}
+				name={name}
+				onBlur={onBlur}
+				onFocus={onFocus}
+				onInput={(event) => {
+					onChange(event);
+					setValue(event.target.value);
+				}}
+				placeholder={placeholder}
+				type="password"
+				value={value}
+			/>
+		</FieldBase>
+	);
+};
 
 export default Password;

@@ -47,14 +47,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "compare-versions"));
 	<portlet:param name="articleId" value="<%= articleId %>" />
 </liferay-portlet:resourceURL>
 
-<div class="container-fluid-1280">
-	<c:if test="<%= portletDisplay.isStatePopUp() %>">
-		<liferay-ui:header
-			backURL="<%= redirect %>"
-			title=""
-		/>
-	</c:if>
-
+<clay:container-fluid>
 	<liferay-frontend:diff-version-comparator
 		availableLocales="<%= availableLocales %>"
 		diffHtmlResults="<%= diffHtmlResults %>"
@@ -65,4 +58,4 @@ renderResponse.setTitle(LanguageUtil.get(request, "compare-versions"));
 		sourceVersion="<%= sourceVersion %>"
 		targetVersion="<%= targetVersion %>"
 	/>
-</div>
+</clay:container-fluid>

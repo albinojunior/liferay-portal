@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.TicketLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.TicketPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -71,6 +73,10 @@ public abstract class TicketLocalServiceBaseImpl
 	/**
 	 * Adds the ticket to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ticket the ticket
 	 * @return the ticket that was added
 	 */
@@ -97,6 +103,10 @@ public abstract class TicketLocalServiceBaseImpl
 	/**
 	 * Deletes the ticket with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ticketId the primary key of the ticket
 	 * @return the ticket that was removed
 	 * @throws PortalException if a ticket with the primary key could not be found
@@ -110,6 +120,10 @@ public abstract class TicketLocalServiceBaseImpl
 	/**
 	 * Deletes the ticket from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ticket the ticket
 	 * @return the ticket that was removed
 	 */
@@ -117,6 +131,11 @@ public abstract class TicketLocalServiceBaseImpl
 	@Override
 	public Ticket deleteTicket(Ticket ticket) {
 		return ticketPersistence.remove(ticket);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ticketPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -281,6 +300,10 @@ public abstract class TicketLocalServiceBaseImpl
 		return ticketLocalService.deleteTicket((Ticket)persistedModel);
 	}
 
+	public BasePersistence<Ticket> getBasePersistence() {
+		return ticketPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -319,6 +342,10 @@ public abstract class TicketLocalServiceBaseImpl
 
 	/**
 	 * Updates the ticket in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ticket the ticket
 	 * @return the ticket that was updated

@@ -17,8 +17,10 @@ package com.liferay.site.memberships.web.internal.display.context;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -27,6 +29,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.rolesadmin.search.RoleSearch;
 import com.liferay.portlet.rolesadmin.search.RoleSearchTerms;
+import com.liferay.site.memberships.web.internal.util.DepotRolesUtil;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 
 import java.util.List;
@@ -57,7 +60,7 @@ public class SelectRolesDisplayContext {
 		}
 
 		_displayStyle = ParamUtil.getString(
-			_httpServletRequest, "displayStyle", "list");
+			_httpServletRequest, "displayStyle", "icon");
 
 		return _displayStyle;
 	}
@@ -157,7 +160,7 @@ public class SelectRolesDisplayContext {
 		return portletURL;
 	}
 
-	public SearchContainer getRoleSearchSearchContainer()
+	public SearchContainer<Role> getRoleSearchSearchContainer()
 		throws PortalException {
 
 		if (_roleSearch != null) {
@@ -178,8 +181,16 @@ public class SelectRolesDisplayContext {
 			new Integer[] {getRoleType()}, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			roleSearch.getOrderByComparator());
 
-		roles = UsersAdminUtil.filterGroupRoles(
-			themeDisplay.getPermissionChecker(), getGroupId(), roles);
+		Group group = GroupLocalServiceUtil.fetchGroup(getGroupId());
+
+		if (group.isDepot()) {
+			roles = DepotRolesUtil.filterGroupRoles(
+				themeDisplay.getPermissionChecker(), getGroupId(), roles);
+		}
+		else {
+			roles = UsersAdminUtil.filterGroupRoles(
+				themeDisplay.getPermissionChecker(), getGroupId(), roles);
+		}
 
 		int rolesCount = roles.size();
 

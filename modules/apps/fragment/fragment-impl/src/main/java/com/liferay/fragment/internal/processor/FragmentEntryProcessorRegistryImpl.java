@@ -82,6 +82,28 @@ public class FragmentEntryProcessorRegistryImpl
 	}
 
 	@Override
+	public JSONArray getDataAttributesJSONArray() {
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		for (FragmentEntryProcessor fragmentEntryProcessor :
+				_serviceTrackerList) {
+
+			JSONArray dataAttributesJSONArray =
+				fragmentEntryProcessor.getDataAttributesJSONArray();
+
+			if (dataAttributesJSONArray == null) {
+				continue;
+			}
+
+			for (int i = 0; i < dataAttributesJSONArray.length(); i++) {
+				jsonArray.put(dataAttributesJSONArray.getString(i));
+			}
+		}
+
+		return jsonArray;
+	}
+
+	@Override
 	public JSONObject getDefaultEditableValuesJSONObject(
 		String html, String configuration) {
 
@@ -158,7 +180,7 @@ public class FragmentEntryProcessorRegistryImpl
 		_serviceTrackerList = ServiceTrackerListFactory.open(
 			bundleContext, FragmentEntryProcessor.class,
 			Collections.reverseOrder(
-				new PropertyServiceReferenceComparator(
+				new PropertyServiceReferenceComparator<>(
 					"fragment.entry.processor.priority")));
 	}
 

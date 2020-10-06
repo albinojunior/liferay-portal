@@ -36,6 +36,10 @@ public class CTCollectionLocalServiceWrapper
 	/**
 	 * Adds the ct collection to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctCollection the ct collection
 	 * @return the ct collection that was added
 	 */
@@ -91,7 +95,9 @@ public class CTCollectionLocalServiceWrapper
 	}
 
 	@Override
-	public void deleteCompanyCTCollections(long companyId) {
+	public void deleteCompanyCTCollections(long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
 		_ctCollectionLocalService.deleteCompanyCTCollections(companyId);
 	}
 
@@ -104,18 +110,28 @@ public class CTCollectionLocalServiceWrapper
 	/**
 	 * Deletes the ct collection from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctCollection the ct collection
 	 * @return the ct collection that was removed
+	 * @throws PortalException
 	 */
 	@Override
 	public com.liferay.change.tracking.model.CTCollection deleteCTCollection(
-		com.liferay.change.tracking.model.CTCollection ctCollection) {
+			com.liferay.change.tracking.model.CTCollection ctCollection)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ctCollectionLocalService.deleteCTCollection(ctCollection);
 	}
 
 	/**
 	 * Deletes the ct collection with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctCollectionId the primary key of the ct collection
 	 * @return the ct collection that was removed
@@ -138,6 +154,11 @@ public class CTCollectionLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ctCollectionLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ctCollectionLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -300,6 +321,15 @@ public class CTCollectionLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.change.tracking.model.CTEntry>
+		getDiscardCTEntries(
+			long ctCollectionId, long modelClassNameId, long modelClassPK) {
+
+		return _ctCollectionLocalService.getDiscardCTEntries(
+			ctCollectionId, modelClassNameId, modelClassPK);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 		getIndexableActionableDynamicQuery() {
 
@@ -328,6 +358,14 @@ public class CTCollectionLocalServiceWrapper
 	}
 
 	@Override
+	public boolean isCTEntryEnclosed(
+		long ctCollectionId, long modelClassNameId, long modelClassPK) {
+
+		return _ctCollectionLocalService.isCTEntryEnclosed(
+			ctCollectionId, modelClassNameId, modelClassPK);
+	}
+
+	@Override
 	public com.liferay.change.tracking.model.CTCollection undoCTCollection(
 			long ctCollectionId, long userId, String name, String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -338,6 +376,10 @@ public class CTCollectionLocalServiceWrapper
 
 	/**
 	 * Updates the ct collection in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctCollection the ct collection
 	 * @return the ct collection that was updated

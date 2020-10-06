@@ -15,6 +15,7 @@
 package com.liferay.wiki.internal.search;
 
 import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -32,6 +33,7 @@ import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
@@ -50,6 +52,7 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.model.uid.UIDFactory;
 import com.liferay.trash.TrashHelper;
@@ -106,18 +109,18 @@ public class WikiPageIndexer
 	}
 
 	@Override
-	public void addRelatedEntryFields(Document document, Object obj)
+	public void addRelatedEntryFields(Document document, Object object)
 		throws Exception {
 
 		long classPK = 0;
 
-		if (obj instanceof Comment) {
-			Comment comment = (Comment)obj;
+		if (object instanceof Comment) {
+			Comment comment = (Comment)object;
 
 			classPK = comment.getClassPK();
 		}
-		else if (obj instanceof FileEntry) {
-			FileEntry fileEntry = (FileEntry)obj;
+		else if (object instanceof FileEntry) {
+			FileEntry fileEntry = (FileEntry)object;
 
 			RelatedModelCapability relatedModelCapability =
 				fileEntry.getRepositoryCapability(RelatedModelCapability.class);
@@ -212,12 +215,26 @@ public class WikiPageIndexer
 	}
 
 	@Override
+	public Hits search(SearchContext searchContext) throws SearchException {
+		Hits hits = super.search(searchContext);
+
+		hits.setQueryTerms(
+			ArrayUtil.append(
+				GetterUtil.getStringValues(hits.getQueryTerms()),
+				StringUtil.split(
+					searchContext.getKeywords(), StringPool.SPACE)));
+
+		return hits;
+	}
+
+	@Override
 	public void updateFullQuery(SearchContext searchContext) {
 	}
 
 	@Override
 	protected void doDelete(WikiPage wikiPage) throws Exception {
-		deleteDocument(wikiPage.getCompanyId(), wikiPage.getPrimaryKey());
+		deleteDocument(
+			wikiPage.getCompanyId(), "UID=" + uidFactory.getUID(wikiPage));
 	}
 
 	@Override

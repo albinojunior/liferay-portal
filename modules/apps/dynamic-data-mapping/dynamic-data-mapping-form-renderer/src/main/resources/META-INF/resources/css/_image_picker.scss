@@ -29,3 +29,36 @@
 		}
 	}
 }
+
+.image-picker-preview {
+	position: relative;
+
+	> .image-picker-priview-backdor {
+		background-color: transparent;
+		background-position: center center;
+		background-repeat: no-repeat;
+		border-radius: 0.25rem;
+		cursor: pointer;
+		left: 0;
+		position: absolute;
+		top: 0;
+
+		> svg {
+			color: rgba(255, 255, 255, 0.4);
+			display: none;
+			height: 40px;
+			left: 48.61%;
+			position: absolute;
+			top: 46.48%;
+			width: 40px;
+		}
+
+		&.image-backdor:hover {
+			background-color: rgba(39, 40, 51, 0.5);
+
+			> svg {
+				display: block;
+			}
+		}
+	}
+}

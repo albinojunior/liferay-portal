@@ -18,8 +18,8 @@ const applicationId = 'Form';
 
 /**
  * Returns an identifier for a form element.
- * @param {object} form The form DOM element
- * @return {object} Either form id, name or action.
+ * @param {Object} form The form DOM element
+ * @returns {Object} Either form id, name or action.
  */
 function getFormKey(form) {
 	return (
@@ -33,8 +33,8 @@ function getFormKey(form) {
 
 /**
  * Returns analytics payload with field information.
- * @param {object} form The field DOM element
- * @return {object} The payload with field information
+ * @param {Object} form The field DOM element
+ * @returns {Object} The payload with field information
  */
 function getFieldPayload({form, name}) {
 	return {
@@ -45,8 +45,8 @@ function getFieldPayload({form, name}) {
 
 /**
  * Returns analytics payload with form information.
- * @param {object} form The form DOM element
- * @return {object} The payload with form information
+ * @param {Object} form The form DOM element
+ * @returns {Object} The payload with form information
  */
 function getFormPayload(form) {
 	let payload = {
@@ -65,8 +65,8 @@ function getFormPayload(form) {
 
 /**
  * Wether a form is trackable or not.
- * @param {object} form The form DOM element
- * @return {boolean} True if the form is trackable.
+ * @param {Object} form The form DOM element
+ * @returns {boolean} True if the form is trackable.
  */
 function isTrackableForm(form) {
 	return (
@@ -79,7 +79,7 @@ function isTrackableForm(form) {
 /**
  * Adds an event listener for the blur event and sends analytics information
  * when that event happens.
- * @param {object} The Analytics client instance
+ * @param {Object} The Analytics client instance
  */
 function trackFieldBlurred(analytics) {
 	const onBlur = ({target}) => {
@@ -99,7 +99,7 @@ function trackFieldBlurred(analytics) {
 
 		const perfData = performance.getEntriesByName('focusDuration').pop();
 
-		const focusDuration = perfData.duration;
+		const focusDuration = ~~perfData.duration;
 
 		analytics.send('fieldBlurred', applicationId, {
 			...payload,
@@ -117,7 +117,7 @@ function trackFieldBlurred(analytics) {
 /**
  * Adds an event listener for the focus event and sends analytics information
  * when that event happens.
- * @param {object} The Analytics client instance
+ * @param {Object} The Analytics client instance
  */
 function trackFieldFocused(analytics) {
 	const onFocus = ({target}) => {
@@ -143,10 +143,10 @@ function trackFieldFocused(analytics) {
 /**
  * Adds an event listener for a form submission and sends information when that
  * event happens.
- * @param {object} The Analytics client instance
+ * @param {Object} The Analytics client instance
  */
 function trackFormSubmitted(analytics) {
-	const onSubmit = event => {
+	const onSubmit = (event) => {
 		const {target} = event;
 
 		if (
@@ -166,14 +166,14 @@ function trackFormSubmitted(analytics) {
 
 /**
  * Sends information about forms rendered on the page when it was loaded.
- * @param {object} The Analytics client instance
+ * @param {Object} The Analytics client instance
  */
 function trackFormViewed(analytics) {
 	return onReady(() => {
 		Array.prototype.slice
 			.call(document.querySelectorAll('form'))
-			.filter(form => isTrackableForm(form))
-			.forEach(form => {
+			.filter((form) => isTrackableForm(form))
+			.forEach((form) => {
 				const payload = getFormPayload(form);
 
 				analytics.send('formViewed', applicationId, payload);
@@ -183,7 +183,7 @@ function trackFormViewed(analytics) {
 
 /**
  * Plugin function that registers listener against form events
- * @param {object} analytics The Analytics client
+ * @param {Object} analytics The Analytics client
  */
 function forms(analytics) {
 	const stopTrackingFieldBlurred = trackFieldBlurred(analytics);

@@ -14,22 +14,22 @@
 
 package com.liferay.layout.content.page.editor.web.internal.util.layout.structure;
 
-import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
-import com.liferay.fragment.renderer.FragmentRendererTracker;
-import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
-import com.liferay.headless.delivery.dto.v1_0.PageElement;
-import com.liferay.layout.page.template.headless.delivery.dto.v1_0.PageDefinitionConverterUtil;
+import com.liferay.fragment.processor.PortletRegistry;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListenerTracker;
+import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
-import com.liferay.layout.util.structure.FragmentLayoutStructureItem;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalServiceUtil;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureServiceUtil;
+import com.liferay.layout.util.structure.DeletedLayoutStructureItem;
+import com.liferay.layout.util.structure.FragmentStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,53 +39,117 @@ import java.util.List;
  */
 public class LayoutStructureUtil {
 
+	public static void deleteMarkedForDeletionItems(
+			long companyId,
+			ContentPageEditorListenerTracker contentPageEditorListenerTracker,
+			long groupId, long plid, PortletRegistry portletRegistry)
+		throws PortalException {
+
+		LayoutPageTemplateStructure layoutPageTemplateStructure =
+			LayoutPageTemplateStructureLocalServiceUtil.
+				fetchLayoutPageTemplateStructure(groupId, plid, true);
+
+		if (layoutPageTemplateStructure == null) {
+			return;
+		}
+
+		List<LayoutPageTemplateStructureRel> layoutPageTemplateStructureRels =
+			LayoutPageTemplateStructureRelLocalServiceUtil.
+				getLayoutPageTemplateStructureRels(
+					layoutPageTemplateStructure.
+						getLayoutPageTemplateStructureId());
+
+		for (LayoutPageTemplateStructureRel layoutPageTemplateStructureRel :
+				layoutPageTemplateStructureRels) {
+
+			LayoutStructure layoutStructure = LayoutStructure.of(
+				layoutPageTemplateStructureRel.getData());
+
+			for (DeletedLayoutStructureItem deletedLayoutStructureItem :
+					layoutStructure.getDeletedLayoutStructureItems()) {
+
+				List<LayoutStructureItem> deletedLayoutStructureItems =
+					layoutStructure.deleteLayoutStructureItem(
+						deletedLayoutStructureItem.getItemId());
+
+				for (long fragmentEntryLinkId :
+						getFragmentEntryLinkIds(deletedLayoutStructureItems)) {
+
+					FragmentEntryLinkUtil.deleteFragmentEntryLink(
+						companyId, contentPageEditorListenerTracker,
+						fragmentEntryLinkId, plid, portletRegistry);
+				}
+			}
+
+			LayoutPageTemplateStructureLocalServiceUtil.
+				updateLayoutPageTemplateStructureData(
+					groupId, plid,
+					layoutPageTemplateStructureRel.getSegmentsExperienceId(),
+					layoutStructure.toString());
+		}
+	}
+
 	public static long[] getFragmentEntryLinkIds(
 		List<LayoutStructureItem> layoutStructureItems) {
 
 		List<Long> fragmentEntryLinkIds = new ArrayList<>();
 
 		for (LayoutStructureItem layoutStructureItem : layoutStructureItems) {
-			if (!(layoutStructureItem instanceof FragmentLayoutStructureItem)) {
+			if (!(layoutStructureItem instanceof
+					FragmentStyledLayoutStructureItem)) {
+
 				continue;
 			}
 
-			FragmentLayoutStructureItem fragmentLayoutStructureItem =
-				(FragmentLayoutStructureItem)layoutStructureItem;
+			FragmentStyledLayoutStructureItem
+				fragmentStyledLayoutStructureItem =
+					(FragmentStyledLayoutStructureItem)layoutStructureItem;
 
-			if (fragmentLayoutStructureItem.getFragmentEntryLinkId() <= 0) {
+			if (fragmentStyledLayoutStructureItem.getFragmentEntryLinkId() <=
+					0) {
+
 				continue;
 			}
 
 			fragmentEntryLinkIds.add(
-				fragmentLayoutStructureItem.getFragmentEntryLinkId());
+				fragmentStyledLayoutStructureItem.getFragmentEntryLinkId());
 		}
 
 		return ArrayUtil.toLongArray(fragmentEntryLinkIds);
 	}
 
-	public static String getLayoutStructureItemJSON(
-			FragmentCollectionContributorTracker
-				fragmentCollectionContributorTracker,
-			FragmentEntryConfigurationParser fragmentEntryConfigurationParser,
-			FragmentRendererTracker fragmentRendererTracker, long groupId,
-			String itemId, long plid, long segmentsExperienceId)
+	public static LayoutStructure getLayoutStructure(
+			long groupId, long plid, long segmentsExperienceId)
 		throws PortalException {
 
 		LayoutPageTemplateStructure layoutPageTemplateStructure =
 			LayoutPageTemplateStructureLocalServiceUtil.
-				fetchLayoutPageTemplateStructure(
-					groupId, PortalUtil.getClassNameId(Layout.class.getName()),
-					plid, true);
+				fetchLayoutPageTemplateStructure(groupId, plid, true);
 
-		LayoutStructure layoutStructure = LayoutStructure.of(
+		return LayoutStructure.of(
 			layoutPageTemplateStructure.getData(segmentsExperienceId));
+	}
 
-		PageElement pageElement = PageDefinitionConverterUtil.toPageElement(
-			fragmentCollectionContributorTracker,
-			fragmentEntryConfigurationParser, fragmentRendererTracker,
-			layoutStructure, layoutStructure.getLayoutStructureItem(itemId));
+	public static boolean isPortletMarkedForDeletion(
+			long groupId, long plid, String portletId,
+			long segmentsExperienceId)
+		throws PortalException {
 
-		return pageElement.toString();
+		LayoutStructure layoutStructure = getLayoutStructure(
+			groupId, plid, segmentsExperienceId);
+
+		List<DeletedLayoutStructureItem> deletedLayoutStructureItems =
+			layoutStructure.getDeletedLayoutStructureItems();
+
+		for (DeletedLayoutStructureItem deletedLayoutStructureItem :
+				deletedLayoutStructureItems) {
+
+			if (deletedLayoutStructureItem.contains(portletId)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static JSONObject updateLayoutPageTemplateData(
@@ -93,23 +157,16 @@ public class LayoutStructureUtil {
 			UnsafeConsumer<LayoutStructure, PortalException> unsafeConsumer)
 		throws PortalException {
 
-		LayoutPageTemplateStructure layoutPageTemplateStructure =
-			LayoutPageTemplateStructureLocalServiceUtil.
-				fetchLayoutPageTemplateStructure(
-					groupId, PortalUtil.getClassNameId(Layout.class.getName()),
-					plid, true);
-
-		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(segmentsExperienceId));
+		LayoutStructure layoutStructure = getLayoutStructure(
+			groupId, plid, segmentsExperienceId);
 
 		unsafeConsumer.accept(layoutStructure);
 
 		JSONObject dataJSONObject = layoutStructure.toJSONObject();
 
-		LayoutPageTemplateStructureLocalServiceUtil.
-			updateLayoutPageTemplateStructure(
-				groupId, PortalUtil.getClassNameId(Layout.class.getName()),
-				plid, segmentsExperienceId, dataJSONObject.toString());
+		LayoutPageTemplateStructureServiceUtil.
+			updateLayoutPageTemplateStructureData(
+				groupId, plid, segmentsExperienceId, dataJSONObject.toString());
 
 		return dataJSONObject;
 	}

@@ -11,6 +11,7 @@
 *.iws
 *.swp
 *~
+.DS_Store
 .ant-targets-build.xml
 .ant_targets
 .gh.json
@@ -43,7 +44,10 @@
 /dist
 /intellij
 /jacoco
+/modules/.releng/dxp/apps/lcs
+/modules/dxp/apps/lcs
 /modules/node_modules_cache
+/modules/private/node_modules_cache
 /nbproject/private
 /out
 /portal-client/*.ipr
@@ -155,7 +159,7 @@
 /tools/sdk
 /tools/selenium/*.exe
 /tools/selenium/extensions/ide.*.js
-/tools/zip_tmpl/license
+/tools/zip_tmpl
 /tunnel-web/docroot/WEB-INF/classes
 /tunnel-web/docroot/WEB-INF/lib
 /tunnel-web/docroot/WEB-INF/remoting-servlet-ext.xml

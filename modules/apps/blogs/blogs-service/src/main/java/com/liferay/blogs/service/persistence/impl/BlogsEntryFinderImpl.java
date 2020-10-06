@@ -115,10 +115,10 @@ public class BlogsEntryFinderImpl
 				queryPos.add(queryDefinition.getStatus());
 			}
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -259,7 +259,7 @@ public class BlogsEntryFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(organizationIds.size() * 2 - 1);
+		StringBundler sb = new StringBundler((organizationIds.size() * 2) - 1);
 
 		for (int i = 0; i < organizationIds.size(); i++) {
 			sb.append("Users_Orgs.organizationId = ? ");

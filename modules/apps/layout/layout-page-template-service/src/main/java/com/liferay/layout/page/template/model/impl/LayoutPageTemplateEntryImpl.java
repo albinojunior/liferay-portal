@@ -17,7 +17,6 @@ package com.liferay.layout.page.template.model.impl;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
-import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -26,7 +25,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.List;
 
@@ -36,14 +34,15 @@ import java.util.List;
 public class LayoutPageTemplateEntryImpl
 	extends LayoutPageTemplateEntryBaseImpl {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public String getContent() throws PortalException {
 		List<FragmentEntryLink> fragmentEntryLinks =
-			FragmentEntryLinkLocalServiceUtil.getFragmentEntryLinks(
-				getGroupId(),
-				PortalUtil.getClassNameId(
-					LayoutPageTemplateEntry.class.getName()),
-				getLayoutPageTemplateEntryId());
+			FragmentEntryLinkLocalServiceUtil.getFragmentEntryLinksByPlid(
+				getGroupId(), getPlid());
 
 		StringBundler cssSB = new StringBundler(fragmentEntryLinks.size());
 		StringBundler htmlSB = new StringBundler(fragmentEntryLinks.size());

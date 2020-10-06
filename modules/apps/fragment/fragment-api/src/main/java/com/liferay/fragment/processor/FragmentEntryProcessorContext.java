@@ -29,6 +29,8 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface FragmentEntryProcessorContext {
 
+	public Optional<Object> getDisplayObjectOptional();
+
 	public Optional<Map<String, Object>> getFieldValuesOptional();
 
 	public HttpServletRequest getHttpServletRequest();
@@ -44,6 +46,8 @@ public interface FragmentEntryProcessorContext {
 	public long getPreviewClassPK();
 
 	public int getPreviewType();
+
+	public String getPreviewVersion();
 
 	public long[] getSegmentsExperienceIds();
 

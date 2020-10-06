@@ -14,7 +14,10 @@
 
 package com.liferay.social.kernel.service;
 
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.social.kernel.model.SocialActivityLimit;
 
 /**
  * Provides a wrapper for {@link SocialActivityLimitLocalService}.
@@ -34,7 +37,7 @@ public class SocialActivityLimitLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit addActivityLimit(
+	public SocialActivityLimit addActivityLimit(
 			long userId, long groupId, long classNameId, long classPK,
 			int activityType, String activityCounterName, int limitPeriod)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -47,14 +50,16 @@ public class SocialActivityLimitLocalServiceWrapper
 	/**
 	 * Adds the social activity limit to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was added
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-		addSocialActivityLimit(
-			com.liferay.social.kernel.model.SocialActivityLimit
-				socialActivityLimit) {
+	public SocialActivityLimit addSocialActivityLimit(
+		SocialActivityLimit socialActivityLimit) {
 
 		return _socialActivityLimitLocalService.addSocialActivityLimit(
 			socialActivityLimit);
@@ -79,9 +84,7 @@ public class SocialActivityLimitLocalServiceWrapper
 	 * @return the new social activity limit
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-		createSocialActivityLimit(long activityLimitId) {
-
+	public SocialActivityLimit createSocialActivityLimit(long activityLimitId) {
 		return _socialActivityLimitLocalService.createSocialActivityLimit(
 			activityLimitId);
 	}
@@ -101,13 +104,16 @@ public class SocialActivityLimitLocalServiceWrapper
 	/**
 	 * Deletes the social activity limit with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param activityLimitId the primary key of the social activity limit
 	 * @return the social activity limit that was removed
 	 * @throws PortalException if a social activity limit with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-			deleteSocialActivityLimit(long activityLimitId)
+	public SocialActivityLimit deleteSocialActivityLimit(long activityLimitId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialActivityLimitLocalService.deleteSocialActivityLimit(
@@ -117,17 +123,24 @@ public class SocialActivityLimitLocalServiceWrapper
 	/**
 	 * Deletes the social activity limit from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was removed
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-		deleteSocialActivityLimit(
-			com.liferay.social.kernel.model.SocialActivityLimit
-				socialActivityLimit) {
+	public SocialActivityLimit deleteSocialActivityLimit(
+		SocialActivityLimit socialActivityLimit) {
 
 		return _socialActivityLimitLocalService.deleteSocialActivityLimit(
 			socialActivityLimit);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _socialActivityLimitLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -222,10 +235,9 @@ public class SocialActivityLimitLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-		fetchActivityLimit(
-			long groupId, long userId, long classNameId, long classPK,
-			int activityType, String activityCounterName) {
+	public SocialActivityLimit fetchActivityLimit(
+		long groupId, long userId, long classNameId, long classPK,
+		int activityType, String activityCounterName) {
 
 		return _socialActivityLimitLocalService.fetchActivityLimit(
 			groupId, userId, classNameId, classPK, activityType,
@@ -233,9 +245,7 @@ public class SocialActivityLimitLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-		fetchSocialActivityLimit(long activityLimitId) {
-
+	public SocialActivityLimit fetchSocialActivityLimit(long activityLimitId) {
 		return _socialActivityLimitLocalService.fetchSocialActivityLimit(
 			activityLimitId);
 	}
@@ -285,8 +295,7 @@ public class SocialActivityLimitLocalServiceWrapper
 	 * @throws PortalException if a social activity limit with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-			getSocialActivityLimit(long activityLimitId)
+	public SocialActivityLimit getSocialActivityLimit(long activityLimitId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialActivityLimitLocalService.getSocialActivityLimit(
@@ -305,8 +314,8 @@ public class SocialActivityLimitLocalServiceWrapper
 	 * @return the range of social activity limits
 	 */
 	@Override
-	public java.util.List<com.liferay.social.kernel.model.SocialActivityLimit>
-		getSocialActivityLimits(int start, int end) {
+	public java.util.List<SocialActivityLimit> getSocialActivityLimits(
+		int start, int end) {
 
 		return _socialActivityLimitLocalService.getSocialActivityLimits(
 			start, end);
@@ -325,17 +334,39 @@ public class SocialActivityLimitLocalServiceWrapper
 	/**
 	 * Updates the social activity limit in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was updated
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialActivityLimit
-		updateSocialActivityLimit(
-			com.liferay.social.kernel.model.SocialActivityLimit
-				socialActivityLimit) {
+	public SocialActivityLimit updateSocialActivityLimit(
+		SocialActivityLimit socialActivityLimit) {
 
 		return _socialActivityLimitLocalService.updateSocialActivityLimit(
 			socialActivityLimit);
+	}
+
+	@Override
+	public CTPersistence<SocialActivityLimit> getCTPersistence() {
+		return _socialActivityLimitLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<SocialActivityLimit> getModelClass() {
+		return _socialActivityLimitLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SocialActivityLimit>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _socialActivityLimitLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

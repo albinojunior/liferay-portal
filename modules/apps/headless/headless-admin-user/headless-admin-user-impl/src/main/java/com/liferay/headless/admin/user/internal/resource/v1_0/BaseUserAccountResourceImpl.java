@@ -20,6 +20,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -56,7 +57,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.validation.constraints.NotNull;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -64,6 +70,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -194,6 +201,116 @@ public abstract class BaseUserAccountResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts' -d $'{"additionalName": ___, "alternateName": ___, "birthDate": ___, "customFields": ___, "emailAddress": ___, "familyName": ___, "givenName": ___, "honorificPrefix": ___, "honorificSuffix": ___, "jobTitle": ___, "userAccountContactInformation": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(description = "Creates a new user account")
+	@POST
+	@Path("/user-accounts")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {})
+	public UserAccount postUserAccount(UserAccount userAccount)
+		throws Exception {
+
+		return new UserAccount();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@POST
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.QUERY, name = "callbackURL")}
+	)
+	@Path("/user-accounts/batch")
+	@Produces("application/json")
+	@Tags(value = {})
+	public Response postUserAccountBatch(
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.postImportTask(
+				UserAccount.class.getName(), callbackURL, null, object)
+		).build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/{userAccountId}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@DELETE
+	@Operation(description = "Deletes the user account")
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "userAccountId")}
+	)
+	@Path("/user-accounts/{userAccountId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "UserAccount")})
+	public void deleteUserAccount(
+			@NotNull @Parameter(hidden = true) @PathParam("userAccountId") Long
+				userAccountId)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@DELETE
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.QUERY, name = "callbackURL")}
+	)
+	@Path("/user-accounts/batch")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "UserAccount")})
+	public Response deleteUserAccountBatch(
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.deleteImportTask(
+				UserAccount.class.getName(), callbackURL, object)
+		).build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/{userAccountId}'  -u 'test@liferay.com:test'
 	 */
 	@Override
@@ -213,12 +330,176 @@ public abstract class BaseUserAccountResourceImpl
 		return new UserAccount();
 	}
 
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/{userAccountId}' -d $'{"additionalName": ___, "alternateName": ___, "birthDate": ___, "customFields": ___, "emailAddress": ___, "familyName": ___, "givenName": ___, "honorificPrefix": ___, "honorificSuffix": ___, "jobTitle": ___, "userAccountContactInformation": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		description = "Updates the user account with information sent in the request body. Only the provided fields are updated."
+	)
+	@PATCH
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "userAccountId")}
+	)
+	@Path("/user-accounts/{userAccountId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {})
+	public UserAccount patchUserAccount(
+			@NotNull @Parameter(hidden = true) @PathParam("userAccountId") Long
+				userAccountId,
+			UserAccount userAccount)
+		throws Exception {
+
+		UserAccount existingUserAccount = getUserAccount(userAccountId);
+
+		if (userAccount.getActions() != null) {
+			existingUserAccount.setActions(userAccount.getActions());
+		}
+
+		if (userAccount.getAdditionalName() != null) {
+			existingUserAccount.setAdditionalName(
+				userAccount.getAdditionalName());
+		}
+
+		if (userAccount.getAlternateName() != null) {
+			existingUserAccount.setAlternateName(
+				userAccount.getAlternateName());
+		}
+
+		if (userAccount.getBirthDate() != null) {
+			existingUserAccount.setBirthDate(userAccount.getBirthDate());
+		}
+
+		if (userAccount.getDashboardURL() != null) {
+			existingUserAccount.setDashboardURL(userAccount.getDashboardURL());
+		}
+
+		if (userAccount.getDateCreated() != null) {
+			existingUserAccount.setDateCreated(userAccount.getDateCreated());
+		}
+
+		if (userAccount.getDateModified() != null) {
+			existingUserAccount.setDateModified(userAccount.getDateModified());
+		}
+
+		if (userAccount.getFamilyName() != null) {
+			existingUserAccount.setFamilyName(userAccount.getFamilyName());
+		}
+
+		if (userAccount.getGivenName() != null) {
+			existingUserAccount.setGivenName(userAccount.getGivenName());
+		}
+
+		if (userAccount.getHonorificPrefix() != null) {
+			existingUserAccount.setHonorificPrefix(
+				userAccount.getHonorificPrefix());
+		}
+
+		if (userAccount.getHonorificSuffix() != null) {
+			existingUserAccount.setHonorificSuffix(
+				userAccount.getHonorificSuffix());
+		}
+
+		if (userAccount.getImage() != null) {
+			existingUserAccount.setImage(userAccount.getImage());
+		}
+
+		if (userAccount.getJobTitle() != null) {
+			existingUserAccount.setJobTitle(userAccount.getJobTitle());
+		}
+
+		if (userAccount.getKeywords() != null) {
+			existingUserAccount.setKeywords(userAccount.getKeywords());
+		}
+
+		if (userAccount.getName() != null) {
+			existingUserAccount.setName(userAccount.getName());
+		}
+
+		if (userAccount.getProfileURL() != null) {
+			existingUserAccount.setProfileURL(userAccount.getProfileURL());
+		}
+
+		preparePatch(userAccount, existingUserAccount);
+
+		return putUserAccount(userAccountId, existingUserAccount);
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/{userAccountId}' -d $'{"additionalName": ___, "alternateName": ___, "birthDate": ___, "customFields": ___, "emailAddress": ___, "familyName": ___, "givenName": ___, "honorificPrefix": ___, "honorificSuffix": ___, "jobTitle": ___, "userAccountContactInformation": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		description = "Replaces the user account with information sent in the request body. Any missing fields are deleted unless they are required."
+	)
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "userAccountId")}
+	)
+	@Path("/user-accounts/{userAccountId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {})
+	public UserAccount putUserAccount(
+			@NotNull @Parameter(hidden = true) @PathParam("userAccountId") Long
+				userAccountId,
+			UserAccount userAccount)
+		throws Exception {
+
+		return new UserAccount();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-user/v1.0/user-accounts/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.QUERY, name = "callbackURL")}
+	)
+	@Path("/user-accounts/batch")
+	@Produces("application/json")
+	@Tags(value = {})
+	public Response putUserAccountBatch(
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.putImportTask(
+				UserAccount.class.getName(), callbackURL, object)
+		).build();
+	}
+
 	@Override
 	@SuppressWarnings("PMD.UnusedLocalVariable")
 	public void create(
 			java.util.Collection<UserAccount> userAccounts,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (UserAccount userAccount : userAccounts) {
+			postUserAccount(userAccount);
+		}
 	}
 
 	@Override
@@ -226,6 +507,10 @@ public abstract class BaseUserAccountResourceImpl
 			java.util.Collection<UserAccount> userAccounts,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (UserAccount userAccount : userAccounts) {
+			deleteUserAccount(userAccount.getId());
+		}
 	}
 
 	@Override
@@ -280,6 +565,13 @@ public abstract class BaseUserAccountResourceImpl
 			java.util.Collection<UserAccount> userAccounts,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (UserAccount userAccount : userAccounts) {
+			putUserAccount(
+				userAccount.getId() != null ? userAccount.getId() :
+				(Long)parameters.get("userAccountId"),
+				userAccount);
+		}
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -314,6 +606,14 @@ public abstract class BaseUserAccountResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -323,12 +623,21 @@ public abstract class BaseUserAccountResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -336,7 +645,7 @@ public abstract class BaseUserAccountResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected void preparePatch(

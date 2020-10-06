@@ -58,6 +58,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -266,6 +267,91 @@ public class LocalProcessExecutorTest {
 		Future<String> future = processChannel.getProcessNoticeableFuture();
 
 		Assert.assertEquals(largeFileName, future.get());
+	}
+
+	@Test
+	public void testProcessConfigCopyContructor() {
+		String bootstrapClassPath = "bootstrapClassPath";
+
+		String javaExecutable = "someJava";
+
+		Consumer<ProcessLog> consumer = processLog -> {
+		};
+
+		ClassLoader reactClasssLoader = new URLClassLoader(new URL[0]);
+
+		String runtimeClassPath = "runtimeClassPath";
+
+		ProcessConfig.Builder originalBuilder = new ProcessConfig.Builder();
+
+		originalBuilder.setBootstrapClassPath(bootstrapClassPath);
+		originalBuilder.setJavaExecutable(javaExecutable);
+		originalBuilder.setProcessLogConsumer(consumer);
+		originalBuilder.setReactClassLoader(reactClasssLoader);
+		originalBuilder.setRuntimeClassPath(runtimeClassPath);
+
+		ProcessConfig originalProcessConfig = originalBuilder.build();
+
+		// No arguments, no environment
+
+		ProcessConfig.Builder copyBuilder1 = new ProcessConfig.Builder(
+			originalProcessConfig);
+
+		Assert.assertSame(Collections.emptyList(), copyBuilder1.getArguments());
+		Assert.assertNull(copyBuilder1.getEnvironment());
+
+		ProcessConfig copyProcessConfig1 = copyBuilder1.build();
+
+		Assert.assertSame(
+			Collections.emptyList(), copyProcessConfig1.getArguments());
+		Assert.assertSame(
+			bootstrapClassPath, copyProcessConfig1.getBootstrapClassPath());
+		Assert.assertNull(copyProcessConfig1.getEnvironment());
+		Assert.assertSame(
+			javaExecutable, copyProcessConfig1.getJavaExecutable());
+		Assert.assertSame(consumer, copyProcessConfig1.getProcessLogConsumer());
+		Assert.assertSame(
+			reactClasssLoader, copyProcessConfig1.getReactClassLoader());
+		Assert.assertSame(
+			runtimeClassPath, copyProcessConfig1.getRuntimeClassPath());
+
+		// With arguments and environment
+
+		List<String> arguments = Arrays.asList("a", "b");
+
+		Map<String, String> environment = new HashMap<>();
+
+		environment.put("m", "n");
+		environment.put("x", "y");
+
+		originalBuilder.setArguments(arguments);
+		originalBuilder.setEnvironment(environment);
+
+		originalProcessConfig = originalBuilder.build();
+
+		ProcessConfig.Builder copyBuilder2 = new ProcessConfig.Builder(
+			originalProcessConfig);
+
+		Assert.assertNotSame(arguments, copyBuilder2.getArguments());
+		Assert.assertEquals(arguments, copyBuilder2.getArguments());
+		Assert.assertNotSame(environment, copyBuilder2.getEnvironment());
+		Assert.assertEquals(environment, copyBuilder2.getEnvironment());
+
+		ProcessConfig copyProcessConfig2 = copyBuilder2.build();
+
+		Assert.assertNotSame(arguments, copyProcessConfig2.getArguments());
+		Assert.assertEquals(arguments, copyProcessConfig2.getArguments());
+		Assert.assertSame(
+			bootstrapClassPath, copyProcessConfig2.getBootstrapClassPath());
+		Assert.assertNotSame(environment, copyProcessConfig2.getEnvironment());
+		Assert.assertEquals(environment, copyProcessConfig2.getEnvironment());
+		Assert.assertSame(
+			javaExecutable, copyProcessConfig2.getJavaExecutable());
+		Assert.assertSame(consumer, copyProcessConfig2.getProcessLogConsumer());
+		Assert.assertSame(
+			reactClasssLoader, copyProcessConfig2.getReactClassLoader());
+		Assert.assertSame(
+			runtimeClassPath, copyProcessConfig2.getRuntimeClassPath());
 	}
 
 	@Test
@@ -485,9 +571,10 @@ public class LocalProcessExecutorTest {
 			Assert.fail();
 		}
 		catch (ExecutionException executionException) {
-			Throwable cause = executionException.getCause();
+			Throwable throwable = executionException.getCause();
 
-			Assert.assertSame(ClassNotFoundException.class, cause.getClass());
+			Assert.assertSame(
+				ClassNotFoundException.class, throwable.getClass());
 		}
 
 		Assert.assertEquals(processLogs.toString(), 1, processLogs.size());
@@ -525,16 +612,17 @@ public class LocalProcessExecutorTest {
 			Assert.fail();
 		}
 		catch (ExecutionException executionException) {
-			Throwable cause = executionException.getCause();
+			Throwable throwable = executionException.getCause();
 
-			Assert.assertTrue(cause instanceof ProcessException);
+			Assert.assertTrue(throwable instanceof ProcessException);
 
 			Assert.assertEquals(
-				"Corrupted object input stream", cause.getMessage());
+				"Corrupted object input stream", throwable.getMessage());
 
-			cause = cause.getCause();
+			throwable = throwable.getCause();
 
-			Assert.assertSame(StreamCorruptedException.class, cause.getClass());
+			Assert.assertSame(
+				StreamCorruptedException.class, throwable.getClass());
 		}
 
 		Assert.assertFalse(future.isCancelled());
@@ -931,7 +1019,7 @@ public class LocalProcessExecutorTest {
 							processLogs.add(processLog);
 						}
 					}),
-				Operations.PIPING_BACK_NON_PROCESS_CALLABLE);
+				Operations.PIPING_BACK_NONPROCESS_CALLABLE);
 
 		NoticeableFuture<Serializable> noticeableFuture =
 			processChannel.getProcessNoticeableFuture();
@@ -972,13 +1060,14 @@ public class LocalProcessExecutorTest {
 			Assert.fail();
 		}
 		catch (ExecutionException executionException) {
-			Throwable cause = executionException.getCause();
+			Throwable throwable = executionException.getCause();
 
-			Assert.assertSame(ProcessException.class, cause.getClass());
+			Assert.assertSame(ProcessException.class, throwable.getClass());
 
-			cause = cause.getCause();
+			throwable = throwable.getCause();
 
-			Assert.assertSame(NotSerializableException.class, cause.getClass());
+			Assert.assertSame(
+				NotSerializableException.class, throwable.getClass());
 
 			Assert.assertEquals(processLogs.toString(), 1, processLogs.size());
 
@@ -987,13 +1076,15 @@ public class LocalProcessExecutorTest {
 			Assert.assertEquals(
 				"Caught a write aborted exception", processLog.getMessage());
 
-			cause = processLog.getThrowable();
+			throwable = processLog.getThrowable();
 
-			Assert.assertSame(WriteAbortedException.class, cause.getClass());
+			Assert.assertSame(
+				WriteAbortedException.class, throwable.getClass());
 
-			cause = cause.getCause();
+			throwable = throwable.getCause();
 
-			Assert.assertSame(NotSerializableException.class, cause.getClass());
+			Assert.assertSame(
+				NotSerializableException.class, throwable.getClass());
 		}
 	}
 
@@ -1428,7 +1519,7 @@ public class LocalProcessExecutorTest {
 			};
 
 		public static final ProcessCallable<Serializable>
-			PIPING_BACK_NON_PROCESS_CALLABLE = () -> {
+			PIPING_BACK_NONPROCESS_CALLABLE = () -> {
 				try {
 					UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 						new UnsyncByteArrayOutputStream();
@@ -1469,10 +1560,10 @@ public class LocalProcessExecutorTest {
 		public static final ProcessCallable<Serializable>
 			PIPING_BACK_WRITE_ABORTED = () -> {
 				try {
-					Object obj = new Object();
+					Object object = new Object();
 
 					LocalProcessLauncher.ProcessContext.writeProcessCallable(
-						() -> (Serializable)obj);
+						() -> (Serializable)object);
 				}
 				catch (IOException ioException) {
 					throw new ProcessException(ioException);

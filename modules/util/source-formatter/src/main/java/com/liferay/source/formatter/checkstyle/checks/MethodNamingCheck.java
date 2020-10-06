@@ -14,11 +14,11 @@
 
 package com.liferay.source.formatter.checkstyle.checks;
 
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,10 +37,14 @@ public class MethodNamingCheck extends BaseCheck {
 
 	@Override
 	protected void doVisitToken(DetailAST detailAST) {
+		if (AnnotationUtil.containsAnnotation(detailAST, "Override")) {
+			return;
+		}
+
 		String methodName = _getMethodName(detailAST);
 
 		_checkDoMethodName(detailAST, methodName);
-		_checkNonMethodName(detailAST, methodName);
+		_checkTypeName(detailAST, methodName);
 	}
 
 	private void _checkDoMethodName(DetailAST detailAST, String methodName) {
@@ -77,31 +81,35 @@ public class MethodNamingCheck extends BaseCheck {
 		log(detailAST, _MSG_RENAME_METHOD, methodName, noDoName);
 	}
 
-	private void _checkNonMethodName(DetailAST detailAST, String methodName) {
-		Matcher matcher = _nonMethodNamePattern.matcher(methodName);
+	private void _checkTypeName(DetailAST detailAST, String methodName) {
+		String absolutePath = getAbsolutePath();
 
-		if (!matcher.find()) {
+		if ((!methodName.matches("get[A-Z].*") ||
+			 !absolutePath.contains("/internal/")) &&
+			!methodName.matches("_get[A-Z].*")) {
+
 			return;
 		}
 
-		StringBundler sb = new StringBundler(4);
+		String returnTypeName = getTypeName(detailAST, true);
 
-		sb.append(matcher.group(1));
-		sb.append(StringUtil.lowerCase(matcher.group(2)));
+		if (returnTypeName.contains("[]") ||
+			methodName.matches(".*" + returnTypeName + "[0-9]*") ||
+			methodName.matches("_?get" + returnTypeName + ".*")) {
 
-		String s = matcher.group(3);
-
-		int i = StringUtil.startsWithWeight(s, StringUtil.upperCase(s));
-
-		if (i == 0) {
-			sb.append(s);
-		}
-		else {
-			sb.append(StringUtil.lowerCase(s.substring(0, i - 1)));
-			sb.append(s.substring(i - 1));
+			return;
 		}
 
-		log(detailAST, _MSG_RENAME_METHOD, methodName, sb.toString());
+		List<String> enforceTypeNames = getAttributeValues(
+			_ENFORCE_TYPE_NAMES_KEY);
+
+		for (String enforceTypeName : enforceTypeNames) {
+			if (returnTypeName.matches(enforceTypeName)) {
+				log(detailAST, _MSG_INCORRECT_ENDING_METHOD, returnTypeName);
+
+				return;
+			}
+		}
 	}
 
 	private String _getMethodName(DetailAST detailAST) {
@@ -110,11 +118,14 @@ public class MethodNamingCheck extends BaseCheck {
 		return nameDetailAST.getText();
 	}
 
+	private static final String _ENFORCE_TYPE_NAMES_KEY = "enforceTypeNames";
+
+	private static final String _MSG_INCORRECT_ENDING_METHOD =
+		"method.incorrect.ending";
+
 	private static final String _MSG_RENAME_METHOD = "method.rename";
 
 	private static final Pattern _doMethodNamePattern = Pattern.compile(
 		"^_do([A-Z])(.*)$");
-	private static final Pattern _nonMethodNamePattern = Pattern.compile(
-		"(^non|.*Non)([A-Z])(.*)");
 
 }

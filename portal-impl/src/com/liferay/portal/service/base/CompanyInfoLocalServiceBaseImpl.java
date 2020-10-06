@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.CompanyInfoLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.CompanyInfoPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -70,6 +72,10 @@ public abstract class CompanyInfoLocalServiceBaseImpl
 	/**
 	 * Adds the company info to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was added
 	 */
@@ -96,6 +102,10 @@ public abstract class CompanyInfoLocalServiceBaseImpl
 	/**
 	 * Deletes the company info with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfoId the primary key of the company info
 	 * @return the company info that was removed
 	 * @throws PortalException if a company info with the primary key could not be found
@@ -111,6 +121,10 @@ public abstract class CompanyInfoLocalServiceBaseImpl
 	/**
 	 * Deletes the company info from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was removed
 	 */
@@ -118,6 +132,11 @@ public abstract class CompanyInfoLocalServiceBaseImpl
 	@Override
 	public CompanyInfo deleteCompanyInfo(CompanyInfo companyInfo) {
 		return companyInfoPersistence.remove(companyInfo);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return companyInfoPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -288,6 +307,10 @@ public abstract class CompanyInfoLocalServiceBaseImpl
 			(CompanyInfo)persistedModel);
 	}
 
+	public BasePersistence<CompanyInfo> getBasePersistence() {
+		return companyInfoPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -326,6 +349,10 @@ public abstract class CompanyInfoLocalServiceBaseImpl
 
 	/**
 	 * Updates the company info in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was updated

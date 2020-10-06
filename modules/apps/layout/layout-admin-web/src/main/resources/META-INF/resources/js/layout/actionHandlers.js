@@ -12,45 +12,58 @@
  * details.
  */
 
-const actionHandlers = {
-	copyLayout: event => {
-		event.preventDefault();
+import {openModal} from 'frontend-js-web';
 
-		Liferay.Util.openWindow({
-			dialog: {
-				destroyOnHide: true,
-				height: 480,
-				resizable: false,
-				width: 640,
-			},
-			dialogIframe: {
-				bodyCssClass: 'dialog-with-footer',
-			},
-			id: 'addLayoutDialog',
+const actionHandlers = {
+	copyLayout: ({actionURL, namespace}) => {
+		openModal({
+			id: `${namespace}addLayoutDialog`,
 			title: Liferay.Language.get('copy-page'),
-			uri: event.target.href,
+			url: actionURL,
 		});
 	},
 
-	delete: event => {
-		const deleteMessage = Liferay.Language.get(
-			'are-you-sure-you-want-to-delete-this'
+	delete: ({actionURL, hasChildren}) => {
+		let deleteMessage = Liferay.Language.get(
+			'are-you-sure-you-want-to-delete-this-page'
 		);
 
-		if (!confirm(deleteMessage)) {
-			event.preventDefault();
+		if (hasChildren) {
+			deleteMessage = Liferay.Util.sub(
+				Liferay.Language.get(
+					'this-page-has-child-pages-that-will-also-be-removed-are-you-sure-you-want-to-delete-this-page'
+				),
+				hasChildren
+			);
+		}
+
+		if (confirm(deleteMessage)) {
+			Liferay.Util.navigate(actionURL);
 		}
 	},
 
-	permissions: event => {
-		Liferay.Util.openInDialog(event, {
-			dialog: {
-				destroyOnHide: true,
-			},
-			dialogIframe: {
-				bodyCssClass: 'dialog-with-footer',
-			},
-			uri: event.target.href,
+	discardDraft: ({actionURL}) => {
+		const discardDraftMessage = Liferay.Language.get(
+			'are-you-sure-you-want-to-discard-current-draft-and-apply-latest-published-changes'
+		);
+
+		if (confirm(discardDraftMessage)) {
+			Liferay.Util.navigate(actionURL);
+		}
+	},
+
+	permissions: ({actionURL}) => {
+		openModal({
+			title: Liferay.Language.get('permissions'),
+			url: actionURL,
+		});
+	},
+
+	viewCollectionItems: ({actionURL, namespace}) => {
+		openModal({
+			id: `${namespace}viewCollectionItemsDialog`,
+			title: Liferay.Language.get('collection-items'),
+			url: actionURL,
 		});
 	},
 };

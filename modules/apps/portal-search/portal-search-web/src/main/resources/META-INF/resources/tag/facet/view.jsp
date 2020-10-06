@@ -23,15 +23,12 @@ taglib uri="http://liferay.com/tld/ddm" prefix="liferay-ddm" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
 <%@ page import="com.liferay.petra.string.StringPool" %><%@
+page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.search.web.internal.facet.display.context.AssetTagsSearchFacetDisplayContext" %><%@
 page import="com.liferay.portal.search.web.internal.facet.display.context.AssetTagsSearchFacetTermDisplayContext" %><%@
 page import="com.liferay.portal.search.web.internal.tag.facet.configuration.TagFacetPortletInstanceConfiguration" %>
-
-<%@ page import="java.util.HashMap" %><%@
-page import="java.util.List" %><%@
-page import="java.util.Map" %>
 
 <portlet:defineObjects />
 
@@ -43,13 +40,6 @@ if (assetTagsSearchFacetDisplayContext.isRenderNothing()) {
 }
 
 TagFacetPortletInstanceConfiguration tagFacetPortletInstanceConfiguration = assetTagsSearchFacetDisplayContext.getTagFacetPortletInstanceConfiguration();
-
-Map<String, Object> contextObjects = new HashMap<String, Object>();
-
-contextObjects.put("assetTagsSearchFacetDisplayContext", assetTagsSearchFacetDisplayContext);
-contextObjects.put("namespace", renderResponse.getNamespace());
-
-List<AssetTagsSearchFacetTermDisplayContext> assetTagsSearchFacetTermDisplayContexts = assetTagsSearchFacetDisplayContext.getTermDisplayContexts();
 %>
 
 <c:choose>
@@ -60,24 +50,31 @@ List<AssetTagsSearchFacetTermDisplayContext> assetTagsSearchFacetTermDisplayCont
 		<aui:form method="post" name="fm">
 			<aui:input autocomplete="off" name="<%= HtmlUtil.escapeAttribute(assetTagsSearchFacetDisplayContext.getParameterName()) %>" type="hidden" value="<%= assetTagsSearchFacetDisplayContext.getParameterValue() %>" />
 			<aui:input cssClass="facet-parameter-name" name="facet-parameter-name" type="hidden" value="<%= assetTagsSearchFacetDisplayContext.getParameterName() %>" />
+			<aui:input cssClass="start-parameter-name" name="start-parameter-name" type="hidden" value="<%= assetTagsSearchFacetDisplayContext.getPaginationStartParameterName() %>" />
 
 			<liferay-ddm:template-renderer
 				className="<%= AssetTagsSearchFacetTermDisplayContext.class.getName() %>"
-				contextObjects="<%= contextObjects %>"
+				contextObjects='<%=
+					HashMapBuilder.<String, Object>put(
+						"assetTagsSearchFacetDisplayContext", assetTagsSearchFacetDisplayContext
+					).put(
+						"namespace", liferayPortletResponse.getNamespace()
+					).build()
+				%>'
 				displayStyle="<%= tagFacetPortletInstanceConfiguration.displayStyle() %>"
 				displayStyleGroupId="<%= assetTagsSearchFacetDisplayContext.getDisplayStyleGroupId() %>"
-				entries="<%= assetTagsSearchFacetTermDisplayContexts %>"
+				entries="<%= assetTagsSearchFacetDisplayContext.getTermDisplayContexts() %>"
 			>
 				<liferay-ui:panel-container
 					extended="<%= true %>"
-					id='<%= renderResponse.getNamespace() + "facetAssetTagsPanelContainer" %>'
+					id='<%= liferayPortletResponse.getNamespace() + "facetAssetTagsPanelContainer" %>'
 					markupView="lexicon"
 					persistState="<%= true %>"
 				>
 					<liferay-ui:panel
 						collapsible="<%= true %>"
 						cssClass="search-facet"
-						id='<%= renderResponse.getNamespace() + "facetAssetTagsPanel" %>'
+						id='<%= liferayPortletResponse.getNamespace() + "facetAssetTagsPanel" %>'
 						markupView="lexicon"
 						persistState="<%= true %>"
 						title="tag"

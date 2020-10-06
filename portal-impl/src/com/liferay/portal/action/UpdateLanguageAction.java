@@ -16,16 +16,19 @@ package com.liferay.portal.action;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.VirtualLayoutConstants;
 import com.liferay.portal.kernel.portlet.FriendlyURLResolverRegistryUtil;
+import com.liferay.portal.kernel.portlet.LayoutFriendlyURLSeparatorComposite;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -91,6 +94,17 @@ public class UpdateLanguageAction implements Action {
 
 		// Send redirect
 
+		httpServletResponse.sendRedirect(
+			getRedirect(httpServletRequest, themeDisplay, locale));
+
+		return null;
+	}
+
+	public String getRedirect(
+			HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay,
+			Locale locale)
+		throws PortalException {
+
 		String redirect = PortalUtil.escapeRedirect(
 			ParamUtil.getString(httpServletRequest, "redirect"));
 
@@ -99,20 +113,51 @@ public class UpdateLanguageAction implements Action {
 		String friendlyURLSeparatorPart = StringPool.BLANK;
 		String queryString = StringPool.BLANK;
 
-		int posQuestion = redirect.indexOf(StringPool.QUESTION);
+		int questionIndex = redirect.indexOf(StringPool.QUESTION);
 
-		if (posQuestion != -1) {
-			queryString = redirect.substring(posQuestion);
-			layoutURL = redirect.substring(0, posQuestion);
+		if (questionIndex != -1) {
+			queryString = redirect.substring(questionIndex);
+			layoutURL = redirect.substring(0, questionIndex);
 		}
 
-		int posFriendlyURLSeparator = layoutURL.indexOf(
-			Portal.FRIENDLY_URL_SEPARATOR);
+		int friendlyURLSeparatorIndex = -1;
 
-		if (posFriendlyURLSeparator != -1) {
+		for (String urlSeparator :
+				FriendlyURLResolverRegistryUtil.getURLSeparators()) {
+
+			if (VirtualLayoutConstants.CANONICAL_URL_SEPARATOR.equals(
+					urlSeparator)) {
+
+				continue;
+			}
+
+			friendlyURLSeparatorIndex = layoutURL.indexOf(urlSeparator);
+
+			if (friendlyURLSeparatorIndex != -1) {
+				break;
+			}
+		}
+
+		Layout layout = themeDisplay.getLayout();
+
+		if (friendlyURLSeparatorIndex != -1) {
 			friendlyURLSeparatorPart = layoutURL.substring(
-				posFriendlyURLSeparator);
-			layoutURL = layoutURL.substring(0, posFriendlyURLSeparator);
+				friendlyURLSeparatorIndex);
+
+			LayoutFriendlyURLSeparatorComposite
+				layoutFriendlyURLSeparatorComposite =
+					PortalUtil.getLayoutFriendlyURLSeparatorComposite(
+						layout.getGroupId(), layout.isPrivateLayout(),
+						friendlyURLSeparatorPart,
+						httpServletRequest.getParameterMap(),
+						HashMapBuilder.<String, Object>put(
+							"request", httpServletRequest
+						).build());
+
+			friendlyURLSeparatorPart =
+				layoutFriendlyURLSeparatorComposite.getFriendlyURL();
+
+			layoutURL = layoutURL.substring(0, friendlyURLSeparatorIndex);
 		}
 
 		if (themeDisplay.isI18n()) {
@@ -122,8 +167,6 @@ public class UpdateLanguageAction implements Action {
 				layoutURL = layoutURL.substring(i18nPath.length());
 			}
 		}
-
-		Layout layout = themeDisplay.getLayout();
 
 		if (isFriendlyURLResolver(layoutURL) || layout.isTypeControlPanel()) {
 			redirect = layoutURL + friendlyURLSeparatorPart;
@@ -159,15 +202,17 @@ public class UpdateLanguageAction implements Action {
 				redirect = PortalUtil.getLayoutFriendlyURL(
 					layout, themeDisplay, locale);
 			}
+
+			if (Validator.isNotNull(friendlyURLSeparatorPart)) {
+				redirect += friendlyURLSeparatorPart;
+			}
 		}
 
 		if (Validator.isNotNull(queryString)) {
 			redirect = redirect + queryString;
 		}
 
-		httpServletResponse.sendRedirect(redirect);
-
-		return null;
+		return redirect;
 	}
 
 	protected boolean isFriendlyURLResolver(String layoutURL) {

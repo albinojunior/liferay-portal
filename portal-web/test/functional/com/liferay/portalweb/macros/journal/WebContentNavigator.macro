@@ -25,6 +25,10 @@ definition {
 		MenuItem.click(menuItem = "Basic Web Content");
 
 		AssertVisible(locator1 = "TextInput#TITLE");
+
+		while (IsElementNotPresent(locator1 = "WCEditWebContent#SIDEBAR")) {
+			Pause(locator1 = "1000");
+		}
 	}
 
 	macro gotoAddWithStructureCP {
@@ -101,7 +105,7 @@ definition {
 
 		Button.clickMore();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 	}
 
 	macro gotoPreviewEntryCP {
@@ -119,9 +123,17 @@ definition {
 
 		AssertElementPresent.pauseAssertVisible(locator1 = "WC#ENTRY_LIST_THUMBNAIL");
 
-		AssertTextEquals(
-			locator1 = "WC#ENTRY_LIST_WORKFLOW_STATUS",
-			value1 = "${webContentStatus}");
+		if ("${translationStatus}" == "true") {
+			AssertTextEquals(
+				locator1 = "WC#ENTRY_LIST_WORKFLOW_TRANSLATIONE_STATUS",
+				value1 = "${webContentStatus}");
+		}
+
+		else {
+			AssertTextEquals(
+				locator1 = "WC#ENTRY_LIST_WORKFLOW_STATUS",
+				value1 = "${webContentStatus}");
+		}
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "${webContentTitle}");
 	}

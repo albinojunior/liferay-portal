@@ -26,9 +26,8 @@ import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
-import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.rule.Sync;
-import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -36,8 +35,6 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
 import com.liferay.portal.test.rule.Inject;
-import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import java.util.Date;
 import java.util.Locale;
@@ -45,8 +42,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,25 +49,17 @@ import org.junit.runner.RunWith;
  * @author Wade Cao
  * @author André de Oliveira
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 @Sync
 public class CalendarBookingIndexerIndexedFieldsTest
 	extends BaseCalendarIndexerTestCase {
-
-	@ClassRule
-	@Rule
-	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(),
-			PermissionCheckerMethodTestRule.INSTANCE,
-			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
-		setGroup(calendarFixture.addGroup());
 		setIndexerClass(CalendarBooking.class);
 	}
 
@@ -142,8 +129,7 @@ public class CalendarBookingIndexerIndexedFieldsTest
 
 		String keywords = "nev";
 
-		Document document = calendarSearchFixture.searchOnlyOne(
-			keywords, LocaleUtil.HUNGARY);
+		Document document = searchOnlyOne(keywords, LocaleUtil.HUNGARY);
 
 		indexedFieldsFixture.postProcessDocument(document);
 
@@ -156,13 +142,13 @@ public class CalendarBookingIndexerIndexedFieldsTest
 			LocalizedValuesMap descriptionLocalizedValuesMap)
 		throws PortalException {
 
-		ServiceContext serviceContext = calendarFixture.getServiceContext();
+		ServiceContext serviceContext = getServiceContext();
 
-		Calendar calendar = calendarFixture.addCalendar(
+		Calendar calendar = addCalendar(
 			nameLocalizedValuesMap, descriptionLocalizedValuesMap,
 			serviceContext);
 
-		return calendarFixture.addCalendarBooking(
+		return addCalendarBooking(
 			titleLocalizedValuesMap, calendar, serviceContext);
 	}
 

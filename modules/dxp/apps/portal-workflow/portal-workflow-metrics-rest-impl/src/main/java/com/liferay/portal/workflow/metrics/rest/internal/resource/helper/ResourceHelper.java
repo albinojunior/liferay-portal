@@ -17,9 +17,12 @@ package com.liferay.portal.workflow.metrics.rest.internal.resource.helper;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.aggregation.Aggregations;
@@ -44,14 +47,14 @@ import com.liferay.portal.search.sort.FieldSort;
 import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.workflow.metrics.search.index.name.WorkflowMetricsIndexNameBuilder;
 import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatus;
 
 import java.io.IOException;
 
-import java.text.DateFormat;
-
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -202,11 +205,15 @@ public class ResourceHelper {
 				clazz.getResourceAsStream("dependencies/" + resourceName)));
 	}
 
-	public BooleanQuery createTokensBooleanQuery(boolean instanceCompleted) {
+	public BooleanQuery createTasksBooleanQuery(
+		long companyId, boolean instanceCompleted) {
+
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
 		booleanQuery.addFilterQueryClauses(
-			_queries.term("_index", "workflow-metrics-tokens"));
+			_queries.term(
+				"_index",
+				_taskWorkflowMetricsIndexNameBuilder.getIndexName(companyId)));
 
 		booleanQuery.addMustQueryClauses(
 			_queries.term("instanceCompleted", instanceCompleted));
@@ -217,9 +224,8 @@ public class ResourceHelper {
 
 	public ScriptedMetricAggregation
 		creatInstanceCountScriptedMetricAggregation(
-			List<Long> assigneeUserIds, Date dateEnd, Date dateStart,
-			List<String> slaStatuses, List<String> statuses,
-			List<String> taskNames) {
+			List<Long> assigneeIds, Boolean completed, Date dateEnd,
+			Date dateStart, List<String> taskNames) {
 
 		ScriptedMetricAggregation scriptedMetricAggregation =
 			_aggregations.scriptedMetric("instanceCount");
@@ -232,67 +238,53 @@ public class ResourceHelper {
 			_workflowMetricsInstanceCountMapScript);
 		scriptedMetricAggregation.setParameters(
 			HashMapBuilder.<String, Object>put(
-				"assigneeUserIds",
-				() -> {
-					if (!assigneeUserIds.isEmpty()) {
-						return Stream.of(
-							assigneeUserIds
-						).flatMap(
-							List::parallelStream
-						).map(
-							String::valueOf
-						).collect(
-							Collectors.toList()
-						);
-					}
-
-					return null;
-				}
+				"assigneeIds",
+				() -> Optional.ofNullable(
+					assigneeIds
+				).filter(
+					ListUtil::isNotEmpty
+				).map(
+					List::parallelStream
+				).map(
+					stream -> stream.map(
+						String::valueOf
+					).collect(
+						Collectors.toList()
+					)
+				).orElseGet(
+					() -> null
+				)
+			).put(
+				"assigneeType", Role.class.getName()
+			).put(
+				"completed", () -> completed
 			).put(
 				"endDate",
-				() -> {
-					if (dateEnd != null) {
-						return dateEnd.getTime();
-					}
-
-					return null;
-				}
-			).put(
-				"slaStatuses",
-				() -> {
-					if (!slaStatuses.isEmpty()) {
-						return slaStatuses;
-					}
-
-					return null;
-				}
+				() -> Optional.ofNullable(
+					dateEnd
+				).map(
+					Date::getTime
+				).orElseGet(
+					() -> null
+				)
 			).put(
 				"startDate",
-				() -> {
-					if (dateStart != null) {
-						return dateStart.getTime();
-					}
-
-					return null;
-				}
-			).put(
-				"statuses",
-				() -> {
-					if (!statuses.isEmpty()) {
-						return statuses;
-					}
-
-					return null;
-				}
+				() -> Optional.ofNullable(
+					dateStart
+				).map(
+					Date::getTime
+				).orElseGet(
+					() -> null
+				)
 			).put(
 				"taskNames",
-				() -> {
-					if (!taskNames.isEmpty()) {
-						return taskNames;
-					}
-
-					return null;
-				}
+				() -> Optional.ofNullable(
+					taskNames
+				).filter(
+					ListUtil::isNotEmpty
+				).orElseGet(
+					() -> null
+				)
 			).build());
 		scriptedMetricAggregation.setReduceScript(
 			_workflowMetricsInstanceCountReduceScript);
@@ -300,20 +292,62 @@ public class ResourceHelper {
 		return scriptedMetricAggregation;
 	}
 
-	public String formatDate(Date date) {
-		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyyMMddHHmmss");
+	public ScriptedMetricAggregation creatTaskCountScriptedMetricAggregation(
+		List<Long> assigneeIds, List<String> slaStatuses,
+		List<String> taskNames) {
 
-		try {
-			return dateFormat.format(date);
-		}
-		catch (Exception exception) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
-			}
+		ScriptedMetricAggregation scriptedMetricAggregation =
+			_aggregations.scriptedMetric("taskCount");
 
-			return null;
-		}
+		scriptedMetricAggregation.setCombineScript(
+			_workflowMetricsTaskCountCombineScript);
+		scriptedMetricAggregation.setInitScript(
+			_workflowMetricsTaskCountInitScript);
+		scriptedMetricAggregation.setMapScript(
+			_workflowMetricsTaskCountMapScript);
+		scriptedMetricAggregation.setParameters(
+			HashMapBuilder.<String, Object>put(
+				"assigneeIds",
+				() -> Optional.ofNullable(
+					assigneeIds
+				).filter(
+					ListUtil::isNotEmpty
+				).map(
+					List::parallelStream
+				).map(
+					stream -> stream.map(
+						String::valueOf
+					).collect(
+						Collectors.toList()
+					)
+				).orElseGet(
+					() -> null
+				)
+			).put(
+				"assigneeType", Role.class.getName()
+			).put(
+				"slaStatuses",
+				() -> Optional.ofNullable(
+					slaStatuses
+				).filter(
+					ListUtil::isNotEmpty
+				).orElseGet(
+					() -> null
+				)
+			).put(
+				"taskNames",
+				() -> Optional.ofNullable(
+					taskNames
+				).filter(
+					ListUtil::isNotEmpty
+				).orElseGet(
+					() -> null
+				)
+			).build());
+		scriptedMetricAggregation.setReduceScript(
+			_workflowMetricsTaskCountReduceScript);
+
+		return scriptedMetricAggregation;
 	}
 
 	public long getBreachedInstanceCount(Bucket bucket) {
@@ -339,10 +373,25 @@ public class ResourceHelper {
 		return bucketScriptPipelineAggregationResult.getValue();
 	}
 
+	public String getDate(Date date) {
+		try {
+			return DateUtil.getDate(
+				date, "yyyyMMddHHmmss", LocaleUtil.getDefault());
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception, exception);
+			}
+
+			return null;
+		}
+	}
+
 	public String getLatestProcessVersion(long companyId, long processId) {
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		searchSearchRequest.setIndexNames("workflow-metrics-processes");
+		searchSearchRequest.setIndexNames(
+			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
@@ -387,6 +436,10 @@ public class ResourceHelper {
 		FilterAggregationResult filterAggregationResult =
 			(FilterAggregationResult)bucket.getChildAggregationResult("onTime");
 
+		if (filterAggregationResult == null) {
+			return 0L;
+		}
+
 		ScriptedMetricAggregationResult scriptedMetricAggregationResult =
 			(ScriptedMetricAggregationResult)
 				filterAggregationResult.getChildAggregationResult("taskCount");
@@ -411,6 +464,10 @@ public class ResourceHelper {
 		FilterAggregationResult filterAggregationResult =
 			(FilterAggregationResult)bucket.getChildAggregationResult(
 				"overdue");
+
+		if (filterAggregationResult == null) {
+			return 0L;
+		}
 
 		ScriptedMetricAggregationResult scriptedMetricAggregationResult =
 			(ScriptedMetricAggregationResult)
@@ -460,6 +517,14 @@ public class ResourceHelper {
 		_workflowMetricsSlaTaskAssigneeOverdueReduceScript = createScript(
 			getClass(),
 			"workflow-metrics-sla-assignee-overdue-reduce-script.painless");
+		_workflowMetricsTaskCountCombineScript = createScript(
+			getClass(), "workflow-metrics-task-count-combine-script.painless");
+		_workflowMetricsTaskCountInitScript = createScript(
+			getClass(), "workflow-metrics-task-count-init-script.painless");
+		_workflowMetricsTaskCountMapScript = createScript(
+			getClass(), "workflow-metrics-task-count-map-script.painless");
+		_workflowMetricsTaskCountReduceScript = createScript(
+			getClass(), "workflow-metrics-task-count-reduce-script.painless");
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(ResourceHelper.class);
@@ -469,6 +534,10 @@ public class ResourceHelper {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=process)")
+	private WorkflowMetricsIndexNameBuilder
+		_processWorkflowMetricsIndexNameBuilder;
 
 	@Reference
 	private Queries _queries;
@@ -481,6 +550,10 @@ public class ResourceHelper {
 
 	@Reference
 	private Sorts _sorts;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=task)")
+	private WorkflowMetricsIndexNameBuilder
+		_taskWorkflowMetricsIndexNameBuilder;
 
 	private Script _workflowMetricsInstanceCountCombineScript;
 	private Script _workflowMetricsInstanceCountInitScript;
@@ -498,5 +571,9 @@ public class ResourceHelper {
 	private Script _workflowMetricsSlaTaskAssigneeMapScript;
 	private Script _workflowMetricsSlaTaskAssigneeOnTimeReduceScript;
 	private Script _workflowMetricsSlaTaskAssigneeOverdueReduceScript;
+	private Script _workflowMetricsTaskCountCombineScript;
+	private Script _workflowMetricsTaskCountInitScript;
+	private Script _workflowMetricsTaskCountMapScript;
+	private Script _workflowMetricsTaskCountReduceScript;
 
 }

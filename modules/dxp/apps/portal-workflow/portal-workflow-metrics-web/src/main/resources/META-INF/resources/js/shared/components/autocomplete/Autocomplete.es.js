@@ -68,26 +68,24 @@ const Autocomplete = ({
 		({keyCode}) => {
 			const item = dropDownItems[activeItem];
 
-			if (keyCode === keyEnter && item) {
-				handleSelect(item);
-			}
-
 			if (keyCode === keyArrowDown && activeItem > 0) {
 				setActiveItem(activeItem - 1);
 			}
-
-			if (
+			else if (
 				keyCode === keyArrowUp &&
 				activeItem < dropDownItems.length - 1
 			) {
 				setActiveItem(activeItem + 1);
+			}
+			else if (keyCode === keyEnter && item) {
+				handleSelect(item);
 			}
 		},
 		[activeItem, dropDownItems, handleSelect]
 	);
 
 	const handleSelect = useCallback(
-		item => {
+		(item) => {
 			onSelect(item);
 			setActiveItem(-1);
 			setDropDownVisible(false);
@@ -106,7 +104,7 @@ const Autocomplete = ({
 			const regExpValue = formatRegExp(value);
 			const match = new RegExp(regExpValue, 'gi');
 			setDropDownItems(
-				items ? items.filter(item => item.name.match(match)) : []
+				items ? items.filter((item) => item.name.match(match)) : []
 			);
 		}
 		else {
@@ -155,14 +153,13 @@ const Autocomplete = ({
 					match={value}
 					onSelect={handleSelect}
 					setActiveItem={setActiveItem}
-					setSelected={setSelected}
 				/>
 			</ClayAutocomplete>
 		</PromisesResolver>
 	);
 };
 
-const formatRegExp = value => {
+const formatRegExp = (value) => {
 	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 

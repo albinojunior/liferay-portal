@@ -82,7 +82,9 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive(publicationName = "summCheck");
+		Staging.publishToLive(
+			publicationName = "summCheck",
+			remoteStaging = "true");
 
 		Staging.openStagingAdmin(siteURLKey = "site-name");
 
@@ -109,7 +111,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.viewDefaultCP(assetName = "Web Content Title");

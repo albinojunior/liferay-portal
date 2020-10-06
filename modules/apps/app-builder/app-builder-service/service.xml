@@ -23,33 +23,90 @@
 
 		<!-- Other fields -->
 
+		<column name="active" type="boolean" />
+		<column name="ddlRecordSetId" type="long" />
 		<column name="ddmStructureId" type="long" />
 		<column name="ddmStructureLayoutId" type="long" />
 		<column name="deDataListViewId" type="long" />
 		<column localized="true" name="name" type="String" />
-		<column name="status" type="int" />
+		<column name="scope" type="String" />
 
 		<!-- Finder methods -->
 
 		<finder name="GroupId" return-type="Collection">
 			<finder-column name="groupId" />
 		</finder>
+		<finder name="CompanyId" return-type="Collection">
+			<finder-column name="companyId" />
+		</finder>
 		<finder name="DDMStructureId" return-type="Collection">
 			<finder-column name="ddmStructureId" />
 		</finder>
+		<finder name="G_S" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="scope" />
+		</finder>
+		<finder name="C_A" return-type="Collection">
+			<finder-column name="companyId" />
+			<finder-column name="active" />
+		</finder>
 		<finder name="C_S" return-type="Collection">
 			<finder-column name="companyId" />
-			<finder-column name="status" />
+			<finder-column name="scope" />
 		</finder>
 		<finder name="G_C_D" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="companyId" />
 			<finder-column name="ddmStructureId" />
 		</finder>
+		<finder name="C_A_S" return-type="Collection">
+			<finder-column name="companyId" />
+			<finder-column name="active" />
+			<finder-column name="scope" />
+		</finder>
+		<finder name="G_C_DDMSI_S" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="companyId" />
+			<finder-column name="ddmStructureId" />
+			<finder-column name="scope" />
+		</finder>
 
 		<!-- References -->
 
 		<reference entity="User" package-path="com.liferay.portal" />
+	</entity>
+	<entity local-service="true" name="AppBuilderAppDataRecordLink" remote-service="false">
+
+		<!-- PK fields -->
+
+		<column name="appBuilderAppDataRecordLinkId" primary="true" type="long" />
+
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+
+		<!-- Other fields -->
+
+		<column name="appBuilderAppId" type="long" />
+		<column name="appBuilderAppVersionId" type="long" />
+		<column name="ddlRecordId" type="long" />
+
+		<!-- Finder methods -->
+
+		<finder name="AppBuilderAppId" return-type="Collection">
+			<finder-column name="appBuilderAppId" />
+		</finder>
+		<finder name="DDLRecordId" return-type="AppBuilderAppDataRecordLink">
+			<finder-column name="ddlRecordId" />
+		</finder>
+		<finder name="A_D" return-type="Collection">
+			<finder-column name="appBuilderAppId" />
+			<finder-column arrayable-operator="OR" name="ddlRecordId" />
+		</finder>
 	</entity>
 	<entity local-service="true" name="AppBuilderAppDeployment" remote-service="false">
 
@@ -77,7 +134,56 @@
 			<finder-column name="type" />
 		</finder>
 	</entity>
-	<exceptions>
-		<exception>AppBuilderAppStatus</exception>
-	</exceptions>
+	<entity local-service="true" name="AppBuilderAppVersion" remote-service="false" uuid="true">
+
+		<!-- PK fields -->
+
+		<column name="appBuilderAppVersionId" primary="true" type="long" />
+
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="appBuilderAppId" type="long" />
+		<column name="ddlRecordSetId" type="long" />
+		<column name="ddmStructureId" type="long" />
+		<column name="ddmStructureLayoutId" type="long" />
+		<column name="version" type="String" />
+
+		<!-- Order -->
+
+		<order by="desc">
+			<order-column name="createDate" />
+		</order>
+
+		<!-- Finder methods -->
+
+		<finder name="GroupId" return-type="Collection">
+			<finder-column name="groupId" />
+		</finder>
+		<finder name="CompanyId" return-type="Collection">
+			<finder-column name="companyId" />
+		</finder>
+		<finder name="AppBuilderAppId" return-type="Collection">
+			<finder-column name="appBuilderAppId" />
+		</finder>
+		<finder name="A_V" return-type="AppBuilderAppVersion">
+			<finder-column name="appBuilderAppId" />
+			<finder-column name="version" />
+		</finder>
+
+		<!-- References -->
+
+		<reference entity="User" package-path="com.liferay.portal" />
+	</entity>
 </service-builder>

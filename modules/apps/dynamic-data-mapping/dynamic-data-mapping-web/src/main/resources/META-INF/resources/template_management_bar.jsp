@@ -28,7 +28,7 @@ boolean includeCheckBox = ParamUtil.getBoolean(request, "includeCheckBox", true)
 	disabled="<%= ddmDisplayContext.isDisabledManagementBar(DDMWebKeys.DYNAMIC_DATA_MAPPING_TEMPLATE) %>"
 	filterDropdownItems="<%= ddmDisplayContext.getFilterItemsDropdownItems() %>"
 	itemsTotal="<%= ddmDisplayContext.getTotalItems(DDMWebKeys.DYNAMIC_DATA_MAPPING_TEMPLATE) %>"
-	namespace="<%= renderResponse.getNamespace() %>"
+	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	searchActionURL="<%= ddmDisplayContext.getTemplateSearchActionURL() %>"
 	searchContainerId="<%= ddmDisplayContext.getTemplateSearchContainerId() %>"
 	searchFormName="fm1"
@@ -38,7 +38,7 @@ boolean includeCheckBox = ParamUtil.getBoolean(request, "includeCheckBox", true)
 />
 
 <aui:script sandbox="<%= true %>">
-	var deleteTemplates = function() {
+	var deleteTemplates = function () {
 		if (
 			confirm(
 				'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
@@ -70,10 +70,10 @@ boolean includeCheckBox = ParamUtil.getBoolean(request, "includeCheckBox", true)
 		deleteTemplates: deleteTemplates,
 	};
 
-	Liferay.componentReady('ddmTemplateManagementToolbar').then(function(
+	Liferay.componentReady('ddmTemplateManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

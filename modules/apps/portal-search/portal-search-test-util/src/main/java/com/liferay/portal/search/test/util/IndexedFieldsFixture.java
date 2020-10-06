@@ -17,10 +17,12 @@ package com.liferay.portal.search.test.util;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.change.tracking.constants.CTConstants;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.ClassedModel;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.change.tracking.CTModel;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchEngine;
@@ -60,6 +62,17 @@ public class IndexedFieldsFixture {
 
 	public IndexedFieldsFixture(
 		ResourcePermissionLocalService resourcePermissionLocalService,
+		SearchEngineHelper searchEngineHelper,
+		DocumentBuilderFactory documentBuilderFactory) {
+
+		_resourcePermissionLocalService = resourcePermissionLocalService;
+		_searchEngineHelper = searchEngineHelper;
+		_uidFactory = null;
+		_documentBuilderFactory = documentBuilderFactory;
+	}
+
+	public IndexedFieldsFixture(
+		ResourcePermissionLocalService resourcePermissionLocalService,
 		SearchEngineHelper searchEngineHelper, UIDFactory uidFactory,
 		DocumentBuilderFactory documentBuilderFactory) {
 
@@ -86,9 +99,16 @@ public class IndexedFieldsFixture {
 	}
 
 	public void populatePriority(String priority, Map<String, String> map) {
+		populatePriority(priority, map, false);
+	}
+
+	public void populatePriority(
+		String priority, Map<String, String> map,
+		boolean sourceFilteringEnabled) {
+
 		map.put(Field.PRIORITY, priority);
 
-		if (_isSearchEngineSolr()) {
+		if (sourceFilteringEnabled || _isSearchEngineSolr()) {
 			map.put(Field.PRIORITY.concat("_sortable"), priority);
 		}
 	}
@@ -134,7 +154,24 @@ public class IndexedFieldsFixture {
 		Document document = documentBuilder.build();
 
 		map.put(Field.UID, document.getString(Field.UID));
-		map.put("uidm", document.getString("uidm"));
+
+		String uidm = document.getString("uidm");
+
+		if (uidm != null) {
+			map.put("uidm", uidm);
+		}
+
+		if (classedModel instanceof CTModel<?>) {
+			CTModel<?> ctModel = (CTModel<?>)classedModel;
+
+			if (ctModel.getCtCollectionId() !=
+					CTConstants.CT_COLLECTION_ID_PRODUCTION) {
+
+				map.put(
+					"ctCollectionId",
+					String.valueOf(ctModel.getCtCollectionId()));
+			}
+		}
 	}
 
 	public void populateUID(
@@ -151,7 +188,7 @@ public class IndexedFieldsFixture {
 			Class<?> clazz, long classPK, Map<String, String> map)
 		throws Exception {
 
-		AssetRendererFactory assetRendererFactory =
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClass(
 				clazz);
 
@@ -169,6 +206,19 @@ public class IndexedFieldsFixture {
 		if (_isSearchEngineSolr()) {
 			document.remove("score");
 		}
+	}
+
+	public Document postProcessDocument(Document document) {
+		if (_isSearchEngineSolr()) {
+			DocumentBuilder documentBuilder = _documentBuilderFactory.builder(
+				document);
+
+			documentBuilder.unsetValue("score");
+
+			return documentBuilder.build();
+		}
+
+		return document;
 	}
 
 	protected void populateRoleIds(

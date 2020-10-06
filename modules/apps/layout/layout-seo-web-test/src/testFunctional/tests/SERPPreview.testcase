@@ -25,6 +25,9 @@ definition {
 	@description = "This test ensures that a SERP preview is shown correctly based on the meta tags."
 	@priority = "5"
 	test Smoke {
+		property environment.acceptance = "true";
+		property portal.acceptance = "true";
+
 		var portalURL = PropsUtil.get("portal.url");
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
@@ -44,12 +47,12 @@ definition {
 			fieldLabel = "HTML Title",
 			text = "Page HTML Title");
 
-		PortletEntry.inputTextArea(
-			fieldId = "GroupPagesPortlet_description",
-			text = "Page Description");
+		PortletEntry.inputText(
+			fieldLabel = "Description",
+			text = "Description");
 
 		Page.viewPreview(
-			description = "Page Description",
+			description = "Description",
 			htmlTitle = "Page HTML Title - ${siteName}",
 			pageName = "Test Page",
 			portalURL = "${portalURL}");
@@ -61,7 +64,7 @@ definition {
 		Navigator.gotoNavTab(navTab = "SEO");
 
 		Page.viewPreview(
-			description = "Page Description",
+			description = "Description",
 			htmlTitle = "Page HTML Title - ${siteName}",
 			pageName = "Test Page",
 			portalURL = "${portalURL}");

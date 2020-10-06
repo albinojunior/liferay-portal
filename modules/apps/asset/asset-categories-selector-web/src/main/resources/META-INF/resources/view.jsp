@@ -16,19 +16,9 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-Map<String, Object> context = HashMapBuilder.<String, Object>put(
-	"itemSelectorSaveEvent", HtmlUtil.escapeJS(assetCategoriesSelectorDisplayContext.getEventName())
-).put(
-	"multiSelection", !assetCategoriesSelectorDisplayContext.isSingleSelect()
-).put(
-	"namespace", liferayPortletResponse.getNamespace()
-).put(
-	"nodes", assetCategoriesSelectorDisplayContext.getCategoriesJSONArray()
-).build();
-%>
+<liferay-ui:success key="categoryAdded" message='<%= GetterUtil.getString(MultiSessionMessages.get(renderRequest, "categoryAdded")) %>' />
 
 <react:component
-	data="<%= context %>"
 	module="js/SelectCategory.es"
+	props="<%= assetCategoriesSelectorDisplayContext.getData() %>"
 />

@@ -19,7 +19,7 @@ import com.liferay.account.model.AccountEntryOrganizationRel;
 import com.liferay.account.retriever.AccountOrganizationRetriever;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
-import com.liferay.account.service.test.AccountEntryTestUtil;
+import com.liferay.account.service.test.util.AccountEntryTestUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.Organization;
@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.comparator.OrganizationNameComparator;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -187,6 +188,9 @@ public class AccountOrganizationRetrieverTest {
 				_organizations, new OrganizationNameComparator(false)),
 			organizations);
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@DeleteAfterTestRun
 	private final List<AccountEntry> _accountEntries = new ArrayList<>();

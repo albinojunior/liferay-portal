@@ -15,7 +15,7 @@
 package com.liferay.journal.internal.upgrade.v0_0_8;
 
 import com.liferay.journal.configuration.JournalServiceConfiguration;
-import com.liferay.journal.model.JournalArticleConstants;
+import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -62,7 +62,7 @@ public class UpgradeArticleExpirationDate extends UpgradeProcess {
 			sb.append("and (JournalArticle.status = ");
 			sb.append("tempJournalArticle.status) where ");
 			sb.append("(JournalArticle.classNameId = ");
-			sb.append(JournalArticleConstants.CLASSNAME_ID_DEFAULT);
+			sb.append(JournalArticleConstants.CLASS_NAME_ID_DEFAULT);
 			sb.append(") and (tempJournalArticle.version is null) and ");
 			sb.append("(JournalArticle.expirationDate is not null) and ");
 			sb.append("(JournalArticle.status = ");

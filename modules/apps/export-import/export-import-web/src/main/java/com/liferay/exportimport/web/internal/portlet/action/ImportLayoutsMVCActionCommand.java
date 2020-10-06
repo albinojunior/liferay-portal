@@ -17,8 +17,8 @@ package com.liferay.exportimport.web.internal.portlet.action;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.exportimport.constants.ExportImportPortletKeys;
-import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactory;
+import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.exception.LARFileException;
 import com.liferay.exportimport.kernel.exception.LARFileSizeException;
 import com.liferay.exportimport.kernel.exception.LARTypeException;
@@ -100,10 +100,9 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 
 			String sourceFileName = uploadPortletRequest.getFileName("file");
 
-			String contentType = uploadPortletRequest.getContentType("file");
-
 			_layoutService.addTempFileEntry(
-				groupId, folderName, sourceFileName, inputStream, contentType);
+				groupId, folderName, sourceFileName, inputStream,
+				uploadPortletRequest.getContentType("file"));
 		}
 		catch (Exception exception) {
 			UploadException uploadException =
@@ -111,20 +110,20 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 					WebKeys.UPLOAD_EXCEPTION);
 
 			if (uploadException != null) {
-				Throwable cause = uploadException.getCause();
+				Throwable throwable = uploadException.getCause();
 
-				if (cause instanceof FileUploadBase.IOFileUploadException) {
+				if (throwable instanceof FileUploadBase.IOFileUploadException) {
 					if (_log.isInfoEnabled()) {
 						_log.info("Temporary upload was cancelled");
 					}
 				}
 
 				if (uploadException.isExceededFileSizeLimit()) {
-					throw new FileSizeException(cause);
+					throw new FileSizeException(throwable);
 				}
 
 				if (uploadException.isExceededUploadRequestSizeLimit()) {
-					throw new UploadRequestSizeException(cause);
+					throw new UploadRequestSizeException(throwable);
 				}
 			}
 			else {
@@ -141,15 +140,15 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 				WebKeys.UPLOAD_EXCEPTION);
 
 		if (uploadException != null) {
-			Throwable cause = uploadException.getCause();
+			Throwable throwable = uploadException.getCause();
 
 			if (uploadException.isExceededFileSizeLimit() ||
 				uploadException.isExceededUploadRequestSizeLimit()) {
 
-				throw new LARFileSizeException(cause);
+				throw new LARFileSizeException(throwable);
 			}
 
-			throw new PortalException(cause);
+			throw new PortalException(throwable);
 		}
 	}
 

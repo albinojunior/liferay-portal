@@ -85,6 +85,18 @@ public class DepotEntryGroupRelServiceImpl
 	}
 
 	@Override
+	public int getDepotEntryGroupRelsCount(DepotEntry depotEntry)
+		throws PortalException {
+
+		_depotEntryModelResourcePermission.check(
+			getPermissionChecker(), depotEntry.getDepotEntryId(),
+			ActionKeys.VIEW);
+
+		return depotEntryGroupRelLocalService.getDepotEntryGroupRelsCount(
+			depotEntry);
+	}
+
+	@Override
 	public int getDepotEntryGroupRelsCount(long groupId)
 		throws PortalException {
 
@@ -93,6 +105,23 @@ public class DepotEntryGroupRelServiceImpl
 
 		return depotEntryGroupRelLocalService.getDepotEntryGroupRelsCount(
 			groupId);
+	}
+
+	@Override
+	public DepotEntryGroupRel updateDDMStructuresAvailable(
+			long depotEntryGroupRelId, boolean ddmStructuresAvailable)
+		throws PortalException {
+
+		DepotEntryGroupRel depotEntryGroupRel =
+			depotEntryGroupRelLocalService.getDepotEntryGroupRel(
+				depotEntryGroupRelId);
+
+		_depotEntryModelResourcePermission.check(
+			getPermissionChecker(), depotEntryGroupRel.getDepotEntryId(),
+			ActionKeys.UPDATE);
+
+		return depotEntryGroupRelLocalService.updateDDMStructuresAvailable(
+			depotEntryGroupRelId, ddmStructuresAvailable);
 	}
 
 	@Override

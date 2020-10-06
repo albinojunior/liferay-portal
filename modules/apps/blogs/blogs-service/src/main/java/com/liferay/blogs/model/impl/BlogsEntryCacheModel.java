@@ -37,16 +37,17 @@ public class BlogsEntryCacheModel
 	implements CacheModel<BlogsEntry>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof BlogsEntryCacheModel)) {
+		if (!(object instanceof BlogsEntryCacheModel)) {
 			return false;
 		}
 
-		BlogsEntryCacheModel blogsEntryCacheModel = (BlogsEntryCacheModel)obj;
+		BlogsEntryCacheModel blogsEntryCacheModel =
+			(BlogsEntryCacheModel)object;
 
 		if ((entryId == blogsEntryCacheModel.entryId) &&
 			(mvccVersion == blogsEntryCacheModel.mvccVersion)) {
@@ -291,7 +292,9 @@ public class BlogsEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
@@ -309,13 +312,13 @@ public class BlogsEntryCacheModel
 		subtitle = objectInput.readUTF();
 		urlTitle = objectInput.readUTF();
 		description = objectInput.readUTF();
-		content = objectInput.readUTF();
+		content = (String)objectInput.readObject();
 		displayDate = objectInput.readLong();
 
 		allowPingbacks = objectInput.readBoolean();
 
 		allowTrackbacks = objectInput.readBoolean();
-		trackbacks = objectInput.readUTF();
+		trackbacks = (String)objectInput.readObject();
 		coverImageCaption = objectInput.readUTF();
 
 		coverImageFileEntryId = objectInput.readLong();
@@ -394,10 +397,10 @@ public class BlogsEntryCacheModel
 		}
 
 		if (content == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(content);
+			objectOutput.writeObject(content);
 		}
 
 		objectOutput.writeLong(displayDate);
@@ -407,10 +410,10 @@ public class BlogsEntryCacheModel
 		objectOutput.writeBoolean(allowTrackbacks);
 
 		if (trackbacks == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(trackbacks);
+			objectOutput.writeObject(trackbacks);
 		}
 
 		if (coverImageCaption == null) {

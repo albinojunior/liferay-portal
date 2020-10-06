@@ -14,53 +14,59 @@
 
 package com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0;
 
-import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.search.aggregation.AggregationResult;
 import com.liferay.portal.search.aggregation.Aggregations;
-import com.liferay.portal.search.aggregation.bucket.Bucket;
 import com.liferay.portal.search.aggregation.bucket.FilterAggregation;
 import com.liferay.portal.search.aggregation.bucket.FilterAggregationResult;
+import com.liferay.portal.search.aggregation.bucket.Order;
 import com.liferay.portal.search.aggregation.bucket.TermsAggregation;
 import com.liferay.portal.search.aggregation.bucket.TermsAggregationResult;
-import com.liferay.portal.search.aggregation.metrics.AvgAggregationResult;
-import com.liferay.portal.search.aggregation.metrics.ValueCountAggregationResult;
+import com.liferay.portal.search.aggregation.metrics.ScriptedMetricAggregationResult;
+import com.liferay.portal.search.aggregation.metrics.TopHitsAggregationResult;
+import com.liferay.portal.search.aggregation.pipeline.BucketSelectorPipelineAggregation;
+import com.liferay.portal.search.aggregation.pipeline.BucketSortPipelineAggregation;
 import com.liferay.portal.search.engine.adapter.search.SearchRequestExecutor;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
+import com.liferay.portal.search.hits.SearchHit;
+import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.query.BooleanQuery;
 import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.search.query.TermsQuery;
+import com.liferay.portal.search.script.Scripts;
 import com.liferay.portal.search.sort.FieldSort;
 import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.resource.EntityModelResource;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Assignee;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Task;
-import com.liferay.portal.workflow.metrics.rest.internal.odata.entity.v1_0.TaskEntityModel;
+import com.liferay.portal.workflow.metrics.rest.dto.v1_0.TaskBulkSelection;
+import com.liferay.portal.workflow.metrics.rest.internal.dto.v1_0.util.TaskUtil;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.exception.NoSuchTaskException;
 import com.liferay.portal.workflow.metrics.rest.internal.resource.helper.ResourceHelper;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.TaskResource;
+import com.liferay.portal.workflow.metrics.search.index.TaskWorkflowMetricsIndexer;
+import com.liferay.portal.workflow.metrics.search.index.name.WorkflowMetricsIndexNameBuilder;
 import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatus;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -71,90 +77,243 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	properties = "OSGI-INF/liferay/rest/v1_0/task.properties",
-	scope = ServiceScope.PROTOTYPE,
-	service = {EntityModelResource.class, TaskResource.class}
+	scope = ServiceScope.PROTOTYPE, service = TaskResource.class
 )
-public class TaskResourceImpl
-	extends BaseTaskResourceImpl implements EntityModelResource {
+public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 	@Override
-	public EntityModel getEntityModel(MultivaluedMap multivaluedMap)
+	public void deleteProcessTask(Long processId, Long taskId)
 		throws Exception {
 
-		return _entityModel;
+		_taskWorkflowMetricsIndexer.deleteTask(
+			contextCompany.getCompanyId(), taskId);
 	}
 
 	@Override
-	public Page<Task> getProcessTasksPage(
-			Long processId, Boolean completed, Date dateEnd, Date dateStart,
-			String key, Pagination pagination, Sort[] sorts)
+	public Task getProcessTask(Long processId, Long taskId) throws Exception {
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
+
+		searchSearchRequest.setIndexNames(
+			_taskWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()));
+		searchSearchRequest.setQuery(
+			_createTasksBooleanQuery(
+				processId, taskId,
+				_resourceHelper.getLatestProcessVersion(
+					contextCompany.getCompanyId(), processId)));
+
+		searchSearchRequest.setSize(1);
+
+		return Stream.of(
+			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
+		).map(
+			SearchSearchResponse::getSearchHits
+		).map(
+			SearchHits::getSearchHits
+		).flatMap(
+			List::parallelStream
+		).map(
+			SearchHit::getDocument
+		).findFirst(
+		).map(
+			document -> TaskUtil.toTask(
+				document, _language, contextAcceptLanguage.getPreferredLocale(),
+				_portal,
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					contextAcceptLanguage.getPreferredLocale(),
+					TaskResourceImpl.class),
+				_userLocalService::fetchUser)
+		).orElseThrow(
+			() -> new NoSuchTaskException(
+				"No task exists with the task ID " + taskId)
+		);
+	}
+
+	@Override
+	public Page<Task> getProcessTasksPage(Long processId) throws Exception {
+		return Page.of(_getTasks(processId));
+	}
+
+	@Override
+	public void patchProcessTask(Long processId, Long taskId, Task task)
 		throws Exception {
 
-		String latestProcessVersion = _resourceHelper.getLatestProcessVersion(
-			contextCompany.getCompanyId(), processId);
+		getProcessTask(processId, taskId);
 
-		Map<String, Bucket> taskBuckets = _getTaskBuckets(
-			GetterUtil.getBoolean(completed), key, processId,
-			latestProcessVersion);
+		Long[] assigneeIds = null;
+		String assigneeType = null;
 
-		Map<String, Task> tasksMap = _getTasksMap(
-			key, processId, taskBuckets.keySet(), latestProcessVersion);
+		Assignee assignee = task.getAssignee();
 
-		long count = tasksMap.size();
+		if ((assignee != null) && (assignee.getId() != null)) {
+			assigneeIds = new Long[] {assignee.getId()};
+			assigneeType = User.class.getName();
+		}
 
-		if (count > 0) {
+		_taskWorkflowMetricsIndexer.updateTask(
+			LocalizedMapUtil.getLocalizedMap(task.getAssetTitle_i18n()),
+			LocalizedMapUtil.getLocalizedMap(task.getAssetType_i18n()),
+			assigneeIds, assigneeType, contextCompany.getCompanyId(),
+			task.getDateModified(), task.getId(), contextUser.getUserId());
+	}
+
+	@Override
+	public void patchProcessTaskComplete(Long processId, Long taskId, Task task)
+		throws Exception {
+
+		getProcessTask(processId, taskId);
+
+		_taskWorkflowMetricsIndexer.completeTask(
+			contextCompany.getCompanyId(), task.getDateCompletion(),
+			task.getCompletionUserId(), task.getDuration(),
+			task.getDateModified(), taskId, contextUser.getUserId());
+	}
+
+	@Override
+	public Task postProcessTask(Long processId, Task task) throws Exception {
+		Assignee assignee = task.getAssignee();
+
+		Long[] assigneeIds = null;
+		String assigneeType = null;
+
+		if ((assignee != null) && (assignee.getId() != null)) {
+			assigneeIds = new Long[] {assignee.getId()};
+			assigneeType = User.class.getName();
+		}
+
+		return TaskUtil.toTask(
+			_taskWorkflowMetricsIndexer.addTask(
+				LocalizedMapUtil.getLocalizedMap(task.getAssetTitle_i18n()),
+				LocalizedMapUtil.getLocalizedMap(task.getAssetType_i18n()),
+				assigneeIds, assigneeType, task.getClassName(),
+				task.getClassPK(), contextCompany.getCompanyId(), false, null,
+				null, task.getDateCreated(), false, null, task.getInstanceId(),
+				task.getDateModified(), task.getName(), task.getNodeId(),
+				processId, task.getProcessVersion(), task.getId(),
+				contextUser.getUserId()),
+			_language, contextAcceptLanguage.getPreferredLocale(), _portal,
+			ResourceBundleUtil.getModuleAndPortalResourceBundle(
+				contextAcceptLanguage.getPreferredLocale(),
+				TaskResourceImpl.class),
+			_userLocalService::fetchUser);
+	}
+
+	@Override
+	public Page<Task> postProcessTasksPage(
+			Pagination pagination, TaskBulkSelection taskBulkSelection)
+		throws Exception {
+
+		if (ArrayUtil.isEmpty(taskBulkSelection.getAssigneeIds())) {
+			taskBulkSelection.setAssigneeIds(
+				new Long[] {-1L, contextUser.getUserId()});
+		}
+
+		SearchSearchResponse searchSearchResponse = _getSearchSearchResponse(
+			taskBulkSelection.getAssigneeIds(),
+			taskBulkSelection.getInstanceIds(),
+			taskBulkSelection.getProcessId(),
+			taskBulkSelection.getSlaStatuses(),
+			taskBulkSelection.getTaskNames());
+
+		int taskCount = _getTaskCount(searchSearchResponse);
+
+		if (taskCount > 0) {
 			if (pagination == null) {
-				return Page.of(tasksMap.values());
+				return Page.of(
+					Stream.of(
+						searchSearchResponse.getAggregationResultsMap()
+					).map(
+						aggregationResultsMap ->
+							(TermsAggregationResult)aggregationResultsMap.get(
+								"name")
+					).map(
+						TermsAggregationResult::getBuckets
+					).flatMap(
+						Collection::stream
+					).map(
+						bucket -> TaskUtil.toTask(
+							_language, bucket.getKey(),
+							ResourceBundleUtil.getModuleAndPortalResourceBundle(
+								contextAcceptLanguage.getPreferredLocale(),
+								TaskResourceImpl.class))
+					).collect(
+						Collectors.toList()
+					));
 			}
 
 			return Page.of(
 				_getTasks(
-					GetterUtil.getBoolean(completed), dateEnd, dateStart,
-					_toFieldSort(sorts), pagination, processId, tasksMap),
-				pagination, count);
+					taskBulkSelection.getAssigneeIds(),
+					taskBulkSelection.getInstanceIds(), pagination,
+					taskBulkSelection.getProcessId(),
+					taskBulkSelection.getSlaStatuses(),
+					searchSearchResponse.getCount(),
+					taskBulkSelection.getTaskNames()),
+				pagination, taskCount);
 		}
 
 		return Page.of(Collections.emptyList());
 	}
 
-	private BooleanQuery _createBooleanQuery(
-		boolean completed, Date dateEnd, Date dateStart, long processId,
-		Set<String> taskNames) {
-
-		BooleanQuery filterBooleanQuery = _queries.booleanQuery();
+	private BooleanQuery _createAssigneeIdsTermsBooleanQuery(
+		Long[] assigneeIds) {
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
-		BooleanQuery slaTaskResultsBooleanQuery = _queries.booleanQuery();
+		if (ArrayUtil.contains(assigneeIds, -1L)) {
+			BooleanQuery shouldBooleanQuery = _queries.booleanQuery();
 
-		slaTaskResultsBooleanQuery.addFilterQueryClauses(
-			_queries.term("_index", "workflow-metrics-sla-task-results"));
-		slaTaskResultsBooleanQuery.addMustQueryClauses(
-			_createSLATaskResultsBooleanQuery(
-				completed, dateEnd, dateStart, processId, taskNames));
+			TermsQuery termsQuery = _queries.terms("assigneeIds");
 
-		BooleanQuery tokensBooleanQuery = _queries.booleanQuery();
+			termsQuery.addValues(
+				Stream.of(
+					ArrayUtil.toArray(contextUser.getRoleIds())
+				).map(
+					String::valueOf
+				).toArray(
+					Object[]::new
+				));
 
-		tokensBooleanQuery.addFilterQueryClauses(
-			_queries.term("_index", "workflow-metrics-tokens"));
-		tokensBooleanQuery.addMustQueryClauses(
-			_createTokensBooleanQuery(
-				completed, dateEnd, dateStart, processId, taskNames));
+			shouldBooleanQuery.addMustQueryClauses(
+				termsQuery,
+				_queries.term("assigneeType", Role.class.getName()));
 
-		return filterBooleanQuery.addFilterQueryClauses(
-			booleanQuery.addShouldQueryClauses(
-				slaTaskResultsBooleanQuery, tokensBooleanQuery));
+			booleanQuery.addShouldQueryClauses(shouldBooleanQuery);
+		}
+
+		if (!ArrayUtil.contains(assigneeIds, -1L) || (assigneeIds.length > 1)) {
+			BooleanQuery shouldBooleanQuery = _queries.booleanQuery();
+
+			TermsQuery termsQuery = _queries.terms("assigneeIds");
+
+			termsQuery.addValues(
+				Stream.of(
+					assigneeIds
+				).filter(
+					assigneeId -> assigneeId > 0
+				).map(
+					String::valueOf
+				).toArray(
+					Object[]::new
+				));
+
+			shouldBooleanQuery.addMustQueryClauses(
+				termsQuery,
+				_queries.term("assigneeType", User.class.getName()));
+
+			booleanQuery.addShouldQueryClauses(shouldBooleanQuery);
+		}
+
+		return booleanQuery;
 	}
 
-	private BooleanQuery _createBooleanQuery(
-		boolean completed, long processId) {
-
+	private BooleanQuery _createBooleanQuery(long processId) {
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
-		booleanQuery.addMustNotQueryClauses(_queries.term("tokenId", 0));
+		booleanQuery.addMustNotQueryClauses(_queries.term("taskId", 0));
 
 		return booleanQuery.addMustQueryClauses(
-			_queries.term("completed", completed),
+			_queries.term("completed", Boolean.FALSE),
 			_queries.term("deleted", Boolean.FALSE),
 			_queries.term("processId", processId));
 	}
@@ -168,287 +327,225 @@ public class TaskResourceImpl
 			_queries.term("version", version));
 	}
 
-	private BooleanQuery _createCompletionDateBooleanQuery(
-		Date dateEnd, Date dateStart) {
+	private BooleanQuery _createBooleanQuery(
+		Long[] assigneeIds, Long[] instanceIds, Long processId) {
 
-		BooleanQuery shouldBooleanQuery = _queries.booleanQuery();
-
-		BooleanQuery mustBooleanQuery = _queries.booleanQuery();
-
-		return shouldBooleanQuery.addShouldQueryClauses(
-			mustBooleanQuery.addMustQueryClauses(
-				_queries.rangeTerm(
-					"completionDate", true, true,
-					_resourceHelper.formatDate(dateStart),
-					_resourceHelper.formatDate(dateEnd)),
-				_queries.term("instanceCompleted", true)),
-			_queries.term("slaDefinitionId", 0));
-	}
-
-	private BooleanQuery _createFilterBooleanQuery(
-		boolean completed, String key, long processId, String version) {
+		BooleanQuery filterBooleanQuery = _queries.booleanQuery();
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
-		if (Validator.isNotNull(key)) {
-			booleanQuery.addMustQueryClauses(
-				_queries.wildcard("taskName", "*" + key + "*"));
-		}
+		BooleanQuery slaTaskResultsBooleanQuery = _queries.booleanQuery();
 
-		booleanQuery.addShouldQueryClauses(
-			_createBooleanQuery(completed, processId));
+		slaTaskResultsBooleanQuery.addFilterQueryClauses(
+			_queries.term(
+				"_index",
+				_slaTaskResultWorkflowMetricsIndexNameBuilder.getIndexName(
+					contextCompany.getCompanyId())));
+		slaTaskResultsBooleanQuery.addMustQueryClauses(
+			_createSLATaskResultsBooleanQuery(instanceIds, processId));
+
+		BooleanQuery tasksBooleanQuery = _queries.booleanQuery();
+
+		tasksBooleanQuery.addFilterQueryClauses(
+			_queries.term(
+				"_index",
+				_taskWorkflowMetricsIndexNameBuilder.getIndexName(
+					contextCompany.getCompanyId())));
+		tasksBooleanQuery.addMustQueryClauses(
+			_createTasksBooleanQuery(assigneeIds, instanceIds, processId));
+
+		return filterBooleanQuery.addFilterQueryClauses(
+			booleanQuery.addShouldQueryClauses(
+				slaTaskResultsBooleanQuery, tasksBooleanQuery));
+	}
+
+	private BucketSelectorPipelineAggregation
+		_createBucketSelectorPipelineAggregation() {
+
+		BucketSelectorPipelineAggregation bucketSelectorPipelineAggregation =
+			_aggregations.bucketSelector(
+				"bucketSelector", _scripts.script("params.taskCount > 0"));
+
+		bucketSelectorPipelineAggregation.addBucketPath(
+			"taskCount", "taskCount.value");
+
+		return bucketSelectorPipelineAggregation;
+	}
+
+	private BucketSortPipelineAggregation _createBucketSortPipelineAggregation(
+		Pagination pagination) {
+
+		BucketSortPipelineAggregation bucketSortPipelineAggregation =
+			_aggregations.bucketSort("bucketSort");
+
+		FieldSort keyFieldSort = _sorts.field("_key");
+
+		keyFieldSort.setSortOrder(SortOrder.ASC);
+
+		bucketSortPipelineAggregation.addSortFields(keyFieldSort);
+
+		bucketSortPipelineAggregation.setFrom(pagination.getStartPosition());
+		bucketSortPipelineAggregation.setSize(pagination.getPageSize());
+
+		return bucketSortPipelineAggregation;
+	}
+
+	private BooleanQuery _createFilterBooleanQuery(
+		long processId, String version) {
+
+		BooleanQuery booleanQuery = _queries.booleanQuery();
+
+		booleanQuery.addShouldQueryClauses(_createBooleanQuery(processId));
 
 		return booleanQuery.addShouldQueryClauses(
 			_createBooleanQuery(processId, version));
 	}
 
-	private BooleanQuery _createFilterBooleanQuery(
-		String key, long processId, Set<String> taskNames, String version) {
+	private BooleanQuery _createInstanceIdsTermsBooleanQuery(
+		Long[] instanceIds) {
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
-		if (Validator.isNotNull(key)) {
-			booleanQuery.addMustQueryClauses(
-				_queries.wildcard("name", "*" + key + "*"));
-		}
+		TermsQuery termsQuery = _queries.terms("instanceId");
 
-		if (!taskNames.isEmpty()) {
-			TermsQuery termsQuery = _queries.terms("name");
+		termsQuery.addValues(
+			Stream.of(
+				instanceIds
+			).map(
+				String::valueOf
+			).toArray(
+				Object[]::new
+			));
 
-			termsQuery.addValues(taskNames.toArray(new Object[0]));
-
-			booleanQuery.addShouldQueryClauses(termsQuery);
-		}
-
-		return booleanQuery.addShouldQueryClauses(
-			_createBooleanQuery(processId, version));
-	}
-
-	private BooleanQuery _createNodesBooleanQuery(
-		String key, long processId, Set<String> taskNames, String version) {
-
-		BooleanQuery booleanQuery = _queries.booleanQuery();
-
-		booleanQuery.addFilterQueryClauses(
-			_createFilterBooleanQuery(key, processId, taskNames, version));
-
-		return booleanQuery.addMustQueryClauses(
-			_queries.term("companyId", contextCompany.getCompanyId()),
-			_queries.term("type", "TASK"));
+		return booleanQuery.addMustQueryClauses(termsQuery);
 	}
 
 	private BooleanQuery _createSLATaskResultsBooleanQuery(
-		boolean completed, Date dateEnd, Date dateStart, long processId,
-		Set<String> taskNames) {
+		Long[] instanceIds, Long processId) {
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
-		if (completed) {
-			if ((dateEnd != null) && (dateStart != null)) {
-				booleanQuery.addMustQueryClauses(
-					_createCompletionDateBooleanQuery(dateEnd, dateStart));
-			}
-		}
-		else {
-			booleanQuery.addMustNotQueryClauses(
-				_queries.exists("completionDate"),
-				_queries.term(
-					"status", WorkflowMetricsSLAStatus.COMPLETED.name()));
+		booleanQuery.addMustNotQueryClauses(
+			_queries.term("slaDefinitionId", 0),
+			_queries.term("status", WorkflowMetricsSLAStatus.NEW.name()));
+
+		if (instanceIds != null) {
 			booleanQuery.addMustQueryClauses(
-				_queries.term("instanceCompleted", Boolean.FALSE));
+				_createInstanceIdsTermsBooleanQuery(instanceIds));
 		}
 
-		TermsQuery termsQuery = _queries.terms("taskName");
-
-		termsQuery.addValues(taskNames.toArray(new Object[0]));
+		if (processId != null) {
+			booleanQuery.addMustQueryClauses(
+				_queries.term("processId", processId));
+		}
 
 		return booleanQuery.addMustQueryClauses(
 			_queries.term("companyId", contextCompany.getCompanyId()),
 			_queries.term("deleted", Boolean.FALSE),
-			_queries.term("processId", processId), termsQuery);
+			_queries.term("instanceCompleted", Boolean.FALSE));
 	}
 
-	private Task _createTask(String taskName) {
-		return new Task() {
-			{
-				key = taskName;
-				name = _language.get(
-					ResourceBundleUtil.getModuleAndPortalResourceBundle(
-						contextAcceptLanguage.getPreferredLocale(),
-						TaskResourceImpl.class),
-					taskName);
-			}
-		};
-	}
-
-	private BooleanQuery _createTokensBooleanQuery(
-		boolean completed, Date dateEnd, Date dateStart, long processId,
-		Set<String> taskNames) {
+	private BooleanQuery _createTasksBooleanQuery(
+		long processId, long taskId, String version) {
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
-		booleanQuery.addMustNotQueryClauses(_queries.term("tokenId", "0"));
-
-		if (completed && (dateEnd != null) && (dateStart != null)) {
-			booleanQuery.addMustQueryClauses(
-				_queries.rangeTerm(
-					"completionDate", true, true,
-					_resourceHelper.formatDate(dateStart),
-					_resourceHelper.formatDate(dateEnd)));
-		}
-
-		if (!taskNames.isEmpty()) {
-			TermsQuery termsQuery = _queries.terms("taskName");
-
-			termsQuery.addValues(taskNames.toArray(new Object[0]));
-
-			booleanQuery.addMustQueryClauses(termsQuery);
-		}
-
 		return booleanQuery.addMustQueryClauses(
 			_queries.term("companyId", contextCompany.getCompanyId()),
-			_queries.term("completed", completed),
 			_queries.term("deleted", Boolean.FALSE),
-			_queries.term("instanceCompleted", completed),
-			_queries.term("processId", processId));
+			_queries.term("processId", processId),
+			_queries.term("taskId", taskId), _queries.term("version", version));
 	}
 
-	private BooleanQuery _createTokensBooleanQuery(
-		boolean completed, String key, long processId, String version) {
+	private BooleanQuery _createTasksBooleanQuery(
+		long processId, String version) {
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
 		booleanQuery.addFilterQueryClauses(
-			_createFilterBooleanQuery(completed, key, processId, version));
+			_createFilterBooleanQuery(processId, version));
 
 		return booleanQuery.addMustQueryClauses(
 			_queries.term("companyId", contextCompany.getCompanyId()),
 			_queries.term("deleted", Boolean.FALSE));
 	}
 
-	private Map<String, Bucket> _getTaskBuckets(
-		boolean completed, String key, long processId, String version) {
+	private BooleanQuery _createTasksBooleanQuery(
+		Long[] assigneeIds, Long[] instanceIds, Long processId) {
+
+		BooleanQuery booleanQuery = _queries.booleanQuery();
+
+		booleanQuery.addMustNotQueryClauses(_queries.term("taskId", 0));
+
+		if (instanceIds != null) {
+			booleanQuery.addMustQueryClauses(
+				_createInstanceIdsTermsBooleanQuery(instanceIds));
+		}
+
+		if (processId != null) {
+			booleanQuery.addMustQueryClauses(
+				_queries.term("processId", processId));
+		}
+
+		return booleanQuery.addMustQueryClauses(
+			_createAssigneeIdsTermsBooleanQuery(assigneeIds),
+			_queries.term("companyId", contextCompany.getCompanyId()),
+			_queries.term("completed", Boolean.FALSE),
+			_queries.term("deleted", Boolean.FALSE),
+			_queries.term("instanceCompleted", Boolean.FALSE));
+	}
+
+	private SearchSearchResponse _getSearchSearchResponse(
+		Long[] assigneeIds, Long[] instanceIds, Long processId,
+		String[] slaStatuses, String[] taskNames) {
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		TermsAggregation termsAggregation = _aggregations.terms(
-			"taskName", "taskName");
+		TermsAggregation termsAggregation = _aggregations.terms("name", "name");
+
+		termsAggregation.addChildrenAggregations(
+			_resourceHelper.creatTaskCountScriptedMetricAggregation(
+				ListUtil.fromArray(assigneeIds),
+				ListUtil.fromArray(slaStatuses),
+				ListUtil.fromArray(taskNames)));
+
+		termsAggregation.addOrders(Order.key(true));
+		termsAggregation.addPipelineAggregations(
+			_createBucketSelectorPipelineAggregation());
 
 		termsAggregation.setSize(10000);
 
 		searchSearchRequest.addAggregation(termsAggregation);
 
-		searchSearchRequest.setIndexNames("workflow-metrics-tokens");
+		searchSearchRequest.addAggregation(
+			_resourceHelper.creatTaskCountScriptedMetricAggregation(
+				ListUtil.fromArray(assigneeIds),
+				ListUtil.fromArray(slaStatuses),
+				ListUtil.fromArray(taskNames)));
+		searchSearchRequest.setIndexNames(
+			_slaTaskResultWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()),
+			_taskWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()));
 		searchSearchRequest.setQuery(
-			_createTokensBooleanQuery(completed, key, processId, version));
+			_createBooleanQuery(assigneeIds, instanceIds, processId));
 
-		SearchSearchResponse searchSearchResponse =
-			_searchRequestExecutor.executeSearchRequest(searchSearchRequest);
+		return _searchRequestExecutor.executeSearchRequest(searchSearchRequest);
+	}
 
+	private int _getTaskCount(SearchSearchResponse searchSearchResponse) {
 		Map<String, AggregationResult> aggregationResultsMap =
 			searchSearchResponse.getAggregationResultsMap();
 
-		TermsAggregationResult termsAggregationResult =
-			(TermsAggregationResult)aggregationResultsMap.get("taskName");
+		ScriptedMetricAggregationResult scriptedMetricAggregationResult =
+			(ScriptedMetricAggregationResult)aggregationResultsMap.get(
+				"taskCount");
 
-		Collection<Bucket> buckets = termsAggregationResult.getBuckets();
-
-		Stream<Bucket> stream = buckets.stream();
-
-		return stream.collect(
-			LinkedHashMap::new,
-			(map, bucket) -> map.put(bucket.getKey(), bucket), Map::putAll);
+		return GetterUtil.getInteger(
+			scriptedMetricAggregationResult.getValue());
 	}
 
-	private Collection<Task> _getTasks(
-		boolean completed, Date dateEnd, Date dateStart, FieldSort fieldSort,
-		Pagination pagination, long processId, Map<String, Task> tasksMap) {
-
-		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
-
-		TermsAggregation termsAggregation = _aggregations.terms(
-			"taskName", "taskName");
-
-		FilterAggregation breachedFilterAggregation = _aggregations.filter(
-			"breached",
-			_resourceHelper.createInstanceCompletedBooleanQuery(completed));
-
-		breachedFilterAggregation.addChildAggregation(
-			_resourceHelper.createBreachedScriptedMetricAggregation());
-
-		FilterAggregation countFilterAggregation = _aggregations.filter(
-			"countFilter", _resourceHelper.createTokensBooleanQuery(completed));
-
-		countFilterAggregation.addChildrenAggregations(
-			_aggregations.avg("durationAvg", "duration"),
-			_aggregations.valueCount("instanceCount", "instanceId"));
-
-		FilterAggregation onTimeFilterAggregation = _aggregations.filter(
-			"onTime",
-			_resourceHelper.createInstanceCompletedBooleanQuery(completed));
-
-		onTimeFilterAggregation.addChildAggregation(
-			_resourceHelper.createOnTimeScriptedMetricAggregation());
-
-		FilterAggregation overdueFilterAggregation = _aggregations.filter(
-			"overdue",
-			_resourceHelper.createInstanceCompletedBooleanQuery(completed));
-
-		overdueFilterAggregation.addChildAggregation(
-			_resourceHelper.createOverdueScriptedMetricAggregation());
-
-		termsAggregation.addChildrenAggregations(
-			breachedFilterAggregation, countFilterAggregation,
-			onTimeFilterAggregation, overdueFilterAggregation);
-
-		termsAggregation.addPipelineAggregation(
-			_resourceHelper.createBucketScriptPipelineAggregation());
-
-		if (fieldSort != null) {
-			termsAggregation.addPipelineAggregation(
-				_resourceHelper.createBucketSortPipelineAggregation(
-					fieldSort, pagination));
-		}
-
-		termsAggregation.setSize(tasksMap.size());
-
-		searchSearchRequest.addAggregation(termsAggregation);
-
-		searchSearchRequest.setIndexNames(
-			"workflow-metrics-tokens", "workflow-metrics-sla-task-results");
-		searchSearchRequest.setQuery(
-			_createBooleanQuery(
-				completed, dateEnd, dateStart, processId, tasksMap.keySet()));
-
-		return Stream.of(
-			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
-		).map(
-			SearchSearchResponse::getAggregationResultsMap
-		).map(
-			aggregationResultsMap ->
-				(TermsAggregationResult)aggregationResultsMap.get("taskName")
-		).map(
-			TermsAggregationResult::getBuckets
-		).flatMap(
-			Collection::stream
-		).map(
-			bucket -> {
-				Task task = tasksMap.remove(bucket.getKey());
-
-				_populateTaskWithSLAMetrics(bucket, completed, task);
-				_setDurationAvg(bucket, task);
-				_setInstanceCount(bucket, task);
-
-				return task;
-			}
-		).collect(
-			Collectors.toList()
-		);
-	}
-
-	private Map<String, Task> _getTasksMap(
-		String key, long processId, Set<String> taskNames, String version) {
-
+	private List<Task> _getTasks(long processId) {
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
 		TermsAggregation termsAggregation = _aggregations.terms("name", "name");
@@ -457,9 +554,14 @@ public class TaskResourceImpl
 
 		searchSearchRequest.addAggregation(termsAggregation);
 
-		searchSearchRequest.setIndexNames("workflow-metrics-nodes");
+		searchSearchRequest.setIndexNames(
+			_taskWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()));
 		searchSearchRequest.setQuery(
-			_createNodesBooleanQuery(key, processId, taskNames, version));
+			_createTasksBooleanQuery(
+				processId,
+				_resourceHelper.getLatestProcessVersion(
+					contextCompany.getCompanyId(), processId)));
 
 		return Stream.of(
 			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
@@ -473,190 +575,102 @@ public class TaskResourceImpl
 		).flatMap(
 			Collection::stream
 		).map(
-			Bucket::getKey
-		).map(
-			this::_createTask
-		).sorted(
-			Comparator.comparing(Task::getName)
+			bucket -> TaskUtil.toTask(
+				_language, bucket.getKey(),
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					contextAcceptLanguage.getPreferredLocale(),
+					TaskResourceImpl.class))
 		).collect(
-			LinkedHashMap::new, (map, task) -> map.put(task.getKey(), task),
-			Map::putAll
+			Collectors.toList()
 		);
 	}
 
-	private boolean _isOrderByDurationAvg(String fieldName) {
-		if (StringUtil.equals(fieldName, "durationAvg") ||
-			StringUtil.equals(
-				fieldName,
-				StringBundler.concat(
-					"countFilter", StringPool.GREATER_THAN, "durationAvg"))) {
+	private List<Task> _getTasks(
+		Long[] assigneeIds, Long[] instanceIds, Pagination pagination,
+		Long processId, String[] slaStatuses, long taskCount,
+		String[] taskNames) {
 
-			return true;
-		}
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		return false;
+		TermsAggregation termsAggregation = _aggregations.terms(
+			"instanceIdTaskId", null);
+
+		termsAggregation.setScript(
+			_scripts.script("doc['instanceId'].value + doc['taskId'].value"));
+
+		FilterAggregation indexFilterAggregation = _aggregations.filter(
+			"index",
+			_queries.term(
+				"_index",
+				_taskWorkflowMetricsIndexNameBuilder.getIndexName(
+					contextCompany.getCompanyId())));
+
+		indexFilterAggregation.addChildAggregation(
+			_aggregations.topHits("topHits"));
+
+		termsAggregation.addChildrenAggregations(
+			indexFilterAggregation,
+			_resourceHelper.creatTaskCountScriptedMetricAggregation(
+				ListUtil.fromArray(assigneeIds),
+				ListUtil.fromArray(slaStatuses),
+				ListUtil.fromArray(taskNames)));
+
+		termsAggregation.addOrders(Order.key(true));
+		termsAggregation.addPipelineAggregations(
+			_createBucketSelectorPipelineAggregation(),
+			_createBucketSortPipelineAggregation(pagination));
+
+		termsAggregation.setSize(GetterUtil.getInteger(taskCount));
+
+		searchSearchRequest.addAggregation(termsAggregation);
+
+		searchSearchRequest.setIndexNames(
+			_slaTaskResultWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()),
+			_taskWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()));
+
+		searchSearchRequest.setQuery(
+			_createBooleanQuery(assigneeIds, instanceIds, processId));
+
+		return Stream.of(
+			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
+		).map(
+			SearchSearchResponse::getAggregationResultsMap
+		).map(
+			aggregationResultsMap ->
+				(TermsAggregationResult)aggregationResultsMap.get(
+					"instanceIdTaskId")
+		).map(
+			TermsAggregationResult::getBuckets
+		).flatMap(
+			Collection::stream
+		).map(
+			bucket -> (FilterAggregationResult)bucket.getChildAggregationResult(
+				"index")
+		).map(
+			filterAggregationResult ->
+				(TopHitsAggregationResult)
+					filterAggregationResult.getChildAggregationResult("topHits")
+		).map(
+			TopHitsAggregationResult::getSearchHits
+		).map(
+			SearchHits::getSearchHits
+		).flatMap(
+			List::stream
+		).map(
+			SearchHit::getSourcesMap
+		).map(
+			sourcesMap -> TaskUtil.toTask(
+				_language, contextAcceptLanguage.getPreferredLocale(), _portal,
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					contextAcceptLanguage.getPreferredLocale(),
+					TaskResourceImpl.class),
+				sourcesMap, _userLocalService::fetchUser)
+		).collect(
+			Collectors.toCollection(LinkedList::new)
+		);
 	}
-
-	private boolean _isOrderByInstanceCount(String fieldName) {
-		if (StringUtil.equals(fieldName, "instanceCount") ||
-			StringUtil.equals(
-				fieldName,
-				StringBundler.concat(
-					"countFilter", StringPool.GREATER_THAN, "instanceCount"))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isOrderByOnTimeInstanceCount(String fieldName) {
-		if (StringUtil.equals(fieldName, "onTimeInstanceCount") ||
-			StringUtil.equals(
-				fieldName,
-				StringBundler.concat(
-					"onTime", StringPool.GREATER_THAN,
-					"instanceCount.value"))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isOrderByOverdueInstanceCount(String fieldName) {
-		if (StringUtil.equals(fieldName, "overdueInstanceCount") ||
-			StringUtil.equals(
-				fieldName,
-				StringBundler.concat(
-					"overdue", StringPool.GREATER_THAN,
-					"instanceCount.value"))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private void _populateTaskWithSLAMetrics(
-		Bucket bucket, boolean completed, Task task) {
-
-		if (completed) {
-			_setBreachedInstanceCount(bucket, task);
-			_setBreachedInstancePercentage(bucket, task);
-		}
-		else {
-			_setOnTimeInstanceCount(bucket, task);
-			_setOverdueInstanceCount(bucket, task);
-		}
-	}
-
-	private void _setBreachedInstanceCount(Bucket bucket, Task task) {
-		if (bucket == null) {
-			return;
-		}
-
-		task.setBreachedInstanceCount(
-			_resourceHelper.getBreachedInstanceCount(bucket));
-	}
-
-	private void _setBreachedInstancePercentage(Bucket bucket, Task task) {
-		if (bucket == null) {
-			return;
-		}
-
-		task.setBreachedInstancePercentage(
-			_resourceHelper.getBreachedInstancePercentage(bucket));
-	}
-
-	private void _setDurationAvg(Bucket bucket, Task task) {
-		if (bucket == null) {
-			return;
-		}
-
-		FilterAggregationResult filterAggregationResult =
-			(FilterAggregationResult)bucket.getChildAggregationResult(
-				"countFilter");
-
-		AvgAggregationResult avgAggregationResult =
-			(AvgAggregationResult)
-				filterAggregationResult.getChildAggregationResult(
-					"durationAvg");
-
-		task.setDurationAvg(
-			GetterUtil.getLong(avgAggregationResult.getValue()));
-	}
-
-	private void _setInstanceCount(Bucket bucket, Task task) {
-		if (bucket == null) {
-			return;
-		}
-
-		FilterAggregationResult filterAggregationResult =
-			(FilterAggregationResult)bucket.getChildAggregationResult(
-				"countFilter");
-
-		ValueCountAggregationResult valueCountAggregationResult =
-			(ValueCountAggregationResult)
-				filterAggregationResult.getChildAggregationResult(
-					"instanceCount");
-
-		task.setInstanceCount(
-			GetterUtil.getLong(valueCountAggregationResult.getValue()));
-	}
-
-	private void _setOnTimeInstanceCount(Bucket bucket, Task task) {
-		if (bucket == null) {
-			return;
-		}
-
-		task.setOnTimeInstanceCount(
-			_resourceHelper.getOnTimeInstanceCount(bucket));
-	}
-
-	private void _setOverdueInstanceCount(Bucket bucket, Task task) {
-		if (bucket == null) {
-			return;
-		}
-
-		task.setOverdueInstanceCount(
-			_resourceHelper.getOverdueInstanceCount(bucket));
-	}
-
-	private FieldSort _toFieldSort(Sort[] sorts) {
-		Sort sort = new Sort("instanceCount", false);
-
-		if (sorts != null) {
-			sort = sorts[0];
-		}
-
-		String fieldName = sort.getFieldName();
-
-		if (_isOrderByDurationAvg(fieldName)) {
-			fieldName = StringBundler.concat(
-				"countFilter", StringPool.GREATER_THAN, "durationAvg");
-		}
-		else if (_isOrderByInstanceCount(fieldName)) {
-			fieldName = StringBundler.concat(
-				"countFilter", StringPool.GREATER_THAN, "instanceCount");
-		}
-		else if (_isOrderByOnTimeInstanceCount(fieldName) ||
-				 _isOrderByOverdueInstanceCount(fieldName)) {
-
-			fieldName = StringBundler.concat(
-				StringUtil.extractFirst(fieldName, "InstanceCount"),
-				StringPool.GREATER_THAN, "instanceCount.value");
-		}
-
-		FieldSort fieldSort = _sorts.field(fieldName);
-
-		fieldSort.setSortOrder(
-			sort.isReverse() ? SortOrder.DESC : SortOrder.ASC);
-
-		return fieldSort;
-	}
-
-	private static final EntityModel _entityModel = new TaskEntityModel();
 
 	@Reference
 	private Aggregations _aggregations;
@@ -665,15 +679,35 @@ public class TaskResourceImpl
 	private Language _language;
 
 	@Reference
+	private Portal _portal;
+
+	@Reference
 	private Queries _queries;
 
 	@Reference
 	private ResourceHelper _resourceHelper;
 
 	@Reference
+	private Scripts _scripts;
+
+	@Reference
 	private SearchRequestExecutor _searchRequestExecutor;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=sla-task-result)")
+	private WorkflowMetricsIndexNameBuilder
+		_slaTaskResultWorkflowMetricsIndexNameBuilder;
 
 	@Reference
 	private Sorts _sorts;
+
+	@Reference
+	private TaskWorkflowMetricsIndexer _taskWorkflowMetricsIndexer;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=task)")
+	private WorkflowMetricsIndexNameBuilder
+		_taskWorkflowMetricsIndexNameBuilder;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

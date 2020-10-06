@@ -55,6 +55,20 @@ public class FragmentImageSerDes {
 
 		sb.append("{");
 
+		if (fragmentImage.getDescription() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"description\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(fragmentImage.getDescription()));
+
+			sb.append("\"");
+		}
+
 		if (fragmentImage.getTitle() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -102,6 +116,14 @@ public class FragmentImageSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
+		if (fragmentImage.getDescription() == null) {
+			map.put("description", null);
+		}
+		else {
+			map.put(
+				"description", String.valueOf(fragmentImage.getDescription()));
+		}
+
 		if (fragmentImage.getTitle() == null) {
 			map.put("title", null);
 		}
@@ -137,7 +159,12 @@ public class FragmentImageSerDes {
 			FragmentImage fragmentImage, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "title")) {
+			if (Objects.equals(jsonParserFieldName, "description")) {
+				if (jsonParserFieldValue != null) {
+					fragmentImage.setDescription((Object)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "title")) {
 				if (jsonParserFieldValue != null) {
 					fragmentImage.setTitle((Object)jsonParserFieldValue);
 				}
@@ -147,9 +174,8 @@ public class FragmentImageSerDes {
 					fragmentImage.setUrl((Object)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -205,10 +231,13 @@ public class FragmentImageSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

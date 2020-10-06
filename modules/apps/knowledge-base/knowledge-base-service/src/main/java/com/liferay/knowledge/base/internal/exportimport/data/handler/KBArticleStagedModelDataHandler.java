@@ -128,8 +128,11 @@ public class KBArticleStagedModelDataHandler
 		if (kbArticle.getParentResourcePrimKey() !=
 				KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
+			long kbArticleClassNameId = _classNameLocalService.getClassNameId(
+				KBArticleConstants.getClassName());
+
 			if (kbArticle.getParentResourceClassNameId() ==
-					kbArticle.getClassNameId()) {
+					kbArticleClassNameId) {
 
 				KBArticle parentKBArticle =
 					_kbArticleLocalService.getLatestKBArticle(
@@ -187,9 +190,10 @@ public class KBArticleStagedModelDataHandler
 			KBFolderConstants.getClassName());
 		long parentResourcePrimKey = KBFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 
-		if (kbArticle.getClassNameId() ==
-				kbArticle.getParentResourceClassNameId()) {
+		long kbArticleClassNameId = _classNameLocalService.getClassNameId(
+			KBArticleConstants.getClassName());
 
+		if (kbArticleClassNameId == kbArticle.getParentResourceClassNameId()) {
 			parentResourceClassNameId = _classNameLocalService.getClassNameId(
 				KBArticleConstants.getClassName());
 			parentResourcePrimKey = MapUtil.getLong(
@@ -388,7 +392,7 @@ public class KBArticleStagedModelDataHandler
 			long userId, long parentResourceClassNameId,
 			long parentResourcePrimKey, KBArticle kbArticle, String[] sections,
 			ServiceContext serviceContext)
-		throws PortalException {
+		throws Exception {
 
 		KBArticle importedKBArticle = _kbArticleLocalService.addKBArticle(
 			userId, parentResourceClassNameId, parentResourcePrimKey,
@@ -480,7 +484,7 @@ public class KBArticleStagedModelDataHandler
 			long userId, long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, KBArticle kbArticle, String[] sections,
 			ServiceContext serviceContext)
-		throws PortalException {
+		throws Exception {
 
 		_kbArticleLocalService.updateKBArticle(
 			userId, resourcePrimKey, kbArticle.getTitle(),

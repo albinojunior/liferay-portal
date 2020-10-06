@@ -36,6 +36,10 @@ public class AnnouncementsFlagLocalServiceWrapper
 	/**
 	 * Adds the announcements flag to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param announcementsFlag the announcements flag
 	 * @return the announcements flag that was added
 	 */
@@ -84,6 +88,10 @@ public class AnnouncementsFlagLocalServiceWrapper
 	/**
 	 * Deletes the announcements flag from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param announcementsFlag the announcements flag
 	 * @return the announcements flag that was removed
 	 */
@@ -99,6 +107,10 @@ public class AnnouncementsFlagLocalServiceWrapper
 
 	/**
 	 * Deletes the announcements flag with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param flagId the primary key of the announcements flag
 	 * @return the announcements flag that was removed
@@ -141,6 +153,11 @@ public class AnnouncementsFlagLocalServiceWrapper
 
 		return _announcementsFlagLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _announcementsFlagLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -331,6 +348,10 @@ public class AnnouncementsFlagLocalServiceWrapper
 
 	/**
 	 * Updates the announcements flag in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param announcementsFlag the announcements flag
 	 * @return the announcements flag that was updated

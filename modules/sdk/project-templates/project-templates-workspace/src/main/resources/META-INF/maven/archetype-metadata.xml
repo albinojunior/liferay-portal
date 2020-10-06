@@ -8,17 +8,20 @@
 				<include>configs/**</include>
 				<include>modules/pom.xml</include>
 				<include>themes/pom.xml</include>
-				<include>wars/pom.xml</include>
 				<include>.gitignore</include>
 				<include>build.gradle</include>
 				<include>gradle.properties</include>
 				<include>gradle-local.properties</include>
+				<include>platform.bndrun</include>
 				<include>settings.gradle</include>
 			</includes>
 		</fileSet>
 	</fileSets>
 	<requiredProperties>
 		<requiredProperty key="liferayVersion">
+		</requiredProperty>
+		<requiredProperty key="product">
+			<defaultValue>portal</defaultValue>
 		</requiredProperty>
 	</requiredProperties>
 </archetype-descriptor>

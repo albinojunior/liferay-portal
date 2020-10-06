@@ -28,7 +28,7 @@ import Button from '../../../common/components/Button';
 const ExperienceModal = ({
 	errorMessage,
 	experienceId,
-	hasSegmentsPermission,
+	canUpdateSegments,
 	initialName = '',
 	observer,
 	onErrorDismiss,
@@ -51,7 +51,7 @@ const ExperienceModal = ({
 	const [requiredSegmentError, setRequiredSegmentError] = useState(false);
 	const [loading, setLoading] = useState(false);
 
-	const handleFormSubmit = event => {
+	const handleFormSubmit = (event) => {
 		event.preventDefault();
 
 		const validName = _getValidValue(name);
@@ -79,7 +79,7 @@ const ExperienceModal = ({
 			});
 		}
 	};
-	const handleNameChange = event => {
+	const handleNameChange = (event) => {
 		const {value} = event.target;
 
 		if (!_getValidValue(value)) {
@@ -91,7 +91,7 @@ const ExperienceModal = ({
 
 		setName(value);
 	};
-	const handleSegmentChange = event => {
+	const handleSegmentChange = (event) => {
 		const {value} = event.target;
 
 		if (!_getValidValue(value)) {
@@ -103,7 +103,7 @@ const ExperienceModal = ({
 
 		setSelectedSegmentId(event.target.value);
 	};
-	const handleNewSegmentClick = event => {
+	const handleNewSegmentClick = (event) => {
 		event.preventDefault();
 
 		onNewSegmentClick({
@@ -201,7 +201,7 @@ const ExperienceModal = ({
 								value={selectedSegmentId}
 							>
 								{segments.length ? (
-									segments.map(segment => {
+									segments.map((segment) => {
 										return (
 											<ClaySelect.Option
 												key={segment.segmentsEntryId}
@@ -220,7 +220,7 @@ const ExperienceModal = ({
 								)}
 							</ClaySelect>
 
-							{hasSegmentsPermission === true && (
+							{canUpdateSegments === true && (
 								<Button
 									className="flex-shrink-0 ml-2"
 									disabled={loading}
@@ -272,9 +272,9 @@ const ExperienceModal = ({
 };
 
 ExperienceModal.propTypes = {
+	canUpdateSegments: PropTypes.bool.isRequired,
 	errorMessage: PropTypes.string,
 	experienceId: PropTypes.string,
-	hasSegmentsPermission: PropTypes.bool.isRequired,
 	initialName: PropTypes.string,
 	observer: PropTypes.object.isRequired,
 	onClose: PropTypes.func.isRequired,

@@ -425,6 +425,48 @@ public class FragmentCompositionServiceHttp {
 	}
 
 	public static com.liferay.fragment.model.FragmentComposition
+			moveFragmentComposition(
+				HttpPrincipal httpPrincipal, long fragmentCompositionId,
+				long fragmentCollectionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				FragmentCompositionServiceUtil.class, "moveFragmentComposition",
+				_moveFragmentCompositionParameterTypes10);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, fragmentCompositionId, fragmentCollectionId);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.fragment.model.FragmentComposition)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static com.liferay.fragment.model.FragmentComposition
 			updateFragmentComposition(
 				HttpPrincipal httpPrincipal, long fragmentCompositionId,
 				long previewFileEntryId)
@@ -434,10 +476,98 @@ public class FragmentCompositionServiceHttp {
 			MethodKey methodKey = new MethodKey(
 				FragmentCompositionServiceUtil.class,
 				"updateFragmentComposition",
-				_updateFragmentCompositionParameterTypes10);
+				_updateFragmentCompositionParameterTypes11);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, fragmentCompositionId, previewFileEntryId);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.fragment.model.FragmentComposition)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static com.liferay.fragment.model.FragmentComposition
+			updateFragmentComposition(
+				HttpPrincipal httpPrincipal, long fragmentCompositionId,
+				long fragmentCollectionId, String name, String description,
+				String data, long previewFileEntryId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				FragmentCompositionServiceUtil.class,
+				"updateFragmentComposition",
+				_updateFragmentCompositionParameterTypes12);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, fragmentCompositionId, fragmentCollectionId, name,
+				description, data, previewFileEntryId, status);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.fragment.model.FragmentComposition)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static com.liferay.fragment.model.FragmentComposition
+			updateFragmentComposition(
+				HttpPrincipal httpPrincipal, long fragmentCompositionId,
+				String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				FragmentCompositionServiceUtil.class,
+				"updateFragmentComposition",
+				_updateFragmentCompositionParameterTypes13);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, fragmentCompositionId, name);
 
 			Object returnObj = null;
 
@@ -478,7 +608,7 @@ public class FragmentCompositionServiceHttp {
 			MethodKey methodKey = new MethodKey(
 				FragmentCompositionServiceUtil.class,
 				"updateFragmentComposition",
-				_updateFragmentCompositionParameterTypes11);
+				_updateFragmentCompositionParameterTypes14);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, fragmentCompositionId, name, description, data,
@@ -545,9 +675,18 @@ public class FragmentCompositionServiceHttp {
 		};
 	private static final Class<?>[]
 		_getFragmentCompositionsCountParameterTypes9 = new Class[] {long.class};
-	private static final Class<?>[] _updateFragmentCompositionParameterTypes10 =
+	private static final Class<?>[] _moveFragmentCompositionParameterTypes10 =
 		new Class[] {long.class, long.class};
 	private static final Class<?>[] _updateFragmentCompositionParameterTypes11 =
+		new Class[] {long.class, long.class};
+	private static final Class<?>[] _updateFragmentCompositionParameterTypes12 =
+		new Class[] {
+			long.class, long.class, String.class, String.class, String.class,
+			long.class, int.class
+		};
+	private static final Class<?>[] _updateFragmentCompositionParameterTypes13 =
+		new Class[] {long.class, String.class};
+	private static final Class<?>[] _updateFragmentCompositionParameterTypes14 =
 		new Class[] {
 			long.class, String.class, String.class, String.class, long.class,
 			int.class

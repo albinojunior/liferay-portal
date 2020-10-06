@@ -12,6 +12,8 @@
  * details.
  */
 
+import ClayButton from '@clayui/button';
+import ClayIcon from '@clayui/icon';
 import ClayProgressBar from '@clayui/progress-bar';
 import {useIsMounted, useTimeout} from 'frontend-js-react-web';
 import {fetch} from 'frontend-js-web';
@@ -39,14 +41,22 @@ const AdaptiveMediaProgress = ({
 		autoStartProgress
 	);
 	const [percentage, setPercentage] = useState(
-		(adaptedImages / totalImages) * 100 || 0
+		Math.ceil((adaptedImages / totalImages) * 100) || 0
 	);
 	const [progressBarTooltip, setProgressBarTooltip] = useState(
 		adaptedImages + '/' + totalImages
 	);
 
+	const [imagesFailed, setImagesFailed] = useState(0);
+
+	const onClickRetry = () => {
+		setImagesFailed(0);
+
+		startProgress();
+	};
+
 	const startProgress = useCallback(
-		backgroundTaskUrl => {
+		(backgroundTaskUrl) => {
 			fetch(backgroundTaskUrl);
 
 			if (isMounted()) {
@@ -70,11 +80,13 @@ const AdaptiveMediaProgress = ({
 
 	const updateProgress = useCallback(() => {
 		fetch(percentageUrl)
-			.then(res => res.json())
-			.then(({adaptedImages, totalImages}) => {
+			.then((res) => res.json())
+			.then(({adaptedImages, errors, totalImages}) => {
 				if (isMounted()) {
+					setImagesFailed(errors);
+
 					setPercentage(
-						Math.round((adaptedImages / totalImages) * 100) || 0
+						Math.ceil((adaptedImages / totalImages) * 100) || 0
 					);
 
 					setProgressBarTooltip(
@@ -82,7 +94,7 @@ const AdaptiveMediaProgress = ({
 					);
 				}
 
-				if (adaptedImages === totalImages) {
+				if (adaptedImages + errors === totalImages) {
 					if (isMounted()) {
 						setShowLoadingIndicator(false);
 					}
@@ -125,7 +137,31 @@ const AdaptiveMediaProgress = ({
 		);
 	}
 
-	return (
+	return imagesFailed > 0 ? (
+		<div className="progress-error-container">
+			<span className="text-danger">
+				<ClayIcon symbol="exclamation-full" />
+				<span>
+					<strong>{Liferay.Language.get('error')}: </strong>
+					{imagesFailed === 1
+						? Liferay.Language.get('1-image-failed-process')
+						: Liferay.Util.sub(
+								Liferay.Language.get('x-images-failed-process'),
+								imagesFailed
+						  )}
+				</span>
+			</span>
+
+			<ClayButton
+				borderless
+				className="text-danger"
+				onClick={onClickRetry}
+				small
+			>
+				{Liferay.Language.get('retry')}
+			</ClayButton>
+		</div>
+	) : (
 		<>
 			<div
 				className={`progress-container ${disabled ? 'disabled' : ''}`}
@@ -159,6 +195,4 @@ AdaptiveMediaProgress.propTypes = {
 	uuid: PropTypes.string,
 };
 
-export default function(props) {
-	return <AdaptiveMediaProgress {...props} />;
-}
+export default AdaptiveMediaProgress;

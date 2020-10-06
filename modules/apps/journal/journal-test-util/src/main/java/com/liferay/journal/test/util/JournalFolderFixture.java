@@ -14,8 +14,8 @@
 
 package com.liferay.journal.test.util;
 
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -39,10 +39,9 @@ public class JournalFolderFixture {
 			long userId, long groupId, long parentFolderId, String name)
 		throws Exception {
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(groupId, userId);
-
-		return addFolder(parentFolderId, name, serviceContext);
+		return addFolder(
+			parentFolderId, name,
+			ServiceContextTestUtil.getServiceContext(groupId, userId));
 	}
 
 	public JournalFolder addFolder(

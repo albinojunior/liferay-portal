@@ -9,17 +9,23 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, findByTestId, fireEvent, render} from '@testing-library/react';
+import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import TimeRangeFilter from '../../../src/main/resources/META-INF/resources/js/components/filter/TimeRangeFilter.es';
+import {stringify} from '../../../src/main/resources/META-INF/resources/js/shared/components/router/queryString.es';
 import {jsonSessionStorage} from '../../../src/main/resources/META-INF/resources/js/shared/util/storage.es';
 import {MockRouter} from '../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const query =
-	'?filters.testTimeRange%5B0%5D=7&filters.testDateEnd=2019-12-09&filters.testDateStart=2019-12-03';
+const filters = {
+	testDateEnd: '2019-12-09T00:00:00Z',
+	testDateStart: '2019-12-03T00:00:00Z',
+	testTimeRange: ['7'],
+};
+
+const query = stringify({filters});
 
 const data = {
 	items: [
@@ -45,7 +51,7 @@ const wrapper = ({children}) => (
 );
 
 describe('The time range filter component should', () => {
-	let getAllByTestId;
+	let container;
 
 	describe('Render without custom range date option selected', () => {
 		afterEach(cleanup);
@@ -58,11 +64,11 @@ describe('The time range filter component should', () => {
 				{wrapper}
 			);
 
-			getAllByTestId = renderResult.getAllByTestId;
+			container = renderResult.container;
 		});
 
-		test('Be rendered with filter item names', async () => {
-			const filterItems = await getAllByTestId('filterItem');
+		test('Be rendered with filter item names', () => {
+			const filterItems = container.querySelectorAll('.dropdown-item');
 
 			expect(filterItems[0].innerHTML).toContain('custom-range');
 			expect(filterItems[1].innerHTML).toContain('Last 7 Days');
@@ -70,22 +76,19 @@ describe('The time range filter component should', () => {
 		});
 
 		test('Be rendered with active option "Last 7 Days"', async () => {
-			const filterItems = getAllByTestId('filterItem');
+			const activeItem = container.querySelector('.active');
 
-			const activeItem = filterItems.find(item =>
-				item.className.includes('active')
-			);
-			const activeItemName = await findByTestId(
-				activeItem,
-				'filterItemName'
-			);
-
-			expect(activeItemName).toHaveTextContent('Last 7 Days');
+			expect(activeItem).toHaveTextContent('Last 7 Days');
 		});
 	});
 
 	describe('Render with custom date range option selected and', () => {
-		let dateEndInput, dateStartInput, getByTestId;
+		let container,
+			dateEndInput,
+			dateStartInput,
+			getAllByPlaceholderText,
+			getAllByText,
+			getByText;
 
 		beforeAll(() => {
 			jsonSessionStorage.set('timeRanges', data);
@@ -95,17 +98,19 @@ describe('The time range filter component should', () => {
 				{wrapper}
 			);
 
-			getAllByTestId = renderResult.getAllByTestId;
-			getByTestId = renderResult.getByTestId;
+			container = renderResult.container;
+			getAllByPlaceholderText = renderResult.getAllByPlaceholderText;
+			getAllByText = renderResult.getAllByText;
+			getByText = renderResult.getByText;
 		});
 
 		test('Show the date the href has as a suggestion', () => {
-			const filterInputs = getAllByTestId('filterItemInput');
+			const filterItems = container.querySelectorAll('.dropdown-item');
 
-			fireEvent.click(filterInputs[0]);
+			fireEvent.click(filterItems[0]);
 
-			dateEndInput = getByTestId('dateEndInput');
-			dateStartInput = getByTestId('dateStartInput');
+			dateEndInput = getAllByPlaceholderText('MM/DD/YYYY')[1];
+			dateStartInput = getAllByPlaceholderText('MM/DD/YYYY')[0];
 
 			expect(dateStartInput.value).toEqual('12/03/2019');
 			expect(dateEndInput.value).toEqual('12/09/2019');
@@ -118,7 +123,7 @@ describe('The time range filter component should', () => {
 			fireEvent.change(dateEndInput, {target: {value: '13/09/2020'}});
 			fireEvent.blur(dateEndInput);
 
-			const errorSpan = getAllByTestId('errorSpan');
+			const errorSpan = container.querySelectorAll('.form-feedback-item');
 
 			expect(errorSpan[0]).toHaveTextContent('please-enter-a-valid-date');
 			expect(errorSpan[1]).toHaveTextContent('please-enter-a-valid-date');
@@ -131,7 +136,7 @@ describe('The time range filter component should', () => {
 			fireEvent.change(dateEndInput, {target: {value: '12/09/1960'}});
 			fireEvent.blur(dateEndInput);
 
-			const errorSpan = getAllByTestId('errorSpan');
+			const errorSpan = container.querySelectorAll('.form-feedback-item');
 
 			expect(errorSpan[0]).toHaveTextContent(
 				'the-date-cannot-be-earlier-than-1970'
@@ -148,7 +153,7 @@ describe('The time range filter component should', () => {
 			fireEvent.change(dateEndInput, {target: {value: '12/09/2019'}});
 			fireEvent.blur(dateEndInput);
 
-			const errorSpan = getAllByTestId('errorSpan');
+			const errorSpan = container.querySelectorAll('.form-feedback-item');
 
 			expect(errorSpan[0]).toHaveTextContent(
 				'the-start-date-cannot-be-later-than-the-end-date'
@@ -159,9 +164,9 @@ describe('The time range filter component should', () => {
 		});
 
 		test('Change the filter value applying a custom time range', () => {
-			const filterName = getByTestId('filterName');
+			const filterName = getAllByText('Last 7 Days')[0];
 
-			expect(filterName).toHaveTextContent('Last 7 Days');
+			expect(filterName).toBeTruthy();
 
 			fireEvent.change(dateStartInput, {target: {value: '12/03/2019'}});
 			fireEvent.blur(dateStartInput);
@@ -169,9 +174,11 @@ describe('The time range filter component should', () => {
 			fireEvent.change(dateEndInput, {target: {value: '12/09/2019'}});
 			fireEvent.blur(dateEndInput);
 
-			const applyButton = getByTestId('applyButton');
+			const applyButton = getByText('apply');
 
-			const customTimeRangeForm = getByTestId('customTimeRangeForm');
+			const customTimeRangeForm = container.querySelector(
+				'form.custom-range-form'
+			);
 			expect(customTimeRangeForm).not.toBeUndefined();
 
 			fireEvent.click(applyButton);

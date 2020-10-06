@@ -39,6 +39,10 @@ public class AssetVocabularyLocalServiceWrapper
 	/**
 	 * Adds the asset vocabulary to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetVocabularyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetVocabulary the asset vocabulary
 	 * @return the asset vocabulary that was added
 	 */
@@ -52,6 +56,20 @@ public class AssetVocabularyLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetVocabularyLocalService.addDefaultVocabulary(groupId);
+	}
+
+	@Override
+	public AssetVocabulary addVocabulary(
+			long userId, long groupId, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings, int visibilityType,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyLocalService.addVocabulary(
+			userId, groupId, title, titleMap, descriptionMap, settings,
+			visibilityType, serviceContext);
 	}
 
 	@Override
@@ -76,6 +94,34 @@ public class AssetVocabularyLocalServiceWrapper
 
 		return _assetVocabularyLocalService.addVocabulary(
 			userId, groupId, title, serviceContext);
+	}
+
+	@Override
+	public AssetVocabulary addVocabulary(
+			long userId, long groupId, String name, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings, int visibilityType,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyLocalService.addVocabulary(
+			userId, groupId, name, title, titleMap, descriptionMap, settings,
+			visibilityType, serviceContext);
+	}
+
+	@Override
+	public AssetVocabulary addVocabulary(
+			long userId, long groupId, String name, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyLocalService.addVocabulary(
+			userId, groupId, name, title, titleMap, descriptionMap, settings,
+			serviceContext);
 	}
 
 	@Override
@@ -124,6 +170,10 @@ public class AssetVocabularyLocalServiceWrapper
 	/**
 	 * Deletes the asset vocabulary from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetVocabularyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetVocabulary the asset vocabulary
 	 * @return the asset vocabulary that was removed
 	 */
@@ -137,6 +187,10 @@ public class AssetVocabularyLocalServiceWrapper
 
 	/**
 	 * Deletes the asset vocabulary with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetVocabularyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param vocabularyId the primary key of the asset vocabulary
 	 * @return the asset vocabulary that was removed
@@ -180,6 +234,11 @@ public class AssetVocabularyLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_assetVocabularyLocalService.deleteVocabulary(vocabularyId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _assetVocabularyLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -474,11 +533,20 @@ public class AssetVocabularyLocalServiceWrapper
 
 	@Override
 	public java.util.List<AssetVocabulary> getGroupVocabularies(
-		long groupId, String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary> obc) {
+		long groupId, int visibilityType) {
 
 		return _assetVocabularyLocalService.getGroupVocabularies(
-			groupId, name, start, end, obc);
+			groupId, visibilityType);
+	}
+
+	@Override
+	public java.util.List<AssetVocabulary> getGroupVocabularies(
+		long groupId, String name, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary>
+			orderByComparator) {
+
+		return _assetVocabularyLocalService.getGroupVocabularies(
+			groupId, name, start, end, orderByComparator);
 	}
 
 	@Override
@@ -486,6 +554,14 @@ public class AssetVocabularyLocalServiceWrapper
 		long[] groupIds) {
 
 		return _assetVocabularyLocalService.getGroupVocabularies(groupIds);
+	}
+
+	@Override
+	public java.util.List<AssetVocabulary> getGroupVocabularies(
+		long[] groupIds, int[] visibilityTypes) {
+
+		return _assetVocabularyLocalService.getGroupVocabularies(
+			groupIds, visibilityTypes);
 	}
 
 	@Override
@@ -575,6 +651,10 @@ public class AssetVocabularyLocalServiceWrapper
 	/**
 	 * Updates the asset vocabulary in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetVocabularyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetVocabulary the asset vocabulary
 	 * @return the asset vocabulary that was updated
 	 */
@@ -588,6 +668,28 @@ public class AssetVocabularyLocalServiceWrapper
 
 	@Override
 	public AssetVocabulary updateVocabulary(
+			long vocabularyId, java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyLocalService.updateVocabulary(
+			vocabularyId, titleMap, descriptionMap, settings);
+	}
+
+	@Override
+	public AssetVocabulary updateVocabulary(
+			long vocabularyId, java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings, int visibilityType)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyLocalService.updateVocabulary(
+			vocabularyId, titleMap, descriptionMap, settings, visibilityType);
+	}
+
+	@Override
+	public AssetVocabulary updateVocabulary(
 			long vocabularyId, String title,
 			java.util.Map<java.util.Locale, String> titleMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -597,6 +699,20 @@ public class AssetVocabularyLocalServiceWrapper
 
 		return _assetVocabularyLocalService.updateVocabulary(
 			vocabularyId, title, titleMap, descriptionMap, settings,
+			serviceContext);
+	}
+
+	@Override
+	public AssetVocabulary updateVocabulary(
+			long vocabularyId, String name, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyLocalService.updateVocabulary(
+			vocabularyId, name, title, titleMap, descriptionMap, settings,
 			serviceContext);
 	}
 

@@ -53,6 +53,10 @@ public class MemberRequestLocalServiceUtil {
 	/**
 	 * Adds the member request to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MemberRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param memberRequest the member request
 	 * @return the member request that was added
 	 */
@@ -111,6 +115,10 @@ public class MemberRequestLocalServiceUtil {
 	/**
 	 * Deletes the member request with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MemberRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param memberRequestId the primary key of the member request
 	 * @return the member request that was removed
 	 * @throws PortalException if a member request with the primary key could not be found
@@ -124,6 +132,10 @@ public class MemberRequestLocalServiceUtil {
 
 	/**
 	 * Deletes the member request from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MemberRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param memberRequest the member request
 	 * @return the member request that was removed
@@ -145,6 +157,12 @@ public class MemberRequestLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -362,6 +380,10 @@ public class MemberRequestLocalServiceUtil {
 
 	/**
 	 * Updates the member request in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MemberRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param memberRequest the member request
 	 * @return the member request that was updated

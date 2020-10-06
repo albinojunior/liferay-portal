@@ -16,6 +16,7 @@ package com.liferay.asset.categories.navigation.web.internal.display.context;
 
 import com.liferay.asset.categories.navigation.web.internal.configuration.AssetCategoriesNavigationPortletInstanceConfiguration;
 import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.model.AssetVocabularyConstants;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -29,7 +30,6 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.KeyValuePairComparator;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -93,7 +95,8 @@ public class AssetCategoriesNavigationDisplayContext {
 		}
 
 		_assetVocabularies = AssetVocabularyServiceUtil.getGroupVocabularies(
-			groupIds);
+			groupIds,
+			new int[] {AssetVocabularyConstants.VISIBILITY_TYPE_PUBLIC});
 
 		return _assetVocabularies;
 	}
@@ -154,8 +157,6 @@ public class AssetCategoriesNavigationDisplayContext {
 	}
 
 	public List<KeyValuePair> getAvailableVocabularyNames() {
-		List<KeyValuePair> availableVocabularNames = new ArrayList<>();
-
 		long[] assetVocabularyIds = getAssetVocabularyIds();
 
 		Arrays.sort(assetVocabularyIds);
@@ -163,40 +164,34 @@ public class AssetCategoriesNavigationDisplayContext {
 		Set<Long> availableAssetVocabularyIdsSet = SetUtil.fromArray(
 			getAvailableAssetVocabularyIds());
 
-		for (long assetVocabularyId : availableAssetVocabularyIdsSet) {
-			if (Arrays.binarySearch(assetVocabularyIds, assetVocabularyId) <
-					0) {
+		Stream<Long> availableAssetVocabularyIdsStream =
+			availableAssetVocabularyIdsSet.stream();
 
-				AssetVocabulary assetVocabulary =
-					AssetVocabularyLocalServiceUtil.fetchAssetVocabulary(
-						assetVocabularyId);
-
-				availableVocabularNames.add(
-					new KeyValuePair(
-						String.valueOf(assetVocabularyId),
-						getTitle(assetVocabulary)));
-			}
-		}
-
-		return ListUtil.sort(
-			availableVocabularNames, new KeyValuePairComparator(false, true));
+		return availableAssetVocabularyIdsStream.filter(
+			assetVocabularyId ->
+				Arrays.binarySearch(assetVocabularyIds, assetVocabularyId) < 0
+		).map(
+			AssetVocabularyLocalServiceUtil::fetchAssetVocabulary
+		).map(
+			this::_toKeyValuePair
+		).sorted(
+			new KeyValuePairComparator(false, true)
+		).collect(
+			Collectors.toList()
+		);
 	}
 
 	public List<KeyValuePair> getCurrentVocabularyNames() {
-		List<KeyValuePair> currentVocabularNames = new ArrayList<>();
+		LongStream longStream = Arrays.stream(getAssetVocabularyIds());
 
-		for (long assetVocabularyId : getAssetVocabularyIds()) {
-			AssetVocabulary assetVocabulary =
-				AssetVocabularyLocalServiceUtil.fetchAssetVocabulary(
-					assetVocabularyId);
-
-			currentVocabularNames.add(
-				new KeyValuePair(
-					String.valueOf(assetVocabularyId),
-					getTitle(assetVocabulary)));
-		}
-
-		return currentVocabularNames;
+		return longStream.boxed(
+		).map(
+			AssetVocabularyLocalServiceUtil::fetchAssetVocabulary
+		).map(
+			this::_toKeyValuePair
+		).collect(
+			Collectors.toList()
+		);
 	}
 
 	public List<AssetVocabulary> getDDMTemplateAssetVocabularies()
@@ -269,6 +264,12 @@ public class AssetCategoriesNavigationDisplayContext {
 		}
 
 		return title;
+	}
+
+	private KeyValuePair _toKeyValuePair(AssetVocabulary assetVocabulary) {
+		return new KeyValuePair(
+			String.valueOf(assetVocabulary.getVocabularyId()),
+			getTitle(assetVocabulary));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

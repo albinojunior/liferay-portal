@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.3.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_3_0.dtd">
 
-<service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.dynamic.data.mapping">
+<service-builder auto-import-default-references="false" auto-namespace-tables="false" change-tracking-enabled="true" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.dynamic.data.mapping">
 	<namespace>DDM</namespace>
 	<entity local-service="true" name="DDMContent" remote-service="false" uuid="true">
 
@@ -64,6 +64,7 @@
 		<column localized="true" name="description" type="String" />
 		<column name="definition" type="String" />
 		<column name="type" type="String" />
+		<column name="lastPublishDate" type="Date" />
 
 		<!-- Finder methods -->
 
@@ -122,9 +123,9 @@
 
 		<column name="companyId" type="long" />
 		<column name="userId" type="long" />
-		<column name="userName" type="String" />
+		<column name="userName" type="String" uad-anonymize-field-name="fullName" />
 		<column name="versionUserId" type="long" />
-		<column name="versionUserName" type="String" />
+		<column name="versionUserName" type="String" uad-anonymize-field-name="fullName" />
 		<column name="createDate" type="Date" />
 		<column name="modifiedDate" type="Date" />
 
@@ -132,8 +133,8 @@
 
 		<column name="structureId" type="long" />
 		<column name="version" type="String" />
-		<column localized="true" name="name" type="String" />
-		<column localized="true" name="description" type="String" />
+		<column localized="true" name="name" type="String" uad-nonanonymizable="true" />
+		<column localized="true" name="description" type="String" uad-nonanonymizable="true" />
 		<column name="settings" type="String" />
 		<column name="lastPublishDate" type="Date" />
 
@@ -176,7 +177,7 @@
 		<column name="formInstanceId" type="long" />
 		<column name="formInstanceVersion" type="String" />
 		<column name="storageId" type="long" />
-		<column name="version" type="String" />
+		<column name="version" type="String" uad-nonanonymizable="true" />
 		<column name="lastPublishDate" type="Date" />
 
 		<!-- Finder methods -->
@@ -257,6 +258,33 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
+	<entity local-service="true" name="DDMFormInstanceReport" remote-service="false">
+
+		<!-- PK fields -->
+
+		<column name="formInstanceReportId" primary="true" type="long" />
+
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="formInstanceId" type="long" />
+		<column name="data" type="String" />
+
+		<!-- Finder methods -->
+
+		<finder name="FormInstanceId" return-type="DDMFormInstanceReport">
+			<finder-column name="formInstanceId" />
+		</finder>
+	</entity>
 	<entity local-service="true" name="DDMFormInstanceVersion" remote-service="true">
 
 		<!-- PK fields -->
@@ -333,7 +361,7 @@
 		<!-- References -->
 
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="DDMStructure" remote-service="true" uuid="true">
+	<entity local-service="true" name="DDMStructure" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -373,9 +401,6 @@
 		</finder>
 		<finder name="ParentStructureId" return-type="Collection">
 			<finder-column name="parentStructureId" />
-		</finder>
-		<finder name="ClassNameId" return-type="Collection">
-			<finder-column name="classNameId" />
 		</finder>
 		<finder name="StructureKey" return-type="Collection">
 			<finder-column name="structureKey" />
@@ -477,7 +502,7 @@
 
 		<reference entity="User" package-path="com.liferay.portal" />
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="DDMStructureLink" remote-service="false">
+	<entity local-service="true" name="DDMStructureLink" remote-service="false">
 
 		<!-- PK fields -->
 
@@ -495,9 +520,6 @@
 
 		<!-- Finder methods -->
 
-		<finder name="ClassNameId" return-type="Collection">
-			<finder-column name="classNameId" />
-		</finder>
 		<finder name="StructureId" return-type="Collection">
 			<finder-column name="structureId" />
 		</finder>
@@ -511,7 +533,7 @@
 			<finder-column name="structureId" />
 		</finder>
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="DDMStructureVersion" remote-service="true">
+	<entity local-service="true" name="DDMStructureVersion" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -557,7 +579,7 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="DDMTemplate" remote-service="true" uuid="true">
+	<entity local-service="true" name="DDMTemplate" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -661,7 +683,7 @@
 		<reference entity="Resource" package-path="com.liferay.portal" />
 		<reference entity="User" package-path="com.liferay.portal" />
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="DDMTemplateLink" remote-service="false">
+	<entity local-service="true" name="DDMTemplateLink" remote-service="false">
 
 		<!-- PK fields -->
 
@@ -679,9 +701,6 @@
 
 		<!-- Finder methods -->
 
-		<finder name="ClassNameId" return-type="Collection">
-			<finder-column name="classNameId" />
-		</finder>
 		<finder name="TemplateId" return-type="Collection">
 			<finder-column name="templateId" />
 		</finder>
@@ -690,7 +709,7 @@
 			<finder-column name="classPK" />
 		</finder>
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="DDMTemplateVersion" remote-service="true">
+	<entity local-service="true" name="DDMTemplateVersion" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -744,6 +763,7 @@
 		<exception>DataProviderInstanceURL</exception>
 		<exception>DuplicateDataProviderInstanceInputParameterName</exception>
 		<exception>FormInstanceName</exception>
+		<exception>FormInstanceNotPublished</exception>
 		<exception>FormInstanceRecordExporter</exception>
 		<exception>FormInstanceRecordGroupId</exception>
 		<exception>FormInstanceSettingsRedirectURL</exception>
@@ -764,6 +784,7 @@
 		<exception>StructureField</exception>
 		<exception>StructureLayout</exception>
 		<exception>StructureName</exception>
+		<exception>TemplateCreationDisabled</exception>
 		<exception>TemplateDuplicateTemplateKey</exception>
 		<exception>TemplateName</exception>
 		<exception>TemplateScript</exception>

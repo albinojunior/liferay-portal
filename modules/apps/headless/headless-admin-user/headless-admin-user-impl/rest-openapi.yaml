@@ -150,7 +150,6 @@ components:
                 id:
                     description:
                         The organization's ID.
-                    readOnly: true
                     type: string
                 image:
                     description:
@@ -619,18 +618,15 @@ components:
                 additionalName:
                     description:
                         The user's additional name (e.g., middle name).
-                    readOnly: true
                     type: string
                 alternateName:
                     description:
                         The user's alias or screen name.
-                    readOnly: true
                     type: string
                 birthDate:
                     description:
                         The user's date of birth, in ISO 8601 format.
                     format: date-time
-                    readOnly: true
                     type: string
                 customFields:
                     items:
@@ -656,27 +652,22 @@ components:
                 emailAddress:
                     description:
                         The user's main email address.
-                    readOnly: true
                     type: string
                 familyName:
                     description:
                         The user's surname (last name).
-                    readOnly: true
                     type: string
                 givenName:
                     description:
                         The user's first name.
-                    readOnly: true
                     type: string
                 honorificPrefix:
                     description:
                         The user's title (e.g., Dr., Mr., Mrs, Ms., etc.).
-                    readOnly: true
                     type: string
                 honorificSuffix:
                     description:
                         The user's suffix (e.g., II, Jr., PhD, etc.).
-                    readOnly: true
                     type: string
                 id:
                     description:
@@ -693,7 +684,6 @@ components:
                 jobTitle:
                     description:
                         The user's job title.
-                    readOnly: true
                     type: string
                 keywords:
                     description:
@@ -742,12 +732,10 @@ components:
                                 A list of the user's email addresses, with one optionally marked as primary.
                             items:
                                 $ref: "#/components/schemas/EmailAddress"
-                            readOnly: true
                             type: array
                         facebook:
                             description:
                                 The user's Facebook account.
-                            readOnly: true
                             type: string
                         id:
                             description:
@@ -758,43 +746,36 @@ components:
                         jabber:
                             description:
                                 The user's Jabber handle.
-                            readOnly: true
                             type: string
                         postalAddresses:
                             description:
                                 A list of user's postal addresses, with one optionally marked as primary.
                             items:
                                 $ref: "#/components/schemas/PostalAddress"
-                            readOnly: true
                             type: array
                         skype:
                             description:
                                 The user's Skype handle.
-                            readOnly: true
                             type: string
                         sms:
                             description:
                                 The user's SMS number.
-                            readOnly: true
                             type: string
                         telephones:
                             description:
                                 A list of the user's phone numbers, with one optionally marked as primary.
                             items:
                                 $ref: "#/components/schemas/Phone"
-                            readOnly: true
                             type: array
                         twitter:
                             description:
                                 The user's Twitter handle.
-                            readOnly: true
                             type: string
                         webUrls:
                             description:
                                 A list of the user's web URLs, with one optionally marked as primary.
                             items:
                                 $ref: "#/components/schemas/WebUrl"
-                            readOnly: true
                             type: array
                     type: object
             type: object
@@ -822,7 +803,8 @@ components:
             type: object
 info:
     description:
-        ""
+        "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
+        'com.liferay.headless.admin.user.client', and version '3.0.4'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -1110,6 +1092,7 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/Organization"
+                    # @review
                     description:
                         "Organization successfully updated"
             tags: ["Organization"]
@@ -1454,6 +1437,189 @@ paths:
                     description:
                         ""
             tags: ["Role"]
+    "/roles/{roleId}/association/user-account/{userAccountId}":
+        delete:
+            # @review
+            description:
+                Unassociates a role with a user account
+            operationId: deleteRoleUserAccountAssociation
+            parameters:
+                - in: path
+                  name: roleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["Role"]
+        post:
+            # @review
+            description:
+                Associates a role with a user account
+            operationId: postRoleUserAccountAssociation
+            parameters:
+                - in: path
+                  name: roleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["Role"]
+    "/roles/{roleId}/association/user-account/{userAccountId}/organization/{organizationId}":
+        delete:
+            # @review
+            description:
+                Unassociates an organization role with a user account
+            operationId: deleteOrganizationRoleUserAccountAssociation
+            parameters:
+                - in: path
+                  name: roleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: organizationId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["Role"]
+        post:
+            # @review
+            description:
+                Associates a organization role with a user account
+            operationId: postOrganizationRoleUserAccountAssociation
+            parameters:
+                - in: path
+                  name: roleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: organizationId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["Role"]
+    "/roles/{roleId}/association/user-account/{userAccountId}/site/{siteId}":
+        delete:
+            # @review
+            description:
+                Unassociates a site role with a user account
+            operationId: deleteSiteRoleUserAccountAssociation
+            parameters:
+                - in: path
+                  name: roleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: siteId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["Role"]
+        post:
+            # @review
+            description:
+                Associates a site role with a user account
+            operationId: postSiteRoleUserAccountAssociation
+            parameters:
+                - in: path
+                  name: roleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: siteId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["Role"]
     "/segments/{segmentId}/user-accounts":
         get:
             description:
@@ -1696,7 +1862,50 @@ paths:
                     description:
                         ""
             tags: ["UserAccount"]
+        post:
+            description:
+                Creates a new user account
+            operationId: postUserAccount
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserAccount"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/UserAccount"
+            responses:
+                201:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserAccount"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/UserAccount"
+                    description:
+                        ""
     "/user-accounts/{userAccountId}":
+        delete:
+            # @review
+            description:
+                Deletes the user account
+            operationId: deleteUserAccount
+            parameters:
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["UserAccount"]
         get:
             description:
                 Retrieves the user account.
@@ -1720,6 +1929,70 @@ paths:
                     description:
                         ""
             tags: ["UserAccount"]
+        patch:
+            # @review
+            description:
+                Updates the user account with information sent in the request body. Only the provided fields
+                are updated.
+            operationId: patchUserAccount
+            parameters:
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserAccount"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/UserAccount"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserAccount"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/UserAccount"
+                    description:
+                        "UserAccount successfully updated"
+        put:
+            # @review
+            description:
+                Replaces the user account with information sent in the request body. Any missing fields are deleted
+                unless they are required.
+            operationId: putUserAccount
+            parameters:
+                - in: path
+                  name: userAccountId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserAccount"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/UserAccount"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserAccount"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/UserAccount"
+                    description:
+                        "UserAccount successfully updated"
     "/user-accounts/{userAccountId}/email-addresses":
         get:
             description:

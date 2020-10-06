@@ -14,7 +14,10 @@
 
 package com.liferay.segments.service;
 
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.segments.model.SegmentsEntryRel;
 
 /**
  * Provides a wrapper for {@link SegmentsEntryRelLocalService}.
@@ -34,7 +37,7 @@ public class SegmentsEntryRelLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel addSegmentsEntryRel(
+	public SegmentsEntryRel addSegmentsEntryRel(
 			long segmentsEntryId, long classNameId, long classPK,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -46,12 +49,16 @@ public class SegmentsEntryRelLocalServiceWrapper
 	/**
 	 * Adds the segments entry rel to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRel the segments entry rel
 	 * @return the segments entry rel that was added
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel addSegmentsEntryRel(
-		com.liferay.segments.model.SegmentsEntryRel segmentsEntryRel) {
+	public SegmentsEntryRel addSegmentsEntryRel(
+		SegmentsEntryRel segmentsEntryRel) {
 
 		return _segmentsEntryRelLocalService.addSegmentsEntryRel(
 			segmentsEntryRel);
@@ -86,9 +93,7 @@ public class SegmentsEntryRelLocalServiceWrapper
 	 * @return the new segments entry rel
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel createSegmentsEntryRel(
-		long segmentsEntryRelId) {
-
+	public SegmentsEntryRel createSegmentsEntryRel(long segmentsEntryRelId) {
 		return _segmentsEntryRelLocalService.createSegmentsEntryRel(
 			segmentsEntryRelId);
 	}
@@ -108,13 +113,16 @@ public class SegmentsEntryRelLocalServiceWrapper
 	/**
 	 * Deletes the segments entry rel with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRelId the primary key of the segments entry rel
 	 * @return the segments entry rel that was removed
 	 * @throws PortalException if a segments entry rel with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel deleteSegmentsEntryRel(
-			long segmentsEntryRelId)
+	public SegmentsEntryRel deleteSegmentsEntryRel(long segmentsEntryRelId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryRelLocalService.deleteSegmentsEntryRel(
@@ -133,12 +141,16 @@ public class SegmentsEntryRelLocalServiceWrapper
 	/**
 	 * Deletes the segments entry rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRel the segments entry rel
 	 * @return the segments entry rel that was removed
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel deleteSegmentsEntryRel(
-		com.liferay.segments.model.SegmentsEntryRel segmentsEntryRel) {
+	public SegmentsEntryRel deleteSegmentsEntryRel(
+		SegmentsEntryRel segmentsEntryRel) {
 
 		return _segmentsEntryRelLocalService.deleteSegmentsEntryRel(
 			segmentsEntryRel);
@@ -162,6 +174,11 @@ public class SegmentsEntryRelLocalServiceWrapper
 
 		_segmentsEntryRelLocalService.deleteSegmentsEntryRels(
 			segmentsEntryId, classNameId, classPKs);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _segmentsEntryRelLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -256,9 +273,7 @@ public class SegmentsEntryRelLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel fetchSegmentsEntryRel(
-		long segmentsEntryRelId) {
-
+	public SegmentsEntryRel fetchSegmentsEntryRel(long segmentsEntryRelId) {
 		return _segmentsEntryRelLocalService.fetchSegmentsEntryRel(
 			segmentsEntryRelId);
 	}
@@ -307,8 +322,7 @@ public class SegmentsEntryRelLocalServiceWrapper
 	 * @throws PortalException if a segments entry rel with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel getSegmentsEntryRel(
-			long segmentsEntryRelId)
+	public SegmentsEntryRel getSegmentsEntryRel(long segmentsEntryRelId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryRelLocalService.getSegmentsEntryRel(
@@ -327,43 +341,41 @@ public class SegmentsEntryRelLocalServiceWrapper
 	 * @return the range of segments entry rels
 	 */
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntryRel>
-		getSegmentsEntryRels(int start, int end) {
+	public java.util.List<SegmentsEntryRel> getSegmentsEntryRels(
+		int start, int end) {
 
 		return _segmentsEntryRelLocalService.getSegmentsEntryRels(start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntryRel>
-		getSegmentsEntryRels(long segmentsEntryId) {
+	public java.util.List<SegmentsEntryRel> getSegmentsEntryRels(
+		long segmentsEntryId) {
 
 		return _segmentsEntryRelLocalService.getSegmentsEntryRels(
 			segmentsEntryId);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntryRel>
-		getSegmentsEntryRels(
-			long segmentsEntryId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.segments.model.SegmentsEntryRel>
-					orderByComparator) {
+	public java.util.List<SegmentsEntryRel> getSegmentsEntryRels(
+		long segmentsEntryId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<SegmentsEntryRel>
+			orderByComparator) {
 
 		return _segmentsEntryRelLocalService.getSegmentsEntryRels(
 			segmentsEntryId, start, end, orderByComparator);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntryRel>
-		getSegmentsEntryRels(long classNameId, long classPK) {
+	public java.util.List<SegmentsEntryRel> getSegmentsEntryRels(
+		long classNameId, long classPK) {
 
 		return _segmentsEntryRelLocalService.getSegmentsEntryRels(
 			classNameId, classPK);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntryRel>
-		getSegmentsEntryRels(long groupId, long classNameId, long classPK) {
+	public java.util.List<SegmentsEntryRel> getSegmentsEntryRels(
+		long groupId, long classNameId, long classPK) {
 
 		return _segmentsEntryRelLocalService.getSegmentsEntryRels(
 			groupId, classNameId, classPK);
@@ -410,15 +422,39 @@ public class SegmentsEntryRelLocalServiceWrapper
 	/**
 	 * Updates the segments entry rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRel the segments entry rel
 	 * @return the segments entry rel that was updated
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntryRel updateSegmentsEntryRel(
-		com.liferay.segments.model.SegmentsEntryRel segmentsEntryRel) {
+	public SegmentsEntryRel updateSegmentsEntryRel(
+		SegmentsEntryRel segmentsEntryRel) {
 
 		return _segmentsEntryRelLocalService.updateSegmentsEntryRel(
 			segmentsEntryRel);
+	}
+
+	@Override
+	public CTPersistence<SegmentsEntryRel> getCTPersistence() {
+		return _segmentsEntryRelLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<SegmentsEntryRel> getModelClass() {
+		return _segmentsEntryRelLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SegmentsEntryRel>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _segmentsEntryRelLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

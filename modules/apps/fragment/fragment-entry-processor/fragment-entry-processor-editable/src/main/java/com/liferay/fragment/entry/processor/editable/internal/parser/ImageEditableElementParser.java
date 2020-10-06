@@ -17,6 +17,9 @@ package com.liferay.fragment.entry.processor.editable.internal.parser;
 import com.liferay.fragment.entry.processor.editable.EditableFragmentEntryProcessor;
 import com.liferay.fragment.entry.processor.editable.parser.EditableElementParser;
 import com.liferay.fragment.exception.FragmentEntryContentException;
+import com.liferay.info.localized.InfoLocalizedValue;
+import com.liferay.info.type.WebImage;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -34,6 +37,7 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.jsoup.nodes.Element;
@@ -70,6 +74,19 @@ public class ImageEditableElementParser implements EditableElementParser {
 
 			alt = fieldValueJSONObject.getString("alt");
 		}
+		else if (fieldValue instanceof WebImage) {
+			WebImage webImage = (WebImage)fieldValue;
+
+			Optional<InfoLocalizedValue<String>> altInfoLocalizedValueOptional =
+				webImage.getAltInfoLocalizedValueOptional();
+
+			if (altInfoLocalizedValueOptional.isPresent()) {
+				InfoLocalizedValue<String> infoLocalizedValue =
+					altInfoLocalizedValueOptional.get();
+
+				alt = infoLocalizedValue.getValue();
+			}
+		}
 
 		return JSONUtil.put("alt", alt);
 	}
@@ -84,18 +101,41 @@ public class ImageEditableElementParser implements EditableElementParser {
 
 		Element replaceableElement = elements.get(0);
 
-		return replaceableElement.attr("src");
+		String src = replaceableElement.attr("src");
+
+		if (Validator.isNull(src.trim())) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJ");
+			sb.append("CAYAAAA7KqwyAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs");
+			sb.append("4c6QAAAARnQU1BAACxjwv8YQUAAAAkSURBVHgB7cxBEQAACAIwtH8P");
+			sb.append("zw52kxD8OBZgNXsPQUOUwCIgAz0DHTyygaAAAAAASUVORK5CYII=");
+
+			return sb.toString();
+		}
+
+		return src;
 	}
 
 	@Override
 	public String parseFieldValue(Object fieldValue) {
-		if (!(fieldValue instanceof JSONObject)) {
-			return StringPool.BLANK;
+		if (fieldValue instanceof JSONObject) {
+			JSONObject jsonObject = (JSONObject)fieldValue;
+
+			return GetterUtil.getString(jsonObject.getString("url"));
+		}
+		else if ((fieldValue instanceof String) &&
+				 Validator.isNotNull(fieldValue)) {
+
+			return GetterUtil.getString(fieldValue);
+		}
+		else if (fieldValue instanceof WebImage) {
+			WebImage webImage = (WebImage)fieldValue;
+
+			return GetterUtil.getString(webImage.getUrl());
 		}
 
-		JSONObject jsonObject = (JSONObject)fieldValue;
-
-		return GetterUtil.getString(jsonObject.getString("url"));
+		return StringPool.BLANK;
 	}
 
 	@Override
@@ -115,10 +155,13 @@ public class ImageEditableElementParser implements EditableElementParser {
 
 		Element replaceableElement = elements.get(0);
 
-		if (value.startsWith(StringPool.OPEN_CURLY_BRACE)) {
+		long fileEntryId = 0;
+
+		if (JSONUtil.isValid(value)) {
 			try {
 				JSONObject jsonObject = JSONFactoryUtil.createJSONObject(value);
 
+				fileEntryId = jsonObject.getLong("fileEntryId", 0);
 				value = jsonObject.getString("url");
 			}
 			catch (JSONException jsonException) {
@@ -128,7 +171,16 @@ public class ImageEditableElementParser implements EditableElementParser {
 			}
 		}
 
-		replaceableElement.attr("src", _html.unescape(value));
+		value = value.trim();
+
+		if (fileEntryId > 0) {
+			replaceableElement.attr(
+				"data-fileentryid", String.valueOf(fileEntryId));
+		}
+
+		if (Validator.isNotNull(value)) {
+			replaceableElement.attr("src", _html.unescape(value));
+		}
 
 		if (configJSONObject == null) {
 			return;

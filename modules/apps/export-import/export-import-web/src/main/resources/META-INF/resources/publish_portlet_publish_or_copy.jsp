@@ -24,7 +24,7 @@ String tabs3 = ParamUtil.getString(request, "tabs3", "new-publication-process");
 boolean newPublication = tabs3.equals("new-publication-process");
 
 String defaultRange = ExportImportDateUtil.RANGE_ALL;
-String javascriptOnSubmitFunction = "event.halt(); " + renderResponse.getNamespace();
+String javascriptOnSubmitFunction = "event.halt(); " + liferayPortletResponse.getNamespace();
 long workingGroupId = liveGroupId;
 
 if (newPublication) {
@@ -56,7 +56,7 @@ else {
 	<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
 
 	<div class="export-dialog-tree portlet-export-import-publish-processes">
-		<div class="container-fluid-1280">
+		<clay:container-fluid>
 
 			<%
 			int incompleteBackgroundTaskCount = BackgroundTaskManagerUtil.getBackgroundTasksCount(StagingUtil.getStagingAndLiveGroupIds(themeDisplay.getScopeGroupId()), selPortlet.getPortletId(), BackgroundTaskExecutorNames.PORTLET_STAGING_BACKGROUND_TASK_EXECUTOR, false);
@@ -116,9 +116,9 @@ else {
 												<span class="selected-labels" id="<portlet:namespace />selectedConfiguration_<%= selPortlet.getRootPortletId() %>"></span>
 
 												<%
-												Map<String, Object> data = new HashMap<String, Object>();
-
-												data.put("portletid", selPortlet.getRootPortletId());
+												Map<String, Object> data = HashMapBuilder.<String, Object>put(
+													"portletid", selPortlet.getRootPortletId()
+												).build();
 												%>
 
 												<aui:a cssClass="configuration-link modify-link" data="<%= data %>" href="javascript:;" label="change" method="get" />
@@ -372,9 +372,9 @@ else {
 														<span class="selected-labels" id="<portlet:namespace />selectedContent_<%= selPortlet.getRootPortletId() %>"></span>
 
 														<%
-														Map<String, Object> data = new HashMap<String, Object>();
-
-														data.put("portletid", selPortlet.getRootPortletId());
+														Map<String, Object> data = HashMapBuilder.<String, Object>put(
+															"portletid", selPortlet.getRootPortletId()
+														).build();
 														%>
 
 														<aui:a cssClass="content-link modify-link" data="<%= data %>" href="javascript:;" id='<%= "contentLink_" + selPortlet.getRootPortletId() %>' label="change" method="get" />
@@ -411,7 +411,7 @@ else {
 					/>
 				</c:if>
 			</aui:fieldset-group>
-		</div>
+		</clay:container-fluid>
 	</div>
 
 	<aui:button-row>

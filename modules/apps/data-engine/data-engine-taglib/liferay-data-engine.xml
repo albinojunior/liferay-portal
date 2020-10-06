@@ -8,6 +8,12 @@
 	<component bodyContent="true" name="DataLayoutBuilder" writeJSP="true">
 		<attributes>
 			<attribute>
+				<name>additionalPanels</name>
+				<inputType><![CDATA[java.util.List<java.util.Map<java.lang.String, java.lang.Object>>]]></inputType>
+				<outputType><![CDATA[java.util.List<java.util.Map<java.lang.String, java.lang.Object>>]]></outputType>
+				<required>false</required>
+			</attribute>
+			<attribute>
 				<name>componentId</name>
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
@@ -17,7 +23,7 @@
 				<name>contentType</name>
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
-				<required>false</required>
+				<required>true</required>
 			</attribute>
 			<attribute>
 				<name>dataDefinitionId</name>
@@ -29,6 +35,12 @@
 				<name>dataLayoutId</name>
 				<inputType>java.lang.Long</inputType>
 				<outputType>java.lang.Long</outputType>
+				<required>false</required>
+			</attribute>
+			<attribute>
+				<name>fieldSetContentType</name>
+				<inputType>java.lang.String</inputType>
+				<outputType>java.lang.String</outputType>
 				<required>false</required>
 			</attribute>
 			<attribute>
@@ -53,13 +65,6 @@
 				<name>scopes</name>
 				<inputType>java.util.Set</inputType>
 				<required>false</required>
-			</attribute>
-			<attribute>
-				<name>singlePage</name>
-				<inputType>boolean</inputType>
-				<outputType>boolean</outputType>
-				<required>false</required>
-				<defaultValue>false</defaultValue>
 			</attribute>
 		</attributes>
 	</component>
@@ -90,8 +95,8 @@
 			</attribute>
 			<attribute>
 				<name>dataRecordValues</name>
-				<inputType>java.util.Map</inputType>
-				<outputType>java.util.Map</outputType>
+				<inputType><![CDATA[java.util.Map<java.lang.String, java.lang.Object>]]></inputType>
+				<outputType><![CDATA[java.util.Map<java.lang.String, java.lang.Object>]]></outputType>
 				<required>false</required>
 			</attribute>
 			<attribute>
@@ -99,6 +104,12 @@
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
 				<required>true</required>
+			</attribute>
+			<attribute>
+				<name>readOnly</name>
+				<inputType>boolean</inputType>
+				<outputType>boolean</outputType>
+				<required>false</required>
 			</attribute>
 		</attributes>
 	</component>

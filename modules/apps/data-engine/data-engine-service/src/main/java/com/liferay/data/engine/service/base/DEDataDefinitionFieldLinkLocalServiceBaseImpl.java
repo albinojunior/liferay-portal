@@ -22,6 +22,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -81,6 +83,10 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 	/**
 	 * Adds the de data definition field link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param deDataDefinitionFieldLink the de data definition field link
 	 * @return the de data definition field link that was added
 	 */
@@ -113,6 +119,10 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the de data definition field link with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param deDataDefinitionFieldLinkId the primary key of the de data definition field link
 	 * @return the de data definition field link that was removed
 	 * @throws PortalException if a de data definition field link with the primary key could not be found
@@ -130,6 +140,10 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the de data definition field link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param deDataDefinitionFieldLink the de data definition field link
 	 * @return the de data definition field link that was removed
 	 */
@@ -140,6 +154,11 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 
 		return deDataDefinitionFieldLinkPersistence.remove(
 			deDataDefinitionFieldLink);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return deDataDefinitionFieldLinkPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -434,6 +453,10 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 				(DEDataDefinitionFieldLink)persistedModel);
 	}
 
+	public BasePersistence<DEDataDefinitionFieldLink> getBasePersistence() {
+		return deDataDefinitionFieldLinkPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -528,6 +551,10 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 
 	/**
 	 * Updates the de data definition field link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param deDataDefinitionFieldLink the de data definition field link
 	 * @return the de data definition field link that was updated

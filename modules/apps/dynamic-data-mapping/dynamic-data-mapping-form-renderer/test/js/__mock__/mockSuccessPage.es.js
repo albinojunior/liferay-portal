@@ -16,7 +16,7 @@ export default {
 	body: {
 		en_US: '',
 	},
-	enabled: false,
+	enabled: true,
 	title: {
 		en_US: '',
 	},

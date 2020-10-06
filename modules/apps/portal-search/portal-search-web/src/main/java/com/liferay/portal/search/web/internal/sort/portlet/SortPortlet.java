@@ -14,8 +14,13 @@
 
 package com.liferay.portal.search.web.internal.sort.portlet;
 
+import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.search.searcher.SearchRequest;
+import com.liferay.portal.search.searcher.SearchResponse;
 import com.liferay.portal.search.web.internal.sort.constants.SortPortletKeys;
 import com.liferay.portal.search.web.internal.sort.display.context.SortDisplayBuilder;
 import com.liferay.portal.search.web.internal.sort.display.context.SortDisplayContext;
@@ -77,6 +82,11 @@ public class SortPortlet extends MVCPortlet {
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT, sortDisplayContext);
 
+		if (sortDisplayContext.isRenderNothing()) {
+			renderRequest.setAttribute(
+				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
+		}
+
 		super.render(renderRequest, renderResponse);
 	}
 
@@ -95,14 +105,53 @@ public class SortPortlet extends MVCPortlet {
 			portletSharedSearchResponse.getParameterValues(
 				parameterName, renderRequest);
 
-		return new SortDisplayBuilder(
-			sortPortletPreferences
+		return createSortDisplayBuilder(
+			renderRequest, sortPortletPreferences
 		).parameterName(
 			parameterName
 		).parameterValues(
 			parameterValues.orElse(null)
+		).renderNothing(
+			isRenderNothing(portletSharedSearchResponse)
 		).build();
 	}
+
+	protected SortDisplayBuilder createSortDisplayBuilder(
+		RenderRequest renderRequest,
+		SortPortletPreferences sortPortletPreferences) {
+
+		try {
+			return new SortDisplayBuilder(
+				language, portal, renderRequest, sortPortletPreferences);
+		}
+		catch (ConfigurationException configurationException) {
+			throw new RuntimeException(configurationException);
+		}
+	}
+
+	protected boolean isRenderNothing(
+		PortletSharedSearchResponse portletSharedSearchResponse) {
+
+		Optional<String> keywordsOptional =
+			portletSharedSearchResponse.getKeywordsOptional();
+
+		if (keywordsOptional.isPresent()) {
+			return false;
+		}
+
+		SearchResponse searchResponse =
+			portletSharedSearchResponse.getSearchResponse();
+
+		SearchRequest searchRequest = searchResponse.getRequest();
+
+		return !searchRequest.isEmptySearchEnabled();
+	}
+
+	@Reference
+	protected Language language;
+
+	@Reference
+	protected Portal portal;
 
 	@Reference
 	private PortletSharedSearchRequest _portletSharedSearchRequest;

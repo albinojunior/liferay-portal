@@ -34,6 +34,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.json.JSONObject;
+
 /**
  * @author Kenji Heigel
  */
@@ -43,10 +45,9 @@ public class NotificationUtil {
 		String body, String senderName, String subject,
 		String recipientEmailAddress) {
 
-		String hostName = JenkinsResultsParserUtil.getHostName(null);
-
 		sendEmail(
-			JenkinsResultsParserUtil.combine(senderName, "@", hostName),
+			JenkinsResultsParserUtil.combine(
+				senderName, "@", JenkinsResultsParserUtil.getHostName(null)),
 			senderName, recipientEmailAddress, subject, body);
 	}
 
@@ -131,6 +132,54 @@ public class NotificationUtil {
 			System.out.println(exception.getMessage());
 
 			exception.printStackTrace();
+		}
+	}
+
+	public static void sendSlackNotification(
+		String body, String channelName, String subject) {
+
+		sendSlackNotification(
+			body, channelName, ":liferay-ci:", subject, "Liferay CI");
+	}
+
+	public static void sendSlackNotification(
+		String body, String channelName, String iconEmoji, String subject,
+		String username) {
+
+		String text = body;
+
+		if (subject == null) {
+			subject = "";
+		}
+		else {
+			subject = subject.trim();
+
+			if (!subject.isEmpty()) {
+				subject = JenkinsResultsParserUtil.combine(
+					"*", subject, "*\n\n");
+
+				text = JenkinsResultsParserUtil.combine(
+					subject, "> ", body.replaceAll("\n", "\n> "));
+			}
+		}
+
+		JSONObject jsonObject = new JSONObject();
+
+		jsonObject.put("channel", channelName);
+		jsonObject.put("icon_emoji", iconEmoji);
+		jsonObject.put("text", text);
+		jsonObject.put("username", username);
+
+		try {
+			Properties properties = JenkinsResultsParserUtil.getBuildProperties(
+				true);
+
+			JenkinsResultsParserUtil.toString(
+				properties.getProperty("slack.webhook.url"),
+				jsonObject.toString());
+		}
+		catch (IOException ioException) {
+			ioException.printStackTrace();
 		}
 	}
 

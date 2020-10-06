@@ -13,10 +13,13 @@
  */
 
 export const LAYOUT_DATA_ITEM_TYPES = {
+	collection: 'collection',
+	collectionItem: 'collection-item',
 	column: 'column',
 	container: 'container',
 	dropZone: 'drop-zone',
 	fragment: 'fragment',
+	fragmentDropZone: 'fragment-drop-zone',
 	root: 'root',
 	row: 'row',
 };

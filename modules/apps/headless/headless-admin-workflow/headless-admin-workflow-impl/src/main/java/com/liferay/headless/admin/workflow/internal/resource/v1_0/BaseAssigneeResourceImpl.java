@@ -18,6 +18,7 @@ import com.liferay.headless.admin.workflow.dto.v1_0.Assignee;
 import com.liferay.headless.admin.workflow.resource.v1_0.AssigneeResource;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -118,6 +119,14 @@ public abstract class BaseAssigneeResourceImpl implements AssigneeResource {
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -127,12 +136,21 @@ public abstract class BaseAssigneeResourceImpl implements AssigneeResource {
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -140,10 +158,7 @@ public abstract class BaseAssigneeResourceImpl implements AssigneeResource {
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(Assignee assignee, Assignee existingAssignee) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

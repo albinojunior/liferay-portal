@@ -45,12 +45,12 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 	<aui:input name="privateLayout" type="hidden" value="<%= layoutsSEODisplayContext.isPrivateLayout() %>" />
 	<aui:input name="layoutId" type="hidden" value="<%= layoutsSEODisplayContext.getLayoutId() %>" />
 
-	<div class="sheet sheet-lg">
-		<div class="sheet-header">
+	<clay:sheet>
+		<clay:sheet-header>
 			<h2 class="sheet-title"><liferay-ui:message key="seo" /></h2>
-		</div>
+		</clay:sheet-header>
 
-		<div class="sheet-section">
+		<clay:sheet-section>
 			<liferay-ui:error-marker
 				key="<%= WebKeys.ERROR_SECTION %>"
 				value="seo"
@@ -60,106 +60,132 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 
 			<aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
 
-			<c:if test="<%= !selLayout.isTypeAssetDisplay() %>">
-				<aui:input helpMessage="html-title-help" id="title" label="html-title" name="title" placeholder="title" />
-				<aui:input helpMessage="description-help" id="descriptionSEO" name="description" placeholder="description" />
+			<c:choose>
+				<c:when test="<%= selLayout.isTypeAssetDisplay() %>">
+					<div class="dpt-mapping">
+						<div class="dpt-mapping-placeholder">
+							<aui:model-context bean="<%= null %>" model="<%= null %>" />
 
-				<%
-				LayoutSEOEntry selLayoutSEOEntry = layoutsSEODisplayContext.getSelLayoutSEOEntry();
-				%>
+							<aui:input disabled="<%= true %>" id="title" label="html-title" localized="<%= false %>" name="title" placeholder="title" />
 
-				<liferay-util:buffer
-					var="infoCanonicalURL"
-				>
-					<clay:alert
-						message='<%= LanguageUtil.get(resourceBundle, "use-custom-canonical-url-alert-info") %>'
-						title='<%= LanguageUtil.get(request, "info") + ":" %>'
-					/>
-				</liferay-util:buffer>
+							<div class="form-text">
+								<liferay-ui:message arguments='<%= new String[] {"text", "html-title"} %>' key="map-a-x-field-it-will-be-used-as-x" />
+							</div>
 
-				<c:choose>
-					<c:when test="<%= selLayoutSEOEntry != null %>">
-						<aui:model-context bean="<%= selLayoutSEOEntry %>" model="<%= LayoutSEOEntry.class %>" />
+							<aui:input disabled="<%= true %>" id="descriptionSEO" localized="<%= false %>" name="description" placeholder="description" />
 
-						<aui:input checked="<%= selLayoutSEOEntry.isCanonicalURLEnabled() %>" helpMessage="use-custom-canonical-url-help" label="use-custom-canonical-url" name="canonicalURLEnabled" type="checkbox" wrapperCssClass="mb-1" />
+							<div class="form-text">
+								<liferay-ui:message arguments='<%= new String[] {"text", "description"} %>' key="map-a-x-field-it-will-be-used-as-x" />
+							</div>
 
-						<div id="<portlet:namespace />customCanonicalURLSettings">
-							<aui:input disabled="<%= !selLayoutSEOEntry.isCanonicalURLEnabled() %>" label="<%= StringPool.BLANK %>" name="canonicalURL" placeholder="<%= layoutsSEODisplayContext.getDefaultCanonicalURL() %>">
-								<aui:validator name="url" />
-							</aui:input>
+							<aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
 						</div>
-
-						<div class="<%= selLayoutSEOEntry.isCanonicalURLEnabled() ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />canonicalURLAlert">
-							<%= infoCanonicalURL %>
-						</div>
-
-						<aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
-					</c:when>
-					<c:otherwise>
-						<aui:input checked="<%= false %>" helpMessage="use-custom-canonical-url-help" label="use-custom-canonical-url" name="canonicalURLEnabled" type="checkbox" wrapperCssClass="mb-1" />
-
-						<div id="<portlet:namespace />customCanonicalURLSettings">
-							<aui:input disabled="<%= true %>" label="<%= StringPool.BLANK %>" localized="<%= true %>" name="canonicalURL" placeholder="<%= layoutsSEODisplayContext.getDefaultCanonicalURL() %>" type="text">
-								<aui:validator name="url" />
-							</aui:input>
-						</div>
-
-						<div class="hide" id="<portlet:namespace />canonicalURLAlert">
-							<%= infoCanonicalURL %>
-						</div>
-					</c:otherwise>
-				</c:choose>
-
-				<aui:input name="keywords" placeholder="keywords" />
-
-				<div class="form-group">
-					<label><liferay-ui:message key="preview" /></label>
-
-					<div>
-
-						<%
-						Map<String, Object> data = HashMapBuilder.<String, Object>put(
-							"targets",
-							HashMapBuilder.<String, Object>put(
-								"description",
-								HashMapBuilder.put(
-									"defaultValue", selLayout.getDescription(locale)
-								).put(
-									"id", "descriptionSEO"
-								).build()
-							).put(
-								"title",
-								HashMapBuilder.<String, Object>put(
-									"defaultValue", layoutsSEODisplayContext.getDefaultPageTitleMap()
-								).put(
-									"id", "title"
-								).build()
-							).put(
-								"url",
-								HashMapBuilder.<String, Object>put(
-									"defaultValue", layoutsSEODisplayContext.getDefaultCanonicalURLMap()
-								).put(
-									"id", "canonicalURL"
-								).build()
-							).build()
-						).put(
-							"titleSuffix", layoutsSEODisplayContext.getPageTitleSuffix()
-						).build();
-						%>
 
 						<react:component
-							data="<%= data %>"
-							module="js/seo/PreviewSeo.es"
+							module="js/seo/display_page_templates/SeoMapping"
+							props="<%= layoutsSEODisplayContext.getSEOMappingData() %>"
 							servletContext="<%= application %>"
 						/>
 					</div>
-				</div>
+				</c:when>
+				<c:otherwise>
+					<aui:input helpMessage="html-title-help" id="title" label="html-title" name="title" placeholder="title" />
+					<aui:input helpMessage="description-help" id="descriptionSEO" name="description" placeholder="description" />
 
-				<liferay-frontend:component
-					module="js/seo/seo.es"
-					servletContext="<%= application %>"
-				/>
-			</c:if>
+					<%
+					LayoutSEOEntry selLayoutSEOEntry = layoutsSEODisplayContext.getSelLayoutSEOEntry();
+					%>
+
+					<liferay-util:buffer
+						var="infoCanonicalURL"
+					>
+						<clay:alert
+							message="use-custom-canonical-url-alert-info"
+						/>
+					</liferay-util:buffer>
+
+					<c:choose>
+						<c:when test="<%= selLayoutSEOEntry != null %>">
+							<aui:model-context bean="<%= selLayoutSEOEntry %>" model="<%= LayoutSEOEntry.class %>" />
+
+							<aui:input checked="<%= selLayoutSEOEntry.isCanonicalURLEnabled() %>" helpMessage="use-custom-canonical-url-help" label="use-custom-canonical-url" name="canonicalURLEnabled" type="checkbox" wrapperCssClass="mb-1" />
+
+							<div id="<portlet:namespace />customCanonicalURLSettings">
+								<aui:input disabled="<%= !selLayoutSEOEntry.isCanonicalURLEnabled() %>" label="<%= StringPool.BLANK %>" name="canonicalURL" placeholder="<%= layoutsSEODisplayContext.getDefaultCanonicalURL() %>">
+									<aui:validator name="url" />
+								</aui:input>
+							</div>
+
+							<div class="<%= selLayoutSEOEntry.isCanonicalURLEnabled() ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />canonicalURLAlert">
+								<%= infoCanonicalURL %>
+							</div>
+
+							<aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
+						</c:when>
+						<c:otherwise>
+							<aui:input checked="<%= false %>" helpMessage="use-custom-canonical-url-help" label="use-custom-canonical-url" name="canonicalURLEnabled" type="checkbox" wrapperCssClass="mb-1" />
+
+							<div id="<portlet:namespace />customCanonicalURLSettings">
+								<aui:input disabled="<%= true %>" label="<%= StringPool.BLANK %>" localized="<%= true %>" name="canonicalURL" placeholder="<%= layoutsSEODisplayContext.getDefaultCanonicalURL() %>" type="text">
+									<aui:validator name="url" />
+								</aui:input>
+							</div>
+
+							<div class="hide" id="<portlet:namespace />canonicalURLAlert">
+								<%= infoCanonicalURL %>
+							</div>
+						</c:otherwise>
+					</c:choose>
+
+					<aui:input name="keywords" placeholder="keywords" />
+
+					<div class="form-group">
+						<label><liferay-ui:message key="preview" /></label>
+
+						<div>
+
+							<react:component
+								module="js/seo/PreviewSeo.es"
+								props='<%=
+									HashMapBuilder.<String, Object>put(
+										"targets",
+										HashMapBuilder.<String, Object>put(
+											"description",
+											HashMapBuilder.put(
+												"defaultValue", selLayout.getDescription(locale)
+											).put(
+												"id", "descriptionSEO"
+											).build()
+										).put(
+											"title",
+											HashMapBuilder.<String, Object>put(
+												"defaultValue", layoutsSEODisplayContext.getDefaultPageTitleMap()
+											).put(
+												"id", "title"
+											).build()
+										).put(
+											"url",
+											HashMapBuilder.<String, Object>put(
+												"defaultValue", layoutsSEODisplayContext.getDefaultCanonicalURLMap()
+											).put(
+												"id", "canonicalURL"
+											).build()
+										).build()
+									).put(
+										"titleSuffix", layoutsSEODisplayContext.getPageTitleSuffix()
+									).build()
+								%>'
+								servletContext="<%= application %>"
+							/>
+						</div>
+					</div>
+
+					<liferay-frontend:component
+						module="js/seo/seo.es"
+						servletContext="<%= application %>"
+					/>
+				</c:otherwise>
+			</c:choose>
 
 			<aui:input name="robots" placeholder="robots" />
 
@@ -183,20 +209,12 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 					<aui:option label="no" selected="<%= !sitemapInclude %>" value="0" />
 				</aui:select>
 
-				<%
-				String sitemapPriority = layoutTypeSettings.getProperty("sitemap-priority", PropsValues.SITES_SITEMAP_DEFAULT_PRIORITY);
-				%>
-
-				<aui:input cssClass="propagatable-field" disabled="<%= selLayout.isLayoutPrototypeLinkActive() %>" helpMessage="page-priority-help" label="page-priority" name="TypeSettingsProperties--sitemap-priority--" placeholder="0.0" size="3" type="text" value="<%= sitemapPriority %>">
+				<aui:input cssClass="propagatable-field" disabled="<%= selLayout.isLayoutPrototypeLinkActive() %>" helpMessage="page-priority-help" label="page-priority" name="TypeSettingsProperties--sitemap-priority--" placeholder="0.0" size="3" type="text" value='<%= layoutTypeSettings.getProperty("sitemap-priority", PropsValues.SITES_SITEMAP_DEFAULT_PRIORITY) %>'>
 					<aui:validator name="number" />
 					<aui:validator errorMessage="please-enter-a-valid-page-priority" name="range">[0,1]</aui:validator>
 				</aui:input>
 
-				<%
-				String siteMapChangeFrequency = layoutTypeSettings.getProperty("sitemap-changefreq", PropsValues.SITES_SITEMAP_DEFAULT_CHANGE_FREQUENCY);
-				%>
-
-				<aui:select cssClass="propagatable-field" disabled="<%= selLayout.isLayoutPrototypeLinkActive() %>" label="change-frequency" name="TypeSettingsProperties--sitemap-changefreq--" value="<%= siteMapChangeFrequency %>">
+				<aui:select cssClass="propagatable-field" disabled="<%= selLayout.isLayoutPrototypeLinkActive() %>" label="change-frequency" name="TypeSettingsProperties--sitemap-changefreq--" value='<%= layoutTypeSettings.getProperty("sitemap-changefreq", PropsValues.SITES_SITEMAP_DEFAULT_CHANGE_FREQUENCY) %>'>
 					<aui:option label="always" />
 					<aui:option label="hourly" />
 					<aui:option label="daily" />
@@ -206,12 +224,12 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 					<aui:option label="never" />
 				</aui:select>
 			</c:if>
-		</div>
+		</clay:sheet-section>
 
-		<div class="sheet-footer">
+		<clay:sheet-footer>
 			<aui:button primary="<%= true %>" type="submit" />
 
 			<aui:button href="<%= backURL %>" type="cancel" />
-		</div>
-	</div>
+		</clay:sheet-footer>
+	</clay:sheet>
 </aui:form>

@@ -16,8 +16,11 @@
 
 <%@ include file="/init.jsp" %>
 
-<aui:row>
-	<aui:col cssClass="lfr-border-width use-for-all-column" width="<%= 33 %>">
+<clay:row>
+	<clay:col
+		cssClass="lfr-border-width use-for-all-column"
+		md="4"
+	>
 		<aui:fieldset label="border-width">
 			<aui:input checked='<%= portletConfigurationCSSPortletDisplayContext.isBorderSameForAll("borderWidth") %>' data-inputselector=".same-border-width" label="same-for-all" name="useForAllWidth" type="toggle-switch" />
 
@@ -58,9 +61,12 @@
 				</aui:select>
 			</span>
 		</aui:fieldset>
-	</aui:col>
+	</clay:col>
 
-	<aui:col cssClass="lfr-border-style" width="<%= 33 %>">
+	<clay:col
+		cssClass="lfr-border-style"
+		md="4"
+	>
 		<aui:fieldset label="border-style">
 			<aui:input checked='<%= portletConfigurationCSSPortletDisplayContext.isBorderSameForAll("borderStyle") %>' data-inputselector=".same-border-style" label="same-for-all" name="useForAllStyle" type="toggle-switch" />
 
@@ -112,37 +118,40 @@
 				<aui:option label="solid" selected='<%= Objects.equals(portletConfigurationCSSPortletDisplayContext.getBorderProperty("left", "borderStyle"), "solid") %>' />
 			</aui:select>
 		</aui:fieldset>
-	</aui:col>
+	</clay:col>
 
-	<aui:col cssClass="lfr-border-color" last="<%= true %>" width="<%= 33 %>">
+	<clay:col
+		cssClass="lfr-border-color"
+		md="4"
+	>
 		<aui:fieldset label="border-color">
 			<aui:input checked='<%= portletConfigurationCSSPortletDisplayContext.isBorderSameForAll("borderColor") %>' data-inputselector=".same-border-color" label="same-for-all" name="useForAllColor" type="toggle-switch" />
 
 			<liferay-util:include page="/color_picker_input.jsp" servletContext="<%= application %>">
 				<liferay-util:param name="color" value='<%= portletConfigurationCSSPortletDisplayContext.getBorderProperty("top", "borderColor") %>' />
 				<liferay-util:param name="label" value='<%= LanguageUtil.get(request, "top") %>' />
-				<liferay-util:param name="name" value='<%= renderResponse.getNamespace() + "borderColorTop" %>' />
+				<liferay-util:param name="name" value='<%= liferayPortletResponse.getNamespace() + "borderColorTop" %>' />
 			</liferay-util:include>
 
 			<fieldset class="same-border-color" <%= portletConfigurationCSSPortletDisplayContext.isBorderSameForAll("borderColor") ? "disabled" : StringPool.BLANK %>>
 				<liferay-util:include page="/color_picker_input.jsp" servletContext="<%= application %>">
 					<liferay-util:param name="color" value='<%= portletConfigurationCSSPortletDisplayContext.getBorderProperty("right", "borderColor") %>' />
 					<liferay-util:param name="label" value='<%= LanguageUtil.get(request, "right") %>' />
-					<liferay-util:param name="name" value='<%= renderResponse.getNamespace() + "borderColorRight" %>' />
+					<liferay-util:param name="name" value='<%= liferayPortletResponse.getNamespace() + "borderColorRight" %>' />
 				</liferay-util:include>
 
 				<liferay-util:include page="/color_picker_input.jsp" servletContext="<%= application %>">
 					<liferay-util:param name="color" value='<%= portletConfigurationCSSPortletDisplayContext.getBorderProperty("bottom", "borderColor") %>' />
 					<liferay-util:param name="label" value='<%= LanguageUtil.get(request, "bottom") %>' />
-					<liferay-util:param name="name" value='<%= renderResponse.getNamespace() + "borderColorBottom" %>' />
+					<liferay-util:param name="name" value='<%= liferayPortletResponse.getNamespace() + "borderColorBottom" %>' />
 				</liferay-util:include>
 
 				<liferay-util:include page="/color_picker_input.jsp" servletContext="<%= application %>">
 					<liferay-util:param name="color" value='<%= portletConfigurationCSSPortletDisplayContext.getBorderProperty("left", "borderColor") %>' />
 					<liferay-util:param name="label" value='<%= LanguageUtil.get(request, "left") %>' />
-					<liferay-util:param name="name" value='<%= renderResponse.getNamespace() + "borderColorLeft" %>' />
+					<liferay-util:param name="name" value='<%= liferayPortletResponse.getNamespace() + "borderColorLeft" %>' />
 				</liferay-util:include>
 			</fieldset>
 		</aui:fieldset>
-	</aui:col>
-</aui:row>
+	</clay:col>
+</clay:row>

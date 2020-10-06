@@ -19,15 +19,15 @@ import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
-import com.liferay.info.display.contributor.InfoDisplayContributor;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
+import com.liferay.info.item.InfoItemReference;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.security.permission.resource.ModelResourcePermissionUtil;
+import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
+import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.model.LayoutClassedModelUsage;
-import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
-import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalServiceUtil;
-import com.liferay.layout.util.structure.ContainerLayoutStructureItem;
+import com.liferay.layout.util.structure.ContainerStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.string.StringBundler;
@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -70,36 +69,37 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ContentUtil {
 
-	public static Set<InfoDisplayObjectProvider>
-		getFragmentEntryLinkMappedInfoDisplayObjectProviders(
+	public static Set<LayoutDisplayPageObjectProvider<?>>
+		getFragmentEntryLinkMappedLayoutDisplayPageObjectProviders(
 			FragmentEntryLink fragmentEntryLink) {
 
-		return _getFragmentEntryLinkMappedInfoDisplayObjectProviders(
+		return _getFragmentEntryLinkMappedLayoutDisplayPageObjectProviders(
 			fragmentEntryLink, new HashSet<>());
 	}
 
-	public static Set<InfoDisplayObjectProvider>
-		getLayoutMappedInfoDisplayObjectProviders(String layoutData) {
+	public static Set<LayoutDisplayPageObjectProvider<?>>
+		getLayoutMappedLayoutDisplayPageObjectProviders(String layoutData) {
 
-		return _getLayoutMappedInfoDisplayObjectProviders(
-			layoutData, new HashSet<>());
+		return _getLayoutMappedLayoutDisplayPageObjectProviders(
+			LayoutStructure.of(layoutData), new HashSet<>());
 	}
 
-	public static Set<InfoDisplayObjectProvider>
-			getMappedInfoDisplayObjectProviders(long groupId, long plid)
+	public static Set<LayoutDisplayPageObjectProvider<?>>
+			getMappedLayoutDisplayPageObjectProviders(long groupId, long plid)
 		throws PortalException {
 
 		Set<Long> mappedClassPKs = new HashSet<>();
 
-		Set<InfoDisplayObjectProvider> infoDisplayObjectProviders =
-			_getFragmentEntryLinksMappedInfoDisplayObjectProviders(
-				groupId, plid, mappedClassPKs);
+		Set<LayoutDisplayPageObjectProvider<?>>
+			layoutDisplayPageObjectProviders =
+				_getFragmentEntryLinksMappedLayoutDisplayPageObjectProviders(
+					groupId, plid, mappedClassPKs);
 
-		infoDisplayObjectProviders.addAll(
-			_getLayoutMappedInfoDisplayObjectProviders(
+		layoutDisplayPageObjectProviders.addAll(
+			_getLayoutMappedLayoutDisplayPageObjectProviders(
 				groupId, plid, mappedClassPKs));
 
-		return infoDisplayObjectProviders;
+		return layoutDisplayPageObjectProviders;
 	}
 
 	public static JSONArray getPageContentsJSONArray(
@@ -163,13 +163,16 @@ public class ContentUtil {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		InfoDisplayContributor infoDisplayContributor =
-			InfoDisplayContributorTrackerUtil.getInfoDisplayContributor(
+		String className = layoutClassedModelUsage.getClassName();
+
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			LayoutDisplayPageProviderTrackerUtil.getLayoutDisplayPageProvider(
 				layoutClassedModelUsage.getClassName());
 
-		InfoDisplayObjectProvider infoDisplayObjectProvider =
-			infoDisplayContributor.getInfoDisplayObjectProvider(
-				layoutClassedModelUsage.getClassPK());
+		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider =
+			layoutDisplayPageProvider.getLayoutDisplayPageObjectProvider(
+				new InfoItemReference(
+					className, layoutClassedModelUsage.getClassPK()));
 
 		if (ModelResourcePermissionUtil.contains(
 				themeDisplay.getPermissionChecker(),
@@ -178,7 +181,7 @@ public class ContentUtil {
 
 			String editURL = InfoEditURLProviderUtil.getURLEdit(
 				layoutClassedModelUsage.getClassName(),
-				infoDisplayObjectProvider.getDisplayObject(),
+				layoutDisplayPageObjectProvider.getDisplayObject(),
 				httpServletRequest);
 
 			if (editURL != null) {
@@ -194,7 +197,7 @@ public class ContentUtil {
 			String permissionsURL = PermissionsURLTag.doTag(
 				StringPool.BLANK, layoutClassedModelUsage.getClassName(),
 				HtmlUtil.escape(
-					infoDisplayObjectProvider.getTitle(
+					layoutDisplayPageObjectProvider.getTitle(
 						themeDisplay.getLocale())),
 				null, String.valueOf(layoutClassedModelUsage.getClassPK()),
 				LiferayWindowState.POP_UP.toString(), null, httpServletRequest);
@@ -220,8 +223,8 @@ public class ContentUtil {
 		return jsonObject.put("viewUsagesURL", viewUsagesURL.toString());
 	}
 
-	private static Set<InfoDisplayObjectProvider>
-		_getFragmentEntryLinkMappedInfoDisplayObjectProviders(
+	private static Set<LayoutDisplayPageObjectProvider<?>>
+		_getFragmentEntryLinkMappedLayoutDisplayPageObjectProviders(
 			FragmentEntryLink fragmentEntryLink, Set<Long> mappedClassPKs) {
 
 		JSONObject editableValuesJSONObject = null;
@@ -241,8 +244,8 @@ public class ContentUtil {
 			return Collections.emptySet();
 		}
 
-		Set<InfoDisplayObjectProvider> infoDisplayObjectProviders =
-			new HashSet<>();
+		Set<LayoutDisplayPageObjectProvider<?>>
+			layoutDisplayPageObjectProviders = new HashSet<>();
 
 		Iterator<String> keysIterator = editableValuesJSONObject.keys();
 
@@ -275,13 +278,14 @@ public class ContentUtil {
 				if ((configJSONObject != null) &&
 					(configJSONObject.length() > 0)) {
 
-					InfoDisplayObjectProvider infoDisplayObjectProvider =
-						_getInfoDisplayObjectProvider(
-							configJSONObject, mappedClassPKs);
+					LayoutDisplayPageObjectProvider<?>
+						layoutDisplayPageObjectProvider =
+							_getLayoutDisplayPageObjectProvider(
+								configJSONObject, mappedClassPKs);
 
-					if (infoDisplayObjectProvider != null) {
-						infoDisplayObjectProviders.add(
-							infoDisplayObjectProvider);
+					if (layoutDisplayPageObjectProvider != null) {
+						layoutDisplayPageObjectProviders.add(
+							layoutDisplayPageObjectProvider);
 					}
 				}
 
@@ -291,54 +295,57 @@ public class ContentUtil {
 				if ((itemSelectorJSONObject != null) &&
 					(itemSelectorJSONObject.length() > 0)) {
 
-					InfoDisplayObjectProvider infoDisplayObjectProvider =
-						_getInfoDisplayObjectProvider(
-							itemSelectorJSONObject, mappedClassPKs);
+					LayoutDisplayPageObjectProvider<?>
+						layoutDisplayPageObjectProvider =
+							_getLayoutDisplayPageObjectProvider(
+								itemSelectorJSONObject, mappedClassPKs);
 
-					if (infoDisplayObjectProvider != null) {
-						infoDisplayObjectProviders.add(
-							infoDisplayObjectProvider);
+					if (layoutDisplayPageObjectProvider != null) {
+						layoutDisplayPageObjectProviders.add(
+							layoutDisplayPageObjectProvider);
 					}
 				}
 
-				InfoDisplayObjectProvider infoDisplayObjectProvider =
-					_getInfoDisplayObjectProvider(
-						editableJSONObject, mappedClassPKs);
+				LayoutDisplayPageObjectProvider<?>
+					layoutDisplayPageObjectProvider =
+						_getLayoutDisplayPageObjectProvider(
+							editableJSONObject, mappedClassPKs);
 
-				if (infoDisplayObjectProvider == null) {
+				if (layoutDisplayPageObjectProvider == null) {
 					continue;
 				}
 
-				infoDisplayObjectProviders.add(infoDisplayObjectProvider);
+				layoutDisplayPageObjectProviders.add(
+					layoutDisplayPageObjectProvider);
 			}
 		}
 
-		return infoDisplayObjectProviders;
+		return layoutDisplayPageObjectProviders;
 	}
 
-	private static Set<InfoDisplayObjectProvider>
-		_getFragmentEntryLinksMappedInfoDisplayObjectProviders(
+	private static Set<LayoutDisplayPageObjectProvider<?>>
+		_getFragmentEntryLinksMappedLayoutDisplayPageObjectProviders(
 			long groupId, long plid, Set<Long> mappedClassPKs) {
 
-		Set<InfoDisplayObjectProvider> infoDisplayObjectProviders =
-			new HashSet<>();
+		Set<LayoutDisplayPageObjectProvider<?>>
+			layoutDisplayPageObjectProviders = new HashSet<>();
 
 		List<FragmentEntryLink> fragmentEntryLinks =
-			FragmentEntryLinkLocalServiceUtil.getFragmentEntryLinks(
-				groupId, PortalUtil.getClassNameId(Layout.class.getName()),
-				plid);
+			FragmentEntryLinkLocalServiceUtil.getFragmentEntryLinksByPlid(
+				groupId, plid);
 
 		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
-			infoDisplayObjectProviders.addAll(
-				_getFragmentEntryLinkMappedInfoDisplayObjectProviders(
+			layoutDisplayPageObjectProviders.addAll(
+				_getFragmentEntryLinkMappedLayoutDisplayPageObjectProviders(
 					fragmentEntryLink, mappedClassPKs));
 		}
 
-		return infoDisplayObjectProviders;
+		return layoutDisplayPageObjectProviders;
 	}
 
-	private static InfoDisplayObjectProvider _getInfoDisplayObjectProvider(
-		JSONObject jsonObject, Set<Long> mappedClassPKs) {
+	private static LayoutDisplayPageObjectProvider<?>
+		_getLayoutDisplayPageObjectProvider(
+			JSONObject jsonObject, Set<Long> mappedClassPKs) {
 
 		if (!jsonObject.has("classNameId") || !jsonObject.has("classPK")) {
 			return null;
@@ -362,83 +369,86 @@ public class ContentUtil {
 			return null;
 		}
 
-		try {
-			InfoDisplayContributor infoDisplayContributor =
-				InfoDisplayContributorTrackerUtil.getInfoDisplayContributor(
-					PortalUtil.getClassName(classNameId));
+		String className = PortalUtil.getClassName(classNameId);
 
-			if (infoDisplayContributor == null) {
-				return null;
-			}
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			LayoutDisplayPageProviderTrackerUtil.getLayoutDisplayPageProvider(
+				className);
 
-			return infoDisplayContributor.getInfoDisplayObjectProvider(classPK);
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					StringBundler.concat(
-						"Unable to get info display object provider for class ",
-						"name ID ", classNameId, " with primary key ", classPK),
-					portalException);
-			}
+		if (layoutDisplayPageProvider == null) {
+			return null;
 		}
 
-		return null;
+		return layoutDisplayPageProvider.getLayoutDisplayPageObjectProvider(
+			new InfoItemReference(className, classPK));
 	}
 
-	private static Set<InfoDisplayObjectProvider>
-			_getLayoutMappedInfoDisplayObjectProviders(
-				long groupId, long plid, Set<Long> mappedClassPKs)
-		throws PortalException {
+	private static Set<LayoutDisplayPageObjectProvider<?>>
+		_getLayoutMappedLayoutDisplayPageObjectProviders(
+			LayoutStructure layoutStructure, Set<Long> mappedClassPKs) {
 
-		LayoutPageTemplateStructure layoutPageTemplateStructure =
-			LayoutPageTemplateStructureLocalServiceUtil.
-				fetchLayoutPageTemplateStructure(
-					groupId, PortalUtil.getClassNameId(Layout.class.getName()),
-					plid, false);
-
-		return _getLayoutMappedInfoDisplayObjectProviders(
-			layoutPageTemplateStructure.getData(
-				SegmentsExperienceConstants.ID_DEFAULT),
-			mappedClassPKs);
-	}
-
-	private static Set<InfoDisplayObjectProvider>
-		_getLayoutMappedInfoDisplayObjectProviders(
-			String layoutData, Set<Long> mappedClassPKs) {
-
-		LayoutStructure layoutStructure = LayoutStructure.of(layoutData);
-
-		Set<InfoDisplayObjectProvider> infoDisplayObjectProviders =
-			new HashSet<>();
+		Set<LayoutDisplayPageObjectProvider<?>>
+			layoutDisplayPageObjectProviders = new HashSet<>();
 
 		for (LayoutStructureItem layoutStructureItem :
 				layoutStructure.getLayoutStructureItems()) {
 
 			if (!(layoutStructureItem instanceof
-					ContainerLayoutStructureItem)) {
+					ContainerStyledLayoutStructureItem)) {
 
 				continue;
 			}
 
-			ContainerLayoutStructureItem containerLayoutStructureItem =
-				(ContainerLayoutStructureItem)layoutStructureItem;
+			ContainerStyledLayoutStructureItem
+				containerStyledLayoutStructureItem =
+					(ContainerStyledLayoutStructureItem)layoutStructureItem;
 
 			JSONObject backgroundImageJSONObject =
-				containerLayoutStructureItem.getBackgroundImageJSONObject();
+				containerStyledLayoutStructureItem.
+					getBackgroundImageJSONObject();
 
 			if (backgroundImageJSONObject != null) {
-				InfoDisplayObjectProvider infoDisplayObjectProvider =
-					_getInfoDisplayObjectProvider(
-						backgroundImageJSONObject, mappedClassPKs);
+				LayoutDisplayPageObjectProvider<?>
+					layoutDisplayPageObjectProvider =
+						_getLayoutDisplayPageObjectProvider(
+							backgroundImageJSONObject, mappedClassPKs);
 
-				if (infoDisplayObjectProvider != null) {
-					infoDisplayObjectProviders.add(infoDisplayObjectProvider);
+				if (layoutDisplayPageObjectProvider != null) {
+					layoutDisplayPageObjectProviders.add(
+						layoutDisplayPageObjectProvider);
+				}
+			}
+
+			JSONObject linkJSONObject =
+				containerStyledLayoutStructureItem.getLinkJSONObject();
+
+			if (linkJSONObject != null) {
+				LayoutDisplayPageObjectProvider<?>
+					layoutDisplayPageObjectProvider =
+						_getLayoutDisplayPageObjectProvider(
+							linkJSONObject, mappedClassPKs);
+
+				if (layoutDisplayPageObjectProvider != null) {
+					layoutDisplayPageObjectProviders.add(
+						layoutDisplayPageObjectProvider);
 				}
 			}
 		}
 
-		return infoDisplayObjectProviders;
+		return layoutDisplayPageObjectProviders;
+	}
+
+	private static Set<LayoutDisplayPageObjectProvider<?>>
+			_getLayoutMappedLayoutDisplayPageObjectProviders(
+				long groupId, long plid, Set<Long> mappedClassPKs)
+		throws PortalException {
+
+		LayoutStructure layoutStructure =
+			LayoutStructureUtil.getLayoutStructure(
+				groupId, plid, SegmentsExperienceConstants.ID_DEFAULT);
+
+		return _getLayoutMappedLayoutDisplayPageObjectProviders(
+			layoutStructure, mappedClassPKs);
 	}
 
 	private static JSONObject _getPageContentJSONObject(
@@ -462,13 +472,15 @@ public class ContentUtil {
 			"classPK", layoutClassedModelUsage.getClassPK()
 		);
 
-		InfoDisplayContributor infoDisplayContributor =
-			InfoDisplayContributorTrackerUtil.getInfoDisplayContributor(
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			LayoutDisplayPageProviderTrackerUtil.getLayoutDisplayPageProvider(
 				layoutClassedModelUsage.getClassName());
 
-		InfoDisplayObjectProvider infoDisplayObjectProvider =
-			infoDisplayContributor.getInfoDisplayObjectProvider(
-				layoutClassedModelUsage.getClassPK());
+		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider =
+			layoutDisplayPageProvider.getLayoutDisplayPageObjectProvider(
+				new InfoItemReference(
+					layoutClassedModelUsage.getClassName(),
+					layoutClassedModelUsage.getClassPK()));
 
 		return mappedContentJSONObject.put(
 			"name",
@@ -479,7 +491,7 @@ public class ContentUtil {
 			"status", _getStatusJSONObject(layoutClassedModelUsage)
 		).put(
 			"title",
-			infoDisplayObjectProvider.getTitle(themeDisplay.getLocale())
+			layoutDisplayPageObjectProvider.getTitle(themeDisplay.getLocale())
 		).put(
 			"usagesCount",
 			LayoutClassedModelUsageLocalServiceUtil.
@@ -491,9 +503,9 @@ public class ContentUtil {
 
 	private static JSONObject _getStatusJSONObject(
 			LayoutClassedModelUsage layoutClassedModelUsage)
-		throws PortalException {
+		throws Exception {
 
-		AssetRendererFactory assetRendererFactory =
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.
 				getAssetRendererFactoryByClassNameId(
 					layoutClassedModelUsage.getClassNameId());
@@ -512,7 +524,7 @@ public class ContentUtil {
 			);
 		}
 
-		AssetRenderer latestAssetRenderer =
+		AssetRenderer<?> latestAssetRenderer =
 			assetRendererFactory.getAssetRenderer(
 				layoutClassedModelUsage.getClassPK(),
 				AssetRendererFactory.TYPE_LATEST);
@@ -522,9 +534,10 @@ public class ContentUtil {
 		if (latestAssetRenderer.getStatus() !=
 				WorkflowConstants.STATUS_APPROVED) {
 
-			AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(
-				layoutClassedModelUsage.getClassPK(),
-				AssetRendererFactory.TYPE_LATEST_APPROVED);
+			AssetRenderer<?> assetRenderer =
+				assetRendererFactory.getAssetRenderer(
+					layoutClassedModelUsage.getClassPK(),
+					AssetRendererFactory.TYPE_LATEST_APPROVED);
 
 			if (assetRenderer.getStatus() ==
 					WorkflowConstants.STATUS_APPROVED) {

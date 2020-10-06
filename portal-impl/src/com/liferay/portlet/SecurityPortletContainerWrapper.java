@@ -15,6 +15,7 @@
 package com.liferay.portlet;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.portlet.ActionResult;
 import com.liferay.portal.kernel.portlet.PortletContainer;
 import com.liferay.portal.kernel.portlet.PortletContainerException;
 import com.liferay.portal.kernel.portlet.PortletContainerUtil;
-import com.liferay.portal.kernel.resiliency.spi.SPIUtil;
 import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
 import com.liferay.portal.kernel.security.auth.AuthTokenWhitelistUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -55,15 +55,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SecurityPortletContainerWrapper implements PortletContainer {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static PortletContainer createSecurityPortletContainerWrapper(
 		PortletContainer portletContainer) {
 
-		if (!SPIUtil.isSPI()) {
-			portletContainer = new SecurityPortletContainerWrapper(
-				portletContainer);
-		}
-
-		return portletContainer;
+		return new SecurityPortletContainerWrapper(portletContainer);
 	}
 
 	public SecurityPortletContainerWrapper(PortletContainer portletContainer) {
@@ -305,13 +304,9 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 			return String.valueOf(httpServletRequest.getRequestURI());
 		}
 
-		String portalURL = PortalUtil.getPortalURL(httpServletRequest);
-
-		return portalURL.concat(
-			lastPath.getContextPath()
-		).concat(
-			lastPath.getPath()
-		);
+		return StringBundler.concat(
+			PortalUtil.getPortalURL(httpServletRequest),
+			lastPath.getContextPath(), lastPath.getPath());
 	}
 
 	protected HttpServletRequest getOwnerLayoutRequestWrapper(
@@ -326,10 +321,6 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 
 		Layout ownerLayout = null;
 		LayoutTypePortlet ownerLayoutTypePortlet = null;
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
 
 		Layout requestLayout = (Layout)httpServletRequest.getAttribute(
 			WebKeys.LAYOUT);
@@ -350,6 +341,10 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 		if (ownerLayout == null) {
 			return httpServletRequest;
 		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		Layout currentLayout = themeDisplay.getLayout();
 

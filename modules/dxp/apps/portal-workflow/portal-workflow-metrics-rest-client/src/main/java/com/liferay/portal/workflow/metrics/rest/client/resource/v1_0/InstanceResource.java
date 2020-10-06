@@ -44,15 +44,37 @@ public interface InstanceResource {
 	}
 
 	public Page<Instance> getProcessInstancesPage(
-			Long processId, Long[] assigneeUserIds, java.util.Date dateEnd,
-			java.util.Date dateStart, String[] slaStatuses, String[] statuses,
-			String[] taskKeys, Pagination pagination)
+			Long processId, Long[] assigneeIds, Long[] classPKs,
+			Boolean completed, java.util.Date dateEnd, java.util.Date dateStart,
+			String[] slaStatuses, String[] taskNames, Pagination pagination)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getProcessInstancesPageHttpResponse(
-			Long processId, Long[] assigneeUserIds, java.util.Date dateEnd,
-			java.util.Date dateStart, String[] slaStatuses, String[] statuses,
-			String[] taskKeys, Pagination pagination)
+			Long processId, Long[] assigneeIds, Long[] classPKs,
+			Boolean completed, java.util.Date dateEnd, java.util.Date dateStart,
+			String[] slaStatuses, String[] taskNames, Pagination pagination)
+		throws Exception;
+
+	public Instance postProcessInstance(Long processId, Instance instance)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse postProcessInstanceHttpResponse(
+			Long processId, Instance instance)
+		throws Exception;
+
+	public void postProcessInstanceBatch(
+			Long processId, String callbackURL, Object object)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse postProcessInstanceBatchHttpResponse(
+			Long processId, String callbackURL, Object object)
+		throws Exception;
+
+	public void deleteProcessInstance(Long processId, Long instanceId)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse deleteProcessInstanceHttpResponse(
+			Long processId, Long instanceId)
 		throws Exception;
 
 	public Instance getProcessInstance(Long processId, Long instanceId)
@@ -60,6 +82,22 @@ public interface InstanceResource {
 
 	public HttpInvoker.HttpResponse getProcessInstanceHttpResponse(
 			Long processId, Long instanceId)
+		throws Exception;
+
+	public void patchProcessInstance(
+			Long processId, Long instanceId, Instance instance)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse patchProcessInstanceHttpResponse(
+			Long processId, Long instanceId, Instance instance)
+		throws Exception;
+
+	public void patchProcessInstanceComplete(
+			Long processId, Long instanceId, Instance instance)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse patchProcessInstanceCompleteHttpResponse(
+			Long processId, Long instanceId, Instance instance)
 		throws Exception;
 
 	public static class Builder {
@@ -107,8 +145,8 @@ public interface InstanceResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -118,15 +156,16 @@ public interface InstanceResource {
 	public static class InstanceResourceImpl implements InstanceResource {
 
 		public Page<Instance> getProcessInstancesPage(
-				Long processId, Long[] assigneeUserIds, java.util.Date dateEnd,
+				Long processId, Long[] assigneeIds, Long[] classPKs,
+				Boolean completed, java.util.Date dateEnd,
 				java.util.Date dateStart, String[] slaStatuses,
-				String[] statuses, String[] taskKeys, Pagination pagination)
+				String[] taskNames, Pagination pagination)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getProcessInstancesPageHttpResponse(
-					processId, assigneeUserIds, dateEnd, dateStart, slaStatuses,
-					statuses, taskKeys, pagination);
+					processId, assigneeIds, classPKs, completed, dateEnd,
+					dateStart, slaStatuses, taskNames, pagination);
 
 			String content = httpResponse.getContent();
 
@@ -149,9 +188,10 @@ public interface InstanceResource {
 		}
 
 		public HttpInvoker.HttpResponse getProcessInstancesPageHttpResponse(
-				Long processId, Long[] assigneeUserIds, java.util.Date dateEnd,
+				Long processId, Long[] assigneeIds, Long[] classPKs,
+				Boolean completed, java.util.Date dateEnd,
 				java.util.Date dateStart, String[] slaStatuses,
-				String[] statuses, String[] taskKeys, Pagination pagination)
+				String[] taskNames, Pagination pagination)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -178,11 +218,22 @@ public interface InstanceResource {
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 				"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-			if (assigneeUserIds != null) {
-				for (int i = 0; i < assigneeUserIds.length; i++) {
+			if (assigneeIds != null) {
+				for (int i = 0; i < assigneeIds.length; i++) {
 					httpInvoker.parameter(
-						"assigneeUserIds", String.valueOf(assigneeUserIds[i]));
+						"assigneeIds", String.valueOf(assigneeIds[i]));
 				}
+			}
+
+			if (classPKs != null) {
+				for (int i = 0; i < classPKs.length; i++) {
+					httpInvoker.parameter(
+						"classPKs", String.valueOf(classPKs[i]));
+				}
+			}
+
+			if (completed != null) {
+				httpInvoker.parameter("completed", String.valueOf(completed));
 			}
 
 			if (dateEnd != null) {
@@ -202,17 +253,10 @@ public interface InstanceResource {
 				}
 			}
 
-			if (statuses != null) {
-				for (int i = 0; i < statuses.length; i++) {
+			if (taskNames != null) {
+				for (int i = 0; i < taskNames.length; i++) {
 					httpInvoker.parameter(
-						"statuses", String.valueOf(statuses[i]));
-				}
-			}
-
-			if (taskKeys != null) {
-				for (int i = 0; i < taskKeys.length; i++) {
-					httpInvoker.parameter(
-						"taskKeys", String.valueOf(taskKeys[i]));
+						"taskNames", String.valueOf(taskNames[i]));
 				}
 			}
 
@@ -228,6 +272,195 @@ public interface InstanceResource {
 					_builder._port +
 						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances",
 				processId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public Instance postProcessInstance(Long processId, Instance instance)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postProcessInstanceHttpResponse(processId, instance);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return InstanceSerDes.toDTO(content);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse postProcessInstanceHttpResponse(
+				Long processId, Instance instance)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(instance.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances",
+				processId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void postProcessInstanceBatch(
+				Long processId, String callbackURL, Object object)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postProcessInstanceBatchHttpResponse(
+					processId, callbackURL, object);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+		}
+
+		public HttpInvoker.HttpResponse postProcessInstanceBatchHttpResponse(
+				Long processId, String callbackURL, Object object)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(object.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			if (callbackURL != null) {
+				httpInvoker.parameter(
+					"callbackURL", String.valueOf(callbackURL));
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/batch",
+				processId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void deleteProcessInstance(Long processId, Long instanceId)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				deleteProcessInstanceHttpResponse(processId, instanceId);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse deleteProcessInstanceHttpResponse(
+				Long processId, Long instanceId)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.DELETE);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}",
+				processId, instanceId);
 
 			httpInvoker.userNameAndPassword(
 				_builder._login + ":" + _builder._password);
@@ -290,6 +523,141 @@ public interface InstanceResource {
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port +
 						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}",
+				processId, instanceId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void patchProcessInstance(
+				Long processId, Long instanceId, Instance instance)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				patchProcessInstanceHttpResponse(
+					processId, instanceId, instance);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse patchProcessInstanceHttpResponse(
+				Long processId, Long instanceId, Instance instance)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(instance.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PATCH);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}",
+				processId, instanceId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void patchProcessInstanceComplete(
+				Long processId, Long instanceId, Instance instance)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				patchProcessInstanceCompleteHttpResponse(
+					processId, instanceId, instance);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				patchProcessInstanceCompleteHttpResponse(
+					Long processId, Long instanceId, Instance instance)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(instance.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PATCH);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}/complete",
 				processId, instanceId);
 
 			httpInvoker.userNameAndPassword(

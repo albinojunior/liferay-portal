@@ -15,6 +15,7 @@
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
+import ClayLink from '@clayui/link';
 import PropTypes from 'prop-types';
 import React, {useCallback, useState} from 'react';
 
@@ -22,7 +23,7 @@ function PageTypeSelector(props) {
 	const [active, setActive] = useState(false);
 
 	const handleOnChange = useCallback(
-		event => {
+		(event) => {
 			const pageType = event.target.value;
 
 			Liferay.Util.Session.set(
@@ -33,15 +34,15 @@ function PageTypeSelector(props) {
 		[props.namespace]
 	);
 
+	const handleOnAddCollectionPageClick = useCallback(() => {
+		setActive(false);
+		Liferay.Util.navigate(props.addCollectionLayoutURL);
+	}, [props.addCollectionLayoutURL]);
+
 	const handleOnAddPageClick = useCallback(() => {
 		setActive(false);
 		Liferay.Util.navigate(props.addLayoutURL);
 	}, [props.addLayoutURL]);
-
-	const handleOnConfigureClick = useCallback(() => {
-		setActive(false);
-		Liferay.Util.navigate(props.configureLayoutSetURL);
-	}, [props.configureLayoutSetURL]);
 
 	return (
 		<div className="align-items-center d-flex page-type-selector">
@@ -61,51 +62,70 @@ function PageTypeSelector(props) {
 					</option>
 				</select>
 			</div>
+
 			<div className="flex-fill flex-grow-1 text-right">
-				<ClayDropDown
-					active={active}
-					onActiveChange={setActive}
-					trigger={
-						<ClayButton
-							aria-haspopup="true"
-							className="dropdown-toggle"
-							displayType="unstyled"
-						>
-							<ClayIcon symbol="ellipsis-v" />
-						</ClayButton>
-					}
-				>
-					<ClayDropDown.ItemList>
-						{props.addLayoutURL !== '' && (
-							<ClayDropDown.Item
-								className="autofit-row"
-								data-value={Liferay.Language.get('add-page')}
-								key={Liferay.Language.get('add-page')}
-								onClick={handleOnAddPageClick}
-								title={Liferay.Language.get('add-page')}
+				{props.showAddIcon && (
+					<ClayDropDown
+						active={active}
+						onActiveChange={setActive}
+						trigger={
+							<ClayButton
+								aria-haspopup="true"
+								className="dropdown-toggle"
+								displayType="unstyled"
 							>
-								<span className="autofit-col autofit-col-expand">
-									<span className="autofit-section">
-										{Liferay.Language.get('add-page')}
-									</span>
-								</span>
-							</ClayDropDown.Item>
-						)}
-						<ClayDropDown.Item
-							className="autofit-row"
-							data-value={Liferay.Language.get('configure')}
-							key={Liferay.Language.get('configure')}
-							onClick={handleOnConfigureClick}
-							title={Liferay.Language.get('configure')}
-						>
-							<span className="autofit-col autofit-col-expand">
-								<span className="autofit-section">
-									{Liferay.Language.get('configure')}
-								</span>
-							</span>
-						</ClayDropDown.Item>
-					</ClayDropDown.ItemList>
-				</ClayDropDown>
+								<ClayIcon symbol="plus" />
+							</ClayButton>
+						}
+					>
+						<ClayDropDown.ItemList>
+							{props.addLayoutURL && (
+								<ClayDropDown.Item
+									data-value={Liferay.Language.get(
+										'add-page'
+									)}
+									key={Liferay.Language.get('add-page')}
+									onClick={handleOnAddPageClick}
+									title={Liferay.Language.get('add-page')}
+								>
+									{Liferay.Language.get('add-page')}
+								</ClayDropDown.Item>
+							)}
+							{props.addCollectionLayoutURL && (
+								<ClayDropDown.Item
+									data-value={Liferay.Language.get(
+										'add-collection-page'
+									)}
+									key={Liferay.Language.get(
+										'add-collection-page'
+									)}
+									onClick={handleOnAddCollectionPageClick}
+									title={Liferay.Language.get(
+										'add-collection-page'
+									)}
+								>
+									{Liferay.Language.get(
+										'add-collection-page'
+									)}
+								</ClayDropDown.Item>
+							)}
+						</ClayDropDown.ItemList>
+					</ClayDropDown>
+				)}
+			</div>
+			<div className="autofit-col ml-2">
+				{props.configureLayoutSetURL && (
+					<ClayLink
+						borderless
+						className="configure-link"
+						displayType="unstyled"
+						href={props.configureLayoutSetURL}
+						monospaced
+						outline
+					>
+						<ClayIcon symbol="cog" />
+					</ClayLink>
+				)}
 			</div>
 		</div>
 	);
@@ -116,8 +136,7 @@ PageTypeSelector.propTypes = {
 	configureLayoutSetURL: PropTypes.string,
 	namespace: PropTypes.string,
 	privateLayout: PropTypes.bool,
+	showAddIcon: PropTypes.bool,
 };
 
-export default function(props) {
-	return <PageTypeSelector {...props} />;
-}
+export default PageTypeSelector;

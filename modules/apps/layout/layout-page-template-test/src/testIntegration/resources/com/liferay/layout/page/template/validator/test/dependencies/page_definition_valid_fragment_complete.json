@@ -1,24 +1,24 @@
 {
-	"pageElement" : {
-		"pageElements" : [
+	"pageElement": {
+		"pageElements": [
 			{
-				"definition" : {
-					"fragment" : {
-						"fragmentCollectionName" : "My Fragment Collection",
-						"fragmentKey" : "my-key",
-						"fragmentName" : "My Fragment"
+				"definition": {
+					"fragment": {
+						"key": "my-key"
 					},
-					"fragmentConfig" : {
-						"fieldOne" : 1,
-						"fieldThree" : "v2",
-						"fieldTwo" : "v1"
+					"fragmentConfig": {
+						"fieldOne": 1,
+						"fieldThree": "v2",
+						"fieldTwo": "v1"
 					},
-					"fragmentFields" : []
+					"fragmentFields": [
+					]
 				},
-				"pageElements" : [],
-				"type" : "Fragment"
+				"pageElements": [
+				],
+				"type": "Fragment"
 			}
 		],
-		"type" : "Root"
+		"type": "Root"
 	}
 }

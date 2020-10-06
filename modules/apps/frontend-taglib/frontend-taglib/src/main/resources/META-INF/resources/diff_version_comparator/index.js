@@ -43,7 +43,7 @@ function Comparator({
 	const availableVersions = useMemo(
 		() =>
 			diffVersions.filter(
-				diffVersion =>
+				(diffVersion) =>
 					sourceVersion !== diffVersion.version &&
 					targetVersion !== diffVersion.version
 			),
@@ -51,21 +51,21 @@ function Comparator({
 	);
 
 	const selectableVersions = useMemo(
-		() => availableVersions.filter(version => version.inRange),
+		() => availableVersions.filter((version) => version.inRange),
 		[availableVersions]
 	);
 
 	const getDiffURL = useCallback(
-		filterTargetVersion => {
+		(filterTargetVersion) => {
 			const diffURL = new URL(resourceURL);
 
 			diffURL.searchParams.append(
-				`_${portletNamespace}_filterSourceVersion`,
+				`${portletNamespace}filterSourceVersion`,
 				sourceVersion
 			);
 
 			diffURL.searchParams.append(
-				`_${portletNamespace}_filterTargetVersion`,
+				`${portletNamespace}filterTargetVersion`,
 				filterTargetVersion
 			);
 
@@ -75,7 +75,7 @@ function Comparator({
 	);
 
 	const handleFilterChange = useCallback(
-		event => {
+		(event) => {
 			const query = event.target.value.toLowerCase();
 
 			const visibleVersions = selectableVersions.filter(
@@ -104,14 +104,14 @@ function Comparator({
 	const formRef = useRef();
 
 	const handleTargetChange = useCallback(
-		event => {
+		(event) => {
 			const target = event.target.closest('[data-version]');
 
 			const currentTargetVersion = target
 				? target.getAttribute('data-version')
 				: null;
 
-			const selectedVersion = selectableVersions.find(version => {
+			const selectedVersion = selectableVersions.find((version) => {
 				return version.version === currentTargetVersion;
 			});
 
@@ -129,8 +129,8 @@ function Comparator({
 		}
 		else {
 			fetch(diffURL)
-				.then(res => res.text())
-				.then(text => {
+				.then((res) => res.text())
+				.then((text) => {
 					diffCache.current[diffURL] = text;
 				})
 				.catch(() => {
@@ -155,13 +155,13 @@ function Comparator({
 			ref={formRef}
 		>
 			<ClayInput
-				name={`_${portletNamespace}_sourceVersion`}
+				name={`${portletNamespace}sourceVersion`}
 				type="hidden"
 				value={sourceVersion}
 			/>
 
 			<ClayInput
-				name={`_${portletNamespace}_targetVersion`}
+				name={`${portletNamespace}targetVersion`}
 				type="hidden"
 				value={targetVersion}
 			/>
@@ -221,7 +221,7 @@ function Comparator({
 							{availableLocales && availableLocales.length > 1 && (
 								<LocaleSelector
 									locales={availableLocales}
-									onChange={event => {
+									onChange={(event) => {
 										setSelectedLanguageId(
 											event.target.value
 										);
@@ -254,6 +254,4 @@ function Comparator({
 	);
 }
 
-export default function(props) {
-	return <Comparator {...props} />;
-}
+export default Comparator;

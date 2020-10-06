@@ -46,7 +46,7 @@ List<MenuItem> menuItems = MenuItem.fromWikiNode(selNodeId, depth, viewURL);
 
 				selectedChild.expand();
 
-				selectedChild.eachParent(function(node) {
+				selectedChild.eachParent(function (node) {
 					if (node instanceof A.TreeNode) {
 						node.expand();
 					}
@@ -68,7 +68,7 @@ private String _buildTreeMenuHTML(List<MenuItem> menuItems, String curTitle, boo
 	}
 
 	for (MenuItem menuItem : menuItems) {
-		String label = menuItem.getLabel();
+		String name = menuItem.getName();
 		String url = menuItem.getURL();
 
 		sb.append("<li class=\"tree-node\">");
@@ -76,18 +76,18 @@ private String _buildTreeMenuHTML(List<MenuItem> menuItems, String curTitle, boo
 		if (Validator.isNotNull(url)) {
 			sb.append("<a ");
 
-			if (label.equals(curTitle)) {
+			if (name.equals(curTitle)) {
 				sb.append("class=\"tag-selected\" ");
 			}
 
 			sb.append("href=\"");
 			sb.append(url);
 			sb.append("\">");
-			sb.append(label);
+			sb.append(name);
 			sb.append("</a>");
 		}
 		else {
-			sb.append(label);
+			sb.append(name);
 		}
 
 		if (!menuItem.getChildren().isEmpty()) {

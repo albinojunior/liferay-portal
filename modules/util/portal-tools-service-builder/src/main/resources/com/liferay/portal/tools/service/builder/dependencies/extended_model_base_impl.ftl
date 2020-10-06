@@ -69,24 +69,24 @@ public abstract class ${entity.name}BaseImpl extends ${entity.name}ModelImpl imp
 				@Override
 				@SuppressWarnings("unused")
 				public String buildTreePath() throws PortalException {
-					List<${entity.name}> ${entity.varNames} = new ArrayList<${entity.name}>();
+					List<${entity.name}> ${entity.pluralVariableName} = new ArrayList<${entity.name}>();
 
-					${entity.name} ${entity.varName} = this;
+					${entity.name} ${entity.variableName} = this;
 
-					while (${entity.varName} != null) {
-						${entity.varNames}.add(${entity.varName});
+					while (${entity.variableName} != null) {
+						${entity.pluralVariableName}.add(${entity.variableName});
 
-						${entity.varName} = ${entity.name}LocalServiceUtil.fetch${entity.name}(${entity.varName}.getParent${pkEntityColumn.methodName}());
+						${entity.variableName} = ${entity.name}LocalServiceUtil.fetch${entity.name}(${entity.variableName}.getParent${pkEntityColumn.methodName}());
 					}
 
-					StringBundler sb = new StringBundler(${entity.varNames}.size() * 2 + 1);
+					StringBundler sb = new StringBundler(${entity.pluralVariableName}.size() * 2 + 1);
 
 					sb.append("/");
 
-					for (int i = ${entity.varNames}.size() - 1; i >= 0; i--) {
-						${entity.varName} = ${entity.varNames}.get(i);
+					for (int i = ${entity.pluralVariableName}.size() - 1; i >= 0; i--) {
+						${entity.variableName} = ${entity.pluralVariableName}.get(i);
 
-						sb.append(${entity.varName}.get${entity.PKEntityColumns[0].methodName}());
+						sb.append(${entity.variableName}.get${entity.PKEntityColumns[0].methodName}());
 						sb.append("/");
 					}
 
@@ -96,19 +96,19 @@ public abstract class ${entity.name}BaseImpl extends ${entity.name}ModelImpl imp
 
 			@Override
 			public void updateTreePath(String treePath) {
-				${entity.name} ${entity.varName} = this;
+				${entity.name} ${entity.variableName} = this;
 
-				${entity.varName}.setTreePath(treePath);
+				${entity.variableName}.setTreePath(treePath);
 
 				<#if entity.versionEntity??>
 					try {
-						${entity.name}LocalServiceUtil.update${entity.name}(${entity.varName});
+						${entity.name}LocalServiceUtil.update${entity.name}(${entity.variableName});
 					}
 					catch (PortalException portalException) {
 						throw new SystemException(portalException);
 					}
 				<#else>
-					${entity.name}LocalServiceUtil.update${entity.name}(${entity.varName});
+					${entity.name}LocalServiceUtil.update${entity.name}(${entity.variableName});
 				</#if>
 			}
 		</#if>

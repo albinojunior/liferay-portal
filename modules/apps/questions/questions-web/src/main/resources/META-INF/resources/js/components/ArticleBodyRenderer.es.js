@@ -15,14 +15,38 @@
 import parser from 'bbcode-to-react';
 import React from 'react';
 
-export default ({articleBody, encodingFormat}) => {
+import Highlight from './Highlight.es';
+
+export default ({
+	articleBody,
+	compactMode = false,
+	encodingFormat,
+	id,
+	signature,
+}) => {
 	return (
 		<>
 			{encodingFormat === 'bbcode' && (
 				<p>{parser.toReact(articleBody)}</p>
 			)}
-			{encodingFormat !== 'bbcode' && (
-				<p dangerouslySetInnerHTML={{__html: articleBody}} />
+			{encodingFormat !== 'bbcode' && compactMode && (
+				<div
+					className={`questions-article-body-${id}`}
+					dangerouslySetInnerHTML={{__html: articleBody}}
+				/>
+			)}
+			{encodingFormat !== 'bbcode' && !compactMode && (
+				<div className={`cke_readonly questions-article-body-${id}`}>
+					<Highlight innerHTML={true}>{articleBody}</Highlight>
+				</div>
+			)}
+
+			{signature && (
+				<style
+					dangerouslySetInnerHTML={{
+						__html: `.questions-article-body-${id} p:last-child:after {content: " - ${signature}"; font-weight: bold;}`,
+					}}
+				/>
 			)}
 		</>
 	);

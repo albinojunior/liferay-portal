@@ -13,13 +13,24 @@
  */
 
 import CKEditor from 'ckeditor4-react';
-import React from 'react';
+import React, {useEffect} from 'react';
 
 const BASEPATH = '/o/frontend-editor-ckeditor-web/ckeditor/';
 
-const Editor = props => {
-	return <CKEditor {...props} />;
-};
+const Editor = React.forwardRef((props, ref) => {
+	useEffect(() => {
+		Liferay.once('beforeScreenFlip', () => {
+			if (
+				window.CKEDITOR &&
+				Object.keys(window.CKEDITOR.instances).length === 0
+			) {
+				delete window.CKEDITOR;
+			}
+		});
+	}, []);
+
+	return <CKEditor ref={ref} {...props} />;
+});
 
 CKEditor.editorUrl = `${BASEPATH}ckeditor.js`;
 window.CKEDITOR_BASEPATH = BASEPATH;

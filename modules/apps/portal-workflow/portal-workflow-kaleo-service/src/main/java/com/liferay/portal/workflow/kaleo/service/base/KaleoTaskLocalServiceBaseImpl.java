@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -91,6 +93,10 @@ public abstract class KaleoTaskLocalServiceBaseImpl
 	/**
 	 * Adds the kaleo task to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTask the kaleo task
 	 * @return the kaleo task that was added
 	 */
@@ -117,6 +123,10 @@ public abstract class KaleoTaskLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo task with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskId the primary key of the kaleo task
 	 * @return the kaleo task that was removed
 	 * @throws PortalException if a kaleo task with the primary key could not be found
@@ -130,6 +140,10 @@ public abstract class KaleoTaskLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo task from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTask the kaleo task
 	 * @return the kaleo task that was removed
 	 */
@@ -137,6 +151,11 @@ public abstract class KaleoTaskLocalServiceBaseImpl
 	@Override
 	public KaleoTask deleteKaleoTask(KaleoTask kaleoTask) {
 		return kaleoTaskPersistence.remove(kaleoTask);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return kaleoTaskPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -304,6 +323,10 @@ public abstract class KaleoTaskLocalServiceBaseImpl
 		return kaleoTaskLocalService.deleteKaleoTask((KaleoTask)persistedModel);
 	}
 
+	public BasePersistence<KaleoTask> getBasePersistence() {
+		return kaleoTaskPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -342,6 +365,10 @@ public abstract class KaleoTaskLocalServiceBaseImpl
 
 	/**
 	 * Updates the kaleo task in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTask the kaleo task
 	 * @return the kaleo task that was updated

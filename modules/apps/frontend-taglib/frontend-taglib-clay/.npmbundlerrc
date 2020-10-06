@@ -13,8 +13,12 @@
 				"metal-web-component": ">=2.16.5"
 			},
 			"frontend-js-react-web": {
+				"/": ">=4.0.11",
 				"react": ">=16.6.3",
 				"react-dom": ">=16.6.3"
+			},
+			"frontend-js-web": {
+				"/": ">=3.0.0"
 			},
 			"frontend-taglib-chart": {
 				"billboard.js": ">=1.5.0",
@@ -105,9 +109,9 @@
 		"metal-soy-bundle": true,
 		"metal-state": true,
 		"metal-web-component": true,
-		"moment": true,
 		"xss-filters": true
 	},
 	"output": "build/node/packageRunBuild/resources",
-	"preset": "liferay-npm-bundler-preset-standard"
+	"preset": "liferay-npm-bundler-preset-standard",
+	"sources": ["src/main/resources/META-INF/resources"]
 }

@@ -29,12 +29,12 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -284,6 +284,8 @@ public abstract class BaseFragmentCollectionContributor
 		String html = _read(
 			path, jsonObject.getString("htmlPath"), "index.html");
 		String js = _read(path, jsonObject.getString("jsPath"), "index.js");
+
+		boolean cacheable = jsonObject.getBoolean("cacheable");
 		String configuration = _read(
 			path, jsonObject.getString("configurationPath"), "index.json");
 
@@ -300,8 +302,10 @@ public abstract class BaseFragmentCollectionContributor
 		fragmentEntry.setCss(css);
 		fragmentEntry.setHtml(html);
 		fragmentEntry.setJs(js);
+		fragmentEntry.setCacheable(cacheable);
 		fragmentEntry.setConfiguration(configuration);
 		fragmentEntry.setType(type);
+		fragmentEntry.setIcon(jsonObject.getString("icon", "code"));
 		fragmentEntry.setImagePreviewURL(thumbnailURL);
 
 		return fragmentEntry;
@@ -355,10 +359,10 @@ public abstract class BaseFragmentCollectionContributor
 			sb.append(defaultFileName);
 		}
 
-		InputStream is = clazz.getResourceAsStream(sb.toString());
+		InputStream inputStream = clazz.getResourceAsStream(sb.toString());
 
-		if (is != null) {
-			return StringUtil.read(is);
+		if (inputStream != null) {
+			return StringUtil.read(inputStream);
 		}
 
 		return StringPool.BLANK;
@@ -374,13 +378,13 @@ public abstract class BaseFragmentCollectionContributor
 		availableLocales.add(LocaleUtil.getDefault());
 
 		for (Locale locale : availableLocales) {
-			String languageId = LocaleUtil.toLanguageId(locale);
-
-			ResourceBundle resourceBundle =
-				resourceBundleLoader.loadResourceBundle(
-					LocaleUtil.fromLanguageId(languageId));
-
 			if (Validator.isNotNull(name)) {
+				String languageId = LocaleUtil.toLanguageId(locale);
+
+				ResourceBundle resourceBundle =
+					resourceBundleLoader.loadResourceBundle(
+						LocaleUtil.fromLanguageId(languageId));
+
 				names.put(
 					LocaleUtil.fromLanguageId(languageId),
 					LanguageUtil.get(resourceBundle, name, name));

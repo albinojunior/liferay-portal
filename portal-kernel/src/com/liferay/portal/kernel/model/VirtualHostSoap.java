@@ -23,14 +23,17 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class VirtualHostSoap implements Serializable {
 
 	public static VirtualHostSoap toSoapModel(VirtualHost model) {
 		VirtualHostSoap soapModel = new VirtualHostSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setVirtualHostId(model.getVirtualHostId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setLayoutSetId(model.getLayoutSetId());
@@ -98,6 +101,14 @@ public class VirtualHostSoap implements Serializable {
 		_mvccVersion = mvccVersion;
 	}
 
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getVirtualHostId() {
 		return _virtualHostId;
 	}
@@ -151,6 +162,7 @@ public class VirtualHostSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _virtualHostId;
 	private long _companyId;
 	private long _layoutSetId;

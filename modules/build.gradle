@@ -24,24 +24,31 @@ apply plugin: "com.liferay.yarn.defaults.plugin"
 ext {
 	projectTemplateTokens = [
 		"biz.aQute.bnd.version": "4.3.0",
-		"com.liferay.ant.bnd.version": "3.2.3",
+		"com.liferay.ant.bnd.version": "3.2.6",
 		"com.liferay.css.builder.version": "3.0.2",
 		"com.liferay.gradle.plugins.css.builder.version": "3.0.3",
 		"com.liferay.gradle.plugins.theme.builder.version": "2.0.7",
-		"com.liferay.gradle.plugins.version": "4.5.36",
-		"com.liferay.gradle.plugins.workspace.version": "2.2.6",
-		"com.liferay.portal.tools.bundle.support.version": "3.5.4",
-		"com.liferay.portal.tools.service.builder.version": "1.0.328",
+		"com.liferay.gradle.plugins.version": "11.0.26",
+		"com.liferay.gradle.plugins.workspace.version": "3.0.7",
+		"com.liferay.portal.tools.bundle.support.version": "3.7.1",
+		"com.liferay.portal.tools.service.builder.version": "1.0.356",
+		"com.liferay.portal.tools.rest.builder.version": "1.0.114",
 		"com.liferay.portal.tools.soy.builder.version": "3.0.4",
-		"com.liferay.portal.tools.theme.builder.version": "1.1.7"
+		"com.liferay.portal.tools.theme.builder.version": "1.1.8",
+		"com.liferay.portal.vulcan.api.version": "7.7.1"
 	]
 }
+
+task portalYarnCheckFormat
+task portalYarnFormat
+task portalYarnInstall
 
 if (Boolean.getBoolean("gradle.build.scan.enabled")) {
 	apply plugin: "com.gradle.build-scan"
 
 	buildScan {
 		allowUntrustedServer = true
+		captureTaskInputFiles = true
 		server = System.getProperty("gradle.build.scan.server.url") ?: null
 
 		publishAlwaysIf true
@@ -76,6 +83,28 @@ if (Boolean.getBoolean("build.bnd.print.enabled")) {
 	}
 
 	bndPrintJarFiles = new ConcurrentSkipListSet<File>()
+}
+
+if (FileUtil.exists(rootProject, "private/yarn.lock")) {
+	gradle.beforeProject {
+		if (it.path.equals(":private")) {
+			configure(it) {
+				apply plugin: "com.liferay.yarn.defaults.plugin"
+			}
+		}
+	}
+
+	portalYarnCheckFormat {
+		dependsOn ":private:packageRunCheckFormat"
+	}
+
+	portalYarnFormat {
+		dependsOn ":private:packageRunFormat"
+	}
+
+	portalYarnInstall {
+		dependsOn ":private:yarnInstall"
+	}
 }
 
 buildDir = new File(rootDir.parentFile, "build")
@@ -113,6 +142,18 @@ for (String gradleVersion in ["5.6.4"]) {
 		includeEmptyDirs = false
 		into new File(buildDir, "gradle-${gradleVersion}-sources")
 	}
+}
+
+portalYarnCheckFormat {
+	dependsOn ":packageRunCheckFormat"
+}
+
+portalYarnFormat {
+	dependsOn ":packageRunFormat"
+}
+
+portalYarnInstall {
+	dependsOn ":yarnInstall"
 }
 
 gradle.beforeProject {
@@ -156,11 +197,84 @@ gradle.beforeProject {
 					}
 				}
 			}
+
+			pluginManager.withPlugin("idea") {
+				idea {
+					module {
+						iml {
+							withXml {
+								XmlProvider xmlProvider ->
+
+								Node rootNode = xmlProvider.asNode()
+
+								Node component = rootNode.component.find {
+									Node node->
+
+									node.@name == "NewModuleRootManager"
+								}
+
+								Node frontendTaglibNode = component.orderEntry.find {
+									Node node ->
+
+									(node.@type == "module") && (node.@"module-name" == "frontend-taglib-frontend-taglib")
+								}
+
+								if (frontendTaglibNode != null) {
+									frontendTaglibNode.@"module-name" = "frontend-taglib"
+								}
+
+								component.orderEntry.findAll {
+									Node node ->
+
+									node.@type == "module-library"
+								}.each {
+									Node node ->
+
+									String name = node.library.CLASSES.root.@url[0]
+									String scope = node.@scope
+
+									if (name.contains("com.liferay.portal.impl")) {
+										component.appendNode("orderEntry", ["module-name":"portal-impl", "scope":"$scope", "type":"module"])
+										component.remove(node)
+									}
+									else if (name.contains("com.liferay.portal.kernel")) {
+										component.appendNode("orderEntry", ["module-name":"portal-kernel", "scope":"$scope", "type":"module"])
+										component.remove(node)
+									}
+									else if (name.contains("com.liferay.portal.test")) {
+										component.appendNode("orderEntry", ["module-name":"portal-test", "scope":"$scope", "type":"module"])
+										component.remove(node)
+									}
+									else if (name.contains("com.liferay.util.java")) {
+										component.appendNode("orderEntry", ["module-name":"util-java", "scope":"$scope", "type":"module"])
+										component.remove(node)
+									}
+									else if (name.contains("com.liferay.util.taglib")) {
+										component.appendNode("orderEntry", ["module-name":"util-taglib", "scope":"$scope", "type":"module"])
+										component.remove(node)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 
 		printProjectPath {
 			doLast {
 				println project.path
+			}
+		}
+
+		if (project.path.startsWith(":sdk:project-templates")) {
+			if (configurations.findByName("portalTest") != null) {
+				configurations.portalTest.exclude group: "com.liferay.portal", module: "com.liferay.portal.test"
+			}
+
+			if (configurations.findByName("portalTestSnapshot") != null) {
+				configurations.portalTestSnapshot.exclude group: "com.liferay.portal", module: "com.liferay.portal.impl"
+				configurations.portalTestSnapshot.exclude group: "com.liferay.portal", module: "com.liferay.portal.kernel"
 			}
 		}
 
@@ -208,6 +322,7 @@ gradle.beforeProject {
 				systemProperty "maven.repo.local", System.properties["maven.repo.local"]
 				systemProperty "nodejs.npm.ci.registry", project.findProperty("nodejs.npm.ci.registry")
 				systemProperty "nodejs.npm.ci.sass.binary.site", project.findProperty("nodejs.npm.ci.sass.binary.site")
+				systemProperty "project.templates.bom.version", project.findProperty("project.templates.bom.version")
 				systemProperty "project.templates.test.builds", project.findProperty("project.templates.test.builds")
 				systemProperty "repository.url", System.properties["repository.url"]
 				systemProperty "test.debug.bundle.diffs", System.properties["test.debug.bundle.diffs"]
@@ -227,6 +342,18 @@ gradle.beforeProject {
 
 			dependencies {
 				projectTemplatesMain project.project(":sdk:project-templates:project-templates")
+			}
+
+			eclipse {
+				classpath {
+					file {
+						whenMerged {
+							entries.removeAll {
+								(it.kind == "src") && (it.path == "src/main/resources")
+							}
+						}
+					}
+				}
 			}
 
 			generateSampleProject {
@@ -362,12 +489,28 @@ gradle.beforeProject {
 			}
 
 			if (System.getenv("JENKINS_HOME")) {
-				buildCSS {
-					jvmArgs "-Xss4m"
-				}
-
 				startTestableTomcat {
 					deleteLiferayHome = false
+				}
+			}
+		}
+
+		pluginManager.withPlugin("com.liferay.portal.tools.rest.builder") {
+			File dir = new File(rootDir.parentFile, "modules/util/portal-tools-rest-builder")
+
+			if (dir.exists() && !GradleUtil.getProperty(project, "com.liferay.portal.tools.rest.builder.ignore.local", true)) {
+				buildREST {
+					dependsOn ":util:portal-tools-rest-builder:deploy"
+				}
+			}
+		}
+
+		pluginManager.withPlugin("com.liferay.portal.tools.service.builder") {
+			File dir = new File(rootDir.parentFile, "modules/util/portal-tools-service-builder")
+
+			if (dir.exists() && !GradleUtil.getProperty(project, "com.liferay.portal.tools.service.builder.ignore.local", true)) {
+				buildService {
+					dependsOn ":util:portal-tools-service-builder:deploy"
 				}
 			}
 		}
@@ -396,6 +539,14 @@ gradle.beforeProject {
 					ProjectDependency projectDependency ->
 
 					"${projectDependency.dependencyProject.path}:eclipse"
+				}
+			}
+		}
+
+		pluginManager.withPlugin("java") {
+			compileJava {
+				outputs.cacheIf {
+					false
 				}
 			}
 		}

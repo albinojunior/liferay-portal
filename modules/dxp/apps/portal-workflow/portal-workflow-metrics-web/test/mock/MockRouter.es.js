@@ -21,7 +21,7 @@ const withParamsMock = (...components) => ({
 	location: {search: query},
 	match: {params: routeParams},
 }) => {
-	return components.map(component => {
+	return components.map((component) => {
 		if (routeParams.sort) {
 			routeParams.sort = decodeURIComponent(routeParams.sort);
 		}
@@ -39,13 +39,18 @@ const MockRouter = ({
 	children,
 	client,
 	initialPath = '/1/20/title%3Aasc',
+	initialReindexStatuses = [],
 	isAmPm,
 	path = '/:page/:pageSize/:sort',
 	query = '?backPath=%2F',
+	userId = '1',
+	userName = 'Test Test',
 	withoutRouterProps,
 }) => {
 	const [title, setTitle] = useState(null);
-	const [status, setStatus] = useState(null);
+	const [reindexStatuses, setReindexStatuses] = useState(
+		initialReindexStatuses
+	);
 
 	const contextState = useMemo(
 		() => ({
@@ -55,14 +60,16 @@ const MockRouter = ({
 			getClient: () => client,
 			isAmPm,
 			maxPages: 3,
-			namespace: 'workflow_',
-			setStatus,
+			portletNamespace: 'workflow',
+			reindexStatuses,
+			setReindexStatuses,
 			setTitle,
-			status,
 			title,
+			userId,
+			userName,
 		}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[]
+		[reindexStatuses, title]
 	);
 
 	const initialEntries = useMemo(

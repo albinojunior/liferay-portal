@@ -37,17 +37,17 @@ public class DDMStructureLayoutCacheModel
 	implements CacheModel<DDMStructureLayout>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DDMStructureLayoutCacheModel)) {
+		if (!(object instanceof DDMStructureLayoutCacheModel)) {
 			return false;
 		}
 
 		DDMStructureLayoutCacheModel ddmStructureLayoutCacheModel =
-			(DDMStructureLayoutCacheModel)obj;
+			(DDMStructureLayoutCacheModel)object;
 
 		if ((structureLayoutId ==
 				ddmStructureLayoutCacheModel.structureLayoutId) &&
@@ -78,10 +78,12 @@ public class DDMStructureLayoutCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(31);
+		StringBundler sb = new StringBundler(33);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", structureLayoutId=");
@@ -121,6 +123,7 @@ public class DDMStructureLayoutCacheModel
 			new DDMStructureLayoutImpl();
 
 		ddmStructureLayoutImpl.setMvccVersion(mvccVersion);
+		ddmStructureLayoutImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			ddmStructureLayoutImpl.setUuid("");
@@ -199,6 +202,8 @@ public class DDMStructureLayoutCacheModel
 		throws ClassNotFoundException, IOException {
 
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		structureLayoutId = objectInput.readLong();
@@ -216,9 +221,9 @@ public class DDMStructureLayoutCacheModel
 		structureLayoutKey = objectInput.readUTF();
 
 		structureVersionId = objectInput.readLong();
-		name = objectInput.readUTF();
-		description = objectInput.readUTF();
-		definition = objectInput.readUTF();
+		name = (String)objectInput.readObject();
+		description = (String)objectInput.readObject();
+		definition = (String)objectInput.readObject();
 
 		_ddmFormLayout =
 			(com.liferay.dynamic.data.mapping.model.DDMFormLayout)
@@ -228,6 +233,8 @@ public class DDMStructureLayoutCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -266,30 +273,31 @@ public class DDMStructureLayoutCacheModel
 		objectOutput.writeLong(structureVersionId);
 
 		if (name == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(name);
+			objectOutput.writeObject(name);
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(description);
+			objectOutput.writeObject(description);
 		}
 
 		if (definition == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(definition);
+			objectOutput.writeObject(definition);
 		}
 
 		objectOutput.writeObject(_ddmFormLayout);
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long structureLayoutId;
 	public long groupId;

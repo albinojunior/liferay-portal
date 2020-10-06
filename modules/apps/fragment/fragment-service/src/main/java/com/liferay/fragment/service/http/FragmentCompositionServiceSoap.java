@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see FragmentCompositionServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class FragmentCompositionServiceSoap {
 
 	public static com.liferay.fragment.model.FragmentCompositionSoap
@@ -275,6 +277,26 @@ public class FragmentCompositionServiceSoap {
 	}
 
 	public static com.liferay.fragment.model.FragmentCompositionSoap
+			moveFragmentComposition(
+				long fragmentCompositionId, long fragmentCollectionId)
+		throws RemoteException {
+
+		try {
+			com.liferay.fragment.model.FragmentComposition returnValue =
+				FragmentCompositionServiceUtil.moveFragmentComposition(
+					fragmentCompositionId, fragmentCollectionId);
+
+			return com.liferay.fragment.model.FragmentCompositionSoap.
+				toSoapModel(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.fragment.model.FragmentCompositionSoap
 			updateFragmentComposition(
 				long fragmentCompositionId, long previewFileEntryId)
 		throws RemoteException {
@@ -283,6 +305,48 @@ public class FragmentCompositionServiceSoap {
 			com.liferay.fragment.model.FragmentComposition returnValue =
 				FragmentCompositionServiceUtil.updateFragmentComposition(
 					fragmentCompositionId, previewFileEntryId);
+
+			return com.liferay.fragment.model.FragmentCompositionSoap.
+				toSoapModel(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.fragment.model.FragmentCompositionSoap
+			updateFragmentComposition(
+				long fragmentCompositionId, long fragmentCollectionId,
+				String name, String description, String data,
+				long previewFileEntryId, int status)
+		throws RemoteException {
+
+		try {
+			com.liferay.fragment.model.FragmentComposition returnValue =
+				FragmentCompositionServiceUtil.updateFragmentComposition(
+					fragmentCompositionId, fragmentCollectionId, name,
+					description, data, previewFileEntryId, status);
+
+			return com.liferay.fragment.model.FragmentCompositionSoap.
+				toSoapModel(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.fragment.model.FragmentCompositionSoap
+			updateFragmentComposition(long fragmentCompositionId, String name)
+		throws RemoteException {
+
+		try {
+			com.liferay.fragment.model.FragmentComposition returnValue =
+				FragmentCompositionServiceUtil.updateFragmentComposition(
+					fragmentCompositionId, name);
 
 			return com.liferay.fragment.model.FragmentCompositionSoap.
 				toSoapModel(returnValue);

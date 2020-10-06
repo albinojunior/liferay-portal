@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchConnection;
 import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchConnectionManager;
-import com.liferay.portal.search.elasticsearch7.internal.connection.OperationMode;
 import com.liferay.portal.search.index.IndexNameBuilder;
 
 import java.util.List;
@@ -37,7 +36,9 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author André de Oliveira
  */
-@Component(immediate = true, service = ElasticsearchCluster.class)
+@Component(
+	enabled = false, immediate = true, service = ElasticsearchCluster.class
+)
 public class ElasticsearchCluster {
 
 	@Activate
@@ -109,16 +110,6 @@ public class ElasticsearchCluster {
 
 		@Override
 		public boolean isEmbeddedOperationMode() {
-			ElasticsearchConnection elasticsearchConnection =
-				getActiveElasticsearchConnection();
-
-			OperationMode operationMode =
-				elasticsearchConnection.getOperationMode();
-
-			if (operationMode == OperationMode.EMBEDDED) {
-				return true;
-			}
-
 			return false;
 		}
 

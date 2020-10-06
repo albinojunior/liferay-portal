@@ -16,6 +16,7 @@ package com.liferay.analytics.message.storage.service;
 
 import com.liferay.analytics.message.storage.model.AnalyticsMessage;
 import com.liferay.analytics.message.storage.model.AnalyticsMessageBodyBlobModel;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -60,11 +61,15 @@ public interface AnalyticsMessageLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AnalyticsMessageLocalServiceUtil} to access the analytics message local service. Add custom service methods to <code>com.liferay.analytics.message.storage.service.impl.AnalyticsMessageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.analytics.message.storage.service.impl.AnalyticsMessageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the analytics message local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AnalyticsMessageLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the analytics message to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnalyticsMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param analyticsMessage the analytics message
 	 * @return the analytics message that was added
@@ -95,6 +100,10 @@ public interface AnalyticsMessageLocalService
 	/**
 	 * Deletes the analytics message from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnalyticsMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param analyticsMessage the analytics message
 	 * @return the analytics message that was removed
 	 */
@@ -104,6 +113,10 @@ public interface AnalyticsMessageLocalService
 
 	/**
 	 * Deletes the analytics message with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnalyticsMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param analyticsMessageId the primary key of the analytics message
 	 * @return the analytics message that was removed
@@ -124,6 +137,9 @@ public interface AnalyticsMessageLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -264,6 +280,10 @@ public interface AnalyticsMessageLocalService
 
 	/**
 	 * Updates the analytics message in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnalyticsMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param analyticsMessage the analytics message
 	 * @return the analytics message that was updated

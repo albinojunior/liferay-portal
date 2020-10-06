@@ -12,54 +12,70 @@
  * details.
  */
 
-import {DragTypes, FieldType, FieldTypeList, Sidebar} from 'data-engine-taglib';
+import ClayForm from '@clayui/form';
+import ClayLayout from '@clayui/layout';
+import {
+	DataDefinitionUtils,
+	DragTypes,
+	FieldType,
+	FieldTypeList,
+	Sidebar,
+} from 'data-engine-taglib';
 import React, {useContext, useState} from 'react';
 
 import Button from '../../components/button/Button.es';
-import {
-	getDataDefinitionField,
-	getFieldLabel,
-} from '../../utils/dataDefinition.es';
 import EditTableViewContext, {
 	UPDATE_FOCUSED_COLUMN,
 } from './EditTableViewContext.es';
 import TableViewFiltersList from './TableViewFilters.es';
-import {getFieldTypeLabel} from './utils.es';
+import {getFieldLabel, getFieldTypeLabel} from './utils.es';
+
+const BtnAction = ({angle = 'left', className, onClick}) => (
+	<Button
+		className={className}
+		displayType="secondary"
+		onClick={onClick}
+		symbol={`angle-${angle}`}
+	/>
+);
 
 const FiltersSidebarHeader = () => {
-	const [{dataDefinition, fieldTypes, focusedColumn}, dispatch] = useContext(
-		EditTableViewContext
-	);
+	const [
+		{dataDefinition, editingLanguageId, fieldTypes, focusedColumn},
+		dispatch,
+	] = useContext(EditTableViewContext);
 
 	const onClickBack = () => {
 		dispatch({payload: {fieldName: null}, type: UPDATE_FOCUSED_COLUMN});
 	};
 
-	const {fieldType} = getDataDefinitionField(dataDefinition, focusedColumn);
+	const {fieldType} = DataDefinitionUtils.getDataDefinitionField(
+		dataDefinition,
+		focusedColumn
+	);
 
 	return (
 		<Sidebar.Header className="d-flex table-view-filters-sidebar-header">
-			<div className="align-items-center autofit-row">
-				<div className="autofit-col">
-					<Button
-						className="mr-2"
-						displayType="secondary"
-						monospaced={false}
-						onClick={onClickBack}
-						symbol="angle-left"
-					/>
-				</div>
-				<div className="autofit-col-expand">
+			<ClayLayout.ContentRow verticalAlign="center">
+				<ClayLayout.ContentCol>
+					<BtnAction className="mr-2" onClick={onClickBack} />
+				</ClayLayout.ContentCol>
+
+				<ClayLayout.ContentCol expand>
 					<FieldType
 						description={getFieldTypeLabel(fieldTypes, fieldType)}
 						dragAlignment="none"
 						draggable={false}
 						icon={fieldType}
-						label={getFieldLabel(dataDefinition, focusedColumn)}
+						label={getFieldLabel(
+							dataDefinition,
+							editingLanguageId,
+							focusedColumn
+						)}
 						name={focusedColumn}
 					/>
-				</div>
-			</div>
+				</ClayLayout.ContentCol>
+			</ClayLayout.ContentRow>
 		</Sidebar.Header>
 	);
 };
@@ -67,100 +83,127 @@ const FiltersSidebarHeader = () => {
 const FieldsTabContent = ({keywords, onAddFieldName}) => {
 	const [
 		{
-			dataDefinition: {dataDefinitionFields},
+			dataDefinition: {dataDefinitionFields = [], defaultLanguageId},
 			dataListView: {fieldNames},
+			editingLanguageId,
 			fieldTypes,
 		},
 	] = useContext(EditTableViewContext);
 
+	const fieldTypesItems = [];
+
+	const fieldTypeModel = ({fieldType, label, name}) => ({
+		description: getFieldTypeLabel(fieldTypes, fieldType),
+		disabled: fieldNames.some((fieldName) => fieldName === name),
+		icon: fieldType,
+		label: label[editingLanguageId] || label[defaultLanguageId],
+		name,
+	});
+
+	dataDefinitionFields.forEach(
+		({nestedDataDefinitionFields, ...dataDefinitionField}) => {
+			if (nestedDataDefinitionFields.length) {
+				fieldTypesItems.push(
+					...nestedDataDefinitionFields.map((nestedField) =>
+						fieldTypeModel(nestedField)
+					)
+				);
+			}
+			else {
+				fieldTypesItems.push(fieldTypeModel(dataDefinitionField));
+			}
+		}
+	);
+
+	fieldTypesItems.sort((a, b) => a.label.localeCompare(b.label));
+
 	return (
 		<FieldTypeList
 			dragType={DragTypes.DRAG_FIELD_TYPE}
-			fieldTypes={dataDefinitionFields.map(
-				({fieldType, label: {en_US: label}, name}) => ({
-					description: getFieldTypeLabel(fieldTypes, fieldType),
-					disabled: fieldNames.some(fieldName => fieldName === name),
-					icon: fieldType,
-					label,
-					name,
-				})
-			)}
+			fieldTypes={fieldTypesItems}
 			keywords={keywords}
 			onDoubleClick={({name}) => onAddFieldName(name, fieldNames.length)}
 		/>
 	);
 };
 
-const SidebarContent = ({activeTabIndex, keywords, onAddFieldName}) => {
-	switch (activeTabIndex) {
-		case 0:
-			return (
-				<FieldsTabContent
-					keywords={keywords}
-					onAddFieldName={onAddFieldName}
-				/>
-			);
-		case 1:
-			return <TableViewFiltersList />;
-		default:
-			return null;
-	}
-};
-
-export default ({onAddFieldName, onClose}) => {
+export default ({className, onAddFieldName, onToggle}) => {
 	const [{focusedColumn}] = useContext(EditTableViewContext);
-
-	const [activeTabIndex, setActiveTabIndex] = useState(0);
 	const [keywords, setKeywords] = useState('');
-	const [sidebarClosed, setSidebarClosed] = useState(false);
-
-	const onClickTab = tabIndex => setActiveTabIndex(tabIndex);
-
-	const onSidebarToggle = closed => {
-		setSidebarClosed(closed);
-		onClose(closed);
-	};
 
 	const displayFieldFilters = !!focusedColumn;
 
 	return (
-		<Sidebar
-			className="app-builder-sidebar"
-			closeable={!displayFieldFilters || sidebarClosed}
-			closed={sidebarClosed}
-			onSearch={displayFieldFilters ? false : setKeywords}
-			onToggle={onSidebarToggle}
-		>
-			{displayFieldFilters && <FiltersSidebarHeader />}
+		<div className={className}>
+			<Sidebar className="default">
+				{displayFieldFilters ? (
+					<>
+						<FiltersSidebarHeader />
+						<Sidebar.Body>
+							<TableViewFiltersList />
+						</Sidebar.Body>
+					</>
+				) : (
+					<>
+						<Sidebar.Header>
+							<ClayForm
+								onSubmit={(event) => event.preventDefault()}
+							>
+								<Sidebar.SearchInput
+									onSearch={(keywords) =>
+										setKeywords(keywords)
+									}
+								>
+									<ClayLayout.ContentCol>
+										<BtnAction
+											angle="right"
+											className="close-sidebar-btn ml-2"
+											onClick={onToggle}
+										/>
+									</ClayLayout.ContentCol>
+								</Sidebar.SearchInput>
+							</ClayForm>
+						</Sidebar.Header>
 
-			<Sidebar.Body>
-				{!displayFieldFilters && (
-					<Sidebar.Tab
-						tabs={[
-							{
-								active: activeTabIndex === 0,
-								label: Liferay.Language.get('columns'),
-								onClick: onClickTab,
-							},
-							{
-								active: activeTabIndex === 1,
-								label: Liferay.Language.get('filters'),
-								onClick: onClickTab,
-							},
-						]}
-					/>
+						<Sidebar.Body>
+							{!displayFieldFilters && (
+								<Sidebar.Tabs
+									tabs={[
+										{
+											label: Liferay.Language.get(
+												'columns'
+											),
+											render: () => (
+												<FieldsTabContent
+													keywords={keywords}
+													onAddFieldName={
+														onAddFieldName
+													}
+												/>
+											),
+										},
+										{
+											label: Liferay.Language.get(
+												'filters'
+											),
+											render: () => (
+												<TableViewFiltersList />
+											),
+										},
+									]}
+								/>
+							)}
+						</Sidebar.Body>
+					</>
 				)}
+			</Sidebar>
 
-				<Sidebar.TabContent>
-					<SidebarContent
-						activeTabIndex={
-							displayFieldFilters ? 1 : activeTabIndex
-						}
-						keywords={keywords}
-						onAddFieldName={onAddFieldName}
-					/>
-				</Sidebar.TabContent>
-			</Sidebar.Body>
-		</Sidebar>
+			<Sidebar className="secondary">
+				<BtnAction
+					className="m-3 open-sidebar-btn"
+					onClick={onToggle}
+				/>
+			</Sidebar>
+		</div>
 	);
 };

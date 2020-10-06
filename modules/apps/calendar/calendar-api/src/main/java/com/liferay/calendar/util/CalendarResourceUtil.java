@@ -69,7 +69,7 @@ public class CalendarResourceUtil {
 			return calendarResource;
 		}
 		else if (group.hasStagingGroup() &&
-				 group.isStagedPortlet(CalendarPortletKeys.CALENDAR)) {
+				 group.isStagedPortlet(CalendarPortletKeys.CALENDAR_ADMIN)) {
 
 			return null;
 		}
@@ -94,6 +94,12 @@ public class CalendarResourceUtil {
 
 		Map<Locale, String> descriptionMap = new HashMap<>();
 
+		if (serviceContext != null) {
+			serviceContext = (ServiceContext)serviceContext.clone();
+
+			serviceContext.setModelPermissions(null);
+		}
+
 		return CalendarResourceLocalServiceUtil.addCalendarResource(
 			userId, groupId, PortalUtil.getClassNameId(Group.class), groupId,
 			null, null,
@@ -107,11 +113,9 @@ public class CalendarResourceUtil {
 			long userId, ServiceContext serviceContext)
 		throws PortalException {
 
-		long classNameId = PortalUtil.getClassNameId(User.class);
-
 		CalendarResource calendarResource =
 			CalendarResourceLocalServiceUtil.fetchCalendarResource(
-				classNameId, userId);
+				PortalUtil.getClassNameId(User.class), userId);
 
 		if (calendarResource != null) {
 			return calendarResource;
@@ -139,6 +143,12 @@ public class CalendarResourceUtil {
 		).build();
 
 		Map<Locale, String> descriptionMap = new HashMap<>();
+
+		if (serviceContext != null) {
+			serviceContext = (ServiceContext)serviceContext.clone();
+
+			serviceContext.setModelPermissions(null);
+		}
 
 		return CalendarResourceLocalServiceUtil.addCalendarResource(
 			userId, userGroup.getGroupId(),

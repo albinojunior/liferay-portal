@@ -1,4 +1,13 @@
 .edit-entry {
+	&.container-fluid {
+		max-width: 808px;
+		padding: 0;
+	}
+
+	.app-builder-form-buttons {
+		padding: 0 1.5rem;
+	}
+
 	.card-body {
 		padding: 24px;
 	}

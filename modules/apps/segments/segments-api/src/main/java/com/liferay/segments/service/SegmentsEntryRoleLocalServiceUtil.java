@@ -50,6 +50,10 @@ public class SegmentsEntryRoleLocalServiceUtil {
 	/**
 	 * Adds the segments entry role to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRole the segments entry role
 	 * @return the segments entry role that was added
 	 */
@@ -96,6 +100,10 @@ public class SegmentsEntryRoleLocalServiceUtil {
 	/**
 	 * Deletes the segments entry role with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRoleId the primary key of the segments entry role
 	 * @return the segments entry role that was removed
 	 * @throws PortalException if a segments entry role with the primary key could not be found
@@ -117,6 +125,10 @@ public class SegmentsEntryRoleLocalServiceUtil {
 	/**
 	 * Deletes the segments entry role from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRole the segments entry role
 	 * @return the segments entry role that was removed
 	 */
@@ -137,6 +149,12 @@ public class SegmentsEntryRoleLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().deleteSegmentsEntryRolesByRoleId(roleId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -328,8 +346,21 @@ public class SegmentsEntryRoleLocalServiceUtil {
 		return getService().hasSegmentEntryRole(segmentsEntryId, roleId);
 	}
 
+	public static void setSegmentsEntrySiteRoles(
+			long segmentsEntryId, long[] siteRoleIds,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().setSegmentsEntrySiteRoles(
+			segmentsEntryId, siteRoleIds, serviceContext);
+	}
+
 	/**
 	 * Updates the segments entry role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param segmentsEntryRole the segments entry role
 	 * @return the segments entry role that was updated

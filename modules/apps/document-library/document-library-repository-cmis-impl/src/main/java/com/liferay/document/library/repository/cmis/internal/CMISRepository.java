@@ -142,8 +142,8 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public FileEntry addFileEntry(
 			long userId, long folderId, String sourceFileName, String mimeType,
-			String title, String description, String changeLog, InputStream is,
-			long size, ServiceContext serviceContext)
+			String title, String description, String changeLog,
+			InputStream inputStream, long size, ServiceContext serviceContext)
 		throws PortalException {
 
 		if (Validator.isNull(title)) {
@@ -169,7 +169,7 @@ public class CMISRepository extends BaseCmisRepository {
 			).build();
 
 			ContentStream contentStream = new ContentStreamImpl(
-				title, BigInteger.valueOf(size), mimeType, is);
+				title, BigInteger.valueOf(size), mimeType, inputStream);
 
 			Document document = null;
 
@@ -220,13 +220,14 @@ public class CMISRepository extends BaseCmisRepository {
 			org.apache.chemistry.opencmis.client.api.Folder cmisFolder =
 				getCmisFolder(session, parentFolderId);
 
-			Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-				PropertyIds.NAME, name
-			).put(
-				PropertyIds.OBJECT_TYPE_ID, BaseTypeId.CMIS_FOLDER.value()
-			).build();
-
-			return toFolder(cmisFolder.createFolder(properties));
+			return toFolder(
+				cmisFolder.createFolder(
+					HashMapBuilder.<String, Object>put(
+						PropertyIds.NAME, name
+					).put(
+						PropertyIds.OBJECT_TYPE_ID,
+						BaseTypeId.CMIS_FOLDER.value()
+					).build()));
 		}
 		catch (PortalException | SystemException exception) {
 			throw exception;
@@ -468,22 +469,23 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public List<FileEntry> getFileEntries(
 		long folderId, int status, int start, int end,
-		OrderByComparator<FileEntry> obc) {
+		OrderByComparator<FileEntry> orderByComparator) {
 
-		return getFileEntries(folderId, start, end, obc);
+		return getFileEntries(folderId, start, end, orderByComparator);
 	}
 
 	@Override
 	public List<FileEntry> getFileEntries(
-		long folderId, int start, int end, OrderByComparator<FileEntry> obc) {
+		long folderId, int start, int end,
+		OrderByComparator<FileEntry> orderByComparator) {
 
-		return subList(getFileEntries(folderId), start, end, obc);
+		return subList(getFileEntries(folderId), start, end, orderByComparator);
 	}
 
 	@Override
 	public List<FileEntry> getFileEntries(
 		long folderId, long fileEntryTypeId, int start, int end,
-		OrderByComparator<FileEntry> obc) {
+		OrderByComparator<FileEntry> orderByComparator) {
 
 		return new ArrayList<>();
 	}
@@ -491,7 +493,7 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public List<FileEntry> getFileEntries(
 			long folderId, String[] mimeTypes, int start, int end,
-			OrderByComparator<FileEntry> obc)
+			OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
 		List<FileEntry> fileEntries = _cmisModelCache.getFileEntries(folderId);
@@ -513,7 +515,7 @@ public class CMISRepository extends BaseCmisRepository {
 			}
 		}
 
-		return subList(fileEntries, start, end, obc);
+		return subList(fileEntries, start, end, orderByComparator);
 	}
 
 	@Override
@@ -553,9 +555,7 @@ public class CMISRepository extends BaseCmisRepository {
 			FileEntry fileEntry = _cmisModelCache.getFileEntry(fileEntryId);
 
 			if (fileEntry == null) {
-				Document document = getDocument(getSession(), fileEntryId);
-
-				fileEntry = toFileEntry(document);
+				fileEntry = toFileEntry(getDocument(getSession(), fileEntryId));
 
 				_cmisModelCache.putFileEntry(fileEntry);
 			}
@@ -721,25 +721,27 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public List<Folder> getFolders(
 			long parentFolderId, boolean includeMountfolders, int start,
-			int end, OrderByComparator<Folder> obc)
+			int end, OrderByComparator<Folder> orderByComparator)
 		throws PortalException {
 
-		return subList(getFolders(parentFolderId), start, end, obc);
+		return subList(
+			getFolders(parentFolderId), start, end, orderByComparator);
 	}
 
 	@Override
 	public List<Object> getFoldersAndFileEntries(
-		long folderId, int start, int end, OrderByComparator<?> obc) {
+		long folderId, int start, int end,
+		OrderByComparator<?> orderByComparator) {
 
 		return subList(
 			getFoldersAndFileEntries(folderId), start, end,
-			(OrderByComparator<Object>)obc);
+			(OrderByComparator<Object>)orderByComparator);
 	}
 
 	@Override
 	public List<Object> getFoldersAndFileEntries(
 			long folderId, String[] mimeTypes, int start, int end,
-			OrderByComparator<?> obc)
+			OrderByComparator<?> orderByComparator)
 		throws PortalException {
 
 		List<Object> foldersAndFileEntries =
@@ -763,7 +765,8 @@ public class CMISRepository extends BaseCmisRepository {
 		}
 
 		return subList(
-			foldersAndFileEntries, start, end, (OrderByComparator<Object>)obc);
+			foldersAndFileEntries, start, end,
+			(OrderByComparator<Object>)orderByComparator);
 	}
 
 	@Override
@@ -834,7 +837,7 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public List<Folder> getMountFolders(
 		long parentFolderId, int start, int end,
-		OrderByComparator<Folder> obc) {
+		OrderByComparator<Folder> orderByComparator) {
 
 		return new ArrayList<>();
 	}
@@ -938,12 +941,8 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public void initRepository() throws PortalException {
 		try {
-			_sessionKey = Session.class.getName(
-			).concat(
-				StringPool.POUND
-			).concat(
-				String.valueOf(getRepositoryId())
-			);
+			_sessionKey = StringBundler.concat(
+				Session.class.getName(), StringPool.POUND, getRepositoryId());
 
 			Session session = getSession();
 
@@ -1292,8 +1291,8 @@ public class CMISRepository extends BaseCmisRepository {
 	public FileEntry updateFileEntry(
 			long userId, long fileEntryId, String sourceFileName,
 			String mimeType, String title, String description, String changeLog,
-			DLVersionNumberIncrease dlVersionNumberIncrease, InputStream is,
-			long size, ServiceContext serviceContext)
+			DLVersionNumberIncrease dlVersionNumberIncrease,
+			InputStream inputStream, long size, ServiceContext serviceContext)
 		throws PortalException {
 
 		Document document = null;
@@ -1339,9 +1338,10 @@ public class CMISRepository extends BaseCmisRepository {
 				).build();
 			}
 
-			if (is != null) {
+			if (inputStream != null) {
 				contentStream = new ContentStreamImpl(
-					sourceFileName, BigInteger.valueOf(size), mimeType, is);
+					sourceFileName, BigInteger.valueOf(size), mimeType,
+					inputStream);
 			}
 
 			checkUpdatable(allowableActionsSet, properties, contentStream);
@@ -1395,7 +1395,7 @@ public class CMISRepository extends BaseCmisRepository {
 	@Override
 	public FileEntry updateFileEntry(
 			String objectId, String mimeType, Map<String, Object> properties,
-			InputStream is, String sourceFileName, long size,
+			InputStream inputStream, String sourceFileName, long size,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -1411,11 +1411,13 @@ public class CMISRepository extends BaseCmisRepository {
 
 			ContentStream contentStream = null;
 
-			if (is != null) {
-				is = new Base64.InputStream(is, Base64.ENCODE);
+			if (inputStream != null) {
+				inputStream = new Base64.InputStream(
+					inputStream, Base64.ENCODE);
 
 				contentStream = new ContentStreamImpl(
-					sourceFileName, BigInteger.valueOf(size), mimeType, is);
+					sourceFileName, BigInteger.valueOf(size), mimeType,
+					inputStream);
 			}
 
 			checkUpdatable(allowableActionsSet, properties, contentStream);
@@ -1770,17 +1772,17 @@ public class CMISRepository extends BaseCmisRepository {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					Throwable cause = exception.getCause();
+					Throwable throwable = exception.getCause();
 
-					if (cause != null) {
-						cause = cause.getCause();
+					if (throwable != null) {
+						throwable = throwable.getCause();
 					}
 
-					if (cause instanceof CmisObjectNotFoundException) {
+					if (throwable instanceof CmisObjectNotFoundException) {
 						_log.debug(
 							"Search result ignored for CMIS document which " +
 								"has a version with an invalid object ID " +
-									cause.getMessage());
+									throwable.getMessage());
 					}
 					else {
 						_log.debug(
@@ -1807,11 +1809,11 @@ public class CMISRepository extends BaseCmisRepository {
 			documents.add(document);
 
 			if (queryConfig.isScoreEnabled()) {
-				Object scoreObj = queryResult.getPropertyValueByQueryName(
+				Object scoreObject = queryResult.getPropertyValueByQueryName(
 					"HITS");
 
-				if (scoreObj != null) {
-					scores.add(Float.valueOf(scoreObj.toString()));
+				if (scoreObject != null) {
+					scores.add(Float.valueOf(scoreObject.toString()));
 				}
 				else {
 					scores.add(1.0F);
@@ -2095,10 +2097,10 @@ public class CMISRepository extends BaseCmisRepository {
 
 		ItemIterable<QueryResult> queryResults = session.query(query, false);
 
-		Iterator<QueryResult> itr = queryResults.iterator();
+		Iterator<QueryResult> iterator = queryResults.iterator();
 
-		if (itr.hasNext()) {
-			QueryResult queryResult = itr.next();
+		if (iterator.hasNext()) {
+			QueryResult queryResult = iterator.next();
 
 			PropertyData<String> propertyData = queryResult.getPropertyById(
 				PropertyIds.OBJECT_ID);
@@ -2180,15 +2182,17 @@ public class CMISRepository extends BaseCmisRepository {
 	}
 
 	protected <E> List<E> subList(
-		List<E> list, int start, int end, OrderByComparator<E> obc) {
+		List<E> list, int start, int end,
+		OrderByComparator<E> orderByComparator) {
 
-		if ((obc != null) &&
-			(obc instanceof RepositoryModelCreateDateComparator ||
-			 obc instanceof RepositoryModelModifiedDateComparator ||
-			 obc instanceof RepositoryModelSizeComparator ||
-			 obc instanceof RepositoryModelTitleComparator)) {
+		if ((orderByComparator != null) &&
+			(orderByComparator instanceof RepositoryModelCreateDateComparator ||
+			 orderByComparator instanceof
+				 RepositoryModelModifiedDateComparator ||
+			 orderByComparator instanceof RepositoryModelSizeComparator ||
+			 orderByComparator instanceof RepositoryModelTitleComparator)) {
 
-			list = ListUtil.sort(list, obc);
+			list = ListUtil.sort(list, orderByComparator);
 		}
 
 		return ListUtil.subList(list, start, end);

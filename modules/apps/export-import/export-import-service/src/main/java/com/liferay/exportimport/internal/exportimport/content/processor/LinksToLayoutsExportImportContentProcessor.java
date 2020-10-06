@@ -166,11 +166,9 @@ public class LinksToLayoutsExportImportContentProcessor
 			}
 		}
 
-		content = StringUtil.replace(
+		return StringUtil.replace(
 			content, ArrayUtil.toStringArray(oldLinksToLayout.toArray()),
 			ArrayUtil.toStringArray(newLinksToLayout.toArray()));
-
-		return content;
 	}
 
 	protected String replaceImportLinksToLayouts(
@@ -281,11 +279,9 @@ public class LinksToLayoutsExportImportContentProcessor
 			newLinksToLayout.add(newLinkToLayout);
 		}
 
-		content = StringUtil.replace(
+		return StringUtil.replace(
 			content, ArrayUtil.toStringArray(oldLinksToLayout.toArray()),
 			ArrayUtil.toStringArray(newLinksToLayout.toArray()));
-
-		return content;
 	}
 
 	@Reference(unbind = "-")
@@ -319,17 +315,15 @@ public class LinksToLayoutsExportImportContentProcessor
 							LinksToLayoutsExportImportContentProcessor.class.
 								getName());
 
-				Map<String, String> layoutReferenceParameters =
-					HashMapBuilder.put(
-						"groupId", String.valueOf(groupId)
-					).put(
-						"layoutId", String.valueOf(layoutId)
-					).put(
-						"privateLayout", String.valueOf(privateLayout)
-					).build();
-
 				exportImportContentValidationException.
-					setLayoutReferenceParameters(layoutReferenceParameters);
+					setLayoutReferenceParameters(
+						HashMapBuilder.put(
+							"groupId", String.valueOf(groupId)
+						).put(
+							"layoutId", String.valueOf(layoutId)
+						).put(
+							"privateLayout", String.valueOf(privateLayout)
+						).build());
 
 				exportImportContentValidationException.setType(
 					ExportImportContentValidationException.LAYOUT_NOT_FOUND);

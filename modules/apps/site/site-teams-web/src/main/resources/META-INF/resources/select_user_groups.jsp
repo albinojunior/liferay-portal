@@ -38,9 +38,9 @@ SelectUserGroupsDisplayContext selectUserGroupsDisplayContext = new SelectUserGr
 		>
 
 			<%
-			LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
-
-			userParams.put("usersUserGroups", Long.valueOf(userGroup.getUserGroupId()));
+			LinkedHashMap<String, Object> userParams = LinkedHashMapBuilder.<String, Object>put(
+				"usersUserGroups", Long.valueOf(userGroup.getUserGroupId())
+			).build();
 
 			int usersCount = UserLocalServiceUtil.searchCount(company.getCompanyId(), StringPool.BLANK, WorkflowConstants.STATUS_ANY, userParams);
 			%>
@@ -101,7 +101,7 @@ SelectUserGroupsDisplayContext selectUserGroupsDisplayContext = new SelectUserGr
 		'<portlet:namespace />userGroups'
 	);
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		Liferay.Util.getOpener().Liferay.fire(
 			'<%= HtmlUtil.escapeJS(selectUserGroupsDisplayContext.getEventName()) %>',
 			{

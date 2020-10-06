@@ -67,7 +67,7 @@ public class UpgradeAssetCategoryTest {
 
 		CacheRegistryUtil.clear();
 
-		StringBundler sb = new StringBundler(2 * _assetCategories.size() + 1);
+		StringBundler sb = new StringBundler((2 * _assetCategories.size()) + 1);
 
 		sb.append("/");
 

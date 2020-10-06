@@ -30,6 +30,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Keyword implements Cloneable {
 
+	public static Keyword toDTO(String json) {
+		return KeywordSerDes.toDTO(json);
+	}
+
 	public Map<String, Map<String, String>> getActions() {
 		return actions;
 	}
@@ -51,6 +55,27 @@ public class Keyword implements Cloneable {
 	}
 
 	protected Map<String, Map<String, String>> actions;
+
+	public String getAssetLibraryKey() {
+		return assetLibraryKey;
+	}
+
+	public void setAssetLibraryKey(String assetLibraryKey) {
+		this.assetLibraryKey = assetLibraryKey;
+	}
+
+	public void setAssetLibraryKey(
+		UnsafeSupplier<String, Exception> assetLibraryKeyUnsafeSupplier) {
+
+		try {
+			assetLibraryKey = assetLibraryKeyUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String assetLibraryKey;
 
 	public Creator getCreator() {
 		return creator;

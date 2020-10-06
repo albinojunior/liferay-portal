@@ -18,6 +18,7 @@ import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.change.tracking.service.CTEntryLocalService;
 import com.liferay.change.tracking.service.persistence.CTCollectionPersistence;
 import com.liferay.change.tracking.service.persistence.CTEntryPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +75,10 @@ public abstract class CTEntryLocalServiceBaseImpl
 	/**
 	 * Adds the ct entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctEntry the ct entry
 	 * @return the ct entry that was added
 	 */
@@ -99,6 +105,10 @@ public abstract class CTEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the ct entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctEntryId the primary key of the ct entry
 	 * @return the ct entry that was removed
 	 * @throws PortalException if a ct entry with the primary key could not be found
@@ -112,6 +122,10 @@ public abstract class CTEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the ct entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctEntry the ct entry
 	 * @return the ct entry that was removed
 	 * @throws PortalException
@@ -120,6 +134,11 @@ public abstract class CTEntryLocalServiceBaseImpl
 	@Override
 	public CTEntry deleteCTEntry(CTEntry ctEntry) throws PortalException {
 		return ctEntryPersistence.remove(ctEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ctEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -286,6 +305,10 @@ public abstract class CTEntryLocalServiceBaseImpl
 		return ctEntryLocalService.deleteCTEntry((CTEntry)persistedModel);
 	}
 
+	public BasePersistence<CTEntry> getBasePersistence() {
+		return ctEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -324,6 +347,10 @@ public abstract class CTEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the ct entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctEntry the ct entry
 	 * @return the ct entry that was updated

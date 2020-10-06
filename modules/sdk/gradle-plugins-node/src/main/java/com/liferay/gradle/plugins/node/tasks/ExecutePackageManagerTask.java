@@ -25,13 +25,18 @@ import java.util.concurrent.Callable;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.tasks.CacheableTask;
 
 /**
  * @author Andrea Di Giorgi
  */
+@CacheableTask
 public class ExecutePackageManagerTask extends ExecuteNodeScriptTask {
 
 	public ExecutePackageManagerTask() {
+		_offline = GradleUtil.getProperty(
+			getProject(), "nodejs.yarn.offline", false);
+
 		setCommand(
 			new Callable<String>() {
 
@@ -116,6 +121,10 @@ public class ExecutePackageManagerTask extends ExecuteNodeScriptTask {
 		return GradleUtil.toBoolean(_cacheConcurrent);
 	}
 
+	public boolean isOffline() {
+		return _offline;
+	}
+
 	public boolean isProduction() {
 		return _production;
 	}
@@ -142,6 +151,10 @@ public class ExecutePackageManagerTask extends ExecuteNodeScriptTask {
 
 	public void setNodeModulesDir(Object nodeModulesDir) {
 		_nodeModulesDir = nodeModulesDir;
+	}
+
+	public void setOffline(boolean offline) {
+		_offline = offline;
 	}
 
 	public void setProduction(boolean production) {
@@ -175,6 +188,10 @@ public class ExecutePackageManagerTask extends ExecuteNodeScriptTask {
 		}
 
 		if (!isUseNpm()) {
+			if (isOffline()) {
+				completeArgs.add("--offline");
+			}
+
 			return completeArgs;
 		}
 
@@ -202,6 +219,7 @@ public class ExecutePackageManagerTask extends ExecuteNodeScriptTask {
 	private Object _cacheDir;
 	private Object _logLevel;
 	private Object _nodeModulesDir;
+	private boolean _offline;
 	private boolean _production;
 	private boolean _progress = true;
 	private Object _registry;

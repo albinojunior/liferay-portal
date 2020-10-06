@@ -20,26 +20,38 @@ import antlr.CommonHiddenStreamToken;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.json.JSONArrayImpl;
 import com.liferay.portal.json.JSONObjectImpl;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.tools.ToolsUtil;
+import com.liferay.source.formatter.JSPImportsFormatter;
+import com.liferay.source.formatter.checks.util.JavaSourceUtil;
 import com.liferay.source.formatter.checks.util.SourceUtil;
 import com.liferay.source.formatter.checkstyle.util.CheckstyleUtil;
 import com.liferay.source.formatter.checkstyle.util.DetailASTUtil;
 import com.liferay.source.formatter.util.DebugUtil;
+import com.liferay.source.formatter.util.FileUtil;
 import com.liferay.source.formatter.util.SourceFormatterCheckUtil;
+import com.liferay.source.formatter.util.SourceFormatterUtil;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.FileContents;
+import com.puppycrawl.tools.checkstyle.api.FileText;
 import com.puppycrawl.tools.checkstyle.api.FullIdent;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -139,6 +151,19 @@ public abstract class BaseCheck extends AbstractCheck {
 			true);
 	}
 
+	protected List<DetailAST> getDependentIdentDetailASTList(
+		DetailAST variableDefinitionDetailAST, int lineNumber) {
+
+		List<Variable> variables = _getVariables(variableDefinitionDetailAST);
+
+		List<DetailAST> dependentIdentDetailASTList = new ArrayList<>();
+
+		return _addDependentIdentDetailASTList(
+			dependentIdentDetailASTList,
+			variableDefinitionDetailAST.getNextSibling(), variables,
+			lineNumber);
+	}
+
 	protected int getEndLineNumber(DetailAST detailAST) {
 		int endLineNumber = detailAST.getLineNo();
 
@@ -153,6 +178,50 @@ public abstract class BaseCheck extends AbstractCheck {
 		return endLineNumber;
 	}
 
+	protected String getFullyQualifiedTypeName(
+		DetailAST typeDetailAST, boolean checkPackage) {
+
+		return getFullyQualifiedTypeName(
+			getTypeName(typeDetailAST, false), typeDetailAST, checkPackage);
+	}
+
+	protected String getFullyQualifiedTypeName(
+		String typeName, DetailAST detailAST, boolean checkPackage) {
+
+		if (typeName.contains(StringPool.PERIOD) &&
+			Character.isLowerCase(typeName.charAt(0))) {
+
+			return typeName;
+		}
+
+		List<String> importNames = getImportNames(detailAST);
+
+		for (String importName : importNames) {
+			int x = importName.lastIndexOf(CharPool.PERIOD);
+
+			String className = importName.substring(x + 1);
+
+			if (typeName.equals(className)) {
+				return importName;
+			}
+
+			if (typeName.startsWith(className + ".")) {
+				return StringUtil.replaceLast(importName, className, typeName);
+			}
+		}
+
+		if (!checkPackage) {
+			return null;
+		}
+
+		FileContents fileContents = getFileContents();
+
+		FileText fileText = fileContents.getText();
+
+		return JavaSourceUtil.getPackageName((String)fileText.getFullText()) +
+			StringPool.PERIOD + typeName;
+	}
+
 	protected CommonHiddenStreamToken getHiddenBefore(DetailAST detailAST) {
 		CommonASTWithHiddenTokens commonASTWithHiddenTokens =
 			(CommonASTWithHiddenTokens)detailAST;
@@ -161,6 +230,14 @@ public abstract class BaseCheck extends AbstractCheck {
 	}
 
 	protected List<String> getImportNames(DetailAST detailAST) {
+		if (isJSPFile()) {
+			String absolutePath = getAbsolutePath();
+
+			return _getJSPImportNames(
+				absolutePath.substring(
+					0, absolutePath.lastIndexOf(CharPool.SLASH)));
+		}
+
 		DetailAST rootDetailAST = detailAST;
 
 		while (true) {
@@ -175,7 +252,7 @@ public abstract class BaseCheck extends AbstractCheck {
 			}
 		}
 
-		List<String> importNamesList = new ArrayList<>();
+		List<String> importNames = new ArrayList<>();
 
 		DetailAST siblingDetailAST = rootDetailAST.getNextSibling();
 
@@ -183,13 +260,13 @@ public abstract class BaseCheck extends AbstractCheck {
 			if ((siblingDetailAST == null) ||
 				(siblingDetailAST.getType() != TokenTypes.IMPORT)) {
 
-				return importNamesList;
+				return importNames;
 			}
 
 			FullIdent importIdent = FullIdent.createFullIdentBelow(
 				siblingDetailAST);
 
-			importNamesList.add(importIdent.getText());
+			importNames.add(importIdent.getText());
 
 			siblingDetailAST = siblingDetailAST.getNextSibling();
 		}
@@ -276,6 +353,20 @@ public abstract class BaseCheck extends AbstractCheck {
 
 		return getAllChildTokens(
 			parametersDetailAST, false, TokenTypes.PARAMETER_DEF);
+	}
+
+	protected DetailAST getParameterDetailAST(DetailAST methodCallDetailAST) {
+		DetailAST elistDetailAST = methodCallDetailAST.findFirstToken(
+			TokenTypes.ELIST);
+
+		DetailAST exprDetailAST = elistDetailAST.findFirstToken(
+			TokenTypes.EXPR);
+
+		if (exprDetailAST == null) {
+			return null;
+		}
+
+		return exprDetailAST.getFirstChild();
 	}
 
 	protected List<String> getParameterNames(DetailAST detailAST) {
@@ -406,6 +497,13 @@ public abstract class BaseCheck extends AbstractCheck {
 		DetailAST typeArgumentsDetailAST = typeDetailAST.findFirstToken(
 			TokenTypes.TYPE_ARGUMENTS);
 
+		if ((typeArgumentsDetailAST == null) &&
+			(childDetailAST.getType() == TokenTypes.DOT)) {
+
+			typeArgumentsDetailAST = childDetailAST.findFirstToken(
+				TokenTypes.TYPE_ARGUMENTS);
+		}
+
 		if (typeArgumentsDetailAST == null) {
 			return sb.toString();
 		}
@@ -427,6 +525,47 @@ public abstract class BaseCheck extends AbstractCheck {
 		return sb.toString();
 	}
 
+	protected Tuple getTypeNamesTuple(String fileName, String category) {
+		File typeNamesFile = SourceFormatterUtil.getFile(
+			getBaseDirName(),
+			"modules/util/source-formatter/src/main/resources/dependencies/" +
+				fileName,
+			ToolsUtil.PORTAL_MAX_DIR_LEVEL);
+
+		JSONObject jsonObject = null;
+
+		try {
+			String content = null;
+
+			if (typeNamesFile != null) {
+				content = FileUtil.read(typeNamesFile);
+			}
+			else {
+				Class<?> clazz = getClass();
+
+				ClassLoader classLoader = clazz.getClassLoader();
+
+				content = StringUtil.read(
+					classLoader.getResourceAsStream(
+						"dependencies/" + fileName));
+			}
+
+			if (Validator.isNotNull(content)) {
+				jsonObject = new JSONObjectImpl(content);
+			}
+		}
+		catch (Exception exception) {
+		}
+
+		if (jsonObject == null) {
+			jsonObject = new JSONObjectImpl();
+
+			jsonObject.put(category, new JSONArrayImpl());
+		}
+
+		return new Tuple(jsonObject, typeNamesFile);
+	}
+
 	protected List<DetailAST> getVariableCallerDetailASTList(
 		DetailAST variableDefinitionDetailAST, String variableName) {
 
@@ -437,7 +576,10 @@ public abstract class BaseCheck extends AbstractCheck {
 		boolean globalVariable = false;
 		DetailAST rangeDetailAST = null;
 
-		if (parentDetailAST.getType() == TokenTypes.OBJBLOCK) {
+		if (parentDetailAST.getType() == TokenTypes.FOR_INIT) {
+			rangeDetailAST = parentDetailAST.getParent();
+		}
+		else if (parentDetailAST.getType() == TokenTypes.OBJBLOCK) {
 			rangeDetailAST = parentDetailAST;
 
 			globalVariable = true;
@@ -453,7 +595,8 @@ public abstract class BaseCheck extends AbstractCheck {
 			rangeDetailAST = parentDetailAST.getLastChild();
 		}
 
-		if ((rangeDetailAST.getType() != TokenTypes.OBJBLOCK) &&
+		if ((rangeDetailAST.getType() != TokenTypes.LITERAL_FOR) &&
+			(rangeDetailAST.getType() != TokenTypes.OBJBLOCK) &&
 			(rangeDetailAST.getType() != TokenTypes.SLIST)) {
 
 			return variableCallerDetailASTList;
@@ -741,6 +884,18 @@ public abstract class BaseCheck extends AbstractCheck {
 			null, getBaseDirName());
 	}
 
+	protected boolean isJSPFile() {
+		FileContents fileContents = getFileContents();
+
+		if (StringUtil.endsWith(fileContents.getFileName(), ".jsp") ||
+			StringUtil.endsWith(fileContents.getFileName(), ".jspf")) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	protected static final int ALL_TYPES = DetailASTUtil.ALL_TYPES;
 
 	protected static final int[] ARITHMETIC_OPERATOR_TOKEN_TYPES = {
@@ -748,16 +903,246 @@ public abstract class BaseCheck extends AbstractCheck {
 		TokenTypes.STAR
 	};
 
+	protected static final int[] ASSIGNMENT_OPERATOR_TOKEN_TYPES = {
+		TokenTypes.ASSIGN, TokenTypes.BAND_ASSIGN, TokenTypes.BOR_ASSIGN,
+		TokenTypes.BSR_ASSIGN, TokenTypes.BXOR_ASSIGN, TokenTypes.DIV_ASSIGN,
+		TokenTypes.MINUS_ASSIGN, TokenTypes.MOD_ASSIGN, TokenTypes.PLUS_ASSIGN,
+		TokenTypes.SL_ASSIGN, TokenTypes.SR_ASSIGN, TokenTypes.STAR_ASSIGN
+	};
+
+	protected static final int[] CONDITIONAL_OPERATOR_TOKEN_TYPES = {
+		TokenTypes.BAND, TokenTypes.BOR, TokenTypes.BXOR, TokenTypes.LAND,
+		TokenTypes.LOR
+	};
+
 	protected static final int[] RELATIONAL_OPERATOR_TOKEN_TYPES = {
 		TokenTypes.EQUAL, TokenTypes.GE, TokenTypes.GT, TokenTypes.LE,
 		TokenTypes.LT, TokenTypes.NOT_EQUAL
 	};
+
+	protected static final String RUN_OUTSIDE_PORTAL_EXCLUDES =
+		"run.outside.portal.excludes";
+
+	protected static final int[] UNARY_OPERATOR_TOKEN_TYPES = {
+		TokenTypes.DEC, TokenTypes.INC, TokenTypes.LNOT, TokenTypes.POST_DEC,
+		TokenTypes.POST_INC, TokenTypes.UNARY_MINUS, TokenTypes.UNARY_PLUS
+	};
+
+	private List<DetailAST> _addDependentIdentDetailASTList(
+		List<DetailAST> dependentIdentDetailASTList, DetailAST detailAST,
+		List<Variable> variables, int lineNumber) {
+
+		if (detailAST == null) {
+			return dependentIdentDetailASTList;
+		}
+
+		int count = dependentIdentDetailASTList.size();
+
+		List<DetailAST> identDetailASTList = getAllChildTokens(
+			detailAST, true, TokenTypes.IDENT);
+
+		for (DetailAST identDetailAST : identDetailASTList) {
+			if (_isMethodNameDetailAST(identDetailAST) ||
+				dependentIdentDetailASTList.contains(identDetailAST)) {
+
+				continue;
+			}
+
+			String name = identDetailAST.getText();
+
+			for (Variable variable : variables) {
+				if (!name.equals(variable.getName())) {
+					continue;
+				}
+
+				if (_hasPossibleValueChangeOperation(identDetailAST) ||
+					variable.hasPossibleValueChangeOperation()) {
+
+					dependentIdentDetailASTList.add(identDetailAST);
+
+					break;
+				}
+			}
+
+			if ((detailAST.getLineNo() < lineNumber) &&
+				(count != dependentIdentDetailASTList.size())) {
+
+				variables.addAll(_getVariables(detailAST));
+			}
+		}
+
+		return _addDependentIdentDetailASTList(
+			dependentIdentDetailASTList, detailAST.getNextSibling(), variables,
+			lineNumber);
+	}
+
+	private List<String> _getJSPImportNames(String directoryName) {
+		if (_jspImportNamesMap.containsKey(directoryName)) {
+			return _jspImportNamesMap.get(directoryName);
+		}
+
+		List<String> importNames = new ArrayList<>();
+
+		String fileName = directoryName + "/init.jsp";
+
+		File file = new File(fileName);
+
+		if (file.exists()) {
+			try {
+				List<String> curImportNames =
+					JSPImportsFormatter.getImportNames(FileUtil.read(file));
+
+				importNames.addAll(curImportNames);
+			}
+			catch (IOException ioException) {
+			}
+		}
+
+		int x = directoryName.lastIndexOf(CharPool.SLASH);
+
+		if ((x != -1) && !directoryName.endsWith("/resources") &&
+			!directoryName.endsWith("/docroot")) {
+
+			importNames.addAll(
+				_getJSPImportNames(directoryName.substring(0, x)));
+		}
+
+		_jspImportNamesMap.put(directoryName, importNames);
+
+		return importNames;
+	}
 
 	private String _getVariableName(DetailAST variableDefinitionDetailAST) {
 		DetailAST nameDetailAST = variableDefinitionDetailAST.findFirstToken(
 			TokenTypes.IDENT);
 
 		return nameDetailAST.getText();
+	}
+
+	private List<Variable> _getVariables(DetailAST detailAST) {
+		List<Variable> variables = new ArrayList<>();
+
+		List<DetailAST> identDetailASTList = getAllChildTokens(
+			detailAST, true, TokenTypes.IDENT);
+
+		for (DetailAST identDetailAST : identDetailASTList) {
+			if (_isMethodNameDetailAST(identDetailAST)) {
+				continue;
+			}
+
+			String name = identDetailAST.getText();
+
+			if (!Character.isUpperCase(name.charAt(0))) {
+				variables.add(
+					new Variable(
+						name,
+						_hasPossibleValueChangeOperation(identDetailAST)));
+			}
+		}
+
+		return variables;
+	}
+
+	private boolean _hasPossibleValueChangeOperation(DetailAST identDetailAST) {
+		DetailAST parentDetailAST = identDetailAST.getParent();
+
+		if (parentDetailAST.getType() == TokenTypes.DOT) {
+			DetailAST grandParentDetailAST = parentDetailAST.getParent();
+
+			if (grandParentDetailAST.getType() == TokenTypes.METHOD_CALL) {
+				DetailAST nextSiblingDetailAST =
+					identDetailAST.getNextSibling();
+
+				if (nextSiblingDetailAST == null) {
+					return false;
+				}
+
+				String methodName = nextSiblingDetailAST.getText();
+
+				if (methodName.matches("(get|is)[A-Z].*")) {
+					return false;
+				}
+
+				return true;
+			}
+		}
+
+		while (true) {
+			if ((parentDetailAST.getType() != TokenTypes.DOT) &&
+				(parentDetailAST.getType() != TokenTypes.EXPR)) {
+
+				break;
+			}
+
+			parentDetailAST = parentDetailAST.getParent();
+		}
+
+		if (parentDetailAST.getType() == TokenTypes.ELIST) {
+			String typeName = getVariableTypeName(
+				identDetailAST, identDetailAST.getText(), false);
+
+			if (typeName.equals("ActionRequest") ||
+				typeName.equals("HttpServletRequest") ||
+				typeName.equals("RenderRequest") ||
+				typeName.equals("ResourceRequest") ||
+				typeName.endsWith("PortletRequest")) {
+
+				String methodName = getMethodName(parentDetailAST.getParent());
+
+				// We can assume variable of these types are not modified when
+				// passed as parameter, except when the name starts with 'set'
+				// or equals 'getCompanyId' (value changes in
+				// PortalInstances.getCompanyId)
+
+				if ((methodName != null) &&
+					(methodName.equals("getCompanyId") ||
+					 methodName.startsWith("_set") ||
+					 methodName.startsWith("set"))) {
+
+					return true;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		if (ArrayUtil.contains(
+				ASSIGNMENT_OPERATOR_TOKEN_TYPES, parentDetailAST.getType()) ||
+			(parentDetailAST.getType() == TokenTypes.DEC) ||
+			(parentDetailAST.getType() == TokenTypes.ELIST) ||
+			(parentDetailAST.getType() == TokenTypes.INC) ||
+			(parentDetailAST.getType() == TokenTypes.POST_DEC) ||
+			(parentDetailAST.getType() == TokenTypes.POST_INC) ||
+			(parentDetailAST.getType() == TokenTypes.VARIABLE_DEF)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isMethodNameDetailAST(DetailAST identDetailAST) {
+		DetailAST parentDetailAST = identDetailAST.getParent();
+
+		if (parentDetailAST.getType() == TokenTypes.METHOD_CALL) {
+			return true;
+		}
+
+		if (parentDetailAST.getType() != TokenTypes.DOT) {
+			return false;
+		}
+
+		parentDetailAST = parentDetailAST.getParent();
+
+		if ((parentDetailAST.getType() == TokenTypes.METHOD_CALL) &&
+			(identDetailAST.getNextSibling() == null)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private JSONObject _attributesJSONObject = new JSONObjectImpl();
@@ -768,5 +1153,27 @@ public abstract class BaseCheck extends AbstractCheck {
 	private JSONObject _excludesJSONObject = new JSONObjectImpl();
 	private final Map<String, List<String>> _excludesValuesMap =
 		new ConcurrentHashMap<>();
+	private final Map<String, List<String>> _jspImportNamesMap =
+		new HashMap<>();
+
+	private class Variable {
+
+		public Variable(String name, boolean hasPossibleValueChangeOperation) {
+			_name = name;
+			_hasPossibleValueChangeOperation = hasPossibleValueChangeOperation;
+		}
+
+		public String getName() {
+			return _name;
+		}
+
+		public boolean hasPossibleValueChangeOperation() {
+			return _hasPossibleValueChangeOperation;
+		}
+
+		private final boolean _hasPossibleValueChangeOperation;
+		private final String _name;
+
+	}
 
 }

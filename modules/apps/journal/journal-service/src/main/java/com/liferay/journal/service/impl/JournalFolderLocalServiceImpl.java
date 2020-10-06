@@ -20,13 +20,13 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.journal.constants.JournalArticleConstants;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.exception.NoSuchFolderException;
 import com.liferay.journal.internal.util.JournalTreePathUtil;
 import com.liferay.journal.internal.validation.JournalFolderModelValidator;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.base.JournalFolderLocalServiceBaseImpl;
 import com.liferay.journal.util.JournalValidator;
@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.social.SocialActivityManagerUtil;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
@@ -74,6 +75,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -400,10 +402,10 @@ public class JournalFolderLocalServiceImpl
 	@Override
 	public List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int status, int start, int end,
-		OrderByComparator<?> obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, start, end, (OrderByComparator<Object>)obc);
+			status, start, end, (OrderByComparator<Object>)orderByComparator);
 
 		return journalFolderFinder.findF_A_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -412,10 +414,11 @@ public class JournalFolderLocalServiceImpl
 	@Override
 	public List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int start, int end,
-		OrderByComparator<?> obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		return getFoldersAndArticles(
-			groupId, folderId, WorkflowConstants.STATUS_ANY, start, end, obc);
+			groupId, folderId, WorkflowConstants.STATUS_ANY, start, end,
+			orderByComparator);
 	}
 
 	@Override
@@ -668,14 +671,16 @@ public class JournalFolderLocalServiceImpl
 
 		// Trash
 
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
-		typeSettingsProperties.put("title", folder.getName());
+		typeSettingsUnicodeProperties.put("title", folder.getName());
 
 		TrashEntry trashEntry = _trashEntryLocalService.addTrashEntry(
 			userId, folder.getGroupId(), JournalFolder.class.getName(),
 			folder.getFolderId(), folder.getUuid(), null,
-			WorkflowConstants.STATUS_APPROVED, null, typeSettingsProperties);
+			WorkflowConstants.STATUS_APPROVED, null,
+			typeSettingsUnicodeProperties);
 
 		folder.setName(_trashHelper.getTrashTitle(trashEntry.getEntryId()));
 
@@ -774,7 +779,7 @@ public class JournalFolderLocalServiceImpl
 	public List<DDMStructure> searchDDMStructures(
 			long companyId, long[] groupIds, long folderId, int restrictionType,
 			String keywords, int start, int end,
-			OrderByComparator<DDMStructure> obc)
+			OrderByComparator<DDMStructure> orderByComparator)
 		throws PortalException {
 
 		if (restrictionType ==
@@ -784,7 +789,7 @@ public class JournalFolderLocalServiceImpl
 			return _ddmStructureLocalService.search(
 				companyId, groupIds,
 				classNameLocalService.getClassNameId(JournalFolder.class),
-				folderId, keywords, start, end, obc);
+				folderId, keywords, start, end, orderByComparator);
 		}
 
 		folderId = getOverridedDDMStructuresFolderId(folderId);
@@ -793,13 +798,14 @@ public class JournalFolderLocalServiceImpl
 			return _ddmStructureLocalService.search(
 				companyId, groupIds,
 				classNameLocalService.getClassNameId(JournalFolder.class),
-				folderId, keywords, start, end, obc);
+				folderId, keywords, start, end, orderByComparator);
 		}
 
 		return _ddmStructureLocalService.search(
 			companyId, groupIds,
 			classNameLocalService.getClassNameId(JournalArticle.class),
-			keywords, WorkflowConstants.STATUS_ANY, start, end, obc);
+			keywords, WorkflowConstants.STATUS_ANY, start, end,
+			orderByComparator);
 	}
 
 	@Override
@@ -1038,11 +1044,32 @@ public class JournalFolderLocalServiceImpl
 
 		// Merge folders
 
-		if (restrictionType !=
+		if ((restrictionType !=
 				JournalFolderConstants.
-					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) {
+					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) &&
+			(parentFolderId !=
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
 
-			ddmStructureIds = new long[0];
+			JournalFolder restrictedAncestorFolder =
+				_getRestrictedAncestorFolder(getFolder(parentFolderId));
+
+			if (restrictedAncestorFolder != null) {
+				List<DDMStructureLink> ancestorDDMStructureLinks =
+					_ddmStructureLinkLocalService.getStructureLinks(
+						_classNameLocalService.getClassNameId(
+							JournalFolder.class),
+						restrictedAncestorFolder.getFolderId());
+
+				Stream<DDMStructureLink> ancestorDDMStructureLinksStream =
+					ancestorDDMStructureLinks.stream();
+
+				long[] ancestorDDMStructureIds =
+					ancestorDDMStructureLinksStream.mapToLong(
+						DDMStructureLink::getStructureId
+					).toArray();
+
+				validateArticleDDMStructures(folderId, ancestorDDMStructureIds);
+			}
 		}
 
 		validateArticleDDMStructures(folderId, ddmStructureIds);
@@ -1475,6 +1502,26 @@ public class JournalFolderLocalServiceImpl
 
 		return (JournalFolderModelValidator)modelValidator;
 	}
+
+	private JournalFolder _getRestrictedAncestorFolder(JournalFolder folder)
+		throws PortalException {
+
+		if (folder.getRestrictionType() ==
+				JournalFolderConstants.
+					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) {
+
+			return folder;
+		}
+
+		if (folder.isRoot()) {
+			return null;
+		}
+
+		return _getRestrictedAncestorFolder(folder.getParentFolder());
+	}
+
+	@Reference
+	private ClassNameLocalService _classNameLocalService;
 
 	@Reference
 	private DDMStructureLinkLocalService _ddmStructureLinkLocalService;

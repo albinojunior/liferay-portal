@@ -20,7 +20,7 @@ import com.liferay.gradle.plugins.internal.LangBuilderDefaultsPlugin;
 import com.liferay.gradle.plugins.internal.util.FileUtil;
 import com.liferay.gradle.plugins.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.tasks.DirectDeployTask;
-import com.liferay.gradle.plugins.tasks.DockerDeployTask;
+import com.liferay.gradle.plugins.tasks.DockerCopyTask;
 import com.liferay.gradle.plugins.util.PortalTools;
 import com.liferay.gradle.util.Validator;
 
@@ -44,8 +44,10 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * @author Andrea Di Giorgi
@@ -54,307 +56,318 @@ public class LiferayBasePlugin implements Plugin<Project> {
 
 	public static final String DEPLOY_TASK_NAME = "deploy";
 
-	public static final String DOCKER_DEPLOY_TASK_NAME = "dockerDeploy";
+	public static final String DOCKER_COPY_TASK_NAME = "dockerCopy";
 
 	public static final String PORTAL_CONFIGURATION_NAME = "portal";
 
 	@Override
 	public void apply(Project project) {
-		LiferayExtension liferayExtension = _addLiferayExtension(project);
+
+		// Plugins
 
 		GradleUtil.applyPlugin(project, NodeDefaultsPlugin.class);
 
 		LangBuilderDefaultsPlugin.INSTANCE.apply(project);
 		SourceFormatterDefaultsPlugin.INSTANCE.apply(project);
 
-		_addConfigurationPortal(project, liferayExtension);
+		// Extensions
 
-		Copy copy = _addTaskDeploy(project, liferayExtension);
+		ExtensionContainer extensionContainer = project.getExtensions();
 
-		String dockerContainerId = GradleUtil.getTaskPrefixedProperty(
-			copy, "docker.container.id");
-		String dockerFilesDir = GradleUtil.getTaskPrefixedProperty(
-			copy, "docker.files.dir");
+		final LiferayExtension liferayExtension = extensionContainer.create(
+			LiferayPlugin.PLUGIN_NAME, LiferayExtension.class, project);
 
-		if (dockerContainerId != null) {
-			DockerDeployTask dockerDeployTask = _addTaskDockerDeploy(
-				project, copy, liferayExtension, dockerContainerId);
-
-			_configureTaskDeploy(copy, dockerDeployTask);
-		}
-		else if (dockerFilesDir != null) {
-			_configureTaskDeploy(copy, liferayExtension, dockerFilesDir);
-		}
-
-		_configureConfigurations(project, liferayExtension);
-		_configureTasksDirectDeploy(project, liferayExtension);
-	}
-
-	private Configuration _addConfigurationPortal(
-		final Project project, final LiferayExtension liferayExtension) {
-
-		Configuration configuration = GradleUtil.addConfiguration(
-			project, PORTAL_CONFIGURATION_NAME);
-
-		configuration.defaultDependencies(
-			new Action<DependencySet>() {
-
-				@Override
-				public void execute(DependencySet dependencySet) {
-					_addDependenciesPortal(project, liferayExtension);
-				}
-
-			});
-
-		configuration.setDescription(
-			"Configures the classpath from the local Liferay bundle.");
-		configuration.setVisible(false);
-
-		return configuration;
-	}
-
-	private void _addDependenciesPortal(
-		Project project, LiferayExtension liferayExtension) {
-
-		File appServerClassesPortalDir = new File(
-			liferayExtension.getAppServerPortalDir(), "WEB-INF/classes");
-
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, appServerClassesPortalDir);
-
-		File appServerLibPortalDir = new File(
-			liferayExtension.getAppServerPortalDir(), "WEB-INF/lib");
-
-		FileTree appServerLibPortalDirJarFiles = FileUtil.getJarsFileTree(
-			project, appServerLibPortalDir);
-
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, appServerLibPortalDirJarFiles);
-
-		FileTree appServerLibGlobalDirJarFiles = FileUtil.getJarsFileTree(
-			project, liferayExtension.getAppServerLibGlobalDir(), "mail.jar");
-
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, appServerLibGlobalDirJarFiles);
-
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, "com.liferay", "net.sf.jargs",
-			"1.0");
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, "com.thoughtworks.qdox", "qdox",
-			"1.12.1");
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, "javax.activation",
-			"activation", "1.1");
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, "javax.servlet",
-			"javax.servlet-api", "3.0.1");
-		GradleUtil.addDependency(
-			project, PORTAL_CONFIGURATION_NAME, "javax.servlet.jsp",
-			"javax.servlet.jsp-api", "2.3.1");
-
-		AppServer appServer = liferayExtension.getAppServer();
-
-		appServer.addAdditionalDependencies(PORTAL_CONFIGURATION_NAME);
-	}
-
-	private LiferayExtension _addLiferayExtension(Project project) {
-		LiferayExtension liferayExtension = GradleUtil.addExtension(
-			project, LiferayPlugin.PLUGIN_NAME, LiferayExtension.class);
-
-		String name = _getConfigLiferayScriptName(
-			PortalTools.getPortalVersion(project));
-
-		ClassLoader classLoader = LiferayBasePlugin.class.getClassLoader();
-
-		URL url = classLoader.getResource(name);
-
-		if (url == null) {
-			name = _getConfigLiferayScriptName(null);
-		}
-
-		GradleUtil.applyScript(project, name, project);
-
-		return liferayExtension;
-	}
-
-	private Copy _addTaskDeploy(
-		Project project, final LiferayExtension liferayExtension) {
-
-		Copy copy = GradleUtil.addTask(project, DEPLOY_TASK_NAME, Copy.class);
-
-		copy.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					Logger logger = task.getLogger();
-
-					if (logger.isLifecycleEnabled()) {
-						Copy copy = (Copy)task;
-
-						logger.lifecycle(
-							"Files of {} deployed to {}", copy.getProject(),
-							copy.getDestinationDir());
-					}
-				}
-
-			});
-
-		copy.into(
-			new Callable<File>() {
-
-				@Override
-				public File call() throws Exception {
-					return liferayExtension.getDeployDir();
-				}
-
-			});
-
-		copy.setDescription("Assembles the project and deploys it to Liferay.");
-		copy.setGroup(BasePlugin.BUILD_GROUP);
-
-		return copy;
-	}
-
-	private DockerDeployTask _addTaskDockerDeploy(
-		Project project, final Copy copy,
-		final LiferayExtension liferayExtension, String dockerContainerId) {
-
-		final DockerDeployTask dockerDeployTask = GradleUtil.addTask(
-			project, DOCKER_DEPLOY_TASK_NAME, DockerDeployTask.class);
-
-		dockerDeployTask.dependsOn(copy);
-
-		dockerDeployTask.setContainerId(dockerContainerId);
-
-		dockerDeployTask.setDeployDir(
-			new Callable<String>() {
-
-				@Override
-				public String call() throws Exception {
-					StringBuilder sb = new StringBuilder();
-
-					sb.append(dockerDeployTask.getLiferayHome());
-					sb.append('/');
-
-					String relativePath = FileUtil.relativize(
-						liferayExtension.getDeployDir(),
-						liferayExtension.getLiferayHome());
-
-					sb.append(relativePath);
-
-					String deployDir = sb.toString();
-
-					return deployDir.replace('\\', '/');
-				}
-
-			});
-
-		dockerDeployTask.setDescription(
-			"Deploys the project to the Docker container.");
-		dockerDeployTask.setGroup(BasePlugin.BUILD_GROUP);
-
-		dockerDeployTask.setSourceFile(
-			new Callable<File>() {
-
-				@Override
-				public File call() throws Exception {
-					FileCollection fileCollection = copy.getSource();
-
-					return fileCollection.getSingleFile();
-				}
-
-			});
-
-		dockerDeployTask.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					Logger logger = task.getLogger();
-
-					if (logger.isLifecycleEnabled()) {
-						DockerDeployTask dockerDeployTask =
-							(DockerDeployTask)task;
-
-						logger.lifecycle(
-							"Files of {} deployed to {}",
-							dockerDeployTask.getProject(),
-							dockerDeployTask.getDeployDir());
-					}
-				}
-
-			});
-
-		return dockerDeployTask;
-	}
-
-	private void _configureConfigurations(
-		Project project, final LiferayExtension liferayExtension) {
+		// Configurations
 
 		ConfigurationContainer configurationContainer =
 			project.getConfigurations();
 
-		Action<Configuration> action = new Action<Configuration>() {
+		Configuration portalConfiguration = configurationContainer.create(
+			PORTAL_CONFIGURATION_NAME);
 
-			@Override
-			public void execute(Configuration configuration) {
-				ResolutionStrategy resolutionStrategy =
-					configuration.getResolutionStrategy();
+		_configureConfigurationPortal(
+			project, liferayExtension, portalConfiguration);
 
-				resolutionStrategy.eachDependency(
-					new Action<DependencyResolveDetails>() {
+		// Tasks
 
-						@Override
-						public void execute(
-							DependencyResolveDetails dependencyResolveDetails) {
+		TaskProvider<Copy> deployTaskProvider = GradleUtil.addTaskProvider(
+			project, DEPLOY_TASK_NAME, Copy.class);
 
-							ModuleVersionSelector moduleVersionSelector =
-								dependencyResolveDetails.getRequested();
+		_configureTaskDeployProvider(
+			project, liferayExtension, deployTaskProvider);
 
-							String version = moduleVersionSelector.getVersion();
+		String dockerContainerId = GradleUtil.getTaskPrefixedProperty(
+			project.getPath(), deployTaskProvider.getName(),
+			"docker.container.id");
+		String dockerFilesDir = GradleUtil.getTaskPrefixedProperty(
+			project.getPath(), deployTaskProvider.getName(),
+			"docker.files.dir");
 
-							if (!version.equals("default")) {
-								return;
-							}
+		if (Validator.isNotNull(dockerContainerId)) {
+			TaskProvider<DockerCopyTask> dockerCopyTaskProvider =
+				GradleUtil.addTaskProvider(
+					project, DOCKER_COPY_TASK_NAME, DockerCopyTask.class);
 
-							version = liferayExtension.getDefaultVersion(
-								moduleVersionSelector);
+			_configureTaskDeployProvider(
+				liferayExtension, deployTaskProvider, dockerCopyTaskProvider,
+				dockerContainerId, dockerFilesDir);
+		}
 
-							dependencyResolveDetails.useVersion(version);
-						}
+		// Containers
 
-					});
-			}
+		TaskContainer taskContainer = project.getTasks();
 
-		};
-
-		configurationContainer.all(action);
-	}
-
-	private void _configureTaskDeploy(
-		Copy copy, DockerDeployTask dockerDeployTask) {
-
-		copy.finalizedBy(dockerDeployTask);
-
-		copy.setEnabled(false);
-	}
-
-	private void _configureTaskDeploy(
-		Copy copy, final LiferayExtension liferayExtension,
-		final String dockerFilesDir) {
-
-		copy.into(
-			new Callable<File>() {
+		taskContainer.withType(
+			DirectDeployTask.class,
+			new Action<DirectDeployTask>() {
 
 				@Override
-				public File call() throws Exception {
-					String relativePath = FileUtil.relativize(
-						liferayExtension.getDeployDir(),
-						liferayExtension.getLiferayHome());
+				public void execute(DirectDeployTask directDeployTask) {
+					_configureTaskDirectDeploy(
+						directDeployTask, liferayExtension);
+				}
 
-					return new File(dockerFilesDir, relativePath);
+			});
+
+		// Other
+
+		GradleUtil.applyScript(
+			project, _getScriptLiferayExtension(project), project);
+
+		configurationContainer.all(
+			new Action<Configuration>() {
+
+				@Override
+				public void execute(Configuration configuration) {
+					ResolutionStrategy resolutionStrategy =
+						configuration.getResolutionStrategy();
+
+					resolutionStrategy.eachDependency(
+						new Action<DependencyResolveDetails>() {
+
+							@Override
+							public void execute(
+								DependencyResolveDetails
+									dependencyResolveDetails) {
+
+								ModuleVersionSelector moduleVersionSelector =
+									dependencyResolveDetails.getRequested();
+
+								String version =
+									moduleVersionSelector.getVersion();
+
+								if (version.equals("default")) {
+									dependencyResolveDetails.useVersion(
+										liferayExtension.getDefaultVersion(
+											moduleVersionSelector));
+								}
+							}
+
+						});
+				}
+
+			});
+	}
+
+	private void _configureConfigurationPortal(
+		final Project project, final LiferayExtension liferayExtension,
+		Configuration portalConfiguration) {
+
+		portalConfiguration.setDescription(
+			"Configures the classpath from the local Liferay bundle.");
+		portalConfiguration.setVisible(false);
+
+		portalConfiguration.defaultDependencies(
+			new Action<DependencySet>() {
+
+				@Override
+				public void execute(DependencySet dependencySet) {
+					File appServerClassesPortalDir = new File(
+						liferayExtension.getAppServerPortalDir(),
+						"WEB-INF/classes");
+
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME,
+						appServerClassesPortalDir);
+
+					File appServerLibPortalDir = new File(
+						liferayExtension.getAppServerPortalDir(),
+						"WEB-INF/lib");
+
+					FileTree appServerLibPortalDirJarFiles =
+						FileUtil.getJarsFileTree(
+							project, appServerLibPortalDir);
+
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME,
+						appServerLibPortalDirJarFiles);
+
+					FileTree appServerLibGlobalDirJarFiles =
+						FileUtil.getJarsFileTree(
+							project,
+							liferayExtension.getAppServerLibGlobalDir(),
+							"mail.jar");
+
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME,
+						appServerLibGlobalDirJarFiles);
+
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME, "com.liferay",
+						"net.sf.jargs", "1.0");
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME,
+						"com.thoughtworks.qdox", "qdox", "1.12.1");
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME, "javax.activation",
+						"activation", "1.1");
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME, "javax.servlet",
+						"javax.servlet-api", "3.0.1");
+					GradleUtil.addDependency(
+						project, PORTAL_CONFIGURATION_NAME, "javax.servlet.jsp",
+						"javax.servlet.jsp-api", "2.3.1");
+
+					AppServer appServer = liferayExtension.getAppServer();
+
+					appServer.addAdditionalDependencies(
+						PORTAL_CONFIGURATION_NAME);
+				}
+
+			});
+	}
+
+	private void _configureTaskDeployProvider(
+		final LiferayExtension liferayExtension,
+		final TaskProvider<Copy> deployTaskProvider,
+		final TaskProvider<DockerCopyTask> dockerCopyTaskProvider,
+		final String dockerContainerId, final String dockerFilesDir) {
+
+		deployTaskProvider.configure(
+			new Action<Copy>() {
+
+				@Override
+				public void execute(Copy deployCopy) {
+					if (dockerContainerId != null) {
+						deployCopy.finalizedBy(dockerCopyTaskProvider);
+
+						deployCopy.setEnabled(false);
+					}
+					else if (dockerFilesDir != null) {
+						deployCopy.into(
+							new Callable<File>() {
+
+								@Override
+								public File call() throws Exception {
+									String relativePath = FileUtil.relativize(
+										liferayExtension.getDeployDir(),
+										liferayExtension.getLiferayHome());
+
+									return new File(
+										dockerFilesDir, relativePath);
+								}
+
+							});
+					}
+				}
+
+			});
+
+		dockerCopyTaskProvider.configure(
+			new Action<DockerCopyTask>() {
+
+				@Override
+				public void execute(DockerCopyTask dockerCopyTask) {
+					dockerCopyTask.dependsOn(deployTaskProvider);
+
+					dockerCopyTask.setContainerId(dockerContainerId);
+
+					dockerCopyTask.setDeployDir(
+						new Callable<String>() {
+
+							@Override
+							public String call() throws Exception {
+								StringBuilder sb = new StringBuilder();
+
+								sb.append(dockerCopyTask.getLiferayHome());
+								sb.append('/');
+
+								String relativePath = FileUtil.relativize(
+									liferayExtension.getDeployDir(),
+									liferayExtension.getLiferayHome());
+
+								sb.append(relativePath);
+
+								String deployDir = sb.toString();
+
+								return deployDir.replace('\\', '/');
+							}
+
+						});
+
+					dockerCopyTask.setDescription(
+						"Deploys the project to the Docker container.");
+					dockerCopyTask.setGroup(BasePlugin.BUILD_GROUP);
+
+					dockerCopyTask.setSourceFile(
+						new Callable<File>() {
+
+							@Override
+							public File call() throws Exception {
+								Copy deployCopy = deployTaskProvider.get();
+
+								FileCollection fileCollection =
+									deployCopy.getSource();
+
+								return fileCollection.getSingleFile();
+							}
+
+						});
+				}
+
+			});
+	}
+
+	private void _configureTaskDeployProvider(
+		final Project project, final LiferayExtension liferayExtension,
+		TaskProvider<Copy> deployTaskProvider) {
+
+		deployTaskProvider.configure(
+			new Action<Copy>() {
+
+				@Override
+				public void execute(Copy deployCopy) {
+					deployCopy.doLast(
+						new Action<Task>() {
+
+							@Override
+							public void execute(Task task) {
+								Logger logger = task.getLogger();
+
+								if (logger.isLifecycleEnabled()) {
+									Copy copy = (Copy)task;
+
+									logger.lifecycle(
+										"Files of {} deployed to {}", project,
+										copy.getDestinationDir());
+								}
+							}
+
+						});
+
+					deployCopy.into(
+						new Callable<File>() {
+
+							@Override
+							public File call() throws Exception {
+								return liferayExtension.getDeployDir();
+							}
+
+						});
+
+					deployCopy.setDescription(
+						"Assembles the project and deploys it to Liferay.");
+					deployCopy.setGroup(BasePlugin.BUILD_GROUP);
 				}
 
 			});
@@ -405,28 +418,12 @@ public class LiferayBasePlugin implements Plugin<Project> {
 			});
 	}
 
-	private void _configureTasksDirectDeploy(
-		Project project, final LiferayExtension liferayExtension) {
-
-		TaskContainer taskContainer = project.getTasks();
-
-		taskContainer.withType(
-			DirectDeployTask.class,
-			new Action<DirectDeployTask>() {
-
-				@Override
-				public void execute(DirectDeployTask directDeployTask) {
-					_configureTaskDirectDeploy(
-						directDeployTask, liferayExtension);
-				}
-
-			});
-	}
-
-	private String _getConfigLiferayScriptName(String portalVersion) {
+	private String _getScriptLiferayExtension(Project project) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("com/liferay/gradle/plugins/dependencies/config-liferay");
+
+		String portalVersion = PortalTools.getPortalVersion(project);
 
 		if (Validator.isNotNull(portalVersion)) {
 			sb.append('-');
@@ -435,7 +432,15 @@ public class LiferayBasePlugin implements Plugin<Project> {
 
 		sb.append(".gradle");
 
-		return sb.toString();
+		ClassLoader classLoader = LiferayBasePlugin.class.getClassLoader();
+
+		URL url = classLoader.getResource(sb.toString());
+
+		if (url != null) {
+			return sb.toString();
+		}
+
+		return "com/liferay/gradle/plugins/dependencies/config-liferay.gradle";
 	}
 
 }

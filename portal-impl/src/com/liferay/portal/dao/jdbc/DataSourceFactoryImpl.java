@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.SortedProperties;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
@@ -57,6 +56,8 @@ import java.io.Closeable;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import java.nio.file.Paths;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -160,10 +161,7 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 		if (_log.isDebugEnabled()) {
 			_log.debug("Data source properties:\n");
 
-			SortedProperties sortedProperties = new SortedProperties(
-				properties);
-
-			_log.debug(PropertiesUtil.toString(sortedProperties));
+			_log.debug(PropertiesUtil.toString(properties));
 		}
 
 		DataSource dataSource = null;
@@ -257,11 +255,11 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 			comboPooledDataSource.setProperties(connectionProperties);
 		}
 
-		Enumeration<String> enu =
+		Enumeration<String> enumeration =
 			(Enumeration<String>)properties.propertyNames();
 
-		while (enu.hasMoreElements()) {
-			String key = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
 
 			String value = properties.getProperty(key);
 
@@ -583,7 +581,8 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 
 			try {
 				JarUtil.downloadAndInstallJar(
-					new URL(url), PropsValues.LIFERAY_LIB_GLOBAL_DIR, name,
+					new URL(url),
+					Paths.get(PropsValues.LIFERAY_LIB_GLOBAL_DIR, name),
 					(URLClassLoader)classLoader);
 			}
 			catch (Exception exception) {

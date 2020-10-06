@@ -69,6 +69,20 @@ public class AdaptedImageSerDes {
 			sb.append("\"");
 		}
 
+		if (adaptedImage.getContentValue() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"contentValue\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(adaptedImage.getContentValue()));
+
+			sb.append("\"");
+		}
+
 		if (adaptedImage.getHeight() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -139,6 +153,14 @@ public class AdaptedImageSerDes {
 			map.put("contentUrl", String.valueOf(adaptedImage.getContentUrl()));
 		}
 
+		if (adaptedImage.getContentValue() == null) {
+			map.put("contentValue", null);
+		}
+		else {
+			map.put(
+				"contentValue", String.valueOf(adaptedImage.getContentValue()));
+		}
+
 		if (adaptedImage.getHeight() == null) {
 			map.put("height", null);
 		}
@@ -196,6 +218,11 @@ public class AdaptedImageSerDes {
 					adaptedImage.setContentUrl((String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "contentValue")) {
+				if (jsonParserFieldValue != null) {
+					adaptedImage.setContentValue((String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "height")) {
 				if (jsonParserFieldValue != null) {
 					adaptedImage.setHeight(
@@ -220,9 +247,8 @@ public class AdaptedImageSerDes {
 						Integer.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -278,10 +304,13 @@ public class AdaptedImageSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

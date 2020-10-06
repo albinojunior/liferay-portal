@@ -86,12 +86,12 @@ PortletURL portletURL = editAssetListDisplayContext.getPortletURL();
 			continue;
 		}
 
-		String onClick = "addRow('" + group.getGroupId() + "', '" + HtmlUtil.escapeJS(HtmlUtil.escape(group.getDescriptiveName(themeDisplay.getLocale()))) + "', '" + LanguageUtil.get(request, group.getScopeLabel(themeDisplay)) + "');";
+		String taglibOnClick = liferayPortletResponse.getNamespace() + "addRow('" + group.getGroupId() + "', '" + HtmlUtil.escapeJS(HtmlUtil.escape(group.getDescriptiveName(themeDisplay.getLocale()))) + "', '" + LanguageUtil.get(request, group.getScopeLabel(themeDisplay)) + "');";
 	%>
 
 		<liferay-ui:icon
 			message="<%= group.getScopeDescriptiveName(themeDisplay) %>"
-			onClick="<%= onClick %>"
+			onClick="<%= taglibOnClick %>"
 			url="javascript:;"
 		/>
 
@@ -102,7 +102,7 @@ PortletURL portletURL = editAssetListDisplayContext.getPortletURL();
 	<liferay-ui:icon
 		cssClass="highlited scope-selector"
 		id="selectManageableGroup"
-		message='<%= LanguageUtil.get(request, "other-site") + StringPool.TRIPLE_PERIOD %>'
+		message='<%= LanguageUtil.get(request, "other-site-or-asset-library") + StringPool.TRIPLE_PERIOD %>'
 		method="get"
 		url="javascript:;"
 	/>
@@ -115,7 +115,7 @@ PortletURL portletURL = editAssetListDisplayContext.getPortletURL();
 
 	searchContainer.get('contentBox').delegate(
 		'click',
-		function(event) {
+		function (event) {
 			var link = event.currentTarget;
 
 			var tr = link.ancestor('tr');
@@ -134,40 +134,38 @@ PortletURL portletURL = editAssetListDisplayContext.getPortletURL();
 	);
 
 	if (selectManageableGroupIcon) {
-		selectManageableGroupIcon.addEventListener('click', function(event) {
+		selectManageableGroupIcon.addEventListener('click', function (event) {
 			event.preventDefault();
 
-			Liferay.Util.selectEntity(
-				{
-					dialog: {
-						destroyOnHide: true,
-					},
-					eventName:
-						'<%= editAssetListDisplayContext.getSelectGroupEventName() %>',
-					id:
-						'<%= editAssetListDisplayContext.getSelectGroupEventName() %>',
-					title: '<liferay-ui:message key="scopes" />',
-					uri:
-						'<%= editAssetListDisplayContext.getGroupItemSelectorURL() %>',
-				},
-				function(event) {
-					var entityId = event.groupid;
+			Liferay.Util.openSelectionModal({
+				id: '<%= editAssetListDisplayContext.getSelectGroupEventName() %>',
+				onSelect: function (selectedItem) {
+					var entityId = selectedItem.groupid;
 
 					var searchContainerData = searchContainer.getData();
 
 					if (searchContainerData.indexOf(entityId) == -1) {
-						addRow(
+						<portlet:namespace />addRow(
 							entityId,
-							event.groupdescriptivename,
-							event.groupscopelabel
+							selectedItem.groupdescriptivename,
+							selectedItem.groupscopelabel
 						);
 					}
-				}
-			);
+				},
+				selectEventName:
+					'<%= editAssetListDisplayContext.getSelectGroupEventName() %>',
+				title: '<liferay-ui:message key="scopes" />',
+				url: '<%= editAssetListDisplayContext.getGroupItemSelectorURL() %>',
+			});
 		});
 	}
 
-	Liferay.provide(window, 'addRow', function(groupId, name, scopeLabel) {
+	window['<portlet:namespace />addRow'] = function (groupId, name, scopeLabel) {
+		var data = searchContainer.getData(true);
+		if (data.includes(groupId)) {
+			return;
+		}
+
 		var rowColumns = [];
 
 		rowColumns.push('<span class="text-truncate">' + name + '</span>');
@@ -183,9 +181,9 @@ PortletURL portletURL = editAssetListDisplayContext.getPortletURL();
 		searchContainer.updateDataStore();
 
 		updateGroupIds();
-	});
+	};
 
-	Liferay.provide(window, 'updateGroupIds', function() {
+	function updateGroupIds() {
 		var groupIds = document.getElementById('<portlet:namespace />groupIds');
 
 		if (groupIds) {
@@ -193,5 +191,5 @@ PortletURL portletURL = editAssetListDisplayContext.getPortletURL();
 
 			groupIds.setAttribute('value', searchContainerData.split(','));
 		}
-	});
+	}
 </aui:script>

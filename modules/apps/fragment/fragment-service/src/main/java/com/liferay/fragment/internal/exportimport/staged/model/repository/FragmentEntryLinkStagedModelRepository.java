@@ -61,9 +61,10 @@ public class FragmentEntryLinkStagedModelRepository
 			userId, fragmentEntryLink.getGroupId(),
 			fragmentEntryLink.getOriginalFragmentEntryLinkId(),
 			fragmentEntryLink.getFragmentEntryId(),
-			fragmentEntryLink.getClassNameId(), fragmentEntryLink.getClassPK(),
-			fragmentEntryLink.getCss(), fragmentEntryLink.getHtml(),
-			fragmentEntryLink.getJs(), fragmentEntryLink.getConfiguration(),
+			fragmentEntryLink.getSegmentsExperienceId(),
+			fragmentEntryLink.getPlid(), fragmentEntryLink.getCss(),
+			fragmentEntryLink.getHtml(), fragmentEntryLink.getJs(),
+			fragmentEntryLink.getConfiguration(),
 			fragmentEntryLink.getEditableValues(),
 			fragmentEntryLink.getNamespace(), fragmentEntryLink.getPosition(),
 			fragmentEntryLink.getRendererKey(), serviceContext);
@@ -156,8 +157,7 @@ public class FragmentEntryLinkStagedModelRepository
 		return _fragmentEntryLinkLocalService.updateFragmentEntryLink(
 			userId, fragmentEntryLink.getFragmentEntryLinkId(),
 			fragmentEntryLink.getOriginalFragmentEntryLinkId(),
-			fragmentEntryLink.getFragmentEntryId(),
-			fragmentEntryLink.getClassNameId(), fragmentEntryLink.getClassPK(),
+			fragmentEntryLink.getFragmentEntryId(), fragmentEntryLink.getPlid(),
 			fragmentEntryLink.getCss(), fragmentEntryLink.getHtml(),
 			fragmentEntryLink.getJs(), fragmentEntryLink.getConfiguration(),
 			fragmentEntryLink.getEditableValues(),

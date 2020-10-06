@@ -36,6 +36,10 @@ public class AccountRoleLocalServiceWrapper
 	/**
 	 * Adds the account role to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param accountRole the account role
 	 * @return the account role that was added
 	 */
@@ -93,6 +97,10 @@ public class AccountRoleLocalServiceWrapper
 	/**
 	 * Deletes the account role from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param accountRole the account role
 	 * @return the account role that was removed
 	 * @throws PortalException
@@ -107,6 +115,10 @@ public class AccountRoleLocalServiceWrapper
 
 	/**
 	 * Deletes the account role with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountRoleId the primary key of the account role
 	 * @return the account role that was removed
@@ -134,6 +146,11 @@ public class AccountRoleLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _accountRoleLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _accountRoleLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -346,20 +363,22 @@ public class AccountRoleLocalServiceWrapper
 	public com.liferay.portal.kernel.search.BaseModelSearchResult
 		<com.liferay.account.model.AccountRole> searchAccountRoles(
 			long accountEntryId, String keywords, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator obc) {
+			com.liferay.portal.kernel.util.OrderByComparator<?>
+				orderByComparator) {
 
 		return _accountRoleLocalService.searchAccountRoles(
-			accountEntryId, keywords, start, end, obc);
+			accountEntryId, keywords, start, end, orderByComparator);
 	}
 
 	@Override
 	public com.liferay.portal.kernel.search.BaseModelSearchResult
 		<com.liferay.account.model.AccountRole> searchAccountRoles(
 			long[] accountEntryIds, String keywords, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator obc) {
+			com.liferay.portal.kernel.util.OrderByComparator<?>
+				orderByComparator) {
 
 		return _accountRoleLocalService.searchAccountRoles(
-			accountEntryIds, keywords, start, end, obc);
+			accountEntryIds, keywords, start, end, orderByComparator);
 	}
 
 	@Override
@@ -373,6 +392,10 @@ public class AccountRoleLocalServiceWrapper
 
 	/**
 	 * Updates the account role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountRole the account role
 	 * @return the account role that was updated

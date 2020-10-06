@@ -132,16 +132,12 @@ public class EntryServiceTest {
 
 	@Test
 	public void testGetEntriesCountAsAdminUser() throws Exception {
-		int entriesCount = getEntriesCount(_adminPermissionChecker);
-
-		Assert.assertEquals(10, entriesCount);
+		Assert.assertEquals(10, getEntriesCount(_adminPermissionChecker));
 	}
 
 	@Test
 	public void testGetEntriesCountAsGuestUser() throws Exception {
-		int entriesCount = getEntriesCount(_guestPermissionChecker);
-
-		Assert.assertEquals(5, entriesCount);
+		Assert.assertEquals(5, getEntriesCount(_guestPermissionChecker));
 	}
 
 	@Test
@@ -217,7 +213,7 @@ public class EntryServiceTest {
 			ServiceContextTestUtil.getServiceContext();
 
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
-			_ENTRY_GROUP_PERMISSIONS, null);
+			_ENTRY_GROUP_PERMISSIONS, null, Entry.class.getName());
 
 		serviceContext.setModelPermissions(modelPermissions);
 
@@ -232,7 +228,8 @@ public class EntryServiceTest {
 		}
 
 		modelPermissions = ModelPermissionsFactory.create(
-			_ENTRY_GROUP_PERMISSIONS, new String[] {"VIEW"});
+			_ENTRY_GROUP_PERMISSIONS, new String[] {"VIEW"},
+			Entry.class.getName());
 
 		serviceContext.setModelPermissions(modelPermissions);
 

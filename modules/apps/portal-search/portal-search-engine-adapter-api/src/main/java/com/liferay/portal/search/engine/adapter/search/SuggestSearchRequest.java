@@ -29,6 +29,8 @@ public class SuggestSearchRequest
 
 	public SuggestSearchRequest(String... indexNames) {
 		_indexNames = indexNames;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

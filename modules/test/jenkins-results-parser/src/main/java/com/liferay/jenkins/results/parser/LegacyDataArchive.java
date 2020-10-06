@@ -32,8 +32,8 @@ public class LegacyDataArchive {
 		return _legacyDataArchiveFile;
 	}
 
-	public LegacyDataArchiveUtil getLegacyDataArchiveUtil() {
-		return _legacyDataArchiveUtil;
+	public LegacyDataArchiveHelper getLegacyDataArchiveHelper() {
+		return _legacyDataArchiveHelper;
 	}
 
 	public GitWorkingDirectory getLegacyGitWorkingDirectory() {
@@ -74,7 +74,7 @@ public class LegacyDataArchive {
 
 	public void stageLegacyDataArchive() throws IOException {
 		File generatedArchiveDirectory =
-			_legacyDataArchiveUtil.getGeneratedArchiveDirectory();
+			_legacyDataArchiveHelper.getGeneratedArchiveDirectory();
 
 		File generatedArchiveFile = new File(
 			JenkinsResultsParserUtil.combine(
@@ -102,11 +102,11 @@ public class LegacyDataArchive {
 		_legacyDataArchivePortalVersion =
 			_legacyDataArchiveGroup.getLegacyDataArchivePortalVersion();
 
-		_legacyDataArchiveUtil =
-			_legacyDataArchivePortalVersion.getLegacyDataArchiveUtil();
+		_legacyDataArchiveHelper =
+			_legacyDataArchivePortalVersion.getLegacyDataArchiveHelper();
 
 		_legacyGitWorkingDirectory =
-			_legacyDataArchiveUtil.getLegacyGitWorkingDirectory();
+			_legacyDataArchiveHelper.getLegacyGitWorkingDirectory();
 
 		_dataArchiveType = _legacyDataArchiveGroup.getDataArchiveType();
 
@@ -125,9 +125,9 @@ public class LegacyDataArchive {
 	private final String _databaseName;
 	private final File _legacyDataArchiveFile;
 	private final LegacyDataArchiveGroup _legacyDataArchiveGroup;
+	private final LegacyDataArchiveHelper _legacyDataArchiveHelper;
 	private final LegacyDataArchivePortalVersion
 		_legacyDataArchivePortalVersion;
-	private final LegacyDataArchiveUtil _legacyDataArchiveUtil;
 	private final GitWorkingDirectory _legacyGitWorkingDirectory;
 
 }

@@ -25,7 +25,11 @@ import java.util.ResourceBundle;
 
 /**
  * @author Carlos Sierra Andrés
+ *
+ * @deprecated As of Athanasius (7.3.x), replaced by {@link
+ *             com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader}
  */
+@Deprecated
 public class AggregateResourceBundleLoader implements ResourceBundleLoader {
 
 	public AggregateResourceBundleLoader(

@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.deploy.auto.AutoDeployException;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployListener;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployer;
 import com.liferay.portal.kernel.deploy.auto.context.AutoDeploymentContext;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -211,7 +210,7 @@ public class FragmentAutoDeployListener implements AutoDeployListener {
 	}
 
 	private Group _getDeploymentGroup(long companyId, String groupKey)
-		throws PortalException {
+		throws Exception {
 
 		Group group = _groupLocalService.getGroup(companyId, groupKey);
 
@@ -229,10 +228,10 @@ public class FragmentAutoDeployListener implements AutoDeployListener {
 	}
 
 	private ZipEntry _getDeployZipEntry(ZipFile zipFile) {
-		Enumeration<? extends ZipEntry> iterator = zipFile.entries();
+		Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 
-		while (iterator.hasMoreElements()) {
-			ZipEntry zipEntry = iterator.nextElement();
+		while (enumeration.hasMoreElements()) {
+			ZipEntry zipEntry = enumeration.nextElement();
 
 			if (Objects.equals(
 					_getFileName(zipEntry.getName()),
@@ -255,7 +254,7 @@ public class FragmentAutoDeployListener implements AutoDeployListener {
 		return path;
 	}
 
-	private User _getUser(Company company, Group group) throws PortalException {
+	private User _getUser(Company company, Group group) throws Exception {
 		long companyId = CompanyConstants.SYSTEM;
 		long userId = 0;
 

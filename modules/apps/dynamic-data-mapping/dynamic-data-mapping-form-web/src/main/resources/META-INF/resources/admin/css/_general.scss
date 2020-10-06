@@ -137,11 +137,40 @@ td.lfr-name-column {
 	}
 }
 
+.ddm-share-url-popover {
+	max-width: 500px;
+	width: 100%;
+}
+
 .dynamic-data-mapping-data-providers-modal {
 	max-width: 720px;
 
 	.modal-content {
 		z-index: 1;
+	}
+}
+
+.editing-form-entry {
+	background-color: white;
+
+	.ddm-form-basic-info {
+		padding-left: 20px;
+		padding-top: 15px;
+	}
+}
+
+.editing-form-entry-admin {
+	background-color: white;
+
+	.ddm-form-basic-info {
+		padding-bottom: 8px;
+		padding-left: 20px;
+		padding-top: 15px;
+
+		.ddm-form-name {
+			font-weight: bold !important;
+			padding-top: 0 !important;
+		}
 	}
 }
 
@@ -198,6 +227,15 @@ td.lfr-name-column {
 		width: inherit;
 	}
 
+	.forms-navigation-bar,
+	.navigation-bar-secondary,
+	.management-bar {
+		position: sticky;
+		top: 56px;
+		width: 100%;
+		z-index: 10;
+	}
+
 	.icon-asterisk {
 		margin-left: 4px;
 	}
@@ -212,6 +250,10 @@ td.lfr-name-column {
 		z-index: 2;
 	}
 
+	.management-bar {
+		top: 102px;
+	}
+
 	.radio-inline {
 		padding-top: 11px;
 
@@ -224,6 +266,10 @@ td.lfr-name-column {
 .lfr-ddm-field-settings-yes {
 	padding-left: 21px;
 	padding-right: 21px;
+}
+
+.lfr-ddm-form-container .lfr-ddm-form-pagination-controls {
+	overflow: hidden;
 }
 
 .portal-popup,
@@ -407,4 +453,8 @@ td.lfr-name-column {
 		right: 0;
 		width: 12px;
 	}
+}
+
+.taglib-empty-result-message {
+	margin-top: 104px;
 }

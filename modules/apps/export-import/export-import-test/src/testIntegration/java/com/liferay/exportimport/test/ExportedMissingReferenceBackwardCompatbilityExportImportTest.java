@@ -19,10 +19,10 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleConstants;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleEvent;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleEventListenerRegistryUtil;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleListener;
+import com.liferay.exportimport.kernel.lifecycle.constants.ExportImportLifecycleConstants;
 import com.liferay.exportimport.test.util.constants.DummyFolderPortletKeys;
 import com.liferay.exportimport.test.util.exportimport.data.handler.DummyFolderWithMissingDummyPortletDataHandler;
 import com.liferay.petra.string.CharPool;
@@ -105,13 +105,13 @@ public class ExportedMissingReferenceBackwardCompatbilityExportImportTest
 			exportImportLayouts(layoutIds, getExportParameterMap());
 		}
 		catch (PortletDataException portletDataException) {
-			Throwable cause = portletDataException.getCause();
+			Throwable throwable = portletDataException.getCause();
 
-			if (!(cause instanceof NullPointerException)) {
+			if (!(throwable instanceof NullPointerException)) {
 				throw portletDataException;
 			}
 
-			StackTraceElement[] stackTrace = cause.getStackTrace();
+			StackTraceElement[] stackTrace = throwable.getStackTrace();
 
 			if (Objects.equals(
 					stackTrace[0].getClassName(),
@@ -254,8 +254,6 @@ public class ExportedMissingReferenceBackwardCompatbilityExportImportTest
 						throw new RuntimeException(exception);
 					}
 				});
-
-			zipWriter.finish();
 
 			FileUtil.delete(file);
 		}

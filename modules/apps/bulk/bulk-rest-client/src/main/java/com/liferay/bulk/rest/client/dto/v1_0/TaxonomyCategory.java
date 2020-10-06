@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class TaxonomyCategory implements Cloneable {
 
+	public static TaxonomyCategory toDTO(String json) {
+		return TaxonomyCategorySerDes.toDTO(json);
+	}
+
 	public Long getTaxonomyCategoryId() {
 		return taxonomyCategoryId;
 	}

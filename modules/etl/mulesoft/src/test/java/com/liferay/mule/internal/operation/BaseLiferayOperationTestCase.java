@@ -14,6 +14,8 @@
 
 package com.liferay.mule.internal.operation;
 
+import java.util.regex.Pattern;
+
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.message.Message;
@@ -34,5 +36,9 @@ public abstract class BaseLiferayOperationTestCase
 
 		return payloadTypedValue.getValue();
 	}
+
+	protected static final Pattern productPattern = Pattern.compile(
+		"[\\s\\S]+\"active\"[\\s\\S]+\"catalogId\"[\\s\\S]+" +
+			"\"name\"[\\s\\S]+\"productType\"[\\s\\S]+");
 
 }

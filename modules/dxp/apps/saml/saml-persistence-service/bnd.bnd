@@ -1,7 +1,6 @@
-Bundle-Activator: com.liferay.saml.persistence.internal.activator.SamlPersistenceServiceBundleActivator
 Bundle-Name: Liferay SAML Persistence Service
 Bundle-SymbolicName: com.liferay.saml.persistence.service
-Bundle-Version: 4.0.3
+Bundle-Version: 4.0.19
 Import-Package:\
 	!com.sun.*,\
 	\
@@ -17,6 +16,7 @@ Import-Package:\
 	\
 	!org.apache.axis.*,\
 	!org.apache.commons.configuration,\
+	!org.apache.commons.httpclient.*,\
 	!org.apache.commons.ssl,\
 	!org.apache.log.*,\
 	!org.apache.oro.*,\

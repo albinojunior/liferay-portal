@@ -12,26 +12,58 @@
  * details.
  */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {HashRouter as Router, Route, Switch} from 'react-router-dom';
 
 import {AppContextProvider} from '../../AppContext.es';
-import ListEntries from './ListEntries.es';
+import useLazy from '../../hooks/useLazy.es';
 import {PermissionsContextProvider} from './PermissionsContext.es';
-import ViewEntry from './ViewEntry.es';
+import TranslationManagerEntry, {
+	getStorageLanguageId,
+} from './TranslationManagerEntry.es';
 
-export default function(props) {
+export default function ({appTab, ...props}) {
+	const PageComponent = useLazy();
+	const defaultLanguageId = getStorageLanguageId(props.appId);
+	const [userLanguageId, setUserLanguageId] = useState(defaultLanguageId);
+	const [showAppName, setShowAppName] = useState(false);
+
+	props.userLanguageId = userLanguageId;
+
+	const ListPage = (props) => {
+		useEffect(() => {
+			setShowAppName(true);
+		}, []);
+
+		return <PageComponent module={appTab.listEntryPoint} props={props} />;
+	};
+
+	const ViewPage = (props) => {
+		useEffect(() => {
+			setShowAppName(false);
+		}, []);
+
+		return <PageComponent module={appTab.viewEntryPoint} props={props} />;
+	};
+
 	return (
 		<div className="app-builder-root">
 			<AppContextProvider {...props}>
+				<TranslationManagerEntry
+					dataDefinitionId={props.dataDefinitionId}
+					setUserLanguageId={setUserLanguageId}
+					showAppName={showAppName}
+					userLanguageId={userLanguageId}
+				/>
+
 				<PermissionsContextProvider
 					dataDefinitionId={props.dataDefinitionId}
 				>
 					<Router>
 						<Switch>
-							<Route component={ListEntries} exact path="/" />
+							<Route component={ListPage} exact path="/" />
 							<Route
-								component={ViewEntry}
+								component={ViewPage}
 								path="/entries/:entryIndex(\d+)"
 							/>
 						</Switch>

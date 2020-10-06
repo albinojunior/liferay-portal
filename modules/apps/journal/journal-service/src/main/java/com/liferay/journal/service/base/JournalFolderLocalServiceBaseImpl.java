@@ -28,6 +28,7 @@ import com.liferay.journal.service.persistence.JournalArticlePersistence;
 import com.liferay.journal.service.persistence.JournalFolderFinder;
 import com.liferay.journal.service.persistence.JournalFolderPersistence;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -55,6 +56,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -93,6 +95,10 @@ public abstract class JournalFolderLocalServiceBaseImpl
 	/**
 	 * Adds the journal folder to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFolder the journal folder
 	 * @return the journal folder that was added
 	 */
@@ -119,6 +125,10 @@ public abstract class JournalFolderLocalServiceBaseImpl
 	/**
 	 * Deletes the journal folder with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param folderId the primary key of the journal folder
 	 * @return the journal folder that was removed
 	 * @throws PortalException if a journal folder with the primary key could not be found
@@ -134,6 +144,10 @@ public abstract class JournalFolderLocalServiceBaseImpl
 	/**
 	 * Deletes the journal folder from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFolder the journal folder
 	 * @return the journal folder that was removed
 	 */
@@ -141,6 +155,11 @@ public abstract class JournalFolderLocalServiceBaseImpl
 	@Override
 	public JournalFolder deleteJournalFolder(JournalFolder journalFolder) {
 		return journalFolderPersistence.remove(journalFolder);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return journalFolderPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -452,6 +471,10 @@ public abstract class JournalFolderLocalServiceBaseImpl
 			(JournalFolder)persistedModel);
 	}
 
+	public BasePersistence<JournalFolder> getBasePersistence() {
+		return journalFolderPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -539,6 +562,10 @@ public abstract class JournalFolderLocalServiceBaseImpl
 
 	/**
 	 * Updates the journal folder in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param journalFolder the journal folder
 	 * @return the journal folder that was updated

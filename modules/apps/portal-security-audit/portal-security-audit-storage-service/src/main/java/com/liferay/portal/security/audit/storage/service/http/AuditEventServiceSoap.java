@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see AuditEventServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class AuditEventServiceSoap {
 
 	public static
@@ -87,7 +89,8 @@ public class AuditEventServiceSoap {
 				getAuditEvents(
 					long companyId, int start, int end,
 					com.liferay.portal.kernel.util.OrderByComparator
-						orderByComparator)
+						<com.liferay.portal.security.audit.storage.model.
+							AuditEvent> orderByComparator)
 			throws RemoteException {
 
 		try {
@@ -146,7 +149,8 @@ public class AuditEventServiceSoap {
 					int serverPort, String sessionID, boolean andSearch,
 					int start, int end,
 					com.liferay.portal.kernel.util.OrderByComparator
-						orderByComparator)
+						<com.liferay.portal.security.audit.storage.model.
+							AuditEvent> orderByComparator)
 			throws RemoteException {
 
 		try {

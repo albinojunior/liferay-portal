@@ -15,15 +15,18 @@
 package com.liferay.account.admin.web.internal.frontend.taglib.servlet.taglib;
 
 import com.liferay.account.admin.web.internal.constants.AccountScreenNavigationEntryConstants;
-import com.liferay.account.admin.web.internal.util.AccountRoleRequestHelper;
+import com.liferay.account.admin.web.internal.helper.AccountRoleRequestHelper;
 import com.liferay.account.constants.AccountPortletKeys;
+import com.liferay.account.constants.AccountRoleConstants;
 import com.liferay.account.model.AccountRole;
 import com.liferay.account.service.AccountRoleLocalService;
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationCategory;
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.servlet.DynamicServletRequest;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.Constants;
@@ -89,6 +92,12 @@ public class AccountRoleDefinePermissionsScreenNavigationCategory
 			return false;
 		}
 
+		Role role = _roleLocalService.fetchRole(accountRole.getRoleId());
+
+		if ((role != null) && AccountRoleConstants.isSharedRole(role)) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -147,25 +156,25 @@ public class AccountRoleDefinePermissionsScreenNavigationCategory
 	}
 
 	private String _getRedirect(HttpServletRequest httpServletRequest) {
-		PortletURL redirect = _portal.getControlPanelPortletURL(
+		PortletURL redirectURL = _portal.getControlPanelPortletURL(
 			httpServletRequest, AccountPortletKeys.ACCOUNT_ENTRIES_ADMIN,
 			PortletRequest.RENDER_PHASE);
 
-		redirect.setParameter(
+		redirectURL.setParameter(
 			"mvcRenderCommandName",
 			"/account_admin/edit_account_role_permissions");
-		redirect.setParameter(
+		redirectURL.setParameter(
 			"screenNavigationCategoryKey",
 			AccountScreenNavigationEntryConstants.
 				CATEGORY_KEY_DEFINE_PERMISSIONS);
-		redirect.setParameter(
+		redirectURL.setParameter(
 			"accountEntryId",
 			ParamUtil.getString(httpServletRequest, "accountEntryId"));
-		redirect.setParameter(
+		redirectURL.setParameter(
 			"accountRoleId",
 			ParamUtil.getString(httpServletRequest, "accountRoleId"));
 
-		return redirect.toString();
+		return redirectURL.toString();
 	}
 
 	@Reference
@@ -179,6 +188,9 @@ public class AccountRoleDefinePermissionsScreenNavigationCategory
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference(target = "(osgi.web.symbolicname=com.liferay.roles.admin.web)")
 	private ServletContext _servletContext;

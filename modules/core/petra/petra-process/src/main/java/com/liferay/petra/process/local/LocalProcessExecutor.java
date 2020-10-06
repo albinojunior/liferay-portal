@@ -123,10 +123,10 @@ public class LocalProcessExecutor implements ProcessExecutor {
 		}
 	}
 
-	private static String _buildThreadName(
+	private String _buildThreadName(
 		ProcessCallable<?> processCallable, List<String> arguments) {
 
-		StringBundler sb = new StringBundler(arguments.size() * 2 + 2);
+		StringBundler sb = new StringBundler((arguments.size() * 2) + 2);
 
 		sb.append(processCallable);
 		sb.append(StringPool.OPEN_BRACKET);
@@ -143,7 +143,7 @@ public class LocalProcessExecutor implements ProcessExecutor {
 		return sb.toString();
 	}
 
-	private static <T> NoticeableFuture<T> _submit(
+	private <T> NoticeableFuture<T> _submit(
 		String threadName, Callable<T> callable) {
 
 		DefaultNoticeableFuture<T> defaultNoticeableFuture =
@@ -214,10 +214,10 @@ public class LocalProcessExecutor implements ProcessExecutor {
 				}
 
 				while (true) {
-					Object obj = null;
+					Object object = null;
 
 					try {
-						obj = objectInputStream.readObject();
+						object = objectInputStream.readObject();
 					}
 					catch (WriteAbortedException writeAbortedException) {
 						_processLogConsumer.accept(
@@ -229,19 +229,19 @@ public class LocalProcessExecutor implements ProcessExecutor {
 						continue;
 					}
 
-					if (!(obj instanceof ProcessCallable)) {
+					if (!(object instanceof ProcessCallable)) {
 						_processLogConsumer.accept(
 							new LocalProcessLog(
 								ProcessLog.Level.INFO,
 								"Received a nonprocess callable piping back " +
-									obj,
+									object,
 								null));
 
 						continue;
 					}
 
 					ProcessCallable<?> processCallable =
-						(ProcessCallable<?>)obj;
+						(ProcessCallable<?>)object;
 
 					if (processCallable instanceof ResultProcessCallable) {
 						resultProcessCallable =
@@ -262,12 +262,12 @@ public class LocalProcessExecutor implements ProcessExecutor {
 									returnValue),
 								null));
 					}
-					catch (Throwable t) {
+					catch (Throwable throwable) {
 						_processLogConsumer.accept(
 							new LocalProcessLog(
 								ProcessLog.Level.ERROR,
 								"Unable to invoke generic process callable",
-								t));
+								throwable));
 					}
 				}
 			}
@@ -293,12 +293,13 @@ public class LocalProcessExecutor implements ProcessExecutor {
 				throw new ProcessException(
 					"Subprocess piping back ended prematurely", eofException);
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				_processLogConsumer.accept(
 					new LocalProcessLog(
-						ProcessLog.Level.ERROR, "Abort subprocess piping", t));
+						ProcessLog.Level.ERROR, "Abort subprocess piping",
+						throwable));
 
-				throw t;
+				throw throwable;
 			}
 			finally {
 				try {

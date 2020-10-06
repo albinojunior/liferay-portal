@@ -50,12 +50,16 @@ public abstract class BaseDataLayoutRendererTag extends com.liferay.taglib.util.
 		return _dataRecordId;
 	}
 
-	public java.util.Map getDataRecordValues() {
+	public java.util.Map<java.lang.String, java.lang.Object> getDataRecordValues() {
 		return _dataRecordValues;
 	}
 
 	public java.lang.String getNamespace() {
 		return _namespace;
+	}
+
+	public boolean getReadOnly() {
+		return _readOnly;
 	}
 
 	public void setContainerId(java.lang.String containerId) {
@@ -74,12 +78,16 @@ public abstract class BaseDataLayoutRendererTag extends com.liferay.taglib.util.
 		_dataRecordId = dataRecordId;
 	}
 
-	public void setDataRecordValues(java.util.Map dataRecordValues) {
+	public void setDataRecordValues(java.util.Map<java.lang.String, java.lang.Object> dataRecordValues) {
 		_dataRecordValues = dataRecordValues;
 	}
 
 	public void setNamespace(java.lang.String namespace) {
 		_namespace = namespace;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		_readOnly = readOnly;
 	}
 
 	@Override
@@ -99,6 +107,7 @@ public abstract class BaseDataLayoutRendererTag extends com.liferay.taglib.util.
 		_dataRecordId = null;
 		_dataRecordValues = null;
 		_namespace = null;
+		_readOnly = false;
 	}
 
 	@Override
@@ -114,6 +123,7 @@ public abstract class BaseDataLayoutRendererTag extends com.liferay.taglib.util.
 		setNamespacedAttribute(request, "dataRecordId", _dataRecordId);
 		setNamespacedAttribute(request, "dataRecordValues", _dataRecordValues);
 		setNamespacedAttribute(request, "namespace", _namespace);
+		setNamespacedAttribute(request, "readOnly", _readOnly);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "liferay-data-engine:data-layout-renderer:";
@@ -125,7 +135,8 @@ public abstract class BaseDataLayoutRendererTag extends com.liferay.taglib.util.
 	private java.lang.Long _dataDefinitionId = null;
 	private java.lang.Long _dataLayoutId = null;
 	private java.lang.Long _dataRecordId = null;
-	private java.util.Map _dataRecordValues = null;
+	private java.util.Map<java.lang.String, java.lang.Object> _dataRecordValues = null;
 	private java.lang.String _namespace = null;
+	private boolean _readOnly = false;
 
 }

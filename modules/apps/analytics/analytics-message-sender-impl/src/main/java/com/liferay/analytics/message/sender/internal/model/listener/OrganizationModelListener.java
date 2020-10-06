@@ -14,7 +14,8 @@
 
 package com.liferay.analytics.message.sender.internal.model.listener;
 
-import com.liferay.analytics.message.sender.model.EntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.BaseEntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.EntityModelListener;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.model.ModelListener;
@@ -22,7 +23,6 @@ import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -38,8 +38,8 @@ public class OrganizationModelListener
 	extends BaseEntityModelListener<Organization> {
 
 	@Override
-	public List<String> getAttributeNames() {
-		return _attributeNames;
+	public List<String> getAttributeNames(long companyId) {
+		return getOrganizationAttributeNames();
 	}
 
 	@Override
@@ -55,6 +55,14 @@ public class OrganizationModelListener
 	@Override
 	public void onAfterRemove(Organization organization)
 		throws ModelListenerException {
+
+		if (!analyticsConfigurationTracker.isActive()) {
+			return;
+		}
+
+		if (isExcluded(organization)) {
+			return;
+		}
 
 		updateConfigurationProperties(
 			organization.getCompanyId(), "syncedOrganizationIds",
@@ -75,9 +83,6 @@ public class OrganizationModelListener
 	protected String getPrimaryKeyName() {
 		return "organizationId";
 	}
-
-	private static final List<String> _attributeNames = Arrays.asList(
-		"modifiedDate", "name", "parentOrganizationId", "treePath", "type");
 
 	@Reference
 	private OrganizationLocalService _organizationLocalService;

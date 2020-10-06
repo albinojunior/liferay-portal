@@ -14,7 +14,10 @@
 
 package com.liferay.segments.service;
 
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.segments.model.SegmentsEntry;
 
 /**
  * Provides a wrapper for {@link SegmentsEntryLocalService}.
@@ -36,18 +39,20 @@ public class SegmentsEntryLocalServiceWrapper
 	/**
 	 * Adds the segments entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntry the segments entry
 	 * @return the segments entry that was added
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry addSegmentsEntry(
-		com.liferay.segments.model.SegmentsEntry segmentsEntry) {
-
+	public SegmentsEntry addSegmentsEntry(SegmentsEntry segmentsEntry) {
 		return _segmentsEntryLocalService.addSegmentsEntry(segmentsEntry);
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntry addSegmentsEntry(
+	public SegmentsEntry addSegmentsEntry(
 			String segmentsEntryKey,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -61,7 +66,7 @@ public class SegmentsEntryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntry addSegmentsEntry(
+	public SegmentsEntry addSegmentsEntry(
 			String segmentsEntryKey,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -102,9 +107,7 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @return the new segments entry
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry createSegmentsEntry(
-		long segmentsEntryId) {
-
+	public SegmentsEntry createSegmentsEntry(long segmentsEntryId) {
 		return _segmentsEntryLocalService.createSegmentsEntry(segmentsEntryId);
 	}
 
@@ -136,13 +139,16 @@ public class SegmentsEntryLocalServiceWrapper
 	/**
 	 * Deletes the segments entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryId the primary key of the segments entry
 	 * @return the segments entry that was removed
 	 * @throws PortalException if a segments entry with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry deleteSegmentsEntry(
-			long segmentsEntryId)
+	public SegmentsEntry deleteSegmentsEntry(long segmentsEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.deleteSegmentsEntry(segmentsEntryId);
@@ -151,13 +157,16 @@ public class SegmentsEntryLocalServiceWrapper
 	/**
 	 * Deletes the segments entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntry the segments entry
 	 * @return the segments entry that was removed
 	 * @throws PortalException
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry deleteSegmentsEntry(
-			com.liferay.segments.model.SegmentsEntry segmentsEntry)
+	public SegmentsEntry deleteSegmentsEntry(SegmentsEntry segmentsEntry)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.deleteSegmentsEntry(segmentsEntry);
@@ -170,6 +179,11 @@ public class SegmentsEntryLocalServiceWrapper
 
 		_segmentsEntryLocalService.deleteSegmentsEntryClassPKs(
 			segmentsEntryId, classPKs);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _segmentsEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -264,14 +278,12 @@ public class SegmentsEntryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntry fetchSegmentsEntry(
-		long segmentsEntryId) {
-
+	public SegmentsEntry fetchSegmentsEntry(long segmentsEntryId) {
 		return _segmentsEntryLocalService.fetchSegmentsEntry(segmentsEntryId);
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntry fetchSegmentsEntry(
+	public SegmentsEntry fetchSegmentsEntry(
 		long groupId, String segmentsEntryKey,
 		boolean includeAncestorSegmentsEntries) {
 
@@ -287,8 +299,8 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @return the matching segments entry, or <code>null</code> if a matching segments entry could not be found
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry
-		fetchSegmentsEntryByUuidAndGroupId(String uuid, long groupId) {
+	public SegmentsEntry fetchSegmentsEntryByUuidAndGroupId(
+		String uuid, long groupId) {
 
 		return _segmentsEntryLocalService.fetchSegmentsEntryByUuidAndGroupId(
 			uuid, groupId);
@@ -351,19 +363,18 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @return the range of segments entries
 	 */
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntries(int start, int end) {
+	public java.util.List<SegmentsEntry> getSegmentsEntries(
+		int start, int end) {
 
 		return _segmentsEntryLocalService.getSegmentsEntries(start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntries(
-			long groupId, boolean includeAncestorSegmentsEntries, int start,
-			int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.segments.model.SegmentsEntry> orderByComparator) {
+	public java.util.List<SegmentsEntry> getSegmentsEntries(
+		long groupId, boolean includeAncestorSegmentsEntries, int start,
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<SegmentsEntry>
+			orderByComparator) {
 
 		return _segmentsEntryLocalService.getSegmentsEntries(
 			groupId, includeAncestorSegmentsEntries, start, end,
@@ -371,34 +382,31 @@ public class SegmentsEntryLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntries(
-			long groupId, boolean active, String type, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.segments.model.SegmentsEntry> orderByComparator) {
+	public java.util.List<SegmentsEntry> getSegmentsEntries(
+		long groupId, boolean active, String type, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<SegmentsEntry>
+			orderByComparator) {
 
 		return _segmentsEntryLocalService.getSegmentsEntries(
 			groupId, active, type, start, end, orderByComparator);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntries(
-			long groupId, boolean active, String source, String type, int start,
-			int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.segments.model.SegmentsEntry> orderByComparator) {
+	public java.util.List<SegmentsEntry> getSegmentsEntries(
+		long groupId, boolean active, String source, String type, int start,
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<SegmentsEntry>
+			orderByComparator) {
 
 		return _segmentsEntryLocalService.getSegmentsEntries(
 			groupId, active, source, type, start, end, orderByComparator);
 	}
 
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntriesBySource(
-			String source, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.segments.model.SegmentsEntry> orderByComparator) {
+	public java.util.List<SegmentsEntry> getSegmentsEntriesBySource(
+		String source, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<SegmentsEntry>
+			orderByComparator) {
 
 		return _segmentsEntryLocalService.getSegmentsEntriesBySource(
 			source, start, end, orderByComparator);
@@ -412,8 +420,8 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @return the matching segments entries, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntriesByUuidAndCompanyId(String uuid, long companyId) {
+	public java.util.List<SegmentsEntry> getSegmentsEntriesByUuidAndCompanyId(
+		String uuid, long companyId) {
 
 		return _segmentsEntryLocalService.getSegmentsEntriesByUuidAndCompanyId(
 			uuid, companyId);
@@ -430,11 +438,10 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @return the range of matching segments entries, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List<com.liferay.segments.model.SegmentsEntry>
-		getSegmentsEntriesByUuidAndCompanyId(
-			String uuid, long companyId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.segments.model.SegmentsEntry> orderByComparator) {
+	public java.util.List<SegmentsEntry> getSegmentsEntriesByUuidAndCompanyId(
+		String uuid, long companyId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<SegmentsEntry>
+			orderByComparator) {
 
 		return _segmentsEntryLocalService.getSegmentsEntriesByUuidAndCompanyId(
 			uuid, companyId, start, end, orderByComparator);
@@ -466,8 +473,7 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @throws PortalException if a segments entry with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry getSegmentsEntry(
-			long segmentsEntryId)
+	public SegmentsEntry getSegmentsEntry(long segmentsEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.getSegmentsEntry(segmentsEntryId);
@@ -482,8 +488,8 @@ public class SegmentsEntryLocalServiceWrapper
 	 * @throws PortalException if a matching segments entry could not be found
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry
-			getSegmentsEntryByUuidAndGroupId(String uuid, long groupId)
+	public SegmentsEntry getSegmentsEntryByUuidAndGroupId(
+			String uuid, long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.getSegmentsEntryByUuidAndGroupId(
@@ -497,12 +503,12 @@ public class SegmentsEntryLocalServiceWrapper
 	 */
 	@Deprecated
 	@Override
-	public com.liferay.portal.kernel.search.BaseModelSearchResult
-		<com.liferay.segments.model.SegmentsEntry> searchSegmentsEntries(
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<SegmentsEntry>
+			searchSegmentsEntries(
 				long companyId, long groupId, String keywords,
 				boolean includeAncestorSegmentsEntries, int start, int end,
 				com.liferay.portal.kernel.search.Sort sort)
-			throws com.liferay.portal.kernel.exception.PortalException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.searchSegmentsEntries(
 			companyId, groupId, keywords, includeAncestorSegmentsEntries, start,
@@ -510,13 +516,13 @@ public class SegmentsEntryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.search.BaseModelSearchResult
-		<com.liferay.segments.model.SegmentsEntry> searchSegmentsEntries(
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<SegmentsEntry>
+			searchSegmentsEntries(
 				long companyId, long groupId, String keywords,
 				boolean includeAncestorSegmentsEntries,
 				java.util.LinkedHashMap<String, Object> params, int start,
 				int end, com.liferay.portal.kernel.search.Sort sort)
-			throws com.liferay.portal.kernel.exception.PortalException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.searchSegmentsEntries(
 			companyId, groupId, keywords, includeAncestorSegmentsEntries,
@@ -524,16 +530,16 @@ public class SegmentsEntryLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.search.BaseModelSearchResult
-		<com.liferay.segments.model.SegmentsEntry> searchSegmentsEntries(
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<SegmentsEntry>
+			searchSegmentsEntries(
 				com.liferay.portal.kernel.search.SearchContext searchContext)
-			throws com.liferay.portal.kernel.exception.PortalException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsEntryLocalService.searchSegmentsEntries(searchContext);
 	}
 
 	@Override
-	public com.liferay.segments.model.SegmentsEntry updateSegmentsEntry(
+	public SegmentsEntry updateSegmentsEntry(
 			long segmentsEntryId, String segmentsEntryKey,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -549,14 +555,36 @@ public class SegmentsEntryLocalServiceWrapper
 	/**
 	 * Updates the segments entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntry the segments entry
 	 * @return the segments entry that was updated
 	 */
 	@Override
-	public com.liferay.segments.model.SegmentsEntry updateSegmentsEntry(
-		com.liferay.segments.model.SegmentsEntry segmentsEntry) {
-
+	public SegmentsEntry updateSegmentsEntry(SegmentsEntry segmentsEntry) {
 		return _segmentsEntryLocalService.updateSegmentsEntry(segmentsEntry);
+	}
+
+	@Override
+	public CTPersistence<SegmentsEntry> getCTPersistence() {
+		return _segmentsEntryLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<SegmentsEntry> getModelClass() {
+		return _segmentsEntryLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SegmentsEntry>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _segmentsEntryLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

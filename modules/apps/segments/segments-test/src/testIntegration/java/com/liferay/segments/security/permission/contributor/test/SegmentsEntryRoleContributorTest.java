@@ -16,6 +16,7 @@ package com.liferay.segments.security.permission.contributor.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
@@ -25,6 +26,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -39,6 +41,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.segments.model.SegmentsEntry;
+import com.liferay.segments.service.SegmentsEntryLocalService;
 import com.liferay.segments.service.SegmentsEntryRoleLocalService;
 import com.liferay.segments.test.util.SegmentsTestUtil;
 
@@ -74,8 +77,60 @@ public class SegmentsEntryRoleContributorTest {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		ServiceContextThreadLocal.popServiceContext();
+	}
+
+	@Test
+	public void testHasGroupPermissionWhenDeletingSegmentsEntry()
+		throws Exception {
+
+		_setUpHasGroupPermissionTest();
+
+		_segmentsEntryLocalService.deleteSegmentsEntry(
+			_segmentsEntry.getSegmentsEntryId());
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertFalse(
+			permissionChecker.hasPermission(
+				TestPropsValues.getGroupId(), Group.class.getName(),
+				TestPropsValues.getGroupId(), _ACTION_KEY));
+	}
+
+	@Test
+	public void testHasGroupPermissionWhenDeletingSegmentsEntryRole()
+		throws Exception {
+
+		_setUpHasGroupPermissionTest();
+
+		_segmentsEntryRoleLocalService.setSegmentsEntrySiteRoles(
+			_segmentsEntry.getSegmentsEntryId(), new long[0],
+			ServiceContextTestUtil.getServiceContext());
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertFalse(
+			permissionChecker.hasPermission(
+				TestPropsValues.getGroupId(), Group.class.getName(),
+				TestPropsValues.getGroupId(), _ACTION_KEY));
+	}
+
+	@Test
+	public void testHasGroupPermissionWhenDeletingSiteRole() throws Exception {
+		_setUpHasGroupPermissionTest();
+
+		_roleLocalService.deleteRole(_role.getRoleId());
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertFalse(
+			permissionChecker.hasPermission(
+				TestPropsValues.getGroupId(), Group.class.getName(),
+				TestPropsValues.getGroupId(), _ACTION_KEY));
 	}
 
 	@Test
@@ -94,13 +149,36 @@ public class SegmentsEntryRoleContributorTest {
 
 		_user = UserTestUtil.addUser();
 
-		String criteriaString = RandomTestUtil.randomString();
-
-		_user.setLastName(criteriaString);
+		_user.setLastName(RandomTestUtil.randomString());
 
 		_user = _userLocalService.updateUser(_user);
 
-		_segmentsEntry = SegmentsTestUtil.addSegmentsEntry(
+		_segmentsEntry = _addSegmentsEntry(_user.getLastName());
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertFalse(
+			permissionChecker.hasPermission(
+				TestPropsValues.getGroupId(), Organization.class.getName(),
+				_organization.getOrganizationId(), actionKey));
+
+		_segmentsEntryRoleLocalService.addSegmentsEntryRole(
+			_segmentsEntry.getSegmentsEntryId(), _role.getRoleId(),
+			ServiceContextTestUtil.getServiceContext());
+
+		permissionChecker = PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertTrue(
+			permissionChecker.hasPermission(
+				TestPropsValues.getGroupId(), Organization.class.getName(),
+				_organization.getOrganizationId(), actionKey));
+	}
+
+	private SegmentsEntry _addSegmentsEntry(String userLastName)
+		throws Exception {
+
+		return SegmentsTestUtil.addSegmentsEntry(
 			TestPropsValues.getGroupId(),
 			JSONUtil.put(
 				"criteria",
@@ -110,34 +188,52 @@ public class SegmentsEntryRoleContributorTest {
 						"conjunction", "and"
 					).put(
 						"filterString",
-						String.format("(lastName eq '%s')", criteriaString)
+						String.format("(lastName eq '%s')", userLastName)
 					).put(
 						"typeValue", "model"
 					))
 			).toString(),
 			User.class.getName());
-
-		_assertHasPermission(actionKey, false);
-
-		_segmentsEntryRoleLocalService.addSegmentsEntryRole(
-			_segmentsEntry.getSegmentsEntryId(), _role.getRoleId(),
-			ServiceContextTestUtil.getServiceContext());
-
-		_assertHasPermission(actionKey, true);
 	}
 
-	private void _assertHasPermission(String actionKey, boolean hasPermission)
-		throws Exception {
+	private void _setUpHasGroupPermissionTest() throws Exception {
+		_role = RoleTestUtil.addRole(RoleConstants.TYPE_SITE);
+
+		_resourcePermissionLocalService.addResourcePermission(
+			TestPropsValues.getCompanyId(), Group.class.getName(),
+			ResourceConstants.SCOPE_GROUP,
+			String.valueOf(TestPropsValues.getGroupId()), _role.getRoleId(),
+			_ACTION_KEY);
+
+		_user = UserTestUtil.addUser(TestPropsValues.getGroupId());
+
+		_user.setLastName(RandomTestUtil.randomString());
+
+		_user = _userLocalService.updateUser(_user);
+
+		_segmentsEntry = _addSegmentsEntry(_user.getLastName());
 
 		PermissionChecker permissionChecker =
 			PermissionCheckerFactoryUtil.create(_user);
 
-		Assert.assertEquals(
-			hasPermission,
+		Assert.assertFalse(
 			permissionChecker.hasPermission(
-				TestPropsValues.getGroupId(), Organization.class.getName(),
-				_organization.getOrganizationId(), actionKey));
+				TestPropsValues.getGroupId(), Group.class.getName(),
+				TestPropsValues.getGroupId(), _ACTION_KEY));
+
+		_segmentsEntryRoleLocalService.setSegmentsEntrySiteRoles(
+			_segmentsEntry.getSegmentsEntryId(), new long[] {_role.getRoleId()},
+			ServiceContextTestUtil.getServiceContext());
+
+		permissionChecker = PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertTrue(
+			permissionChecker.hasPermission(
+				TestPropsValues.getGroupId(), Group.class.getName(),
+				TestPropsValues.getGroupId(), _ACTION_KEY));
 	}
+
+	private static final String _ACTION_KEY = ActionKeys.UPDATE;
 
 	@DeleteAfterTestRun
 	private Organization _organization;
@@ -148,8 +244,14 @@ public class SegmentsEntryRoleContributorTest {
 	@DeleteAfterTestRun
 	private Role _role;
 
+	@Inject
+	private RoleLocalService _roleLocalService;
+
 	@DeleteAfterTestRun
 	private SegmentsEntry _segmentsEntry;
+
+	@Inject
+	private SegmentsEntryLocalService _segmentsEntryLocalService;
 
 	@Inject
 	private SegmentsEntryRoleLocalService _segmentsEntryRoleLocalService;

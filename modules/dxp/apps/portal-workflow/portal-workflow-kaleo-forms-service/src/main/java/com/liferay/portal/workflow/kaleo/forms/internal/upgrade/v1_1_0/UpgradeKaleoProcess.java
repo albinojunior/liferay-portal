@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
+import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -186,7 +187,8 @@ public class UpgradeKaleoProcess extends UpgradeProcess {
 			long companyId, String resourceName, long primKey)
 		throws PortalException {
 
-		ModelPermissions modelPermissions = new ModelPermissions();
+		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
+			resourceName);
 
 		List<ResourceAction> resourceActions =
 			_resourceActionLocalService.getResourceActions(resourceName);
@@ -210,7 +212,7 @@ public class UpgradeKaleoProcess extends UpgradeProcess {
 
 		_resourceActions.read(
 			null, UpgradeKaleoProcess.class.getClassLoader(),
-			"/META-INF/resource-actions/default.xml");
+			"/resource-actions/default.xml");
 
 		List<String> modelNames = _resourceActions.getPortletModelResources(
 			KaleoFormsPortletKeys.KALEO_FORMS_ADMIN);

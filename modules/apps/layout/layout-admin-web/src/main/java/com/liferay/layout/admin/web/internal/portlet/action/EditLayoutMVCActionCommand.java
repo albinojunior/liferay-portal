@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -107,6 +106,8 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 		long masterLayoutPlid = ParamUtil.getLong(
 			uploadPortletRequest, "masterLayoutPlid");
+		long styleBookEntryId = ParamUtil.getLong(
+			uploadPortletRequest, "styleBookEntryId");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			Layout.class.getName(), actionRequest);
@@ -124,8 +125,6 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 			friendlyURLMap = layout.getFriendlyURLMap();
 		}
 
-		String currentType = layout.getType();
-
 		if (layout.isTypeAssetDisplay()) {
 			serviceContext.setAttribute(
 				"layout.instanceable.allowed", Boolean.TRUE);
@@ -136,10 +135,9 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 			nameMap, layout.getTitleMap(), layout.getDescriptionMap(),
 			layout.getKeywordsMap(), layout.getRobotsMap(), type, hidden,
 			friendlyURLMap, !deleteLogo, iconBytes, masterLayoutPlid,
-			serviceContext);
+			styleBookEntryId, serviceContext);
 
-		Layout draftLayout = _layoutLocalService.fetchLayout(
-			_portal.getClassNameId(Layout.class), layout.getPlid());
+		Layout draftLayout = layout.fetchDraftLayout();
 
 		if (draftLayout != null) {
 			_layoutService.updateLayout(
@@ -149,15 +147,15 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 				draftLayout.getKeywordsMap(), draftLayout.getRobotsMap(), type,
 				draftLayout.isHidden(), draftLayout.getFriendlyURLMap(),
 				!deleteLogo, iconBytes, draftLayout.getMasterLayoutPlid(),
-				serviceContext);
+				styleBookEntryId, serviceContext);
 		}
 
 		themeDisplay.clearLayoutFriendlyURL(layout);
 
-		UnicodeProperties layoutTypeSettingsProperties =
+		UnicodeProperties layoutTypeSettingsUnicodeProperties =
 			layout.getTypeSettingsProperties();
 
-		UnicodeProperties formTypeSettingsProperties =
+		UnicodeProperties formTypeSettingsUnicodeProperties =
 			PropertiesParamUtil.getProperties(
 				actionRequest, "TypeSettingsProperties--");
 
@@ -168,7 +166,7 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 			Layout linkToLayout = _layoutService.getLayoutByUuidAndGroupId(
 				linkToLayoutUuid, groupId, privateLayout);
 
-			formTypeSettingsProperties.put(
+			formTypeSettingsUnicodeProperties.put(
 				"linkToLayoutId", String.valueOf(linkToLayout.getLayoutId()));
 		}
 
@@ -183,36 +181,29 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 			layoutTypePortlet.setLayoutTemplateId(
 				themeDisplay.getUserId(), layoutTemplateId);
 
-			layoutTypeSettingsProperties.putAll(formTypeSettingsProperties);
+			layoutTypeSettingsUnicodeProperties.putAll(
+				formTypeSettingsUnicodeProperties);
 
 			boolean layoutCustomizable = GetterUtil.getBoolean(
-				layoutTypeSettingsProperties.get(
+				layoutTypeSettingsUnicodeProperties.get(
 					LayoutConstants.CUSTOMIZABLE_LAYOUT));
 
 			if (!layoutCustomizable) {
 				layoutTypePortlet.removeCustomization(
-					layoutTypeSettingsProperties);
-			}
-
-			layout = _layoutService.updateLayout(
-				groupId, privateLayout, layoutId,
-				layoutTypeSettingsProperties.toString());
-
-			if (!currentType.equals(LayoutConstants.TYPE_PORTLET)) {
-				_portletPreferencesLocalService.deletePortletPreferences(
-					0, PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid());
+					layoutTypeSettingsUnicodeProperties);
 			}
 		}
 		else {
-			layoutTypeSettingsProperties.putAll(formTypeSettingsProperties);
+			layoutTypeSettingsUnicodeProperties.putAll(
+				formTypeSettingsUnicodeProperties);
 
-			layoutTypeSettingsProperties.putAll(
+			layoutTypeSettingsUnicodeProperties.putAll(
 				layout.getTypeSettingsProperties());
-
-			layout = _layoutService.updateLayout(
-				groupId, privateLayout, layoutId,
-				layoutTypeSettingsProperties.toString());
 		}
+
+		layout = _layoutService.updateLayout(
+			groupId, privateLayout, layoutId,
+			layoutTypeSettingsUnicodeProperties.toString());
 
 		EventsProcessorUtil.process(
 			PropsKeys.LAYOUT_CONFIGURATION_ACTION_UPDATE,
@@ -220,7 +211,7 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 			uploadPortletRequest,
 			_portal.getHttpServletResponse(actionResponse));
 
-		_actionUtil.updateLookAndFeel(
+		ActionUtil.updateLookAndFeel(
 			actionRequest, themeDisplay.getCompanyId(), liveGroupId,
 			stagingGroupId, privateLayout, layout.getLayoutId(),
 			layout.getTypeSettingsProperties());
@@ -242,9 +233,6 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 		actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
 	}
-
-	@Reference
-	private ActionUtil _actionUtil;
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;

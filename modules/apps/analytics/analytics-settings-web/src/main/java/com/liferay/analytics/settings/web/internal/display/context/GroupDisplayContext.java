@@ -33,6 +33,8 @@ import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
@@ -63,8 +65,10 @@ import org.apache.http.util.EntityUtils;
 public class GroupDisplayContext {
 
 	public GroupDisplayContext(
-		RenderRequest renderRequest, RenderResponse renderResponse) {
+		String mvcRenderCommandName, RenderRequest renderRequest,
+		RenderResponse renderResponse) {
 
+		_mvcRenderCommandName = mvcRenderCommandName;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 
@@ -101,12 +105,27 @@ public class GroupDisplayContext {
 			_log.error(portalException, portalException);
 		}
 
-		_fetchChannelNames(groups);
-
 		groupSearch.setResults(groups);
 
-		groupSearch.setRowChecker(
-			new GroupChecker(_renderResponse, _getDisabledGroupIds()));
+		if (StringUtil.equalsIgnoreCase(
+				_mvcRenderCommandName,
+				"/analytics_settings/edit_synced_sites")) {
+
+			groupSearch.setRowChecker(
+				new GroupChecker(
+					_renderResponse, null,
+					SetUtil.fromArray(_analyticsConfiguration.syncedGroupIds()),
+					_mvcRenderCommandName));
+		}
+		else {
+			_fetchChannelNames(groups);
+
+			groupSearch.setRowChecker(
+				new GroupChecker(
+					_renderResponse,
+					ParamUtil.getString(_renderRequest, "channelId"),
+					_getDisabledGroupIds(), _mvcRenderCommandName));
+		}
 
 		int total = GroupServiceUtil.searchCount(
 			_getCompanyId(), _getClassNameIds(), _getKeywords(),
@@ -131,9 +150,17 @@ public class GroupDisplayContext {
 	public PortletURL getPortletURL() {
 		PortletURL portletURL = _renderResponse.createRenderURL();
 
-		portletURL.setParameter(
-			"mvcRenderCommandName", "/view_configuration_screen");
-		portletURL.setParameter("configurationScreenKey", "synced-sites");
+		portletURL.setParameter("mvcRenderCommandName", _mvcRenderCommandName);
+
+		if (StringUtil.equalsIgnoreCase(
+				_mvcRenderCommandName, "/analytics_settings/edit_channel")) {
+
+			portletURL.setParameter(
+				"channelId", ParamUtil.getString(_renderRequest, "channelId"));
+			portletURL.setParameter(
+				"channelName",
+				ParamUtil.getString(_renderRequest, "channelName"));
+		}
 
 		return portletURL;
 	}
@@ -171,10 +198,7 @@ public class GroupDisplayContext {
 					"groupIds", groupIds
 				),
 				themeDisplay.getCompanyId(),
-				String.format(
-					"api/1.0/channels/query_channel_names",
-					AnalyticsSettingsUtil.getAsahFaroBackendDataSourceId(
-						themeDisplay.getCompanyId())));
+				"api/1.0/channels/query_channel_names");
 
 			StatusLine statusLine = httpResponse.getStatusLine();
 
@@ -265,6 +289,7 @@ public class GroupDisplayContext {
 	private Map<String, String> _channelNames;
 	private long[] _classNameIds;
 	private String _keywords;
+	private final String _mvcRenderCommandName;
 	private String _orderByCol;
 	private String _orderByType;
 	private final RenderRequest _renderRequest;

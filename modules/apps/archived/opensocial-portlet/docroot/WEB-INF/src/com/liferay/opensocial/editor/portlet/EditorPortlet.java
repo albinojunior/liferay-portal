@@ -267,14 +267,14 @@ public class EditorPortlet extends AdminPortlet {
 			ResourceResponse resourceResponse)
 		throws IOException {
 
-		JSONObject jsonError = JSONUtil.put(
+		JSONObject errorJSONObject = JSONUtil.put(
 			"message", exception.getLocalizedMessage());
 
 		Class<?> clazz = exception.getClass();
 
-		jsonError.put("name", clazz.getSimpleName());
+		errorJSONObject.put("name", clazz.getSimpleName());
 
-		JSONObject jsonObject = JSONUtil.put("error", jsonError);
+		JSONObject jsonObject = JSONUtil.put("error", errorJSONObject);
 
 		writeJSON(resourceRequest, resourceResponse, jsonObject);
 	}
@@ -309,17 +309,16 @@ public class EditorPortlet extends AdminPortlet {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (Folder folder : folders) {
-			JSONObject jsonObject = JSONUtil.put(
-				"entryId", folder.getFolderId()
-			).put(
-				"label", folder.getName()
-			).put(
-				"leaf", false
-			).put(
-				"type", "editor"
-			);
-
-			jsonArray.put(jsonObject);
+			jsonArray.put(
+				JSONUtil.put(
+					"entryId", folder.getFolderId()
+				).put(
+					"label", folder.getName()
+				).put(
+					"leaf", false
+				).put(
+					"type", "editor"
+				));
 		}
 
 		boolean getFileEntries = ParamUtil.getBoolean(
@@ -369,19 +368,20 @@ public class EditorPortlet extends AdminPortlet {
 					"leaf", true
 				);
 
-				JSONObject jsonPermissions = JSONFactoryUtil.createJSONObject();
+				JSONObject permissionsJSONObject =
+					JSONFactoryUtil.createJSONObject();
 
 				if (gadgetId > 0) {
 					boolean unpublishPermission = GadgetPermission.contains(
 						permissionChecker, themeDisplay.getScopeGroupId(),
 						gadgetId, ActionKeys.DELETE);
 
-					jsonPermissions.put(
+					permissionsJSONObject.put(
 						"unpublishPermission", unpublishPermission);
 				}
 
 				jsonObject.put(
-					"permissions", jsonPermissions
+					"permissions", permissionsJSONObject
 				).put(
 					"type", "editor"
 				);
@@ -425,10 +425,9 @@ public class EditorPortlet extends AdminPortlet {
 			"scrolling", modulePrefs.getScrolling()
 		);
 
-		String ownerId = ShindigUtil.getOwnerId(themeDisplay.getLayout());
-
 		String secureToken = ShindigUtil.createSecurityToken(
-			ownerId, themeDisplay.getUserId(), fileEntryURL,
+			ShindigUtil.getOwnerId(themeDisplay.getLayout()),
+			themeDisplay.getUserId(), fileEntryURL,
 			PortalUtil.getPortalURL(themeDisplay), fileEntryURL, moduleId,
 			PortalUtil.getCurrentURL(resourceRequest));
 

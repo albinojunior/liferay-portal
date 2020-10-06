@@ -65,10 +65,6 @@ public class UpdatePasswordAction implements Action {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
 		Ticket ticket = getTicket(httpServletRequest);
 
 		if ((ticket != null) &&
@@ -103,6 +99,10 @@ public class UpdatePasswordAction implements Action {
 
 			return actionMapping.getActionForward("portal.update_password");
 		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		try {
 			updatePassword(
@@ -205,7 +205,7 @@ public class UpdatePasswordAction implements Action {
 		Map<String, String[]> parameterMap =
 			httpServletRequest.getParameterMap();
 
-		StringBundler sb = new StringBundler(7 + parameterMap.size() * 5);
+		StringBundler sb = new StringBundler(7 + (parameterMap.size() * 5));
 
 		sb.append("<html><body onload=\"document.fm.submit();\">");
 		sb.append("<form action=\"");

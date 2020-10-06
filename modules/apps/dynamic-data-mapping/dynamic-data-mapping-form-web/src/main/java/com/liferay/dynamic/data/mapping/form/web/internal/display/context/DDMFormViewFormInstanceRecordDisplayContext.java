@@ -37,6 +37,8 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Locale;
@@ -79,6 +81,12 @@ public class DDMFormViewFormInstanceRecordDisplayContext {
 	public String getDDMFormHTML(RenderRequest renderRequest)
 		throws PortalException {
 
+		return getDDMFormHTML(renderRequest, true);
+	}
+
+	public String getDDMFormHTML(RenderRequest renderRequest, boolean readOnly)
+		throws PortalException {
+
 		DDMFormInstanceRecord formInstanceRecord = getDDMFormInstanceRecord();
 
 		DDMFormInstance formInstance = formInstanceRecord.getFormInstance();
@@ -91,11 +99,14 @@ public class DDMFormViewFormInstanceRecordDisplayContext {
 			formInstanceVersion.getStructureVersion();
 
 		DDMFormRenderingContext formRenderingContext =
-			createDDMFormRenderingContext(structureVersion.getDDMForm());
+			createDDMFormRenderingContext(
+				structureVersion.getDDMForm(), readOnly);
 
 		DDMFormValues formValues = getDDMFormValues(
 			renderRequest, formInstanceRecord, structureVersion);
 
+		formRenderingContext.setContainerId(
+			"ddmForm".concat(StringUtil.randomString()));
 		formRenderingContext.setDDMFormValues(formValues);
 		formRenderingContext.setLocale(formValues.getDefaultLocale());
 
@@ -118,29 +129,43 @@ public class DDMFormViewFormInstanceRecordDisplayContext {
 	}
 
 	protected DDMFormRenderingContext createDDMFormRenderingContext(
-		DDMForm ddmForm) {
+		DDMForm ddmForm, boolean readOnly) {
 
 		DDMFormRenderingContext formRenderingContext =
 			new DDMFormRenderingContext();
 
-		formRenderingContext.setHttpServletRequest(
-			_ddmFormAdminRequestHelper.getRequest());
-		formRenderingContext.setHttpServletResponse(_httpServletResponse);
-
-		Set<Locale> availableLocales = ddmForm.getAvailableLocales();
+		String redirectURL = ParamUtil.getString(
+			_ddmFormAdminRequestHelper.getRequest(), "redirect");
 
 		Locale locale = ddmForm.getDefaultLocale();
+
+		Set<Locale> availableLocales = ddmForm.getAvailableLocales();
 
 		if (availableLocales.contains(_ddmFormAdminRequestHelper.getLocale())) {
 			locale = _ddmFormAdminRequestHelper.getLocale();
 		}
 
-		formRenderingContext.setLocale(locale);
+		if (Validator.isNotNull(redirectURL)) {
+			formRenderingContext.setCancelLabel(
+				LanguageUtil.get(locale, "cancel"));
+		}
 
+		formRenderingContext.setHttpServletRequest(
+			_ddmFormAdminRequestHelper.getRequest());
+		formRenderingContext.setHttpServletResponse(_httpServletResponse);
+		formRenderingContext.setLocale(locale);
 		formRenderingContext.setPortletNamespace(
 			PortalUtil.getPortletNamespace(
 				DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN));
-		formRenderingContext.setReadOnly(true);
+		formRenderingContext.setReadOnly(readOnly);
+
+		if (Validator.isNotNull(redirectURL)) {
+			formRenderingContext.setRedirectURL(redirectURL);
+		}
+		else {
+			formRenderingContext.setShowCancelButton(false);
+		}
+
 		formRenderingContext.setViewMode(true);
 
 		return formRenderingContext;

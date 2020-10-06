@@ -14,9 +14,11 @@
 
 package com.liferay.dynamic.data.mapping.validator.internal;
 
+import com.liferay.dynamic.data.mapping.constants.DDMConstants;
 import com.liferay.dynamic.data.mapping.expression.CreateExpressionRequest;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionException;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidationException;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidator;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -25,7 +27,6 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
-import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustNotDuplicateFieldName;
@@ -41,13 +42,16 @@ import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.Mus
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustSetValidDefaultLocaleForProperty;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustSetValidFormRuleExpression;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustSetValidIndexType;
+import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustSetValidType;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustSetValidValidationExpression;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustSetValidVisibilityExpression;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValidator;
+import com.liferay.dynamic.data.mapping.validator.internal.util.DDMFormRuleValidatorUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -55,10 +59,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -74,6 +81,9 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 		throws DDMFormFieldValueValidationException,
 			   DDMFormValidationException {
 
+		DDMFormRuleValidatorUtil.validateDDMFormRules(
+			_ddmExpressionFactory, ddmForm.getDDMFormRules());
+
 		validateDDMFormLocales(ddmForm);
 
 		List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
@@ -82,11 +92,11 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 			throw new MustSetFieldsForForm();
 		}
 
+		_validateDDMFormFieldNames(ddmFormFields);
+
 		validateDDMFormFields(
 			ddmFormFields, new HashSet<String>(), ddmForm.getAvailableLocales(),
 			ddmForm.getDefaultLocale());
-
-		validateDDMFormRules(ddmForm.getDDMFormRules());
 	}
 
 	@Reference(unbind = "-")
@@ -94,6 +104,13 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 		DDMExpressionFactory ddmExpressionFactory) {
 
 		_ddmExpressionFactory = ddmExpressionFactory;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMFormFieldTypeServicesTracker(
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker) {
+
+		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
 	}
 
 	protected void validateDDMExpression(
@@ -279,6 +296,16 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 			throw new MustSetValidCharactersForFieldType(
 				ddmFormField.getType());
 		}
+
+		Set<String> ddmFormFieldTypeNames = new HashSet<>(
+			_ddmFormFieldTypeServicesTracker.getDDMFormFieldTypeNames());
+
+		ddmFormFieldTypeNames.addAll(
+			SetUtil.fromArray(DDMConstants.SUPPORTED_DDM_FORM_FIELD_TYPES));
+
+		if (!ddmFormFieldTypeNames.contains(ddmFormField.getType())) {
+			throw new MustSetValidType(ddmFormField.getType());
+		}
 	}
 
 	protected void validateDDMFormFieldValidationExpression(
@@ -366,24 +393,6 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 			ddmForm.getAvailableLocales(), defaultLocale);
 	}
 
-	protected void validateDDMFormRule(DDMFormRule ddmFormRule)
-		throws DDMFormValidationException {
-
-		for (String action : ddmFormRule.getActions()) {
-			validateDDMExpression("action", action);
-		}
-
-		validateDDMExpression("condition", ddmFormRule.getCondition());
-	}
-
-	protected void validateDDMFormRules(List<DDMFormRule> ddmFormRules)
-		throws DDMFormValidationException {
-
-		for (DDMFormRule ddmFormRule : ddmFormRules) {
-			validateDDMFormRule(ddmFormRule);
-		}
-	}
-
 	protected void validateOptionalDDMFormFieldLocalizedProperty(
 			DDMFormField ddmFormField, String propertyName,
 			Set<Locale> ddmFormAvailableLocales, Locale ddmFormDefaultLocale)
@@ -393,13 +402,44 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 			(LocalizedValue)BeanPropertiesUtil.getObject(
 				ddmFormField, propertyName);
 
-		if (MapUtil.isEmpty(propertyValue.getValues())) {
+		if ((propertyValue == null) ||
+			MapUtil.isEmpty(propertyValue.getValues())) {
+
 			return;
 		}
 
 		validateDDMFormFieldPropertyValue(
 			ddmFormField.getName(), propertyName, propertyValue,
 			ddmFormAvailableLocales, ddmFormDefaultLocale);
+	}
+
+	private void _validateDDMFormFieldNames(List<DDMFormField> ddmFormFields)
+		throws DDMFormValidationException {
+
+		Stream<DDMFormField> stream = ddmFormFields.stream();
+
+		Map<String, Long> ddmFormFieldNamesCount = stream.map(
+			DDMFormField::getName
+		).collect(
+			Collectors.groupingBy(String::valueOf, Collectors.counting())
+		);
+
+		Set<Map.Entry<String, Long>> entrySet =
+			ddmFormFieldNamesCount.entrySet();
+
+		Stream<Map.Entry<String, Long>> entrySetStream = entrySet.stream();
+
+		Set<String> duplicatedFieldNames = entrySetStream.filter(
+			entry -> entry.getValue() > 1
+		).map(
+			Map.Entry::getKey
+		).collect(
+			Collectors.toSet()
+		);
+
+		if (SetUtil.isNotEmpty(duplicatedFieldNames)) {
+			throw new MustNotDuplicateFieldName(duplicatedFieldNames);
+		}
 	}
 
 	private static final String[] _DDM_FORM_FIELD_INDEX_TYPES = {
@@ -412,6 +452,7 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 		"([^\\p{Punct}|\\p{Space}$]|[-_])+");
 
 	private DDMExpressionFactory _ddmExpressionFactory;
+	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 
 	@Reference(target = "(ddm.form.field.type.name=grid)")
 	private DDMFormFieldValueValidator _ddmFormFieldValueValidator;

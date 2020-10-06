@@ -15,45 +15,50 @@
 import {config} from '../../config/index';
 import InfoItemService from '../../services/InfoItemService';
 
-export default function(
+export default function (
 	editableValues,
 	editableId,
 	processorType,
 	languageId,
-	segmentsExperienceId
+	getFieldValue = InfoItemService.getInfoItemFieldValue
 ) {
 	const editableValue = editableValues[processorType][editableId];
 
 	let valuePromise;
 
 	if (editableIsMappedToInfoItem(editableValue)) {
-		valuePromise = getMappingValue({
+		valuePromise = getFieldValue({
 			classNameId: editableValue.classNameId,
 			classPK: editableValue.classPK,
+			collectionFieldId: editableValue.collectionFieldId,
 			fieldId: editableValue.fieldId,
 			languageId,
+		}).catch(() => {
+			return selectEditableValueContent(editableValue, languageId);
 		});
 	}
 	else {
 		valuePromise = Promise.resolve(
-			selectEditableValueContent(
-				editableValue,
-				languageId,
-				segmentsExperienceId
-			)
+			selectEditableValueContent(editableValue, languageId)
 		);
 	}
 
 	let configPromise;
 
 	if (editableIsMappedToInfoItem(editableValue.config)) {
-		configPromise = getMappingValue({
+		configPromise = getFieldValue({
 			classNameId: editableValue.config.classNameId,
 			classPK: editableValue.config.classPK,
+			collectionFieldId: editableValue.config.collectionFieldId,
 			fieldId: editableValue.config.fieldId,
-		}).then(href => {
-			return {...editableValue.config, href};
-		});
+			languageId,
+		})
+			.then((href) => {
+				return {...editableValue.config, href};
+			})
+			.catch(() => {
+				return {...editableValue.config};
+			});
 	}
 	else {
 		configPromise = Promise.resolve(editableValue.config);
@@ -62,19 +67,8 @@ export default function(
 	return Promise.all([valuePromise, configPromise]);
 }
 
-function selectEditableValueContent(
-	editableValue,
-	languageId,
-	segmentsExperienceId
-) {
+function selectEditableValueContent(editableValue, languageId) {
 	let content = editableValue;
-
-	if (content[segmentsExperienceId]) {
-		content = content[segmentsExperienceId];
-	}
-	else if (content[config.defaultSegmentsExperienceId]) {
-		content = content[config.defaultSegmentsExperienceId];
-	}
 
 	if (content[languageId]) {
 		content = content[languageId];
@@ -83,7 +77,7 @@ function selectEditableValueContent(
 		content = content[config.defaultLanguageId];
 	}
 
-	if (typeof content !== 'string') {
+	if (content == null || content.defaultValue) {
 		content = editableValue.defaultValue;
 	}
 
@@ -93,27 +87,9 @@ function selectEditableValueContent(
 function editableIsMappedToInfoItem(editableValue) {
 	return (
 		editableValue &&
-		editableValue.classNameId &&
-		editableValue.classPK &&
-		editableValue.fieldId
+		((editableValue.classNameId &&
+			editableValue.classPK &&
+			editableValue.fieldId) ||
+			editableValue.collectionFieldId)
 	);
-}
-
-function getMappingValue({
-	classNameId,
-	classPK,
-	fieldId,
-	languageId = undefined,
-}) {
-	return InfoItemService.getAssetFieldValue({
-		classNameId,
-		classPK,
-		fieldId,
-		languageId,
-		onNetworkStatus: () => {},
-	}).then(response => {
-		const {fieldValue = ''} = response;
-
-		return fieldValue;
-	});
 }

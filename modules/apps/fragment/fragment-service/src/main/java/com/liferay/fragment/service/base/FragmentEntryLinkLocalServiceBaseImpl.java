@@ -22,9 +22,12 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.fragment.service.persistence.FragmentCollectionPersistence;
+import com.liferay.fragment.service.persistence.FragmentEntryFinder;
 import com.liferay.fragment.service.persistence.FragmentEntryLinkFinder;
 import com.liferay.fragment.service.persistence.FragmentEntryLinkPersistence;
 import com.liferay.fragment.service.persistence.FragmentEntryPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -47,6 +50,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -84,6 +90,10 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 	/**
 	 * Adds the fragment entry link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentEntryLink the fragment entry link
 	 * @return the fragment entry link that was added
 	 */
@@ -112,6 +122,10 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the fragment entry link with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentEntryLinkId the primary key of the fragment entry link
 	 * @return the fragment entry link that was removed
 	 * @throws PortalException if a fragment entry link with the primary key could not be found
@@ -127,6 +141,10 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the fragment entry link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentEntryLink the fragment entry link
 	 * @return the fragment entry link that was removed
 	 */
@@ -136,6 +154,11 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 		FragmentEntryLink fragmentEntryLink) {
 
 		return fragmentEntryLinkPersistence.remove(fragmentEntryLink);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return fragmentEntryLinkPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -420,6 +443,10 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 			(FragmentEntryLink)persistedModel);
 	}
 
+	public BasePersistence<FragmentEntryLink> getBasePersistence() {
+		return fragmentEntryLinkPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -508,6 +535,10 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 	/**
 	 * Updates the fragment entry link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentEntryLink the fragment entry link
 	 * @return the fragment entry link that was updated
 	 */
@@ -523,7 +554,7 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			FragmentEntryLinkLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -542,8 +573,23 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 		return FragmentEntryLinkLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<FragmentEntryLink> getCTPersistence() {
+		return fragmentEntryLinkPersistence;
+	}
+
+	@Override
+	public Class<FragmentEntryLink> getModelClass() {
 		return FragmentEntryLink.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<FragmentEntryLink>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(fragmentEntryLinkPersistence);
 	}
 
 	protected String getModelClassName() {
@@ -592,6 +638,9 @@ public abstract class FragmentEntryLinkLocalServiceBaseImpl
 
 	@Reference
 	protected FragmentEntryPersistence fragmentEntryPersistence;
+
+	@Reference
+	protected FragmentEntryFinder fragmentEntryFinder;
 
 	@Reference
 	protected com.liferay.portal.kernel.service.UserLocalService

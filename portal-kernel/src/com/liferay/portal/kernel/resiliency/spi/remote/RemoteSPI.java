@@ -47,8 +47,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Shuyang Zhou
+ * @author     Shuyang Zhou
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  */
+@Deprecated
 public abstract class RemoteSPI implements ProcessCallable<SPI>, Remote, SPI {
 
 	public RemoteSPI(SPIConfiguration spiConfiguration) {
@@ -253,7 +255,7 @@ public abstract class RemoteSPI implements ProcessCallable<SPI>, Remote, SPI {
 		}
 
 		@Override
-		public boolean shutdown(int shutdownCode, Throwable shutdownThrowable) {
+		public boolean shutdown(int shutdownCode, Throwable throwable) {
 			Runtime runtime = Runtime.getRuntime();
 
 			runtime.removeShutdownHook(this);

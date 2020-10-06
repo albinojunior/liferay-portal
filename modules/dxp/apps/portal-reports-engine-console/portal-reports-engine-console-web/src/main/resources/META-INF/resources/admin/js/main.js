@@ -9,9 +9,8 @@
  * distribution rights of the Software.
  */
 
-AUI().use('escape', 'aui-lang', A => {
+AUI().use('escape', 'aui-lang', (A) => {
 	var AEscape = A.Escape;
-	var ALang = A.Lang;
 
 	var TPL_TAG_FORM =
 		'<div class="form-inline {key}" >' +
@@ -170,7 +169,7 @@ AUI().use('escape', 'aui-lang', A => {
 
 			reportTags.delegate(
 				'click',
-				event => {
+				(event) => {
 					var currentTarget = event.currentTarget;
 
 					var parameterKey = currentTarget.getData('parameterKey');
@@ -244,7 +243,7 @@ AUI().use('escape', 'aui-lang', A => {
 		_sendMessage(message) {
 			var instance = this;
 
-			message = ALang.String.unescapeHTML(message);
+			message = Liferay.Util.unescapeHTML(message);
 
 			var portletMessageContainer = instance._portletMessageContainer;
 
@@ -352,7 +351,7 @@ AUI().use('escape', 'aui-lang', A => {
 				);
 			});
 
-			A.one('.parameters-input-type').on('change', event => {
+			A.one('.parameters-input-type').on('change', (event) => {
 				var currentTarget = event.currentTarget;
 
 				var parametersInputDate = A.one('.parameters-input-date');

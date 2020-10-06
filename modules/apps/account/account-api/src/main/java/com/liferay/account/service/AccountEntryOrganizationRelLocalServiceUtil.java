@@ -41,6 +41,10 @@ public class AccountEntryOrganizationRelLocalServiceUtil {
 	/**
 	 * Adds the account entry organization rel to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryOrganizationRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param accountEntryOrganizationRel the account entry organization rel
 	 * @return the account entry organization rel that was added
 	 */
@@ -96,6 +100,10 @@ public class AccountEntryOrganizationRelLocalServiceUtil {
 	/**
 	 * Deletes the account entry organization rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryOrganizationRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param accountEntryOrganizationRel the account entry organization rel
 	 * @return the account entry organization rel that was removed
 	 */
@@ -110,6 +118,10 @@ public class AccountEntryOrganizationRelLocalServiceUtil {
 
 	/**
 	 * Deletes the account entry organization rel with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryOrganizationRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountEntryOrganizationRelId the primary key of the account entry organization rel
 	 * @return the account entry organization rel that was removed
@@ -149,6 +161,12 @@ public class AccountEntryOrganizationRelLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -348,7 +366,30 @@ public class AccountEntryOrganizationRelLocalServiceUtil {
 	}
 
 	/**
+	 * Creates an AccountEntryOrganizationRel for each given organizationId,
+	 * unless it already exists, and removes existing
+	 * AccountEntryOrganizationRels if their organizationId is not present in
+	 * the given organizationIds.
+	 *
+	 * @param accountEntryId
+	 * @param organizationIds
+	 * @throws PortalException
+	 * @review
+	 */
+	public static void setAccountEntryOrganizationRels(
+			long accountEntryId, long[] organizationIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().setAccountEntryOrganizationRels(
+			accountEntryId, organizationIds);
+	}
+
+	/**
 	 * Updates the account entry organization rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryOrganizationRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountEntryOrganizationRel the account entry organization rel
 	 * @return the account entry organization rel that was updated

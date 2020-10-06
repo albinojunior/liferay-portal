@@ -100,7 +100,7 @@ public class ProjectTemplateFilesTest {
 		_xmlDeclarations.put(fileName, template);
 	}
 
-	private static boolean _expressionContainedInList(
+	private boolean _expressionContainedInList(
 		Collection<String> list, String expression) {
 
 		Stream<String> stream = list.stream();
@@ -110,7 +110,7 @@ public class ProjectTemplateFilesTest {
 
 	private List<BuildGradleDependency> _getBuildGradleDependencies(
 			Path buildGradlePath)
-		throws IOException {
+		throws Exception {
 
 		List<BuildGradleDependency> buildGradleDependencies = new ArrayList<>();
 
@@ -123,7 +123,7 @@ public class ProjectTemplateFilesTest {
 			String configuration = matcher.group(1);
 			String dependencyGroup = matcher.group(2);
 			String dependencyName = matcher.group(3);
-			String dependencyVersion = matcher.group(4);
+			String dependencyVersion = matcher.group(5);
 
 			boolean provided = false;
 
@@ -370,7 +370,7 @@ public class ProjectTemplateFilesTest {
 	}
 
 	private String _testArchetypePostGenerateGroovy(Path projectTemplateDirPath)
-		throws IOException {
+		throws Exception {
 
 		Path path = projectTemplateDirPath.resolve(
 			"src/main/resources/META-INF/archetype-post-generate.groovy");
@@ -383,7 +383,7 @@ public class ProjectTemplateFilesTest {
 	}
 
 	private Properties _testBndBnd(Path projectTemplateDirPath)
-		throws IOException {
+		throws Exception {
 
 		Path bndBndPath = projectTemplateDirPath.resolve("bnd.bnd");
 
@@ -421,9 +421,8 @@ public class ProjectTemplateFilesTest {
 		return properties;
 	}
 
-	private void _testBuildGradle(
-			String projectTemplateDirName, Path archetypeResourcesDirPath)
-		throws IOException {
+	private void _testBuildGradle(Path archetypeResourcesDirPath)
+		throws Exception {
 
 		Path buildGradlePath = archetypeResourcesDirPath.resolve(
 			"build.gradle");
@@ -432,15 +431,6 @@ public class ProjectTemplateFilesTest {
 			"Missing " + buildGradlePath, Files.exists(buildGradlePath));
 
 		String buildGradle = FileUtil.read(buildGradlePath);
-
-		if (!projectTemplateDirName.equals("project-templates-workspace")) {
-			Matcher matcher = _buildGradleWorkspaceVariantPattern.matcher(
-				buildGradle);
-
-			Assert.assertTrue(
-				buildGradlePath + " is missing non-workspace specific variant",
-				matcher.matches());
-		}
 
 		Assert.assertFalse(
 			buildGradlePath + " contains \"latest.release\". Please use a " +
@@ -454,7 +444,7 @@ public class ProjectTemplateFilesTest {
 
 	private void _testGitIgnore(
 			String projectTemplateDirName, Path archetypeResourcesDirPath)
-		throws IOException {
+		throws Exception {
 
 		Path dotGitIgnorePath = archetypeResourcesDirPath.resolve(".gitignore");
 		Path gitIgnorePath = archetypeResourcesDirPath.resolve("gitignore");
@@ -676,11 +666,6 @@ public class ProjectTemplateFilesTest {
 			dependencyElements = Collections.emptyList();
 		}
 
-		Assert.assertEquals(
-			"Number of dependencies in " + pomXmlPath + " must match " +
-				buildGradlePath,
-			buildGradleDependencies.size(), dependencyElements.size());
-
 		for (int i = 0; i < buildGradleDependencies.size(); i++) {
 			BuildGradleDependency buildGradleDependency =
 				buildGradleDependencies.get(i);
@@ -699,14 +684,23 @@ public class ProjectTemplateFilesTest {
 			XMLTestUtil.testXmlElement(
 				pomXmlPath, dependencyElementString, dependencyChildElements, 1,
 				"artifactId", buildGradleDependency.name);
-			XMLTestUtil.testXmlElement(
-				pomXmlPath, dependencyElementString, dependencyChildElements, 2,
-				"version", buildGradleDependency.version);
 
-			if (buildGradleDependency.provided) {
+			if (buildGradleDependency.version != null) {
 				XMLTestUtil.testXmlElement(
 					pomXmlPath, dependencyElementString,
-					dependencyChildElements, 3, "scope", "provided");
+					dependencyChildElements, 2, "version",
+					buildGradleDependency.version);
+
+				if (buildGradleDependency.provided) {
+					XMLTestUtil.testXmlElement(
+						pomXmlPath, dependencyElementString,
+						dependencyChildElements, 3, "scope", "provided");
+				}
+			}
+			else if (buildGradleDependency.provided) {
+				XMLTestUtil.testXmlElement(
+					pomXmlPath, dependencyElementString,
+					dependencyChildElements, 2, "scope", "provided");
 			}
 		}
 
@@ -753,7 +747,7 @@ public class ProjectTemplateFilesTest {
 
 	private void _testProjectTemplateCustomizer(
 			String projectTemplateDirName, Path projectTemplateDirPath)
-		throws IOException {
+		throws Exception {
 
 		Path projectTemplateCustomizerPath = projectTemplateDirPath.resolve(
 			"src/main/resources/META-INF/services" +
@@ -819,14 +813,16 @@ public class ProjectTemplateFilesTest {
 
 		Properties bndProperties = _testBndBnd(projectTemplateDirPath);
 
-		_testBuildGradle(projectTemplateDirName, archetypeResourcesDirPath);
+		_testBuildGradle(archetypeResourcesDirPath);
 		_testGitIgnore(projectTemplateDirName, archetypeResourcesDirPath);
 		_testGradleWrapper(archetypeResourcesDirPath);
 		_testMavenWrapper(archetypeResourcesDirPath);
 
 		String pathString = archetypeResourcesDirPath.toString();
 
-		if (!pathString.contains("ext") & !pathString.contains("spring-mvc")) {
+		if (!pathString.contains("ext") && !pathString.contains("spring-mvc") &&
+			!pathString.contains("form-field")) {
+
 			_testPomXml(archetypeResourcesDirPath, documentBuilder);
 		}
 
@@ -868,6 +864,13 @@ public class ProjectTemplateFilesTest {
 							liferayPluginPackagePropertiesPath);
 					}
 
+					Path restConfigYAMLPath = dirPath.resolve(
+						"rest-config.yaml");
+
+					if (Files.exists(restConfigYAMLPath)) {
+						requireAuthorProperty.set(true);
+					}
+
 					return FileVisitResult.CONTINUE;
 				}
 
@@ -906,11 +909,13 @@ public class ProjectTemplateFilesTest {
 		String archetypePostGenerateGroovy = _testArchetypePostGenerateGroovy(
 			projectTemplateDirPath);
 
-		_testArchetypeMetadataXml(
-			projectTemplateDirPath, projectTemplateDirName,
-			archetypeResourcesDirPath, bndProperties,
-			requireAuthorProperty.get(), archetypePostGenerateGroovy,
-			archetypeResourceExpressions, documentBuilder);
+		if (!pathString.contains("form-field")) {
+			_testArchetypeMetadataXml(
+				projectTemplateDirPath, projectTemplateDirName,
+				archetypeResourcesDirPath, bndProperties,
+				requireAuthorProperty.get(), archetypePostGenerateGroovy,
+				archetypeResourceExpressions, documentBuilder);
+		}
 	}
 
 	private void _testPropertyValue(
@@ -1013,12 +1018,9 @@ public class ProjectTemplateFilesTest {
 		Pattern.compile("\\$\\{([^\\}]*)\\}");
 	private static final Pattern _buildGradleDependencyPattern =
 		Pattern.compile(
-			"(compile(?:Only)?) group: \"(.+)\", name: \"(.+)\", " +
-				"(?:transitive: (?:true|false), )?version: \"(.+)\"");
-	private static final Pattern _buildGradleWorkspaceVariantPattern =
-		Pattern.compile(
-			".*^#if \\(\\$\\{projectType\\} != \"workspace\"\\).*",
-			Pattern.DOTALL | Pattern.MULTILINE);
+			"(compile(?:Only)?) \\(?group: \\\"(.+)\\\", name: \\\"([a-zA-Z" +
+				"0-9\\.\\-]+)\\\"((?:, version: )\\\"([0-9\\.]+)\\\")?(, " +
+					"transitive: (?: true|false))?(\\) \\{force = true\\})?");
 	private static final Pattern _bundleDescriptionPattern = Pattern.compile(
 		"Creates a .+\\.");
 	private static final Pattern _bundleNameSeparatorPattern = Pattern.compile(
@@ -1054,7 +1056,7 @@ public class ProjectTemplateFilesTest {
 	private static final Set<String> _textFileExtensions = new HashSet<>(
 		Arrays.asList(
 			"bnd", "gradle", "java", "js", "json", "jsp", "jspf", "properties",
-			"vm", "xml"));
+			"vm", "xml", "yaml"));
 	private static final Pattern _velocityDirectivePattern = Pattern.compile(
 		"#(if|set)\\s*\\(\\s*(.+)\\s*\\)");
 	private static final Pattern _velocitySetDirectivePattern = Pattern.compile(

@@ -22,8 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
@@ -47,6 +49,7 @@ import com.liferay.portal.workflow.metrics.rest.client.pagination.Page;
 import com.liferay.portal.workflow.metrics.rest.client.resource.v1_0.NodeResource;
 import com.liferay.portal.workflow.metrics.rest.client.serdes.v1_0.NodeSerDes;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 import java.text.DateFormat;
@@ -65,6 +68,7 @@ import javax.annotation.Generated;
 import javax.ws.rs.core.MultivaluedHashMap;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -104,7 +108,9 @@ public abstract class BaseNodeResourceTestCase {
 
 		NodeResource.Builder builder = NodeResource.builder();
 
-		nodeResource = builder.locale(
+		nodeResource = builder.authentication(
+			"test@liferay.com", "test"
+		).locale(
 			LocaleUtil.getDefault()
 		).build();
 	}
@@ -176,6 +182,7 @@ public abstract class BaseNodeResourceTestCase {
 
 		node.setLabel(regex);
 		node.setName(regex);
+		node.setProcessVersion(regex);
 		node.setType(regex);
 
 		String json = NodeSerDes.toJSON(node);
@@ -186,6 +193,7 @@ public abstract class BaseNodeResourceTestCase {
 
 		Assert.assertEquals(regex, node.getLabel());
 		Assert.assertEquals(regex, node.getName());
+		Assert.assertEquals(regex, node.getProcessVersion());
 		Assert.assertEquals(regex, node.getType());
 	}
 
@@ -229,8 +237,7 @@ public abstract class BaseNodeResourceTestCase {
 	protected Node testGetProcessNodesPage_addNode(Long processId, Node node)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		return nodeResource.postProcessNode(processId, node);
 	}
 
 	protected Long testGetProcessNodesPage_getProcessId() throws Exception {
@@ -242,6 +249,37 @@ public abstract class BaseNodeResourceTestCase {
 		throws Exception {
 
 		return null;
+	}
+
+	@Test
+	public void testPostProcessNode() throws Exception {
+		Node randomNode = randomNode();
+
+		Node postNode = testPostProcessNode_addNode(randomNode);
+
+		assertEquals(randomNode, postNode);
+		assertValid(postNode);
+	}
+
+	protected Node testPostProcessNode_addNode(Node node) throws Exception {
+		return nodeResource.postProcessNode(
+			testGetProcessNodesPage_getProcessId(), node);
+	}
+
+	@Test
+	public void testDeleteProcessNode() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Node node = testDeleteProcessNode_addNode();
+
+		assertHttpResponseStatusCode(
+			204,
+			nodeResource.deleteProcessNodeHttpResponse(
+				node.getProcessId(), node.getId()));
+	}
+
+	protected Node testDeleteProcessNode_addNode() throws Exception {
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	protected Node testGraphQLNode_addNode() throws Exception {
@@ -293,27 +331,16 @@ public abstract class BaseNodeResourceTestCase {
 		}
 	}
 
-	protected void assertEqualsJSONArray(
-		List<Node> nodes, JSONArray jsonArray) {
-
-		for (Node node : nodes) {
-			boolean contains = false;
-
-			for (Object object : jsonArray) {
-				if (equalsJSONObject(node, (JSONObject)object)) {
-					contains = true;
-
-					break;
-				}
-			}
-
-			Assert.assertTrue(
-				jsonArray + " does not contain " + node, contains);
-		}
-	}
-
-	protected void assertValid(Node node) {
+	protected void assertValid(Node node) throws Exception {
 		boolean valid = true;
+
+		if (node.getDateCreated() == null) {
+			valid = false;
+		}
+
+		if (node.getDateModified() == null) {
+			valid = false;
+		}
 
 		if (node.getId() == null) {
 			valid = false;
@@ -340,6 +367,22 @@ public abstract class BaseNodeResourceTestCase {
 
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (node.getName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("processId", additionalAssertFieldName)) {
+				if (node.getProcessId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("processVersion", additionalAssertFieldName)) {
+				if (node.getProcessVersion() == null) {
 					valid = false;
 				}
 
@@ -391,13 +434,50 @@ public abstract class BaseNodeResourceTestCase {
 		return new String[0];
 	}
 
-	protected List<GraphQLField> getGraphQLFields() {
+	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (String additionalAssertFieldName :
-				getAdditionalAssertFieldNames()) {
+		for (Field field :
+				ReflectionUtil.getDeclaredFields(
+					com.liferay.portal.workflow.metrics.rest.dto.v1_0.Node.
+						class)) {
 
-			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+			if (!ArrayUtil.contains(
+					getAdditionalAssertFieldNames(), field.getName())) {
+
+				continue;
+			}
+
+			graphQLFields.addAll(getGraphQLFields(field));
+		}
+
+		return graphQLFields;
+	}
+
+	protected List<GraphQLField> getGraphQLFields(Field... fields)
+		throws Exception {
+
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		for (Field field : fields) {
+			com.liferay.portal.vulcan.graphql.annotation.GraphQLField
+				vulcanGraphQLField = field.getAnnotation(
+					com.liferay.portal.vulcan.graphql.annotation.GraphQLField.
+						class);
+
+			if (vulcanGraphQLField != null) {
+				Class<?> clazz = field.getType();
+
+				if (clazz.isArray()) {
+					clazz = clazz.getComponentType();
+				}
+
+				List<GraphQLField> childrenGraphQLFields = getGraphQLFields(
+					ReflectionUtil.getDeclaredFields(clazz));
+
+				graphQLFields.add(
+					new GraphQLField(field.getName(), childrenGraphQLFields));
+			}
 		}
 
 		return graphQLFields;
@@ -414,6 +494,26 @@ public abstract class BaseNodeResourceTestCase {
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("dateCreated", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						node1.getDateCreated(), node2.getDateCreated())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateModified", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						node1.getDateModified(), node2.getDateModified())) {
+
+					return false;
+				}
+
+				continue;
+			}
 
 			if (Objects.equals("id", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(node1.getId(), node2.getId())) {
@@ -449,6 +549,26 @@ public abstract class BaseNodeResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("processId", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						node1.getProcessId(), node2.getProcessId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("processVersion", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						node1.getProcessVersion(), node2.getProcessVersion())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("terminal", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						node1.getTerminal(), node2.getTerminal())) {
@@ -475,74 +595,30 @@ public abstract class BaseNodeResourceTestCase {
 		return true;
 	}
 
-	protected boolean equalsJSONObject(Node node, JSONObject jsonObject) {
-		for (String fieldName : getAdditionalAssertFieldNames()) {
-			if (Objects.equals("id", fieldName)) {
-				if (!Objects.deepEquals(
-						node.getId(), jsonObject.getLong("id"))) {
+	protected boolean equals(
+		Map<String, Object> map1, Map<String, Object> map2) {
+
+		if (Objects.equals(map1.keySet(), map2.keySet())) {
+			for (Map.Entry<String, Object> entry : map1.entrySet()) {
+				if (entry.getValue() instanceof Map) {
+					if (!equals(
+							(Map)entry.getValue(),
+							(Map)map2.get(entry.getKey()))) {
+
+						return false;
+					}
+				}
+				else if (!Objects.deepEquals(
+							entry.getValue(), map2.get(entry.getKey()))) {
 
 					return false;
 				}
-
-				continue;
 			}
 
-			if (Objects.equals("initial", fieldName)) {
-				if (!Objects.deepEquals(
-						node.getInitial(), jsonObject.getBoolean("initial"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("label", fieldName)) {
-				if (!Objects.deepEquals(
-						node.getLabel(), jsonObject.getString("label"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("name", fieldName)) {
-				if (!Objects.deepEquals(
-						node.getName(), jsonObject.getString("name"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("terminal", fieldName)) {
-				if (!Objects.deepEquals(
-						node.getTerminal(),
-						jsonObject.getBoolean("terminal"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("type", fieldName)) {
-				if (!Objects.deepEquals(
-						node.getType(), jsonObject.getString("type"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			throw new IllegalArgumentException(
-				"Invalid field name " + fieldName);
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	protected java.util.Collection<EntityField> getEntityFields()
@@ -595,6 +671,68 @@ public abstract class BaseNodeResourceTestCase {
 		sb.append(operator);
 		sb.append(" ");
 
+		if (entityFieldName.equals("dateCreated")) {
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(node.getDateCreated(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(node.getDateCreated(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(node.getDateCreated()));
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("dateModified")) {
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(node.getDateModified(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(node.getDateModified(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(node.getDateModified()));
+			}
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("id")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -616,6 +754,19 @@ public abstract class BaseNodeResourceTestCase {
 		if (entityFieldName.equals("name")) {
 			sb.append("'");
 			sb.append(String.valueOf(node.getName()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("processId")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("processVersion")) {
+			sb.append("'");
+			sb.append(String.valueOf(node.getProcessVersion()));
 			sb.append("'");
 
 			return sb.toString();
@@ -655,15 +806,40 @@ public abstract class BaseNodeResourceTestCase {
 		return httpResponse.getContent();
 	}
 
+	protected JSONObject invokeGraphQLMutation(GraphQLField graphQLField)
+		throws Exception {
+
+		GraphQLField mutationGraphQLField = new GraphQLField(
+			"mutation", graphQLField);
+
+		return JSONFactoryUtil.createJSONObject(
+			invoke(mutationGraphQLField.toString()));
+	}
+
+	protected JSONObject invokeGraphQLQuery(GraphQLField graphQLField)
+		throws Exception {
+
+		GraphQLField queryGraphQLField = new GraphQLField(
+			"query", graphQLField);
+
+		return JSONFactoryUtil.createJSONObject(
+			invoke(queryGraphQLField.toString()));
+	}
+
 	protected Node randomNode() throws Exception {
 		return new Node() {
 			{
+				dateCreated = RandomTestUtil.nextDate();
+				dateModified = RandomTestUtil.nextDate();
 				id = RandomTestUtil.randomLong();
 				initial = RandomTestUtil.randomBoolean();
-				label = RandomTestUtil.randomString();
-				name = RandomTestUtil.randomString();
+				label = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				processId = RandomTestUtil.randomLong();
+				processVersion = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				terminal = RandomTestUtil.randomBoolean();
-				type = RandomTestUtil.randomString();
+				type = StringUtil.toLowerCase(RandomTestUtil.randomString());
 			}
 		};
 	}
@@ -689,9 +865,22 @@ public abstract class BaseNodeResourceTestCase {
 			this(key, new HashMap<>(), graphQLFields);
 		}
 
+		public GraphQLField(String key, List<GraphQLField> graphQLFields) {
+			this(key, new HashMap<>(), graphQLFields);
+		}
+
 		public GraphQLField(
 			String key, Map<String, Object> parameterMap,
 			GraphQLField... graphQLFields) {
+
+			_key = key;
+			_parameterMap = parameterMap;
+			_graphQLFields = Arrays.asList(graphQLFields);
+		}
+
+		public GraphQLField(
+			String key, Map<String, Object> parameterMap,
+			List<GraphQLField> graphQLFields) {
 
 			_key = key;
 			_parameterMap = parameterMap;
@@ -719,7 +908,7 @@ public abstract class BaseNodeResourceTestCase {
 				sb.append(")");
 			}
 
-			if (_graphQLFields.length > 0) {
+			if (!_graphQLFields.isEmpty()) {
 				sb.append("{");
 
 				for (GraphQLField graphQLField : _graphQLFields) {
@@ -735,7 +924,7 @@ public abstract class BaseNodeResourceTestCase {
 			return sb.toString();
 		}
 
-		private final GraphQLField[] _graphQLFields;
+		private final List<GraphQLField> _graphQLFields;
 		private final String _key;
 		private final Map<String, Object> _parameterMap;
 

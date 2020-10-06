@@ -14,24 +14,49 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import {ClayInput} from '@clayui/form';
+import ClayLayout from '@clayui/layout';
 import {Treeview} from 'frontend-js-components-web';
 import React, {useCallback, useState} from 'react';
+
+function findSiteNavigationMenuItem(
+	siteNavigationMenuItemId,
+	siteNavigationMenuItems = []
+) {
+	// eslint-disable-next-line no-for-of-loops/no-for-of-loops
+	for (const siteNavigationMenuItem of siteNavigationMenuItems) {
+		if (siteNavigationMenuItem.id === siteNavigationMenuItemId) {
+			return siteNavigationMenuItem;
+		}
+
+		const childrenSiteNavigationMenuItem = findSiteNavigationMenuItem(
+			siteNavigationMenuItemId,
+			siteNavigationMenuItem.children
+		);
+
+		if (childrenSiteNavigationMenuItem) {
+			return childrenSiteNavigationMenuItem;
+		}
+	}
+
+	return null;
+}
 
 const SelectSiteNavigationMenuItem = ({itemSelectorSaveEvent, nodes}) => {
 	const [filterQuery, setFilterQuery] = useState('');
 
-	const handleQueryChange = useCallback(event => {
+	const handleQueryChange = useCallback((event) => {
 		const value = event.target.value;
 
 		setFilterQuery(value);
 	}, []);
 
-	const handleSelectionChange = selectedNodeIds => {
+	const handleSelectionChange = (selectedNodeIds) => {
 		const selectedNodeId = [...selectedNodeIds][0];
 
 		if (selectedNodeId) {
-			const {id, name} = nodes[0].children.find(
-				node => node.id === selectedNodeId
+			const {id, name} = findSiteNavigationMenuItem(
+				selectedNodeId,
+				nodes
 			);
 
 			const data = {
@@ -46,7 +71,7 @@ const SelectSiteNavigationMenuItem = ({itemSelectorSaveEvent, nodes}) => {
 	};
 
 	return (
-		<div className="container-fluid-1280">
+		<ClayLayout.ContainerFluid>
 			<nav className="collapse-basic-search navbar navbar-default navbar-no-collapse">
 				<ClayInput.Group className="basic-search">
 					<ClayInput.GroupItem prepend>
@@ -68,15 +93,13 @@ const SelectSiteNavigationMenuItem = ({itemSelectorSaveEvent, nodes}) => {
 			</nav>
 
 			<Treeview
-				filterQuery={filterQuery}
 				NodeComponent={Treeview.Card}
+				filterQuery={filterQuery}
 				nodes={nodes}
 				onSelectedNodesChange={handleSelectionChange}
 			/>
-		</div>
+		</ClayLayout.ContainerFluid>
 	);
 };
 
-export default function(props) {
-	return <SelectSiteNavigationMenuItem {...props} />;
-}
+export default SelectSiteNavigationMenuItem;

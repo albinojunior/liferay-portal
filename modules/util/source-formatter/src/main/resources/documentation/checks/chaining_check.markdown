@@ -20,6 +20,21 @@ String name = user.getFirstName();
 String lowerCaseName = name.toLowerCase();
 ```
 
+Incorrect formatting:
+
+```java
+new HtmlUtil().setHtml(html);
+
+```
+
+Correct formatting:
+
+```java
+HtmlUtil htmlUtil = new HtmlUtil();
+
+htmlUtil.setHtml(html);
+```
+
 ### Exceptions
 
 Chaining on variables is allowed as long as the variable type is one of the
@@ -29,8 +44,8 @@ following types:
 `Dataset`, `Description`, `DoubleStream`, `ExecuteActionRequest`,
 `FormsEventDatasetFilter`, `Filter`, `FormsEventDatasetFilter`, `*Function`,
 `HttpSecurity`, `InOrder`, `IntSTream`, `JSONArray`, `JSONObject`, `JsonPath`,
-`LongStream`, `*Mapper`, `Optional`, `PowerMockitoStubber`, `Predicate`,
-`RequestSpecification`, `Response`, `Stream`, `Try`,
+`LongStream`, `*Mapper`, `NestedRepresentor`, `Optional`, `PowerMockitoStubber`,
+`Predicate`, `RequestSpecification`, `Response`, `Stream`, `Try`,
 `UpdateFieldPropertyRequest`, `ValidatableResponse` or `WebTarget`
 
 #### Example
@@ -54,10 +69,11 @@ usersStream.filter(
 Chaining on classes directly is allowed for the following classes:
 
 `ActionSemantics`, `*Builder`, `Assertions`, `Awaitility`, `*Consumer`,
-`DoubleStream`, `EasyMock`, `Either`, `Filter`,
-`FormNavigatorEntryConfigurationRetriever`, `GenericUtil`, `IntStream`,
-`JSONUtil`, `List`, `LongStream`, `MemberMatcher`, `Mockito`, `Optional`,
-`PowerMockito`, `Response`, `RestAssured`, `Stream`, `Try` or `Validation`
+`CreationMenuBuilder`, `DoubleStream`, `EasyMock`, `Either`, `Filter`,
+`FormNavigatorEntryConfigurationRetriever`, `GenericUtil`, `InfoFieldSet`,
+`InfoForm`, `InfoFormValues`, `IntStream`, `JSONUtil`, `List`, `LongStream`,
+`MemberMatcher`, `Mockito`, `Optional`, `PowerMockito`, `Response`,
+`RestAssured`, `Stream`, `Try` or `Validation`
 
 #### Examples
 

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -61,11 +62,15 @@ public interface KaleoTaskFormLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link KaleoTaskFormLocalServiceUtil} to access the kaleo task form local service. Add custom service methods to <code>com.liferay.portal.workflow.kaleo.service.impl.KaleoTaskFormLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.workflow.kaleo.service.impl.KaleoTaskFormLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the kaleo task form local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link KaleoTaskFormLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the kaleo task form to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskForm the kaleo task form
 	 * @return the kaleo task form that was added
@@ -74,8 +79,8 @@ public interface KaleoTaskFormLocalService
 	public KaleoTaskForm addKaleoTaskForm(KaleoTaskForm kaleoTaskForm);
 
 	public KaleoTaskForm addKaleoTaskForm(
-			long kaleoDefinitionVersionId, long kaleoNodeId,
-			KaleoTask kaleoTask, TaskForm taskForm,
+			long kaleoDefinitionId, long kaleoDefinitionVersionId,
+			long kaleoNodeId, KaleoTask kaleoTask, TaskForm taskForm,
 			ServiceContext serviceContext)
 		throws PortalException;
 
@@ -102,6 +107,10 @@ public interface KaleoTaskFormLocalService
 	/**
 	 * Deletes the kaleo task form from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskForm the kaleo task form
 	 * @return the kaleo task form that was removed
 	 */
@@ -110,6 +119,10 @@ public interface KaleoTaskFormLocalService
 
 	/**
 	 * Deletes the kaleo task form with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskFormId the primary key of the kaleo task form
 	 * @return the kaleo task form that was removed
@@ -125,6 +138,9 @@ public interface KaleoTaskFormLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -255,6 +271,10 @@ public interface KaleoTaskFormLocalService
 
 	/**
 	 * Updates the kaleo task form in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskForm the kaleo task form
 	 * @return the kaleo task form that was updated

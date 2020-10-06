@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-scheduler-event-recorder',
-	A => {
+	(A) => {
 		var AArray = A.Array;
 		var AObject = A.Object;
 		var Lang = A.Lang;
@@ -25,7 +25,7 @@ AUI.add(
 		var isString = Lang.isString;
 		var isValue = Lang.isValue;
 
-		var toInt = function(value) {
+		var toInt = function (value) {
 			return Lang.toInt(value, 10, 0);
 		};
 
@@ -436,7 +436,7 @@ AUI.add(
 
 					popoverBB.delegate(
 						['change', 'keypress'],
-						event => {
+						(event) => {
 							var schedulerEvent =
 								instance.get('event') || instance;
 
@@ -552,10 +552,10 @@ AUI.add(
 
 								remoteServices.getCalendarBookingInvitees(
 									parentCalendarBookingId,
-									data => {
+									(data) => {
 										var results = AArray.partition(
 											data,
-											item => {
+											(item) => {
 												return (
 													toInt(item.classNameId) ===
 													CalendarUtil.USER_CLASS_NAME_ID
@@ -583,8 +583,8 @@ AUI.add(
 				},
 
 				_syncInviteesContent(contentNode, calendarResources) {
-					var values = calendarResources.map(item => {
-						return Lang.String.escapeHTML(item.name);
+					var values = calendarResources.map((item) => {
+						return Liferay.Util.escapeHTML(item.name);
 					});
 
 					contentNode = A.one(contentNode);

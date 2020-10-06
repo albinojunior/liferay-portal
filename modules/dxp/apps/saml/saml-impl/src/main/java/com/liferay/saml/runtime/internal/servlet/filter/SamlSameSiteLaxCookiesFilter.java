@@ -17,11 +17,11 @@ package com.liferay.saml.runtime.internal.servlet.filter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -107,7 +107,7 @@ public class SamlSameSiteLaxCookiesFilter extends BaseSamlPortalFilter {
 			return;
 		}
 
-		StringBundler sb = new StringBundler(7 + 5 * _PARAMS.length);
+		StringBundler sb = new StringBundler(7 + (5 * _PARAMS.length));
 
 		sb.append("<!DOCTYPE html>\n\n");
 		sb.append("<html><body onload=\"document.forms[0].submit()\">");

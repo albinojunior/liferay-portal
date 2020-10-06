@@ -37,16 +37,16 @@ public class LayoutSetCacheModel
 	implements CacheModel<LayoutSet>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof LayoutSetCacheModel)) {
+		if (!(object instanceof LayoutSetCacheModel)) {
 			return false;
 		}
 
-		LayoutSetCacheModel layoutSetCacheModel = (LayoutSetCacheModel)obj;
+		LayoutSetCacheModel layoutSetCacheModel = (LayoutSetCacheModel)object;
 
 		if ((layoutSetId == layoutSetCacheModel.layoutSetId) &&
 			(mvccVersion == layoutSetCacheModel.mvccVersion)) {
@@ -76,10 +76,12 @@ public class LayoutSetCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(29);
+		StringBundler sb = new StringBundler(31);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", layoutSetId=");
 		sb.append(layoutSetId);
 		sb.append(", groupId=");
@@ -116,6 +118,7 @@ public class LayoutSetCacheModel
 		LayoutSetImpl layoutSetImpl = new LayoutSetImpl();
 
 		layoutSetImpl.setMvccVersion(mvccVersion);
+		layoutSetImpl.setCtCollectionId(ctCollectionId);
 		layoutSetImpl.setLayoutSetId(layoutSetId);
 		layoutSetImpl.setGroupId(groupId);
 		layoutSetImpl.setCompanyId(companyId);
@@ -191,6 +194,8 @@ public class LayoutSetCacheModel
 
 		mvccVersion = objectInput.readLong();
 
+		ctCollectionId = objectInput.readLong();
+
 		layoutSetId = objectInput.readLong();
 
 		groupId = objectInput.readLong();
@@ -204,8 +209,8 @@ public class LayoutSetCacheModel
 		logoId = objectInput.readLong();
 		themeId = objectInput.readUTF();
 		colorSchemeId = objectInput.readUTF();
-		css = objectInput.readUTF();
-		settings = objectInput.readUTF();
+		css = (String)objectInput.readObject();
+		settings = (String)objectInput.readObject();
 		layoutSetPrototypeUuid = objectInput.readUTF();
 
 		layoutSetPrototypeLinkEnabled = objectInput.readBoolean();
@@ -217,6 +222,8 @@ public class LayoutSetCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		objectOutput.writeLong(layoutSetId);
 
@@ -245,17 +252,17 @@ public class LayoutSetCacheModel
 		}
 
 		if (css == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(css);
+			objectOutput.writeObject(css);
 		}
 
 		if (settings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(settings);
+			objectOutput.writeObject(settings);
 		}
 
 		if (layoutSetPrototypeUuid == null) {
@@ -272,6 +279,7 @@ public class LayoutSetCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public long layoutSetId;
 	public long groupId;
 	public long companyId;

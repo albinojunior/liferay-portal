@@ -28,7 +28,7 @@ if (Validator.isNull(displayStyle)) {
 
 // Left list
 
-List leftList = new ArrayList();
+List<KeyValuePair> leftList = new ArrayList<>();
 
 for (int i = 0; i < types.length; i++) {
 	SocialBookmark socialBookmark = SocialBookmarksRegistryUtil.getSocialBookmark(types[i]);
@@ -40,7 +40,7 @@ for (int i = 0; i < types.length; i++) {
 
 // Right list
 
-List rightList = new ArrayList();
+List<KeyValuePair> rightList = new ArrayList<>();
 
 Set<String> typesSet = new HashSet<>(Arrays.asList(types));
 
@@ -86,7 +86,7 @@ rightList = ListUtil.sort(rightList, new KeyValuePairComparator(false, true));
 </div>
 
 <script>
-	(function() {
+	(function () {
 		var Util = Liferay.Util;
 
 		var socialBookmarksTypes = document.getElementById(
@@ -96,11 +96,11 @@ rightList = ListUtil.sort(rightList, new KeyValuePairComparator(false, true));
 			'<portlet:namespace />currentTypes'
 		);
 
-		Liferay.after('inputmoveboxes:moveItem', function(event) {
+		Liferay.after('inputmoveboxes:moveItem', function (event) {
 			socialBookmarksTypes.value = Util.listSelect(currentTypes);
 		});
 
-		Liferay.after('inputmoveboxes:orderItem', function(event) {
+		Liferay.after('inputmoveboxes:orderItem', function (event) {
 			socialBookmarksTypes.value = Util.listSelect(currentTypes);
 		});
 	})();

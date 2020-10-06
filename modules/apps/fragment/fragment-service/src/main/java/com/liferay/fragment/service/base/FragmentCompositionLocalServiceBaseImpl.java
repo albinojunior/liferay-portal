@@ -24,6 +24,8 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.fragment.model.FragmentComposition;
 import com.liferay.fragment.service.FragmentCompositionLocalService;
 import com.liferay.fragment.service.persistence.FragmentCompositionPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -50,6 +52,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -88,6 +93,10 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 	/**
 	 * Adds the fragment composition to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentComposition the fragment composition
 	 * @return the fragment composition that was added
 	 */
@@ -118,6 +127,10 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 	/**
 	 * Deletes the fragment composition with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentCompositionId the primary key of the fragment composition
 	 * @return the fragment composition that was removed
 	 * @throws PortalException if a fragment composition with the primary key could not be found
@@ -134,6 +147,10 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 	/**
 	 * Deletes the fragment composition from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentComposition the fragment composition
 	 * @return the fragment composition that was removed
 	 * @throws PortalException
@@ -145,6 +162,11 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 		throws PortalException {
 
 		return fragmentCompositionPersistence.remove(fragmentComposition);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return fragmentCompositionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -472,6 +494,10 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 			(FragmentComposition)persistedModel);
 	}
 
+	public BasePersistence<FragmentComposition> getBasePersistence() {
+		return fragmentCompositionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -562,6 +588,10 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 	/**
 	 * Updates the fragment composition in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentComposition the fragment composition
 	 * @return the fragment composition that was updated
 	 */
@@ -577,7 +607,8 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			FragmentCompositionLocalService.class,
-			IdentifiableOSGiService.class, PersistedModelLocalService.class
+			IdentifiableOSGiService.class, CTService.class,
+			PersistedModelLocalService.class
 		};
 	}
 
@@ -597,8 +628,23 @@ public abstract class FragmentCompositionLocalServiceBaseImpl
 		return FragmentCompositionLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<FragmentComposition> getCTPersistence() {
+		return fragmentCompositionPersistence;
+	}
+
+	@Override
+	public Class<FragmentComposition> getModelClass() {
 		return FragmentComposition.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<FragmentComposition>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(fragmentCompositionPersistence);
 	}
 
 	protected String getModelClassName() {

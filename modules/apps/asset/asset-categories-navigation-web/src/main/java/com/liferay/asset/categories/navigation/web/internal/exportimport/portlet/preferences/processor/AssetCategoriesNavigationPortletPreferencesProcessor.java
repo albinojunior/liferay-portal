@@ -151,8 +151,6 @@ public class AssetCategoriesNavigationPortletPreferencesProcessor
 		String[] oldValues = StringUtil.split(
 			portletPreferencesOldValue, StringPool.POUND);
 
-		String uuid = oldValues[0];
-
 		long groupId = portletDataContext.getScopeGroupId();
 
 		if (oldValues.length > 1) {
@@ -165,6 +163,8 @@ public class AssetCategoriesNavigationPortletPreferencesProcessor
 		}
 
 		if (className.equals(AssetVocabulary.class.getName())) {
+			String uuid = oldValues[0];
+
 			AssetVocabulary assetVocabulary =
 				_assetVocabularyLocalService.
 					fetchAssetVocabularyByUuidAndGroupId(uuid, groupId);
@@ -185,10 +185,10 @@ public class AssetCategoriesNavigationPortletPreferencesProcessor
 		Portlet portlet = _portletLocalService.getPortletById(
 			portletDataContext.getCompanyId(), portletId);
 
-		Enumeration<String> enu = portletPreferences.getNames();
+		Enumeration<String> enumeration = portletPreferences.getNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.equals("assetVocabularyIds")) {
 				updateExportPortletPreferencesClassPKs(
@@ -210,10 +210,10 @@ public class AssetCategoriesNavigationPortletPreferencesProcessor
 
 		Group companyGroup = company.getGroup();
 
-		Enumeration<String> enu = portletPreferences.getNames();
+		Enumeration<String> enumeration = portletPreferences.getNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.equals("assetVocabularyIds")) {
 				updateImportPortletPreferencesClassPKs(

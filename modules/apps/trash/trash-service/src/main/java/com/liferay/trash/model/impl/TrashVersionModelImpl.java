@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -64,10 +65,11 @@ public class TrashVersionModelImpl
 	public static final String TABLE_NAME = "TrashVersion";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"versionId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"entryId", Types.BIGINT},
-		{"classNameId", Types.BIGINT}, {"classPK", Types.BIGINT},
-		{"typeSettings", Types.CLOB}, {"status", Types.INTEGER}
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
+		{"versionId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"entryId", Types.BIGINT}, {"classNameId", Types.BIGINT},
+		{"classPK", Types.BIGINT}, {"typeSettings", Types.CLOB},
+		{"status", Types.INTEGER}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -75,6 +77,7 @@ public class TrashVersionModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("versionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("entryId", Types.BIGINT);
@@ -85,7 +88,7 @@ public class TrashVersionModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table TrashVersion (mvccVersion LONG default 0 not null,versionId LONG not null primary key,companyId LONG,entryId LONG,classNameId LONG,classPK LONG,typeSettings TEXT null,status INTEGER)";
+		"create table TrashVersion (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,versionId LONG not null,companyId LONG,entryId LONG,classNameId LONG,classPK LONG,typeSettings TEXT null,status INTEGER,primary key (versionId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table TrashVersion";
 
@@ -101,20 +104,43 @@ public class TrashVersionModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CLASSNAMEID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CLASSPK_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long ENTRYID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long VERSIONID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public TrashVersionModelImpl() {
@@ -168,9 +194,6 @@ public class TrashVersionModelImpl
 				attributeName,
 				attributeGetterFunction.apply((TrashVersion)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -249,6 +272,11 @@ public class TrashVersionModelImpl
 		attributeSetterBiConsumers.put(
 			"mvccVersion",
 			(BiConsumer<TrashVersion, Long>)TrashVersion::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", TrashVersion::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<TrashVersion, Long>)TrashVersion::setCtCollectionId);
 		attributeGetterFunctions.put("versionId", TrashVersion::getVersionId);
 		attributeSetterBiConsumers.put(
 			"versionId",
@@ -293,7 +321,25 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@Override
@@ -303,6 +349,10 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setVersionId(long versionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_versionId = versionId;
 	}
 
@@ -313,6 +363,10 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_companyId = companyId;
 	}
 
@@ -323,19 +377,20 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setEntryId(long entryId) {
-		_columnBitmask |= ENTRYID_COLUMN_BITMASK;
-
-		if (!_setOriginalEntryId) {
-			_setOriginalEntryId = true;
-
-			_originalEntryId = _entryId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_entryId = entryId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalEntryId() {
-		return _originalEntryId;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("entryId"));
 	}
 
 	@Override
@@ -365,19 +420,21 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setClassNameId(long classNameId) {
-		_columnBitmask |= CLASSNAMEID_COLUMN_BITMASK;
-
-		if (!_setOriginalClassNameId) {
-			_setOriginalClassNameId = true;
-
-			_originalClassNameId = _classNameId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_classNameId = classNameId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalClassNameId() {
-		return _originalClassNameId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("classNameId"));
 	}
 
 	@Override
@@ -387,19 +444,20 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setClassPK(long classPK) {
-		_columnBitmask |= CLASSPK_COLUMN_BITMASK;
-
-		if (!_setOriginalClassPK) {
-			_setOriginalClassPK = true;
-
-			_originalClassPK = _classPK;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_classPK = classPK;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalClassPK() {
-		return _originalClassPK;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("classPK"));
 	}
 
 	@Override
@@ -414,6 +472,10 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setTypeSettings(String typeSettings) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_typeSettings = typeSettings;
 	}
 
@@ -424,10 +486,32 @@ public class TrashVersionModelImpl
 
 	@Override
 	public void setStatus(int status) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_status = status;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -464,6 +548,7 @@ public class TrashVersionModelImpl
 		TrashVersionImpl trashVersionImpl = new TrashVersionImpl();
 
 		trashVersionImpl.setMvccVersion(getMvccVersion());
+		trashVersionImpl.setCtCollectionId(getCtCollectionId());
 		trashVersionImpl.setVersionId(getVersionId());
 		trashVersionImpl.setCompanyId(getCompanyId());
 		trashVersionImpl.setEntryId(getEntryId());
@@ -493,16 +578,16 @@ public class TrashVersionModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof TrashVersion)) {
+		if (!(object instanceof TrashVersion)) {
 			return false;
 		}
 
-		TrashVersion trashVersion = (TrashVersion)obj;
+		TrashVersion trashVersion = (TrashVersion)object;
 
 		long primaryKey = trashVersion.getPrimaryKey();
 
@@ -519,34 +604,29 @@ public class TrashVersionModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		TrashVersionModelImpl trashVersionModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		trashVersionModelImpl._originalEntryId = trashVersionModelImpl._entryId;
-
-		trashVersionModelImpl._setOriginalEntryId = false;
-
-		trashVersionModelImpl._originalClassNameId =
-			trashVersionModelImpl._classNameId;
-
-		trashVersionModelImpl._setOriginalClassNameId = false;
-
-		trashVersionModelImpl._originalClassPK = trashVersionModelImpl._classPK;
-
-		trashVersionModelImpl._setOriginalClassPK = false;
-
-		trashVersionModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -555,6 +635,8 @@ public class TrashVersionModelImpl
 			new TrashVersionCacheModel();
 
 		trashVersionCacheModel.mvccVersion = getMvccVersion();
+
+		trashVersionCacheModel.ctCollectionId = getCtCollectionId();
 
 		trashVersionCacheModel.versionId = getVersionId();
 
@@ -585,7 +667,7 @@ public class TrashVersionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -617,7 +699,7 @@ public class TrashVersionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -649,23 +731,86 @@ public class TrashVersionModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _versionId;
 	private long _companyId;
 	private long _entryId;
-	private long _originalEntryId;
-	private boolean _setOriginalEntryId;
 	private long _classNameId;
-	private long _originalClassNameId;
-	private boolean _setOriginalClassNameId;
 	private long _classPK;
-	private long _originalClassPK;
-	private boolean _setOriginalClassPK;
 	private String _typeSettings;
 	private int _status;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<TrashVersion, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((TrashVersion)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
+		_columnOriginalValues.put("versionId", _versionId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("entryId", _entryId);
+		_columnOriginalValues.put("classNameId", _classNameId);
+		_columnOriginalValues.put("classPK", _classPK);
+		_columnOriginalValues.put("typeSettings", _typeSettings);
+		_columnOriginalValues.put("status", _status);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("ctCollectionId", 2L);
+
+		columnBitmasks.put("versionId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("entryId", 16L);
+
+		columnBitmasks.put("classNameId", 32L);
+
+		columnBitmasks.put("classPK", 64L);
+
+		columnBitmasks.put("typeSettings", 128L);
+
+		columnBitmasks.put("status", 256L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private TrashVersion _escapedModel;
 

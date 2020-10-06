@@ -37,17 +37,17 @@ public class DLFileEntryTypeCacheModel
 	implements CacheModel<DLFileEntryType>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DLFileEntryTypeCacheModel)) {
+		if (!(object instanceof DLFileEntryTypeCacheModel)) {
 			return false;
 		}
 
 		DLFileEntryTypeCacheModel dlFileEntryTypeCacheModel =
-			(DLFileEntryTypeCacheModel)obj;
+			(DLFileEntryTypeCacheModel)object;
 
 		if ((fileEntryTypeId == dlFileEntryTypeCacheModel.fileEntryTypeId) &&
 			(mvccVersion == dlFileEntryTypeCacheModel.mvccVersion)) {
@@ -77,10 +77,12 @@ public class DLFileEntryTypeCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(31);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", fileEntryTypeId=");
@@ -97,6 +99,8 @@ public class DLFileEntryTypeCacheModel
 		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
+		sb.append(", dataDefinitionId=");
+		sb.append(dataDefinitionId);
 		sb.append(", fileEntryTypeKey=");
 		sb.append(fileEntryTypeKey);
 		sb.append(", name=");
@@ -115,6 +119,7 @@ public class DLFileEntryTypeCacheModel
 		DLFileEntryTypeImpl dlFileEntryTypeImpl = new DLFileEntryTypeImpl();
 
 		dlFileEntryTypeImpl.setMvccVersion(mvccVersion);
+		dlFileEntryTypeImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			dlFileEntryTypeImpl.setUuid("");
@@ -148,6 +153,8 @@ public class DLFileEntryTypeCacheModel
 		else {
 			dlFileEntryTypeImpl.setModifiedDate(new Date(modifiedDate));
 		}
+
+		dlFileEntryTypeImpl.setDataDefinitionId(dataDefinitionId);
 
 		if (fileEntryTypeKey == null) {
 			dlFileEntryTypeImpl.setFileEntryTypeKey("");
@@ -185,6 +192,8 @@ public class DLFileEntryTypeCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		fileEntryTypeId = objectInput.readLong();
@@ -197,6 +206,8 @@ public class DLFileEntryTypeCacheModel
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
+		dataDefinitionId = objectInput.readLong();
 		fileEntryTypeKey = objectInput.readUTF();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
@@ -206,6 +217,8 @@ public class DLFileEntryTypeCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -232,6 +245,8 @@ public class DLFileEntryTypeCacheModel
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
+		objectOutput.writeLong(dataDefinitionId);
+
 		if (fileEntryTypeKey == null) {
 			objectOutput.writeUTF("");
 		}
@@ -257,6 +272,7 @@ public class DLFileEntryTypeCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long fileEntryTypeId;
 	public long groupId;
@@ -265,6 +281,7 @@ public class DLFileEntryTypeCacheModel
 	public String userName;
 	public long createDate;
 	public long modifiedDate;
+	public long dataDefinitionId;
 	public String fileEntryTypeKey;
 	public String name;
 	public String description;

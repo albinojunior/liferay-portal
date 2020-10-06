@@ -101,6 +101,9 @@ public class SolrIndexSearcher extends BaseIndexSearcher {
 				throw new IllegalArgumentException("Invalid end " + end);
 			}
 
+			SearchResponseBuilder searchResponseBuilder =
+				_getSearchResponseBuilder(searchContext);
+
 			Hits hits = null;
 
 			while (true) {
@@ -119,9 +122,10 @@ public class SolrIndexSearcher extends BaseIndexSearcher {
 							" ms"));
 				}
 
-				populateResponse(
-					searchSearchResponse,
-					_getSearchResponseBuilder(searchContext));
+				populateResponse(searchSearchResponse, searchResponseBuilder);
+
+				searchResponseBuilder.searchHits(
+					searchSearchResponse.getSearchHits());
 
 				hits = searchSearchResponse.getHits();
 
@@ -265,6 +269,7 @@ public class SolrIndexSearcher extends BaseIndexSearcher {
 			queryConfig.isAllFieldsSelected());
 		searchSearchRequest.setAlternateUidFieldName(
 			queryConfig.getAlternateUidFieldName());
+
 		searchSearchRequest.setGroupBy(searchContext.getGroupBy());
 		searchSearchRequest.setGroupByRequests(
 			searchRequest.getGroupByRequests());
@@ -333,8 +338,10 @@ public class SolrIndexSearcher extends BaseIndexSearcher {
 			query.setPreBooleanFilter(preBooleanFilter);
 		}
 
-		baseSearchRequest.setQuery(query);
 		baseSearchRequest.setStatsRequests(searchRequest.getStatsRequests());
+
+		setLegacyQuery(baseSearchRequest, query);
+		setQuery(baseSearchRequest, searchRequest);
 	}
 
 	protected void populateResponse(
@@ -361,9 +368,21 @@ public class SolrIndexSearcher extends BaseIndexSearcher {
 			searchSearchResponse.getGroupByResponses());
 	}
 
+	protected void setLegacyQuery(
+		BaseSearchRequest baseSearchRequest, Query query) {
+
+		baseSearchRequest.setQuery(query);
+	}
+
 	@Reference(unbind = "-")
 	protected void setProps(Props props) {
 		_props = props;
+	}
+
+	protected void setQuery(
+		BaseSearchRequest baseSearchRequest, SearchRequest searchRequest) {
+
+		baseSearchRequest.setQuery(searchRequest.getQuery());
 	}
 
 	@Reference(target = "(search.engine.impl=Solr)", unbind = "-")

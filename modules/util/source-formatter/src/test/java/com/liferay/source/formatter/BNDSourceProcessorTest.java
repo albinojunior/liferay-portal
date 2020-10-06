@@ -29,13 +29,17 @@ public class BNDSourceProcessorTest extends BaseSourceProcessorTestCase {
 		test(
 			"FormatBndInstructions2/app.testbnd",
 			"Deprecated apps that are not published on Marketplace should be " +
-				"moved to the deprecated folder");
+				"moved to the archived folder");
 		test(
 			"FormatBndInstructions3/app.testbnd",
-			StringBundler.concat(
-				"The 'Liferay-Releng-Suite' can be blank or one of the ",
-				"following values collaboration, forms-and-workflow, ",
-				"foundation, static, web-experience"));
+			new String[] {
+				"The 'Liferay-Releng-Restart-Required' can only be set to " +
+					"false if a POSHI tests exists",
+				StringBundler.concat(
+					"The 'Liferay-Releng-Suite' can be blank or one of the ",
+					"following values 'collaboration, commerce, ",
+					"forms-and-workflow, foundation, static, web-experience'")
+			});
 	}
 
 	@Test

@@ -16,6 +16,11 @@ components:
                     type: array
                 dataDefinitionKey:
                     type: string
+                dataRules:
+                    items:
+                        $ref: "#/components/schemas/DataRule"
+                    type:
+                        array
                 dateCreated:
                     format: date-time
                     type: string
@@ -48,6 +53,9 @@ components:
                     type: integer
             type: object
         DataDefinitionField:
+            # @review
+            description:
+                Represents the value of each field in data definition.
             properties:
                 customProperties:
                     additionalProperties:
@@ -77,6 +85,8 @@ components:
                 name:
                     type: string
                 nestedDataDefinitionFields:
+                    description:
+                        "A list of child data definition fields that depend on this resource."
                     items:
                         $ref: "#/components/schemas/DataDefinitionField"
                     type:
@@ -96,6 +106,22 @@ components:
                 visible:
                     type: boolean
             type: object
+        DataDefinitionFieldLink:
+            properties:
+                dataDefinition:
+                    allOf:
+                        - $ref: "#/components/schemas/DataDefinition"
+                dataLayouts:
+                    items:
+                        $ref: "#/components/schemas/DataLayout"
+                    type:
+                        array
+                dataListViews:
+                    items:
+                        $ref: "#/components/schemas/DataListView"
+                    type:
+                        array
+            type: object
         DataLayout:
             properties:
                 contentType:
@@ -108,6 +134,11 @@ components:
                 dataLayoutPages:
                     items:
                         $ref: "#/components/schemas/DataLayoutPage"
+                    type:
+                        array
+                dataRules:
+                    items:
+                        $ref: "#/components/schemas/DataRule"
                     type:
                         array
                 dateCreated:
@@ -161,6 +192,21 @@ components:
                     additionalProperties:
                         type: object
                     type: object
+            type: object
+        DataLayoutRenderingContext:
+            properties:
+                containerId:
+                    type: string
+                dataRecordValues:
+                    additionalProperties:
+                        type: object
+                    type: object
+                namespace:
+                    type: string
+                pathThemeImages:
+                    type: string
+                readOnly:
+                    type: boolean
             type: object
         DataLayoutRow:
             properties:
@@ -244,9 +290,33 @@ components:
                     format: int64
                     type: integer
             type: object
+        DataRule:
+            properties:
+                actions:
+                    items:
+                        additionalProperties:
+                            type: object
+                        type: object
+                    type:
+                        array
+                conditions:
+                    items:
+                        additionalProperties:
+                            type: object
+                        type: object
+                    type:
+                        array
+                logicalOperator:
+                    type: string
+                name:
+                    additionalProperties:
+                        type: object
+                    type: object
+            type: object
 info:
     description:
-        ""
+        "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
+        'com.liferay.data.engine.rest.client', and version '2.0.20'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -409,7 +479,7 @@ paths:
             tags: ["DataDefinition"]
     "/data-definitions/{dataDefinitionId}/data-definition-field-links":
         get:
-            operationId: getDataDefinitionDataDefinitionFieldLinks
+            operationId: getDataDefinitionDataDefinitionFieldLinkPage
             parameters:
                 - in: path
                   name: dataDefinitionId
@@ -419,7 +489,6 @@ paths:
                       type: integer
                 - in: query
                   name: fieldName
-                  required: true
                   schema:
                       type: string
             responses:
@@ -427,14 +496,35 @@ paths:
                     content:
                         application/json:
                             schema:
-                                type: string
+                                items:
+                                    $ref: "#/components/schemas/DataDefinitionFieldLink"
+                                type: array
                         application/xml:
                             schema:
-                                type: string
+                                items:
+                                    $ref: "#/components/schemas/DataDefinitionFieldLink"
+                                type: array
                     description:
                         ""
-            tags: ["DataDefinition"]
+            tags: ["DataDefinitionFieldLink"]
     "/data-definitions/{dataDefinitionId}/data-layouts":
+        delete:
+            operationId: deleteDataLayoutsDataDefinition
+            parameters:
+                - in: path
+                  name: dataDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["DataLayout"]
         get:
             operationId: getDataDefinitionDataLayoutsPage
             parameters:
@@ -507,6 +597,23 @@ paths:
                         ""
             tags: ["DataLayout"]
     "/data-definitions/{dataDefinitionId}/data-list-views":
+        delete:
+            operationId: deleteDataListViewsDataDefinition
+            parameters:
+                - in: path
+                  name: dataDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["DataListView"]
         get:
             operationId: getDataDefinitionDataListViewsPage
             parameters:
@@ -854,6 +961,40 @@ paths:
                     description:
                         ""
             tags: ["DataLayout"]
+    "/data-layouts/{dataLayoutId}/context":
+        post:
+            operationId: postDataLayoutContext
+            parameters:
+                - in: path
+                  name: dataLayoutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DataLayoutRenderingContext"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DataLayoutRenderingContext"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties:
+                                    type: object
+                                type: object
+                        application/xml:
+                            schema:
+                                additionalProperties:
+                                    type: object
+                                type: object
+                    description:
+                        ""
+            tags: ["DataLayout"]
     "/data-list-views/{dataListViewId}":
         delete:
             operationId: deleteDataListView
@@ -1186,6 +1327,35 @@ paths:
                   schema:
                       format: int64
                       type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DataRecord"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/DataRecord"
+                    description:
+                        ""
+            tags: ["DataRecord"]
+        patch:
+            operationId: patchDataRecord
+            parameters:
+                - in: path
+                  name: dataRecordId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DataRecord"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DataRecord"
             responses:
                 200:
                     content:

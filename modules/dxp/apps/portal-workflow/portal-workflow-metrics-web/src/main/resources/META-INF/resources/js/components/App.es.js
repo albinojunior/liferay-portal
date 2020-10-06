@@ -19,12 +19,12 @@ import InstanceListPage from './instance-list-page/InstanceListPage.es';
 import PerformanceByAssigneePage from './performance-by-assignee-page/PerformanceByAssigneePage.es';
 import PerformanceByStepPage from './performance-by-step-page/PerformanceByStepPage.es';
 import ProcessListPage from './process-list-page/ProcessListPage.es';
-import ProcessMetrics from './process-metrics/ProcessMetrics.es';
-import SLAForm from './sla/SLAForm.es';
-import SLAListCard from './sla/SLAListCard.es';
+import ProcessMetricsContainer from './process-metrics/ProcessMetricsContainer.es';
+import SettingsContainer from './settings/SettingsContainer.es';
+import SLAContainer from './sla/SLAContainer.es';
 import WorkloadByAssigneePage from './workload-by-assignee-page/WorkloadByAssigneePage.es';
 
-const App = props => {
+const App = (props) => {
 	return (
 		<Router>
 			<AppContextProvider {...props}>
@@ -45,7 +45,7 @@ const App = props => {
 
 						<Route
 							path="/metrics/:processId"
-							render={withParams(ProcessMetrics)}
+							render={withParams(ProcessMetricsContainer)}
 						/>
 
 						<Route
@@ -54,21 +54,8 @@ const App = props => {
 						/>
 
 						<Route
-							exact
-							path="/slas/:processId/:pageSize/:page"
-							render={withParams(SLAListCard)}
-						/>
-
-						<Route
-							exact
-							path="/sla/new/:processId"
-							render={withParams(SLAForm)}
-						/>
-
-						<Route
-							exact
-							path="/sla/edit/:processId/:id"
-							render={withParams(SLAForm)}
+							component={SLAContainer}
+							path="/sla/:processId"
 						/>
 
 						<Route
@@ -88,6 +75,8 @@ const App = props => {
 							path="/performance/assignee/:processId/:pageSize/:page/:sort"
 							render={withParams(PerformanceByAssigneePage)}
 						/>
+
+						<Route component={SettingsContainer} path="/settings" />
 					</Switch>
 				</div>
 			</AppContextProvider>

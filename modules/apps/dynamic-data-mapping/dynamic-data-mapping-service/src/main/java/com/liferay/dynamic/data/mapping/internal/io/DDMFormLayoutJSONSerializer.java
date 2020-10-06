@@ -21,11 +21,16 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.util.LocalizedValueUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
 import java.util.Locale;
@@ -56,6 +61,13 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		addDefaultLanguageId(jsonObject, ddmFormLayout.getDefaultLocale());
 		addPages(jsonObject, ddmFormLayout.getDDMFormLayoutPages());
 		addPaginationMode(jsonObject, ddmFormLayout.getPaginationMode());
+		addRules(jsonObject, ddmFormLayout.getDDMFormRules());
+
+		if (Validator.isNotNull(ddmFormLayout.getDefinitionSchemaVersion())) {
+			jsonObject.put(
+				"definitionSchemaVersion",
+				ddmFormLayout.getDefinitionSchemaVersion());
+		}
 
 		DDMFormLayoutSerializerSerializeResponse.Builder builder =
 			DDMFormLayoutSerializerSerializeResponse.Builder.newBuilder(
@@ -145,22 +157,23 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		jsonObject.put("rows", jsonArray);
 	}
 
-	protected void addTitle(JSONObject pageJSONObject, LocalizedValue title) {
-		Map<Locale, String> values = title.getValues();
+	protected void addRules(
+		JSONObject jsonObject, List<DDMFormRule> ddmFormRules) {
 
-		if (values.isEmpty()) {
+		if (ListUtil.isEmpty(ddmFormRules)) {
 			return;
 		}
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject();
+		jsonObject.put(
+			"rules", DDMFormRuleJSONSerializer.serialize(ddmFormRules));
+	}
 
-		for (Locale availableLocale : title.getAvailableLocales()) {
-			jsonObject.put(
-				LocaleUtil.toLanguageId(availableLocale),
-				title.getString(availableLocale));
+	protected void addTitle(JSONObject pageJSONObject, LocalizedValue title) {
+		if (MapUtil.isEmpty(title.getValues())) {
+			return;
 		}
 
-		pageJSONObject.put("title", jsonObject);
+		pageJSONObject.put("title", LocalizedValueUtil.toJSONObject(title));
 	}
 
 	@Reference(unbind = "-")

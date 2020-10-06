@@ -16,8 +16,8 @@ package com.liferay.portal.language.extender.internal;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,8 @@ public class ServiceTrackerResourceBundleLoader
 	implements ResourceBundleLoader {
 
 	public ServiceTrackerResourceBundleLoader(
-			BundleContext bundleContext, String aggregate, int aggregateId)
+			BundleContext bundleContext, String aggregate, int aggregateId,
+			int serviceRanking)
 		throws InvalidSyntaxException {
 
 		List<String> filterStrings = StringUtil.split(aggregate);
@@ -48,7 +49,8 @@ public class ServiceTrackerResourceBundleLoader
 				StringBundler.concat(
 					"(&(objectClass=", ResourceBundleLoader.class.getName(),
 					")", filterString, "(|(!(aggregateId=*))(!(aggregateId=",
-					aggregateId, "))))"));
+					aggregateId, ")))(!(service.ranking>=", serviceRanking,
+					")))"));
 
 			ServiceTracker<ResourceBundleLoader, ResourceBundleLoader>
 				serviceTracker = new ServiceTracker<>(

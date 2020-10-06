@@ -17,11 +17,13 @@ package com.liferay.polls.service.persistence.impl;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.polls.exception.NoSuchVoteException;
 import com.liferay.polls.model.PollsVote;
+import com.liferay.polls.model.PollsVoteTable;
 import com.liferay.polls.model.impl.PollsVoteImpl;
 import com.liferay.polls.model.impl.PollsVoteModelImpl;
 import com.liferay.polls.service.persistence.PollsVotePersistence;
 import com.liferay.polls.service.persistence.impl.constants.PollsPersistenceConstants;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -32,11 +34,12 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -49,13 +52,17 @@ import java.lang.reflect.InvocationHandler;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -257,10 +264,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -609,8 +612,6 @@ public class PollsVotePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -768,11 +769,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(
-						_finderPathFetchByUUID_G, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -861,8 +857,6 @@ public class PollsVotePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1063,10 +1057,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1445,8 +1435,6 @@ public class PollsVotePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1624,10 +1612,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1954,8 +1938,6 @@ public class PollsVotePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -2122,10 +2104,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -2451,8 +2429,6 @@ public class PollsVotePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -2634,10 +2610,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -2992,8 +2964,6 @@ public class PollsVotePersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -3011,16 +2981,18 @@ public class PollsVotePersistenceImpl
 		"pollsVote.userId = ?";
 
 	public PollsVotePersistenceImpl() {
-		setModelClass(PollsVote.class);
-
-		setModelImplClass(PollsVoteImpl.class);
-		setModelPKClass(long.class);
-
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("uuid", "uuid_");
 
 		setDBColumnNames(dbColumnNames);
+
+		setModelClass(PollsVote.class);
+
+		setModelImplClass(PollsVoteImpl.class);
+		setModelPKClass(long.class);
+
+		setTable(PollsVoteTable.INSTANCE);
 	}
 
 	/**
@@ -3031,15 +3003,12 @@ public class PollsVotePersistenceImpl
 	@Override
 	public void cacheResult(PollsVote pollsVote) {
 		entityCache.putResult(
-			entityCacheEnabled, PollsVoteImpl.class, pollsVote.getPrimaryKey(),
-			pollsVote);
+			PollsVoteImpl.class, pollsVote.getPrimaryKey(), pollsVote);
 
 		finderCache.putResult(
 			_finderPathFetchByUUID_G,
 			new Object[] {pollsVote.getUuid(), pollsVote.getGroupId()},
 			pollsVote);
-
-		pollsVote.resetOriginalValues();
 	}
 
 	/**
@@ -3051,13 +3020,9 @@ public class PollsVotePersistenceImpl
 	public void cacheResult(List<PollsVote> pollsVotes) {
 		for (PollsVote pollsVote : pollsVotes) {
 			if (entityCache.getResult(
-					entityCacheEnabled, PollsVoteImpl.class,
-					pollsVote.getPrimaryKey()) == null) {
+					PollsVoteImpl.class, pollsVote.getPrimaryKey()) == null) {
 
 				cacheResult(pollsVote);
-			}
-			else {
-				pollsVote.resetOriginalValues();
 			}
 		}
 	}
@@ -3087,26 +3052,13 @@ public class PollsVotePersistenceImpl
 	 */
 	@Override
 	public void clearCache(PollsVote pollsVote) {
-		entityCache.removeResult(
-			entityCacheEnabled, PollsVoteImpl.class, pollsVote.getPrimaryKey());
-
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache((PollsVoteModelImpl)pollsVote, true);
+		entityCache.removeResult(PollsVoteImpl.class, pollsVote);
 	}
 
 	@Override
 	public void clearCache(List<PollsVote> pollsVotes) {
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (PollsVote pollsVote : pollsVotes) {
-			entityCache.removeResult(
-				entityCacheEnabled, PollsVoteImpl.class,
-				pollsVote.getPrimaryKey());
-
-			clearUniqueFindersCache((PollsVoteModelImpl)pollsVote, true);
+			entityCache.removeResult(PollsVoteImpl.class, pollsVote);
 		}
 	}
 
@@ -3117,8 +3069,7 @@ public class PollsVotePersistenceImpl
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Serializable primaryKey : primaryKeys) {
-			entityCache.removeResult(
-				entityCacheEnabled, PollsVoteImpl.class, primaryKey);
+			entityCache.removeResult(PollsVoteImpl.class, primaryKey);
 		}
 	}
 
@@ -3133,31 +3084,6 @@ public class PollsVotePersistenceImpl
 			_finderPathCountByUUID_G, args, Long.valueOf(1), false);
 		finderCache.putResult(
 			_finderPathFetchByUUID_G, args, pollsVoteModelImpl, false);
-	}
-
-	protected void clearUniqueFindersCache(
-		PollsVoteModelImpl pollsVoteModelImpl, boolean clearCurrent) {
-
-		if (clearCurrent) {
-			Object[] args = new Object[] {
-				pollsVoteModelImpl.getUuid(), pollsVoteModelImpl.getGroupId()
-			};
-
-			finderCache.removeResult(_finderPathCountByUUID_G, args);
-			finderCache.removeResult(_finderPathFetchByUUID_G, args);
-		}
-
-		if ((pollsVoteModelImpl.getColumnBitmask() &
-			 _finderPathFetchByUUID_G.getColumnBitmask()) != 0) {
-
-			Object[] args = new Object[] {
-				pollsVoteModelImpl.getOriginalUuid(),
-				pollsVoteModelImpl.getOriginalGroupId()
-			};
-
-			finderCache.removeResult(_finderPathCountByUUID_G, args);
-			finderCache.removeResult(_finderPathFetchByUUID_G, args);
-		}
 	}
 
 	/**
@@ -3321,10 +3247,8 @@ public class PollsVotePersistenceImpl
 		try {
 			session = openSession();
 
-			if (pollsVote.isNew()) {
+			if (isNew) {
 				session.save(pollsVote);
-
-				pollsVote.setNew(false);
 			}
 			else {
 				pollsVote = (PollsVote)session.merge(pollsVote);
@@ -3337,162 +3261,14 @@ public class PollsVotePersistenceImpl
 			closeSession(session);
 		}
 
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (!_columnBitmaskEnabled) {
-			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-		else if (isNew) {
-			Object[] args = new Object[] {pollsVoteModelImpl.getUuid()};
-
-			finderCache.removeResult(_finderPathCountByUuid, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByUuid, args);
-
-			args = new Object[] {
-				pollsVoteModelImpl.getUuid(), pollsVoteModelImpl.getCompanyId()
-			};
-
-			finderCache.removeResult(_finderPathCountByUuid_C, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByUuid_C, args);
-
-			args = new Object[] {pollsVoteModelImpl.getQuestionId()};
-
-			finderCache.removeResult(_finderPathCountByQuestionId, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByQuestionId, args);
-
-			args = new Object[] {pollsVoteModelImpl.getChoiceId()};
-
-			finderCache.removeResult(_finderPathCountByChoiceId, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByChoiceId, args);
-
-			args = new Object[] {
-				pollsVoteModelImpl.getQuestionId(),
-				pollsVoteModelImpl.getUserId()
-			};
-
-			finderCache.removeResult(_finderPathCountByQ_U, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByQ_U, args);
-
-			finderCache.removeResult(_finderPathCountAll, FINDER_ARGS_EMPTY);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
-		}
-		else {
-			if ((pollsVoteModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByUuid.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					pollsVoteModelImpl.getOriginalUuid()
-				};
-
-				finderCache.removeResult(_finderPathCountByUuid, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByUuid, args);
-
-				args = new Object[] {pollsVoteModelImpl.getUuid()};
-
-				finderCache.removeResult(_finderPathCountByUuid, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByUuid, args);
-			}
-
-			if ((pollsVoteModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByUuid_C.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					pollsVoteModelImpl.getOriginalUuid(),
-					pollsVoteModelImpl.getOriginalCompanyId()
-				};
-
-				finderCache.removeResult(_finderPathCountByUuid_C, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByUuid_C, args);
-
-				args = new Object[] {
-					pollsVoteModelImpl.getUuid(),
-					pollsVoteModelImpl.getCompanyId()
-				};
-
-				finderCache.removeResult(_finderPathCountByUuid_C, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByUuid_C, args);
-			}
-
-			if ((pollsVoteModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByQuestionId.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					pollsVoteModelImpl.getOriginalQuestionId()
-				};
-
-				finderCache.removeResult(_finderPathCountByQuestionId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByQuestionId, args);
-
-				args = new Object[] {pollsVoteModelImpl.getQuestionId()};
-
-				finderCache.removeResult(_finderPathCountByQuestionId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByQuestionId, args);
-			}
-
-			if ((pollsVoteModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByChoiceId.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					pollsVoteModelImpl.getOriginalChoiceId()
-				};
-
-				finderCache.removeResult(_finderPathCountByChoiceId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByChoiceId, args);
-
-				args = new Object[] {pollsVoteModelImpl.getChoiceId()};
-
-				finderCache.removeResult(_finderPathCountByChoiceId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByChoiceId, args);
-			}
-
-			if ((pollsVoteModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByQ_U.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					pollsVoteModelImpl.getOriginalQuestionId(),
-					pollsVoteModelImpl.getOriginalUserId()
-				};
-
-				finderCache.removeResult(_finderPathCountByQ_U, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByQ_U, args);
-
-				args = new Object[] {
-					pollsVoteModelImpl.getQuestionId(),
-					pollsVoteModelImpl.getUserId()
-				};
-
-				finderCache.removeResult(_finderPathCountByQ_U, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByQ_U, args);
-			}
-		}
-
 		entityCache.putResult(
-			entityCacheEnabled, PollsVoteImpl.class, pollsVote.getPrimaryKey(),
-			pollsVote, false);
+			PollsVoteImpl.class, pollsVoteModelImpl, false, true);
 
-		clearUniqueFindersCache(pollsVoteModelImpl, false);
 		cacheUniqueFindersCache(pollsVoteModelImpl);
+
+		if (isNew) {
+			pollsVote.setNew(false);
+		}
 
 		pollsVote.resetOriginalValues();
 
@@ -3671,10 +3447,6 @@ public class PollsVotePersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -3720,9 +3492,6 @@ public class PollsVotePersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -3762,142 +3531,140 @@ public class PollsVotePersistenceImpl
 	 * Initializes the polls vote persistence.
 	 */
 	@Activate
-	public void activate() {
-		PollsVoteModelImpl.setEntityCacheEnabled(entityCacheEnabled);
-		PollsVoteModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+	public void activate(BundleContext bundleContext) {
+		_bundleContext = bundleContext;
 
-		_finderPathWithPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+		_argumentsResolverServiceRegistration = _bundleContext.registerService(
+			ArgumentsResolver.class, new PollsVoteModelArgumentsResolver(),
+			MapUtil.singletonDictionary(
+				"model.class.name", PollsVote.class.getName()));
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
 
-		_finderPathCountAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 
-		_finderPathWithPaginationFindByUuid = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithPaginationFindByUuid = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid",
 			new String[] {
 				String.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"uuid_"}, true);
 
-		_finderPathWithoutPaginationFindByUuid = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithoutPaginationFindByUuid = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid",
-			new String[] {String.class.getName()},
-			PollsVoteModelImpl.UUID_COLUMN_BITMASK);
+			new String[] {String.class.getName()}, new String[] {"uuid_"},
+			true);
 
-		_finderPathCountByUuid = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByUuid = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid",
-			new String[] {String.class.getName()});
+			new String[] {String.class.getName()}, new String[] {"uuid_"},
+			false);
 
-		_finderPathFetchByUUID_G = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathFetchByUUID_G = _createFinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()},
-			PollsVoteModelImpl.UUID_COLUMN_BITMASK |
-			PollsVoteModelImpl.GROUPID_COLUMN_BITMASK);
+			new String[] {"uuid_", "groupId"}, true);
 
-		_finderPathCountByUUID_G = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByUUID_G = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUUID_G",
-			new String[] {String.class.getName(), Long.class.getName()});
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"uuid_", "groupId"}, false);
 
-		_finderPathWithPaginationFindByUuid_C = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithPaginationFindByUuid_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
 			new String[] {
 				String.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"uuid_", "companyId"}, true);
 
-		_finderPathWithoutPaginationFindByUuid_C = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithoutPaginationFindByUuid_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid_C",
 			new String[] {String.class.getName(), Long.class.getName()},
-			PollsVoteModelImpl.UUID_COLUMN_BITMASK |
-			PollsVoteModelImpl.COMPANYID_COLUMN_BITMASK);
+			new String[] {"uuid_", "companyId"}, true);
 
-		_finderPathCountByUuid_C = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByUuid_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid_C",
-			new String[] {String.class.getName(), Long.class.getName()});
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"uuid_", "companyId"}, false);
 
-		_finderPathWithPaginationFindByQuestionId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithPaginationFindByQuestionId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByQuestionId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"questionId"}, true);
 
-		_finderPathWithoutPaginationFindByQuestionId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithoutPaginationFindByQuestionId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByQuestionId",
-			new String[] {Long.class.getName()},
-			PollsVoteModelImpl.QUESTIONID_COLUMN_BITMASK);
+			new String[] {Long.class.getName()}, new String[] {"questionId"},
+			true);
 
-		_finderPathCountByQuestionId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByQuestionId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByQuestionId",
-			new String[] {Long.class.getName()});
+			new String[] {Long.class.getName()}, new String[] {"questionId"},
+			false);
 
-		_finderPathWithPaginationFindByChoiceId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithPaginationFindByChoiceId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByChoiceId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"choiceId"}, true);
 
-		_finderPathWithoutPaginationFindByChoiceId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithoutPaginationFindByChoiceId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByChoiceId",
-			new String[] {Long.class.getName()},
-			PollsVoteModelImpl.CHOICEID_COLUMN_BITMASK);
+			new String[] {Long.class.getName()}, new String[] {"choiceId"},
+			true);
 
-		_finderPathCountByChoiceId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByChoiceId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByChoiceId",
-			new String[] {Long.class.getName()});
+			new String[] {Long.class.getName()}, new String[] {"choiceId"},
+			false);
 
-		_finderPathWithPaginationFindByQ_U = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithPaginationFindByQ_U = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByQ_U",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"questionId", "userId"}, true);
 
-		_finderPathWithoutPaginationFindByQ_U = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, PollsVoteImpl.class,
+		_finderPathWithoutPaginationFindByQ_U = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByQ_U",
 			new String[] {Long.class.getName(), Long.class.getName()},
-			PollsVoteModelImpl.QUESTIONID_COLUMN_BITMASK |
-			PollsVoteModelImpl.USERID_COLUMN_BITMASK);
+			new String[] {"questionId", "userId"}, true);
 
-		_finderPathCountByQ_U = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByQ_U = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByQ_U",
-			new String[] {Long.class.getName(), Long.class.getName()});
+			new String[] {Long.class.getName(), Long.class.getName()},
+			new String[] {"questionId", "userId"}, false);
 	}
 
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(PollsVoteImpl.class.getName());
-		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 	}
 
 	@Override
@@ -3906,12 +3673,6 @@ public class PollsVotePersistenceImpl
 		unbind = "-"
 	)
 	public void setConfiguration(Configuration configuration) {
-		super.setConfiguration(configuration);
-
-		_columnBitmaskEnabled = GetterUtil.getBoolean(
-			configuration.get(
-				"value.object.column.bitmask.enabled.com.liferay.polls.model.PollsVote"),
-			true);
 	}
 
 	@Override
@@ -3932,7 +3693,7 @@ public class PollsVotePersistenceImpl
 		super.setSessionFactory(sessionFactory);
 	}
 
-	private boolean _columnBitmaskEnabled;
+	private BundleContext _bundleContext;
 
 	@Reference
 	protected EntityCache entityCache;
@@ -3973,6 +3734,104 @@ public class PollsVotePersistenceImpl
 		catch (ClassNotFoundException classNotFoundException) {
 			throw new ExceptionInInitializerError(classNotFoundException);
 		}
+	}
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			_serviceRegistrations.add(
+				_bundleContext.registerService(
+					FinderPath.class, finderPath,
+					MapUtil.singletonDictionary("cache.name", cacheName)));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class PollsVoteModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			PollsVoteModelImpl pollsVoteModelImpl =
+				(PollsVoteModelImpl)baseModel;
+
+			long columnBitmask = pollsVoteModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(pollsVoteModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						pollsVoteModelImpl.getColumnBitmask(columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(pollsVoteModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			PollsVoteModelImpl pollsVoteModelImpl, String[] columnNames,
+			boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] = pollsVoteModelImpl.getColumnOriginalValue(
+						columnName);
+				}
+				else {
+					arguments[i] = pollsVoteModelImpl.getColumnValue(
+						columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
 	}
 
 }

@@ -24,19 +24,21 @@ SamlSpIdpConnection samlSpIdpConnection = (SamlSpIdpConnection)request.getAttrib
 long clockSkew = GetterUtil.getLong(request.getAttribute(SamlWebKeys.SAML_CLOCK_SKEW), samlProviderConfiguration.clockSkew());
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid
+	cssClass="container-fluid container-fluid-max-xl sheet"
+>
 	<liferay-ui:header
 		backURL="<%= redirect %>"
 		title='<%= (samlSpIdpConnection != null) ? samlSpIdpConnection.getName() : "new-identity-provider" %>'
 	/>
-</div>
+</clay:container-fluid>
 
 <portlet:actionURL name="/admin/updateIdentityProviderConnection" var="updateIdentityProviderConnectionURL">
 	<portlet:param name="mvcRenderCommandName" value="/admin/edit_identity_provider_connection" />
 	<portlet:param name="samlSpIdpConnectionId" value='<%= (samlSpIdpConnection != null) ? String.valueOf(samlSpIdpConnection.getSamlSpIdpConnectionId()) : "" %>' />
 </portlet:actionURL>
 
-<aui:form action="<%= updateIdentityProviderConnectionURL %>" cssClass="container-fluid-1280" enctype="multipart/form-data">
+<aui:form action="<%= updateIdentityProviderConnectionURL %>" cssClass="container-fluid container-fluid-max-xl sheet" enctype="multipart/form-data">
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 
 	<liferay-ui:error exception="<%= DuplicateSamlSpIdpConnectionSamlIdpEntityIdException.class %>" message="please-enter-a-unique-identity-provider-entity-id" />
@@ -66,7 +68,7 @@ long clockSkew = GetterUtil.getLong(request.getAttribute(SamlWebKeys.SAML_CLOCK_
 		<aui:input name="metadataUrl" />
 
 		<aui:button-row>
-			<aui:button onClick='<%= renderResponse.getNamespace() + "uploadMetadataXml();" %>' value="upload-metadata-xml" />
+			<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "uploadMetadataXml();" %>' value="upload-metadata-xml" />
 		</aui:button-row>
 
 		<div class="hide" id="<portlet:namespace />uploadMetadataXmlForm">
@@ -102,20 +104,15 @@ long clockSkew = GetterUtil.getLong(request.getAttribute(SamlWebKeys.SAML_CLOCK_
 </aui:form>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />uploadMetadataXml',
-		function() {
-			var A = AUI();
+	window['<portlet:namespace />uploadMetadataXml'] = function () {
+		var uploadMetadataXmlForm = document.getElementById(
+			'<portlet:namespace />uploadMetadataXmlForm'
+		);
 
-			var uploadMetadataXmlForm = A.one(
-				'#<portlet:namespace />uploadMetadataXmlForm'
-			);
-
-			if (uploadMetadataXmlForm) {
-				uploadMetadataXmlForm.show();
-			}
-		},
-		['aui-base']
-	);
+		if (uploadMetadataXmlForm) {
+			uploadMetadataXmlForm.classList.remove('hide');
+			uploadMetadataXmlForm.removeAttribute('hidden');
+			uploadMetadataXmlForm.style.display = '';
+		}
+	};
 </aui:script>

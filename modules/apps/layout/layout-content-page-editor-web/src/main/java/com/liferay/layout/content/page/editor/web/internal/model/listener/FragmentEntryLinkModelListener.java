@@ -14,13 +14,13 @@
 
 package com.liferay.layout.content.page.editor.web.internal.model.listener;
 
-import com.liferay.dynamic.data.mapping.kernel.DDMTemplate;
-import com.liferay.dynamic.data.mapping.kernel.DDMTemplateManager;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLinkLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.fragment.model.FragmentEntryLink;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
 import com.liferay.layout.content.page.editor.web.internal.util.ContentUtil;
+import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
 import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalService;
 import com.liferay.portal.kernel.comment.CommentManager;
@@ -60,7 +60,7 @@ public class FragmentEntryLinkModelListener
 		_layoutClassedModelUsageLocalService.deleteLayoutClassedModelUsages(
 			String.valueOf(fragmentEntryLink.getFragmentEntryLinkId()),
 			_portal.getClassNameId(FragmentEntryLink.class),
-			fragmentEntryLink.getClassPK());
+			fragmentEntryLink.getPlid());
 
 		try {
 			_deleteDDMTemplateLinks(fragmentEntryLink);
@@ -195,7 +195,7 @@ public class FragmentEntryLinkModelListener
 		String ddmTemplateKey = mappedField.substring(
 			PortletDisplayTemplate.DISPLAY_STYLE_PREFIX.length());
 
-		DDMTemplate ddmTemplate = _ddmTemplateManager.fetchTemplate(
+		DDMTemplate ddmTemplate = _ddmTemplateLocalService.fetchTemplate(
 			fragmentEntryLink.getGroupId(),
 			_portal.getClassNameId(DDMStructure.class), ddmTemplateKey);
 
@@ -218,24 +218,27 @@ public class FragmentEntryLinkModelListener
 		_layoutClassedModelUsageLocalService.deleteLayoutClassedModelUsages(
 			String.valueOf(fragmentEntryLink.getFragmentEntryLinkId()),
 			_portal.getClassNameId(FragmentEntryLink.class),
-			fragmentEntryLink.getClassPK());
+			fragmentEntryLink.getPlid());
 
-		Set<InfoDisplayObjectProvider> infoDisplayObjectProviders =
-			ContentUtil.getFragmentEntryLinkMappedInfoDisplayObjectProviders(
-				fragmentEntryLink);
+		Set<LayoutDisplayPageObjectProvider<?>>
+			layoutDisplayPageObjectProviders =
+				ContentUtil.
+					getFragmentEntryLinkMappedLayoutDisplayPageObjectProviders(
+						fragmentEntryLink);
 
-		for (InfoDisplayObjectProvider infoDisplayObjectProvider :
-				infoDisplayObjectProviders) {
+		for (LayoutDisplayPageObjectProvider<?>
+				layoutDisplayPageObjectProvider :
+					layoutDisplayPageObjectProviders) {
 
 			LayoutClassedModelUsage layoutClassedModelUsage =
 				_layoutClassedModelUsageLocalService.
 					fetchLayoutClassedModelUsage(
-						infoDisplayObjectProvider.getClassNameId(),
-						infoDisplayObjectProvider.getClassPK(),
+						layoutDisplayPageObjectProvider.getClassNameId(),
+						layoutDisplayPageObjectProvider.getClassPK(),
 						String.valueOf(
 							fragmentEntryLink.getFragmentEntryLinkId()),
 						_portal.getClassNameId(FragmentEntryLink.class),
-						fragmentEntryLink.getClassPK());
+						fragmentEntryLink.getPlid());
 
 			if (layoutClassedModelUsage != null) {
 				continue;
@@ -249,11 +252,11 @@ public class FragmentEntryLinkModelListener
 
 			_layoutClassedModelUsageLocalService.addLayoutClassedModelUsage(
 				fragmentEntryLink.getGroupId(),
-				infoDisplayObjectProvider.getClassNameId(),
-				infoDisplayObjectProvider.getClassPK(),
+				layoutDisplayPageObjectProvider.getClassNameId(),
+				layoutDisplayPageObjectProvider.getClassPK(),
 				String.valueOf(fragmentEntryLink.getFragmentEntryLinkId()),
 				_portal.getClassNameId(FragmentEntryLink.class),
-				fragmentEntryLink.getClassPK(), serviceContext);
+				fragmentEntryLink.getPlid(), serviceContext);
 		}
 	}
 
@@ -267,7 +270,7 @@ public class FragmentEntryLinkModelListener
 	private DDMTemplateLinkLocalService _ddmTemplateLinkLocalService;
 
 	@Reference
-	private DDMTemplateManager _ddmTemplateManager;
+	private DDMTemplateLocalService _ddmTemplateLocalService;
 
 	@Reference
 	private LayoutClassedModelUsageLocalService

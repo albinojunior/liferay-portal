@@ -37,13 +37,17 @@ definition {
 		property environment.acceptance = "true";
 		property testray.component.names = "Training";
 
-		Smoke.viewWelcomePage();
+		Smoke.viewWelcomeContentPage();
 
 		Smoke.runSmoke();
 
 		// Assert mismatching checksum for release bundles
 
 		AssertConsoleTextNotPresent(value1 = "Running validation because of mismatched checksum");
+
+		// Assert all bundles installed
+
+		AssertConsoleTextNotPresent(value1 = "The portal instance needs to be restarted to complete the installation");
 	}
 
 	@priority = "5"
@@ -54,7 +58,19 @@ definition {
 		property portal.acceptance = "true";
 		property portal.smoke = "false";
 
-		Smoke.viewWelcomePage();
+		Smoke.viewWelcomeContentPage();
+
+		Smoke.runSmoke();
+	}
+
+	@priority = "4"
+	test SmokeWithJNDI {
+		property app.server.types = "tomcat,wildfly,weblogic,websphere";
+		property database.types = "mariadb,mysql";
+		property database.jndi.enabled = "true";
+		property portal.smoke = "false";
+
+		Smoke.viewWelcomeContentPage();
 
 		Smoke.runSmoke();
 	}
@@ -64,7 +80,7 @@ definition {
 		property custom.properties = "javascript.single.page.application.enabled=false";
 		property portal.smoke = "false";
 
-		Smoke.viewWelcomePage();
+		Smoke.viewWelcomeContentPage();
 
 		Smoke.runSmoke();
 	}

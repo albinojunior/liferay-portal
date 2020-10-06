@@ -36,7 +36,6 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,7 +61,6 @@ public class TextDDMFormFieldTypeSettingsTest
 		setUpResourceBundleUtil();
 	}
 
-	@Ignore
 	@Test
 	public void testCreateTextDDMFormFieldTypeSettingsDDMForm() {
 		DDMForm ddmForm = DDMFormFactory.create(
@@ -101,9 +99,18 @@ public class TextDDMFormFieldTypeSettingsTest
 
 		Assert.assertNotNull(displayStyleDDMFormField);
 		Assert.assertNotNull(displayStyleDDMFormField.getLabel());
-		Assert.assertEquals(
-			"true", displayStyleDDMFormField.getProperty("inline"));
 		Assert.assertEquals("radio", displayStyleDDMFormField.getType());
+
+		DDMFormFieldOptions displayStyleDDMFormFieldOptions =
+			displayStyleDDMFormField.getDDMFormFieldOptions();
+
+		Set<String> displayStyleDDMFormFieldOptionsValue =
+			displayStyleDDMFormFieldOptions.getOptionsValues();
+
+		Assert.assertTrue(
+			displayStyleDDMFormFieldOptionsValue.contains("multiline"));
+		Assert.assertTrue(
+			displayStyleDDMFormFieldOptionsValue.contains("singleline"));
 
 		DDMFormField indexTypeDDMFormField = ddmFormFieldsMap.get("indexType");
 
@@ -150,7 +157,7 @@ public class TextDDMFormFieldTypeSettingsTest
 
 		List<DDMFormRule> ddmFormRules = ddmForm.getDDMFormRules();
 
-		Assert.assertEquals(ddmFormRules.toString(), 3, ddmFormRules.size());
+		Assert.assertEquals(ddmFormRules.toString(), 4, ddmFormRules.size());
 
 		DDMFormRule ddmFormRule0 = ddmFormRules.get(0);
 
@@ -170,7 +177,7 @@ public class TextDDMFormFieldTypeSettingsTest
 
 		Assert.assertEquals(sb.toString(), actions.get(0));
 
-		DDMFormRule ddmFormRule1 = ddmFormRules.get(0);
+		DDMFormRule ddmFormRule1 = ddmFormRules.get(1);
 
 		Assert.assertEquals(
 			"not(equals(getValue('displayStyle'), 'singleline'))",
@@ -178,7 +185,7 @@ public class TextDDMFormFieldTypeSettingsTest
 
 		actions = ddmFormRule1.getActions();
 
-		Assert.assertEquals(actions.toString(), 1, actions.size());
+		Assert.assertEquals(actions.toString(), 2, actions.size());
 		Assert.assertEquals("setValue('autocomplete', FALSE)", actions.get(0));
 		Assert.assertEquals(
 			"setVisible('autocomplete', FALSE)", actions.get(1));
@@ -229,6 +236,21 @@ public class TextDDMFormFieldTypeSettingsTest
 			actions.contains(
 				"setVisible('options', contains(getValue('dataSourceType'), " +
 					"\"manual\") and getValue('autocomplete'))"));
+
+		DDMFormRule ddmFormRule3 = ddmFormRules.get(3);
+
+		Assert.assertEquals(
+			"not(equals(getValue('dataSourceType'), \"data-provider\")) or " +
+				"not(getValue('autocomplete'))",
+			ddmFormRule3.getCondition());
+
+		actions = ddmFormRule3.getActions();
+
+		Assert.assertEquals(actions.toString(), 2, actions.size());
+		Assert.assertEquals(
+			"setValue('ddmDataProviderInstanceId', '')", actions.get(0));
+		Assert.assertEquals(
+			"setValue('ddmDataProviderInstanceOutput', '')", actions.get(1));
 	}
 
 	@Override

@@ -194,7 +194,8 @@ public class DefaultWikiListPagesDisplayContext
 	}
 
 	@Override
-	public void populateResultsAndTotal(SearchContainer searchContainer)
+	public void populateResultsAndTotal(
+			SearchContainer<WikiPage> searchContainer)
 		throws PortalException {
 
 		WikiPage page = (WikiPage)_httpServletRequest.getAttribute(
@@ -223,6 +224,7 @@ public class DefaultWikiListPagesDisplayContext
 			searchContext.setEnd(searchContainer.getEnd());
 			searchContext.setIncludeAttachments(true);
 			searchContext.setIncludeDiscussions(true);
+			searchContext.setIncludeInternalAssetCategories(true);
 			searchContext.setKeywords(keywords);
 			searchContext.setNodeIds(new long[] {_wikiNode.getNodeId()});
 			searchContext.setStart(searchContainer.getStart());
@@ -250,7 +252,7 @@ public class DefaultWikiListPagesDisplayContext
 
 			searchContainer.setTotal(total);
 
-			OrderByComparator<WikiPage> obc =
+			OrderByComparator<WikiPage> orderByComparator =
 				WikiPortletUtil.getPageOrderByComparator(
 					searchContainer.getOrderByCol(),
 					searchContainer.getOrderByType());
@@ -259,7 +261,7 @@ public class DefaultWikiListPagesDisplayContext
 				themeDisplay.getScopeGroupId(), _wikiNode.getNodeId(), true,
 				themeDisplay.getUserId(), true,
 				WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(),
-				searchContainer.getEnd(), obc);
+				searchContainer.getEnd(), orderByComparator);
 
 			PermissionChecker permissionChecker =
 				_wikiRequestHelper.getPermissionChecker();

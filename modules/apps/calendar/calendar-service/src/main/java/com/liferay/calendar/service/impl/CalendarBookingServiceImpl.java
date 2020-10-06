@@ -22,7 +22,7 @@ import com.liferay.calendar.service.CalendarLocalService;
 import com.liferay.calendar.service.CalendarService;
 import com.liferay.calendar.service.base.CalendarBookingServiceBaseImpl;
 import com.liferay.calendar.util.JCalendarUtil;
-import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
+import com.liferay.calendar.workflow.constants.CalendarBookingWorkflowConstants;
 import com.liferay.petra.content.ContentUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -313,15 +313,14 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 
 		Calendar calendar = _calendarService.getCalendar(calendarId);
 
-		int[] statuses = {
-			WorkflowConstants.STATUS_APPROVED,
-			CalendarBookingWorkflowConstants.STATUS_MAYBE
-		};
-
 		List<CalendarBooking> calendarBookings = search(
 			themeDisplay.getCompanyId(), new long[0], new long[] {calendarId},
-			new long[0], -1, null, startTime, endTime, true, statuses, 0, max,
-			null);
+			new long[0], -1, null, startTime, endTime, true,
+			new int[] {
+				WorkflowConstants.STATUS_APPROVED,
+				CalendarBookingWorkflowConstants.STATUS_MAYBE
+			},
+			0, max, null);
 
 		return exportToRSS(
 			calendar.getName(themeDisplay.getLocale()),
@@ -897,13 +896,13 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 
 		calendarBookings = ListUtil.copy(calendarBookings);
 
-		Iterator<CalendarBooking> itr = calendarBookings.iterator();
+		Iterator<CalendarBooking> iterator = calendarBookings.iterator();
 
-		while (itr.hasNext()) {
-			CalendarBooking calendarBooking = itr.next();
+		while (iterator.hasNext()) {
+			CalendarBooking calendarBooking = iterator.next();
 
 			if (isPendingInWorkflow(calendarBooking)) {
-				itr.remove();
+				iterator.remove();
 
 				continue;
 			}
@@ -916,7 +915,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 						getPermissionChecker(), calendarBooking.getCalendarId(),
 						actionId)) {
 
-					itr.remove();
+					iterator.remove();
 				}
 				else {
 					filterCalendarBooking(calendarBooking);
@@ -941,7 +940,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		return false;
 	}
 
-	private static String _getContent(
+	private String _getContent(
 		CalendarBooking calendarBooking, String displayStyle,
 		ThemeDisplay themeDisplay) {
 
@@ -967,7 +966,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(
 			themeDisplay.getLocale(), timeZone);
 
-		content = StringUtil.replace(
+		return StringUtil.replace(
 			content,
 			new String[] {
 				"[$EVENT_DESCRIPTION$]", "[$EVENT_END_DATE$]",
@@ -980,8 +979,6 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 				dateFormatDateTime.format(calendarBooking.getStartTime()),
 				calendarBooking.getTitle(themeDisplay.getLocale())
 			});
-
-		return content;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

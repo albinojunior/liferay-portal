@@ -18,6 +18,8 @@ import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Bryan Engler
  */
@@ -31,23 +33,27 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 	localization = "content/Language",
 	name = "elasticsearch-connection-configuration-name"
 )
+@ProviderType
 public interface ElasticsearchConnectionConfiguration {
 
-	@Meta.AD(description = "connection-id-help", name = "connection-id")
+	@Meta.AD(
+		deflt = "false", description = "active-help", name = "active",
+		required = false
+	)
+	public boolean active();
+
+	@Meta.AD(
+		description = "connection-id-help", name = "connection-id",
+		required = false
+	)
 	public String connectionId();
 
 	@Meta.AD(
 		deflt = "http://localhost:9200",
 		description = "network-host-addresses-help",
-		name = "network-host-addresses"
+		name = "network-host-addresses", required = false
 	)
 	public String[] networkHostAddresses();
-
-	@Meta.AD(
-		deflt = "true", description = "active-help", name = "active",
-		required = false
-	)
-	public boolean active();
 
 	@Meta.AD(
 		deflt = "false", description = "authentication-enabled-help",

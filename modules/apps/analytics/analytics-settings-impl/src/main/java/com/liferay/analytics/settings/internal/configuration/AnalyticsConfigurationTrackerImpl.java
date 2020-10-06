@@ -16,13 +16,13 @@ package com.liferay.analytics.settings.internal.configuration;
 
 import com.liferay.analytics.message.sender.constants.AnalyticsMessagesDestinationNames;
 import com.liferay.analytics.message.sender.constants.AnalyticsMessagesProcessorCommand;
-import com.liferay.analytics.message.sender.model.EntityModelListener;
-import com.liferay.analytics.message.sender.util.EntityModelListenerRegistry;
+import com.liferay.analytics.message.sender.model.listener.EntityModelListener;
 import com.liferay.analytics.message.storage.service.AnalyticsMessageLocalService;
 import com.liferay.analytics.settings.configuration.AnalyticsConfiguration;
 import com.liferay.analytics.settings.configuration.AnalyticsConfigurationTracker;
 import com.liferay.analytics.settings.internal.model.AnalyticsUserImpl;
 import com.liferay.analytics.settings.internal.security.auth.verifier.AnalyticsSecurityAuthVerifier;
+import com.liferay.analytics.settings.internal.util.EntityModelListenerTracker;
 import com.liferay.analytics.settings.security.constants.AnalyticsSecurityConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -85,13 +85,9 @@ public class AnalyticsConfigurationTrackerImpl
 
 	@Override
 	public void deleted(String pid) {
-		_unmapPid(pid);
-
 		long companyId = getCompanyId(pid);
 
-		if (companyId == CompanyConstants.SYSTEM) {
-			return;
-		}
+		_unmapPid(pid);
 
 		_disable(companyId);
 	}
@@ -117,6 +113,10 @@ public class AnalyticsConfigurationTrackerImpl
 	public Dictionary<String, Object> getAnalyticsConfigurationProperties(
 		long companyId) {
 
+		if (!isActive()) {
+			return null;
+		}
+
 		Set<Map.Entry<String, Long>> entries = _pidCompanyIdMapping.entrySet();
 
 		Stream<Map.Entry<String, Long>> stream = entries.stream();
@@ -130,6 +130,10 @@ public class AnalyticsConfigurationTrackerImpl
 			null
 		);
 
+		if (pid == null) {
+			return null;
+		}
+
 		try {
 			Configuration configuration = _configurationAdmin.getConfiguration(
 				pid, StringPool.QUESTION);
@@ -137,13 +141,14 @@ public class AnalyticsConfigurationTrackerImpl
 			return configuration.getProperties();
 		}
 		catch (Exception exception) {
-			if (_log.isInfoEnabled()) {
-				_log.info(
-					"Unable to get configuration for company " + companyId);
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get configuration for company " + companyId,
+					exception);
 			}
-
-			return null;
 		}
+
+		return null;
 	}
 
 	@Override
@@ -160,6 +165,18 @@ public class AnalyticsConfigurationTrackerImpl
 	public String getName() {
 		return "com.liferay.analytics.settings.configuration." +
 			"AnalyticsConfiguration.scoped";
+	}
+
+	@Override
+	public boolean isActive() {
+		if (!_active && _hasConfiguration()) {
+			_active = true;
+		}
+		else if (_active && !_hasConfiguration()) {
+			_active = false;
+		}
+
+		return _active;
 	}
 
 	@Override
@@ -211,6 +228,19 @@ public class AnalyticsConfigurationTrackerImpl
 			AnalyticsConfiguration.class, properties);
 	}
 
+	private void _activate() {
+		if (!_active) {
+			_active = true;
+		}
+
+		if (!_authVerifierEnabled) {
+			_componentContext.enableComponent(
+				AnalyticsSecurityAuthVerifier.class.getName());
+
+			_authVerifierEnabled = true;
+		}
+	}
+
 	private void _addAnalyticsAdmin(long companyId) throws Exception {
 		User user = _userLocalService.fetchUserByScreenName(
 			companyId, AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN);
@@ -227,7 +257,7 @@ public class AnalyticsConfigurationTrackerImpl
 		user = _userLocalService.addUser(
 			0, companyId, true, null, null, false,
 			AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN,
-			"analytics.administrator@" + company.getMx(), 0, "",
+			"analytics.administrator@" + company.getMx(),
 			LocaleUtil.getDefault(), "Analytics", "", "Administrator", 0, 0,
 			true, 0, 1, 1970, "", null, null, new long[] {role.getRoleId()},
 			null, false, new ServiceContext());
@@ -244,11 +274,11 @@ public class AnalyticsConfigurationTrackerImpl
 
 		message.put("command", AnalyticsMessagesProcessorCommand.ADD);
 
-		BaseModel baseModel = baseModels.get(0);
+		BaseModel<?> baseModel = baseModels.get(0);
 
 		message.put(
 			"entityModelListener",
-			_entityModelListenerRegistry.getEntityModelListener(
+			_entityModelListenerTracker.getEntityModelListener(
 				baseModel.getModelClassName()));
 
 		message.setPayload(baseModels);
@@ -293,8 +323,8 @@ public class AnalyticsConfigurationTrackerImpl
 		for (User user : users) {
 			Map<String, long[]> memberships = new HashMap<>();
 
-			for (EntityModelListener entityModelListener :
-					_entityModelListenerRegistry.getEntityModelListeners()) {
+			for (EntityModelListener<?> entityModelListener :
+					_entityModelListenerTracker.getEntityModelListeners()) {
 
 				try {
 					long[] membershipIds = entityModelListener.getMembershipIds(
@@ -326,6 +356,19 @@ public class AnalyticsConfigurationTrackerImpl
 		_addAnalyticsMessages(contacts);
 	}
 
+	private void _deactivate() {
+		if (_active && !_hasConfiguration()) {
+			_active = false;
+		}
+
+		if (_authVerifierEnabled && !_hasConfiguration()) {
+			_componentContext.disableComponent(
+				AnalyticsSecurityAuthVerifier.class.getName());
+
+			_authVerifierEnabled = false;
+		}
+	}
+
 	private void _deleteAnalyticsAdmin(long companyId) throws Exception {
 		User user = _userLocalService.fetchUserByScreenName(
 			companyId, AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN);
@@ -346,49 +389,45 @@ public class AnalyticsConfigurationTrackerImpl
 
 	private void _disable(long companyId) {
 		try {
-			_analyticsMessageLocalService.deleteAnalyticsMessages(companyId);
+			if (companyId != CompanyConstants.SYSTEM) {
+				_analyticsMessageLocalService.deleteAnalyticsMessages(
+					companyId);
 
-			_deleteAnalyticsAdmin(companyId);
-			_deleteSAPEntry(companyId);
-			_disableAuthVerifier();
+				_deleteAnalyticsAdmin(companyId);
+				_deleteSAPEntry(companyId);
+			}
+
+			_deactivate();
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);
-		}
-	}
-
-	private void _disableAuthVerifier() throws Exception {
-		if (!_hasConfiguration() && _authVerifierEnabled) {
-			_componentContext.disableComponent(
-				AnalyticsSecurityAuthVerifier.class.getName());
-
-			_authVerifierEnabled = false;
 		}
 	}
 
 	private void _enable(long companyId) {
 		try {
+			_activate();
 			_addAnalyticsAdmin(companyId);
 			_addSAPEntry(companyId);
-			_enableAuthVerifier();
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);
 		}
 	}
 
-	private void _enableAuthVerifier() {
-		if (!_authVerifierEnabled) {
-			_componentContext.enableComponent(
-				AnalyticsSecurityAuthVerifier.class.getName());
+	private boolean _hasConfiguration() {
+		Configuration[] configurations = null;
 
-			_authVerifierEnabled = true;
+		try {
+			configurations = _configurationAdmin.listConfigurations(
+				"(service.pid=" + AnalyticsConfiguration.class.getName() +
+					"*)");
 		}
-	}
-
-	private boolean _hasConfiguration() throws Exception {
-		Configuration[] configurations = _configurationAdmin.listConfigurations(
-			"(service.pid=" + AnalyticsConfiguration.class.getName() + "*)");
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn("Unable to list analytics configurations", exception);
+			}
+		}
 
 		if (configurations == null) {
 			return false;
@@ -410,10 +449,10 @@ public class AnalyticsConfigurationTrackerImpl
 		if (Validator.isNotNull(dictionary.get("token")) &&
 			Validator.isNull(dictionary.get("previousToken"))) {
 
-			Collection<EntityModelListener> entityModelListeners =
-				_entityModelListenerRegistry.getEntityModelListeners();
+			Collection<EntityModelListener<?>> entityModelListeners =
+				_entityModelListenerTracker.getEntityModelListeners();
 
-			for (EntityModelListener entityModelListener :
+			for (EntityModelListener<?> entityModelListener :
 					entityModelListeners) {
 
 				try {
@@ -503,10 +542,11 @@ public class AnalyticsConfigurationTrackerImpl
 					_addUsersAnalyticsMessages(users);
 				}
 				catch (Exception exception) {
-					if (_log.isInfoEnabled()) {
-						_log.info(
+					if (_log.isWarnEnabled()) {
+						_log.warn(
 							"Unable to get organization users for " +
-								"organization " + organizationId);
+								"organization " + organizationId,
+							exception);
 					}
 				}
 			}
@@ -561,6 +601,7 @@ public class AnalyticsConfigurationTrackerImpl
 	private static final Log _log = LogFactoryUtil.getLog(
 		AnalyticsConfigurationTrackerImpl.class);
 
+	private boolean _active;
 	private final Map<Long, AnalyticsConfiguration> _analyticsConfigurations =
 		new ConcurrentHashMap<>();
 
@@ -578,7 +619,7 @@ public class AnalyticsConfigurationTrackerImpl
 	private ConfigurationAdmin _configurationAdmin;
 
 	@Reference
-	private EntityModelListenerRegistry _entityModelListenerRegistry;
+	private EntityModelListenerTracker _entityModelListenerTracker;
 
 	private final Set<Long> _initializedCompanyIds = new HashSet<>();
 

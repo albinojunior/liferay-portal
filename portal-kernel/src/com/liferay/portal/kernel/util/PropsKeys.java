@@ -139,6 +139,12 @@ public interface PropsKeys {
 	public static final String APPLICATION_STARTUP_EVENTS =
 		"application.startup.events";
 
+	public static final String APPLICATIONS_MENU_DEFAULT_LIFERAY_LOGO =
+		"application.menu.default.liferay.logo";
+
+	public static final String APPLICATIONS_MENU_DEFAULT_LIFERAY_NAME =
+		"application.menu.default.liferay.name";
+
 	public static final String ASSET_BROWSER_SEARCH_WITH_DATABASE =
 		"asset.browser.search.with.database";
 
@@ -307,6 +313,10 @@ public interface PropsKeys {
 	public static final String AUTO_LOGIN_IGNORE_PATHS =
 		"auto.login.ignore.paths";
 
+	public static final String AXIS_SERVLET_ENABLED = "axis.servlet.enabled";
+
+	public static final String AXIS_SERVLET_MAPPING = "axis.servlet.mapping";
+
 	public static final String BASIC_AUTH_PASSWORD_REQUIRED =
 		"basic.auth.password.required";
 
@@ -391,6 +401,11 @@ public interface PropsKeys {
 
 	public static final String BROWSER_LAUNCHER_URL = "browser.launcher.url";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #VIEW_COUNT_ENABLED}
+	 */
+	@Deprecated
 	public static final String BUFFERED_INCREMENT_ENABLED =
 		"buffered.increment.enabled";
 
@@ -903,6 +918,9 @@ public interface PropsKeys {
 	public static final String DL_FILE_ENTRY_PREVIEW_FORK_PROCESS_ENABLED =
 		"dl.file.entry.preview.fork.process.enabled";
 
+	public static final String DL_FILE_ENTRY_PREVIEW_FORK_PROCESS_JVM_OPTIONS =
+		"dl.file.entry.preview.fork.process.jvm.options";
+
 	public static final String
 		DL_FILE_ENTRY_PREVIEW_GENERATION_DECRYPT_PASSWORDS_PDFBOX =
 			"dl.file.entry.preview.generation.decrypt.passwords.pdfbox";
@@ -1078,6 +1096,10 @@ public interface PropsKeys {
 	public static final String EDITOR_WYSIWYG_DEFAULT =
 		"editor.wysiwyg.default";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String EHCACHE_BLOCKING_CACHE_ALLOWED =
 		"ehcache.blocking.cache.allowed";
 
@@ -1267,6 +1289,10 @@ public interface PropsKeys {
 	public static final String INDEX_ON_STARTUP_DELAY =
 		"index.on.startup.delay";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String INDEX_ON_UPGRADE = "index.on.upgrade";
 
 	public static final String
@@ -1443,6 +1469,9 @@ public interface PropsKeys {
 	public static final String JSON_SERVICE_INVALID_METHOD_NAMES =
 		"json.service.invalid.method.names";
 
+	public static final String JSON_SERVICE_SERIALIZE_THROWABLE =
+		"json.service.serialize.throwable";
+
 	public static final String JSON_WEB_SERVICE_ENABLED =
 		"json.web.service.enabled";
 
@@ -1527,25 +1556,49 @@ public interface PropsKeys {
 	public static final String LAYOUT_MANAGE_PAGES_INITIAL_CHILDREN =
 		"layout.manage.pages.initial.children";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String LAYOUT_PARALLEL_RENDER_ENABLE =
 		"layout.parallel.render.enable";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String
 		LAYOUT_PARALLEL_RENDER_THREAD_POOL_CORE_THREAD_COUNT =
 			"layout.parallel.render.thread.pool.core.thread.count";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String
 		LAYOUT_PARALLEL_RENDER_THREAD_POOL_KEEP_ALIVE_TIME =
 			"layout.parallel.render.thread.pool.keep.alive.time";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String
 		LAYOUT_PARALLEL_RENDER_THREAD_POOL_MAX_QUEUE_SIZE =
 			"layout.parallel.render.thread.pool.max.queue.size";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String
 		LAYOUT_PARALLEL_RENDER_THREAD_POOL_MAX_THREAD_COUNT =
 			"layout.parallel.render.thread.pool.max.thread.count";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String LAYOUT_PARALLEL_RENDER_TIMEOUT =
 		"layout.parallel.render.timeout";
 
@@ -1783,6 +1836,9 @@ public interface PropsKeys {
 
 	public static final String MAIL_SESSION_MAIL_SMTP_PORT =
 		"mail.session.mail.smtp.port";
+
+	public static final String MAIL_SESSION_MAIL_SMTP_STARTTLS_ENABLE =
+		"mail.session.mail.smtp.starttls.enable";
 
 	public static final String MAIL_SESSION_MAIL_SMTP_USER =
 		"mail.session.mail.smtp.user";
@@ -2299,6 +2355,10 @@ public interface PropsKeys {
 		PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT =
 			"permissions.custom.attribute.write.check.by.default";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String PERMISSIONS_OBJECT_BLOCKING_CACHE =
 		"permissions.object.blocking.cache";
 
@@ -2461,12 +2521,24 @@ public interface PropsKeys {
 
 	public static final String PORTAL_PROXY_PATH = "portal.proxy.path";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String PORTAL_RESILIENCY_ENABLED =
 		"portal.resiliency.enabled";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String PORTAL_RESILIENCY_PORTLET_SHOW_FOOTER =
 		"portal.resiliency.portlet.show.footer";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String
 		PORTAL_RESILIENCY_SPI_AGENT_CLIENT_POOL_MAX_SIZE =
 			"portal.resiliency.spi.agent.client.pool.max.size";
@@ -3269,6 +3341,10 @@ public interface PropsKeys {
 	public static final String USERS_UPDATE_USER_NAME =
 		"users.update.user.name.";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String VALUE_OBJECT_ENTITY_BLOCKING_CACHE =
 		"value.object.entity.blocking.cache";
 
@@ -3278,6 +3354,10 @@ public interface PropsKeys {
 	public static final String VALUE_OBJECT_ENTITY_THREAD_LOCAL_CACHE_MAX_SIZE =
 		"value.object.entity.thread.local.cache.max.size";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String VALUE_OBJECT_FINDER_BLOCKING_CACHE =
 		"value.object.finder.blocking.cache";
 
@@ -3298,15 +3378,29 @@ public interface PropsKeys {
 	public static final String VERIFY_DATABASE_TRANSACTIONS_DISABLED =
 		"verify.database.transactions.disabled";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String VERIFY_FREQUENCY = "verify.frequency";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String VERIFY_PATCH_LEVELS_DISABLED =
 		"verify.patch.levels.disabled";
 
 	public static final String VERIFY_PROCESS_CONCURRENCY_THRESHOLD =
 		"verify.process.concurrency.threshold";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String VERIFY_PROCESSES = "verify.processes";
+
+	public static final String VIEW_COUNT_ENABLED = "view.count.enabled";
 
 	public static final String VIRTUAL_HOSTS_DEFAULT_SITE_NAME =
 		"virtual.hosts.default.site.name";

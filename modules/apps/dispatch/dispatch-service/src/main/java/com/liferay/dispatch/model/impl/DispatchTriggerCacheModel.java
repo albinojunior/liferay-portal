@@ -30,24 +30,24 @@ import java.util.Date;
 /**
  * The cache model class for representing DispatchTrigger in entity cache.
  *
- * @author Alessio Antonio Rendina
+ * @author Matija Petanjek
  * @generated
  */
 public class DispatchTriggerCacheModel
 	implements CacheModel<DispatchTrigger>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DispatchTriggerCacheModel)) {
+		if (!(object instanceof DispatchTriggerCacheModel)) {
 			return false;
 		}
 
 		DispatchTriggerCacheModel dispatchTriggerCacheModel =
-			(DispatchTriggerCacheModel)obj;
+			(DispatchTriggerCacheModel)object;
 
 		if ((dispatchTriggerId ==
 				dispatchTriggerCacheModel.dispatchTriggerId) &&
@@ -106,10 +106,10 @@ public class DispatchTriggerCacheModel
 		sb.append(startDate);
 		sb.append(", system=");
 		sb.append(system);
-		sb.append(", type=");
-		sb.append(type);
-		sb.append(", typeSettings=");
-		sb.append(typeSettings);
+		sb.append(", taskSettings=");
+		sb.append(taskSettings);
+		sb.append(", taskType=");
+		sb.append(taskType);
 		sb.append("}");
 
 		return sb.toString();
@@ -177,18 +177,18 @@ public class DispatchTriggerCacheModel
 
 		dispatchTriggerImpl.setSystem(system);
 
-		if (type == null) {
-			dispatchTriggerImpl.setType("");
+		if (taskSettings == null) {
+			dispatchTriggerImpl.setTaskSettings("");
 		}
 		else {
-			dispatchTriggerImpl.setType(type);
+			dispatchTriggerImpl.setTaskSettings(taskSettings);
 		}
 
-		if (typeSettings == null) {
-			dispatchTriggerImpl.setTypeSettings("");
+		if (taskType == null) {
+			dispatchTriggerImpl.setTaskType("");
 		}
 		else {
-			dispatchTriggerImpl.setTypeSettings(typeSettings);
+			dispatchTriggerImpl.setTaskType(taskType);
 		}
 
 		dispatchTriggerImpl.resetOriginalValues();
@@ -197,7 +197,9 @@ public class DispatchTriggerCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		dispatchTriggerId = objectInput.readLong();
@@ -216,8 +218,8 @@ public class DispatchTriggerCacheModel
 		startDate = objectInput.readLong();
 
 		system = objectInput.readBoolean();
-		type = objectInput.readUTF();
-		typeSettings = objectInput.readUTF();
+		taskSettings = (String)objectInput.readObject();
+		taskType = objectInput.readUTF();
 	}
 
 	@Override
@@ -262,18 +264,18 @@ public class DispatchTriggerCacheModel
 
 		objectOutput.writeBoolean(system);
 
-		if (type == null) {
-			objectOutput.writeUTF("");
+		if (taskSettings == null) {
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(type);
+			objectOutput.writeObject(taskSettings);
 		}
 
-		if (typeSettings == null) {
+		if (taskType == null) {
 			objectOutput.writeUTF("");
 		}
 		else {
-			objectOutput.writeUTF(typeSettings);
+			objectOutput.writeUTF(taskType);
 		}
 	}
 
@@ -290,7 +292,7 @@ public class DispatchTriggerCacheModel
 	public String name;
 	public long startDate;
 	public boolean system;
-	public String type;
-	public String typeSettings;
+	public String taskSettings;
+	public String taskType;
 
 }

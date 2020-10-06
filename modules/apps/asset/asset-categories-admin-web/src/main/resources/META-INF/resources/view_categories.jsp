@@ -20,11 +20,6 @@
 AssetCategoriesManagementToolbarDisplayContext assetCategoriesManagementToolbarDisplayContext = new AssetCategoriesManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, assetCategoriesDisplayContext);
 %>
 
-<clay:navigation-bar
-	inverted="<%= true %>"
-	navigationItems="<%= assetCategoriesDisplayContext.getAssetCategoriesNavigationItems() %>"
-/>
-
 <clay:management-toolbar
 	displayContext="<%= assetCategoriesManagementToolbarDisplayContext %>"
 />
@@ -34,9 +29,16 @@ AssetCategoriesManagementToolbarDisplayContext assetCategoriesManagementToolbarD
 </portlet:actionURL>
 
 <aui:form action="<%= deleteCategoryURL %>" cssClass="container-fluid-1280" name="fm">
-	<liferay-site-navigation:breadcrumb
-		breadcrumbEntries="<%= AssetCategoryUtil.getAssetCategoriesBreadcrumbEntries(assetCategoriesDisplayContext.getVocabulary(), assetCategoriesDisplayContext.getCategory(), request, renderResponse) %>"
-	/>
+
+	<%
+	List<BreadcrumbEntry> breadcrumbEntries = AssetCategoryUtil.getAssetCategoriesBreadcrumbEntries(assetCategoriesDisplayContext.getVocabulary(), assetCategoriesDisplayContext.getCategory(), request, renderResponse);
+	%>
+
+	<c:if test="<%= ListUtil.isNotEmpty(breadcrumbEntries) %>">
+		<liferay-site-navigation:breadcrumb
+			breadcrumbEntries="<%= breadcrumbEntries %>"
+		/>
+	</c:if>
 
 	<liferay-ui:search-container
 		id="assetCategories"
@@ -48,7 +50,7 @@ AssetCategoriesManagementToolbarDisplayContext assetCategoriesManagementToolbarD
 			modelVar="curCategory"
 		>
 			<portlet:renderURL var="rowURL">
-				<portlet:param name="mvcPath" value="/view_categories.jsp" />
+				<portlet:param name="mvcPath" value="/view.jsp" />
 				<portlet:param name="categoryId" value="<%= String.valueOf(curCategory.getCategoryId()) %>" />
 				<portlet:param name="vocabularyId" value="<%= String.valueOf(curCategory.getVocabularyId()) %>" />
 			</portlet:renderURL>
@@ -153,7 +155,7 @@ AssetCategoriesManagementToolbarDisplayContext assetCategoriesManagementToolbarD
 
 <portlet:actionURL name="moveCategory" var="moveCategoryURL">
 	<portlet:param name="redirect" value="<%= currentURL %>" />
-	<portlet:param name="mvcPath" value="/view_categories.jsp" />
+	<portlet:param name="mvcPath" value="/view.jsp" />
 </portlet:actionURL>
 
 <aui:form action="<%= moveCategoryURL %>" name="moveCategoryFm">

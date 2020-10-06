@@ -60,8 +60,10 @@ public class JournalArticleTag extends IncludeTag {
 				portletRequest, portletResponse);
 		}
 
-		_article = JournalArticleLocalServiceUtil.fetchLatestArticle(
-			_groupId, _articleId, WorkflowConstants.STATUS_APPROVED);
+		if (_article == null) {
+			_article = JournalArticleLocalServiceUtil.fetchLatestArticle(
+				_groupId, _articleId, WorkflowConstants.STATUS_APPROVED);
+		}
 
 		try {
 			_articleDisplay = JournalArticleLocalServiceUtil.getArticleDisplay(
@@ -81,6 +83,10 @@ public class JournalArticleTag extends IncludeTag {
 		return super.doStartTag();
 	}
 
+	public JournalArticle getArticle() {
+		return _article;
+	}
+
 	public String getArticleId() {
 		return _articleId;
 	}
@@ -95,6 +101,10 @@ public class JournalArticleTag extends IncludeTag {
 
 	public boolean isShowTitle() {
 		return _showTitle;
+	}
+
+	public void setArticle(JournalArticle article) {
+		_article = article;
 	}
 
 	public void setArticleId(String articleId) {

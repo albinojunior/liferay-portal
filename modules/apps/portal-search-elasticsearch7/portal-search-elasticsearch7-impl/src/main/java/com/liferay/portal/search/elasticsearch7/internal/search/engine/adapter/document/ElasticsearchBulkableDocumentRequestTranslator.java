@@ -18,11 +18,14 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.elasticsearch7.internal.document.ElasticsearchDocumentFactory;
+import com.liferay.portal.search.elasticsearch7.internal.script.ScriptTranslator;
 import com.liferay.portal.search.engine.adapter.document.BulkableDocumentRequestTranslator;
 import com.liferay.portal.search.engine.adapter.document.DeleteDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.GetDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.IndexDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.UpdateDocumentRequest;
+
+import java.util.Collections;
 
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -101,8 +104,18 @@ public class ElasticsearchBulkableDocumentRequestTranslator
 
 		UpdateRequest updateRequest = new UpdateRequest();
 
-		_setDoc(updateRequest, updateDocumentRequest);
+		if (updateDocumentRequest.getScript() != null) {
+			updateRequest.script(
+				_scriptTranslator.translate(updateDocumentRequest.getScript()));
+		}
+		else {
+			_setDoc(updateRequest, updateDocumentRequest);
+		}
+
+		_setDocAsUpsert(updateRequest, updateDocumentRequest.isUpsert());
 		_setRefreshPolicy(updateRequest, updateDocumentRequest.isRefresh());
+		_setScriptedUpsert(
+			updateRequest, updateDocumentRequest.isScriptedUpsert());
 
 		updateRequest.id(_getUid(updateDocumentRequest));
 		updateRequest.index(updateDocumentRequest.getIndexName());
@@ -199,9 +212,24 @@ public class ElasticsearchBulkableDocumentRequestTranslator
 		}
 	}
 
+	private void _setDocAsUpsert(UpdateRequest updateRequest, boolean upsert) {
+		if (upsert) {
+			updateRequest.docAsUpsert(true);
+		}
+	}
+
 	private void _setRefreshPolicy(WriteRequest writeRequest, boolean refresh) {
 		if (refresh) {
 			writeRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+		}
+	}
+
+	private void _setScriptedUpsert(
+		UpdateRequest updateRequest, boolean scriptedUpsert) {
+
+		if (scriptedUpsert) {
+			updateRequest.scriptedUpsert(true);
+			updateRequest.upsert(Collections.emptyMap());
 		}
 	}
 
@@ -226,5 +254,6 @@ public class ElasticsearchBulkableDocumentRequestTranslator
 	}
 
 	private ElasticsearchDocumentFactory _elasticsearchDocumentFactory;
+	private final ScriptTranslator _scriptTranslator = new ScriptTranslator();
 
 }

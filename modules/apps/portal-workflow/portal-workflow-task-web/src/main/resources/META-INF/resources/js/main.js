@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-workflow-tasks',
-	A => {
+	(A) => {
 		var WorkflowTasks = {
 			_comments: {},
 			_content: {},
@@ -99,7 +99,7 @@ AUI.add(
 						},
 						width: 896,
 					},
-					title: A.Lang.String.escapeHTML(title),
+					title: Liferay.Util.escapeHTML(title),
 				});
 			},
 

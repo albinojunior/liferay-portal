@@ -208,9 +208,7 @@ public class DLFileEntryIndexerLocalizedContentTest {
 	@Inject
 	protected IndexerRegistry indexerRegistry;
 
-	private static List<String> _getFieldValues(
-		String prefix, Document document) {
-
+	private List<String> _getFieldValues(String prefix, Document document) {
 		List<String> filteredFields = new ArrayList<>();
 
 		Map<String, Field> fields = document.getFields();
@@ -260,7 +258,7 @@ public class DLFileEntryIndexerLocalizedContentTest {
 			SearchContext searchContext = _getSearchContext(
 				searchTerm, locale, groupId);
 
-			Indexer indexer = indexerRegistry.getIndexer(
+			Indexer<?> indexer = indexerRegistry.getIndexer(
 				DLFileEntryConstants.getClassName());
 
 			Hits hits = indexer.search(searchContext);

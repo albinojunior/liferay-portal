@@ -35,13 +35,15 @@ import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.CompanyService;
@@ -55,10 +57,8 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserGroupService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserService;
-import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.language.LanguageResources;
@@ -105,10 +105,10 @@ public class AnalyticsCloudPortalInstanceLifecycleListener
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
-		_scopesList = new ArrayList<>(_SAP_ENTRY_OBJECT_ARRAYS.length);
+		_scopeAliasesList = new ArrayList<>(_SAP_ENTRY_OBJECT_ARRAYS.length);
 
 		for (String[] sapEntryObjectArray : _SAP_ENTRY_OBJECT_ARRAYS) {
-			_scopesList.add(
+			_scopeAliasesList.add(
 				StringUtil.replaceFirst(
 					sapEntryObjectArray[0], "OAUTH2_", StringPool.BLANK));
 		}
@@ -219,16 +219,14 @@ public class AnalyticsCloudPortalInstanceLifecycleListener
 			});
 	}
 
-	private void _addSAPEntries(long companyId, long userId)
-		throws PortalException {
-
+	private void _addSAPEntries(long companyId, long userId) throws Exception {
 		Class<?> clazz = getClass();
 
 		ResourceBundleLoader resourceBundleLoader =
 			new AggregateResourceBundleLoader(
-				ResourceBundleUtil.getResourceBundleLoader(
+				new ClassResourceBundleLoader(
 					"content.Language", clazz.getClassLoader()),
-				LanguageResources.RESOURCE_BUNDLE_LOADER);
+				LanguageResources.PORTAL_RESOURCE_BUNDLE_LOADER);
 
 		for (String[] sapEntryObjectArray : _SAP_ENTRY_OBJECT_ARRAYS) {
 			String sapEntryName = sapEntryObjectArray[0];
@@ -254,7 +252,7 @@ public class AnalyticsCloudPortalInstanceLifecycleListener
 		builder.forApplication(
 			OAuth2ProviderShortcutConstants.APPLICATION_NAME,
 			"com.liferay.oauth2.provider.shortcut",
-			applicationScopeAssigner -> _scopesList.forEach(
+			applicationScopeAssigner -> _scopeAliasesList.forEach(
 				applicationScopeAssigner::assignScope));
 	}
 
@@ -343,7 +341,7 @@ public class AnalyticsCloudPortalInstanceLifecycleListener
 	@Reference
 	private SAPEntryLocalService _sapEntryLocalService;
 
-	private List<String> _scopesList;
+	private List<String> _scopeAliasesList;
 	private ServiceRegistration<?> _serviceRegistration;
 
 	@Reference

@@ -21,7 +21,7 @@
 />
 
 <aui:form action="<%= assetBrowserDisplayContext.getPortletURL() %>" cssClass="container-fluid-1280" method="post" name="selectAssetFm">
-	<c:if test="<%= assetBrowserDisplayContext.isMultipleSelection() %>">
+	<c:if test="<%= assetBrowserDisplayContext.isShowBreadcrumb() %>">
 		<liferay-site-navigation:breadcrumb
 			breadcrumbEntries="<%= assetBrowserDisplayContext.getPortletBreadcrumbEntries() %>"
 		/>
@@ -41,9 +41,9 @@
 		>
 
 			<%
-			AssetRenderer assetRenderer = assetEntry.getAssetRenderer();
+			AssetRenderer<?> assetRenderer = assetEntry.getAssetRenderer();
 
-			AssetRendererFactory assetRendererFactory = assetRenderer.getAssetRendererFactory();
+			AssetRendererFactory<?> assetRendererFactory = assetRenderer.getAssetRendererFactory();
 
 			Group group = GroupLocalServiceUtil.getGroup(assetEntry.getGroupId());
 
@@ -83,12 +83,10 @@
 
 						<%
 						Date modifiedDate = assetEntry.getModifiedDate();
-
-						String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - modifiedDate.getTime(), true);
 						%>
 
 						<h6 class="text-default">
-							<span><liferay-ui:message arguments="<%= modifiedDateDescription %>" key="modified-x-ago" /></span>
+							<span><liferay-ui:message arguments="<%= LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - modifiedDate.getTime(), true) %>" key="modified-x-ago" /></span>
 						</h6>
 
 						<h5>
@@ -104,15 +102,30 @@
 							</c:choose>
 						</h5>
 
+						<c:if test="<%= assetBrowserDisplayContext.isSearchEverywhere() %>">
+							<h6 class="text-default">
+								<liferay-ui:message key="location" />:
+								<span class="text-secondary">
+									<clay:icon
+										symbol="<%= assetBrowserDisplayContext.getGroupCssIcon(assetRenderer.getGroupId()) %>"
+									/>
+
+									<small><%= assetBrowserDisplayContext.getGroupLabel(assetRenderer.getGroupId(), locale) %></small>
+								</span>
+							</h6>
+						</c:if>
+
 						<c:if test="<%= Validator.isNull(assetBrowserDisplayContext.getTypeSelection()) %>">
 							<h6 class="text-muted">
 								<%= HtmlUtil.escape(assetRendererFactory.getTypeName(locale, assetBrowserDisplayContext.getSubtypeSelectionId())) %>
 							</h6>
 						</c:if>
 
-						<h6 class="text-default">
-							<%= HtmlUtil.escape(group.getDescriptiveName(locale)) %>
-						</h6>
+						<c:if test="<%= assetBrowserDisplayContext.isShowAssetEntryStatus() %>">
+							<span class="text-default">
+								<aui:workflow-status markupView="lexicon" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= assetRenderer.getStatus() %>" />
+							</span>
+						</c:if>
 					</liferay-ui:search-container-column-text>
 				</c:when>
 				<c:when test='<%= Objects.equals(assetBrowserDisplayContext.getDisplayStyle(), "icon") %>'>
@@ -129,8 +142,8 @@
 				</c:when>
 				<c:when test='<%= Objects.equals(assetBrowserDisplayContext.getDisplayStyle(), "list") %>'>
 					<liferay-ui:search-container-column-text
+						cssClass="table-cell-expand table-cell-minw-200 table-title"
 						name="title"
-						truncate="<%= true %>"
 					>
 						<c:choose>
 							<c:when test="<%= (assetEntry.getEntryId() != assetBrowserDisplayContext.getRefererAssetEntryId()) && !assetBrowserDisplayContext.isMultipleSelection() %>">
@@ -147,31 +160,49 @@
 					<c:if test="<%= Validator.isNull(assetBrowserDisplayContext.getTypeSelection()) %>">
 						<liferay-ui:search-container-column-text
 							name="type"
-							truncate="<%= true %>"
 							value="<%= HtmlUtil.escape(assetRendererFactory.getTypeName(locale, assetBrowserDisplayContext.getSubtypeSelectionId())) %>"
 						/>
 					</c:if>
 
 					<liferay-ui:search-container-column-text
+						cssClass="table-cell-expand table-cell-minw-200 text-truncate"
 						name="description"
-						truncate="<%= true %>"
 						value="<%= HtmlUtil.escape(assetRenderer.getSummary(renderRequest, renderResponse)) %>"
 					/>
 
+					<c:if test="<%= assetBrowserDisplayContext.isSearchEverywhere() %>">
+						<liferay-ui:search-container-column-text
+							name="location"
+						>
+							<span class="text-secondary">
+								<clay:icon
+									symbol="<%= assetBrowserDisplayContext.getGroupCssIcon(assetRenderer.getGroupId()) %>"
+								/>
+
+								<small><%= assetBrowserDisplayContext.getGroupLabel(assetRenderer.getGroupId(), locale) %></small>
+							</span>
+						</liferay-ui:search-container-column-text>
+					</c:if>
+
 					<liferay-ui:search-container-column-text
+						cssClass="table-cell-expand-smallest table-cell-minw-100"
 						name="author"
 						value="<%= PortalUtil.getUserName(assetEntry) %>"
 					/>
 
 					<liferay-ui:search-container-column-date
+						cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
 						name="modified-date"
 						value="<%= assetEntry.getModifiedDate() %>"
 					/>
 
-					<liferay-ui:search-container-column-text
-						name="site"
-						value="<%= HtmlUtil.escape(group.getDescriptiveName(locale)) %>"
-					/>
+					<c:if test="<%= assetBrowserDisplayContext.isShowAssetEntryStatus() %>">
+						<liferay-ui:search-container-column-status
+							cssClass="text-nowrap"
+							name="status"
+							status="<%= assetRenderer.getStatus() %>"
+						/>
+					</c:if>
 				</c:when>
 			</c:choose>
 		</liferay-ui:search-container-row>
@@ -190,12 +221,12 @@
 				'<portlet:namespace />selectAssetEntries'
 			);
 
-			searchContainer.on('rowToggled', function(event) {
+			searchContainer.on('rowToggled', function (event) {
 				var selectedItems = event.elements.allSelectedElements;
 
 				var arr = [];
 
-				selectedItems.each(function() {
+				selectedItems.each(function () {
 					var domElement = this.ancestor('tr');
 
 					if (domElement == null) {
@@ -218,12 +249,39 @@
 			});
 		</aui:script>
 	</c:when>
-	<c:otherwise>
+	<c:when test="<%= assetBrowserDisplayContext.isLegacySingleSelection() %>">
 		<aui:script>
 			Liferay.Util.selectEntityHandler(
 				'#<portlet:namespace />selectAssetFm',
 				'<%= HtmlUtil.escapeJS(assetBrowserDisplayContext.getEventName()) %>'
 			);
+		</aui:script>
+	</c:when>
+	<c:otherwise>
+		<aui:script require="metal-dom/src/all/dom as dom">
+			var delegateHandler = dom.delegate(
+				document.querySelector('#<portlet:namespace />selectAssetFm'),
+				'click',
+				'.selector-button',
+				function (event) {
+					event.preventDefault();
+
+					Liferay.Util.getOpener().Liferay.fire(
+						'<%= HtmlUtil.escapeJS(assetBrowserDisplayContext.getEventName()) %>',
+						{
+							data: event.delegateTarget.dataset,
+						}
+					);
+				}
+			);
+
+			var onDestroyPortlet = function () {
+				delegateHandler.removeListener();
+
+				Liferay.detach('destroyPortlet', onDestroyPortlet);
+			};
+
+			Liferay.on('destroyPortlet', onDestroyPortlet);
 		</aui:script>
 	</c:otherwise>
 </c:choose>

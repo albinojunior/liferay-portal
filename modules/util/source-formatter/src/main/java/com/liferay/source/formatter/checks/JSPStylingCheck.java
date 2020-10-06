@@ -55,6 +55,12 @@ public class JSPStylingCheck extends BaseStylingCheck {
 
 		content = content.replaceAll("'<%= (\"[^.(\\[\"]+\") %>'", "$1");
 
+		content = content.replaceAll(
+			"((['\"])<%= ((?<!%>).)*?)\\\\(\".+?)\\\\(\".*?%>\\2)", "$1$4$5");
+
+		content = content.replaceAll(
+			"(\"<%= \\w+ )\\+ \"([^\"]+\") %>\"", "$1%>$2");
+
 		return formatStyling(content);
 	}
 
@@ -137,6 +143,14 @@ public class JSPStylingCheck extends BaseStylingCheck {
 
 		matcher = _incorrectLineBreakPattern3.matcher(content);
 
+		while (matcher.find()) {
+			addMessage(
+				fileName, "There should be a line break after '<%='",
+				getLineNumber(content, matcher.start()));
+		}
+
+		matcher = _incorrectLineBreakPattern4.matcher(content);
+
 		return matcher.replaceAll("$1\n\t$2$4\n$2$5");
 	}
 
@@ -149,6 +163,8 @@ public class JSPStylingCheck extends BaseStylingCheck {
 	private static final Pattern _incorrectLineBreakPattern2 = Pattern.compile(
 		"=(\n\\s*).*;\n");
 	private static final Pattern _incorrectLineBreakPattern3 = Pattern.compile(
+		"<%= *\\S((?!%>).)*\n");
+	private static final Pattern _incorrectLineBreakPattern4 = Pattern.compile(
 		"(\n(\t*)<(\\w+)>)(<\\w+>.*)(</\\3>\n)");
 	private static final Pattern _incorrectSingleLineJavaSourcePattern =
 		Pattern.compile("(\t*)(<% (.*) %>)\n");

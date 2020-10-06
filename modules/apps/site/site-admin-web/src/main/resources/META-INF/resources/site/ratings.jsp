@@ -42,7 +42,7 @@ CompanyPortletRatingsDefinitionDisplayContext companyPortletRatingsDefinitionDis
 
 <p class="text-muted"><liferay-ui:message key="select-the-ratings-type-for-the-following-applications" /></p>
 
-<aui:fieldset id='<%= renderResponse.getNamespace() + "ratingsSettingsContainer" %>'>
+<aui:fieldset id='<%= liferayPortletResponse.getNamespace() + "ratingsSettingsContainer" %>'>
 
 	<%
 	Map<String, Map<String, RatingsType>> groupRatingsTypeMaps = groupPortletRatingsDefinitionDisplayContext.getGroupRatingsTypeMaps();
@@ -101,7 +101,7 @@ CompanyPortletRatingsDefinitionDisplayContext companyPortletRatingsDefinitionDis
 
 	ratingsSettingsContainer.delegate(
 		'change',
-		function(event) {
+		function (event) {
 			ratingsTypeChanged = true;
 		},
 		'select'
@@ -109,7 +109,7 @@ CompanyPortletRatingsDefinitionDisplayContext companyPortletRatingsDefinitionDis
 
 	var form = A.one('#<portlet:namespace />fm');
 
-	form.on('submit', function(event) {
+	form.on('submit', function (event) {
 		if (
 			ratingsTypeChanged &&
 			!confirm(

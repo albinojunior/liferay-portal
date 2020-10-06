@@ -14,9 +14,11 @@
 
 package com.liferay.depot.model;
 
+import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +44,13 @@ public class DepotEntryGroupRelWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("uuid", getUuid());
 		attributes.put("depotEntryGroupRelId", getDepotEntryGroupRelId());
+		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
+		attributes.put("createDate", getCreateDate());
+		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("ddmStructuresAvailable", isDdmStructuresAvailable());
 		attributes.put("depotEntryId", getDepotEntryId());
 		attributes.put("searchable", isSearchable());
 		attributes.put("toGroupId", getToGroupId());
@@ -59,6 +66,12 @@ public class DepotEntryGroupRelWrapper
 			setMvccVersion(mvccVersion);
 		}
 
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long depotEntryGroupRelId = (Long)attributes.get(
 			"depotEntryGroupRelId");
 
@@ -66,10 +79,35 @@ public class DepotEntryGroupRelWrapper
 			setDepotEntryGroupRelId(depotEntryGroupRelId);
 		}
 
+		Long groupId = (Long)attributes.get("groupId");
+
+		if (groupId != null) {
+			setGroupId(groupId);
+		}
+
 		Long companyId = (Long)attributes.get("companyId");
 
 		if (companyId != null) {
 			setCompanyId(companyId);
+		}
+
+		Date createDate = (Date)attributes.get("createDate");
+
+		if (createDate != null) {
+			setCreateDate(createDate);
+		}
+
+		Date modifiedDate = (Date)attributes.get("modifiedDate");
+
+		if (modifiedDate != null) {
+			setModifiedDate(modifiedDate);
+		}
+
+		Boolean ddmStructuresAvailable = (Boolean)attributes.get(
+			"ddmStructuresAvailable");
+
+		if (ddmStructuresAvailable != null) {
+			setDdmStructuresAvailable(ddmStructuresAvailable);
 		}
 
 		Long depotEntryId = (Long)attributes.get("depotEntryId");
@@ -102,6 +140,26 @@ public class DepotEntryGroupRelWrapper
 	}
 
 	/**
+	 * Returns the create date of this depot entry group rel.
+	 *
+	 * @return the create date of this depot entry group rel
+	 */
+	@Override
+	public Date getCreateDate() {
+		return model.getCreateDate();
+	}
+
+	/**
+	 * Returns the ddm structures available of this depot entry group rel.
+	 *
+	 * @return the ddm structures available of this depot entry group rel
+	 */
+	@Override
+	public boolean getDdmStructuresAvailable() {
+		return model.getDdmStructuresAvailable();
+	}
+
+	/**
 	 * Returns the depot entry group rel ID of this depot entry group rel.
 	 *
 	 * @return the depot entry group rel ID of this depot entry group rel
@@ -119,6 +177,26 @@ public class DepotEntryGroupRelWrapper
 	@Override
 	public long getDepotEntryId() {
 		return model.getDepotEntryId();
+	}
+
+	/**
+	 * Returns the group ID of this depot entry group rel.
+	 *
+	 * @return the group ID of this depot entry group rel
+	 */
+	@Override
+	public long getGroupId() {
+		return model.getGroupId();
+	}
+
+	/**
+	 * Returns the modified date of this depot entry group rel.
+	 *
+	 * @return the modified date of this depot entry group rel
+	 */
+	@Override
+	public Date getModifiedDate() {
+		return model.getModifiedDate();
 	}
 
 	/**
@@ -162,6 +240,26 @@ public class DepotEntryGroupRelWrapper
 	}
 
 	/**
+	 * Returns the uuid of this depot entry group rel.
+	 *
+	 * @return the uuid of this depot entry group rel
+	 */
+	@Override
+	public String getUuid() {
+		return model.getUuid();
+	}
+
+	/**
+	 * Returns <code>true</code> if this depot entry group rel is ddm structures available.
+	 *
+	 * @return <code>true</code> if this depot entry group rel is ddm structures available; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isDdmStructuresAvailable() {
+		return model.isDdmStructuresAvailable();
+	}
+
+	/**
 	 * Returns <code>true</code> if this depot entry group rel is searchable.
 	 *
 	 * @return <code>true</code> if this depot entry group rel is searchable; <code>false</code> otherwise
@@ -187,6 +285,26 @@ public class DepotEntryGroupRelWrapper
 	}
 
 	/**
+	 * Sets the create date of this depot entry group rel.
+	 *
+	 * @param createDate the create date of this depot entry group rel
+	 */
+	@Override
+	public void setCreateDate(Date createDate) {
+		model.setCreateDate(createDate);
+	}
+
+	/**
+	 * Sets whether this depot entry group rel is ddm structures available.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available of this depot entry group rel
+	 */
+	@Override
+	public void setDdmStructuresAvailable(boolean ddmStructuresAvailable) {
+		model.setDdmStructuresAvailable(ddmStructuresAvailable);
+	}
+
+	/**
 	 * Sets the depot entry group rel ID of this depot entry group rel.
 	 *
 	 * @param depotEntryGroupRelId the depot entry group rel ID of this depot entry group rel
@@ -204,6 +322,26 @@ public class DepotEntryGroupRelWrapper
 	@Override
 	public void setDepotEntryId(long depotEntryId) {
 		model.setDepotEntryId(depotEntryId);
+	}
+
+	/**
+	 * Sets the group ID of this depot entry group rel.
+	 *
+	 * @param groupId the group ID of this depot entry group rel
+	 */
+	@Override
+	public void setGroupId(long groupId) {
+		model.setGroupId(groupId);
+	}
+
+	/**
+	 * Sets the modified date of this depot entry group rel.
+	 *
+	 * @param modifiedDate the modified date of this depot entry group rel
+	 */
+	@Override
+	public void setModifiedDate(Date modifiedDate) {
+		model.setModifiedDate(modifiedDate);
 	}
 
 	/**
@@ -244,6 +382,21 @@ public class DepotEntryGroupRelWrapper
 	@Override
 	public void setToGroupId(long toGroupId) {
 		model.setToGroupId(toGroupId);
+	}
+
+	/**
+	 * Sets the uuid of this depot entry group rel.
+	 *
+	 * @param uuid the uuid of this depot entry group rel
+	 */
+	@Override
+	public void setUuid(String uuid) {
+		model.setUuid(uuid);
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return model.getStagedModelType();
 	}
 
 	@Override

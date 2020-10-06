@@ -31,6 +31,10 @@ public class ReleaseLocalServiceWrapper
 	/**
 	 * Adds the release to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ReleaseLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param release the release
 	 * @return the release that was added
 	 */
@@ -103,6 +107,10 @@ public class ReleaseLocalServiceWrapper
 	/**
 	 * Deletes the release with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ReleaseLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param releaseId the primary key of the release
 	 * @return the release that was removed
 	 * @throws PortalException if a release with the primary key could not be found
@@ -117,6 +125,10 @@ public class ReleaseLocalServiceWrapper
 	/**
 	 * Deletes the release from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ReleaseLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param release the release
 	 * @return the release that was removed
 	 */
@@ -125,6 +137,11 @@ public class ReleaseLocalServiceWrapper
 		com.liferay.portal.kernel.model.Release release) {
 
 		return _releaseLocalService.deleteRelease(release);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _releaseLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -331,6 +348,10 @@ public class ReleaseLocalServiceWrapper
 	/**
 	 * Updates the release in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ReleaseLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param release the release
 	 * @return the release that was updated
 	 */
@@ -341,6 +362,24 @@ public class ReleaseLocalServiceWrapper
 		return _releaseLocalService.updateRelease(release);
 	}
 
+	@Override
+	public void updateRelease(
+			java.lang.String servletContextName,
+			java.util.List<com.liferay.portal.kernel.upgrade.UpgradeProcess>
+				upgradeProcesses,
+			int buildNumber, int previousBuildNumber)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_releaseLocalService.updateRelease(
+			servletContextName, upgradeProcesses, buildNumber,
+			previousBuildNumber);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateRelease(String, List, int, int)}
+	 */
+	@Deprecated
 	@Override
 	public void updateRelease(
 			java.lang.String servletContextName,

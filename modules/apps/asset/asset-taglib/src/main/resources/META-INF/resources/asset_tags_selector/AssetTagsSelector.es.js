@@ -17,7 +17,7 @@ import {useResource} from '@clayui/data-provider';
 import ClayForm, {ClayInput} from '@clayui/form';
 import ClayMultiSelect from '@clayui/multi-select';
 import {usePrevious} from 'frontend-js-react-web';
-import {ItemSelectorDialog} from 'frontend-js-web';
+import {openSelectionModal} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useEffect} from 'react';
 
@@ -75,11 +75,11 @@ function AssetTagsSelector({
 	};
 
 	const handleInputBlur = () => {
-		const filteredItems = resource && resource.map(tag => tag.value);
+		const filteredItems = resource && resource.map((tag) => tag.value);
 
 		if (!filteredItems || !filteredItems.length) {
 			if (inputValue) {
-				if (!selectedItems.find(item => item.label === inputValue)) {
+				if (!selectedItems.find((item) => item.label === inputValue)) {
 					onSelectedItemsChange(
 						selectedItems.concat({
 							label: inputValue,
@@ -92,87 +92,86 @@ function AssetTagsSelector({
 		}
 	};
 
-	const handleItemsChange = items => {
+	const handleItemsChange = (items) => {
 		const addedItems = items.filter(
-			item =>
+			(item) =>
 				!selectedItems.find(
-					selectedItem => selectedItem.value === item.value
+					(selectedItem) => selectedItem.value === item.value
 				)
 		);
 
 		const removedItems = selectedItems.filter(
-			selectedItem =>
-				!items.find(item => item.value === selectedItem.value)
+			(selectedItem) =>
+				!items.find((item) => item.value === selectedItem.value)
 		);
 
 		const current = [...selectedItems, ...addedItems].filter(
-			item =>
+			(item) =>
 				!removedItems.find(
-					removedItem => removedItem.value === item.value
+					(removedItem) => removedItem.value === item.value
 				)
 		);
 
 		onSelectedItemsChange(current);
 
-		addedItems.forEach(item => callGlobalCallback(addCallback, item));
+		addedItems.forEach((item) => callGlobalCallback(addCallback, item));
 
-		removedItems.forEach(item => callGlobalCallback(removeCallback, item));
+		removedItems.forEach((item) =>
+			callGlobalCallback(removeCallback, item)
+		);
 	};
 
 	const handleSelectButtonClick = () => {
 		const sub = (str, obj) => str.replace(/\{([^}]+)\}/g, (_, m) => obj[m]);
 
 		const url = sub(decodeURIComponent(portletURL), {
-			selectedTagNames: selectedItems.map(item => item.value).join(),
+			selectedTagNames: selectedItems.map((item) => item.value).join(),
 		});
 
-		const itemSelectorDialog = new ItemSelectorDialog({
+		openSelectionModal({
 			buttonAddLabel: Liferay.Language.get('done'),
-			eventName,
+			multiple: true,
+			onSelect: (dialogSelectedItems) => {
+				if (dialogSelectedItems && dialogSelectedItems.items.length) {
+					const newValues = dialogSelectedItems.items
+						.split(',')
+						.map((value) => {
+							return {
+								label: value,
+								value,
+							};
+						});
+
+					const addedItems = newValues.filter(
+						(newValue) =>
+							!selectedItems.find(
+								(selectedItem) =>
+									selectedItem.label === newValue.label
+							)
+					);
+
+					const removedItems = selectedItems.filter(
+						(selectedItem) =>
+							!newValues.find(
+								(newValue) =>
+									newValue.label === selectedItem.label
+							)
+					);
+
+					onSelectedItemsChange(newValues);
+
+					addedItems.forEach((item) =>
+						callGlobalCallback(addCallback, item)
+					);
+
+					removedItems.forEach((item) =>
+						callGlobalCallback(removeCallback, item)
+					);
+				}
+			},
+			selectEventName: eventName,
 			title: Liferay.Language.get('tags'),
 			url,
-		});
-
-		itemSelectorDialog.open();
-
-		itemSelectorDialog.on('selectedItemChange', event => {
-			const dialogSelectedItems = event.selectedItem;
-
-			if (dialogSelectedItems && dialogSelectedItems.items.length) {
-				const newValues = dialogSelectedItems.items
-					.split(',')
-					.map(value => {
-						return {
-							label: value,
-							value,
-						};
-					});
-
-				const addedItems = newValues.filter(
-					newValue =>
-						!selectedItems.find(
-							selectedItem =>
-								selectedItem.label === newValue.label
-						)
-				);
-
-				const removedItems = selectedItems.filter(
-					selectedItem =>
-						!newValues.find(
-							newValue => newValue.label === selectedItem.label
-						)
-				);
-
-				onSelectedItemsChange(newValues);
-
-				addedItems.forEach(item =>
-					callGlobalCallback(addCallback, item)
-				);
-
-				removedItems.forEach(item =>
-					callGlobalCallback(removeCallback, item)
-				);
-			}
 		});
 	};
 
@@ -192,7 +191,7 @@ function AssetTagsSelector({
 							onItemsChange={handleItemsChange}
 							sourceItems={
 								resource
-									? resource.map(tag => {
+									? resource.map((tag) => {
 											return {
 												label: tag.text,
 												value: tag.value,

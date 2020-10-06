@@ -62,6 +62,14 @@ public class ReleaseInfo {
 
 	public static final int RELEASE_7_3_1_BUILD_NUMBER = 7301;
 
+	public static final int RELEASE_7_3_2_BUILD_NUMBER = 7302;
+
+	public static final int RELEASE_7_3_3_BUILD_NUMBER = 7303;
+
+	public static final int RELEASE_7_3_4_BUILD_NUMBER = 7304;
+
+	public static final int RELEASE_7_3_5_BUILD_NUMBER = 7305;
+
 	public static final int RELEASE_7_3_10_BUILD_NUMBER = 7310;
 
 	public static final Date getBuildDate() {

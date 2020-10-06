@@ -145,16 +145,17 @@ public class AggregateClassLoader extends ClassLoader {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AggregateClassLoader)) {
+		if (!(object instanceof AggregateClassLoader)) {
 			return false;
 		}
 
-		AggregateClassLoader aggregateClassLoader = (AggregateClassLoader)obj;
+		AggregateClassLoader aggregateClassLoader =
+			(AggregateClassLoader)object;
 
 		if (_classLoaderReferences.equals(
 				aggregateClassLoader._classLoaderReferences) &&
@@ -170,16 +171,16 @@ public class AggregateClassLoader extends ClassLoader {
 		List<ClassLoader> classLoaders = new ArrayList<>(
 			_classLoaderReferences.size());
 
-		Iterator<EqualityWeakReference<ClassLoader>> itr =
+		Iterator<EqualityWeakReference<ClassLoader>> iterator =
 			_classLoaderReferences.iterator();
 
-		while (itr.hasNext()) {
-			WeakReference<ClassLoader> weakReference = itr.next();
+		while (iterator.hasNext()) {
+			WeakReference<ClassLoader> weakReference = iterator.next();
 
 			ClassLoader classLoader = weakReference.get();
 
 			if (classLoader == null) {
-				itr.remove();
+				iterator.remove();
 			}
 			else {
 				classLoaders.add(classLoader);
@@ -263,7 +264,7 @@ public class AggregateClassLoader extends ClassLoader {
 		return loadedClass;
 	}
 
-	private static Class<?> _findClass(ClassLoader classLoader, String name)
+	private Class<?> _findClass(ClassLoader classLoader, String name)
 		throws ClassNotFoundException {
 
 		try {
@@ -280,7 +281,7 @@ public class AggregateClassLoader extends ClassLoader {
 		}
 	}
 
-	private static Class<?> _loadClass(
+	private Class<?> _loadClass(
 			ClassLoader classLoader, String name, boolean resolve)
 		throws ClassNotFoundException {
 

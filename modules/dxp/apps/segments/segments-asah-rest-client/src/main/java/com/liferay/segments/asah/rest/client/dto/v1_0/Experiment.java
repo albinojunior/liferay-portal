@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Experiment implements Cloneable {
 
+	public static Experiment toDTO(String json) {
+		return ExperimentSerDes.toDTO(json);
+	}
+
 	public Date getDateCreated() {
 		return dateCreated;
 	}

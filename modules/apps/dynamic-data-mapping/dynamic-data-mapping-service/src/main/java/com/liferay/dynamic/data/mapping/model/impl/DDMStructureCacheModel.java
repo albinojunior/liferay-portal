@@ -37,17 +37,17 @@ public class DDMStructureCacheModel
 	implements CacheModel<DDMStructure>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DDMStructureCacheModel)) {
+		if (!(object instanceof DDMStructureCacheModel)) {
 			return false;
 		}
 
 		DDMStructureCacheModel ddmStructureCacheModel =
-			(DDMStructureCacheModel)obj;
+			(DDMStructureCacheModel)object;
 
 		if ((structureId == ddmStructureCacheModel.structureId) &&
 			(mvccVersion == ddmStructureCacheModel.mvccVersion)) {
@@ -269,8 +269,8 @@ public class DDMStructureCacheModel
 		structureKey = objectInput.readUTF();
 		version = objectInput.readUTF();
 		name = objectInput.readUTF();
-		description = objectInput.readUTF();
-		definition = objectInput.readUTF();
+		description = (String)objectInput.readObject();
+		definition = (String)objectInput.readObject();
 		storageType = objectInput.readUTF();
 
 		type = objectInput.readInt();
@@ -348,17 +348,17 @@ public class DDMStructureCacheModel
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(description);
+			objectOutput.writeObject(description);
 		}
 
 		if (definition == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(definition);
+			objectOutput.writeObject(definition);
 		}
 
 		if (storageType == null) {

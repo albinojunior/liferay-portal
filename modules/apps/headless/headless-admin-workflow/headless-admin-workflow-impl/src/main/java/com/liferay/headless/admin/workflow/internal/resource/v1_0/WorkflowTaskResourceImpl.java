@@ -20,6 +20,7 @@ import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTask;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToMe;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToRole;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToUser;
+import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTasksBulkSelection;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.ObjectReviewedUtil;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.RoleUtil;
@@ -34,15 +35,21 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.kernel.workflow.WorkflowInstance;
+import com.liferay.portal.kernel.workflow.WorkflowInstanceManager;
 import com.liferay.portal.kernel.workflow.WorkflowTaskAssignee;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.kernel.workflow.comparator.WorkflowComparatorFactory;
+import com.liferay.portal.kernel.workflow.search.WorkflowModelSearchResult;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import java.io.Serializable;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -123,12 +130,11 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 	}
 
 	@Override
-	public String getWorkflowTaskHasAssignableUsers(Long workflowTaskId)
+	public Boolean getWorkflowTaskHasAssignableUsers(Long workflowTaskId)
 		throws Exception {
 
-		return Boolean.toString(
-			_workflowTaskManager.hasAssignableUsers(
-				contextCompany.getCompanyId(), workflowTaskId));
+		return _workflowTaskManager.hasAssignableUsers(
+			contextCompany.getCompanyId(), workflowTaskId);
 	}
 
 	@Override
@@ -217,44 +223,6 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 	}
 
 	@Override
-	public Page<WorkflowTask> getWorkflowTasksPage(
-			Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-			String[] assetTypes, Long[] assigneeIds, Boolean completed,
-			Date dateDueEnd, Date dateDueStart, Boolean searchByRoles,
-			Boolean searchByUserRoles, String[] taskNames,
-			Long workflowDefinitionId, Long[] workflowInstanceIds,
-			Pagination pagination, Sort[] sorts)
-		throws Exception {
-
-		String assigneeClassName = null;
-
-		if (GetterUtil.getBoolean(searchByRoles)) {
-			assigneeClassName =
-				com.liferay.portal.kernel.model.Role.class.getName();
-		}
-
-		return Page.of(
-			transform(
-				_workflowTaskManager.search(
-					contextCompany.getCompanyId(), contextUser.getUserId(),
-					assetTitle, taskNames, assetTypes, assetPrimaryKeys,
-					assigneeClassName, assigneeIds, dateDueStart, dateDueEnd,
-					completed, searchByUserRoles, workflowDefinitionId,
-					workflowInstanceIds,
-					GetterUtil.getBoolean(andOperator, true),
-					pagination.getStartPosition(), pagination.getEndPosition(),
-					_toOrderByComparator((Sort)ArrayUtil.getValue(sorts, 0))),
-				this::_toWorkflowTask),
-			pagination,
-			_workflowTaskManager.searchCount(
-				contextCompany.getCompanyId(), contextUser.getUserId(),
-				assetTitle, taskNames, assetTypes, assetPrimaryKeys,
-				assigneeClassName, assigneeIds, dateDueStart, dateDueEnd,
-				completed, searchByUserRoles, workflowDefinitionId,
-				workflowInstanceIds, GetterUtil.getBoolean(andOperator, true)));
-	}
-
-	@Override
 	public Page<WorkflowTask> getWorkflowTasksSubmittingUserPage(
 			Long creatorId, Pagination pagination)
 		throws Exception {
@@ -284,7 +252,9 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 				workflowTaskAssignToUser.getWorkflowTaskId(),
 				workflowTaskAssignToUser.getAssigneeId(),
 				workflowTaskAssignToUser.getComment(),
-				workflowTaskAssignToUser.getDueDate(), null);
+				workflowTaskAssignToUser.getDueDate(),
+				_getWorkflowContext(
+					workflowTaskAssignToUser.getWorkflowTaskId()));
 		}
 	}
 
@@ -298,7 +268,24 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 				contextCompany.getCompanyId(), contextUser.getUserId(),
 				changeTransition.getWorkflowTaskId(),
 				changeTransition.getTransitionName(),
-				changeTransition.getComment(), null);
+				changeTransition.getComment(),
+				_getWorkflowContext(changeTransition.getWorkflowTaskId()));
+		}
+	}
+
+	@Override
+	public void patchWorkflowTaskUpdateDueDate(
+			WorkflowTaskAssignToMe[] workflowTaskAssignToMes)
+		throws Exception {
+
+		for (WorkflowTaskAssignToMe workflowTaskAssignToMe :
+				workflowTaskAssignToMes) {
+
+			_workflowTaskManager.updateDueDate(
+				contextCompany.getCompanyId(), contextUser.getUserId(),
+				workflowTaskAssignToMe.getWorkflowTaskId(),
+				workflowTaskAssignToMe.getComment(),
+				workflowTaskAssignToMe.getDueDate());
 		}
 	}
 
@@ -309,10 +296,11 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 
 		return _toWorkflowTask(
 			_workflowTaskManager.assignWorkflowTaskToUser(
-				contextUser.getCompanyId(), contextUser.getUserId(),
+				contextCompany.getCompanyId(), contextUser.getUserId(),
 				workflowTaskId, contextUser.getUserId(),
 				workflowTaskAssignToMe.getComment(),
-				workflowTaskAssignToMe.getDueDate(), null));
+				workflowTaskAssignToMe.getDueDate(),
+				_getWorkflowContext(workflowTaskId)));
 	}
 
 	@Override
@@ -323,10 +311,11 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 
 		return _toWorkflowTask(
 			_workflowTaskManager.assignWorkflowTaskToRole(
-				contextUser.getCompanyId(), contextUser.getUserId(),
+				contextCompany.getCompanyId(), contextUser.getUserId(),
 				workflowTaskId, workflowTaskAssignToRole.getRoleId(),
 				workflowTaskAssignToRole.getComment(),
-				workflowTaskAssignToRole.getDueDate(), null));
+				workflowTaskAssignToRole.getDueDate(),
+				_getWorkflowContext(workflowTaskId)));
 	}
 
 	@Override
@@ -340,7 +329,8 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 				contextCompany.getCompanyId(), contextUser.getUserId(),
 				workflowTaskId, workflowTaskAssignToUser.getAssigneeId(),
 				workflowTaskAssignToUser.getComment(),
-				workflowTaskAssignToUser.getDueDate(), null));
+				workflowTaskAssignToUser.getDueDate(),
+				_getWorkflowContext(workflowTaskId)));
 	}
 
 	@Override
@@ -350,9 +340,51 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 
 		return _toWorkflowTask(
 			_workflowTaskManager.completeWorkflowTask(
-				contextUser.getCompanyId(), contextUser.getUserId(),
+				contextCompany.getCompanyId(), contextUser.getUserId(),
 				workflowTaskId, changeTransition.getTransitionName(),
-				changeTransition.getComment(), null));
+				changeTransition.getComment(),
+				_getWorkflowContext(workflowTaskId)));
+	}
+
+	@Override
+	public Page<WorkflowTask> postWorkflowTasksPage(
+			Pagination pagination, Sort[] sorts,
+			WorkflowTasksBulkSelection workflowTasksBulkSelection)
+		throws Exception {
+
+		String assigneeClassName = null;
+
+		if (GetterUtil.getBoolean(
+				workflowTasksBulkSelection.getSearchByRoles())) {
+
+			assigneeClassName =
+				com.liferay.portal.kernel.model.Role.class.getName();
+		}
+
+		WorkflowModelSearchResult
+			<com.liferay.portal.kernel.workflow.WorkflowTask> workflowTasks =
+				_workflowTaskManager.searchWorkflowTasks(
+					contextCompany.getCompanyId(), contextUser.getUserId(),
+					workflowTasksBulkSelection.getAssetTitle(),
+					workflowTasksBulkSelection.getWorkflowTaskNames(),
+					workflowTasksBulkSelection.getAssetTypes(),
+					workflowTasksBulkSelection.getAssetPrimaryKeys(),
+					assigneeClassName,
+					workflowTasksBulkSelection.getAssigneeIds(),
+					workflowTasksBulkSelection.getDateDueStart(),
+					workflowTasksBulkSelection.getDateDueEnd(),
+					workflowTasksBulkSelection.getCompleted(),
+					workflowTasksBulkSelection.getSearchByUserRoles(),
+					workflowTasksBulkSelection.getWorkflowDefinitionId(),
+					workflowTasksBulkSelection.getWorkflowInstanceIds(),
+					GetterUtil.getBoolean(
+						workflowTasksBulkSelection.getAndOperator(), true),
+					pagination.getStartPosition(), pagination.getEndPosition(),
+					_toOrderByComparator((Sort)ArrayUtil.getValue(sorts, 0)));
+
+		return Page.of(
+			transform(workflowTasks.getWorkflowModels(), this::_toWorkflowTask),
+			pagination, workflowTasks.getLength());
 	}
 
 	@Override
@@ -362,7 +394,7 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 
 		return _toWorkflowTask(
 			_workflowTaskManager.updateDueDate(
-				contextUser.getCompanyId(), contextUser.getUserId(),
+				contextCompany.getCompanyId(), contextUser.getUserId(),
 				workflowTaskId, workflowTaskAssignToMe.getComment(),
 				workflowTaskAssignToMe.getDueDate()));
 	}
@@ -391,6 +423,28 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 		}
 
 		return roles.toArray(new Role[0]);
+	}
+
+	private Map<String, Serializable> _getWorkflowContext(long workflowTaskId)
+		throws Exception {
+
+		com.liferay.portal.kernel.workflow.WorkflowTask workflowTask =
+			_workflowTaskManager.getWorkflowTask(
+				contextCompany.getCompanyId(), workflowTaskId);
+
+		WorkflowInstance workflowInstance =
+			_workflowInstanceManager.getWorkflowInstance(
+				contextCompany.getCompanyId(),
+				workflowTask.getWorkflowInstanceId());
+
+		Map<String, Serializable> workflowContext =
+			workflowInstance.getWorkflowContext();
+
+		workflowContext.put(
+			WorkflowConstants.CONTEXT_USER_ID,
+			String.valueOf(contextUser.getUserId()));
+
+		return workflowContext;
 	}
 
 	private OrderByComparator<com.liferay.portal.kernel.workflow.WorkflowTask>
@@ -431,7 +485,7 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 		return RoleUtil.toRole(
 			contextAcceptLanguage.isAcceptAllLanguages(),
 			contextAcceptLanguage.getPreferredLocale(), _portal, role,
-			_userLocalService.getUserById(role.getUserId()));
+			_userLocalService.fetchUser(role.getUserId()));
 	}
 
 	private WorkflowTask _toWorkflowTask(
@@ -443,7 +497,7 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 				if (workflowTask.getAssigneeUserId() > 0) {
 					assigneePerson = CreatorUtil.toCreator(
 						_portal,
-						_userLocalService.getUser(
+						_userLocalService.fetchUser(
 							workflowTask.getAssigneeUserId()));
 					assigneeRoles = _getRoles(
 						workflowTask.getWorkflowTaskAssignees());
@@ -488,6 +542,9 @@ public class WorkflowTaskResourceImpl extends BaseWorkflowTaskResourceImpl {
 
 	@Reference(target = "(proxy.bean=false)")
 	private WorkflowComparatorFactory _workflowComparatorFactory;
+
+	@Reference
+	private WorkflowInstanceManager _workflowInstanceManager;
 
 	@Reference
 	private WorkflowTaskManager _workflowTaskManager;

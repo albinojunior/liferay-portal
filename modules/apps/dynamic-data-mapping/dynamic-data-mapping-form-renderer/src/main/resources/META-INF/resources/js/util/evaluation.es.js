@@ -54,7 +54,7 @@ const doEvaluate = debounce((fieldName, evaluatorContext, callback) => {
 		signal: controller && controller.signal,
 		url: EVALUATOR_URL,
 	})
-		.then(newPages => {
+		.then((newPages) => {
 			const mergedPages = mergePages(
 				defaultLanguageId,
 				editingLanguageId,
@@ -65,8 +65,8 @@ const doEvaluate = debounce((fieldName, evaluatorContext, callback) => {
 
 			callback(null, mergedPages);
 		})
-		.catch(error => callback(error));
-}, 300);
+		.catch((error) => callback(error));
+}, 600);
 
 export const evaluate = (fieldName, evaluatorContext) => {
 	return new Promise((resolve, reject) => {
@@ -83,13 +83,16 @@ export const evaluate = (fieldName, evaluatorContext) => {
 export const mergeFieldOptions = (field, newField) => {
 	let newValue = {...newField.value};
 
-	Object.keys(newValue).forEach(languageId => {
+	Object.keys(newValue).forEach((languageId) => {
 		newValue = {
 			...newValue,
-			[languageId]: newValue[languageId].map(option => {
-				const existingOption = field.value[languageId].find(
-					({value}) => value === option.value
-				);
+			[languageId]: newValue[languageId].map((option) => {
+				const existingOption =
+					field.value &&
+					field.value[languageId] &&
+					field.value[languageId].find(
+						({value}) => value === option.value
+					);
 
 				return {
 					...option,
@@ -109,39 +112,31 @@ export const mergePages = (
 	newPages,
 	sourcePages
 ) => {
-	const visitor = new PagesVisitor(newPages);
+	const newPagesVisitor = new PagesVisitor(newPages);
+	const sourcePagesVisitor = new PagesVisitor(sourcePages);
 
-	return visitor.mapFields(
-		(field, fieldIndex, columnIndex, rowIndex, pageIndex) => {
-			const sourceField =
-				sourcePages[pageIndex].rows[rowIndex].columns[columnIndex]
-					.fields[fieldIndex];
+	return newPagesVisitor.mapFields(
+		(field) => {
+			let sourceField =
+				sourcePagesVisitor.findField(({name}) => name === field.name) ||
+				{};
 
-			const displayErrors =
-				sourceField.displayErrors || field.fieldName === fieldName;
+			if (!sourceField || Object.keys(sourceField).length === 0) {
+				sourceField =
+					sourcePagesVisitor.findField(
+						({fieldName}) => fieldName === field.fieldName
+					) || {};
+			}
 
 			let newField = {
 				...sourceField,
 				...field,
 				defaultLanguageId,
-				displayErrors,
+				displayErrors:
+					sourceField.displayErrors || field.fieldName === fieldName,
 				editingLanguageId,
 				valid: field.valid !== false,
 			};
-
-			if (sourceField.nestedFields && newField.nestedFields) {
-				newField = {
-					...newField,
-					nestedFields: sourceField.nestedFields.map(nestedField => {
-						return {
-							...nestedField,
-							...(newField.nestedFields.find(({fieldName}) => {
-								return fieldName === nestedField.fieldName;
-							}) || {}),
-						};
-					}),
-				};
-			}
 
 			if (newField.type === 'options') {
 				newField = {
@@ -160,6 +155,8 @@ export const mergePages = (
 			}
 
 			return newField;
-		}
+		},
+		false,
+		true
 	);
 };

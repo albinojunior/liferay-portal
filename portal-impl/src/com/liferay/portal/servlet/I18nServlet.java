@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -96,8 +97,6 @@ public class I18nServlet extends HttpServlet {
 		throws IOException, ServletException {
 
 		try {
-			String i18nLanguageId = httpServletRequest.getServletPath();
-
 			I18nData i18nData = getI18nData(httpServletRequest);
 
 			if ((i18nData == null) ||
@@ -110,6 +109,8 @@ public class I18nServlet extends HttpServlet {
 
 				return;
 			}
+
+			String i18nLanguageId = httpServletRequest.getServletPath();
 
 			if (i18nLanguageId.contains(StringPool.UNDERLINE)) {
 				sendRedirect(httpServletRequest, httpServletResponse, i18nData);
@@ -214,7 +215,7 @@ public class I18nServlet extends HttpServlet {
 			}
 		}
 
-		String redirect = path;
+		String redirect = HttpUtil.encodePath(path);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Redirect " + redirect);
@@ -272,16 +273,16 @@ public class I18nServlet extends HttpServlet {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
+		public boolean equals(Object object) {
+			if (this == object) {
 				return true;
 			}
 
-			if (!(obj instanceof I18nData)) {
+			if (!(object instanceof I18nData)) {
 				return false;
 			}
 
-			I18nData i18nData = (I18nData)obj;
+			I18nData i18nData = (I18nData)object;
 
 			if (Objects.equals(getI18nPath(), i18nData.getI18nPath()) &&
 				Objects.equals(getLanguageCode(), i18nData.getLanguageCode()) &&

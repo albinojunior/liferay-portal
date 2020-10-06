@@ -12,14 +12,15 @@
  * details.
  */
 
-const preset = require('liferay-npm-scripts/src/presets/standard');
+const preset = require('@liferay/npm-scripts/src/presets/standard');
 
 module.exports = {
 	build: {
 		dependencies: [
 			...preset.build.dependencies,
 			'dynamic-data-mapping-form-field-type',
+			'dynamic-data-mapping-form-renderer',
 		],
 	},
-	preset: 'liferay-npm-scripts/src/presets/standard',
+	preset: '@liferay/npm-scripts/src/presets/standard',
 };

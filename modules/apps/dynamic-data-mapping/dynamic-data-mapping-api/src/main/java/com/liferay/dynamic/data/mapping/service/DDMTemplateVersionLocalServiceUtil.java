@@ -41,6 +41,10 @@ public class DDMTemplateVersionLocalServiceUtil {
 	/**
 	 * Adds the ddm template version to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmTemplateVersion the ddm template version
 	 * @return the ddm template version that was added
 	 */
@@ -77,6 +81,10 @@ public class DDMTemplateVersionLocalServiceUtil {
 	/**
 	 * Deletes the ddm template version from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmTemplateVersion the ddm template version
 	 * @return the ddm template version that was removed
 	 */
@@ -90,6 +98,10 @@ public class DDMTemplateVersionLocalServiceUtil {
 
 	/**
 	 * Deletes the ddm template version with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param templateVersionId the primary key of the ddm template version
 	 * @return the ddm template version that was removed
@@ -115,6 +127,12 @@ public class DDMTemplateVersionLocalServiceUtil {
 
 	public static void deleteTemplateVersions(long templateId) {
 		getService().deleteTemplateVersions(templateId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -327,6 +345,10 @@ public class DDMTemplateVersionLocalServiceUtil {
 
 	/**
 	 * Updates the ddm template version in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmTemplateVersion the ddm template version
 	 * @return the ddm template version that was updated

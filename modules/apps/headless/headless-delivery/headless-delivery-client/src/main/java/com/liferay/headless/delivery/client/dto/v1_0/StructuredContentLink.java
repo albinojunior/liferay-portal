@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class StructuredContentLink implements Cloneable {
 
+	public static StructuredContentLink toDTO(String json) {
+		return StructuredContentLinkSerDes.toDTO(json);
+	}
+
 	public String getContentType() {
 		return contentType;
 	}
@@ -48,6 +52,31 @@ public class StructuredContentLink implements Cloneable {
 	}
 
 	protected String contentType;
+
+	public StructuredContent getEmbeddedStructuredContent() {
+		return embeddedStructuredContent;
+	}
+
+	public void setEmbeddedStructuredContent(
+		StructuredContent embeddedStructuredContent) {
+
+		this.embeddedStructuredContent = embeddedStructuredContent;
+	}
+
+	public void setEmbeddedStructuredContent(
+		UnsafeSupplier<StructuredContent, Exception>
+			embeddedStructuredContentUnsafeSupplier) {
+
+		try {
+			embeddedStructuredContent =
+				embeddedStructuredContentUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected StructuredContent embeddedStructuredContent;
 
 	public Long getId() {
 		return id;

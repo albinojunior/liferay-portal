@@ -9,7 +9,7 @@
 		<#assign sessionType = "Local" />
 
 		<#include "spring_xml_session.ftl">
-	<#elseif entity.isChangeTrackingEnabled()>
+	<#elseif entity.hasEntityColumns() && entity.hasPersistence() && entity.isChangeTrackingEnabled()>
 		<bean class="${packagePath}.service.impl.${entity.name}CTServiceImpl" id="${entity.name}CTService" />
 	</#if>
 

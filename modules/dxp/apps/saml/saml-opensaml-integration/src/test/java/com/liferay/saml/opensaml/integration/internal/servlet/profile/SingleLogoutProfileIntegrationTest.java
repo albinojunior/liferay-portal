@@ -235,11 +235,12 @@ public class SingleLogoutProfileIntegrationTest extends BaseSamlTestCase {
 			SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 
 		MessageContext<LogoutRequest> messageContext =
-			_singleLogoutProfileImpl.decodeSamlMessage(
-				mockHttpServletRequest, mockHttpServletResponse, samlBinding,
-				true);
+			(MessageContext<LogoutRequest>)
+				_singleLogoutProfileImpl.decodeSamlMessage(
+					mockHttpServletRequest, mockHttpServletResponse,
+					samlBinding, true);
 
-		InOutOperationContext inOutOperationContext =
+		InOutOperationContext<LogoutRequest, ?> inOutOperationContext =
 			messageContext.getSubcontext(InOutOperationContext.class);
 
 		MessageContext<LogoutRequest> inboundMessageContext =
@@ -255,13 +256,11 @@ public class SingleLogoutProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test
 	public void testSendSpLogoutRequestInvalidSpSession() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(LOGOUT_URL);
 		MockHttpServletResponse mockHttpServletResponse =
 			new MockHttpServletResponse();
 
 		_singleLogoutProfileImpl.sendSpLogoutRequest(
-			mockHttpServletRequest, mockHttpServletResponse);
+			getMockHttpServletRequest(LOGOUT_URL), mockHttpServletResponse);
 
 		String redirect = mockHttpServletResponse.getRedirectedUrl();
 
@@ -273,9 +272,9 @@ public class SingleLogoutProfileIntegrationTest extends BaseSamlTestCase {
 	public void testSendSpLogoutRequestValidSpSession() throws Exception {
 		SamlSpSession samlSpSession = new SamlSpSessionImpl();
 
+		samlSpSession.setSamlIdpEntityId(IDP_ENTITY_ID);
 		samlSpSession.setNameIdFormat(NameID.EMAIL);
 		samlSpSession.setNameIdValue("test@liferay.com");
-		samlSpSession.setSamlIdpEntityId(IDP_ENTITY_ID);
 
 		when(
 			_samlSpSessionLocalService.fetchSamlSpSessionByJSessionId(
@@ -308,15 +307,15 @@ public class SingleLogoutProfileIntegrationTest extends BaseSamlTestCase {
 		SamlBinding samlBinding = _singleLogoutProfileImpl.getSamlBinding(
 			SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 
-		MessageContext messageContext =
+		MessageContext<?> messageContext =
 			_singleLogoutProfileImpl.decodeSamlMessage(
 				mockHttpServletRequest, mockHttpServletResponse, samlBinding,
 				true);
 
-		InOutOperationContext inOutOperationContext =
+		InOutOperationContext<?, ?> inOutOperationContext =
 			messageContext.getSubcontext(InOutOperationContext.class);
 
-		MessageContext inboundMessageContext =
+		MessageContext<?> inboundMessageContext =
 			inOutOperationContext.getInboundMessageContext();
 
 		LogoutRequest logoutRequest =

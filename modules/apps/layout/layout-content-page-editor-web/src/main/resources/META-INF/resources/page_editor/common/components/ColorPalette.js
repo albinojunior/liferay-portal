@@ -18,6 +18,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import {config} from '../../app/config/index';
+import {useId} from '../../app/utils/useId';
 
 export default function ColorPalette({
 	label,
@@ -25,13 +26,15 @@ export default function ColorPalette({
 	onColorSelect,
 	selectedColor,
 }) {
-	return (
-		<>
-			{label && <label htmlFor="colorPalette">{label}</label>}
+	const colorPaletteId = useId();
 
-			<div className="palette-container" id="colorPalette">
+	return (
+		<div className="page-editor__color-palette">
+			{label && <label htmlFor={colorPaletteId}>{label}</label>}
+
+			<div className="palette-container" id={colorPaletteId}>
 				<ul className="list-unstyled palette-items-container">
-					{config.themeColorsCssClasses.map(color => (
+					{config.themeColorsCssClasses.map((color) => (
 						<li
 							className={classNames('palette-item', {
 								'palette-item-selected':
@@ -48,7 +51,7 @@ export default function ColorPalette({
 									'rounded-circle'
 								)}
 								displayType="unstyled"
-								onClick={event => onColorSelect(color, event)}
+								onClick={(event) => onColorSelect(color, event)}
 								small
 							/>
 						</li>
@@ -61,7 +64,7 @@ export default function ColorPalette({
 					{Liferay.Language.get('clear')}
 				</ClayButton>
 			)}
-		</>
+		</div>
 	);
 }
 

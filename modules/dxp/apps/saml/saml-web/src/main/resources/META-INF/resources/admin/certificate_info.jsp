@@ -25,68 +25,6 @@ GeneralTabDefaultViewDisplayContext.X509CertificateStatus x509CertificateStatus 
 
 boolean certificateAuthNeeded = x509CertificateStatus.getStatus() == GeneralTabDefaultViewDisplayContext.X509CertificateStatus.Status.SAML_X509_CERTIFICATE_AUTH_NEEDED;
 X509Certificate x509Certificate = x509CertificateStatus.getX509Certificate();
-%>
-
-<liferay-util:buffer
-	var="certificateInfo"
->
-	<c:if test="<%= x509Certificate != null %>">
-
-		<%
-		Date now = new Date();
-		%>
-
-		<c:if test="<%= now.after(x509Certificate.getNotAfter()) %>">
-			<div class="portlet-msg-alert"><liferay-ui:message arguments="<%= new Object[] {x509Certificate.getNotAfter()} %>" key="certificate-expired-on-x" /></div>
-		</c:if>
-
-		<dl class="property-list">
-			<dt>
-				<liferay-ui:message key="subject-dn" />
-			</dt>
-			<dd>
-				<%= HtmlUtil.escape(String.valueOf(certificateTool.getSubjectName(x509Certificate))) %>
-			</dd>
-			<dt>
-				<liferay-ui:message key="serial-number" />
-			</dt>
-			<dd>
-				<%= HtmlUtil.escape(certificateTool.getSerialNumber(x509Certificate)) %>
-
-				<div class="portlet-msg-info-label">
-					<liferay-ui:message arguments="<%= new Object[] {x509Certificate.getNotBefore(), x509Certificate.getNotAfter()} %>" key="valid-from-x-until-x" />
-				</div>
-			</dd>
-			<dt>
-				<liferay-ui:message key="certificate-fingerprints" />
-			</dt>
-			<dd class="property-list">
-				<dl>
-					<dt>
-						MD5
-					</dt>
-					<dd>
-						<%= HtmlUtil.escape(certificateTool.getFingerprint("MD5", x509Certificate)) %>
-					</dd>
-					<dt>
-						SHA1
-					</dt>
-					<dd>
-						<%= HtmlUtil.escape(certificateTool.getFingerprint("SHA1", x509Certificate)) %>
-					</dd>
-				</dl>
-			</dd>
-			<dt>
-				<liferay-ui:message key="signature-algorithm" />
-			</dt>
-			<dd>
-				<%= HtmlUtil.escape(x509Certificate.getSigAlgName()) %>
-			</dd>
-		</dl>
-	</c:if>
-</liferay-util:buffer>
-
-<%
 String deleteCertificatePrompt = UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this-certificate-from-the-keystore");
 String introKey = StringPool.BLANK;
 %>
@@ -114,7 +52,9 @@ String introKey = StringPool.BLANK;
 	<portlet:param name="certificateUsage" value="<%= certificateUsage.name() %>" />
 </portlet:renderURL>
 
-<%= certificateInfo %>
+<c:if test="<%= x509Certificate != null %>">
+	<%@ include file="/admin/certificate_info.jspf" %>
+</c:if>
 
 <portlet:actionURL name="/admin/updateCertificate" var="deleteCertificateURL">
 	<portlet:param name="<%= Constants.CMD %>" value="delete" />
@@ -130,7 +70,7 @@ String introKey = StringPool.BLANK;
 
 		<aui:form action="<%= deleteCertificateURL %>">
 			<aui:button-row>
-				<aui:button onClick='<%= renderResponse.getNamespace() + "showCertificateDialog('" + replaceCertificateURL + "');" %>' value="replace-certificate" />
+				<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "showCertificateDialog('" + replaceCertificateURL + "');" %>' value="replace-certificate" />
 				<aui:button href="<%= downloadCertificateURL %>" value="download-certificate" />
 
 				<c:if test="<%= certificateUsage == LocalEntityManager.CertificateUsage.ENCRYPTION %>">
@@ -158,8 +98,8 @@ String introKey = StringPool.BLANK;
 
 		<aui:form action="<%= deleteCertificateURL %>">
 			<aui:button-row>
-				<aui:button onClick='<%= renderResponse.getNamespace() + "showCertificateDialog('" + authCertificateURL + "');" %>' value="auth-certificate" />
-				<aui:button onClick='<%= renderResponse.getNamespace() + "showCertificateDialog('" + replaceCertificateURL + "');" %>' value="replace-certificate" />
+				<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "showCertificateDialog('" + authCertificateURL + "');" %>' value="auth-certificate" />
+				<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "showCertificateDialog('" + replaceCertificateURL + "');" %>' value="replace-certificate" />
 
 				<c:if test="<%= certificateUsage == LocalEntityManager.CertificateUsage.ENCRYPTION %>">
 					<aui:button onClick='<%= "return confirm('" + deleteCertificatePrompt + "')" %>' type="submit" value="delete-certificate" />
@@ -173,7 +113,7 @@ String introKey = StringPool.BLANK;
 		</div>
 
 		<aui:button-row>
-			<aui:button onClick='<%= renderResponse.getNamespace() + "showCertificateDialog('" + replaceCertificateURL + "');" %>' value="create-certificate" />
+			<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "showCertificateDialog('" + replaceCertificateURL + "');" %>' value="create-certificate" />
 		</aui:button-row>
 	</c:otherwise>
 </c:choose>

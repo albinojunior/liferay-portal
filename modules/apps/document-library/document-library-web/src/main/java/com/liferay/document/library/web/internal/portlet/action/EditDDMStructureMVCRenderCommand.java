@@ -65,11 +65,12 @@ public class EditDDMStructureMVCRenderCommand implements MVCRenderCommand {
 				new DLEditFileEntryTypeDisplayContext(
 					_ddm, _ddmStorageLinkLocalService,
 					_ddmStructureLocalService, _language,
-					_portal.getLiferayPortletRequest(renderRequest)));
+					_portal.getLiferayPortletRequest(renderRequest),
+					_portal.getLiferayPortletResponse(renderResponse)));
 
 			renderRequest.setAttribute(
 				WebKeys.DOCUMENT_LIBRARY_DYNAMIC_DATA_MAPPING_STRUCTURE,
-				_getDDMStructure(renderRequest));
+				_fetchDDMStructure(renderRequest));
 		}
 		catch (PortalException portalException) {
 			SessionErrors.add(renderRequest, portalException.getClass());
@@ -80,7 +81,7 @@ public class EditDDMStructureMVCRenderCommand implements MVCRenderCommand {
 		return "/document_library/ddm/edit_ddm_structure.jsp";
 	}
 
-	private DDMStructure _getDDMStructure(RenderRequest renderRequest)
+	private DDMStructure _fetchDDMStructure(RenderRequest renderRequest)
 		throws PortalException {
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.fetchDDMStructure(

@@ -15,12 +15,16 @@
 package com.liferay.data.engine.field.type.util;
 
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,10 +54,6 @@ public class LocalizedValueUtil {
 		return localizedValues.get(LocaleUtil.toLanguageId(locale));
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
 	public static <V> JSONObject toJSONObject(Map<String, V> map) {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -104,6 +104,26 @@ public class LocalizedValueUtil {
 		return localizedValue;
 	}
 
+	public static LocalizedValue toLocalizedValue(
+		Map<String, Object> localizedValues, Locale locale) {
+
+		if (localizedValues == null) {
+			return null;
+		}
+
+		LocalizedValue localizedValue = new LocalizedValue();
+
+		for (Map.Entry<String, Object> entry : localizedValues.entrySet()) {
+			localizedValue.addString(
+				LocaleUtil.fromLanguageId(entry.getKey()),
+				GetterUtil.getString(entry.getValue()));
+
+			localizedValue.setDefaultLocale(locale);
+		}
+
+		return localizedValue;
+	}
+
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
@@ -115,10 +135,10 @@ public class LocalizedValueUtil {
 
 		Map<String, V> localizedValues = new HashMap<>();
 
-		Iterator<String> keys = jsonObject.keys();
+		Iterator<String> iterator = jsonObject.keys();
 
-		while (keys.hasNext()) {
-			String key = keys.next();
+		while (iterator.hasNext()) {
+			String key = iterator.next();
 
 			localizedValues.put(key, (V)jsonObject.get(key));
 		}
@@ -142,7 +162,22 @@ public class LocalizedValueUtil {
 		return stream.collect(
 			Collectors.toMap(
 				entry -> LanguageUtil.getLanguageId(entry.getKey()),
-				entry -> entry.getValue()));
+				entry -> {
+					String value = entry.getValue();
+
+					if (Validator.isNotNull(value)) {
+						try {
+							return JSONFactoryUtil.createJSONArray(value);
+						}
+						catch (JSONException jsonException) {
+							if (_log.isDebugEnabled()) {
+								_log.debug(jsonException, jsonException);
+							}
+						}
+					}
+
+					return value;
+				}));
 	}
 
 	public static Map<String, Object> toStringObjectMap(
@@ -157,5 +192,8 @@ public class LocalizedValueUtil {
 
 		return stringObjectMap;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		LocalizedValueUtil.class);
 
 }

@@ -83,10 +83,10 @@ public class BlogsStatsUserFinderImpl
 				queryPos.add(organizationId);
 			}
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -128,11 +128,11 @@ public class BlogsStatsUserFinderImpl
 
 			List<BlogsStatsUser> statsUsers = new ArrayList<>();
 
-			Iterator<Object[]> itr = (Iterator<Object[]>)QueryUtil.iterate(
+			Iterator<Object[]> iterator = (Iterator<Object[]>)QueryUtil.iterate(
 				sqlQuery, getDialect(), start, end);
 
-			while (itr.hasNext()) {
-				Object[] array = itr.next();
+			while (iterator.hasNext()) {
+				Object[] array = iterator.next();
 
 				long userId = (Long)array[0];
 				Date lastPostDate = (Date)array[1];
@@ -160,16 +160,16 @@ public class BlogsStatsUserFinderImpl
 	@Override
 	public List<BlogsStatsUser> findByOrganizationId(
 		long organizationId, int start, int end,
-		OrderByComparator<BlogsStatsUser> obc) {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 
 		return findByOrganizationIds(
-			ListUtil.fromArray(organizationId), start, end, obc);
+			ListUtil.fromArray(organizationId), start, end, orderByComparator);
 	}
 
 	@Override
 	public List<BlogsStatsUser> findByOrganizationIds(
 		List<Long> organizationIds, int start, int end,
-		OrderByComparator<BlogsStatsUser> obc) {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 
 		Session session = null;
 
@@ -181,7 +181,7 @@ public class BlogsStatsUserFinderImpl
 			sql = StringUtil.replace(
 				sql, "[$ORGANIZATION_ID$]",
 				getOrganizationIds(organizationIds));
-			sql = _customSQL.replaceOrderBy(sql, obc);
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			SQLQuery sqlQuery = session.createSynchronizedSQLQuery(sql);
 
@@ -209,7 +209,7 @@ public class BlogsStatsUserFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(organizationIds.size() * 2 - 1);
+		StringBundler sb = new StringBundler((organizationIds.size() * 2) - 1);
 
 		for (int i = 0; i < organizationIds.size(); i++) {
 			sb.append("Users_Orgs.organizationId = ? ");

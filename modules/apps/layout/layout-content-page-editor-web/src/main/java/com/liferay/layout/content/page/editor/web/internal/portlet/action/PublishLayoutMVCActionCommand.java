@@ -14,7 +14,10 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListenerTracker;
+import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.model.Layout;
@@ -109,44 +112,11 @@ public class PublishLayoutMVCActionCommand
 			}
 		}
 
-		if (_workflowDefinitionLinkLocalService.hasWorkflowDefinitionLink(
-				layout.getCompanyId(), layout.getGroupId(),
-				Layout.class.getName())) {
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			actionRequest);
 
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				actionRequest);
-
-			WorkflowHandlerRegistryUtil.startWorkflowInstance(
-				layout.getCompanyId(), layout.getGroupId(), layout.getUserId(),
-				Layout.class.getName(), layout.getPlid(), layout,
-				serviceContext, Collections.emptyMap());
-		}
-		else {
-			layout = _layoutCopyHelper.copyLayout(draftLayout, layout);
-
-			layout.setType(draftLayout.getType());
-			layout.setStatus(WorkflowConstants.STATUS_APPROVED);
-
-			String layoutPrototypeUuid = layout.getLayoutPrototypeUuid();
-
-			layout.setLayoutPrototypeUuid(null);
-
-			_layoutLocalService.updateLayout(layout);
-
-			draftLayout = _layoutLocalService.getLayout(themeDisplay.getPlid());
-
-			UnicodeProperties typeSettingsProperties =
-				draftLayout.getTypeSettingsProperties();
-
-			if (Validator.isNotNull(layoutPrototypeUuid)) {
-				typeSettingsProperties.setProperty(
-					"layoutPrototypeUuid", layoutPrototypeUuid);
-			}
-
-			draftLayout.setStatus(WorkflowConstants.STATUS_APPROVED);
-
-			_layoutLocalService.updateLayout(draftLayout);
-		}
+		_publishLayout(
+			draftLayout, layout, serviceContext, themeDisplay.getUserId());
 
 		String portletId = _portal.getPortletId(actionRequest);
 
@@ -163,6 +133,55 @@ public class PublishLayoutMVCActionCommand
 		sendRedirect(actionRequest, actionResponse);
 	}
 
+	private void _publishLayout(
+			Layout draftLayout, Layout layout, ServiceContext serviceContext,
+			long userId)
+		throws Exception {
+
+		LayoutStructureUtil.deleteMarkedForDeletionItems(
+			draftLayout.getCompanyId(), _contentPageEditorListenerTracker,
+			draftLayout.getGroupId(), draftLayout.getPlid(), _portletRegistry);
+
+		if (_workflowDefinitionLinkLocalService.hasWorkflowDefinitionLink(
+				layout.getCompanyId(), layout.getGroupId(),
+				Layout.class.getName())) {
+
+			WorkflowHandlerRegistryUtil.startWorkflowInstance(
+				layout.getCompanyId(), layout.getGroupId(), userId,
+				Layout.class.getName(), layout.getPlid(), layout,
+				serviceContext, Collections.emptyMap());
+		}
+		else {
+			layout = _layoutCopyHelper.copyLayout(draftLayout, layout);
+
+			layout.setType(draftLayout.getType());
+			layout.setStatus(WorkflowConstants.STATUS_APPROVED);
+
+			String layoutPrototypeUuid = layout.getLayoutPrototypeUuid();
+
+			layout.setLayoutPrototypeUuid(null);
+
+			_layoutLocalService.updateLayout(layout);
+
+			draftLayout = _layoutLocalService.getLayout(draftLayout.getPlid());
+
+			UnicodeProperties typeSettingsUnicodeProperties =
+				draftLayout.getTypeSettingsProperties();
+
+			if (Validator.isNotNull(layoutPrototypeUuid)) {
+				typeSettingsUnicodeProperties.setProperty(
+					"layoutPrototypeUuid", layoutPrototypeUuid);
+			}
+
+			draftLayout.setStatus(WorkflowConstants.STATUS_APPROVED);
+
+			_layoutLocalService.updateLayout(draftLayout);
+		}
+	}
+
+	@Reference
+	private ContentPageEditorListenerTracker _contentPageEditorListenerTracker;
+
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
 
@@ -171,6 +190,9 @@ public class PublishLayoutMVCActionCommand
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private PortletRegistry _portletRegistry;
 
 	@Reference
 	private WorkflowDefinitionLinkLocalService

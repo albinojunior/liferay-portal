@@ -12,6 +12,7 @@
  * details.
  */
 
+import ClayLayout from '@clayui/layout';
 import classNames from 'classnames';
 import React, {useEffect, useRef} from 'react';
 import {useDrop} from 'react-dnd';
@@ -19,25 +20,29 @@ import {useDrop} from 'react-dnd';
 import MillerColumnsItem from './MillerColumnsItem';
 import {ACCEPTING_TYPES} from './constants';
 
-const isValidTarget = (source, parent) => {
-	return !!(
-		parent &&
-		(source.columnIndex > parent.columnIndex + 1 ||
-			(source.columnIndex === parent.columnIndex + 1 &&
-				source.itemIndex < parent.childrenCount - 1) ||
-			(parent.parentable &&
-				source.columnIndex <= parent.columnIndex &&
-				!source.active))
+const isValidTarget = (sources, parent) =>
+	!sources.some(
+		(source) =>
+			!(
+				parent &&
+				(source.columnIndex > parent.columnIndex + 1 ||
+					(source.columnIndex === parent.columnIndex + 1 &&
+						source.parentId !== parent.id) ||
+					(parent.parentable &&
+						source.columnIndex <= parent.columnIndex &&
+						!source.active))
+			)
 	);
-};
 
 const MillerColumnsColumn = ({
 	actionHandlers,
-	items = [],
+	columnItems = [],
+	items,
 	namespace,
 	onItemDrop,
 	onItemStayHover,
 	parent,
+	rtl,
 }) => {
 	const ref = useRef();
 
@@ -45,15 +50,16 @@ const MillerColumnsColumn = ({
 		accept: ACCEPTING_TYPES.ITEM,
 		canDrop(source, monitor) {
 			return (
-				monitor.isOver({shallow: true}) && isValidTarget(source, parent)
+				monitor.isOver({shallow: true}) &&
+				isValidTarget(source.items, parent)
 			);
 		},
-		collect: monitor => ({
+		collect: (monitor) => ({
 			canDrop: !!monitor.canDrop(),
 		}),
 		drop(source) {
 			if (canDrop) {
-				onItemDrop(source.id, parent.id);
+				onItemDrop(source.items, parent.id, columnItems.length);
 			}
 		},
 	});
@@ -63,26 +69,32 @@ const MillerColumnsColumn = ({
 	}, [drop]);
 
 	return (
-		<ul
+		<ClayLayout.Col
 			className={classNames(
-				'col-11 col-lg-4 col-md-6 miller-columns-col show-quick-actions-on-hover',
+				'miller-columns-col show-quick-actions-on-hover',
 				{
 					'drop-target': canDrop,
 				}
 			)}
+			containerElement="ul"
+			lg="4"
+			md="6"
 			ref={ref}
+			size="11"
 		>
-			{items.map((item, index) => (
+			{columnItems.map((item, index) => (
 				<MillerColumnsItem
 					actionHandlers={actionHandlers}
 					item={{...item, itemIndex: index}}
-					key={item.url}
+					items={items}
+					key={item.key}
 					namespace={namespace}
 					onItemDrop={onItemDrop}
 					onItemStayHover={onItemStayHover}
+					rtl={rtl}
 				/>
 			))}
-		</ul>
+		</ClayLayout.Col>
 	);
 };
 

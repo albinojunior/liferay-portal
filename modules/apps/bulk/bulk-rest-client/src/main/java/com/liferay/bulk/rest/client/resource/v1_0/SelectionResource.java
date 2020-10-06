@@ -14,6 +14,7 @@
 
 package com.liferay.bulk.rest.client.resource.v1_0;
 
+import com.liferay.bulk.rest.client.dto.v1_0.DocumentBulkSelection;
 import com.liferay.bulk.rest.client.dto.v1_0.Selection;
 import com.liferay.bulk.rest.client.http.HttpInvoker;
 import com.liferay.bulk.rest.client.problem.Problem;
@@ -38,13 +39,11 @@ public interface SelectionResource {
 	}
 
 	public Selection postBulkSelection(
-			com.liferay.bulk.rest.client.dto.v1_0.DocumentBulkSelection
-				documentBulkSelection)
+			DocumentBulkSelection documentBulkSelection)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postBulkSelectionHttpResponse(
-			com.liferay.bulk.rest.client.dto.v1_0.DocumentBulkSelection
-				documentBulkSelection)
+			DocumentBulkSelection documentBulkSelection)
 		throws Exception;
 
 	public static class Builder {
@@ -92,8 +91,8 @@ public interface SelectionResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -103,8 +102,7 @@ public interface SelectionResource {
 	public static class SelectionResourceImpl implements SelectionResource {
 
 		public Selection postBulkSelection(
-				com.liferay.bulk.rest.client.dto.v1_0.DocumentBulkSelection
-					documentBulkSelection)
+				DocumentBulkSelection documentBulkSelection)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -132,8 +130,7 @@ public interface SelectionResource {
 		}
 
 		public HttpInvoker.HttpResponse postBulkSelectionHttpResponse(
-				com.liferay.bulk.rest.client.dto.v1_0.DocumentBulkSelection
-					documentBulkSelection)
+				DocumentBulkSelection documentBulkSelection)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();

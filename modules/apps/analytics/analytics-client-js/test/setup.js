@@ -24,3 +24,14 @@ global.setInnerHTML = (element, html) => {
 	element.innerHTML = html;
 	element.innerText = element.textContent;
 };
+
+if (!global.performance.timing) {
+	Object.defineProperty(global.performance, 'timing', {
+		get() {
+			return {
+				loadEventStart: 1,
+				navigationStart: 0,
+			};
+		},
+	});
+}

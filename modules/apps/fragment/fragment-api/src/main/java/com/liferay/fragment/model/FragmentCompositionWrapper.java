@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -44,6 +46,7 @@ public class FragmentCompositionWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("uuid", getUuid());
 		attributes.put("fragmentCompositionId", getFragmentCompositionId());
 		attributes.put("groupId", getGroupId());
@@ -73,6 +76,12 @@ public class FragmentCompositionWrapper
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
 		}
 
 		String uuid = (String)attributes.get("uuid");
@@ -214,6 +223,16 @@ public class FragmentCompositionWrapper
 	}
 
 	/**
+	 * Returns the ct collection ID of this fragment composition.
+	 *
+	 * @return the ct collection ID of this fragment composition
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
+	}
+
+	/**
 	 * Returns the data of this fragment composition.
 	 *
 	 * @return the data of this fragment composition
@@ -278,6 +297,18 @@ public class FragmentCompositionWrapper
 	@Override
 	public long getGroupId() {
 		return model.getGroupId();
+	}
+
+	@Override
+	public String getIcon() {
+		return model.getIcon();
+	}
+
+	@Override
+	public String getImagePreviewURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay) {
+
+		return model.getImagePreviewURL(themeDisplay);
 	}
 
 	/**
@@ -515,6 +546,14 @@ public class FragmentCompositionWrapper
 		model.persist();
 	}
 
+	@Override
+	public void populateZipWriter(
+			com.liferay.portal.kernel.zip.ZipWriter zipWriter, String path)
+		throws Exception {
+
+		model.populateZipWriter(zipWriter, path);
+	}
+
 	/**
 	 * Sets the company ID of this fragment composition.
 	 *
@@ -533,6 +572,16 @@ public class FragmentCompositionWrapper
 	@Override
 	public void setCreateDate(Date createDate) {
 		model.setCreateDate(createDate);
+	}
+
+	/**
+	 * Sets the ct collection ID of this fragment composition.
+	 *
+	 * @param ctCollectionId the ct collection ID of this fragment composition
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
 	}
 
 	/**
@@ -593,6 +642,16 @@ public class FragmentCompositionWrapper
 	@Override
 	public void setGroupId(long groupId) {
 		model.setGroupId(groupId);
+	}
+
+	@Override
+	public void setIcon(String icon) {
+		model.setIcon(icon);
+	}
+
+	@Override
+	public void setImagePreviewURL(String imagePreviewURL) {
+		model.setImagePreviewURL(imagePreviewURL);
 	}
 
 	/**
@@ -743,6 +802,20 @@ public class FragmentCompositionWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public Map<String, Function<FragmentComposition, Object>>
+		getAttributeGetterFunctions() {
+
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<FragmentComposition, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

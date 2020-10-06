@@ -61,8 +61,10 @@ import java.util.Map;
  *
  * @author Marcellus Tavares
  * @see KaleoProcessServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class KaleoProcessServiceSoap {
 
 	/**
@@ -206,7 +208,8 @@ public class KaleoProcessServiceSoap {
 		com.liferay.portal.workflow.kaleo.forms.model.KaleoProcessSoap[] search(
 				long groupId, String keywords, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.portal.workflow.kaleo.forms.model.KaleoProcess>
+						orderByComparator)
 			throws RemoteException {
 
 		try {

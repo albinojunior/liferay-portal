@@ -53,44 +53,44 @@ public class FragmentSerDes {
 
 		sb.append("{");
 
-		if (fragment.getFragmentCollectionName() != null) {
+		if (fragment.getCollectionName() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"fragmentCollectionName\": ");
+			sb.append("\"collectionName\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(fragment.getFragmentCollectionName()));
+			sb.append(_escape(fragment.getCollectionName()));
 
 			sb.append("\"");
 		}
 
-		if (fragment.getFragmentKey() != null) {
+		if (fragment.getKey() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"fragmentKey\": ");
+			sb.append("\"key\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(fragment.getFragmentKey()));
+			sb.append(_escape(fragment.getKey()));
 
 			sb.append("\"");
 		}
 
-		if (fragment.getFragmentName() != null) {
+		if (fragment.getName() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"fragmentName\": ");
+			sb.append("\"name\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(fragment.getFragmentName()));
+			sb.append(_escape(fragment.getName()));
 
 			sb.append("\"");
 		}
@@ -113,27 +113,26 @@ public class FragmentSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
-		if (fragment.getFragmentCollectionName() == null) {
-			map.put("fragmentCollectionName", null);
+		if (fragment.getCollectionName() == null) {
+			map.put("collectionName", null);
 		}
 		else {
 			map.put(
-				"fragmentCollectionName",
-				String.valueOf(fragment.getFragmentCollectionName()));
+				"collectionName", String.valueOf(fragment.getCollectionName()));
 		}
 
-		if (fragment.getFragmentKey() == null) {
-			map.put("fragmentKey", null);
+		if (fragment.getKey() == null) {
+			map.put("key", null);
 		}
 		else {
-			map.put("fragmentKey", String.valueOf(fragment.getFragmentKey()));
+			map.put("key", String.valueOf(fragment.getKey()));
 		}
 
-		if (fragment.getFragmentName() == null) {
-			map.put("fragmentName", null);
+		if (fragment.getName() == null) {
+			map.put("name", null);
 		}
 		else {
-			map.put("fragmentName", String.valueOf(fragment.getFragmentName()));
+			map.put("name", String.valueOf(fragment.getName()));
 		}
 
 		return map;
@@ -156,25 +155,23 @@ public class FragmentSerDes {
 			Fragment fragment, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "fragmentCollectionName")) {
+			if (Objects.equals(jsonParserFieldName, "collectionName")) {
 				if (jsonParserFieldValue != null) {
-					fragment.setFragmentCollectionName(
-						(String)jsonParserFieldValue);
+					fragment.setCollectionName((String)jsonParserFieldValue);
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "fragmentKey")) {
+			else if (Objects.equals(jsonParserFieldName, "key")) {
 				if (jsonParserFieldValue != null) {
-					fragment.setFragmentKey((String)jsonParserFieldValue);
+					fragment.setKey((String)jsonParserFieldValue);
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "fragmentName")) {
+			else if (Objects.equals(jsonParserFieldName, "name")) {
 				if (jsonParserFieldValue != null) {
-					fragment.setFragmentName((String)jsonParserFieldValue);
+					fragment.setName((String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -230,10 +227,13 @@ public class FragmentSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

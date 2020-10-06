@@ -14,6 +14,7 @@
 
 package com.liferay.sync.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -59,7 +60,7 @@ public interface SyncDLFileVersionDiffLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link SyncDLFileVersionDiffLocalServiceUtil} to access the sync dl file version diff local service. Add custom service methods to <code>com.liferay.sync.service.impl.SyncDLFileVersionDiffLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.sync.service.impl.SyncDLFileVersionDiffLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the sync dl file version diff local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link SyncDLFileVersionDiffLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public SyncDLFileVersionDiff addSyncDLFileVersionDiff(
 			long fileEntryId, long sourceFileVersionId,
@@ -68,6 +69,10 @@ public interface SyncDLFileVersionDiffLocalService
 
 	/**
 	 * Adds the sync dl file version diff to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLFileVersionDiffLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param syncDLFileVersionDiff the sync dl file version diff
 	 * @return the sync dl file version diff that was added
@@ -104,6 +109,10 @@ public interface SyncDLFileVersionDiffLocalService
 	/**
 	 * Deletes the sync dl file version diff with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLFileVersionDiffLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param syncDLFileVersionDiffId the primary key of the sync dl file version diff
 	 * @return the sync dl file version diff that was removed
 	 * @throws PortalException if a sync dl file version diff with the primary key could not be found
@@ -116,6 +125,10 @@ public interface SyncDLFileVersionDiffLocalService
 	/**
 	 * Deletes the sync dl file version diff from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLFileVersionDiffLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param syncDLFileVersionDiff the sync dl file version diff
 	 * @return the sync dl file version diff that was removed
 	 * @throws PortalException
@@ -127,6 +140,9 @@ public interface SyncDLFileVersionDiffLocalService
 
 	public void deleteSyncDLFileVersionDiffs(long fileEntryId)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -263,6 +279,10 @@ public interface SyncDLFileVersionDiffLocalService
 
 	/**
 	 * Updates the sync dl file version diff in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLFileVersionDiffLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param syncDLFileVersionDiff the sync dl file version diff
 	 * @return the sync dl file version diff that was updated

@@ -132,13 +132,13 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, moveToTrash);
 
 		if (moveToTrash && (trashedModel != null)) {
-			Map<String, Object> data = HashMapBuilder.<String, Object>put(
-				Constants.CMD, Constants.REMOVE
-			).put(
-				"trashedModels", ListUtil.fromArray(trashedModel)
-			).build();
-
-			addDeleteSuccessData(actionRequest, data);
+			addDeleteSuccessData(
+				actionRequest,
+				HashMapBuilder.<String, Object>put(
+					Constants.CMD, Constants.REMOVE
+				).put(
+					"trashedModels", ListUtil.fromArray(trashedModel)
+				).build());
 		}
 	}
 
@@ -191,21 +191,21 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 					WebKeys.UPLOAD_EXCEPTION);
 
 			if (uploadException != null) {
-				Throwable cause = uploadException.getCause();
+				Throwable throwable = uploadException.getCause();
 
 				if (uploadException.isExceededFileSizeLimit()) {
-					throw new FileSizeException(cause);
+					throw new FileSizeException(throwable);
 				}
 
 				if (uploadException.isExceededLiferayFileItemSizeLimit()) {
-					throw new LiferayFileItemException(cause);
+					throw new LiferayFileItemException(throwable);
 				}
 
 				if (uploadException.isExceededUploadRequestSizeLimit()) {
-					throw new UploadRequestSizeException(cause);
+					throw new UploadRequestSizeException(throwable);
 				}
 
-				throw new PortalException(cause);
+				throw new PortalException(throwable);
 			}
 			else if (cmd.equals(Constants.ADD_TEMP)) {
 				addTempAttachment(actionRequest, actionResponse);
@@ -364,14 +364,13 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 					errorType = ServletResponseConstants.SC_FILE_SIZE_EXCEPTION;
 				}
 
-				JSONObject jsonObject = JSONUtil.put(
-					"message", errorMessage
-				).put(
-					"status", errorType
-				);
-
 				JSONPortletResponseUtil.writeJSON(
-					actionRequest, actionResponse, jsonObject);
+					actionRequest, actionResponse,
+					JSONUtil.put(
+						"message", errorMessage
+					).put(
+						"status", errorType
+					));
 			}
 
 			if (exception instanceof AntivirusScannerException) {
@@ -403,9 +402,9 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 				"mvcPath", "/html/porltet/document_library/error.jsp");
 		}
 		else {
-			Throwable cause = exception.getCause();
+			Throwable throwable = exception.getCause();
 
-			if (cause instanceof DuplicateFileEntryException) {
+			if (throwable instanceof DuplicateFileEntryException) {
 				SessionErrors.add(
 					actionRequest, DuplicateFileEntryException.class);
 			}

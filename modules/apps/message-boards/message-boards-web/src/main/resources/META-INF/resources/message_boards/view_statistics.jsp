@@ -39,49 +39,52 @@ portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 	<div class="statistics-panel">
 		<h3><liferay-ui:message key="overview" /></h3>
 
-		<div class="row">
-			<div class="col-md-4">
+		<clay:row>
+			<clay:col
+				md="4"
+			>
 				<div class="overview-container statistics-panel">
-					<div class="sticker sticker-categories sticker-user-icon">
-						<clay:icon
-							symbol="categories"
-						/>
-					</div>
+					<clay:sticker
+						cssClass="sticker-categories sticker-user-icon"
+						icon="categories"
+					/>
 
 					<small class="text-uppercase"><liferay-ui:message key="categories" /></small>
 
 					<p class="statistics-number"><%= numberFormat.format(categoryDisplay.getAllCategoriesCount()) %></p>
 				</div>
-			</div>
+			</clay:col>
 
-			<div class="col-md-4">
+			<clay:col
+				md="4"
+			>
 				<div class="overview-container statistics-panel">
-					<div class="sticker sticker-posts sticker-user-icon">
-						<clay:icon
-							symbol="message-boards"
-						/>
-					</div>
+					<clay:sticker
+						cssClass="sticker-posts sticker-user-icon"
+						icon="message-boards"
+					/>
 
 					<small class="text-uppercase"><liferay-ui:message key="posts" /></small>
 
 					<p class="statistics-number"><%= numberFormat.format(MBStatsUserLocalServiceUtil.getMessageCountByGroupId(scopeGroupId)) %></p>
 				</div>
-			</div>
+			</clay:col>
 
-			<div class="col-md-4">
+			<clay:col
+				md="4"
+			>
 				<div class="overview-container statistics-panel">
-					<div class="sticker sticker-participants sticker-user-icon">
-						<clay:icon
-							symbol="users"
-						/>
-					</div>
+					<clay:sticker
+						cssClass="sticker-participants sticker-user-icon"
+						icon="users"
+					/>
 
 					<small class="text-uppercase"><liferay-ui:message key="participants" /></small>
 
 					<p class="statistics-number"><%= numberFormat.format(MBStatsUserLocalServiceUtil.getStatsUsersByGroupIdCount(scopeGroupId)) %></p>
 				</div>
-			</div>
-		</div>
+			</clay:col>
+		</clay:row>
 	</div>
 
 	<div class="statistics-panel">

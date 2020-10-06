@@ -26,7 +26,7 @@ boolean geolocation = GetterUtil.getBoolean(request.getAttribute("liferay-map:ma
 double latitude = (Double)request.getAttribute("liferay-map:map:latitude");
 double longitude = (Double)request.getAttribute("liferay-map:map:longitude");
 String name = (String)request.getAttribute("liferay-map:map:name");
-String points =(String)request.getAttribute("liferay-map:map:points");
+String points = (String)request.getAttribute("liferay-map:map:points");
 
 name = namespace + name;
 %>
@@ -35,7 +35,7 @@ name = namespace + name;
 	outputKey="js_maps_google_skip_map_loading"
 >
 	<script>
-		Liferay.namespace('Maps').onGMapsReady = function(event) {
+		Liferay.namespace('Maps').onGMapsReady = function (event) {
 			Liferay.Maps.gmapsReady = true;
 
 			Liferay.fire('gmapsReady');
@@ -82,7 +82,7 @@ name = namespace + name;
 
 		geolocation: <%= geolocation %>,
 
-		<c:if test="<%= Validator.isNotNull(latitude) && Validator.isNotNull(longitude) %>">
+		<c:if test="<%= (latitude != 0) && (longitude != 0) %>">
 			position: {
 				location: {
 					lat: <%= latitude %>,
@@ -92,7 +92,7 @@ name = namespace + name;
 		</c:if>
 	};
 
-	var createMap = function() {
+	var createMap = function () {
 		var map = new MapGoogleMaps.default(mapConfig);
 
 		Liferay.MapBase.register(

@@ -47,6 +47,7 @@ import com.liferay.portal.service.base.LayoutSetBranchLocalServiceBaseImpl;
 
 import java.text.Format;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -264,6 +265,43 @@ public class LayoutSetBranchLocalServiceImpl
 			LayoutSetBranch layoutSetBranch, boolean includeMaster)
 		throws PortalException {
 
+		return deleteLayoutSetBranch(
+			LayoutConstants.DEFAULT_PLID, layoutSetBranch, includeMaster);
+	}
+
+	@Override
+	public LayoutSetBranch deleteLayoutSetBranch(long layoutSetBranchId)
+		throws PortalException {
+
+		return deleteLayoutSetBranch(
+			LayoutConstants.DEFAULT_PLID, layoutSetBranchId);
+	}
+
+	@Override
+	public LayoutSetBranch deleteLayoutSetBranch(
+			long currentLayoutPlid, LayoutSetBranch layoutSetBranch,
+			boolean includeMaster)
+		throws PortalException {
+
+		// Layout
+
+		List<Long> deletablePlids = _getDeletablePlids(
+			layoutSetBranch.getLayoutSetBranchId());
+
+		if ((currentLayoutPlid != LayoutConstants.DEFAULT_PLID) &&
+			deletablePlids.contains(currentLayoutPlid)) {
+
+			throw new PortalException();
+		}
+
+		for (long plid : deletablePlids) {
+			Layout layout = layoutLocalService.fetchLayout(plid);
+
+			if (layout != null) {
+				layoutLocalService.deleteLayout(layout);
+			}
+		}
+
 		// Layout branch
 
 		if (!includeMaster && layoutSetBranch.isMaster()) {
@@ -298,13 +336,14 @@ public class LayoutSetBranchLocalServiceImpl
 	}
 
 	@Override
-	public LayoutSetBranch deleteLayoutSetBranch(long layoutSetBranchId)
+	public LayoutSetBranch deleteLayoutSetBranch(
+			long currentLayoutPlid, long layoutSetBranchId)
 		throws PortalException {
 
 		LayoutSetBranch layoutSetBranch =
 			layoutSetBranchPersistence.findByPrimaryKey(layoutSetBranchId);
 
-		return deleteLayoutSetBranch(layoutSetBranch, false);
+		return deleteLayoutSetBranch(currentLayoutPlid, layoutSetBranch, false);
 	}
 
 	@Override
@@ -573,6 +612,51 @@ public class LayoutSetBranchLocalServiceImpl
 					noSuchLayoutSetBranchException);
 			}
 		}
+	}
+
+	private List<Long> _getDeletablePlids(long layoutSetBranchId) {
+		List<Long> deletablePlids = new ArrayList<>();
+
+		List<Long> relatedPlids = _getRelatedPlids(layoutSetBranchId);
+
+		for (long plid : relatedPlids) {
+			boolean deletableLayout = true;
+
+			List<LayoutRevision> layoutRevisions =
+				layoutRevisionLocalService.getLayoutRevisions(plid);
+
+			for (LayoutRevision layoutRevision : layoutRevisions) {
+				if ((layoutRevision.getStatus() !=
+						WorkflowConstants.STATUS_INCOMPLETE) &&
+					(layoutRevision.getLayoutSetBranchId() !=
+						layoutSetBranchId)) {
+
+					deletableLayout = false;
+
+					break;
+				}
+			}
+
+			if (deletableLayout) {
+				deletablePlids.add(plid);
+			}
+		}
+
+		return deletablePlids;
+	}
+
+	private List<Long> _getRelatedPlids(long layoutSetBranchId) {
+		List<Long> relatedPlids = new ArrayList<>();
+
+		List<LayoutBranch> layoutBranches =
+			layoutBranchLocalService.getLayoutSetBranchLayoutBranches(
+				layoutSetBranchId);
+
+		for (LayoutBranch layoutBranch : layoutBranches) {
+			relatedPlids.add(layoutBranch.getPlid());
+		}
+
+		return relatedPlids;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

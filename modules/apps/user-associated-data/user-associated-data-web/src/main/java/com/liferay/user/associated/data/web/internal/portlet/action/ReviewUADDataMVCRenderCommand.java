@@ -107,7 +107,8 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 			String uadRegistryKey = _getUADRegistryKey(
 				applicationKey, renderRequest);
 
-			UADDisplay uadDisplay = _uadRegistry.getUADDisplay(uadRegistryKey);
+			UADDisplay<?> uadDisplay = _uadRegistry.getUADDisplay(
+				uadRegistryKey);
 
 			renderRequest.setAttribute(
 				UADWebKeys.UAD_INFO_PANEL_DISPLAY,
@@ -194,11 +195,11 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 		return scopeDisplays;
 	}
 
-	private SearchContainer<UADEntity> _getSearchContainer(
+	private SearchContainer<UADEntity<?>> _getSearchContainer(
 			String applicationKey, RenderRequest renderRequest,
 			RenderResponse renderResponse, ScopeDisplay scopeDisplay,
-			UADDisplay uadDisplay, UADHierarchyDisplay uadHierarchyDisplay,
-			User user)
+			UADDisplay<Object> uadDisplay,
+			UADHierarchyDisplay uadHierarchyDisplay, User user)
 		throws Exception {
 
 		LiferayPortletResponse liferayPortletResponse =
@@ -207,20 +208,22 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 			renderRequest, renderResponse);
 
 		if (applicationKey.equals(UADConstants.ALL_APPLICATIONS)) {
-			return _uadSearchContainerBuilder.getSearchContainer(
-				liferayPortletResponse, renderRequest, currentURL,
-				scopeDisplay.getUADApplicationSummaryDisplays());
+			return _uadSearchContainerBuilder.
+				getApplicationSummaryUADEntitySearchContainer(
+					liferayPortletResponse, renderRequest, currentURL,
+					scopeDisplay.getUADApplicationSummaryDisplays());
 		}
 
 		if (uadHierarchyDisplay != null) {
-			return _uadSearchContainerBuilder.getSearchContainer(
-				liferayPortletResponse, renderRequest, applicationKey,
-				currentURL, scopeDisplay.getGroupIds(),
-				uadHierarchyDisplay.getFirstContainerTypeClass(), 0L, user,
-				uadHierarchyDisplay);
+			return _uadSearchContainerBuilder.
+				getHierarchyUADEntitySearchContainer(
+					liferayPortletResponse, renderRequest, applicationKey,
+					currentURL, scopeDisplay.getGroupIds(),
+					uadHierarchyDisplay.getFirstContainerTypeClass(), 0L, user,
+					uadHierarchyDisplay);
 		}
 
-		return _uadSearchContainerBuilder.getSearchContainer(
+		return _uadSearchContainerBuilder.getUADEntitySearchContainer(
 			liferayPortletResponse, renderRequest, currentURL,
 			scopeDisplay.getGroupIds(), user, uadDisplay);
 	}
@@ -231,17 +234,17 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 	}
 
 	private UADInfoPanelDisplay _getUADInfoPanelDisplay(
-		UADDisplay uadDisplay, UADHierarchyDisplay uadHierarchyDisplay) {
+		UADDisplay<?> uadDisplay, UADHierarchyDisplay uadHierarchyDisplay) {
 
 		UADInfoPanelDisplay uadInfoPanelDisplay = new UADInfoPanelDisplay();
 
 		if (uadHierarchyDisplay != null) {
 			uadInfoPanelDisplay.setHierarchyView(true);
 			uadInfoPanelDisplay.setUADDisplay(
-				uadHierarchyDisplay.getUADDisplays()[0]);
+				(UADDisplay<Object>)uadHierarchyDisplay.getUADDisplays()[0]);
 		}
 		else {
-			uadInfoPanelDisplay.setUADDisplay(uadDisplay);
+			uadInfoPanelDisplay.setUADDisplay((UADDisplay<Object>)uadDisplay);
 		}
 
 		return uadInfoPanelDisplay;
@@ -265,7 +268,7 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 	private ViewUADEntitiesDisplay _getViewUADEntitiesDisplay(
 			String applicationKey, RenderRequest renderRequest,
 			RenderResponse renderResponse, ScopeDisplay scopeDisplay, User user,
-			UADDisplay uadDisplay, UADHierarchyDisplay uadHierarchyDisplay,
+			UADDisplay<?> uadDisplay, UADHierarchyDisplay uadHierarchyDisplay,
 			String uadRegistryKey)
 		throws Exception {
 
@@ -278,7 +281,7 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 		viewUADEntitiesDisplay.setSearchContainer(
 			_getSearchContainer(
 				applicationKey, renderRequest, renderResponse, scopeDisplay,
-				uadDisplay, uadHierarchyDisplay, user));
+				(UADDisplay<Object>)uadDisplay, uadHierarchyDisplay, user));
 
 		if (uadHierarchyDisplay != null) {
 			viewUADEntitiesDisplay.setHierarchy(true);

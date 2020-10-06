@@ -25,6 +25,7 @@ export default function SidebarPanelHeader({padded = true, ...props}) {
 				'align-items-center',
 				'd-flex',
 				{
+					light: true,
 					[props.className]: !!props.className,
 					'pt-2': padded,
 					'px-3': padded,

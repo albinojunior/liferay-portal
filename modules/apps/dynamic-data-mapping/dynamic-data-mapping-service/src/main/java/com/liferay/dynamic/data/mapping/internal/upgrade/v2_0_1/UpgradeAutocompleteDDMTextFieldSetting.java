@@ -15,13 +15,12 @@
 package com.liferay.dynamic.data.mapping.internal.upgrade.v2_0_1;
 
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeRequest;
-import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeResponse;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializerSerializeResponse;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.util.DDMFormDeserializeUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
@@ -60,7 +59,15 @@ public class UpgradeAutocompleteDDMTextFieldSetting extends UpgradeProcess {
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection,
 					"update DDMStructure set definition = ? where " +
-						"structureId = ?")) {
+						"structureId = ?");
+			PreparedStatement ps3 = connection.prepareStatement(
+				"select structureVersionId, definition from " +
+					"DDMStructureVersion where structureId = ?");
+			PreparedStatement ps4 =
+				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
+					connection,
+					"update DDMStructureVersion set definition = ? where " +
+						"structureVersionId = ?")) {
 
 			try (ResultSet rs = ps1.executeQuery()) {
 				while (rs.next()) {
@@ -80,9 +87,35 @@ public class UpgradeAutocompleteDDMTextFieldSetting extends UpgradeProcess {
 					ps2.setLong(2, structureId);
 
 					ps2.addBatch();
+
+					ps3.setLong(1, structureId);
+
+					try (ResultSet rs2 = ps3.executeQuery()) {
+						while (rs2.next()) {
+							definition = rs2.getString("definition");
+
+							newDefinition = upgradeDDMFormInstanceStructure(
+								definition);
+
+							if (Objects.equals(definition, newDefinition)) {
+								continue;
+							}
+
+							ps4.setString(1, newDefinition);
+
+							long structureVersionId = rs2.getLong(
+								"structureVersionId");
+
+							ps4.setLong(2, structureVersionId);
+
+							ps4.addBatch();
+						}
+					}
 				}
 
 				ps2.executeBatch();
+
+				ps4.executeBatch();
 			}
 		}
 	}
@@ -97,16 +130,11 @@ public class UpgradeAutocompleteDDMTextFieldSetting extends UpgradeProcess {
 		return false;
 	}
 
-	protected String upgradeDDMFormInstanceStructure(String definition) {
-		DDMFormDeserializerDeserializeRequest.Builder deserializerBuilder =
-			DDMFormDeserializerDeserializeRequest.Builder.newBuilder(
-				definition);
+	protected String upgradeDDMFormInstanceStructure(String definition)
+		throws Exception {
 
-		DDMFormDeserializerDeserializeResponse
-			ddmFormDeserializerDeserializeResponse =
-				_ddmFormDeserializer.deserialize(deserializerBuilder.build());
-
-		DDMForm ddmForm = ddmFormDeserializerDeserializeResponse.getDDMForm();
+		DDMForm ddmForm = DDMFormDeserializeUtil.deserialize(
+			_ddmFormDeserializer, definition);
 
 		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
 			if (Objects.equals(ddmFormField.getType(), "text")) {

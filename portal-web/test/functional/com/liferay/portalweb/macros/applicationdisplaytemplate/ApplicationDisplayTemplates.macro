@@ -27,7 +27,18 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		MenuItem.click(menuItem = "${adtType} Template");
+		if (IsElementPresent(key_text = "More", locator1 = "Button#ANY")) {
+			Button.clickMore();
+
+			ScrollWebElementIntoView(
+				key_menuItem = "${adtType} Template",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+
+			MenuItem.click(menuItem = "${adtType} Template");
+		}
+		else {
+			MenuItem.click(menuItem = "${adtType} Template");
+		}
 
 		SiteAdmin.viewPortletTitle(portletTitle = "New ${adtType} Template");
 
@@ -45,7 +56,7 @@ definition {
 	}
 
 	macro addManualViaRSS {
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Pause(locator1 = "5000");
 
@@ -120,10 +131,6 @@ definition {
 
 		PortletEntry.save();
 
-		AssertTextEquals(
-			locator1 = "ApplicationDisplayTemplates#ADT_TABLE_NAME_1",
-			value1 = "${adtType} Test ADT");
-
 		SelectFrameTop(value1 = "relative=top");
 	}
 
@@ -155,6 +162,34 @@ definition {
 		PortletEntry.save();
 
 		SelectFrameTop(value1 = "relative=top");
+	}
+
+	macro editWidgetTemplate {
+		SiteAdmin.viewPortletTitle(portletTitle = "${oldWidgetTemplateName}");
+
+		if (isSet(newWidgetTemplateName)) {
+			PortletEntry.inputName(name = "${newWidgetTemplateName}");
+		}
+
+		if (isSet(adtFile)) {
+			UploadCommonFile(
+				locator1 = "DDMEditTemplate#SCRIPT_FILE_FIELD",
+				value1 = "${adtFile}");
+		}
+
+		PortletEntry.save();
+	}
+
+	macro gotoWidgetTemplatesEllipsisItem {
+		Click.waitForMenuToggleJSClick(
+			key_tableEntry = "${widgetTemplateName}",
+			locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS_LINK");
+
+		MenuItem.clickNoError(menuItem = "${item}");
+	}
+
+	macro openWidgetTemplatesAdmin {
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_dynamic_data_mapping_web_portlet_PortletDisplayTemplatePortlet");
 	}
 
 	macro selectPortletADT {

@@ -39,6 +39,9 @@ public class MessageBoardMessageEntityModel implements EntityModel {
 		_entityFieldsMap = EntityFieldsMapFactory.create(
 			new BooleanEntityField("showAsQuestion", locale -> "question"),
 			new CollectionEntityField(
+				new IntegerEntityField(
+					"taxonomyCategoryIds", locale -> "assetCategoryIds")),
+			new CollectionEntityField(
 				new StringEntityField(
 					"keywords", locale -> "assetTagNames.raw")),
 			new ComplexEntityField(
@@ -68,6 +71,9 @@ public class MessageBoardMessageEntityModel implements EntityModel {
 			new IntegerEntityField(
 				"ratingValue",
 				locale -> Field.getSortableFieldName("totalScore")),
+			new StringEntityField(
+				"friendlyUrlPath",
+				locale -> Field.getSortableFieldName("urlSubject_String")),
 			new StringEntityField(
 				"headline",
 				locale -> Field.getSortableFieldName(

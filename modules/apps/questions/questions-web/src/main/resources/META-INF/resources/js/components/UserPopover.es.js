@@ -14,7 +14,6 @@
 
 import ClayPopover from '@clayui/popover';
 import React from 'react';
-import {Link} from 'react-router-dom';
 
 import {dateToBriefInternationalHuman} from '../utils/utils.es';
 import UserIcon from './UserIcon.es';
@@ -23,7 +22,7 @@ export default ({creator, statistics}) => {
 	return (
 		<ClayPopover
 			alignPosition="bottom"
-			className="question-user-popover"
+			className="questions-user-popover"
 			disableScroll={true}
 			header={
 				<div className="align-items-center d-flex">
@@ -54,12 +53,6 @@ export default ({creator, statistics}) => {
 					{dateToBriefInternationalHuman(statistics.lastPostDate)}
 				</p>
 			</div>
-
-			<Link to={'/questions/creator/' + creator.id}>
-				<p className="c-mb-1 c-mt-2 font-weight-bold text-center text-primary">
-					View Activity
-				</p>
-			</Link>
 		</ClayPopover>
 	);
 };

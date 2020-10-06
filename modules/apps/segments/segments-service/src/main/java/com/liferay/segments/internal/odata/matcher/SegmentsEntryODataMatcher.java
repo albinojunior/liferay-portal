@@ -42,14 +42,14 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 	property = "target.class.name=com.liferay.segments.model.SegmentsEntry",
 	service = ODataMatcher.class
 )
-public class SegmentsEntryODataMatcher implements ODataMatcher<Map> {
+public class SegmentsEntryODataMatcher implements ODataMatcher<Map<?, ?>> {
 
 	@Override
-	public boolean matches(String filterString, Map pattern)
+	public boolean matches(String filterString, Map<?, ?> pattern)
 		throws PortalException {
 
 		try {
-			Predicate<Map> predicate = _getPredicate(filterString);
+			Predicate<Map<?, ?>> predicate = _getPredicate(filterString);
 
 			return predicate.test(pattern);
 		}
@@ -103,7 +103,9 @@ public class SegmentsEntryODataMatcher implements ODataMatcher<Map> {
 		_entityModel = null;
 	}
 
-	private Predicate<Map> _getPredicate(String filterString) throws Exception {
+	private Predicate<Map<?, ?>> _getPredicate(String filterString)
+		throws Exception {
+
 		Filter filter = new Filter(_filterParser.parse(filterString));
 
 		try {
@@ -122,7 +124,7 @@ public class SegmentsEntryODataMatcher implements ODataMatcher<Map> {
 	private volatile EntityModel _entityModel;
 
 	@Reference(target = "(result.class.name=java.util.function.Predicate)")
-	private ExpressionConvert<Predicate> _expressionConvert;
+	private ExpressionConvert<Predicate<Map<?, ?>>> _expressionConvert;
 
 	private FilterParser _filterParser;
 

@@ -14,15 +14,26 @@
 
 package com.liferay.jenkins.results.parser.spira;
 
+import java.io.Serializable;
+
+import org.json.JSONObject;
+
 /**
  * @author Michael Hashimoto
  */
-public interface SpiraArtifact {
+public interface SpiraArtifact extends Serializable {
+
+	public static final String SPIRA_BASE_URL =
+		"https://liferay.spiraservice.net/";
 
 	public int getID();
 
 	public String getName();
 
 	public SpiraProject getSpiraProject();
+
+	public String getURL();
+
+	public JSONObject toJSONObject();
 
 }

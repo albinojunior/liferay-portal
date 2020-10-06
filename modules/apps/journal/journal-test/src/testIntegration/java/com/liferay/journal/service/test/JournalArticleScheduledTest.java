@@ -22,9 +22,9 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMTemplateTestUtil;
+import com.liferay.journal.constants.JournalArticleConstants;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.string.StringPool;
@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.Calendar;
@@ -96,6 +97,9 @@ public class JournalArticleScheduledTest {
 		testScheduleArticle(false, _WHEN_PAST);
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
 	protected JournalArticle addArticle(
 			long groupId, Date displayDate, int when, boolean approved)
 		throws Exception {
@@ -135,7 +139,7 @@ public class JournalArticleScheduledTest {
 		return JournalArticleLocalServiceUtil.addArticle(
 			TestPropsValues.getUserId(), groupId,
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			JournalArticleConstants.CLASSNAME_ID_DEFAULT, 0, StringPool.BLANK,
+			JournalArticleConstants.CLASS_NAME_ID_DEFAULT, 0, StringPool.BLANK,
 			true, JournalArticleConstants.VERSION_DEFAULT, titleMap,
 			descriptionMap, content, ddmStructure.getStructureKey(),
 			ddmTemplate.getTemplateKey(), null,
@@ -150,7 +154,7 @@ public class JournalArticleScheduledTest {
 	protected Calendar getCalendar(Date date, int when) {
 		Calendar calendar = new GregorianCalendar();
 
-		calendar.setTime(new Date(date.getTime() + Time.MINUTE * when * 5));
+		calendar.setTime(new Date(date.getTime() + (Time.MINUTE * when * 5)));
 
 		return calendar;
 	}

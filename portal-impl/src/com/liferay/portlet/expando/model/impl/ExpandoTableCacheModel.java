@@ -18,6 +18,7 @@ import com.liferay.expando.kernel.model.ExpandoTable;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -31,22 +32,24 @@ import java.io.ObjectOutput;
  * @generated
  */
 public class ExpandoTableCacheModel
-	implements CacheModel<ExpandoTable>, Externalizable {
+	implements CacheModel<ExpandoTable>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof ExpandoTableCacheModel)) {
+		if (!(object instanceof ExpandoTableCacheModel)) {
 			return false;
 		}
 
 		ExpandoTableCacheModel expandoTableCacheModel =
-			(ExpandoTableCacheModel)obj;
+			(ExpandoTableCacheModel)object;
 
-		if (tableId == expandoTableCacheModel.tableId) {
+		if ((tableId == expandoTableCacheModel.tableId) &&
+			(mvccVersion == expandoTableCacheModel.mvccVersion)) {
+
 			return true;
 		}
 
@@ -55,14 +58,30 @@ public class ExpandoTableCacheModel
 
 	@Override
 	public int hashCode() {
-		return HashUtil.hash(0, tableId);
+		int hashCode = HashUtil.hash(0, tableId);
+
+		return HashUtil.hash(hashCode, mvccVersion);
+	}
+
+	@Override
+	public long getMvccVersion() {
+		return mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		this.mvccVersion = mvccVersion;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(9);
+		StringBundler sb = new StringBundler(13);
 
-		sb.append("{tableId=");
+		sb.append("{mvccVersion=");
+		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
+		sb.append(", tableId=");
 		sb.append(tableId);
 		sb.append(", companyId=");
 		sb.append(companyId);
@@ -79,6 +98,8 @@ public class ExpandoTableCacheModel
 	public ExpandoTable toEntityModel() {
 		ExpandoTableImpl expandoTableImpl = new ExpandoTableImpl();
 
+		expandoTableImpl.setMvccVersion(mvccVersion);
+		expandoTableImpl.setCtCollectionId(ctCollectionId);
 		expandoTableImpl.setTableId(tableId);
 		expandoTableImpl.setCompanyId(companyId);
 		expandoTableImpl.setClassNameId(classNameId);
@@ -97,6 +118,10 @@ public class ExpandoTableCacheModel
 
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
+		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
+
 		tableId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -107,6 +132,10 @@ public class ExpandoTableCacheModel
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
+		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
+
 		objectOutput.writeLong(tableId);
 
 		objectOutput.writeLong(companyId);
@@ -121,6 +150,8 @@ public class ExpandoTableCacheModel
 		}
 	}
 
+	public long mvccVersion;
+	public long ctCollectionId;
 	public long tableId;
 	public long companyId;
 	public long classNameId;

@@ -10,7 +10,7 @@
 <tbody>
 <tr>
 	<td>ADD</td>
-	<td>//div[contains(@class,'translation-manager')]//button[contains(@class,'dropdown-toggle')]</td>
+	<td>//div[contains(@class,'translation-manager')]//*[contains(@class,'dropdown-toggle')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -22,6 +22,11 @@
 	<td>AVAILABLE_TRANSLATION</td>
 	<td>//div[contains(@class,'dropdown-menu')]//button[contains(text(),'${key_localizedLanguage}')]
 	</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_TITLE</td>
+	<td>//div[contains(@class,'dropdown-menu')]//button[contains(@class,'dropdown-item') and contains(.,'${key_locale}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -42,6 +47,36 @@
 <tr>
 	<td>CURRENT_LOCALE_TITLE</td>
 	<td>//div[contains(@class,'localized')]//button[contains(@class,'localized') and contains(@id,'description')][*[normalize-space(text())='${key_locale}']]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DROPDOWN_MENU_ITEM</td>
+	<td>//div[contains(@class,'dropdown-menu show')]//button[contains(@class,'dropdown-item') and contains(.,'${key_locale}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BASE_LANGUAGE_CONTENT_FIELD</td>
+	<td>//div[contains(@class,'col-md-6') and contains(.,'${key_fieldName}')]//div[contains(.,'${key_content}') and not(@contenteditable='true')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BASE_LANGUAGE_FIELD</td>
+	<td>//div[contains(@class,'form-group')]//input[contains(@name,'JournalPortlet_${key_fieldName}') and contains(@value,'${key_fieldValue}') and @readonly='true']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BASE_LANGUAGE_TEXT_BOX_FIELD</td>
+	<td>//div[contains(@class,'form-group')]//textarea[contains(@name,'JournalPortlet_${key_fieldName}') and @readonly='true' and contains(text(),'${key_fieldValue}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TARGET_LANGUAGE_FIELD</td>
+	<td>//div[contains(@class,'form-group')]//input[contains(@id,'JournalPortlet_${key_fieldName}') and contains(@value,'${key_fieldValue}') and (not(@readonly='true'))]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TARGET_LANGUAGE_TEXT_BOX_FIELD</td>
+	<td>//div[contains(@class,'form-group')]//textarea[contains(@id,'JournalPortlet_${key_fieldName}') and contains(text(),'${key_fieldValue}') and (not(@readonly='true'))]</td>
 	<td></td>
 </tr>
 <tr>

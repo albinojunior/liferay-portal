@@ -38,7 +38,7 @@ java.util.Calendar endTimeJCalendar = JCalendarUtil.getJCalendar(endTime, userTi
 AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBooking.class.getName(), calendarBooking.getCalendarBookingId());
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<div class="panel panel-default">
 		<liferay-ui:header
 			backURL="<%= backURL %>"
@@ -149,7 +149,7 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 
 			<c:if test="<%= calendar.isEnableRatings() %>">
 				<div class="entry-ratings">
-					<liferay-ui:ratings
+					<liferay-ratings:ratings
 						className="<%= CalendarBooking.class.getName() %>"
 						classPK="<%= calendarBooking.getCalendarBookingId() %>"
 						inTrash="<%= calendarBooking.isInTrash() %>"
@@ -261,15 +261,15 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 
 			<c:if test="<%= hasManageBookingsPermission && !hasWorkflowInstanceLink %>">
 				<c:if test="<%= calendarBooking.getStatus() != WorkflowConstants.STATUS_APPROVED %>">
-					<aui:button onClick='<%= renderResponse.getNamespace() + "invokeTransition(" + WorkflowConstants.STATUS_APPROVED + ");" %>' value="accept" />
+					<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "invokeTransition(" + WorkflowConstants.STATUS_APPROVED + ");" %>' value="accept" />
 				</c:if>
 
 				<c:if test="<%= calendarBooking.getStatus() != CalendarBookingWorkflowConstants.STATUS_MAYBE %>">
-					<aui:button onClick='<%= renderResponse.getNamespace() + "invokeTransition(" + CalendarBookingWorkflowConstants.STATUS_MAYBE + ");" %>' value="maybe" />
+					<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "invokeTransition(" + CalendarBookingWorkflowConstants.STATUS_MAYBE + ");" %>' value="maybe" />
 				</c:if>
 
 				<c:if test="<%= calendarBooking.getStatus() != WorkflowConstants.STATUS_DENIED %>">
-					<aui:button onClick='<%= renderResponse.getNamespace() + "invokeTransition(" + WorkflowConstants.STATUS_DENIED + ");" %>' value="decline" />
+					<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "invokeTransition(" + WorkflowConstants.STATUS_DENIED + ");" %>' value="decline" />
 				</c:if>
 			</c:if>
 		</aui:button-row>
@@ -282,21 +282,21 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 			if (<%= calendarBooking.isRecurring() %>) {
 				Liferay.RecurrenceUtil.openConfirmationPanel(
 					'invokeTransition',
-					function() {
+					function () {
 						document.<portlet:namespace />fm.<portlet:namespace />updateInstance.value =
 							'true';
 						document.<portlet:namespace />fm.<portlet:namespace />allFollowing.value =
 							'false';
 						submitForm(document.<portlet:namespace />fm);
 					},
-					function() {
+					function () {
 						document.<portlet:namespace />fm.<portlet:namespace />updateInstance.value =
 							'true';
 						document.<portlet:namespace />fm.<portlet:namespace />allFollowing.value =
 							'true';
 						submitForm(document.<portlet:namespace />fm);
 					},
-					function() {
+					function () {
 						submitForm(document.<portlet:namespace />fm);
 					}
 				);
@@ -306,4 +306,4 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 			}
 		}
 	</aui:script>
-</div>
+</clay:container-fluid>

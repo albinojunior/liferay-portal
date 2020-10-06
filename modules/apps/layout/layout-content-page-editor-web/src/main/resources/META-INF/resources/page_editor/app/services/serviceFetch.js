@@ -55,7 +55,6 @@ export default function serviceFetch(
 	if (requestGenerateDraft) {
 		onNetworkStatus(
 			updateNetwork({
-				requestGenerateDraft,
 				status: SERVICE_NETWORK_STATUS_TYPES.savingDraft,
 			})
 		);
@@ -67,14 +66,14 @@ export default function serviceFetch(
 		method: method || 'POST',
 	})
 		.then(
-			response =>
+			(response) =>
 				new Promise((resolve, reject) => {
 					response
 						.clone()
 						.json()
-						.then(body => resolve([response, body]))
+						.then((body) => resolve([response, body]))
 						.catch(() => response.clone().text())
-						.then(body => resolve([response, body]))
+						.then((body) => resolve([response, body]))
 						.catch(reject);
 				})
 		)
@@ -111,7 +110,6 @@ export default function serviceFetch(
 				onNetworkStatus(
 					updateNetwork({
 						error: null,
-						lastFetch: new Date(),
 						status: SERVICE_NETWORK_STATUS_TYPES.draftSaved,
 					})
 				);

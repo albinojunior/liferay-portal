@@ -25,14 +25,11 @@ import javax.inject.Inject;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.meta.ExpressionSupport;
-import org.mule.runtime.extension.api.annotation.Expression;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.http.api.HttpService;
 import org.mule.runtime.http.api.domain.message.response.HttpResponse;
+
+import org.slf4j.Logger;
 
 /**
  * @author Matija Petanjek
@@ -42,6 +39,8 @@ public abstract class BaseCachedConnectionProvider
 
 	@Override
 	public void disconnect(LiferayConnection liferayConnection) {
+		getLogger().debug("Closing connection to Liferay Portal instance");
+
 		liferayConnection.invalidate();
 	}
 
@@ -71,16 +70,12 @@ public abstract class BaseCachedConnectionProvider
 		}
 	}
 
+	protected abstract Logger getLogger();
+
 	@Inject
 	protected HttpService httpService;
 
 	@ParameterGroup(name = "Proxy config")
 	protected LiferayProxyConfig liferayProxyConfig;
-
-	@DisplayName("OpenAPI Spec URL")
-	@Expression(ExpressionSupport.NOT_SUPPORTED)
-	@Parameter
-	@Placement(order = 1)
-	protected String openApiSpecPath;
 
 }

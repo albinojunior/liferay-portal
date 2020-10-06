@@ -14,6 +14,7 @@
 
 package com.liferay.portal.tools.service.builder.test.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.version.VersionService;
 import com.liferay.portal.kernel.service.version.VersionServiceListener;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -87,6 +89,10 @@ public abstract class LVEntryLocalServiceBaseImpl
 	/**
 	 * Adds the lv entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LVEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param lvEntry the lv entry
 	 * @return the lv entry that was added
 	 */
@@ -119,6 +125,10 @@ public abstract class LVEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the lv entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LVEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param lvEntryId the primary key of the lv entry
 	 * @return the lv entry that was removed
 	 * @throws PortalException if a lv entry with the primary key could not be found
@@ -138,6 +148,10 @@ public abstract class LVEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the lv entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LVEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param lvEntry the lv entry
 	 * @return the lv entry that was removed
 	 */
@@ -152,6 +166,11 @@ public abstract class LVEntryLocalServiceBaseImpl
 		catch (PortalException portalException) {
 			throw new SystemException(portalException);
 		}
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return lvEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -318,6 +337,10 @@ public abstract class LVEntryLocalServiceBaseImpl
 		return lvEntryLocalService.deleteLVEntry((LVEntry)persistedModel);
 	}
 
+	public BasePersistence<LVEntry> getBasePersistence() {
+		return lvEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -356,6 +379,10 @@ public abstract class LVEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the lv entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LVEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param lvEntry the lv entry
 	 * @return the lv entry that was updated

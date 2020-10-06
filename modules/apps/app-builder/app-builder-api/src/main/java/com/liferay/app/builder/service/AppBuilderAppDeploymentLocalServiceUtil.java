@@ -41,6 +41,10 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 	/**
 	 * Adds the app builder app deployment to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was added
 	 */
@@ -86,6 +90,10 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 	/**
 	 * Deletes the app builder app deployment from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was removed
 	 */
@@ -100,6 +108,10 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 
 	/**
 	 * Deletes the app builder app deployment with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppDeploymentId the primary key of the app builder app deployment
 	 * @return the app builder app deployment that was removed
@@ -122,6 +134,12 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -239,7 +257,7 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 
 	public static com.liferay.app.builder.model.AppBuilderAppDeployment
 			getAppBuilderAppDeployment(long appBuilderAppId, String type)
-		throws Exception {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().getAppBuilderAppDeployment(appBuilderAppId, type);
 	}
@@ -306,6 +324,10 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 
 	/**
 	 * Updates the app builder app deployment in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was updated

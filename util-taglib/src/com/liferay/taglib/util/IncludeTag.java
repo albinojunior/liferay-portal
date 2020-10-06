@@ -286,11 +286,12 @@ public class IncludeTag extends AttributesTagSupport {
 			group = group.getLiveGroup();
 		}
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			group.getTypeSettingsProperties();
 
-		String customJspServletContextName = typeSettingsProperties.getProperty(
-			"customJspServletContextName");
+		String customJspServletContextName =
+			typeSettingsUnicodeProperties.getProperty(
+				"customJspServletContextName");
 
 		if (Validator.isNull(customJspServletContextName)) {
 			return null;
@@ -554,10 +555,10 @@ public class IncludeTag extends AttributesTagSupport {
 		extends HttpServletRequestWrapper {
 
 		@Override
-		public void setAttribute(String name, Object obj) {
+		public void setAttribute(String name, Object object) {
 			_setAttributeNames.add(name);
 
-			super.setAttribute(name, obj);
+			super.setAttribute(name, object);
 		}
 
 		private TrackedServletRequest(

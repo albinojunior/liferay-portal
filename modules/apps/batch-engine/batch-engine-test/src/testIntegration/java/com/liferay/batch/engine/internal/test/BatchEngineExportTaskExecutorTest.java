@@ -33,12 +33,9 @@ import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-
-import java.text.ParseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +59,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,6 +78,7 @@ public class BatchEngineExportTaskExecutorTest
 		_objectMapper.addMixIn(BlogPosting.class, BlogPostingMixin.class);
 	}
 
+	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
@@ -88,6 +88,7 @@ public class BatchEngineExportTaskExecutorTest
 		).build();
 	}
 
+	@After
 	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
@@ -302,7 +303,7 @@ public class BatchEngineExportTaskExecutorTest
 	private void _assertExportedValues(
 			List<BlogsEntry> blogsEntries, List<String> fieldNames,
 			List<Object[]> rowValuesList)
-		throws ParseException {
+		throws Exception {
 
 		blogsEntries.sort(Comparator.comparing(BlogsEntry::getSubtitle));
 		rowValuesList.sort(
@@ -393,13 +394,13 @@ public class BatchEngineExportTaskExecutorTest
 				user.getCompanyId(), user.getUserId(), null,
 				BlogPosting.class.getName(), contentType,
 				BatchEngineTaskExecuteStatus.INITIAL.name(), fieldNames,
-				parameters);
+				parameters, null);
 
 		_batchEngineExportTaskExecutor.execute(_batchEngineExportTask);
 	}
 
 	private ZipInputStream _getZipInputStream(InputStream inputStream)
-		throws IOException {
+		throws Exception {
 
 		ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
@@ -411,7 +412,7 @@ public class BatchEngineExportTaskExecutorTest
 	private List<Object[]> _readRowValuesList(
 			Function<String, Object[]> filterFunction,
 			BatchEngineExportTask batchEngineExportTask)
-		throws IOException {
+		throws Exception {
 
 		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
 			new InputStreamReader(

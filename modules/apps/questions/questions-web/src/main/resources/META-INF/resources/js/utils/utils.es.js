@@ -17,39 +17,6 @@ import {useRef} from 'react';
 
 import lang from './lang.es';
 
-export function getCKEditorConfig() {
-	const config = {
-		codeSnippet_theme: 'monokai_sublime',
-		extraPlugins: 'codesnippet',
-		height: 216,
-	};
-	config.toolbarGroups = [
-		{groups: ['basicstyles', 'cleanup'], name: 'basicstyles'},
-		{
-			groups: ['list', 'indent', 'blocks', 'align', 'bidi', 'paragraph'],
-			name: 'paragraph',
-		},
-		{groups: ['codesnippet'], name: 'insert'},
-		{groups: ['links'], name: 'links'},
-		{groups: ['clipboard', 'undo'], name: 'clipboard'},
-		{groups: ['mode', 'document', 'doctools'], name: 'document'},
-		{
-			groups: ['find', 'selection', 'spellchecker', 'editing'],
-			name: 'editing',
-		},
-	];
-	config.removeButtons =
-		'About,Anchor,BGColor,BidiLtr,BidiRtl,Button,Checkbox,Copy,CopyFormatting,CreateDiv,Cut,Find,Flash,Font,FontSize,Form,Format,HiddenField,HorizontalRule,Iframe,Image,ImageButton,JustifyBlock,JustifyCenter,JustifyLeft,JustifyRight,Language,Maximize,NewPage,PageBreak,Paste,PasteFromWord,PasteText,Preview,Print,Radio,RemoveFormat,Replace,Save,Select,SelectAll,ShowBlocks,Smiley,SpecialChar,Styles,Subscript,Superscript,Table,Templates,TextColor,TextField,Textarea';
-
-	return config;
-}
-
-export function onBeforeLoadCKEditor(CKEditor) {
-	if (CKEditor) {
-		CKEditor.disableAutoInline = true;
-	}
-}
-
 export function dateToInternationalHuman(
 	ISOString,
 	localeKey = navigator.language
@@ -62,6 +29,10 @@ export function dateToInternationalHuman(
 		minute: '2-digit',
 		month: 'short',
 	};
+
+	if (date.getFullYear() !== new Date().getFullYear()) {
+		options.year = 'numeric';
+	}
 
 	const intl = new Intl.DateTimeFormat(localeKey, options);
 
@@ -81,6 +52,12 @@ export function dateToBriefInternationalHuman(
 	});
 
 	return intl.format(date);
+}
+
+export function deleteCacheVariables(cache, parameter) {
+	Object.keys(cache.data.data).forEach(
+		(key) => key.match(`^${parameter}`) && cache.data.delete(key)
+	);
 }
 
 export function timeDifference(previous, current = new Date()) {
@@ -133,10 +110,65 @@ export function useDebounceCallback(callback, milliseconds) {
 export function normalizeRating(aggregateRating) {
 	return (
 		aggregateRating &&
-		aggregateRating.ratingCount * normalize(aggregateRating.ratingAverage)
+		Math.trunc(
+			aggregateRating.ratingCount *
+				normalize(aggregateRating.ratingAverage)
+		)
 	);
 }
 
 export function normalize(ratingValue) {
 	return ratingValue * 2 - 1;
+}
+
+export function stringToSlug(text) {
+	const whiteSpaces = /\s+/g;
+
+	return text.replace(whiteSpaces, '-').toLowerCase();
+}
+
+export function slugToText(slug) {
+	const hyphens = /-+/g;
+
+	return slug.replace(hyphens, ' ').toLowerCase();
+}
+
+export function historyPushWithSlug(push) {
+	return (url) => push(stringToSlug(url));
+}
+
+export function stripHTML(text) {
+	if (!text) {
+		return '';
+	}
+
+	const htmlTags = /<([^>]+>)/g;
+	const nonBreakableSpace = '&nbsp;';
+	const newLines = /\r?\n|\r/g;
+
+	return (
+		text
+			.replace(htmlTags, '')
+			.replace(nonBreakableSpace, ' ')
+			.replace(newLines, '') || ''
+	);
+}
+
+export function getFullPath() {
+	return window.location.href.substring(0, window.location.href.indexOf('#'));
+}
+
+export function getBasePath() {
+	return window.location.href.substring(
+		window.location.origin.length,
+		window.location.href.indexOf('#')
+	);
+}
+
+export function getContextLink(url) {
+	return {
+		headers: {
+			Link: `${getFullPath()}?redirectTo=/%23/questions/${url}/`,
+		},
+	};
 }

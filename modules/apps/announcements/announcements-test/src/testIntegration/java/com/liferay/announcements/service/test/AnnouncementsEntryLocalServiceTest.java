@@ -16,6 +16,7 @@ package com.liferay.announcements.service.test;
 
 import com.liferay.announcements.kernel.exception.EntryDisplayDateException;
 import com.liferay.announcements.kernel.exception.EntryExpirationDateException;
+import com.liferay.announcements.kernel.exception.EntryTitleException;
 import com.liferay.announcements.kernel.model.AnnouncementsEntry;
 import com.liferay.announcements.kernel.model.AnnouncementsFlagConstants;
 import com.liferay.announcements.kernel.service.AnnouncementsEntryLocalService;
@@ -81,6 +82,22 @@ public class AnnouncementsEntryLocalServiceTest {
 		_company2 = CompanyTestUtil.addCompany();
 
 		_user = UserTestUtil.addUser(_company1);
+	}
+
+	@Test(expected = EntryTitleException.class)
+	public void testAddEntryWithInvalidTitle() throws Exception {
+		_announcementsEntryLocalService.addEntry(
+			_user.getUserId(), 0, 0,
+			"InvalidTitleOver75CharactersInvalidTitleOver75Characters" +
+				"InvalidTitleOver75Characters",
+			StringUtil.randomString(), "http://localhost", "general",
+			_portal.getDate(
+				1, 1, 1990, 1, 1, _user.getTimeZone(),
+				EntryDisplayDateException.class),
+			_portal.getDate(
+				1, 1, 3000, 1, 1, _user.getTimeZone(),
+				EntryExpirationDateException.class),
+			1, false);
 	}
 
 	@Test
@@ -274,9 +291,9 @@ public class AnnouncementsEntryLocalServiceTest {
 		Assert.assertEquals(
 			notHiddenEntries.toString(), 1, notHiddenEntries.size());
 
-		AnnouncementsEntry entry = notHiddenEntries.get(0);
+		AnnouncementsEntry entry4 = notHiddenEntries.get(0);
 
-		Assert.assertEquals(entry.getEntryId(), entry3.getEntryId());
+		Assert.assertEquals(entry4.getEntryId(), entry3.getEntryId());
 	}
 
 	@Test

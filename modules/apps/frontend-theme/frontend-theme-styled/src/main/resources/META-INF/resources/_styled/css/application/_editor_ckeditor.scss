@@ -1,7 +1,3 @@
-.cke_dialog .cke_dialog_ui_input_text {
-	height: auto;
-}
-
 .cke_editable_inline a {
 	cursor: pointer;
 }
@@ -38,15 +34,4 @@
 	td {
 		height: 15px;
 	}
-}
-
-// ---------- CKEditor image resizer ----------
-
-.cke_widget_image .cke_image_resizer {
-	bottom: -15px;
-	height: 5px;
-	outline-color: transparent;
-	padding: 5px;
-	right: -15px;
-	width: 5px;
 }

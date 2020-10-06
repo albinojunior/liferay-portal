@@ -42,6 +42,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.xml.namespace.QName;
 
+import org.springframework.mock.web.MockHttpServletResponse;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -50,6 +52,10 @@ import org.w3c.dom.Element;
  */
 public class MockLiferayPortletActionResponse
 	implements ActionResponse, LiferayPortletResponse {
+
+	public MockLiferayPortletActionResponse() {
+		_mockHttpServletResponse = new MockHttpServletResponse();
+	}
 
 	@Override
 	public void addDateHeader(String name, long date) {
@@ -87,14 +93,14 @@ public class MockLiferayPortletActionResponse
 
 	@Override
 	public LiferayPortletURL createActionURL(String portletName) {
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public LiferayPortletURL createActionURL(
 		String portletName, MimeResponse.Copy copy) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
@@ -106,7 +112,7 @@ public class MockLiferayPortletActionResponse
 	public LiferayPortletURL createLiferayPortletURL(
 		long plid, String portletName, String lifecycle) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
@@ -114,7 +120,7 @@ public class MockLiferayPortletActionResponse
 		long plid, String portletName, String lifecycle,
 		boolean includeLinkToLayoutUuid) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
@@ -122,7 +128,7 @@ public class MockLiferayPortletActionResponse
 		long plid, String portletName, String lifecycle,
 		MimeResponse.Copy copy) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
@@ -130,26 +136,26 @@ public class MockLiferayPortletActionResponse
 		long plid, String portletName, String lifecycle, MimeResponse.Copy copy,
 		boolean includeLinkToLayoutUuid) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public LiferayPortletURL createLiferayPortletURL(String lifecycle) {
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public LiferayPortletURL createLiferayPortletURL(
 		String portletName, String lifecycle) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public LiferayPortletURL createLiferayPortletURL(
 		String portletName, String lifecycle, MimeResponse.Copy copy) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
@@ -171,24 +177,24 @@ public class MockLiferayPortletActionResponse
 
 	@Override
 	public LiferayPortletURL createRenderURL(String portletName) {
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public LiferayPortletURL createRenderURL(
 		String portletName, MimeResponse.Copy copy) {
 
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public ResourceURL createResourceURL() {
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
 	public LiferayPortletURL createResourceURL(String portletName) {
-		return null;
+		return new MockLiferayPortletURL();
 	}
 
 	@Override
@@ -198,7 +204,7 @@ public class MockLiferayPortletActionResponse
 
 	@Override
 	public HttpServletResponse getHttpServletResponse() {
-		return null;
+		return _mockHttpServletResponse;
 	}
 
 	@Override
@@ -326,5 +332,7 @@ public class MockLiferayPortletActionResponse
 	@Override
 	public void transferMarkupHeadElements() {
 	}
+
+	private final MockHttpServletResponse _mockHttpServletResponse;
 
 }

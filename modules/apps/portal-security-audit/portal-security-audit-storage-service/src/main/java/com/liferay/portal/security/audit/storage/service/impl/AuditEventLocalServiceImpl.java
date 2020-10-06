@@ -62,7 +62,6 @@ public class AuditEventLocalServiceImpl extends AuditEventLocalServiceBaseImpl {
 		auditEvent.setServerName(auditMessage.getServerName());
 		auditEvent.setServerPort(auditMessage.getServerPort());
 		auditEvent.setSessionID(auditMessage.getSessionID());
-		auditEvent.setServerPort(auditMessage.getServerPort());
 		auditEvent.setAdditionalInfo(
 			String.valueOf(auditMessage.getAdditionalInfo()));
 
@@ -83,7 +82,7 @@ public class AuditEventLocalServiceImpl extends AuditEventLocalServiceBaseImpl {
 	@Override
 	public List<AuditEvent> getAuditEvents(
 		long companyId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<AuditEvent> orderByComparator) {
 
 		return auditEventPersistence.findByCompanyId(
 			companyId, start, end, orderByComparator);
@@ -109,7 +108,7 @@ public class AuditEventLocalServiceImpl extends AuditEventLocalServiceBaseImpl {
 		Date createDateLT, String eventType, String className, String classPK,
 		String clientHost, String clientIP, String serverName, int serverPort,
 		String sessionID, boolean andSearch, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<AuditEvent> orderByComparator) {
 
 		DynamicQuery dynamicQuery = buildDynamicQuery(
 			companyId, userId, userName, createDateGT, createDateLT, eventType,

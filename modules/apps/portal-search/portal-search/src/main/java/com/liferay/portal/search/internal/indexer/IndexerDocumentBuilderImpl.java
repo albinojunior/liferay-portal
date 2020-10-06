@@ -33,8 +33,8 @@ public class IndexerDocumentBuilderImpl implements IndexerDocumentBuilder {
 
 	public IndexerDocumentBuilderImpl(
 		BaseModelDocumentFactory baseModelDocumentFactory,
-		Iterable<ModelDocumentContributor> modelDocumentContributors,
-		Iterable<DocumentContributor> documentContributors,
+		Iterable<ModelDocumentContributor<?>> modelDocumentContributors,
+		Iterable<DocumentContributor<?>> documentContributors,
 		IndexerPostProcessorsHolder indexerPostProcessorsHolder,
 		SearchPermissionDocumentContributor
 			searchPermissionDocumentContributor) {
@@ -97,9 +97,10 @@ public class IndexerDocumentBuilderImpl implements IndexerDocumentBuilder {
 		IndexerDocumentBuilderImpl.class);
 
 	private final BaseModelDocumentFactory _baseModelDocumentFactory;
-	private final Iterable<DocumentContributor> _documentContributors;
+	private final Iterable<DocumentContributor<?>> _documentContributors;
 	private final IndexerPostProcessorsHolder _indexerPostProcessorsHolder;
-	private final Iterable<ModelDocumentContributor> _modelDocumentContributors;
+	private final Iterable<ModelDocumentContributor<?>>
+		_modelDocumentContributors;
 	private final SearchPermissionDocumentContributor
 		_searchPermissionDocumentContributor;
 

@@ -24,13 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.message.boards.service.http.MBBanServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class MBBanSoap implements Serializable {
 
 	public static MBBanSoap toSoapModel(MBBan model) {
 		MBBanSoap soapModel = new MBBanSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUuid(model.getUuid());
 		soapModel.setBanId(model.getBanId());
 		soapModel.setGroupId(model.getGroupId());
@@ -91,6 +95,22 @@ public class MBBanSoap implements Serializable {
 
 	public void setPrimaryKey(long pk) {
 		setBanId(pk);
+	}
+
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getUuid() {
@@ -173,6 +193,8 @@ public class MBBanSoap implements Serializable {
 		_lastPublishDate = lastPublishDate;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private long _banId;
 	private long _groupId;

@@ -17,16 +17,15 @@ package com.liferay.saml.runtime.configuration;
 import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
+import com.liferay.saml.constants.SamlProviderConfigurationKeys;
 
 /**
  * @author Mika Koivisto
  */
 @ExtendedObjectClassDefinition(
-	category = "sso", factoryInstanceLabelAttribute = "companyId",
-	scope = ExtendedObjectClassDefinition.Scope.COMPANY
+	category = "sso", scope = ExtendedObjectClassDefinition.Scope.COMPANY
 )
 @Meta.OCD(
-	factory = true,
 	id = "com.liferay.saml.runtime.configuration.SamlProviderConfiguration",
 	localization = "content/Language", name = "saml-provider-configuration-name"
 )
@@ -96,9 +95,13 @@ public interface SamlProviderConfiguration {
 	public boolean ldapImportEnabled();
 
 	@Meta.AD(
-		deflt = "idp", id = "saml.role", name = "saml-role",
-		optionLabels = {"saml-role-idp", "saml-role-sp"},
-		optionValues = {"idp", "sp"}, required = false
+		deflt = SamlProviderConfigurationKeys.SAML_ROLE_SP, id = "saml.role",
+		name = "saml-role", optionLabels = {"saml-role-idp", "saml-role-sp"},
+		optionValues = {
+			SamlProviderConfigurationKeys.SAML_ROLE_IDP,
+			SamlProviderConfigurationKeys.SAML_ROLE_SP
+		},
+		required = false
 	)
 	public String role();
 

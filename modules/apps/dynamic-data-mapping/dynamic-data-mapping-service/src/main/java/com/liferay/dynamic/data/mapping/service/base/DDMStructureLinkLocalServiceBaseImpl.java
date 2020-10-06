@@ -19,6 +19,7 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMStructureLinkFinder;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMStructureLinkPersistence;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -77,6 +79,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	/**
 	 * Adds the ddm structure link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was added
 	 */
@@ -105,6 +111,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm structure link with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param structureLinkId the primary key of the ddm structure link
 	 * @return the ddm structure link that was removed
 	 * @throws PortalException if a ddm structure link with the primary key could not be found
@@ -120,6 +130,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm structure link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was removed
 	 */
@@ -129,6 +143,11 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 		DDMStructureLink ddmStructureLink) {
 
 		return ddmStructureLinkPersistence.remove(ddmStructureLink);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ddmStructureLinkPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -302,6 +321,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 			(DDMStructureLink)persistedModel);
 	}
 
+	public BasePersistence<DDMStructureLink> getBasePersistence() {
+		return ddmStructureLinkPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -340,6 +363,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 
 	/**
 	 * Updates the ddm structure link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was updated

@@ -18,6 +18,7 @@ import com.liferay.changeset.model.ChangesetCollection;
 import com.liferay.changeset.service.ChangesetCollectionLocalService;
 import com.liferay.changeset.service.persistence.ChangesetCollectionPersistence;
 import com.liferay.changeset.service.persistence.ChangesetEntryPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -74,6 +76,10 @@ public abstract class ChangesetCollectionLocalServiceBaseImpl
 	/**
 	 * Adds the changeset collection to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param changesetCollection the changeset collection
 	 * @return the changeset collection that was added
 	 */
@@ -104,6 +110,10 @@ public abstract class ChangesetCollectionLocalServiceBaseImpl
 	/**
 	 * Deletes the changeset collection with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param changesetCollectionId the primary key of the changeset collection
 	 * @return the changeset collection that was removed
 	 * @throws PortalException if a changeset collection with the primary key could not be found
@@ -120,6 +130,10 @@ public abstract class ChangesetCollectionLocalServiceBaseImpl
 	/**
 	 * Deletes the changeset collection from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param changesetCollection the changeset collection
 	 * @return the changeset collection that was removed
 	 */
@@ -129,6 +143,11 @@ public abstract class ChangesetCollectionLocalServiceBaseImpl
 		ChangesetCollection changesetCollection) {
 
 		return changesetCollectionPersistence.remove(changesetCollection);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return changesetCollectionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -312,6 +331,10 @@ public abstract class ChangesetCollectionLocalServiceBaseImpl
 			(ChangesetCollection)persistedModel);
 	}
 
+	public BasePersistence<ChangesetCollection> getBasePersistence() {
+		return changesetCollectionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -352,6 +375,10 @@ public abstract class ChangesetCollectionLocalServiceBaseImpl
 
 	/**
 	 * Updates the changeset collection in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetCollectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param changesetCollection the changeset collection
 	 * @return the changeset collection that was updated

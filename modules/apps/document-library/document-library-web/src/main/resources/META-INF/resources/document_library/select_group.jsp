@@ -17,14 +17,12 @@
 <%@ include file="/document_library/init.jsp" %>
 
 <%
-String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectGroup");
-
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("mvcPath", "/document_library/select_group.jsp");
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<clay:management-toolbar
 		clearResultsURL="<%= portletURL.toString() %>"
 		searchActionURL="<%= portletURL.toString() %>"
@@ -39,10 +37,11 @@ portletURL.setParameter("mvcPath", "/document_library/select_group.jsp");
 			<%
 			GroupSearchTerms searchTerms = (GroupSearchTerms)searchContainer.getSearchTerms();
 
-			LinkedHashMap<String, Object> groupParams = new LinkedHashMap<String, Object>();
-
-			groupParams.put("active", true);
-			groupParams.put("usersGroups", user.getUserId());
+			LinkedHashMap<String, Object> groupParams = LinkedHashMapBuilder.<String, Object>put(
+				"active", true
+			).put(
+				"usersGroups", user.getUserId()
+			).build();
 			%>
 
 			<liferay-ui:search-container-results>
@@ -122,15 +121,17 @@ portletURL.setParameter("mvcPath", "/document_library/select_group.jsp");
 				/>
 
 				<liferay-ui:search-container-column-text>
-
-					<%
-					Map<String, Object> data = new HashMap<String, Object>();
-
-					data.put("groupdescriptivename", groupDescriptiveName);
-					data.put("groupid", group.getGroupId());
-					%>
-
-					<aui:button cssClass="selector-button" data="<%= data %>" value="select" />
+					<aui:button
+						cssClass="selector-button"
+						data='<%=
+							HashMapBuilder.<String, Object>put(
+								"groupdescriptivename", groupDescriptiveName
+							).put(
+								"groupid", group.getGroupId()
+							).build()
+						%>'
+						value="select"
+					/>
 				</liferay-ui:search-container-column-text>
 			</liferay-ui:search-container-row>
 
@@ -139,11 +140,4 @@ portletURL.setParameter("mvcPath", "/document_library/select_group.jsp");
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
-
-<aui:script>
-	Liferay.Util.selectEntityHandler(
-		'#<portlet:namespace />selectGroupFm',
-		'<%= HtmlUtil.escapeJS(eventName) %>'
-	);
-</aui:script>
+</clay:container-fluid>

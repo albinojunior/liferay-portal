@@ -21,6 +21,31 @@
 		}
 	}
 
+	.data-record-section {
+		.panel-header {
+			cursor: pointer;
+			padding: 0;
+
+			&:focus {
+				box-shadow: none;
+			}
+		}
+
+		.collapse-icon-closed,
+		.collapse-icon-open {
+			right: 0;
+			top: 30%;
+		}
+
+		.sheet-section {
+			margin-bottom: 0;
+		}
+
+		.panel-body {
+			padding: 0;
+		}
+	}
+
 	.loading-wrapper {
 		height: 100vh;
 		left: 0;

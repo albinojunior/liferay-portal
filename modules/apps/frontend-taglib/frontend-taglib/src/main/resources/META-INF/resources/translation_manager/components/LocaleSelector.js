@@ -23,7 +23,7 @@ const DropDownWithState = ({children}) => {
 		<ClayDropDown
 			active={isDropdownOpen}
 			alignmentPosition={Align.BottomCenter}
-			onActiveChange={isActive => setIsDropdownOpen(isActive)}
+			onActiveChange={(isActive) => setIsDropdownOpen(isActive)}
 			trigger={
 				<ClayButtonWithIcon
 					borderless
@@ -33,26 +33,30 @@ const DropDownWithState = ({children}) => {
 				/>
 			}
 		>
-			{children}
+			{children({setActive: setIsDropdownOpen})}
 		</ClayDropDown>
 	);
 };
-
 export default function LocaleSelector({locales, onItemClick}) {
 	return (
 		<DropDownWithState>
-			<ClayDropDown.ItemList>
-				{locales.map(locale => (
-					<ClayDropDown.Item
-						id={locale.id}
-						key={locale.id}
-						onClick={() => onItemClick && onItemClick(locale)}
-						symbolRight={locale.icon}
-					>
-						{locale.label}
-					</ClayDropDown.Item>
-				))}
-			</ClayDropDown.ItemList>
+			{({setActive}) => (
+				<ClayDropDown.ItemList>
+					{locales.map((locale) => (
+						<ClayDropDown.Item
+							id={locale.id}
+							key={locale.id}
+							onClick={() => {
+								onItemClick(locale);
+								setActive(false);
+							}}
+							symbolRight={locale.icon}
+						>
+							{locale.label}
+						</ClayDropDown.Item>
+					))}
+				</ClayDropDown.ItemList>
+			)}
 		</DropDownWithState>
 	);
 }

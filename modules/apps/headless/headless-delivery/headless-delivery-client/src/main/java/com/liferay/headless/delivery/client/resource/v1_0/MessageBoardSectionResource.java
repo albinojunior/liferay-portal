@@ -22,6 +22,7 @@ import com.liferay.headless.delivery.client.problem.Problem;
 import com.liferay.headless.delivery.client.serdes.v1_0.MessageBoardSectionSerDes;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -104,13 +105,15 @@ public interface MessageBoardSectionResource {
 	public Page<MessageBoardSection>
 			getMessageBoardSectionMessageBoardSectionsPage(
 				Long parentMessageBoardSectionId, String search,
-				String filterString, Pagination pagination, String sortString)
+				List<String> aggregations, String filterString,
+				Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			getMessageBoardSectionMessageBoardSectionsPageHttpResponse(
 				Long parentMessageBoardSectionId, String search,
-				String filterString, Pagination pagination, String sortString)
+				List<String> aggregations, String filterString,
+				Pagination pagination, String sortString)
 		throws Exception;
 
 	public MessageBoardSection postMessageBoardSectionMessageBoardSection(
@@ -125,12 +128,14 @@ public interface MessageBoardSectionResource {
 		throws Exception;
 
 	public Page<MessageBoardSection> getSiteMessageBoardSectionsPage(
-			Long siteId, Boolean flatten, String search, String filterString,
+			Long siteId, Boolean flatten, String search,
+			List<String> aggregations, String filterString,
 			Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getSiteMessageBoardSectionsPageHttpResponse(
-			Long siteId, Boolean flatten, String search, String filterString,
+			Long siteId, Boolean flatten, String search,
+			List<String> aggregations, String filterString,
 			Pagination pagination, String sortString)
 		throws Exception;
 
@@ -196,8 +201,8 @@ public interface MessageBoardSectionResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -731,14 +736,14 @@ public interface MessageBoardSectionResource {
 		public Page<MessageBoardSection>
 				getMessageBoardSectionMessageBoardSectionsPage(
 					Long parentMessageBoardSectionId, String search,
-					String filterString, Pagination pagination,
-					String sortString)
+					List<String> aggregations, String filterString,
+					Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getMessageBoardSectionMessageBoardSectionsPageHttpResponse(
-					parentMessageBoardSectionId, search, filterString,
-					pagination, sortString);
+					parentMessageBoardSectionId, search, aggregations,
+					filterString, pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -763,8 +768,8 @@ public interface MessageBoardSectionResource {
 		public HttpInvoker.HttpResponse
 				getMessageBoardSectionMessageBoardSectionsPageHttpResponse(
 					Long parentMessageBoardSectionId, String search,
-					String filterString, Pagination pagination,
-					String sortString)
+					List<String> aggregations, String filterString,
+					Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -892,13 +897,14 @@ public interface MessageBoardSectionResource {
 
 		public Page<MessageBoardSection> getSiteMessageBoardSectionsPage(
 				Long siteId, Boolean flatten, String search,
-				String filterString, Pagination pagination, String sortString)
+				List<String> aggregations, String filterString,
+				Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getSiteMessageBoardSectionsPageHttpResponse(
-					siteId, flatten, search, filterString, pagination,
-					sortString);
+					siteId, flatten, search, aggregations, filterString,
+					pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -923,8 +929,8 @@ public interface MessageBoardSectionResource {
 		public HttpInvoker.HttpResponse
 				getSiteMessageBoardSectionsPageHttpResponse(
 					Long siteId, Boolean flatten, String search,
-					String filterString, Pagination pagination,
-					String sortString)
+					List<String> aggregations, String filterString,
+					Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();

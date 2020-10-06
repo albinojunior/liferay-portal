@@ -12,7 +12,7 @@
  * details.
  */
 
-(function() {
+(function () {
 	AUI().applyConfig({
 		groups: {
 			exportimportweb: {
@@ -29,7 +29,6 @@
 							'aui-parse-content',
 							'aui-toggler',
 							'aui-tree-view',
-							'liferay-notice',
 							'liferay-portlet-base',
 							'liferay-util-window',
 						],

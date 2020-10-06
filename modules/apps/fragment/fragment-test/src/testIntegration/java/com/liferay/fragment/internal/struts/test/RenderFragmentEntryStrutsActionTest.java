@@ -15,8 +15,8 @@
 package com.liferay.fragment.internal.struts.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.events.EventsProcessorUtil;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
@@ -94,37 +94,36 @@ public class RenderFragmentEntryStrutsActionTest {
 		mockHttpServletRequest.setParameter(
 			"groupId", String.valueOf(_group.getGroupId()));
 
-		URL htmlUrl = _bundle.getEntry(
+		URL htmlURL = _bundle.getEntry(
 			_RESOURCES_PATH + "fragments/card/index.html");
 
 		mockHttpServletRequest.setParameter(
-			"html", StringUtil.read(htmlUrl.openStream()));
+			"html", StringUtil.read(htmlURL.openStream()));
 
-		URL cssUrl = _bundle.getEntry(
+		URL cssURL = _bundle.getEntry(
 			_RESOURCES_PATH + "fragments/card/index.css");
 
 		mockHttpServletRequest.setParameter(
-			"css", StringUtil.read(cssUrl.openStream()));
+			"css", StringUtil.read(cssURL.openStream()));
 
-		URL jsUrl = _bundle.getEntry(
+		URL jsURL = _bundle.getEntry(
 			_RESOURCES_PATH + "fragments/card/index.js");
 
 		mockHttpServletRequest.setParameter(
-			"js", StringUtil.read(jsUrl.openStream()));
+			"js", StringUtil.read(jsURL.openStream()));
 
-		_setUpEnvironment(
-			mockHttpServletRequest, mockHttpServletResponse, _user);
+		_processEvents(mockHttpServletRequest, mockHttpServletResponse, _user);
 
 		_renderFragmentEntryStrutsAction.execute(
 			mockHttpServletRequest, pipingServletResponse);
 
-		URL renderedUrl = _bundle.getEntry(
+		URL renderedURL = _bundle.getEntry(
 			_RESOURCES_PATH + "render/simple.html");
 
 		String actualHTML = _getHTML(unsyncStringWriter.toString());
 
 		String expectedHTML = _getHTML(
-			StringUtil.read(renderedUrl.openStream()));
+			StringUtil.read(renderedURL.openStream()));
 
 		Assert.assertEquals(expectedHTML, actualHTML);
 	}
@@ -142,8 +141,7 @@ public class RenderFragmentEntryStrutsActionTest {
 		MockHttpServletResponse mockHttpServletResponse =
 			new MockHttpServletResponse();
 
-		_setUpEnvironment(
-			mockHttpServletRequest, mockHttpServletResponse, _user);
+		_processEvents(mockHttpServletRequest, mockHttpServletResponse, _user);
 
 		mockHttpServletRequest.setParameter(
 			"groupId", String.valueOf(_group.getGroupId()));
@@ -179,15 +177,7 @@ public class RenderFragmentEntryStrutsActionTest {
 		return _removeSpacingCharactersBetweenTags(bodyElement);
 	}
 
-	private String _removeSpacingCharactersBetweenTags(Element bodyElement) {
-		String htmlString = bodyElement.html();
-
-		htmlString = htmlString.replaceAll(">\\s+", ">");
-
-		return htmlString.replaceAll("\\s+<", "<");
-	}
-
-	private void _setUpEnvironment(
+	private void _processEvents(
 			MockHttpServletRequest mockHttpServletRequest,
 			MockHttpServletResponse mockHttpServletResponse, User user)
 		throws Exception {
@@ -201,6 +191,14 @@ public class RenderFragmentEntryStrutsActionTest {
 			PropsKeys.SERVLET_SERVICE_EVENTS_PRE,
 			PropsValues.SERVLET_SERVICE_EVENTS_PRE, mockHttpServletRequest,
 			mockHttpServletResponse);
+	}
+
+	private String _removeSpacingCharactersBetweenTags(Element bodyElement) {
+		String htmlString = bodyElement.html();
+
+		htmlString = htmlString.replaceAll(">\\s+", ">");
+
+		return htmlString.replaceAll("\\s+<", "<");
 	}
 
 	private static final String _RESOURCES_PATH =

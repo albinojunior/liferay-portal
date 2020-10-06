@@ -11,7 +11,7 @@ definition {
 
 		Smoke.viewWelcomePage();
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "Search");

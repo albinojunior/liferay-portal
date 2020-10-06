@@ -14,7 +14,8 @@
 
 package com.liferay.analytics.message.sender.internal.model.listener;
 
-import com.liferay.analytics.message.sender.model.EntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.BaseEntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.EntityModelListener;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
@@ -39,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 public class RoleModelListener extends BaseEntityModelListener<Role> {
 
 	@Override
-	public List<String> getAttributeNames() {
+	public List<String> getAttributeNames(long companyId) {
 		return _attributeNames;
 	}
 

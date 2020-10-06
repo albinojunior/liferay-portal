@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
@@ -205,10 +206,22 @@ public class FriendlyURLEntryLocalServiceImpl
 
 	@Override
 	public void deleteFriendlyURLEntry(
-			long groupId, Class<?> clazz, long classPK)
-		throws PortalException {
+		long groupId, Class<?> clazz, long classPK) {
 
-		long classNameId = classNameLocalService.getClassNameId(clazz);
+		deleteFriendlyURLEntry(
+			groupId, classNameLocalService.getClassNameId(clazz), classPK);
+	}
+
+	@Override
+	public void deleteFriendlyURLEntry(
+		long groupId, long classNameId, long classPK) {
+
+		FriendlyURLEntryMapping friendlyURLEntryMapping =
+			friendlyURLEntryMappingPersistence.fetchByC_C(classNameId, classPK);
+
+		if (friendlyURLEntryMapping == null) {
+			return;
+		}
 
 		List<FriendlyURLEntry> friendlyURLEntries =
 			friendlyURLEntryPersistence.findByG_C_C(
@@ -221,7 +234,17 @@ public class FriendlyURLEntryLocalServiceImpl
 			friendlyURLEntryPersistence.remove(friendlyURLEntry);
 		}
 
-		friendlyURLEntryMappingPersistence.removeByC_C(classNameId, classPK);
+		friendlyURLEntryMappingPersistence.remove(friendlyURLEntryMapping);
+	}
+
+	@Override
+	public void deleteFriendlyURLLocalizationEntry(
+			long friendlyURLEntryId, String languageId)
+		throws PortalException {
+
+		friendlyURLEntryLocalizationPersistence.
+			removeByFriendlyURLEntryId_LanguageId(
+				friendlyURLEntryId, languageId);
 	}
 
 	@Override
@@ -310,6 +333,17 @@ public class FriendlyURLEntryLocalServiceImpl
 	}
 
 	@Override
+	public List<FriendlyURLEntryLocalization> getFriendlyURLEntryLocalizations(
+		long groupId, long classNameId, long classPK, String languageId,
+		int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		return friendlyURLEntryLocalizationPersistence.findByG_C_C_L(
+			groupId, classNameId, classPK, languageId, start, end,
+			orderByComparator);
+	}
+
+	@Override
 	public FriendlyURLEntry getMainFriendlyURLEntry(
 			Class<?> clazz, long classPK)
 		throws PortalException {
@@ -361,7 +395,8 @@ public class FriendlyURLEntryLocalServiceImpl
 			prefix = _getURLEncodedSubstring(
 				urlTitle, prefix, maxLength - suffix.length());
 
-			curUrlTitle = prefix + suffix;
+			curUrlTitle = FriendlyURLNormalizerUtil.normalizeWithEncoding(
+				prefix + suffix);
 		}
 
 		return curUrlTitle;

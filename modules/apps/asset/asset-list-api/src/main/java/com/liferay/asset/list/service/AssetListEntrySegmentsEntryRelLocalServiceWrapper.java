@@ -41,6 +41,10 @@ public class AssetListEntrySegmentsEntryRelLocalServiceWrapper
 	/**
 	 * Adds the asset list entry segments entry rel to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntrySegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetListEntrySegmentsEntryRel the asset list entry segments entry rel
 	 * @return the asset list entry segments entry rel that was added
 	 */
@@ -95,6 +99,10 @@ public class AssetListEntrySegmentsEntryRelLocalServiceWrapper
 	/**
 	 * Deletes the asset list entry segments entry rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntrySegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetListEntrySegmentsEntryRel the asset list entry segments entry rel
 	 * @return the asset list entry segments entry rel that was removed
 	 */
@@ -109,6 +117,10 @@ public class AssetListEntrySegmentsEntryRelLocalServiceWrapper
 
 	/**
 	 * Deletes the asset list entry segments entry rel with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntrySegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetListEntrySegmentsEntryRelId the primary key of the asset list entry segments entry rel
 	 * @return the asset list entry segments entry rel that was removed
@@ -162,6 +174,11 @@ public class AssetListEntrySegmentsEntryRelLocalServiceWrapper
 
 		return _assetListEntrySegmentsEntryRelLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _assetListEntrySegmentsEntryRelLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -470,6 +487,10 @@ public class AssetListEntrySegmentsEntryRelLocalServiceWrapper
 
 	/**
 	 * Updates the asset list entry segments entry rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntrySegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetListEntrySegmentsEntryRel the asset list entry segments entry rel
 	 * @return the asset list entry segments entry rel that was updated

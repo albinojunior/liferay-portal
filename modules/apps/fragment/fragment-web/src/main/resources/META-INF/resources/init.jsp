@@ -21,7 +21,7 @@
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
-taglib uri="http://liferay.com/tld/soy" prefix="soy" %><%@
+taglib uri="http://liferay.com/tld/react" prefix="react" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
@@ -34,7 +34,9 @@ page import="com.liferay.fragment.exception.DuplicateFragmentEntryKeyException" 
 page import="com.liferay.fragment.exception.FragmentCollectionNameException" %><%@
 page import="com.liferay.fragment.exception.InvalidFileException" %><%@
 page import="com.liferay.fragment.exception.RequiredFragmentEntryException" %><%@
+page import="com.liferay.fragment.importer.FragmentsImporterResultEntry" %><%@
 page import="com.liferay.fragment.model.FragmentCollection" %><%@
+page import="com.liferay.fragment.model.FragmentComposition" %><%@
 page import="com.liferay.fragment.model.FragmentEntry" %><%@
 page import="com.liferay.fragment.renderer.FragmentRendererController" %><%@
 page import="com.liferay.fragment.service.FragmentCollectionLocalServiceUtil" %><%@
@@ -52,6 +54,7 @@ page import="com.liferay.fragment.web.internal.display.context.FragmentManagemen
 page import="com.liferay.fragment.web.internal.display.context.FragmentManagementToolbarDisplayContextFactory" %><%@
 page import="com.liferay.fragment.web.internal.display.context.GroupFragmentEntryLinkDisplayContext" %><%@
 page import="com.liferay.fragment.web.internal.display.context.GroupFragmentEntryUsageManagementToolbarDisplayContext" %><%@
+page import="com.liferay.fragment.web.internal.display.context.ImportDisplayContext" %><%@
 page import="com.liferay.fragment.web.internal.display.context.RenderFragmentEntryDisplayContext" %><%@
 page import="com.liferay.fragment.web.internal.display.context.SelectFragmentCollectionDisplayContext" %><%@
 page import="com.liferay.fragment.web.internal.display.context.SelectFragmentCollectionManagementToolbarDisplayContext" %><%@
@@ -67,7 +70,7 @@ page import="com.liferay.portal.kernel.model.Group" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.repository.model.FileEntry" %><%@
 page import="com.liferay.portal.kernel.service.GroupLocalServiceUtil" %><%@
-page import="com.liferay.portal.kernel.servlet.SessionMessages" %><%@
+page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.MapUtil" %><%@

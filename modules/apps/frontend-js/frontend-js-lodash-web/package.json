@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"lodash": "4.17.14"
+		"lodash": "4.17.19"
 	},
 	"name": "frontend-js-lodash-web",
 	"scripts": {
@@ -8,5 +8,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "3.0.2"
+	"version": "3.0.13"
 }

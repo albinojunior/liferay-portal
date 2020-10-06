@@ -31,6 +31,8 @@ definition {
 	@description = "This is a test for LPS-87134. Assert we can navigate to a child page in the Navigation Menu widget."
 	@priority = "5"
 	test AddChildPage {
+		property portal.acceptance = "true";
+
 		task ("Add a page and child page to the site") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -56,6 +58,8 @@ definition {
 	@description = "This is a test for LPS-87134. Assert we can navigate to different pages in the Navigation Menu widget."
 	@priority = "5"
 	test AddMultiplePages {
+		property portal.acceptance = "true";
+
 		task ("Add three pages to the site") {
 			for (var index : list "1,2,3") {
 				JSONLayout.addPublicLayout(
@@ -101,9 +105,11 @@ definition {
 	@priority = "4"
 	test EditSitePage {
 		task ("Add a page to the site") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Site Page");
 
-			SitePages.addPublicPage(pageName = "Site Page");
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 		}
 
 		task ("Edit the name of the page") {

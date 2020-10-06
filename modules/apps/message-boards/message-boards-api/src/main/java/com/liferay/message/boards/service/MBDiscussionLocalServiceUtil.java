@@ -50,6 +50,10 @@ public class MBDiscussionLocalServiceUtil {
 	/**
 	 * Adds the message boards discussion to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBDiscussionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbDiscussion the message boards discussion
 	 * @return the message boards discussion that was added
 	 */
@@ -84,6 +88,10 @@ public class MBDiscussionLocalServiceUtil {
 	/**
 	 * Deletes the message boards discussion with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBDiscussionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param discussionId the primary key of the message boards discussion
 	 * @return the message boards discussion that was removed
 	 * @throws PortalException if a message boards discussion with the primary key could not be found
@@ -97,6 +105,10 @@ public class MBDiscussionLocalServiceUtil {
 
 	/**
 	 * Deletes the message boards discussion from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBDiscussionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbDiscussion the message boards discussion
 	 * @return the message boards discussion that was removed
@@ -117,6 +129,12 @@ public class MBDiscussionLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -267,6 +285,10 @@ public class MBDiscussionLocalServiceUtil {
 		return getService().getDiscussion(className, classPK);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static java.util.List<com.liferay.message.boards.model.MBDiscussion>
 		getDiscussions(String className) {
 
@@ -419,6 +441,10 @@ public class MBDiscussionLocalServiceUtil {
 
 	/**
 	 * Updates the message boards discussion in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBDiscussionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbDiscussion the message boards discussion
 	 * @return the message boards discussion that was updated

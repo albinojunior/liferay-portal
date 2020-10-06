@@ -24,6 +24,7 @@ import com.liferay.mobile.device.rules.service.MDRRuleLocalService;
 import com.liferay.mobile.device.rules.service.persistence.MDRRuleGroupFinder;
 import com.liferay.mobile.device.rules.service.persistence.MDRRuleGroupPersistence;
 import com.liferay.mobile.device.rules.service.persistence.MDRRulePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -80,6 +82,10 @@ public abstract class MDRRuleLocalServiceBaseImpl
 	/**
 	 * Adds the mdr rule to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mdrRule the mdr rule
 	 * @return the mdr rule that was added
 	 */
@@ -106,6 +112,10 @@ public abstract class MDRRuleLocalServiceBaseImpl
 	/**
 	 * Deletes the mdr rule with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ruleId the primary key of the mdr rule
 	 * @return the mdr rule that was removed
 	 * @throws PortalException if a mdr rule with the primary key could not be found
@@ -119,6 +129,10 @@ public abstract class MDRRuleLocalServiceBaseImpl
 	/**
 	 * Deletes the mdr rule from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mdrRule the mdr rule
 	 * @return the mdr rule that was removed
 	 */
@@ -126,6 +140,11 @@ public abstract class MDRRuleLocalServiceBaseImpl
 	@Override
 	public MDRRule deleteMDRRule(MDRRule mdrRule) {
 		return mdrRulePersistence.remove(mdrRule);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return mdrRulePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -373,6 +392,10 @@ public abstract class MDRRuleLocalServiceBaseImpl
 		return mdrRuleLocalService.deleteMDRRule((MDRRule)persistedModel);
 	}
 
+	public BasePersistence<MDRRule> getBasePersistence() {
+		return mdrRulePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -459,6 +482,10 @@ public abstract class MDRRuleLocalServiceBaseImpl
 
 	/**
 	 * Updates the mdr rule in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mdrRule the mdr rule
 	 * @return the mdr rule that was updated

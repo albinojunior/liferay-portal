@@ -17,6 +17,7 @@ package com.liferay.portlet.social.model.impl;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.social.kernel.model.SocialRelation;
 
 import java.io.Externalizable;
@@ -31,22 +32,24 @@ import java.io.ObjectOutput;
  * @generated
  */
 public class SocialRelationCacheModel
-	implements CacheModel<SocialRelation>, Externalizable {
+	implements CacheModel<SocialRelation>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SocialRelationCacheModel)) {
+		if (!(object instanceof SocialRelationCacheModel)) {
 			return false;
 		}
 
 		SocialRelationCacheModel socialRelationCacheModel =
-			(SocialRelationCacheModel)obj;
+			(SocialRelationCacheModel)object;
 
-		if (relationId == socialRelationCacheModel.relationId) {
+		if ((relationId == socialRelationCacheModel.relationId) &&
+			(mvccVersion == socialRelationCacheModel.mvccVersion)) {
+
 			return true;
 		}
 
@@ -55,14 +58,30 @@ public class SocialRelationCacheModel
 
 	@Override
 	public int hashCode() {
-		return HashUtil.hash(0, relationId);
+		int hashCode = HashUtil.hash(0, relationId);
+
+		return HashUtil.hash(hashCode, mvccVersion);
+	}
+
+	@Override
+	public long getMvccVersion() {
+		return mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		this.mvccVersion = mvccVersion;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(15);
+		StringBundler sb = new StringBundler(19);
 
-		sb.append("{uuid=");
+		sb.append("{mvccVersion=");
+		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
+		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", relationId=");
 		sb.append(relationId);
@@ -85,6 +104,9 @@ public class SocialRelationCacheModel
 	public SocialRelation toEntityModel() {
 		SocialRelationImpl socialRelationImpl = new SocialRelationImpl();
 
+		socialRelationImpl.setMvccVersion(mvccVersion);
+		socialRelationImpl.setCtCollectionId(ctCollectionId);
+
 		if (uuid == null) {
 			socialRelationImpl.setUuid("");
 		}
@@ -106,6 +128,9 @@ public class SocialRelationCacheModel
 
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
+		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		relationId = objectInput.readLong();
@@ -123,6 +148,10 @@ public class SocialRelationCacheModel
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
+		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
+
 		if (uuid == null) {
 			objectOutput.writeUTF("");
 		}
@@ -143,6 +172,8 @@ public class SocialRelationCacheModel
 		objectOutput.writeInt(type);
 	}
 
+	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long relationId;
 	public long companyId;

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.base;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -35,6 +37,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.GroupFinder;
 import com.liferay.portal.kernel.service.persistence.GroupPersistence;
 import com.liferay.portal.kernel.service.persistence.ImagePersistence;
@@ -44,6 +47,7 @@ import com.liferay.portal.kernel.service.persistence.LayoutSetBranchPersistence;
 import com.liferay.portal.kernel.service.persistence.LayoutSetPersistence;
 import com.liferay.portal.kernel.service.persistence.PluginSettingPersistence;
 import com.liferay.portal.kernel.service.persistence.VirtualHostPersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -78,6 +82,10 @@ public abstract class LayoutSetLocalServiceBaseImpl
 	/**
 	 * Adds the layout set to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSet the layout set
 	 * @return the layout set that was added
 	 */
@@ -104,6 +112,10 @@ public abstract class LayoutSetLocalServiceBaseImpl
 	/**
 	 * Deletes the layout set with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetId the primary key of the layout set
 	 * @return the layout set that was removed
 	 * @throws PortalException if a layout set with the primary key could not be found
@@ -117,6 +129,10 @@ public abstract class LayoutSetLocalServiceBaseImpl
 	/**
 	 * Deletes the layout set from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSet the layout set
 	 * @return the layout set that was removed
 	 */
@@ -124,6 +140,11 @@ public abstract class LayoutSetLocalServiceBaseImpl
 	@Override
 	public LayoutSet deleteLayoutSet(LayoutSet layoutSet) {
 		return layoutSetPersistence.remove(layoutSet);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return layoutSetPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -291,6 +312,10 @@ public abstract class LayoutSetLocalServiceBaseImpl
 		return layoutSetLocalService.deleteLayoutSet((LayoutSet)persistedModel);
 	}
 
+	public BasePersistence<LayoutSet> getBasePersistence() {
+		return layoutSetPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -329,6 +354,10 @@ public abstract class LayoutSetLocalServiceBaseImpl
 
 	/**
 	 * Updates the layout set in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSet the layout set
 	 * @return the layout set that was updated
@@ -708,8 +737,22 @@ public abstract class LayoutSetLocalServiceBaseImpl
 		return LayoutSetLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<LayoutSet> getCTPersistence() {
+		return layoutSetPersistence;
+	}
+
+	@Override
+	public Class<LayoutSet> getModelClass() {
 		return LayoutSet.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<LayoutSet>, R, E> updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(layoutSetPersistence);
 	}
 
 	protected String getModelClassName() {

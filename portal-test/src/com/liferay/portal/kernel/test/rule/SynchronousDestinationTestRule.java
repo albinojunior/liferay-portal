@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.test.rule;
 import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
@@ -79,6 +80,8 @@ public class SynchronousDestinationTestRule
 
 	@Override
 	public SyncHandler beforeClass(Description description) throws Throwable {
+		DependencyManagerSyncUtil.sync();
+
 		Class<?> testClass = description.getTestClass();
 
 		return _createSyncHandler(testClass.getAnnotation(Sync.class));
@@ -127,12 +130,26 @@ public class SynchronousDestinationTestRule
 			ServiceDependencyManager serviceDependencyManager =
 				new ServiceDependencyManager();
 
+			Filter auditFilter = _registerDestinationFilter(
+				DestinationNames.AUDIT);
 			Filter asyncFilter = _registerDestinationFilter(
 				DestinationNames.ASYNC_SERVICE);
 			Filter backgroundTaskFilter = _registerDestinationFilter(
 				DestinationNames.BACKGROUND_TASK);
 			Filter backgroundTaskStatusFilter = _registerDestinationFilter(
 				DestinationNames.BACKGROUND_TASK_STATUS);
+			Filter commerceOrderFilter = _registerDestinationFilter(
+				"liferay/order_status");
+			Filter commercePaymentFilter = _registerDestinationFilter(
+				"liferay/payment_status");
+			Filter commerceShipmentFilter = _registerDestinationFilter(
+				"liferay/shipment_status");
+			Filter commerceStockFilter = _registerDestinationFilter(
+				"liferay/stock_quantity");
+			Filter commerceSubscriptionFilter = _registerDestinationFilter(
+				"liferay/subscription_status");
+			Filter ddmStructureReindexFilter = _registerDestinationFilter(
+				"liferay/ddm_structure_reindex");
 			Filter kaleoGraphWalkerFilter = _registerDestinationFilter(
 				"liferay/kaleo_graph_walker");
 			Filter mailFilter = _registerDestinationFilter(
@@ -141,13 +158,19 @@ public class SynchronousDestinationTestRule
 				DestinationNames.DOCUMENT_LIBRARY_PDF_PROCESSOR);
 			Filter rawMetaDataProcessorFilter = _registerDestinationFilter(
 				DestinationNames.DOCUMENT_LIBRARY_RAW_METADATA_PROCESSOR);
+			Filter segmentsEntryReindexFilter = _registerDestinationFilter(
+				"liferay/segments_entry_reindex");
 			Filter subscrpitionSenderFilter = _registerDestinationFilter(
 				DestinationNames.SUBSCRIPTION_SENDER);
 
 			serviceDependencyManager.registerDependencies(
-				asyncFilter, backgroundTaskFilter, backgroundTaskStatusFilter,
-				kaleoGraphWalkerFilter, mailFilter, pdfProcessorFilter,
-				rawMetaDataProcessorFilter, subscrpitionSenderFilter);
+				auditFilter, asyncFilter, backgroundTaskFilter,
+				backgroundTaskStatusFilter, commerceOrderFilter,
+				commercePaymentFilter, commerceShipmentFilter,
+				commerceStockFilter, commerceSubscriptionFilter,
+				ddmStructureReindexFilter, kaleoGraphWalkerFilter, mailFilter,
+				pdfProcessorFilter, rawMetaDataProcessorFilter,
+				segmentsEntryReindexFilter, subscrpitionSenderFilter);
 
 			serviceDependencyManager.waitForDependencies();
 
@@ -157,6 +180,7 @@ public class SynchronousDestinationTestRule
 			_forceSyncSafeClosable = ProxyModeThreadLocal.setWithSafeClosable(
 				true);
 
+			replaceDestination(DestinationNames.AUDIT);
 			replaceDestination(DestinationNames.ASYNC_SERVICE);
 			replaceDestination(DestinationNames.BACKGROUND_TASK);
 			replaceDestination(DestinationNames.BACKGROUND_TASK_STATUS);
@@ -170,9 +194,16 @@ public class SynchronousDestinationTestRule
 			replaceDestination(DestinationNames.SUBSCRIPTION_SENDER);
 			replaceDestination("liferay/adaptive_media_processor");
 			replaceDestination("liferay/asset_auto_tagger");
+			replaceDestination("liferay/ddm_structure_reindex");
 			replaceDestination("liferay/kaleo_graph_walker");
 			replaceDestination("liferay/report_request");
 			replaceDestination("liferay/reports_admin");
+			replaceDestination("liferay/segments_entry_reindex");
+			replaceDestination("liferay/order_status");
+			replaceDestination("liferay/payment_status");
+			replaceDestination("liferay/shipment_status");
+			replaceDestination("liferay/stock_quantity");
+			replaceDestination("liferay/subscription_status");
 
 			if (_sync != null) {
 				for (String name : _sync.destinationNames()) {
@@ -420,8 +451,8 @@ public class SynchronousDestinationTestRule
 
 					});
 			}
-			catch (Throwable t) {
-				throw new RuntimeException(t);
+			catch (Throwable throwable) {
+				throw new RuntimeException(throwable);
 			}
 		}
 

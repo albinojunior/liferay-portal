@@ -21,24 +21,19 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
-import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.rule.Sync;
-import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
-import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,25 +41,17 @@ import org.junit.runner.RunWith;
  * @author Wade Cao
  * @author André de Oliveira
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 @Sync
 public class CalendarBookingIndexerLocalizedContentTest
 	extends BaseCalendarIndexerTestCase {
-
-	@ClassRule
-	@Rule
-	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(),
-			PermissionCheckerMethodTestRule.INSTANCE,
-			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
-		setGroup(calendarFixture.addGroup());
 		setIndexerClass(CalendarBooking.class);
 	}
 
@@ -168,13 +155,13 @@ public class CalendarBookingIndexerLocalizedContentTest
 		LocalizedValuesMap descriptionLocalizedValuesMap) {
 
 		try {
-			ServiceContext serviceContext = calendarFixture.getServiceContext();
+			ServiceContext serviceContext = getServiceContext();
 
-			Calendar calendar = calendarFixture.addCalendar(
+			Calendar calendar = addCalendar(
 				nameLocalizedValuesMap, descriptionLocalizedValuesMap,
 				serviceContext);
 
-			return calendarFixture.addCalendarBooking(
+			return addCalendarBooking(
 				titleLocalizedValuesMap, calendar, serviceContext);
 		}
 		catch (PortalException portalException) {
@@ -186,8 +173,7 @@ public class CalendarBookingIndexerLocalizedContentTest
 		String prefix, Locale locale, Map<String, String> titleStrings,
 		String searchTerm) {
 
-		Document document = calendarSearchFixture.searchOnlyOne(
-			searchTerm, locale);
+		Document document = searchOnlyOne(searchTerm, locale);
 
 		FieldValuesAssert.assertFieldValues(
 			titleStrings, prefix, document, searchTerm);

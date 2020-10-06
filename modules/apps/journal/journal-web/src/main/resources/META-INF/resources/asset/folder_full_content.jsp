@@ -17,7 +17,7 @@
 <%@ include file="/asset/init.jsp" %>
 
 <%
-JournalDisplayContext journalDisplayContext = new JournalDisplayContext(request, liferayPortletRequest, liferayPortletResponse, null, null);
+JournalDisplayContext journalDisplayContext = JournalDisplayContext.create(request, liferayPortletRequest, liferayPortletResponse, null, null);
 
 JournalFolder folder = journalDisplayContext.getFolder();
 %>
@@ -27,7 +27,7 @@ JournalFolder folder = journalDisplayContext.getFolder();
 		<div class="aspect-ratio-item-center-middle aspect-ratio-item-fluid card-type-asset-icon">
 			<div class="text-secondary">
 				<svg aria-hidden="true" class="lexicon-icon lexicon-icon-folder reference-mark user-icon-xl">
-					<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#folder" />
+					<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#folder" />
 				</svg>
 			</div>
 		</div>

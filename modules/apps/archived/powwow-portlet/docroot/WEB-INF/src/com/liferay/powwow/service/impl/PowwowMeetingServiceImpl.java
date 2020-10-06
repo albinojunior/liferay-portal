@@ -75,10 +75,11 @@ public class PowwowMeetingServiceImpl extends PowwowMeetingServiceBaseImpl {
 
 	@Override
 	public List<PowwowMeeting> getPowwowMeetings(
-		long groupId, int start, int end, OrderByComparator obc) {
+		long groupId, int start, int end,
+		OrderByComparator<PowwowMeeting> orderByComparator) {
 
 		return powwowMeetingPersistence.filterFindByGroupId(
-			groupId, start, end, obc);
+			groupId, start, end, orderByComparator);
 	}
 
 	@Override

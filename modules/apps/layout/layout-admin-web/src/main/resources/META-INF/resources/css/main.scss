@@ -1,8 +1,9 @@
-@import './miller_columns/Layout';
-@import './miller_columns/LayoutColumn';
+@import './miller_columns/DragPreview';
 @import './miller_columns/MillerColumns';
 
 .portlet-layouts-admin {
+	@import './FriendlyURLHistory';
+
 	.customization-settings #main-content {
 		.portlet-column {
 			border: 1px solid #0b5fff;

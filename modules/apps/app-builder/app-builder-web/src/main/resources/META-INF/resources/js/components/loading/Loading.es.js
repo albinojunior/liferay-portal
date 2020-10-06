@@ -15,13 +15,13 @@
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import React from 'react';
 
-export const withLoading = Component => {
-	const Wrapper = props => {
+export const withLoading = (Component) => {
+	const Wrapper = (props) => {
 		const {isLoading, ...restProps} = props;
 
 		if (isLoading) {
 			return (
-				<div className="align-items-center d-flex loading-wrapper">
+				<div className="align-items-center d-flex loading-wrapper w-100">
 					<ClayLoadingIndicator />
 				</div>
 			);

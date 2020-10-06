@@ -46,25 +46,57 @@ public class FormFieldProjectTemplateCustomizer
 
 		String liferayVersion = projectTemplatesArgs.getLiferayVersion();
 
-		if (!liferayVersion.startsWith("7.1")) {
-			Path destinationDirPath = destinationDir.toPath();
+		List<String> fileNames = new ArrayList<>();
 
-			String name = projectTemplatesArgs.getName();
+		String name = projectTemplatesArgs.getName();
 
-			Path projectDirPath = destinationDirPath.resolve(name);
-
-			List<String> fileNames = new ArrayList<>();
-
+		if (liferayVersion.startsWith("7.0")) {
 			fileNames.add(".babelrc");
 			fileNames.add(".npmbundlerrc");
 			fileNames.add("package.json");
 			fileNames.add(
 				"src/main/resources/META-INF/resources/" + name + ".es.js");
+		}
 
-			for (String fileName : fileNames) {
-				ProjectTemplateCustomizer.deleteFileInPath(
-					fileName, projectDirPath);
+		if (liferayVersion.startsWith("7.2") ||
+			liferayVersion.startsWith("7.3")) {
+
+			fileNames.add("src/main/resources/META-INF/resources/config.js");
+			fileNames.add(
+				"src/main/resources/META-INF/resources/" + name + "_field.js");
+
+			String className = projectTemplatesArgs.getClassName();
+			String packageName = projectTemplatesArgs.getPackageName();
+
+			fileNames.add(
+				"src/main/java/" + packageName.replaceAll("[.]", "/") +
+					"/form/field/" + className + "DDMFormFieldRenderer.java");
+
+			if (liferayVersion.startsWith("7.3") &&
+				_isReactFramework(
+					(FormFieldProjectTemplatesArgs)
+						projectTemplatesArgs.getProjectTemplatesArgsExt())) {
+
+				fileNames.add(
+					"src/main/resources/META-INF/resources/" + name + ".soy");
+				fileNames.add(
+					"src/main/resources/META-INF/resources/" + name +
+						"Register.soy");
 			}
+		}
+		else {
+			fileNames.add(
+				"src/main/resources/META-INF/resources/" + name +
+					"Register.soy");
+		}
+
+		Path destinationDirPath = destinationDir.toPath();
+
+		Path projectDirPath = destinationDirPath.resolve(name);
+
+		for (String fileName : fileNames) {
+			ProjectTemplateCustomizer.deleteFileInPath(
+				fileName, projectDirPath);
 		}
 	}
 
@@ -73,6 +105,25 @@ public class FormFieldProjectTemplateCustomizer
 			ProjectTemplatesArgs projectTemplatesArgs,
 			ArchetypeGenerationRequest archetypeGenerationRequest)
 		throws Exception {
+
+		setProperty(
+			archetypeGenerationRequest.getProperties(), "reactTemplate",
+			String.valueOf(
+				_isReactFramework(
+					(FormFieldProjectTemplatesArgs)
+						projectTemplatesArgs.getProjectTemplatesArgsExt())));
+	}
+
+	private boolean _isReactFramework(
+		FormFieldProjectTemplatesArgs formFieldProjectTemplatesArgs) {
+
+		String jsFramework = formFieldProjectTemplatesArgs.getJSFramework();
+
+		if (jsFramework == null) {
+			return false;
+		}
+
+		return jsFramework.equals("react");
 	}
 
 }

@@ -19,24 +19,25 @@
 <%
 long groupId = ParamUtil.getLong(request, "groupId");
 boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
-String displayStyle = ParamUtil.getString(request, "displayStyle", "descriptive");
-String navigation = ParamUtil.getString(request, "navigation", "all");
-String orderByCol = ParamUtil.getString(request, "orderByCol");
-String orderByType = ParamUtil.getString(request, "orderByType");
-String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 %>
 
 <div id="<portlet:namespace />importProcessesSearchContainer">
-	<div class="container-fluid-1280" id="<portlet:namespace />processesContainer">
+	<clay:container-fluid
+		id='<%= liferayPortletResponse.getNamespace() + "processesContainer" %>'
+	>
+		<liferay-ui:breadcrumb
+			showLayout="<%= false %>"
+		/>
+
 		<liferay-util:include page="/import/processes_list/import_layouts_processes.jsp" servletContext="<%= application %>">
 			<liferay-util:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 			<liferay-util:param name="privateLayout" value="<%= String.valueOf(privateLayout) %>" />
 			<liferay-util:param name="validate" value="<%= String.valueOf(Boolean.TRUE) %>" />
-			<liferay-util:param name="displayStyle" value="<%= displayStyle %>" />
-			<liferay-util:param name="navigation" value="<%= navigation %>" />
-			<liferay-util:param name="orderByCol" value="<%= orderByCol %>" />
-			<liferay-util:param name="orderByType" value="<%= orderByType %>" />
-			<liferay-util:param name="searchContainerId" value="<%= searchContainerId %>" />
+			<liferay-util:param name="displayStyle" value='<%= ParamUtil.getString(request, "displayStyle", "descriptive") %>' />
+			<liferay-util:param name="navigation" value='<%= ParamUtil.getString(request, "navigation", "all") %>' />
+			<liferay-util:param name="orderByCol" value='<%= ParamUtil.getString(request, "orderByCol") %>' />
+			<liferay-util:param name="orderByType" value='<%= ParamUtil.getString(request, "orderByType") %>' />
+			<liferay-util:param name="searchContainerId" value='<%= ParamUtil.getString(request, "searchContainerId") %>' />
 		</liferay-util:include>
-	</div>
+	</clay:container-fluid>
 </div>

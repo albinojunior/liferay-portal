@@ -57,7 +57,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -600,22 +599,21 @@ public class AMImageEntryLocalServiceTest {
 
 	private AMImageConfigurationEntry _addAMImageConfigurationEntry(
 			long companyId, String uuid, int maxHeight, int maxWidth)
-		throws IOException, PortalException {
-
-		Map<String, String> properties = HashMapBuilder.put(
-			"max-height", String.valueOf(maxHeight)
-		).put(
-			"max-width", String.valueOf(maxWidth)
-		).build();
+		throws Exception {
 
 		return _amImageConfigurationHelper.addAMImageConfigurationEntry(
 			companyId, RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), uuid, properties);
+			RandomTestUtil.randomString(), uuid,
+			HashMapBuilder.put(
+				"max-height", String.valueOf(maxHeight)
+			).put(
+				"max-width", String.valueOf(maxWidth)
+			).build());
 	}
 
 	private AMImageConfigurationEntry _addAMImageConfigurationEntry(
 			String uuid, int maxHeight, int maxWidth)
-		throws IOException, PortalException {
+		throws Exception {
 
 		return _addAMImageConfigurationEntry(
 			TestPropsValues.getCompanyId(), uuid, maxHeight, maxWidth);

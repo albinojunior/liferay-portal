@@ -26,6 +26,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -49,6 +50,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -86,6 +88,10 @@ public abstract class DDMTemplateLocalServiceBaseImpl
 	/**
 	 * Adds the ddm template to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmTemplate the ddm template
 	 * @return the ddm template that was added
 	 */
@@ -112,6 +118,10 @@ public abstract class DDMTemplateLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm template with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param templateId the primary key of the ddm template
 	 * @return the ddm template that was removed
 	 * @throws PortalException if a ddm template with the primary key could not be found
@@ -127,6 +137,10 @@ public abstract class DDMTemplateLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm template from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmTemplate the ddm template
 	 * @return the ddm template that was removed
 	 */
@@ -134,6 +148,11 @@ public abstract class DDMTemplateLocalServiceBaseImpl
 	@Override
 	public DDMTemplate deleteDDMTemplate(DDMTemplate ddmTemplate) {
 		return ddmTemplatePersistence.remove(ddmTemplate);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ddmTemplatePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -409,6 +428,10 @@ public abstract class DDMTemplateLocalServiceBaseImpl
 			(DDMTemplate)persistedModel);
 	}
 
+	public BasePersistence<DDMTemplate> getBasePersistence() {
+		return ddmTemplatePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -495,6 +518,10 @@ public abstract class DDMTemplateLocalServiceBaseImpl
 
 	/**
 	 * Updates the ddm template in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmTemplate the ddm template
 	 * @return the ddm template that was updated

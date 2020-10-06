@@ -14,9 +14,9 @@
 
 package com.liferay.analytics.settings.web.internal.display.context;
 
-import com.liferay.analytics.settings.web.internal.search.ChannelSearch;
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchContainerManagementToolbarDisplayContext;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -38,17 +38,14 @@ public class ChannelManagementToolbarDisplayContext
 	extends SearchContainerManagementToolbarDisplayContext {
 
 	public ChannelManagementToolbarDisplayContext(
+		ChannelDisplayContext channelDisplayContext,
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
-		LiferayPortletResponse liferayPortletResponse,
-		ChannelDisplayContext channelDisplayContext,
-		ChannelSearch channelSearch) {
+		LiferayPortletResponse liferayPortletResponse) {
 
 		super(
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
-			channelSearch);
-
-		_channelDisplayContext = channelDisplayContext;
+			channelDisplayContext.getChannelSearch());
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
@@ -74,20 +71,16 @@ public class ChannelManagementToolbarDisplayContext
 
 	@Override
 	public CreationMenu getCreationMenu() {
-		return new CreationMenu() {
-			{
-				addPrimaryDropdownItem(
-					dropdownItem -> {
-						dropdownItem.setHref(
-							liferayPortletResponse.createRenderURL(),
-							"mvcRenderCommandName",
-							"/analytics_settings/add_channel", "redirect",
-							currentURLObj.toString());
-						dropdownItem.setLabel(
-							LanguageUtil.get(_resourceBundle, "new-property"));
-					});
+		return CreationMenuBuilder.addPrimaryDropdownItem(
+			dropdownItem -> {
+				dropdownItem.setHref(
+					liferayPortletResponse.createRenderURL(),
+					"mvcRenderCommandName", "/analytics_settings/add_channel",
+					"redirect", currentURLObj.toString());
+				dropdownItem.setLabel(
+					LanguageUtil.get(_resourceBundle, "new-property"));
 			}
-		};
+		).build();
 	}
 
 	@Override
@@ -107,7 +100,6 @@ public class ChannelManagementToolbarDisplayContext
 		return false;
 	}
 
-	private final ChannelDisplayContext _channelDisplayContext;
 	private final ResourceBundle _resourceBundle;
 
 }

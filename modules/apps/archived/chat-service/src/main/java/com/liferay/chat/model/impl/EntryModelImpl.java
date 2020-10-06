@@ -99,20 +99,42 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CONTENT_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CREATEDATE_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long FROMUSERID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long TOUSERID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public EntryModelImpl() {
@@ -164,9 +186,6 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 			attributes.put(
 				attributeName, attributeGetterFunction.apply((Entry)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -268,6 +287,10 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	@Override
 	public void setEntryId(long entryId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_entryId = entryId;
 	}
 
@@ -278,19 +301,21 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	@Override
 	public void setCreateDate(long createDate) {
-		_columnBitmask = -1L;
-
-		if (!_setOriginalCreateDate) {
-			_setOriginalCreateDate = true;
-
-			_originalCreateDate = _createDate;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_createDate = createDate;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalCreateDate() {
-		return _originalCreateDate;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("createDate"));
 	}
 
 	@Override
@@ -300,12 +325,8 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	@Override
 	public void setFromUserId(long fromUserId) {
-		_columnBitmask |= FROMUSERID_COLUMN_BITMASK;
-
-		if (!_setOriginalFromUserId) {
-			_setOriginalFromUserId = true;
-
-			_originalFromUserId = _fromUserId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_fromUserId = fromUserId;
@@ -327,8 +348,14 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 	public void setFromUserUuid(String fromUserUuid) {
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalFromUserId() {
-		return _originalFromUserId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("fromUserId"));
 	}
 
 	@Override
@@ -338,12 +365,8 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	@Override
 	public void setToUserId(long toUserId) {
-		_columnBitmask |= TOUSERID_COLUMN_BITMASK;
-
-		if (!_setOriginalToUserId) {
-			_setOriginalToUserId = true;
-
-			_originalToUserId = _toUserId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_toUserId = toUserId;
@@ -365,8 +388,14 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 	public void setToUserUuid(String toUserUuid) {
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalToUserId() {
-		return _originalToUserId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("toUserId"));
 	}
 
 	@Override
@@ -381,17 +410,20 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	@Override
 	public void setContent(String content) {
-		_columnBitmask |= CONTENT_COLUMN_BITMASK;
-
-		if (_originalContent == null) {
-			_originalContent = _content;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_content = content;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalContent() {
-		return GetterUtil.getString(_originalContent);
+		return getColumnOriginalValue("content");
 	}
 
 	@Override
@@ -401,10 +433,32 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	@Override
 	public void setFlag(int flag) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_flag = flag;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -476,16 +530,16 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Entry)) {
+		if (!(object instanceof Entry)) {
 			return false;
 		}
 
-		Entry entry = (Entry)obj;
+		Entry entry = (Entry)object;
 
 		long primaryKey = entry.getPrimaryKey();
 
@@ -502,35 +556,29 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		EntryModelImpl entryModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		entryModelImpl._originalCreateDate = entryModelImpl._createDate;
-
-		entryModelImpl._setOriginalCreateDate = false;
-
-		entryModelImpl._originalFromUserId = entryModelImpl._fromUserId;
-
-		entryModelImpl._setOriginalFromUserId = false;
-
-		entryModelImpl._originalToUserId = entryModelImpl._toUserId;
-
-		entryModelImpl._setOriginalToUserId = false;
-
-		entryModelImpl._originalContent = entryModelImpl._content;
-
-		entryModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -564,7 +612,7 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -595,7 +643,7 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -626,22 +674,74 @@ public class EntryModelImpl extends BaseModelImpl<Entry> implements EntryModel {
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _entryId;
 	private long _createDate;
-	private long _originalCreateDate;
-	private boolean _setOriginalCreateDate;
 	private long _fromUserId;
-	private long _originalFromUserId;
-	private boolean _setOriginalFromUserId;
 	private long _toUserId;
-	private long _originalToUserId;
-	private boolean _setOriginalToUserId;
 	private String _content;
-	private String _originalContent;
 	private int _flag;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<Entry, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((Entry)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("entryId", _entryId);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("fromUserId", _fromUserId);
+		_columnOriginalValues.put("toUserId", _toUserId);
+		_columnOriginalValues.put("content", _content);
+		_columnOriginalValues.put("flag", _flag);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("entryId", 1L);
+
+		columnBitmasks.put("createDate", 2L);
+
+		columnBitmasks.put("fromUserId", 4L);
+
+		columnBitmasks.put("toUserId", 8L);
+
+		columnBitmasks.put("content", 16L);
+
+		columnBitmasks.put("flag", 32L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private Entry _escapedModel;
 

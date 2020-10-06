@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -43,9 +44,19 @@ public class DDMFormValuesMergerImpl implements DDMFormValuesMerger {
 	public DDMFormValues merge(
 		DDMFormValues newDDMFormValues, DDMFormValues existingDDMFormValues) {
 
+		List<DDMFormFieldValue> newDDMFormFieldValues = new ArrayList<>(
+			newDDMFormValues.getDDMFormFieldValues());
+
+		for (DDMFormFieldValue ddmFormFieldValue :
+				newDDMFormValues.getDDMFormFieldValues()) {
+
+			newDDMFormFieldValues.addAll(
+				ddmFormFieldValue.getNestedDDMFormFieldValues());
+		}
+
 		List<DDMFormFieldValue> mergedDDMFormFieldValues =
 			mergeDDMFormFieldValues(
-				newDDMFormValues.getDDMFormFieldValues(),
+				newDDMFormFieldValues,
 				existingDDMFormValues.getDDMFormFieldValues());
 
 		existingDDMFormValues.setDDMFormFieldValues(mergedDDMFormFieldValues);
@@ -76,14 +87,18 @@ public class DDMFormValuesMergerImpl implements DDMFormValuesMerger {
 			DDMFormValues ddmFormValues =
 				newDDMFormFieldValue.getDDMFormValues();
 
-			DDMForm ddmForm = ddmFormValues.getDDMForm();
-
 			DDMFormFieldValue actualDDMFormFieldValue =
 				getDDMFormFieldValueByName(
 					existingDDMFormFieldValues, newDDMFormFieldValue.getName());
 
 			if (actualDDMFormFieldValue != null) {
-				List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
+				DDMForm ddmForm = ddmFormValues.getDDMForm();
+
+				Map<String, DDMFormField> ddmFormFieldsMap =
+					ddmForm.getDDMFormFieldsMap(true);
+
+				Collection<DDMFormField> ddmFormFields =
+					ddmFormFieldsMap.values();
 
 				Stream<DDMFormField> stream = ddmFormFields.stream();
 
@@ -147,7 +162,7 @@ public class DDMFormValuesMergerImpl implements DDMFormValuesMerger {
 		}
 	}
 
-	private static DecimalFormat _getDecimalFormat(Locale locale) {
+	private DecimalFormat _getDecimalFormat(Locale locale) {
 		DecimalFormat formatter = _decimalFormattersMap.get(locale);
 
 		if (formatter == null) {

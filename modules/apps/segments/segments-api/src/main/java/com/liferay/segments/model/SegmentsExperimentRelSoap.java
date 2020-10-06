@@ -24,8 +24,10 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.segments.service.http.SegmentsExperimentRelServiceSoap}.
  *
  * @author Eduardo Garcia
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class SegmentsExperimentRelSoap implements Serializable {
 
 	public static SegmentsExperimentRelSoap toSoapModel(
@@ -34,6 +36,7 @@ public class SegmentsExperimentRelSoap implements Serializable {
 		SegmentsExperimentRelSoap soapModel = new SegmentsExperimentRelSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setSegmentsExperimentRelId(
 			model.getSegmentsExperimentRelId());
 		soapModel.setGroupId(model.getGroupId());
@@ -113,6 +116,14 @@ public class SegmentsExperimentRelSoap implements Serializable {
 
 	public void setMvccVersion(long mvccVersion) {
 		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public long getSegmentsExperimentRelId() {
@@ -196,6 +207,7 @@ public class SegmentsExperimentRelSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _segmentsExperimentRelId;
 	private long _groupId;
 	private long _companyId;

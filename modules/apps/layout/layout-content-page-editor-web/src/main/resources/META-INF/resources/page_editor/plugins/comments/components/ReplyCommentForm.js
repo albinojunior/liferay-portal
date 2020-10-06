@@ -51,7 +51,6 @@ export default function ReplyCommentForm({
 					message: Liferay.Language.get(
 						'the-reply-could-not-be-saved'
 					),
-					title: Liferay.Language.get('error'),
 					type: 'danger',
 				});
 
@@ -71,7 +70,7 @@ export default function ReplyCommentForm({
 						setTextareaContent('');
 					}}
 					onSubmitButtonClick={handleReplyButtonClick}
-					onTextareaChange={content =>
+					onTextareaChange={(content) =>
 						content && setTextareaContent(content)
 					}
 					showButtons={true}

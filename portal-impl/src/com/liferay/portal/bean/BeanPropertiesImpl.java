@@ -94,33 +94,23 @@ public class BeanPropertiesImpl implements BeanProperties {
 
 	@Override
 	public <T> T deepCopyProperties(Object source) throws Exception {
-		ObjectInputStream objectInputStream = null;
-		ObjectOutputStream objectOutputStream = null;
-
-		try {
-			UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
+		try (UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 				new UnsyncByteArrayOutputStream();
-
-			objectOutputStream = new ObjectOutputStream(
-				unsyncByteArrayOutputStream);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+				unsyncByteArrayOutputStream)) {
 
 			objectOutputStream.writeObject(source);
 
 			objectOutputStream.flush();
 
-			UnsyncByteArrayInputStream unsyncByteArrayInputStream =
-				new UnsyncByteArrayInputStream(
-					unsyncByteArrayOutputStream.toByteArray());
+			try (UnsyncByteArrayInputStream unsyncByteArrayInputStream =
+					new UnsyncByteArrayInputStream(
+						unsyncByteArrayOutputStream.toByteArray());
+				ObjectInputStream objectInputStream = new ObjectInputStream(
+					unsyncByteArrayInputStream)) {
 
-			objectInputStream = new ObjectInputStream(
-				unsyncByteArrayInputStream);
-
-			return (T)objectInputStream.readObject();
-		}
-		finally {
-			objectInputStream.close();
-
-			objectOutputStream.close();
+				return (T)objectInputStream.readObject();
+			}
 		}
 	}
 
@@ -606,10 +596,11 @@ public class BeanPropertiesImpl implements BeanProperties {
 		Object bean, HttpServletRequest httpServletRequest,
 		String[] ignoreProperties) {
 
-		Enumeration<String> enu = httpServletRequest.getParameterNames();
+		Enumeration<String> enumeration =
+			httpServletRequest.getParameterNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (ArrayUtil.contains(ignoreProperties, name)) {
 				continue;
@@ -672,7 +663,6 @@ public class BeanPropertiesImpl implements BeanProperties {
 		int day = ParamUtil.getInteger(httpServletRequest, param + "Day");
 		int year = ParamUtil.getInteger(httpServletRequest, param + "Year");
 		int hour = ParamUtil.getInteger(httpServletRequest, param + "Hour", -1);
-		int minute = ParamUtil.getInteger(httpServletRequest, param + "Minute");
 
 		int amPm = ParamUtil.getInteger(httpServletRequest, param + "AmPm");
 
@@ -683,6 +673,8 @@ public class BeanPropertiesImpl implements BeanProperties {
 		if (hour == -1) {
 			return PortalUtil.getDate(month, day, year);
 		}
+
+		int minute = ParamUtil.getInteger(httpServletRequest, param + "Minute");
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(

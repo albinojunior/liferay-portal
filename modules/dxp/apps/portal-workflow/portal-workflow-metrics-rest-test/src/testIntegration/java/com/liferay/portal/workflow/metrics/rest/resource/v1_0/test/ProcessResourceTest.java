@@ -15,44 +15,32 @@
 package com.liferay.portal.workflow.metrics.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.petra.function.UnsafeBiConsumer;
-import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.odata.entity.EntityField;
-import com.liferay.portal.search.document.DocumentBuilderFactory;
-import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
-import com.liferay.portal.search.query.Queries;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.search.document.Document;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
-import com.liferay.portal.workflow.metrics.rest.client.pagination.Page;
-import com.liferay.portal.workflow.metrics.rest.client.pagination.Pagination;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.test.helper.WorkflowMetricsRESTTestHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Rafael Praxedes
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class ProcessResourceTest extends BaseProcessResourceTestCase {
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		BaseProcessResourceTestCase.setUpClass();
-
-		_workflowMetricsRESTTestHelper = new WorkflowMetricsRESTTestHelper(
-			_documentBuilderFactory, _queries, _searchEngineAdapter);
-	}
 
 	@Before
 	@Override
@@ -63,7 +51,8 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 			testGroup.getCompanyId());
 
 		for (Document document : _documents) {
-			_workflowMetricsRESTTestHelper.deleteProcess(document);
+			_workflowMetricsRESTTestHelper.deleteProcess(
+				document.getLong("companyId"), document.getLong("processId"));
 		}
 	}
 
@@ -83,49 +72,6 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 	@Test
 	public void testGetProcess() throws Exception {
 		super.testGetProcess();
-
-		_testGetProcess(
-			true, (process1, process2) -> assertEquals(process1, process2));
-		_testGetProcess(
-			false, (process1, process2) -> assertEquals(process1, process2));
-	}
-
-	@Override
-	@Test
-	public void testGetProcessesPage() throws Exception {
-		super.testGetProcessesPage();
-
-		_deleteProcesses();
-
-		Process process = randomProcess();
-
-		testGetProcessesPage_addProcess(process);
-
-		testGetProcessesPage_addProcess(randomProcess());
-
-		Page<Process> page = processResource.getProcessesPage(
-			process.getTitle(), Pagination.of(1, 2), null);
-
-		assertEquals(
-			Collections.singletonList(process), (List<Process>)page.getItems());
-	}
-
-	@Override
-	@Test
-	public void testGetProcessesPageWithSortInteger() throws Exception {
-		testGetProcessesPageWithSort(
-			EntityField.Type.INTEGER,
-			(entityField, process1, process2) -> {
-				process1.setInstanceCount(0L);
-				process1.setOnTimeInstanceCount(0L);
-				process1.setOverdueInstanceCount(0L);
-				process1.setUntrackedInstanceCount(0L);
-
-				process2.setInstanceCount(3L);
-				process2.setOnTimeInstanceCount(1L);
-				process2.setOverdueInstanceCount(1L);
-				process2.setUntrackedInstanceCount(1L);
-			});
 	}
 
 	@Override
@@ -140,46 +86,30 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 		Assert.assertEquals(process.getTitle(), title);
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetProcess() throws Exception {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetProcessesPage() throws Exception {
-	}
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {
-			"instanceCount", "onTimeInstanceCount", "overdueInstanceCount",
-			"title", "untrackedInstanceCount"
-		};
+		return new String[] {"title"};
 	}
 
 	@Override
 	protected Process randomProcess() throws Exception {
 		Process process = super.randomProcess();
 
-		int instanceCount = RandomTestUtil.randomInt(0, 20);
-
-		process.setInstanceCount((long)instanceCount);
-
-		int onTimeInstanceCount = RandomTestUtil.randomInt(0, instanceCount);
-
-		process.setOnTimeInstanceCount((long)onTimeInstanceCount);
-
-		int overdueInstanceCount = RandomTestUtil.randomInt(
-			0, instanceCount - onTimeInstanceCount);
-
-		process.setOverdueInstanceCount((long)overdueInstanceCount);
-		process.setUntrackedInstanceCount(
-			(long)instanceCount - onTimeInstanceCount - overdueInstanceCount);
+		process.setTitle(RandomTestUtil.randomString());
+		process.setTitle_i18n(
+			HashMapBuilder.put(
+				LocaleUtil.US.toLanguageTag(), process.getTitle()
+			).build());
 
 		return process;
+	}
+
+	@Override
+	protected Process testDeleteProcess_addProcess() throws Exception {
+		return testGetProcess_addProcess();
 	}
 
 	@Override
@@ -187,7 +117,6 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 		return testGetProcessesPage_addProcess(randomProcess());
 	}
 
-	@Override
 	protected Process testGetProcessesPage_addProcess(Process process)
 		throws Exception {
 
@@ -204,6 +133,18 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 		return testGetProcess_addProcess();
 	}
 
+	@Override
+	protected Process testPostProcess_addProcess(Process process)
+		throws Exception {
+
+		return testGetProcessesPage_addProcess(process);
+	}
+
+	@Override
+	protected Process testPutProcess_addProcess() throws Exception {
+		return testGetProcess_addProcess();
+	}
+
 	private void _deleteProcesses() throws Exception {
 		for (Process process : _processes) {
 			_workflowMetricsRESTTestHelper.deleteProcess(
@@ -211,49 +152,10 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 		}
 	}
 
-	private void _testGetProcess(
-			Boolean completed,
-			UnsafeBiConsumer<Process, Process, Exception> unsafeBiConsumer)
-		throws Exception {
-
-		_deleteProcesses();
-
-		Process postProcess = randomProcess();
-
-		postProcess.setInstanceCount(0L);
-		postProcess.setOnTimeInstanceCount(0L);
-		postProcess.setOverdueInstanceCount(0L);
-		postProcess.setUntrackedInstanceCount(0L);
-
-		testGetProcessesPage_addProcess(postProcess);
-
-		_workflowMetricsRESTTestHelper.addInstance(
-			testGroup.getCompanyId(), completed, postProcess.getId());
-
-		postProcess.setInstanceCount(1L);
-		postProcess.setOnTimeInstanceCount(0L);
-		postProcess.setOverdueInstanceCount(0L);
-		postProcess.setUntrackedInstanceCount(1L);
-
-		Process getProcess = processResource.getProcess(
-			postProcess.getId(), completed, null, null);
-
-		unsafeBiConsumer.accept(postProcess, getProcess);
-	}
-
-	@Inject
-	private static DocumentBuilderFactory _documentBuilderFactory;
-
-	private static Document[] _documents;
-
-	@Inject
-	private static Queries _queries;
-
-	@Inject(blocking = false, filter = "search.engine.impl=Elasticsearch")
-	private static SearchEngineAdapter _searchEngineAdapter;
-
-	private static WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
-
+	private Document[] _documents;
 	private final List<Process> _processes = new ArrayList<>();
+
+	@Inject
+	private WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
 
 }

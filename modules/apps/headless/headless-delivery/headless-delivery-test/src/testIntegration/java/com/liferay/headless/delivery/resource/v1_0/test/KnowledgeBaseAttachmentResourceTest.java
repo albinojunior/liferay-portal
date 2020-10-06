@@ -22,6 +22,7 @@ import com.liferay.knowledge.base.model.KBFolder;
 import com.liferay.knowledge.base.service.KBArticleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -33,8 +34,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -62,18 +61,6 @@ public class KnowledgeBaseAttachmentResourceTest
 			null, null, serviceContext);
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLDeleteKnowledgeBaseAttachment() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetKnowledgeBaseAttachment() {
-	}
-
 	@Override
 	protected void assertValid(
 			KnowledgeBaseAttachment knowledgeBaseAttachment,
@@ -88,15 +75,38 @@ public class KnowledgeBaseAttachmentResourceTest
 	}
 
 	@Override
-	protected Map<String, File> getMultipartFiles() throws Exception {
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[] {"title"};
+	}
+
+	@Override
+	protected Map<String, File> getMultipartFiles() {
 		return HashMapBuilder.<String, File>put(
 			"file",
 			() -> {
-				String randomString = RandomTestUtil.randomString();
+				File file = new File(_tempFileName);
 
-				return FileUtil.createTempFile(randomString.getBytes());
+				FileUtil.write(file, TestDataConstants.TEST_BYTE_ARRAY);
+
+				return file;
 			}
 		).build();
+	}
+
+	@Override
+	protected KnowledgeBaseAttachment randomKnowledgeBaseAttachment()
+		throws Exception {
+
+		KnowledgeBaseAttachment knowledgeBaseAttachment =
+			super.randomKnowledgeBaseAttachment();
+
+		_tempFileName = FileUtil.createTempFileName();
+
+		File file = new File(_tempFileName);
+
+		knowledgeBaseAttachment.setTitle(file.getName());
+
+		return knowledgeBaseAttachment;
 	}
 
 	@Override
@@ -128,6 +138,14 @@ public class KnowledgeBaseAttachmentResourceTest
 				randomKnowledgeBaseAttachment(), getMultipartFiles());
 	}
 
+	@Override
+	protected KnowledgeBaseAttachment
+			testGraphQLKnowledgeBaseAttachment_addKnowledgeBaseAttachment()
+		throws Exception {
+
+		return testDeleteKnowledgeBaseAttachment_addKnowledgeBaseAttachment();
+	}
+
 	private String _read(String url) throws Exception {
 		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
@@ -141,5 +159,6 @@ public class KnowledgeBaseAttachmentResourceTest
 	}
 
 	private KBArticle _kbArticle;
+	private String _tempFileName;
 
 }

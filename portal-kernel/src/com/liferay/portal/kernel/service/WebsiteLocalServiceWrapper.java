@@ -42,6 +42,10 @@ public class WebsiteLocalServiceWrapper
 	/**
 	 * Adds the website to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param website the website
 	 * @return the website that was added
 	 */
@@ -90,6 +94,10 @@ public class WebsiteLocalServiceWrapper
 	/**
 	 * Deletes the website with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param websiteId the primary key of the website
 	 * @return the website that was removed
 	 * @throws PortalException if a website with the primary key could not be found
@@ -103,6 +111,10 @@ public class WebsiteLocalServiceWrapper
 
 	/**
 	 * Deletes the website from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param website the website
 	 * @return the website that was removed
@@ -119,6 +131,11 @@ public class WebsiteLocalServiceWrapper
 		long companyId, java.lang.String className, long classPK) {
 
 		_websiteLocalService.deleteWebsites(companyId, className, classPK);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _websiteLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -361,6 +378,10 @@ public class WebsiteLocalServiceWrapper
 
 	/**
 	 * Updates the website in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param website the website
 	 * @return the website that was updated

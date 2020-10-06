@@ -41,14 +41,11 @@ definition {
 		property portal.acceptance = "true";
 		property testray.component.names = "Content and Application Templates,RSS";
 
-		JSONLayout.addWidgetToPublicLayout(
-			groupName = "Test Site Name",
-			layoutName = "ADT Test Page",
-			widgetName = "RSS Publisher");
-
 		Navigator.gotoSitePage(
 			pageName = "ADT Test Page",
 			siteName = "Test Site Name");
+
+		Portlet.addPG(portletName = "RSS Publisher");
 
 		Portlet.gotoPortletOptions(
 			portletName = "RSS Publisher",
@@ -93,14 +90,11 @@ definition {
 	test AddRSSADTWithCorruptScript {
 		property testray.component.names = "Content and Application Templates,RSS";
 
-		JSONLayout.addWidgetToPublicLayout(
-			groupName = "Test Site Name",
-			layoutName = "ADT Test Page",
-			widgetName = "RSS Publisher");
-
 		Navigator.gotoSitePage(
 			pageName = "ADT Test Page",
 			siteName = "Test Site Name");
+
+		Portlet.addPG(portletName = "RSS Publisher");
 
 		Portlet.gotoPortletOptions(
 			portletName = "RSS Publisher",
@@ -140,14 +134,11 @@ definition {
 	test AddRSSADTWithScript {
 		property testray.component.names = "Content and Application Templates,RSS";
 
-		JSONLayout.addWidgetToPublicLayout(
-			groupName = "Test Site Name",
-			layoutName = "ADT Test Page",
-			widgetName = "RSS Publisher");
-
 		Navigator.gotoSitePage(
 			pageName = "ADT Test Page",
 			siteName = "Test Site Name");
+
+		Portlet.addPG(portletName = "RSS Publisher");
 
 		Portlet.gotoPortletOptions(
 			portletName = "RSS Publisher",
@@ -275,16 +266,7 @@ definition {
 
 		JSONCategory.addVocabulary(
 			groupName = "Test Site Name",
-			title = "Topic");
-
-		JSONCategory.addVocabulary(
-			groupName = "Test Site Name",
 			title = "Vocabulary Name 1");
-
-		JSONCategory.addCategory(
-			groupName = "Test Site Name",
-			title = "Category Name 1",
-			vocabularyName = "Vocabulary Name 1");
 
 		JSONCategory.addVocabulary(
 			groupName = "Test Site Name",
@@ -295,7 +277,17 @@ definition {
 			title = "Category Name 2",
 			vocabularyName = "Vocabulary Name 2");
 
+		JSONCategory.addVocabulary(
+			groupName = "Test Site Name",
+			title = "Vocabulary Name 3");
+
+		JSONCategory.addCategory(
+			groupName = "Test Site Name",
+			title = "Category Name 3",
+			vocabularyName = "Vocabulary Name 3");
+
 		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
 			groupName = "Test Site Name",
 			layoutName = "ADT Test Page",
 			widgetName = "Categories Navigation");
@@ -314,12 +306,12 @@ definition {
 			siteName = "Test Site Name");
 
 		CategoriesNavigationPortlet.viewDefaultPG(
-			categoryName = "Category Name 1",
-			vocabularyName = "Vocabulary Name 1");
-
-		CategoriesNavigationPortlet.viewDefaultPG(
 			categoryName = "Category Name 2",
 			vocabularyName = "Vocabulary Name 2");
+
+		CategoriesNavigationPortlet.viewDefaultPG(
+			categoryName = "Category Name 3",
+			vocabularyName = "Vocabulary Name 3");
 
 		ApplicationDisplayTemplates.selectPortletADT(templateName = "Categories Navigation Test ADT");
 
@@ -328,10 +320,9 @@ definition {
 			siteName = "Test Site Name");
 
 		CategoriesNavigationPortlet.viewCustomADTMultiColumnPG(
-			categoryName1 = "Category Name 1",
-			categoryName2 = "Category Name 2",
-			vocabularyName1 = "Vocabulary Name 1",
-			vocabularyName2 = "Vocabulary Name 2");
+			categoryNameList = "Null,Null,Category Name 2,Category Name 3",
+			columnList = "1,2,3,4",
+			vocabularyNameList = "Topic,Vocabulary Name 1,Vocabulary Name 2,Vocabulary Name 3");
 	}
 
 	@priority = "3"
@@ -404,25 +395,25 @@ definition {
 
 		JSONCategory.addVocabulary(
 			groupName = "Test Site Name",
-			title = "Topic");
-
-		JSONCategory.addVocabulary(
-			groupName = "Test Site Name",
 			title = "Vocabulary Name 1");
 
 		JSONCategory.addVocabulary(
 			groupName = "Test Site Name",
 			title = "Vocabulary Name 2");
 
-		JSONCategory.addCategory(
+		JSONCategory.addVocabulary(
 			groupName = "Test Site Name",
-			title = "Category Name 1",
-			vocabularyName = "Vocabulary Name 1");
+			title = "Vocabulary Name 3");
 
 		JSONCategory.addCategory(
 			groupName = "Test Site Name",
 			title = "Category Name 2",
 			vocabularyName = "Vocabulary Name 2");
+
+		JSONCategory.addCategory(
+			groupName = "Test Site Name",
+			title = "Category Name 3",
+			vocabularyName = "Vocabulary Name 3");
 
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Test Site Name",
@@ -447,12 +438,12 @@ definition {
 			siteName = "Test Site Name");
 
 		CategoriesNavigationPortlet.viewDefaultPG(
-			categoryName = "Category Name 1",
-			vocabularyName = "Vocabulary Name 1");
-
-		CategoriesNavigationPortlet.viewDefaultPG(
 			categoryName = "Category Name 2",
 			vocabularyName = "Vocabulary Name 2");
+
+		CategoriesNavigationPortlet.viewDefaultPG(
+			categoryName = "Category Name 3",
+			vocabularyName = "Vocabulary Name 3");
 
 		ApplicationDisplayTemplates.selectPortletADT(templateName = "Categories Navigation Test ADT");
 
@@ -461,10 +452,9 @@ definition {
 			siteName = "Test Site Name");
 
 		CategoriesNavigationPortlet.viewCustomADTMultiColumnPG(
-			categoryName1 = "Category Name 1",
-			categoryName2 = "Category Name 2",
-			vocabularyName1 = "Vocabulary Name 1",
-			vocabularyName2 = "Vocabulary Name 2");
+			categoryNameList = "Null,Null,Category Name 2,Category Name 3",
+			columnList = "1,2,3,4",
+			vocabularyNameList = "Topic,Vocabulary Name 1,Vocabulary Name 2,Vocabulary Name 3");
 
 		Staging.gotoPublishToLive();
 
@@ -475,10 +465,9 @@ definition {
 			siteName = "Test Site Name");
 
 		CategoriesNavigationPortlet.viewCustomADTMultiColumnPG(
-			categoryName1 = "Category Name 1",
-			categoryName2 = "Category Name 2",
-			vocabularyName1 = "Vocabulary Name 1",
-			vocabularyName2 = "Vocabulary Name 2");
+			categoryNameList = "Null,Null,Category Name 2,Category Name 3",
+			columnList = "1,2,3,4",
+			vocabularyNameList = "Topic,Vocabulary Name 1,Vocabulary Name 2,Vocabulary Name 3");
 	}
 
 	@priority = "5"
@@ -601,8 +590,7 @@ definition {
 		Navigator.openSiteURL(siteName = "Test Site Name");
 
 		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
+			category = "Design",
 			portlet = "Widget Templates");
 
 		ApplicationDisplayTemplates.addCP(
@@ -635,8 +623,7 @@ definition {
 			siteName = "Test Site Name");
 
 		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
+			category = "Design",
 			portlet = "Widget Templates");
 
 		ApplicationDisplayTemplates.addCP(
@@ -651,11 +638,10 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Test Site Name");
 
 		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
+			category = "Design",
 			portlet = "Widget Templates");
 
 		ApplicationDisplayTemplates.viewTemplate(adtType = "Asset Publisher");

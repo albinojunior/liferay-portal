@@ -15,12 +15,12 @@
 package com.liferay.taglib.util;
 
 import com.liferay.portal.kernel.portlet.LiferayPortletContext;
+import com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
-import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -43,7 +43,7 @@ public class TagResourceBundleUtil {
 	public static ResourceBundle getResourceBundle(
 		HttpServletRequest httpServletRequest, Locale locale) {
 
-		ResourceBundleLoader resourceBundleLoader = getResourceBundleLoader(
+		ResourceBundleLoader resourceBundleLoader = acquireResourceBundleLoader(
 			httpServletRequest);
 
 		if (resourceBundleLoader != null) {
@@ -77,21 +77,7 @@ public class TagResourceBundleUtil {
 		return getResourceBundle(httpServletRequest, locale);
 	}
 
-	protected static ResourceBundle getPortletResourceBundle(
-		HttpServletRequest httpServletRequest, Locale locale) {
-
-		PortletConfig portletConfig =
-			(PortletConfig)httpServletRequest.getAttribute(
-				JavaConstants.JAVAX_PORTLET_CONFIG);
-
-		if (portletConfig != null) {
-			return portletConfig.getResourceBundle(locale);
-		}
-
-		return _emptyResourceBundle;
-	}
-
-	protected static ResourceBundleLoader getResourceBundleLoader(
+	protected static ResourceBundleLoader acquireResourceBundleLoader(
 		HttpServletRequest httpServletRequest) {
 
 		ResourceBundleLoader resourceBundleLoader =
@@ -141,6 +127,34 @@ public class TagResourceBundleUtil {
 		return new AggregateResourceBundleLoader(
 			resourceBundleLoader,
 			ResourceBundleLoaderUtil.getPortalResourceBundleLoader());
+	}
+
+	protected static ResourceBundle getPortletResourceBundle(
+		HttpServletRequest httpServletRequest, Locale locale) {
+
+		PortletConfig portletConfig =
+			(PortletConfig)httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_CONFIG);
+
+		if (portletConfig != null) {
+			return portletConfig.getResourceBundle(locale);
+		}
+
+		return _emptyResourceBundle;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #acquireResourceBundleLoader(HttpServletRequest)}
+	 */
+	@Deprecated
+	protected static com.liferay.portal.kernel.util.ResourceBundleLoader
+		getResourceBundleLoader(HttpServletRequest httpServletRequest) {
+
+		ResourceBundleLoader resourceBundleLoader = acquireResourceBundleLoader(
+			httpServletRequest);
+
+		return locale -> resourceBundleLoader.loadResourceBundle(locale);
 	}
 
 	private static final ResourceBundle _emptyResourceBundle =

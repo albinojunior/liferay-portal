@@ -6,7 +6,7 @@ definition {
 			pageTemplateName = "${pageTemplateName}",
 			sitePageType = "${sitePageType}");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		SitePages._addPageToNavigationMenu(
 			assertCheckboxMissing = "${assertCheckboxMissing}",
@@ -95,6 +95,56 @@ definition {
 			sitePageType = "${sitePageType}");
 	}
 
+	macro addPublicCollectionPage {
+		PagesFinder.selectPageType(optionValue = "Public Pages");
+
+		Click(locator1 = "PagesFinder#PAGE_TYPE_SELECTOR_ELLIPSIS_ICON");
+
+		MenuItem.click(menuItem = "Add Collection Page");
+
+		Navigator.gotoNavTab(navTab = "${tabName}");
+
+		if (isSet(menuItem)) {
+			AssetListsAdmin.addSelection(
+				collectionName = "${collectionName}",
+				menuItem = "${menuItem}",
+				selectedAsset = "${selectedAsset}");
+
+			Click(locator1 = "Icon#BACK");
+		}
+
+		LexiconCard.clickCardTitle(card = "${collectionName}");
+
+		if (isSet(masterLayoutName)) {
+			LexiconCard.clickCard(card = "${masterLayoutName}");
+		}
+		else {
+			LexiconCard.clickCard(card = "Blank");
+		}
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		PortletEntry.inputName(name = "${pageName}");
+
+		if (isSet(categoryName)) {
+			AssetCategorization.addCategory(
+				categoryName = "${categoryName}",
+				vocabularyName = "${vocabularyName}");
+		}
+
+		if (isSet(categoryNameList)) {
+			AssetCategorization.addMultipleCategories(
+				categoryNameList = "${categoryNameList}",
+				vocabularyName = "${vocabularyName}");
+		}
+
+		Button.clickAdd();
+
+		SelectFrame.selectFrameTop();
+
+		PageEditor.assertFragmentSidebarLoaded();
+	}
+
 	macro addPublicContentPage {
 		PagesFinder.selectPageType(optionValue = "Public Pages");
 
@@ -106,7 +156,7 @@ definition {
 			collectionName = "${collectionName}",
 			pageTemplateName = "${pageTemplateName}");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PortletEntry.inputName(name = "${pageName}");
 
@@ -154,6 +204,14 @@ definition {
 		}
 	}
 
+	macro gotoPageEllipsisItem {
+		Click.mouseOverClick(
+			key_pageName = "${pageName}",
+			locator1 = "PagesFinder#PAGE_ELLIPSIS_ICON");
+
+		MenuItem.clickNoError(menuItem = "${item}");
+	}
+
 	macro inputPageSearch {
 		Type(
 			locator1 = "PagesFinder#INPUT_FIELD",
@@ -174,6 +232,7 @@ definition {
 
 	macro navigateToPage {
 		Click(
+			key_pageName = "${pageName}",
 			locator1 = "PagesFinder#PAGE_NAME",
 			value1 = "${pageName}");
 
@@ -193,7 +252,9 @@ definition {
 	}
 
 	macro viewPageNameInPagesFinder {
-		AssertElementPresent(locator1 = "PagesFinder#PAGE_NAME");
+		AssertElementPresent(
+			key_pageName = "${pageName}",
+			locator1 = "PagesFinder#PAGE_NAME");
 	}
 
 }

@@ -66,8 +66,8 @@ public interface ${entity.name} extends
 		public static final Accessor<${entity.name}, String> UUID_ACCESSOR = new Accessor<${entity.name}, String>() {
 
 			@Override
-			public String get(${entity.name} ${entity.varName}) {
-				return ${entity.varName}.getUuid();
+			public String get(${entity.name} ${entity.variableName}) {
+				return ${entity.variableName}.getUuid();
 			}
 
 			@Override
@@ -88,8 +88,8 @@ public interface ${entity.name} extends
 			public static final Accessor<${entity.name}, ${serviceBuilder.getPrimitiveObj(entityColumn.type)}> ${entityColumn.getAccessorName(apiPackagePath + ".model." + entity.name)} = new Accessor<${entity.name}, ${serviceBuilder.getPrimitiveObj(entityColumn.type)}>() {
 
 				@Override
-				public ${serviceBuilder.getPrimitiveObj(entityColumn.type)} get(${entity.name} ${entity.varName}) {
-					return ${entity.varName}.get${entityColumn.methodName}(<#if entityColumn.isLocalized()>LocaleThreadLocal.getThemeDisplayLocale()</#if>);
+				public ${serviceBuilder.getPrimitiveObj(entityColumn.type)} get(${entity.name} ${entity.variableName}) {
+					return ${entity.variableName}.get${entityColumn.methodName}(<#if entityColumn.isLocalized()>LocaleThreadLocal.getThemeDisplayLocale()</#if>);
 				}
 
 				@Override

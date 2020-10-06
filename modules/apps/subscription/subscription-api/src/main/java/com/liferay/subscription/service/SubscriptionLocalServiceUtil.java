@@ -100,6 +100,10 @@ public class SubscriptionLocalServiceUtil {
 	/**
 	 * Adds the subscription to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param subscription the subscription
 	 * @return the subscription that was added
 	 */
@@ -149,6 +153,10 @@ public class SubscriptionLocalServiceUtil {
 	/**
 	 * Deletes the subscription with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param subscriptionId the primary key of the subscription
 	 * @return the subscription that was removed
 	 * @throws PortalException if a subscription with the primary key could not be found
@@ -177,6 +185,10 @@ public class SubscriptionLocalServiceUtil {
 
 	/**
 	 * Deletes the subscription from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param subscription the subscription
 	 * @return the subscription that was removed
@@ -219,6 +231,12 @@ public class SubscriptionLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().deleteSubscriptions(companyId, className, classPK);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -431,11 +449,11 @@ public class SubscriptionLocalServiceUtil {
 	}
 
 	/**
-	 * Returns all the subscriptions to the class name.
-	 *
 	 * @param className the entity's class name
 	 * @return the subscriptions to the class name
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static java.util.List<com.liferay.subscription.model.Subscription>
 		getSubscriptions(String className) {
 
@@ -452,11 +470,11 @@ public class SubscriptionLocalServiceUtil {
 	}
 
 	/**
-	 * Returns the number of the subscriptions to the class name.
-	 *
 	 * @param className the entity's class name
 	 * @return the subscriptions to the class name
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static int getSubscriptionsCount(String className) {
 		return getService().getSubscriptionsCount(className);
 	}
@@ -541,6 +559,10 @@ public class SubscriptionLocalServiceUtil {
 
 	/**
 	 * Updates the subscription in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param subscription the subscription
 	 * @return the subscription that was updated

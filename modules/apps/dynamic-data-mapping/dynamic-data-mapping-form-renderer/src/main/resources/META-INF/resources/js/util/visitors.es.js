@@ -12,7 +12,7 @@
  * details.
  */
 
-const identity = value => value;
+const identity = (value) => value;
 
 class PagesVisitor {
 	constructor(pages) {
@@ -24,22 +24,20 @@ class PagesVisitor {
 	}
 
 	containsField(fieldName) {
-		return !!this.findField(field => field.fieldName === fieldName);
+		return !!this.findField((field) => field.fieldName === fieldName);
 	}
 
 	findField(condition) {
 		let conditionField;
 
-		this._map(identity, identity, identity, (fields, ...args) => {
-			const field = fields.find((field, fieldIndex) => {
-				condition(field, fieldIndex, ...args);
-
-				return condition(field, fieldIndex, ...args);
-			});
-
-			if (field) {
+		this.visitFields((field) => {
+			if (condition(field)) {
 				conditionField = field;
+
+				return true;
 			}
+
+			return false;
 		});
 
 		return conditionField;
@@ -49,17 +47,51 @@ class PagesVisitor {
 		return this._map(identity, identity, mapper, identity);
 	}
 
-	mapFields(mapper, merge = true) {
+	mapFields(mapper, merge = true, includeNestedFields = false) {
 		return this._map(identity, identity, identity, (fields, ...args) => {
 			return fields.map((field, fieldIndex) => {
+				let mappedField;
+
 				if (merge) {
-					return {
+					mappedField = {
 						...field,
 						...mapper(field, fieldIndex, ...args),
 					};
 				}
+				else {
+					mappedField = mapper(field, fieldIndex, ...args);
+				}
 
-				return mapper(field, fieldIndex, ...args);
+				if (includeNestedFields && mappedField.nestedFields) {
+					const mapNestedFields = (field) => {
+						return {
+							...field,
+							nestedFields: (field.nestedFields || []).map(
+								(nestedField) => {
+									let mappedNestedField = mapper(
+										nestedField,
+										fieldIndex,
+										...args,
+										field
+									);
+
+									if (merge) {
+										mappedNestedField = {
+											...nestedField,
+											...mappedNestedField,
+										};
+									}
+
+									return mapNestedFields(mappedNestedField);
+								}
+							),
+						};
+					};
+
+					return mapNestedFields(mappedField);
+				}
+
+				return mappedField;
 			});
 		});
 	}
@@ -74,6 +106,33 @@ class PagesVisitor {
 
 	setPages(pages) {
 		this._pages = [...pages];
+	}
+
+	visitFields(fn) {
+		const isFieldNode = (node) =>
+			Object.prototype.hasOwnProperty.call(node, 'fieldName');
+
+		const getChildren = (node) => {
+			if (isFieldNode(node)) {
+				return node.nestedFields || [];
+			}
+
+			return node.fields || node.rows || node.columns || [];
+		};
+
+		const collection = [...this._pages];
+
+		while (collection.length) {
+			const node = collection.shift();
+
+			if (isFieldNode(node) && fn(node)) {
+				return true;
+			}
+
+			collection.unshift(...getChildren(node));
+		}
+
+		return false;
 	}
 
 	_map(pageMapper, rowMapper, columnMapper, fieldFn) {
@@ -127,12 +186,12 @@ class RulesVisitor {
 	}
 
 	containsField(fieldName) {
-		return this._rules.some(rule => {
+		return this._rules.some((rule) => {
 			const actionsResult = rule.actions.some(({target}) => {
 				return target === fieldName;
 			});
 
-			const conditionsResult = rule.conditions.some(condition => {
+			const conditionsResult = rule.conditions.some((condition) => {
 				return condition.operands.some(({type, value}) => {
 					return type === 'field' && value === fieldName;
 				});
@@ -143,7 +202,7 @@ class RulesVisitor {
 	}
 
 	containsFieldExpression(fieldName) {
-		return this._rules.some(rule => {
+		return this._rules.some((rule) => {
 			return rule.actions.some(({action, expression}) => {
 				return action === 'calculate' && expression.includes(fieldName);
 			});
@@ -155,7 +214,7 @@ class RulesVisitor {
 	}
 
 	mapActions(actionMapper) {
-		return this._rules.map(rule => {
+		return this._rules.map((rule) => {
 			return {
 				...rule,
 				actions: rule.actions.map(actionMapper),
@@ -164,7 +223,7 @@ class RulesVisitor {
 	}
 
 	mapConditions(conditionMapper) {
-		return this._rules.map(rule => {
+		return this._rules.map((rule) => {
 			return {
 				...rule,
 				conditions: rule.conditions.map(conditionMapper),

@@ -1,8 +1,6 @@
 @component-name = "portal-wcm"
 definition {
 
-	property osgi.module.configuration.file.names = "com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration.config";
-	property osgi.module.configurations = "enabled=B&quot;true&quot;";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Site Pages Administration";
@@ -43,8 +41,12 @@ definition {
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
+
+		Pause(locator1 = "3000");
+
+		PageEditor.assertFragmentSidebarLoaded();
 
 		Button.clickPublish();
 
@@ -167,7 +169,8 @@ definition {
 
 		PageEditor.addFragment(
 			collectionName = "Basic Components",
-			fragmentName = "Heading");
+			fragmentName = "Heading",
+			targetFragmentName = "Asset Publisher");
 
 		PageEditor.clickPublish();
 
@@ -247,8 +250,10 @@ definition {
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
+
+		Pause(locator1 = "3000");
 
 		Button.clickPublish();
 
@@ -303,11 +308,10 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name 3");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name 3",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Nested Applications");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name 3",
+			widgetName = "Nested Applications");
 
 		ServerAdministration.openServerAdmin();
 
@@ -340,13 +344,10 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
-
-		SitePages.configurePage(
-			columnName = "1 Column",
-			pageName = "Test Page Name",
-			privacy = "Public Pages",
-			sitePageType = "Widget Page");
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			layoutTemplate = "1 Column");
 
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
@@ -371,12 +372,13 @@ definition {
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
 
 		AssertVisible(
-			key_warningMessage = "This page has customizable columns. This capability is not supported for content pages and will be lost if the conversion draft is published.",
-			locator1 = "Message#WARNING_SPECIFIC");
+			key_alertMessage = "This page has customizable columns. This capability is not supported for content pages and will be lost if the conversion draft is published.",
+			key_type = "warning",
+			locator1 = "Message#CONVERSION_ALERT_MESSAGE");
 
 		AssertElementNotPresent(
 			key_portletName = "Asset Publisher",
@@ -398,29 +400,40 @@ definition {
 	@description = "This is a test for LPS-105943. When convert a widget page with one Nested Applications widget containing widgets, there will be a warning message shown in conversion preview"
 	@priority = "5"
 	test ConvertWidgetPageWithNestedApplicationsContainingWidgets {
+		property portal.acceptance = "true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			layoutTemplate = "1 Column");
 
-		SitePages.configurePage(
-			columnName = "1 Column",
-			pageName = "Test Page Name",
-			privacy = "Public Pages",
-			sitePageType = "Widget Page");
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			widgetName = "Nested Applications");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			widgetName = "Asset Publisher");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
 			siteName = "Test Site Name");
 
-		Portlet.addPG(portletName = "Nested Applications");
+		NestedPortlets.viewConfigurationDefaultLayoutTemplate(
+			defaultColumnName = "2 Columns (50/50)",
+			portletName = "Nested Applications");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name",
-			siteName = "Test Site Name");
+		Click(locator1 = "Icon#CLOSE");
 
-		Portlet.addPG(portletName = "Asset Publisher");
+		WaitForElementNotPresent(locator1 = "IFrame#MODAL_BODY");
 
 		DragAndDrop.dragAndDropPortletToObject(
 			key_portletTitleName = "Asset Publisher",
@@ -438,12 +451,13 @@ definition {
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
 
 		AssertVisible(
-			key_warningMessage = "This page uses nested applications widgets. All widgets that were inside a nested application widget have been placed in a single column and may require manual reorganization.",
-			locator1 = "Message#WARNING_SPECIFIC");
+			key_alertMessage = "This page uses nested applications widgets. All widgets that were inside a nested application widget have been placed in a single column and may require manual reorganization.",
+			key_type = "warning",
+			locator1 = "Message#CONVERSION_ALERT_MESSAGE");
 
 		Portlet.viewPG(portletName = "Asset Publisher");
 
@@ -470,32 +484,32 @@ definition {
 	@priority = "5"
 	test ConvertWidgetPageWithNonStandardLayout {
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "ContentPageConverter#ConvertWidgetPageWithNonStandardLayout";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
-			portlet = "Sites");
+			portlet = "App Manager");
 
-		Site.addCP(
-			siteName = "Test Westeros Site",
-			siteTemplateName = "Westeros Bank",
-			siteType = "Site Template");
+		AppManager.uploadAppCP(
+			appName = "custom-layout-layouttpl",
+			warFileName = "custom-layout-layouttpl.war");
 
 		JSONLayout.addPublicLayout(
-			groupName = "Test Westeros Site",
+			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Westeros Site");
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		SitePages.configurePage(
-			columnName = "Westeros 2 columns",
+			columnName = "Custom Layout",
 			pageName = "Test Page Name",
 			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
+			siteName = "Test Site Name");
 
 		Portlet.addPG(portletName = "Profile");
 
@@ -506,89 +520,89 @@ definition {
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
+			siteName = "Test Site Name");
 
 		Portlet.addPG(portletName = "Asset Publisher");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
-
 		AssertTextEquals(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
+			key_portletTitleName = "Asset Publisher",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_1_PORTLET_TITLE",
 			value1 = "Asset Publisher");
 
 		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
+			key_portletTitleName = "Profile",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_2_PORTLET_TITLE",
 			value1 = "Profile");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Westeros Site");
+		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
 
 		AssertVisible(
-			key_warningMessage = "This page uses a custom page layout. A best-effort conversion has been performed. Verify the conversion draft before publishing it.",
-			locator1 = "Message#WARNING_SPECIFIC");
+			key_alertMessage = "This page uses a custom page layout. A best-effort conversion has been performed. Verify the conversion draft before publishing it.",
+			key_type = "warning",
+			locator1 = "Message#CONVERSION_ALERT_MESSAGE");
 
-		AssertTextEquals(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Asset Publisher");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Asset Publisher')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
-		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Profile");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Profile')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
 		Button.clickPublish();
 
-		Navigator.gotoSitePage(
+		ContentPagesNavigator.openEditContentPage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
+			siteName = "Test Site Name");
 
-		AssertElementPresent(locator1 = "Icon#EDIT_PENCIL");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Asset Publisher')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
-		AssertTextEquals(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Asset Publisher");
-
-		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Profile");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Profile')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 	}
 
 	@description = "This is a test for LPS-105943. When convert a widget page with one Customizable column and a non-standard layout, there will be two warning messages shown in conversion preview"
 	@priority = "3"
 	test ConvertWidgetPageWithNonStandardLayoutAndCustomizableColumns {
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		property test.name.skip.portal.instance = "ContentPageConverter#ConvertWidgetPageWithNonStandardLayoutAndCustomizableColumns";
 
-		Site.addCP(
-			siteName = "Test Westeros Site",
-			siteTemplateName = "Westeros Bank",
-			siteType = "Site Template");
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
+			panel = "Control Panel",
+			portlet = "App Manager");
+
+		AppManager.uploadAppCP(
+			appName = "custom-layout-layouttpl",
+			warFileName = "custom-layout-layouttpl.war");
 
 		JSONLayout.addPublicLayout(
-			groupName = "Test Westeros Site",
+			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Westeros Site");
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		SitePages.configurePage(
-			columnName = "Westeros 2 columns",
+			columnName = "Custom Layout",
 			pageName = "Test Page Name",
 			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Westeros Site");
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		PageCustomizations.enableSectionCustomizableCP(
 			columnIdList = "1,2",
@@ -596,7 +610,7 @@ definition {
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
+			siteName = "Test Site Name");
 
 		PageCustomizations.viewCustomizablePagePG();
 
@@ -609,28 +623,28 @@ definition {
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
+			siteName = "Test Site Name");
 
 		Portlet.addPG(portletName = "Asset Publisher");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
+			siteName = "Test Site Name");
 
 		AssertTextEquals(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
+			key_portletTitleName = "Asset Publisher",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_1_PORTLET_TITLE",
 			value1 = "Asset Publisher");
 
 		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
+			key_portletTitleName = "Profile",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_2_PORTLET_TITLE",
 			value1 = "Profile");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Westeros Site");
+		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
 
 		AssertTextEquals(
@@ -638,69 +652,74 @@ definition {
 			value1 = "This page has customizable columns. This capability is not supported for content pages and will be lost if the conversion draft is published. This page uses a custom page layout. A best-effort conversion has been performed. Verify the conversion draft before publishing it.");
 
 		AssertElementNotPresent(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE");
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Asset Publisher')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
 		AssertElementNotPresent(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE");
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Profile')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
 		Button.clickPublish();
 
-		Navigator.gotoSitePage(
+		ContentPagesNavigator.openEditContentPage(
 			pageName = "Test Page Name",
-			siteName = "Test Westeros Site");
-
-		AssertElementPresent(locator1 = "Icon#EDIT_PENCIL");
+			siteName = "Test Site Name");
 
 		AssertElementNotPresent(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE");
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Asset Publisher')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
 		AssertElementNotPresent(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE");
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Profile')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 	}
 
 	@description = "This is a test for LPS-105943. When convert a widget page with one Nested Applications widget containing widgets and a non-standard layout, there will be two warning messages shown in conversion preview"
 	@priority = "3"
 	test ConvertWidgetPageWithNonStandardLayoutAndNestedApplicationsContainingWidgets {
-		JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+		property test.name.skip.portal.instance = "ContentPageConverter#ConvertWidgetPageWithNonStandardLayoutAndNestedApplicationsContainingWidgets";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
-			portlet = "Sites");
+			portlet = "App Manager");
 
-		Site.addCP(
-			siteName = "Test Site Name",
-			siteTemplateName = "Westeros Bank",
-			siteType = "Site Template");
+		AppManager.uploadAppCP(
+			appName = "custom-layout-layouttpl",
+			warFileName = "custom-layout-layouttpl.war");
 
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		SitePages.configurePage(
-			columnName = "Westeros 2 columns",
+			columnName = "Custom Layout",
 			pageName = "Test Page Name",
 			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
-		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+		for (var portletName : list "Profile,Asset Publisher") {
+			Navigator.gotoSitePage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name",
-			siteName = "Test Site Name");
+			Portlet.addPG(portletName = "${portletName}");
 
-		Portlet.addPG(portletName = "Profile");
-
-		Portlet.dragAndDropPortletToColumnPG(
-			columnNumberFrom = "1",
-			columnNumberTo = "2",
-			portletName = "Profile");
+			Portlet.dragAndDropPortletToColumnPG(
+				columnNumberFrom = "1",
+				columnNumberTo = "2",
+				portletName = "${portletName}");
+		}
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
@@ -712,17 +731,31 @@ definition {
 			pageName = "Test Page Name",
 			siteName = "Test Site Name");
 
-		Portlet.addPG(portletName = "Asset Publisher");
+		ProductMenuHelper.closeProductMenu();
+
+		AssetPublisherPortlet.gotoConfigurationPG(portletName = "Asset Publisher");
+
+		Navigator.gotoNavTab(navTab = "Asset Selection");
+
+		Click(locator1 = "APConfiguration#ASSET_SELECTION_MANUAL");
+
+		PortletEntry.save();
+
+		SelectFrame(value1 = "relative=top");
+
+		Click(locator1 = "Icon#CLOSE");
+
+		WaitForElementNotPresent(locator1 = "IFrame#MODAL_BODY");
 
 		DragAndDrop.dragAndDropPortletToObject(
 			key_portletTitleName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_1_PORTLET_HEADER",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_2_PORTLET_HEADER",
 			locator2 = "Home#PORTLET_COLUMN_1",
 			value1 = "Asset Publisher");
 
 		AssertTextEquals(
-			key_portletName = "Nested Applications",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
+			key_portletTitleName = "Nested Applications",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_1_PORTLET_TITLE",
 			value1 = "Nested Applications");
 
 		AssertTextEquals(
@@ -731,14 +764,14 @@ definition {
 			value1 = "Asset Publisher");
 
 		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
+			key_portletTitleName = "Profile",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_2_PORTLET_TITLE",
 			value1 = "Profile");
 
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
 
 		AssertTextEquals(
@@ -746,45 +779,52 @@ definition {
 			value1 = "This page uses nested applications widgets. All widgets that were inside a nested application widget have been placed in a single column and may require manual reorganization. This page uses a custom page layout. A best-effort conversion has been performed. Verify the conversion draft before publishing it.");
 
 		AssertElementNotPresent(
-			key_portletName = "Nested Applications",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE");
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Nested Applications')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
-		AssertTextEquals(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Asset Publisher");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Asset Publisher')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
-		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Profile");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Profile')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
 		Button.clickPublish();
 
-		Navigator.gotoSitePage(
+		ContentPagesNavigator.openEditContentPage(
 			pageName = "Test Page Name",
 			siteName = "Test Site Name");
 
-		AssertElementPresent(locator1 = "Icon#EDIT_PENCIL");
-
 		AssertElementNotPresent(
-			key_portletName = "Nested Applications",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE");
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Nested Applications')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
-		AssertTextEquals(
-			key_portletName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_1_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Asset Publisher");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Asset Publisher')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 
-		AssertTextEquals(
-			key_portletName = "Profile",
-			locator1 = "Home#PAGE_COLUMN_2_LAYOUT_WESTROS_2_COLUMNS_PORTLET_TITLE",
-			value1 = "Profile");
+		AssertElementPresent(
+			key_columnNumber = "1",
+			key_elementHeader = "//div[contains(@class,'page-editor')]//li[contains(.,'Profile')]",
+			key_position = "1",
+			locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
 	}
 
 	@description = "This is a test for LPS-98589. Can edit the title of the widgets with "borderless" and "decorate" decorators in content page with correct permissions."
 	@priority = "5"
 	test EditConvertedContentPageWithDecorator {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
 
 		JSONLayout.addPublicLayout(
@@ -832,8 +872,10 @@ definition {
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
+
+		WaitForElementPresent(locator1 = "//script[contains(@src,'FragmentsSidebar.js')]");
 
 		Button.clickPublish();
 
@@ -865,28 +907,19 @@ definition {
 			userLastName = "Userln1",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea1@liferay.com");
 
-		User.editPasswordCP(
-			password = "password",
-			userEmailAddress = "userea1@liferay.com",
-			userScreenName = "usersn1");
+		JSONUser.addUserToSite(
+			groupName = "Test Site Name",
+			userEmailAddress = "userea1@liferay.com");
 
-		Site.openSiteMembershipsAdmin(siteURLKey = "test-site-name");
-
-		Site.assignUserAsMemberCP(
-			userFirstName = "Userfn1",
-			userLastName = "Userln1",
-			userScreenName = "usersn1");
-
-		User.openUsersAdmin();
-
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn1");
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea1@liferay.com");
 
 		User.logoutPG();
 
@@ -917,10 +950,6 @@ definition {
 			resourceName = "com.liferay.portal.kernel.model.Group",
 			roleTitle = "Roles Siterole Name",
 			roleType = "site");
-
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name",
-			siteName = "Test Site Name");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
@@ -960,22 +989,26 @@ definition {
 		SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
 
 		SitePages.gotoPageMenuItem(
-			menuItem = "Convert to Content Page and Preview",
+			menuItem = "Convert to content page...",
 			pageName = "Test Page Name");
 
-		var key_text = "Discard Conversion Draft";
-
-		AssertElementPresent(locator1 = "Button#ANY");
-
-		AssertTextEquals(
-			locator1 = "Message#INFO",
-			value1 = "The page conversion is shown in the preview below. Make modifications needed before publishing the conversion, or discard the draft to leave the widget page in its original state.");
+		AssertVisible(
+			key_alertMessage = "The page conversion is shown in the preview below. Make modifications needed before publishing the conversion, or discard the draft to leave the widget page in its original state.",
+			key_type = "info",
+			locator1 = "Message#CONVERSION_ALERT_MESSAGE");
 
 		PageEditor.clickBack();
 
-		AssertTextEquals(
+		AssertTextEquals.assertPartialText(
+			key_itemName = "Test Page Name",
 			locator1 = "SitePages#LIST_GROUP_ITEM_PAGE_INFO",
 			value1 = "Conversion Draft");
+
+		Click.waitForMenuToggleJSClick(
+			key_pageName = "Test Page Name",
+			locator1 = "SitePages#LIST_GROUP_ITEM_ELLIPSIS_ICON");
+
+		MenuItem.viewPresent(menuItem = "Discard Conversion Draft");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
@@ -991,7 +1024,9 @@ definition {
 			menuItem = "Edit Conversion Draft",
 			pageName = "Test Page Name");
 
-		PageEditor.addWidget(portletName = "Web Content Display");
+		PageEditor.addWidget(
+			portletName = "Web Content Display",
+			targetFragmentName = "Asset Publisher");
 
 		PageEditor.removeFragment(fragmentName = "Asset Publisher");
 

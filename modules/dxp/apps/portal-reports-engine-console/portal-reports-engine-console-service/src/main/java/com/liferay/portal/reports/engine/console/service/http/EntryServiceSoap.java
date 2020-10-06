@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see EntryServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class EntryServiceSoap {
 
 	public static com.liferay.portal.reports.engine.console.model.EntrySoap
@@ -128,7 +130,8 @@ public class EntryServiceSoap {
 				java.util.Date createDateGT, java.util.Date createDateLT,
 				boolean andSearch, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.portal.reports.engine.console.model.Entry>
+						orderByComparator)
 		throws RemoteException {
 
 		try {

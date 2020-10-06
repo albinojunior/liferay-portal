@@ -14,50 +14,76 @@
 
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 
-import {generateFieldName} from '../util/fields.es';
+import {createFieldSet} from '../util/fieldset.es';
+import {updateField} from '../util/settingsContext.es';
+import {addField} from './fieldAddedHandler.es';
 
 const handleFieldSetAdded = (props, state, event) => {
-	const {fieldSetPages, indexes} = event;
+	const {
+		defaultLanguageId,
+		fieldSet,
+		indexes,
+		parentFieldName,
+		properties,
+		rows,
+		useFieldName,
+	} = event;
 	const {pages} = state;
-	const {pageIndex, rowIndex} = indexes;
+	const visitor = new PagesVisitor(fieldSet.pages);
+	const nestedFields = [];
 
-	const visitor = new PagesVisitor(fieldSetPages);
-
-	const newFieldsetPages = visitor.mapFields(field => {
-		const name = generateFieldName(pages, field.fieldName);
-
-		const settingsContextVisitor = new PagesVisitor(
-			field.settingsContext.pages
+	visitor.mapFields((nestedField) => {
+		nestedFields.push(
+			updateField(
+				props,
+				nestedField,
+				'label',
+				nestedField.label[defaultLanguageId]
+			)
 		);
-
-		return {
-			...field,
-			fieldName: name,
-			settingsContext: {
-				...field.settingsContext,
-				pages: settingsContextVisitor.mapFields(
-					settingsContextField => {
-						if (settingsContextField.fieldName === 'name') {
-							settingsContextField = {
-								...settingsContextField,
-								value: name,
-							};
-						}
-
-						return settingsContextField;
-					}
-				),
-			},
-		};
 	});
 
-	const rows = newFieldsetPages[0].rows;
+	let fieldSetField = createFieldSet(
+		props,
+		{skipFieldNameGeneration: false, useFieldName},
+		nestedFields
+	);
 
-	for (let i = rows.length - 1; i >= 0; i--) {
-		pages[pageIndex].rows.splice(rowIndex, 0, rows[i]);
+	if (properties) {
+		Object.keys(properties).forEach((key) => {
+			fieldSetField = updateField(
+				props,
+				fieldSetField,
+				key,
+				properties[key]
+			);
+		});
 	}
 
-	return {pages};
+	if (fieldSet.id) {
+		fieldSetField = updateField(
+			props,
+			fieldSetField,
+			'ddmStructureId',
+			fieldSet.id
+		);
+	}
+
+	if (rows && rows.length) {
+		fieldSetField = updateField(props, fieldSetField, 'rows', rows);
+	}
+
+	return addField(props, {
+		indexes,
+		newField: updateField(
+			props,
+			fieldSetField,
+			'label',
+			fieldSet.localizedTitle[defaultLanguageId]
+		),
+		pages,
+		parentFieldName,
+	});
 };
 
 export default handleFieldSetAdded;

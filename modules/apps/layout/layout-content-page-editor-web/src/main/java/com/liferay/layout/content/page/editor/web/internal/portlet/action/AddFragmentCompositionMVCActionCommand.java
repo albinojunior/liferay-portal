@@ -24,9 +24,9 @@ import com.liferay.fragment.service.FragmentCollectionService;
 import com.liferay.fragment.service.FragmentCompositionService;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
-import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.content.page.editor.web.internal.constants.ContentPageEditorConstants;
+import com.liferay.layout.page.template.serializer.LayoutStructureItemJSONSerializer;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -106,22 +107,25 @@ public class AddFragmentCompositionMVCActionCommand
 		String description = ParamUtil.getString(actionRequest, "description");
 
 		String itemId = ParamUtil.getString(actionRequest, "itemId");
+		boolean saveInlineContent = ParamUtil.getBoolean(
+			actionRequest, "saveInlineContent");
+		boolean saveMappingConfiguration = ParamUtil.getBoolean(
+			actionRequest, "saveMappingConfiguration");
 		long segmentsExperienceId = ParamUtil.getLong(
 			actionRequest, "segmentsExperienceId",
 			SegmentsExperienceConstants.ID_DEFAULT);
 
-		String layoutStructureJSON =
-			LayoutStructureUtil.getLayoutStructureItemJSON(
-				_fragmentCollectionContributorTracker,
-				_fragmentEntryConfigurationParser, _fragmentRendererTracker,
-				themeDisplay.getScopeGroupId(), itemId, themeDisplay.getPlid(),
+		String layoutStructureItemJSON =
+			_layoutStructureItemJSONSerializer.toJSONString(
+				_layoutLocalService.getLayout(themeDisplay.getPlid()), itemId,
+				saveInlineContent, saveMappingConfiguration,
 				segmentsExperienceId);
 
 		FragmentComposition fragmentComposition =
 			_fragmentCompositionService.addFragmentComposition(
 				themeDisplay.getScopeGroupId(),
 				fragmentCollection.getFragmentCollectionId(), null, name,
-				description, layoutStructureJSON, 0,
+				description, layoutStructureItemJSON, 0,
 				WorkflowConstants.STATUS_APPROVED, serviceContext);
 
 		String previewImageURL = ParamUtil.getString(
@@ -132,20 +136,39 @@ public class AddFragmentCompositionMVCActionCommand
 				fragmentComposition.getFragmentCompositionId(), previewImageURL,
 				serviceContext, themeDisplay);
 
-			_fragmentCompositionService.updateFragmentComposition(
-				fragmentComposition.getFragmentCompositionId(),
-				previewFileEntry.getFileEntryId());
+			if (previewFileEntry != null) {
+				fragmentComposition =
+					_fragmentCompositionService.updateFragmentComposition(
+						fragmentComposition.getFragmentCompositionId(),
+						previewFileEntry.getFileEntryId());
+			}
 		}
 
 		return JSONUtil.put(
-			"fragmentCompositionKey",
-			fragmentComposition.getFragmentCompositionKey());
+			"fragmentCollectionId",
+			String.valueOf(fragmentCollection.getFragmentCollectionId())
+		).put(
+			"fragmentCollectionName", fragmentCollection.getName()
+		).put(
+			"fragmentEntryKey", fragmentComposition.getFragmentCompositionKey()
+		).put(
+			"groupId", fragmentComposition.getGroupId()
+		).put(
+			"icon", "edit-layout"
+		).put(
+			"imagePreviewURL",
+			fragmentComposition.getImagePreviewURL(themeDisplay)
+		).put(
+			"name", fragmentComposition.getName()
+		).put(
+			"type", ContentPageEditorConstants.TYPE_COMPOSITION
+		);
 	}
 
 	private FileEntry _addPreviewImage(
 			long fragmentCompositionId, String url,
 			ServiceContext serviceContext, ThemeDisplay themeDisplay)
-		throws PortalException {
+		throws Exception {
 
 		byte[] bytes = {};
 
@@ -163,6 +186,10 @@ public class AddFragmentCompositionMVCActionCommand
 				URL imageURL = new URL(url);
 
 				bytes = FileUtil.getBytes(imageURL.openStream());
+			}
+
+			if (bytes.length == 0) {
+				return null;
 			}
 
 			Repository repository =
@@ -216,6 +243,13 @@ public class AddFragmentCompositionMVCActionCommand
 
 	@Reference
 	private FragmentRendererTracker _fragmentRendererTracker;
+
+	@Reference
+	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutStructureItemJSONSerializer
+		_layoutStructureItemJSONSerializer;
 
 	@Reference
 	private Portal _portal;

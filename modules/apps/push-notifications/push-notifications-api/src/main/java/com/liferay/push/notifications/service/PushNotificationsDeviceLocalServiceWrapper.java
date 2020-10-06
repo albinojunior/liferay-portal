@@ -48,6 +48,10 @@ public class PushNotificationsDeviceLocalServiceWrapper
 	/**
 	 * Adds the push notifications device to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PushNotificationsDeviceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pushNotificationsDevice the push notifications device
 	 * @return the push notifications device that was added
 	 */
@@ -102,6 +106,10 @@ public class PushNotificationsDeviceLocalServiceWrapper
 	/**
 	 * Deletes the push notifications device with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PushNotificationsDeviceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pushNotificationsDeviceId the primary key of the push notifications device
 	 * @return the push notifications device that was removed
 	 * @throws PortalException if a push notifications device with the primary key could not be found
@@ -117,6 +125,10 @@ public class PushNotificationsDeviceLocalServiceWrapper
 
 	/**
 	 * Deletes the push notifications device from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PushNotificationsDeviceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pushNotificationsDevice the push notifications device
 	 * @return the push notifications device that was removed
@@ -138,6 +150,11 @@ public class PushNotificationsDeviceLocalServiceWrapper
 
 		return _pushNotificationsDeviceLocalService.
 			deletePushNotificationsDevice(token);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _pushNotificationsDeviceLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -359,6 +376,10 @@ public class PushNotificationsDeviceLocalServiceWrapper
 
 	/**
 	 * Updates the push notifications device in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PushNotificationsDeviceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pushNotificationsDevice the push notifications device
 	 * @return the push notifications device that was updated

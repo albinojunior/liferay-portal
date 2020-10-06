@@ -12,7 +12,7 @@
  * details.
  */
 
-import {fetch} from 'frontend-js-web';
+import {fetch, openToast} from 'frontend-js-web';
 import React, {useEffect, useRef, useState} from 'react';
 
 import Breadcrumbs from '../breadcrumbs/Breadcrumbs';
@@ -23,6 +23,8 @@ const Layout = ({
 	getItemChildrenURL,
 	initialBreadcrumbEntries,
 	initialLayoutColumns,
+	languageDirection,
+	languageId,
 	moveItemURL,
 	namespace,
 	searchContainerId,
@@ -34,6 +36,7 @@ const Layout = ({
 		initialBreadcrumbEntries
 	);
 	const [layoutColumns, setLayoutColumns] = useState(initialLayoutColumns);
+	const [searchContainerElement, setSearchContainerElement] = useState();
 
 	useEffect(() => {
 		const A = new AUI();
@@ -41,7 +44,7 @@ const Layout = ({
 		A.use(
 			'liferay-search-container',
 			'liferay-search-container-select',
-			A => {
+			(A) => {
 				const plugins = [
 					{
 						cfg: {
@@ -60,11 +63,13 @@ const Layout = ({
 					id: `${namespace}${searchContainerId}`,
 					plugins,
 				});
+
+				setSearchContainerElement(searchContainer.current);
 			}
 		);
 	}, [namespace, searchContainerId]);
 
-	const getItemChildren = parentId => {
+	const getItemChildren = (parentId) => {
 		const formData = new FormData();
 
 		formData.append(`${namespace}plid`, parentId);
@@ -73,63 +78,84 @@ const Layout = ({
 			body: formData,
 			method: 'POST',
 		})
-			.then(response => response.json())
+			.then((response) => response.json())
 			.then(({children}) => {
 				const newLayoutColumns = [];
 
 				for (let i = 0; i < layoutColumns.length; i++) {
 					const column = layoutColumns[i];
-					const newColumn = [];
 
-					let parent;
-
-					for (let j = 0; j < column.length; j++) {
-						const newItem = {...column[j]};
-
-						if (!parent && newItem.id === parentId) {
-							parent = newItem;
-						}
-
-						newColumn.push(newItem);
+					if (!column.some((item) => item.id === parentId)) {
+						newLayoutColumns.push(column);
 					}
+					else {
+						const newColumn = [];
 
-					newLayoutColumns.push(newColumn);
+						column.forEach((item) => {
+							if (item.active) {
+								newColumn.push({...item, active: false});
+							}
+							else if (item.id === parentId) {
+								newColumn.push({...item, active: true});
+							}
+							else {
+								newColumn.push({...item});
+							}
+						});
 
-					if (parent) {
-						const oldParent = newColumn.find(item => item.active);
-						oldParent.active = false;
-						parent.active = true;
-						newLayoutColumns.push(children);
+						newLayoutColumns.push(newColumn);
+
 						break;
 					}
 				}
+
+				newLayoutColumns.push(children);
 
 				setLayoutColumns(newLayoutColumns);
 			})
 			.catch();
 	};
 
-	const saveData = (sourceItemId, parentItemId, position) => {
+	const saveData = (movedItems, parentItemId) => {
 		const formData = new FormData();
 
-		formData.append(`${namespace}plid`, sourceItemId);
+		const activeItems = layoutColumns.reduce(
+			(acc, column) => [...acc, ...column.filter((item) => item.active)],
+			[]
+		);
+
+		const activeItem = activeItems[activeItems.length - 1];
+
+		formData.append(`${namespace}plids`, JSON.stringify(movedItems));
 		formData.append(`${namespace}parentPlid`, parentItemId);
 
-		if (position) {
-			formData.append(`${namespace}priority`, position);
+		if (activeItem) {
+			formData.append(`${namespace}selPlid`, activeItem.id);
 		}
 
 		fetch(moveItemURL, {
 			body: formData,
 			method: 'POST',
-		});
+		})
+			.then((response) => response.json())
+			.then(({errorMessage, layoutColumns: updatedLayoutColumns}) => {
+				if (errorMessage) {
+					openToast({
+						message: errorMessage,
+						type: 'danger',
+					});
+				}
+				if (updatedLayoutColumns) {
+					setLayoutColumns(updatedLayoutColumns);
+				}
+			});
 	};
 
-	const updateBreadcrumbs = columns => {
+	const updateBreadcrumbs = (columns) => {
 		const newBreadcrumbEntries = [breadcrumbEntries[0]];
 
 		for (let i = 0; i < columns.length; i++) {
-			const item = columns[i].items.find(item => item.active);
+			const item = columns[i].items.find((item) => item.active);
 
 			if (item) {
 				newBreadcrumbEntries.push({
@@ -152,16 +178,20 @@ const Layout = ({
 				onColumnsChange={updateBreadcrumbs}
 				onItemMove={saveData}
 				onItemStayHover={getItemChildren}
+				rtl={languageDirection[languageId] === 'rtl'}
+				searchContainer={searchContainerElement}
 			/>
 		</div>
 	);
 };
 
-export default function({
+export default function ({
 	context: {namespace},
 	props: {
 		breadcrumbEntries,
 		getItemChildrenURL,
+		languageDirection,
+		languageId,
 		layoutColumns,
 		moveItemURL,
 		searchContainerId,
@@ -172,6 +202,8 @@ export default function({
 			getItemChildrenURL={getItemChildrenURL}
 			initialBreadcrumbEntries={breadcrumbEntries}
 			initialLayoutColumns={layoutColumns}
+			languageDirection={languageDirection}
+			languageId={languageId}
 			moveItemURL={moveItemURL}
 			namespace={namespace}
 			searchContainerId={searchContainerId}

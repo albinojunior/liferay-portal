@@ -16,6 +16,7 @@ package com.liferay.sharepoint.soap.repository.connector.operation;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.sharepoint.soap.repository.connector.SharepointException;
+import com.liferay.sharepoint.soap.repository.connector.operation.constants.SharepointConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -91,9 +92,10 @@ public class QueryServiceStubResult {
 			XMLReader xmlReader, String queryServiceSoapResultString)
 		throws IOException, SAXException {
 
-		byte[] bytes = queryServiceSoapResultString.getBytes(StringPool.UTF8);
-
-		xmlReader.parse(new InputSource(new ByteArrayInputStream(bytes)));
+		xmlReader.parse(
+			new InputSource(
+				new ByteArrayInputStream(
+					queryServiceSoapResultString.getBytes(StringPool.UTF8))));
 	}
 
 	private void _setDebugErrorMessage(String debugErrorMessage) {

@@ -61,7 +61,9 @@ public class DLSelectDDMStructureDisplayContext {
 		return _ddmStructureId;
 	}
 
-	public SearchContainer getDDMStructureSearch() throws Exception {
+	public SearchContainer<DDMStructure> getDDMStructureSearch()
+		throws Exception {
+
 		if (_ddmStructureSearch != null) {
 			return _ddmStructureSearch;
 		}
@@ -70,12 +72,11 @@ public class DLSelectDDMStructureDisplayContext {
 			(ThemeDisplay)_httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		SearchContainer ddmStructureSearch = new SearchContainer(
-			_renderRequest, _getPortletURL(), null, "there-are-no-structures");
+		SearchContainer<DDMStructure> ddmStructureSearch = new SearchContainer(
+			_renderRequest, _getPortletURL(), null, "there-are-no-results");
 
 		if (Validator.isNotNull(_getKeywords())) {
-			ddmStructureSearch.setEmptyResultsMessage(
-				"no-structures-were-found");
+			ddmStructureSearch.setEmptyResultsMessage("no-results-were-found");
 		}
 
 		String orderByCol = getOrderByCol();
@@ -267,7 +268,7 @@ public class DLSelectDDMStructureDisplayContext {
 	}
 
 	private Long _ddmStructureId;
-	private SearchContainer _ddmStructureSearch;
+	private SearchContainer<DDMStructure> _ddmStructureSearch;
 	private final HttpServletRequest _httpServletRequest;
 	private String _keywords;
 	private String _orderByCol;

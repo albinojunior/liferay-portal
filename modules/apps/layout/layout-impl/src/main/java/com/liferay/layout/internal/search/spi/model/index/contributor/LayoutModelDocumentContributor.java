@@ -17,6 +17,7 @@ package com.liferay.layout.internal.search.spi.model.index.contributor;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.renderer.FragmentRendererController;
+import com.liferay.layout.adaptive.media.LayoutAdaptiveMediaProcessor;
 import com.liferay.layout.internal.search.util.LayoutPageTemplateStructureRenderUtil;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
@@ -34,16 +35,17 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.servlet.DynamicServletRequest;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.staging.StagingGroupHelper;
@@ -73,7 +75,9 @@ public class LayoutModelDocumentContributor
 
 	@Override
 	public void contribute(Document document, Layout layout) {
-		if (layout.isSystem()) {
+		if (layout.isSystem() ||
+			(layout.getStatus() != WorkflowConstants.STATUS_APPROVED)) {
+
 			return;
 		}
 
@@ -87,8 +91,7 @@ public class LayoutModelDocumentContributor
 		LayoutPageTemplateStructure layoutPageTemplateStructure =
 			_layoutPageTemplateStructureLocalService.
 				fetchLayoutPageTemplateStructure(
-					layout.getGroupId(), _portal.getClassNameId(Layout.class),
-					layout.getPlid());
+					layout.getGroupId(), layout.getPlid());
 
 		for (String languageId : layout.getAvailableLanguageIds()) {
 			Locale locale = LocaleUtil.fromLanguageId(languageId);
@@ -135,6 +138,7 @@ public class LayoutModelDocumentContributor
 							renderLayoutContent(
 								_fragmentRendererController, httpServletRequest,
 								httpServletResponse,
+								_layoutAdaptiveMediaProcessor,
 								layoutPageTemplateStructure,
 								FragmentEntryLinkConstants.VIEW,
 								new HashMap<>(), locale, segmentsExperienceIds);
@@ -145,7 +149,8 @@ public class LayoutModelDocumentContributor
 				}
 
 				document.addText(
-					Field.getLocalizedName(locale, Field.CONTENT), content);
+					Field.getLocalizedName(locale, Field.CONTENT),
+					HtmlUtil.stripHtml(content));
 			}
 			catch (PortalException portalException) {
 				throw new SystemException(portalException);
@@ -176,23 +181,17 @@ public class LayoutModelDocumentContributor
 
 		SearchContext searchContext = new SearchContext();
 
-		BooleanClause booleanClause = BooleanClauseFactoryUtil.create(
+		BooleanClause<Query> booleanClause = BooleanClauseFactoryUtil.create(
 			Field.ENTRY_CLASS_PK, String.valueOf(stagingLayout.getPlid()),
 			BooleanClauseOccur.MUST.getName());
 
 		searchContext.setBooleanClauses(new BooleanClause[] {booleanClause});
 
-		if ((CompanyThreadLocal.getCompanyId() == 0) ||
-			ExportImportThreadLocal.isStagingInProcess()) {
-
-			searchContext.setCompanyId(stagingLayout.getCompanyId());
-		}
-
-		searchContext.setGroupIds(new long[] {stagingGroup.getGroupId()});
+		searchContext.setCompanyId(stagingGroup.getCompanyId());
 		searchContext.setEntryClassNames(new String[] {Layout.class.getName()});
+		searchContext.setGroupIds(new long[] {stagingGroup.getGroupId()});
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(
-			Layout.class.getName());
+		Indexer<Layout> indexer = IndexerRegistryUtil.getIndexer(Layout.class);
 
 		Hits hits = indexer.search(searchContext);
 
@@ -214,14 +213,14 @@ public class LayoutModelDocumentContributor
 	private GroupLocalService _groupLocalService;
 
 	@Reference
+	private LayoutAdaptiveMediaProcessor _layoutAdaptiveMediaProcessor;
+
+	@Reference
 	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private LayoutPageTemplateStructureLocalService
 		_layoutPageTemplateStructureLocalService;
-
-	@Reference
-	private Portal _portal;
 
 	@Reference
 	private StagingGroupHelper _stagingGroupHelper;

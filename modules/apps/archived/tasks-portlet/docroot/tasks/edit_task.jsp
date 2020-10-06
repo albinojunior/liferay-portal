@@ -37,9 +37,7 @@ if ((tasksEntry != null) && (tasksEntry.getDueDate() != null)) {
 	dueDateToggleText = LanguageUtil.get(request, "remove-due-date");
 }
 
-String dueDateControlGroupCssClass = renderResponse.getNamespace() + "dueDateControlGroup";
-
-String dueDateWrapperCssClass = dueDateControlGroupCssClass + StringPool.SPACE + dueDateHideClass;
+String dueDateControlGroupCssClass = liferayPortletResponse.getNamespace() + "dueDateControlGroup";
 %>
 
 <c:choose>
@@ -92,10 +90,11 @@ String dueDateWrapperCssClass = dueDateControlGroupCssClass + StringPool.SPACE +
 							users = UserLocalServiceUtil.getSocialUsers(group.getClassPK(), SocialRelationConstants.TYPE_BI_CONNECTION, QueryUtil.ALL_POS, QueryUtil.ALL_POS, new UserFirstNameComparator(true));
 						}
 						else {
-							LinkedHashMap userParams = new LinkedHashMap();
-
-							userParams.put("inherit", Boolean.TRUE);
-							userParams.put("usersGroups", Long.valueOf(themeDisplay.getScopeGroupId()));
+							LinkedHashMap<String, Object> userParams = LinkedHashMapBuilder.<String, Object>put(
+								"inherit", Boolean.TRUE
+							).put(
+								"usersGroups", Long.valueOf(themeDisplay.getScopeGroupId())
+							).build();
 
 							users = UserLocalServiceUtil.search(company.getCompanyId(), StringPool.BLANK, WorkflowConstants.STATUS_APPROVED, userParams, QueryUtil.ALL_POS, QueryUtil.ALL_POS, new UserFirstNameComparator(true));
 						}
@@ -126,12 +125,12 @@ String dueDateWrapperCssClass = dueDateControlGroupCssClass + StringPool.SPACE +
 					<aui:field-wrapper>
 						<label class="control-label"><liferay-ui:message key="due-date" /></label>
 
-						<aui:a cssClass="field-content" href="javascript:;" id="toggleDueDate" label="<%= dueDateToggleText %>" onClick='<%= renderResponse.getNamespace() + "displayInputDate();" %>' />
+						<aui:a cssClass="field-content" href="javascript:;" id="toggleDueDate" label="<%= dueDateToggleText %>" onClick='<%= liferayPortletResponse.getNamespace() + "displayInputDate();" %>' />
 					</aui:field-wrapper>
 
 					<aui:input id="addDueDate" name="addDueDate" type="hidden" value="<%= addDueDate %>" />
 
-					<aui:input label="" name="dueDate" wrapperCssClass="<%= dueDateWrapperCssClass %>" />
+					<aui:input label="" name="dueDate" wrapperCssClass="<%= dueDateControlGroupCssClass + StringPool.SPACE + dueDateHideClass %>" />
 
 					<c:if test="<%= tasksEntry != null %>">
 						<aui:select name="status">

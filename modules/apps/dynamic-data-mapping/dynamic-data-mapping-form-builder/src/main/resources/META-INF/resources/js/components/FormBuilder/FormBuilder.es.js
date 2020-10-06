@@ -12,19 +12,24 @@
  * details.
  */
 
-import '../SuccessPage/SuccessPage.es';
-
-import {PagesVisitor, compose} from 'dynamic-data-mapping-form-renderer';
-import FormRenderer from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormRenderer.es';
+import {
+	FormNoop,
+	PagesVisitor,
+	compose,
+	getConnectedReactComponentAdapter,
+} from 'dynamic-data-mapping-form-renderer';
 import Component from 'metal-jsx';
 import {Config} from 'metal-state';
 
 import {pageStructure} from '../../util/config.es';
 import withActionableFields from './withActionableFields.es';
+import withClickableFields from './withClickableFields.es';
 import withEditablePageHeader from './withEditablePageHeader.es';
 import withMoveableFields from './withMoveableFields.es';
 import withMultiplePages from './withMultiplePages.es';
 import withResizeableColumns from './withResizeableColumns.es';
+
+const FormNoopAdapter = getConnectedReactComponentAdapter(FormNoop);
 
 /**
  * Builder.
@@ -44,81 +49,79 @@ class FormBuilderBase extends Component {
 		}
 	}
 
-	getFormRendererEvents() {
-		return {
-			fieldClicked: this._handleFieldClicked.bind(this),
-		};
-	}
-
 	preparePagesForRender(pages) {
 		const visitor = new PagesVisitor(pages);
 
-		return visitor.mapFields(field => {
-			if (
-				field.type === 'select' &&
-				!field.dataSourceType.includes('manual')
-			) {
-				field = {
-					...field,
-					options: [
-						{
-							label: Liferay.Language.get(
-								'dynamically-loaded-data'
-							),
-							value: 'dynamic',
-						},
-					],
-					value: 'dynamic',
-				};
-			}
+		return visitor.mapFields(
+			(field) => {
+				if (
+					field.type === 'select' &&
+					!field.dataSourceType.includes('manual')
+				) {
+					field = {
+						...field,
+						options: [
+							{
+								label: Liferay.Language.get(
+									'dynamically-loaded-data'
+								),
+								value: 'dynamic',
+							},
+						],
+						value: 'dynamic',
+					};
+				}
 
-			return {
-				...field,
-				readOnly: true,
-			};
-		});
+				return {
+					...field,
+					readOnly: true,
+				};
+			},
+			true,
+			true
+		);
 	}
 
 	render() {
 		const {props} = this;
 		const {
 			activePage,
+			allowNestedFields,
+			dnd,
 			editingLanguageId,
 			pages,
 			paginationMode,
 			portletNamespace,
 			spritemap,
+			successPageSettings,
+			view,
 		} = props;
 
 		return (
 			<div class="ddm-form-builder-wrapper">
 				<div class="container ddm-form-builder">
-					<div class="sheet">
-						<FormRenderer
-							activePage={activePage}
-							editable={true}
-							editingLanguageId={editingLanguageId}
-							events={this.getFormRendererEvents()}
-							pages={this.preparePagesForRender(pages)}
-							paginationMode={paginationMode}
-							portletNamespace={portletNamespace}
-							ref="FormRenderer"
-							spritemap={spritemap}
-						/>
-					</div>
+					<FormNoopAdapter
+						activePage={activePage}
+						allowNestedFields={allowNestedFields}
+						dnd={dnd}
+						editable={true}
+						editingLanguageId={editingLanguageId}
+						pages={this.preparePagesForRender(pages)}
+						paginationMode={paginationMode}
+						portletNamespace={portletNamespace}
+						ref="FormRenderer"
+						spritemap={spritemap}
+						successPageSettings={successPageSettings}
+						view={view}
+					/>
 				</div>
 			</div>
 		);
 	}
-
-	_handleFieldClicked(event) {
-		const {dispatch} = this.context;
-
-		dispatch('fieldClicked', event);
-	}
 }
 
 FormBuilderBase.PROPS = {
+
 	/**
 	 * @default
 	 * @instance
@@ -200,10 +203,20 @@ FormBuilderBase.PROPS = {
 	 */
 
 	view: Config.string(),
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof FormBuilder
+	 * @type {?bool}
+	 */
+
+	viewMode: Config.bool(),
 };
 
 export default compose(
 	withActionableFields,
+	withClickableFields,
 	withEditablePageHeader,
 	withMoveableFields,
 	withMultiplePages,

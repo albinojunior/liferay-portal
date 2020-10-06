@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see AssetTagServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class AssetTagServiceSoap {
 
 	public static com.liferay.asset.kernel.model.AssetTagSoap addTag(
@@ -141,13 +143,13 @@ public class AssetTagServiceSoap {
 	public static com.liferay.asset.kernel.model.AssetTagSoap[] getGroupTags(
 			long groupId, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetTag> obc)
+				<com.liferay.asset.kernel.model.AssetTag> orderByComparator)
 		throws RemoteException {
 
 		try {
 			java.util.List<com.liferay.asset.kernel.model.AssetTag>
 				returnValue = AssetTagServiceUtil.getGroupTags(
-					groupId, start, end, obc);
+					groupId, start, end, orderByComparator);
 
 			return com.liferay.asset.kernel.model.AssetTagSoap.toSoapModels(
 				returnValue);
@@ -229,13 +231,13 @@ public class AssetTagServiceSoap {
 	public static com.liferay.asset.kernel.model.AssetTagSoap[] getTags(
 			long groupId, long classNameId, String name, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetTag> obc)
+				<com.liferay.asset.kernel.model.AssetTag> orderByComparator)
 		throws RemoteException {
 
 		try {
 			java.util.List<com.liferay.asset.kernel.model.AssetTag>
 				returnValue = AssetTagServiceUtil.getTags(
-					groupId, classNameId, name, start, end, obc);
+					groupId, classNameId, name, start, end, orderByComparator);
 
 			return com.liferay.asset.kernel.model.AssetTagSoap.toSoapModels(
 				returnValue);
@@ -269,13 +271,13 @@ public class AssetTagServiceSoap {
 	public static com.liferay.asset.kernel.model.AssetTagSoap[] getTags(
 			long groupId, String name, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetTag> obc)
+				<com.liferay.asset.kernel.model.AssetTag> orderByComparator)
 		throws RemoteException {
 
 		try {
 			java.util.List<com.liferay.asset.kernel.model.AssetTag>
 				returnValue = AssetTagServiceUtil.getTags(
-					groupId, name, start, end, obc);
+					groupId, name, start, end, orderByComparator);
 
 			return com.liferay.asset.kernel.model.AssetTagSoap.toSoapModels(
 				returnValue);
@@ -309,13 +311,13 @@ public class AssetTagServiceSoap {
 	public static com.liferay.asset.kernel.model.AssetTagSoap[] getTags(
 			long[] groupIds, String name, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetTag> obc)
+				<com.liferay.asset.kernel.model.AssetTag> orderByComparator)
 		throws RemoteException {
 
 		try {
 			java.util.List<com.liferay.asset.kernel.model.AssetTag>
 				returnValue = AssetTagServiceUtil.getTags(
-					groupIds, name, start, end, obc);
+					groupIds, name, start, end, orderByComparator);
 
 			return com.liferay.asset.kernel.model.AssetTagSoap.toSoapModels(
 				returnValue);

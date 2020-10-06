@@ -77,6 +77,7 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 		annotation = _formatAnnotationParameterProperties(annotation);
 		annotation = _formatConfigurationAttributes(
 			fileName, absolutePath, javaClass, annotation);
+		annotation = _formatEnabledAttribute(absolutePath, annotation);
 		annotation = _formatServiceAttribute(
 			fileName, absolutePath, javaClass.getName(), annotation,
 			javaClass.getImplementedClassNames());
@@ -266,6 +267,40 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 			annotation, "configurationPolicy", "ConfigurationPolicy.IGNORE");
 	}
 
+	private String _formatEnabledAttribute(
+		String absolutePath, String annotation) {
+
+		if (absolutePath.contains("-test/") ||
+			absolutePath.contains("-test-util/")) {
+
+			return annotation;
+		}
+
+		List<String> enterpriseAppModulePathNames = getAttributeValues(
+			_ENTERPRISE_APP_MODULE_PATH_NAMES_KEY, absolutePath);
+
+		if (enterpriseAppModulePathNames.isEmpty()) {
+			return annotation;
+		}
+
+		for (String enterpriseAppModulePathName :
+				enterpriseAppModulePathNames) {
+
+			if (!absolutePath.contains(enterpriseAppModulePathName)) {
+				continue;
+			}
+
+			String enabledAttributeValue = _getAttributeValue(
+				annotation, "enabled");
+
+			if (enabledAttributeValue == null) {
+				return _addAttribute(annotation, "enabled", "false");
+			}
+		}
+
+		return annotation;
+	}
+
 	private String _formatMVCPortletProperties(String annotation) {
 		int x = annotation.indexOf("property = {");
 
@@ -404,7 +439,7 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 		}
 
 		StringBundler sb = new StringBundler(
-			implementedClassNames.size() * 3 + 1);
+			(implementedClassNames.size() * 3) + 1);
 
 		sb.append("{");
 
@@ -451,6 +486,9 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 
 	private static final String _CHECK_SELF_REGISTRATION_KEY =
 		"checkSelfRegistration";
+
+	private static final String _ENTERPRISE_APP_MODULE_PATH_NAMES_KEY =
+		"enterpriseAppModulePathNames";
 
 	private static final Pattern _annotationParameterPropertyPattern =
 		Pattern.compile("\\s(\\w+) = \\{");

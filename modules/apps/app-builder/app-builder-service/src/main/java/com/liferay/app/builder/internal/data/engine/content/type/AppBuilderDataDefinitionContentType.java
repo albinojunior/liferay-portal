@@ -16,13 +16,21 @@ package com.liferay.app.builder.internal.data.engine.content.type;
 
 import com.liferay.app.builder.constants.AppBuilderConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.model.AppBuilderAppDataRecordLink;
+import com.liferay.app.builder.service.AppBuilderAppDataRecordLinkLocalService;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
+import com.liferay.dynamic.data.lists.model.DDLRecord;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
+
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -36,6 +44,11 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class AppBuilderDataDefinitionContentType
 	implements DataDefinitionContentType {
+
+	@Override
+	public boolean allowEmptyDataDefinition() {
+		return true;
+	}
 
 	@Override
 	public long getClassNameId() {
@@ -58,6 +71,24 @@ public class AppBuilderDataDefinitionContentType
 			String resourceName, long primKey, long userId, String actionId)
 		throws PortalException {
 
+		if (StringUtil.contains(
+				resourceName, DDLRecord.class.getName(), StringPool.DASH)) {
+
+			AppBuilderAppDataRecordLink appBuilderAppDataRecordLink =
+				_appBuilderAppDataRecordLinkLocalService.
+					fetchDDLRecordAppBuilderAppDataRecordLink(primKey);
+
+			if (Objects.nonNull(appBuilderAppDataRecordLink)) {
+				Boolean hasPermission = WorkflowPermissionUtil.hasPermission(
+					permissionChecker, appBuilderAppDataRecordLink.getGroupId(),
+					resourceName, primKey, ActionKeys.VIEW);
+
+				if (hasPermission != null) {
+					return hasPermission;
+				}
+			}
+		}
+
 		if (_portletResourcePermission.contains(
 				PermissionThreadLocal.getPermissionChecker(), groupId,
 				ActionKeys.MANAGE)) {
@@ -65,14 +96,9 @@ public class AppBuilderDataDefinitionContentType
 			return true;
 		}
 
-		if (permissionChecker.hasOwnerPermission(
-				companyId, resourceName, primKey, userId, actionId)) {
-
-			return true;
-		}
-
-		return permissionChecker.hasPermission(
-			groupId, resourceName, primKey, actionId);
+		return DataDefinitionContentType.super.hasPermission(
+			permissionChecker, companyId, groupId, resourceName, primKey,
+			userId, actionId);
 	}
 
 	@Override
@@ -90,6 +116,15 @@ public class AppBuilderDataDefinitionContentType
 		return _portletResourcePermission.contains(
 			permissionChecker, groupId, actionId);
 	}
+
+	@Override
+	public boolean isDataRecordCollectionPermissionCheckingEnabled() {
+		return true;
+	}
+
+	@Reference
+	private AppBuilderAppDataRecordLinkLocalService
+		_appBuilderAppDataRecordLinkLocalService;
 
 	@Reference
 	private Portal _portal;

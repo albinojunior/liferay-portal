@@ -14,35 +14,15 @@ import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 
-import EmptyState from '../../../../shared/components/empty-state/EmptyState.es';
+import ContentView from '../../../../shared/components/content-view/ContentView.es';
 import RetryButton from '../../../../shared/components/list/RetryButton.es';
-import LoadingState from '../../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useToaster} from '../../../../shared/components/toaster/hooks/useToaster.es';
 import {useFetch} from '../../../../shared/hooks/useFetch.es';
 import {usePost} from '../../../../shared/hooks/usePost.es';
-import {InstanceListContext} from '../../store/InstanceListPageStore.es';
-import {ModalContext} from '../ModalContext.es';
-import {UpdateDueDateStep} from './UpdateDueDateStep.es';
-
-const ErrorView = ({onClick}) => {
-	return (
-		<EmptyState
-			actionButton={<RetryButton onClick={onClick} />}
-			className="border-0 pb-5 pt-5 sheet"
-			hideAnimation={true}
-			message={Liferay.Language.get(
-				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-			)}
-			messageClassName="small"
-			type="error"
-		/>
-	);
-};
-
-const LoadingView = () => {
-	return <LoadingState className="border-0 pb-6 pt-7" />;
-};
+import {InstanceListContext} from '../../InstanceListPageProvider.es';
+import {ModalContext} from '../ModalProvider.es';
+import UpdateDueDateStep from './UpdateDueDateStep.es';
 
 const SingleUpdateDueDateModal = () => {
 	const [errorToast, setErrorToast] = useState(false);
@@ -51,26 +31,36 @@ const SingleUpdateDueDateModal = () => {
 
 	const toaster = useToaster();
 
-	const {setUpdateDueDate, updateDueDate} = useContext(ModalContext);
-	const {setSelectedItems} = useContext(InstanceListContext);
+	const {
+		closeModal,
+		setUpdateDueDate,
+		updateDueDate,
+		visibleModal,
+	} = useContext(ModalContext);
+	const {selectedInstance, setSelectedItem, setSelectedItems} = useContext(
+		InstanceListContext
+	);
 
-	const {selectedItem = {}, comment, dueDate} = updateDueDate;
+	const {comment, dueDate} = updateDueDate;
+
+	const onCloseModal = (refetch) => {
+		closeModal(refetch);
+		setSelectedItem({});
+		setSelectedItems([]);
+		setUpdateDueDate({
+			comment: undefined,
+			dueDate: undefined,
+		});
+	};
 
 	const {observer, onClose} = useModal({
-		onClose: () => {
-			setUpdateDueDate({
-				comment: undefined,
-				dueDate: undefined,
-				selectedItem: undefined,
-				visible: false,
-			});
-		},
+		onClose: onCloseModal,
 	});
 
 	const {data, fetchData} = useFetch({
 		admin: true,
 		params: {completed: false, page: 1, pageSize: 1},
-		url: `/workflow-instances/${selectedItem.id}/workflow-tasks`,
+		url: `/workflow-instances/${selectedInstance.id}/workflow-tasks`,
 	});
 
 	const {dateDue, id: taskId} = useMemo(
@@ -85,40 +75,38 @@ const SingleUpdateDueDateModal = () => {
 	});
 
 	const handleDone = useCallback(() => {
-		if (dueDate) {
-			setSendingPost(true);
-			setErrorToast(false);
+		setSendingPost(true);
+		setErrorToast(false);
 
-			postData()
-				.then(() => {
-					onClose();
-					toaster.success(
-						Liferay.Language.get(
-							'the-due-date-for-this-task-has-been-updated'
-						)
-					);
-					setSendingPost(false);
-					setErrorToast(false);
-					setSelectedItems([]);
-				})
-				.catch(() => {
-					setErrorToast(
-						`${Liferay.Language.get(
-							'your-request-has-failed'
-						)} ${Liferay.Language.get('select-done-to-retry')}`
-					);
-					setSendingPost(false);
-				});
-		}
+		postData()
+			.then(() => {
+				toaster.success(
+					Liferay.Language.get(
+						'the-due-date-for-this-task-has-been-updated'
+					)
+				);
+
+				onCloseModal(true);
+				setSendingPost(false);
+				setErrorToast(false);
+			})
+			.catch(({response}) => {
+				const errorMessage = `${Liferay.Language.get(
+					'your-request-has-failed'
+				)} ${Liferay.Language.get('select-done-to-retry')}`;
+
+				setErrorToast(response?.data.title ?? errorMessage);
+				setSendingPost(false);
+			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [postData]);
 
 	const promises = useMemo(() => {
 		setErrorToast(false);
 
-		if (updateDueDate.visible) {
+		if (selectedInstance.id && visibleModal === 'updateDueDate') {
 			return [
-				fetchData().catch(err => {
+				fetchData().catch((err) => {
 					setErrorToast(
 						Liferay.Language.get('your-request-has-failed')
 					);
@@ -127,13 +115,33 @@ const SingleUpdateDueDateModal = () => {
 				}),
 			];
 		}
+
+		return [];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fetchData, retry]);
+	}, [fetchData, retry, visibleModal]);
+
+	const statesProps = useMemo(
+		() => ({
+			errorProps: {
+				actionButton: (
+					<RetryButton
+						onClick={() => setRetry((retry) => retry + 1)}
+					/>
+				),
+				className: 'mt-5 py-5',
+				hideAnimation: true,
+				message: Liferay.Language.get('unable-to-retrieve-data'),
+				messageClassName: 'small',
+			},
+			loadingProps: {className: 'mt-3 py-7'},
+		}),
+		[setRetry]
+	);
 
 	return (
 		<>
 			<PromisesResolver promises={promises}>
-				{updateDueDate.visible && (
+				{visibleModal === 'updateDueDate' && (
 					<ClayModal
 						data-testid="updateDueDateModal"
 						observer={observer}
@@ -154,21 +162,9 @@ const SingleUpdateDueDateModal = () => {
 							</ClayAlert>
 						)}
 
-						<PromisesResolver.Pending>
-							<LoadingView />
-						</PromisesResolver.Pending>
-
-						<PromisesResolver.Rejected>
-							<ErrorView
-								onClick={() => {
-									setRetry(retry => retry + 1);
-								}}
-							/>
-						</PromisesResolver.Rejected>
-
-						<PromisesResolver.Resolved>
+						<ContentView {...statesProps}>
 							<UpdateDueDateStep dueDate={dateDue} />
-						</PromisesResolver.Resolved>
+						</ContentView>
 
 						<ClayModal.Footer
 							last={
@@ -200,4 +196,4 @@ const SingleUpdateDueDateModal = () => {
 	);
 };
 
-export {SingleUpdateDueDateModal};
+export default SingleUpdateDueDateModal;

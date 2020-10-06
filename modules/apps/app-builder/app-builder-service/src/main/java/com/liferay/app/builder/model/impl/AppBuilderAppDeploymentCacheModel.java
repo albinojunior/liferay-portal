@@ -34,17 +34,17 @@ public class AppBuilderAppDeploymentCacheModel
 	implements CacheModel<AppBuilderAppDeployment>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AppBuilderAppDeploymentCacheModel)) {
+		if (!(object instanceof AppBuilderAppDeploymentCacheModel)) {
 			return false;
 		}
 
 		AppBuilderAppDeploymentCacheModel appBuilderAppDeploymentCacheModel =
-			(AppBuilderAppDeploymentCacheModel)obj;
+			(AppBuilderAppDeploymentCacheModel)object;
 
 		if (appBuilderAppDeploymentId ==
 				appBuilderAppDeploymentCacheModel.appBuilderAppDeploymentId) {
@@ -109,13 +109,15 @@ public class AppBuilderAppDeploymentCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		appBuilderAppDeploymentId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
 
 		appBuilderAppId = objectInput.readLong();
-		settings = objectInput.readUTF();
+		settings = (String)objectInput.readObject();
 		type = objectInput.readUTF();
 	}
 
@@ -128,10 +130,10 @@ public class AppBuilderAppDeploymentCacheModel
 		objectOutput.writeLong(appBuilderAppId);
 
 		if (settings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(settings);
+			objectOutput.writeObject(settings);
 		}
 
 		if (type == null) {

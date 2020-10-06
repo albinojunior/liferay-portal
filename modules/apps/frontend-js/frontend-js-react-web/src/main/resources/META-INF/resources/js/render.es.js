@@ -23,19 +23,23 @@ let counter = 0;
  *
  * - Provides commonly-needed context (for example, the Clay spritemap).
  * - Unmounts when portlets are destroyed based on the received
- *   `portletId` value inside renderData. If none is passed, the
+ *   `portletId` value inside `renderData`. If none is passed, the
  *   component will be automatically unmounted before the next navigation.
+ *
+ * @param {Function|React.Element} renderable Component, or function that returns an Element, to be rendered.
+ * @param {object} renderData Data to be passed to the component as props.
+ * @param {HTMLElement} container DOM node where the component is to be mounted.
  *
  * The React docs advise not to rely on the render return value, so we
  * don't propagate it.
  *
  * @see https://reactjs.org/docs/react-dom.html#render
  */
-export default function render(renderFunction, renderData, container) {
+export default function render(renderable, renderData, container) {
 	if (!Liferay.SPA || Liferay.SPA.app) {
 		const {portletId} = renderData;
 		const spritemap =
-			Liferay.ThemeDisplay.getPathThemeImages() + '/lexicon/icons.svg';
+			Liferay.ThemeDisplay.getPathThemeImages() + '/clay/icons.svg';
 
 		let {componentId} = renderData;
 
@@ -58,17 +62,23 @@ export default function render(renderFunction, renderData, container) {
 			}
 		);
 
-		// eslint-disable-next-line liferay-portal/no-react-dom-render
+		const Component =
+			typeof renderable === 'function' ||
+			renderable.$$typeof === Symbol.for('react.forward_ref')
+				? renderable
+				: null;
+
+		// eslint-disable-next-line @liferay/portal/no-react-dom-render
 		ReactDOM.render(
 			<ClayIconSpriteContext.Provider value={spritemap}>
-				{renderFunction(renderData)}
+				{Component ? <Component {...renderData} /> : renderable}
 			</ClayIconSpriteContext.Provider>,
 			container
 		);
 	}
 	else {
 		Liferay.once('SPAReady', () => {
-			render(renderFunction, renderData, container);
+			render(renderable, renderData, container);
 		});
 	}
 }

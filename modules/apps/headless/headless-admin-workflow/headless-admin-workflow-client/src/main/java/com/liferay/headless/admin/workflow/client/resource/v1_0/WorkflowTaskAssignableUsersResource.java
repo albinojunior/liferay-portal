@@ -15,6 +15,7 @@
 package com.liferay.headless.admin.workflow.client.resource.v1_0;
 
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTaskAssignableUsers;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTaskIds;
 import com.liferay.headless.admin.workflow.client.http.HttpInvoker;
 import com.liferay.headless.admin.workflow.client.problem.Problem;
 
@@ -37,12 +38,12 @@ public interface WorkflowTaskAssignableUsersResource {
 		return new Builder();
 	}
 
-	public WorkflowTaskAssignableUsers getWorkflowTaskAssignableUser(
-			Long[] workflowTaskIds)
+	public WorkflowTaskAssignableUsers postWorkflowTaskAssignableUser(
+			WorkflowTaskIds workflowTaskIds)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse getWorkflowTaskAssignableUserHttpResponse(
-			Long[] workflowTaskIds)
+	public HttpInvoker.HttpResponse postWorkflowTaskAssignableUserHttpResponse(
+			WorkflowTaskIds workflowTaskIds)
 		throws Exception;
 
 	public static class Builder {
@@ -90,8 +91,8 @@ public interface WorkflowTaskAssignableUsersResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -101,12 +102,12 @@ public interface WorkflowTaskAssignableUsersResource {
 	public static class WorkflowTaskAssignableUsersResourceImpl
 		implements WorkflowTaskAssignableUsersResource {
 
-		public WorkflowTaskAssignableUsers getWorkflowTaskAssignableUser(
-				Long[] workflowTaskIds)
+		public WorkflowTaskAssignableUsers postWorkflowTaskAssignableUser(
+				WorkflowTaskIds workflowTaskIds)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				getWorkflowTaskAssignableUserHttpResponse(workflowTaskIds);
+				postWorkflowTaskAssignableUserHttpResponse(workflowTaskIds);
 
 			String content = httpResponse.getContent();
 
@@ -130,11 +131,13 @@ public interface WorkflowTaskAssignableUsersResource {
 		}
 
 		public HttpInvoker.HttpResponse
-				getWorkflowTaskAssignableUserHttpResponse(
-					Long[] workflowTaskIds)
+				postWorkflowTaskAssignableUserHttpResponse(
+					WorkflowTaskIds workflowTaskIds)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(workflowTaskIds.toString(), "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -153,14 +156,7 @@ public interface WorkflowTaskAssignableUsersResource {
 				httpInvoker.parameter(entry.getKey(), entry.getValue());
 			}
 
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			if (workflowTaskIds != null) {
-				for (int i = 0; i < workflowTaskIds.length; i++) {
-					httpInvoker.parameter(
-						"workflowTaskIds", String.valueOf(workflowTaskIds[i]));
-				}
-			}
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
 
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +

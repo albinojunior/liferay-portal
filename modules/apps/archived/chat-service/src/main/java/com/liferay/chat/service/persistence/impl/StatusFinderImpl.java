@@ -185,7 +185,7 @@ public class StatusFinderImpl
 			return StringUtil.removeSubstring(sql, "[$SOCIAL_RELATION_TYPES$]");
 		}
 
-		StringBundler sb = new StringBundler(types.length * 2 - 1);
+		StringBundler sb = new StringBundler((types.length * 2) - 1);
 
 		for (int i = 0; i < types.length; i++) {
 			sb.append(StringPool.QUESTION);
@@ -212,7 +212,7 @@ public class StatusFinderImpl
 				new String[] {StringPool.BLANK, StringPool.BLANK});
 		}
 
-		StringBundler sb = new StringBundler(groupNames.length * 2 - 1);
+		StringBundler sb = new StringBundler((groupNames.length * 2) - 1);
 
 		for (int i = 0; i < groupNames.length; i++) {
 			sb.append(StringPool.QUESTION);

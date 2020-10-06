@@ -14,6 +14,8 @@
 
 package com.liferay.trash.service.base;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +35,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +78,10 @@ public abstract class TrashEntryLocalServiceBaseImpl
 	/**
 	 * Adds the trash entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param trashEntry the trash entry
 	 * @return the trash entry that was added
 	 */
@@ -99,6 +108,10 @@ public abstract class TrashEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the trash entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param entryId the primary key of the trash entry
 	 * @return the trash entry that was removed
 	 * @throws PortalException if a trash entry with the primary key could not be found
@@ -112,6 +125,10 @@ public abstract class TrashEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the trash entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param trashEntry the trash entry
 	 * @return the trash entry that was removed
 	 */
@@ -119,6 +136,11 @@ public abstract class TrashEntryLocalServiceBaseImpl
 	@Override
 	public TrashEntry deleteTrashEntry(TrashEntry trashEntry) {
 		return trashEntryPersistence.remove(trashEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return trashEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -286,6 +308,10 @@ public abstract class TrashEntryLocalServiceBaseImpl
 			(TrashEntry)persistedModel);
 	}
 
+	public BasePersistence<TrashEntry> getBasePersistence() {
+		return trashEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -325,6 +351,10 @@ public abstract class TrashEntryLocalServiceBaseImpl
 	/**
 	 * Updates the trash entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param trashEntry the trash entry
 	 * @return the trash entry that was updated
 	 */
@@ -338,7 +368,7 @@ public abstract class TrashEntryLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			TrashEntryLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -357,8 +387,23 @@ public abstract class TrashEntryLocalServiceBaseImpl
 		return TrashEntryLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<TrashEntry> getCTPersistence() {
+		return trashEntryPersistence;
+	}
+
+	@Override
+	public Class<TrashEntry> getModelClass() {
 		return TrashEntry.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<TrashEntry>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(trashEntryPersistence);
 	}
 
 	protected String getModelClassName() {

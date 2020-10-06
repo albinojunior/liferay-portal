@@ -72,7 +72,7 @@ public class SegmentsExperimentSegmentsExperienceRequestProcessor
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		if (!SegmentsExperimentUtil.isAnalyticsEnabled(
+		if (!SegmentsExperimentUtil.isAnalyticsSynced(
 				themeDisplay.getCompanyId(), themeDisplay.getScopeGroupId())) {
 
 			return segmentsExperienceIds;
@@ -131,9 +131,9 @@ public class SegmentsExperimentSegmentsExperienceRequestProcessor
 			httpServletRequest, httpServletResponse,
 			themeDisplay.getURLCurrent());
 
-		LongStream stream = Arrays.stream(segmentsExperienceIds);
+		LongStream longStream = Arrays.stream(segmentsExperienceIds);
 
-		segmentsExperienceId = stream.findFirst(
+		segmentsExperienceId = longStream.findFirst(
 		).orElse(
 			SegmentsExperienceConstants.ID_DEFAULT
 		);

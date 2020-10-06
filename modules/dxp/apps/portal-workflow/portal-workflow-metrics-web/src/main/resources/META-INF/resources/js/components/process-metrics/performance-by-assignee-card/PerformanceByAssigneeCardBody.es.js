@@ -9,86 +9,62 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext} from 'react';
+import ClayIcon from '@clayui/icon';
+import React, {useContext, useMemo} from 'react';
 
-import Icon from '../../../shared/components/Icon.es';
 import Panel from '../../../shared/components/Panel.es';
-import EmptyState from '../../../shared/components/empty-state/EmptyState.es';
+import ContentView from '../../../shared/components/content-view/ContentView.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
-import LoadingState from '../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
-import {ChildLink} from '../../../shared/components/router/routerWrapper.es';
+import ChildLink from '../../../shared/components/router/ChildLink.es';
 import {AppContext} from '../../AppContext.es';
-import {formatQueryDate} from '../../filter/util/timeRangeUtil.es';
 import {Table} from './PerformanceByAssigneeCardTable.es';
 
-const Body = ({data: {items}, filtered}) => {
+const Body = ({filtered, items, totalCount}) => {
+	const statesProps = useMemo(
+		() => ({
+			emptyProps: {
+				className: 'mt-5 py-8',
+				filtered,
+				hideAnimation: true,
+				messageClassName: 'small',
+			},
+			errorProps: {
+				actionButton: <ReloadButton />,
+				className: 'mt-4 py-8',
+				hideAnimation: true,
+				message: Liferay.Language.get(
+					'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
+				),
+				messageClassName: 'small',
+			},
+			loadingProps: {className: 'mt-4 py-8'},
+		}),
+		[filtered]
+	);
+
 	return (
 		<Panel.Body>
-			<PromisesResolver.Pending>
-				<Body.Loading />
-			</PromisesResolver.Pending>
-
-			<PromisesResolver.Resolved>
-				{items && items.length > 0 ? (
-					<Body.Table items={items} />
-				) : (
-					<Body.Empty filtered={filtered} />
-				)}
-			</PromisesResolver.Resolved>
-
-			<PromisesResolver.Rejected>
-				<Body.Error />
-			</PromisesResolver.Rejected>
+			<ContentView {...statesProps}>
+				{totalCount > 0 && <Body.Table items={items} />}
+			</ContentView>
 		</Panel.Body>
-	);
-};
-
-const EmptyView = ({filtered}) => {
-	const emptyMessage = filtered
-		? Liferay.Language.get('no-results-were-found')
-		: Liferay.Language.get('there-is-no-data-at-the-moment');
-
-	const emptyType = filtered ? 'not-found' : 'empty';
-
-	return (
-		<EmptyState
-			className="border-0 mt-8"
-			hideAnimation={true}
-			message={emptyMessage}
-			messageClassName="small"
-			type={emptyType}
-		/>
-	);
-};
-
-const ErrorView = () => {
-	return (
-		<EmptyState
-			actionButton={<ReloadButton />}
-			className="border-0 mt-7"
-			hideAnimation={true}
-			message={Liferay.Language.get(
-				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-			)}
-			messageClassName="small"
-		/>
 	);
 };
 
 const Footer = ({processId, processStep, timeRange, totalCount}) => {
 	const {defaultDelta} = useContext(AppContext);
 	const filters = {};
-
 	const {dateEnd, dateStart, key} = timeRange;
+
 	if (dateEnd && dateStart && key) {
-		filters.dateEnd = formatQueryDate(dateEnd, true);
-		filters.dateStart = formatQueryDate(dateStart);
+		filters.dateEnd = dateEnd;
+		filters.dateStart = dateStart;
 		filters.timeRange = [key];
 	}
 
 	if (processStep && processStep !== 'allSteps') {
-		filters.taskKeys = [processStep];
+		filters.taskNames = [processStep];
 	}
 
 	const viewAllAssigneesQuery = {filters};
@@ -113,7 +89,7 @@ const Footer = ({processId, processStep, timeRange, totalCount}) => {
 								)} (${totalCount})`}
 							</span>
 
-							<Icon iconName="caret-right-l" />
+							<ClayIcon symbol="caret-right-l" />
 						</ChildLink>
 					</div>
 				</Panel.Footer>
@@ -122,13 +98,6 @@ const Footer = ({processId, processStep, timeRange, totalCount}) => {
 	);
 };
 
-const LoadingView = () => {
-	return <LoadingState className="border-0 mt-8 pb-5 pt-5 sheet" />;
-};
-
-Body.Empty = EmptyView;
-Body.Error = ErrorView;
-Body.Loading = LoadingView;
 Body.Table = Table;
 
 export {Body, Footer};

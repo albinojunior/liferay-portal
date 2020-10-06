@@ -20,6 +20,7 @@ export const REMOVE_FILTER_VALUE = 'REMOVE_FILTER_VALUE';
 export const UPDATE_DATA_DEFINITION = 'UPDATE_DATA_DEFINITION';
 export const UPDATE_DATA_LIST_VIEW = 'UPDATE_DATA_LIST_VIEW';
 export const UPDATE_DATA_LIST_VIEW_NAME = 'UPDATE_DATA_LIST_VIEW_NAME';
+export const UPDATE_EDITING_LANGUAGE_ID = 'UPDATE_EDITING_LANGUAGE_ID';
 export const UPDATE_FIELD_TYPES = 'UPDATE_FIELD_TYPES';
 export const UPDATE_FILTER_VALUE = 'UPDATE_FILTER_VALUE';
 export const UPDATE_FOCUSED_COLUMN = 'UPDATE_FOCUSED_COLUMN';
@@ -69,7 +70,7 @@ export const reducer = (state = initialState, action) => {
 				dataListView: {
 					...dataListView,
 					fieldNames: dataListView.fieldNames.filter(
-						name => name != fieldName
+						(name) => name != fieldName
 					),
 				},
 				focusedColumn: null,
@@ -113,10 +114,14 @@ export const reducer = (state = initialState, action) => {
 				...state,
 				dataListView: {
 					...state.dataListView,
-					name: {
-						[themeDisplay.getLanguageId()]: name,
-					},
+					name,
 				},
+			};
+		}
+		case UPDATE_EDITING_LANGUAGE_ID: {
+			return {
+				...state,
+				editingLanguageId: action.payload,
 			};
 		}
 		case UPDATE_FIELD_TYPES: {

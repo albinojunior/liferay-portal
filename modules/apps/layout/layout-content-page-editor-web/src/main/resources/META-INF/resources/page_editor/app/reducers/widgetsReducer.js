@@ -12,31 +12,77 @@
  * details.
  */
 
-import {ADD_FRAGMENT_ENTRY_LINK, DELETE_WIDGETS} from '../actions/types';
+import {
+	ADD_FRAGMENT_ENTRY_LINKS,
+	ADD_ITEM,
+	DELETE_ITEM,
+	DELETE_WIDGETS,
+} from '../actions/types';
+import {getWidgetPath} from '../utils/getWidgetPath';
+import {setWidgetUsage} from '../utils/setWidgetUsage';
 
 export default function widgetsReducer(widgets, action) {
 	switch (action.type) {
-		case ADD_FRAGMENT_ENTRY_LINK: {
-			if (
-				action.fragmentEntryLink.editableValues.portletId &&
-				!action.fragmentEntryLink.editableValues.instanceable
-			) {
-				const widgetPath = getWidgetPath(
-					widgets,
-					action.fragmentEntryLink.editableValues.portletId
-				);
+		case ADD_FRAGMENT_ENTRY_LINKS: {
+			const fragmentEntryLinks = action.fragmentEntryLinks || [];
 
-				return setWidgetUsage(widgets, widgetPath, {used: true});
-			}
+			let nextWidgets = widgets;
 
-			return widgets;
+			fragmentEntryLinks.forEach((fragmentEntryLink) => {
+				if (
+					fragmentEntryLink.editableValues &&
+					fragmentEntryLink.editableValues.portletId &&
+					!fragmentEntryLink.editableValues.instanceable
+				) {
+					const widgetPath = getWidgetPath(
+						widgets,
+						fragmentEntryLink.editableValues.portletId
+					);
+
+					nextWidgets = setWidgetUsage(nextWidgets, widgetPath, {
+						used: true,
+					});
+				}
+			});
+
+			return nextWidgets;
+		}
+		case ADD_ITEM: {
+			const portletIds = action.portletIds || [];
+			let nextWidgets = widgets;
+
+			portletIds.forEach((portletId) => {
+				const widgetPath = getWidgetPath(widgets, portletId);
+
+				nextWidgets = setWidgetUsage(nextWidgets, widgetPath, {
+					used: true,
+				});
+			});
+
+			return nextWidgets;
+		}
+
+		case DELETE_ITEM: {
+			const portletIds = action.portletIds || [];
+			let nextWidgets = widgets;
+
+			portletIds.forEach((portletId) => {
+				const widgetPath = getWidgetPath(widgets, portletId);
+
+				nextWidgets = setWidgetUsage(nextWidgets, widgetPath, {
+					used: false,
+				});
+			});
+
+			return nextWidgets;
 		}
 
 		case DELETE_WIDGETS: {
 			let nextWidgets = widgets;
 
-			action.fragmentEntryLinks.forEach(fragmentEntryLink => {
+			action.fragmentEntryLinks.forEach((fragmentEntryLink) => {
 				if (
+					fragmentEntryLink.editableValues &&
 					fragmentEntryLink.editableValues.portletId &&
 					!fragmentEntryLink.editableValues.instanceable
 				) {
@@ -56,80 +102,5 @@ export default function widgetsReducer(widgets, action) {
 
 		default:
 			return widgets;
-	}
-}
-
-/**
- * Get widget path from the widgets tree by portletId
- */
-function getWidgetPath(widgets, portletId, path = []) {
-	let widgetPath = null;
-
-	for (
-		let categoryIndex = 0;
-		categoryIndex < widgets.length;
-		categoryIndex += 1
-	) {
-		const {categories = [], portlets = []} = widgets[categoryIndex];
-
-		const categoryPortletIndex = portlets.findIndex(
-			_portlet => _portlet.portletId === portletId
-		);
-
-		const subCategoryPortletPath = getWidgetPath(categories, portletId, [
-			...path,
-			categoryIndex.toString(),
-			'categories',
-		]);
-
-		if (categoryPortletIndex !== -1) {
-			widgetPath = [
-				...path,
-				categoryIndex,
-				'portlets',
-				categoryPortletIndex,
-			];
-		}
-
-		if (subCategoryPortletPath) {
-			widgetPath = subCategoryPortletPath;
-		}
-	}
-
-	return widgetPath;
-}
-
-/**
- * Iterates the widgets array recursively to set a given widget 'used' property
- * and returns a new array with the given widget modified
- */
-function setWidgetUsage(widgets, path, usage) {
-	if (!path.length) {
-		return {
-			...widgets,
-			used: usage.used,
-		};
-	}
-
-	const [currentPath, ...restPath] = path;
-
-	if (Array.isArray(widgets)) {
-		return widgets.map((widget, index) => {
-			if (index === currentPath) {
-				return setWidgetUsage(widgets[currentPath], restPath, usage);
-			}
-
-			return widget;
-		});
-	}
-	else {
-		return {
-			...widgets,
-			[currentPath]: setWidgetUsage(
-				widgets[currentPath],
-				restPath,
-				usage
-			),
-		};
 	}
 }

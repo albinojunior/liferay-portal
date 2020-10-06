@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -43,6 +44,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.WebsiteLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.ListTypePersistence;
 import com.liferay.portal.kernel.service.persistence.UserFinder;
@@ -82,6 +84,10 @@ public abstract class WebsiteLocalServiceBaseImpl
 	/**
 	 * Adds the website to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param website the website
 	 * @return the website that was added
 	 */
@@ -108,6 +114,10 @@ public abstract class WebsiteLocalServiceBaseImpl
 	/**
 	 * Deletes the website with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param websiteId the primary key of the website
 	 * @return the website that was removed
 	 * @throws PortalException if a website with the primary key could not be found
@@ -121,6 +131,10 @@ public abstract class WebsiteLocalServiceBaseImpl
 	/**
 	 * Deletes the website from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param website the website
 	 * @return the website that was removed
 	 */
@@ -128,6 +142,11 @@ public abstract class WebsiteLocalServiceBaseImpl
 	@Override
 	public Website deleteWebsite(Website website) {
 		return websitePersistence.remove(website);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return websitePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -397,6 +416,10 @@ public abstract class WebsiteLocalServiceBaseImpl
 		return websiteLocalService.deleteWebsite((Website)persistedModel);
 	}
 
+	public BasePersistence<Website> getBasePersistence() {
+		return websitePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -450,6 +473,10 @@ public abstract class WebsiteLocalServiceBaseImpl
 
 	/**
 	 * Updates the website in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WebsiteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param website the website
 	 * @return the website that was updated

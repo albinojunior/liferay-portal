@@ -17,7 +17,7 @@
 <%@ include file="/document_library/init.jsp" %>
 
 <%
-FolderActionDisplayContext folderActionDisplayContext = new FolderActionDisplayContext(request, dlTrashUtil);
+FolderActionDisplayContext folderActionDisplayContext = new FolderActionDisplayContext(dlTrashHelper, request, liferayPortletResponse);
 %>
 
 <c:if test="<%= folderActionDisplayContext.isShowActions() %>">
@@ -152,7 +152,7 @@ FolderActionDisplayContext folderActionDisplayContext = new FolderActionDisplayC
 		);
 
 		if (slideShow) {
-			slideShow.on('click', function(event) {
+			slideShow.on('click', function (event) {
 				var slideShowWindow = window.open(
 					'<%= folderActionDisplayContext.getViewSlideShowURL() %>',
 					'slideShow',

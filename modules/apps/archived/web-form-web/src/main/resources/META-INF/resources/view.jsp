@@ -135,13 +135,7 @@ String successURL = portletPreferences.getValue("successURL", StringPool.BLANK);
 		%>
 
 		<c:if test="<%= requireCaptcha %>">
-			<portlet:resourceURL var="captchaURL">
-				<portlet:param name="<%= Constants.CMD %>" value="captcha" />
-			</portlet:resourceURL>
-
-			<liferay-captcha:captcha
-				url="<%= captchaURL %>"
-			/>
+			<liferay-captcha:captcha />
 		</c:if>
 
 		<aui:button onClick="" type="submit" value="send" />
@@ -156,10 +150,10 @@ String successURL = portletPreferences.getValue("successURL", StringPool.BLANK);
 	var fieldValidationErrorMessages = {};
 	var fieldValidationFunctions = {};
 
-	var getFieldsMap = function() {
+	var getFieldsMap = function () {
 		var fieldsMap = {};
 
-		keys.forEach(function(key) {
+		keys.forEach(function (key) {
 			var field = A.one('[name="<portlet:namespace />' + key + '"]');
 
 			if (
@@ -183,7 +177,7 @@ String successURL = portletPreferences.getValue("successURL", StringPool.BLANK);
 		return fieldsMap;
 	};
 
-	var validateField = function(key) {
+	var validateField = function (key) {
 		var fieldsMap = getFieldsMap();
 
 		var field = A.one('[name="<portlet:namespace />' + key + '"]');
@@ -193,7 +187,7 @@ String successURL = portletPreferences.getValue("successURL", StringPool.BLANK);
 				'[name="<portlet:namespace />' + key + '"]:not(:checked)'
 			);
 
-			uncheckedOptions.each(function(option) {
+			uncheckedOptions.each(function (option) {
 				option.removeAttribute('aria-invalid');
 			});
 
@@ -300,11 +294,11 @@ String successURL = portletPreferences.getValue("successURL", StringPool.BLANK);
 	}
 	%>
 
-	keys.forEach(function(key) {
+	keys.forEach(function (key) {
 		var fields = A.all('[name="<portlet:namespace />' + key + '"]');
 
-		var addOnBlurFieldValidation = function(field) {
-			field.on('blur', function(event) {
+		var addOnBlurFieldValidation = function (field) {
+			field.on('blur', function (event) {
 				if (!validateField(key)) {
 					event.halt();
 					event.stopImmediatePropagation();
@@ -318,7 +312,7 @@ String successURL = portletPreferences.getValue("successURL", StringPool.BLANK);
 	var form = A.one('#<portlet:namespace />fm');
 
 	if (form) {
-		form.on('submit', function(event) {
+		form.on('submit', function (event) {
 			var validationErrors = false;
 
 			for (var i = 1; i < keys.length; i++) {

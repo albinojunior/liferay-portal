@@ -27,7 +27,6 @@ import com.liferay.fragment.web.internal.constants.FragmentWebKeys;
 import com.liferay.fragment.web.internal.security.permission.resource.FragmentPermission;
 import com.liferay.fragment.web.internal.util.FragmentPortletUtil;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItemListBuilder;
@@ -53,11 +52,13 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.PortalInstances;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletURL;
@@ -106,48 +107,68 @@ public class FragmentDisplayContext {
 		).build();
 	}
 
-	public List<DropdownItem> getCollectionsDropdownItems() {
-		return new DropdownItemList() {
-			{
-				add(
-					dropdownItem -> {
-						dropdownItem.putData("action", "exportCollections");
-						dropdownItem.setLabel(
-							LanguageUtil.get(_httpServletRequest, "export"));
-					});
+	public String getAvailableActions(Object object) {
+		if (!FragmentPermission.contains(
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getScopeGroupId(),
+				FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES)) {
 
-				if (FragmentPermission.contains(
-						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getScopeGroupId(),
-						FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES)) {
+			return "exportFragmentCompositionsAndFragmentEntries";
+		}
 
-					add(
-						dropdownItem -> {
-							dropdownItem.putData("action", "openImportView");
-							dropdownItem.setLabel(
-								LanguageUtil.get(
-									_httpServletRequest, "import"));
-						});
+		List<String> availableActions = new ArrayList<>();
 
-					add(
-						dropdownItem -> {
-							dropdownItem.putData("action", "deleteCollections");
-							dropdownItem.setLabel(
-								LanguageUtil.get(
-									_httpServletRequest, "delete"));
-						});
-				}
-			}
-		};
+		availableActions.add("exportFragmentCompositionsAndFragmentEntries");
+
+		if (object instanceof FragmentEntry) {
+			availableActions.add("copySelectedFragmentEntries");
+		}
+
+		availableActions.add("deleteFragmentCompositionsAndFragmentEntries");
+		availableActions.add("moveFragmentCompositionsAndFragmentEntries");
+
+		return StringUtil.merge(availableActions, StringPool.COMMA);
 	}
 
-	public SearchContainer getContributedFragmentEntriesSearchContainer() {
+	public List<DropdownItem> getCollectionsDropdownItems() {
+		boolean hasManageFragmentEntriesPermission =
+			FragmentPermission.contains(
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getScopeGroupId(),
+				FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return DropdownItemListBuilder.add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "exportCollections");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "export"));
+			}
+		).add(
+			() -> hasManageFragmentEntriesPermission,
+			dropdownItem -> {
+				dropdownItem.putData("action", "openImportView");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "import"));
+			}
+		).add(
+			() -> hasManageFragmentEntriesPermission,
+			dropdownItem -> {
+				dropdownItem.putData("action", "deleteCollections");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "delete"));
+			}
+		).build();
+	}
+
+	public SearchContainer<FragmentEntry>
+		getContributedFragmentEntriesSearchContainer() {
+
 		if (_contributedFragmentEntriesSearchContainer != null) {
 			return _contributedFragmentEntriesSearchContainer;
 		}
 
-		SearchContainer contributedFragmentEntriesSearchContainer =
-			new SearchContainer(
+		SearchContainer<FragmentEntry>
+			contributedFragmentEntriesSearchContainer = new SearchContainer(
 				_renderRequest, _getPortletURL(), null,
 				"there-are-no-fragments");
 
@@ -166,6 +187,7 @@ public class FragmentDisplayContext {
 				fragmentEntries,
 				contributedFragmentEntriesSearchContainer.getStart(),
 				contributedFragmentEntriesSearchContainer.getEnd()));
+
 		contributedFragmentEntriesSearchContainer.setRowChecker(
 			new EmptyOnClickRowChecker(_renderResponse));
 		contributedFragmentEntriesSearchContainer.setTotal(
@@ -342,13 +364,15 @@ public class FragmentDisplayContext {
 		).build();
 	}
 
-	public SearchContainer getFragmentEntriesSearchContainer() {
+	public SearchContainer<Object> getFragmentEntriesSearchContainer() {
 		if (_fragmentEntriesSearchContainer != null) {
 			return _fragmentEntriesSearchContainer;
 		}
 
-		SearchContainer fragmentEntriesSearchContainer = new SearchContainer(
-			_renderRequest, _getPortletURL(), null, "there-are-no-fragments");
+		SearchContainer<Object> fragmentEntriesSearchContainer =
+			new SearchContainer(
+				_renderRequest, _getPortletURL(), null,
+				"there-are-no-fragments");
 
 		fragmentEntriesSearchContainer.setId(
 			"fragmentEntries" + getFragmentCollectionId());
@@ -356,16 +380,16 @@ public class FragmentDisplayContext {
 		fragmentEntriesSearchContainer.setRowChecker(
 			new EmptyOnClickRowChecker(_renderResponse));
 
-		OrderByComparator<FragmentEntry> orderByComparator =
-			FragmentPortletUtil.getFragmentEntryOrderByComparator(
+		OrderByComparator<Object> orderByComparator =
+			FragmentPortletUtil.getFragmentCompositionAndEntryOrderByComparator(
 				_getOrderByCol(), getOrderByType());
 
 		fragmentEntriesSearchContainer.setOrderByCol(_getOrderByCol());
 		fragmentEntriesSearchContainer.setOrderByComparator(orderByComparator);
 		fragmentEntriesSearchContainer.setOrderByType(getOrderByType());
 
-		List<FragmentEntry> fragmentEntries = null;
-		int fragmentEntriesCount = 0;
+		List<Object> fragmentCompositionsAndEntries = null;
+		int fragmentCompositionsAndEntriesCount = 0;
 
 		FragmentCollection fragmentCollection = getFragmentCollection();
 
@@ -378,36 +402,44 @@ public class FragmentDisplayContext {
 		}
 
 		if (isSearch()) {
-			fragmentEntries =
-				FragmentEntryServiceUtil.getFragmentEntriesByNameAndStatus(
-					fragmentCollection.getGroupId(),
-					fragmentCollection.getFragmentCollectionId(),
-					_getKeywords(), status,
-					fragmentEntriesSearchContainer.getStart(),
-					fragmentEntriesSearchContainer.getEnd(), orderByComparator);
+			fragmentCompositionsAndEntries =
+				FragmentEntryServiceUtil.
+					getFragmentCompositionsAndFragmentEntries(
+						fragmentCollection.getGroupId(),
+						fragmentCollection.getFragmentCollectionId(),
+						_getKeywords(), status,
+						fragmentEntriesSearchContainer.getStart(),
+						fragmentEntriesSearchContainer.getEnd(),
+						orderByComparator);
 
-			fragmentEntriesCount =
-				FragmentEntryServiceUtil.getFragmentEntriesCountByNameAndStatus(
-					fragmentCollection.getGroupId(),
-					fragmentCollection.getFragmentCollectionId(),
-					_getKeywords(), status);
+			fragmentCompositionsAndEntriesCount =
+				FragmentEntryServiceUtil.
+					getFragmentCompositionsAndFragmentEntriesCount(
+						fragmentCollection.getGroupId(),
+						fragmentCollection.getFragmentCollectionId(),
+						_getKeywords(), status);
 		}
 		else {
-			fragmentEntries =
-				FragmentEntryServiceUtil.getFragmentEntriesByStatus(
-					fragmentCollection.getGroupId(),
-					fragmentCollection.getFragmentCollectionId(), status,
-					fragmentEntriesSearchContainer.getStart(),
-					fragmentEntriesSearchContainer.getEnd(), orderByComparator);
+			fragmentCompositionsAndEntries =
+				FragmentEntryServiceUtil.
+					getFragmentCompositionsAndFragmentEntries(
+						fragmentCollection.getGroupId(),
+						fragmentCollection.getFragmentCollectionId(), status,
+						fragmentEntriesSearchContainer.getStart(),
+						fragmentEntriesSearchContainer.getEnd(),
+						orderByComparator);
 
-			fragmentEntriesCount =
-				FragmentEntryServiceUtil.getFragmentEntriesCountByStatus(
-					fragmentCollection.getGroupId(),
-					fragmentCollection.getFragmentCollectionId(), status);
+			fragmentCompositionsAndEntriesCount =
+				FragmentEntryServiceUtil.
+					getFragmentCompositionsAndFragmentEntriesCount(
+						fragmentCollection.getGroupId(),
+						fragmentCollection.getFragmentCollectionId(), status);
 		}
 
-		fragmentEntriesSearchContainer.setResults(fragmentEntries);
-		fragmentEntriesSearchContainer.setTotal(fragmentEntriesCount);
+		fragmentEntriesSearchContainer.setResults(
+			fragmentCompositionsAndEntries);
+		fragmentEntriesSearchContainer.setTotal(
+			fragmentCompositionsAndEntriesCount);
 
 		_fragmentEntriesSearchContainer = fragmentEntriesSearchContainer;
 
@@ -626,8 +658,15 @@ public class FragmentDisplayContext {
 			return StringPool.BLANK;
 		}
 
+		Stream<FragmentCollectionContributor> stream =
+			fragmentCollectionContributors.stream();
+
 		FragmentCollectionContributor fragmentCollectionContributor =
-			fragmentCollectionContributors.get(0);
+			stream.sorted(
+				new FragmentCollectionContributorNameComparator(
+					_themeDisplay.getLocale())
+			).findFirst(
+			).get();
 
 		return fragmentCollectionContributor.getFragmentCollectionKey();
 	}
@@ -741,13 +780,14 @@ public class FragmentDisplayContext {
 		return true;
 	}
 
-	private SearchContainer _contributedFragmentEntriesSearchContainer;
+	private SearchContainer<FragmentEntry>
+		_contributedFragmentEntriesSearchContainer;
 	private FragmentCollection _fragmentCollection;
 	private final FragmentCollectionContributorTracker
 		_fragmentCollectionContributorTracker;
 	private Long _fragmentCollectionId;
 	private String _fragmentCollectionKey;
-	private SearchContainer _fragmentEntriesSearchContainer;
+	private SearchContainer<Object> _fragmentEntriesSearchContainer;
 	private final HttpServletRequest _httpServletRequest;
 	private String _keywords;
 	private String _navigation;

@@ -22,7 +22,7 @@
 	<portlet:param name="mvcRenderCommandName" value="processesList" />
 </portlet:renderURL>
 
-<aui:form action='<%= portletURL.toString() + "&etag=0&strip=0" %>' cssClass="lfr-export-dialog" method="post" name="exportPagesFm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "publishPages();" %>'>
+<aui:form action='<%= portletURL.toString() + "&etag=0&strip=0" %>' cssClass="lfr-export-dialog" method="post" name="exportPagesFm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "publishPages();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= cmd %>" />
 	<aui:input name="exportImportConfigurationId" type="hidden" value="<%= exportImportConfigurationId %>" />
 	<aui:input name="originalCmd" type="hidden" value="<%= cmd %>" />
@@ -68,11 +68,11 @@
 				</aui:fieldset>
 
 				<aui:fieldset cssClass="options-group">
-					<div class="sheet-section">
+					<clay:sheet-section>
 						<h3 class="sheet-subtitle"><liferay-ui:message key="date" /></h3>
 
 						<%@ include file="/new_publication/publish_layouts_scheduler.jspf" %>
-					</div>
+					</clay:sheet-section>
 				</aui:fieldset>
 
 				<liferay-staging:deletions
@@ -121,7 +121,7 @@
 		</div>
 
 		<aui:button-row>
-			<aui:button id="addButton" onClick='<%= renderResponse.getNamespace() + "schedulePublishEvent();" %>' value="add-event" />
+			<aui:button id="addButton" onClick='<%= liferayPortletResponse.getNamespace() + "schedulePublishEvent();" %>' value="add-event" />
 
 			<aui:button id="publishButton" type="submit" value="<%= LanguageUtil.get(request, publishMessageKey) %>" />
 
@@ -226,13 +226,13 @@
 
 	Liferay.component('<portlet:namespace />ExportImportComponent', exportImport);
 
-	var clickHandler = function(event) {
+	var clickHandler = function (event) {
 		var dataValue = event.target.ancestor('li').attr('data-value');
 
 		processDataValue(dataValue);
 	};
 
-	var processDataValue = function(dataValue) {
+	var processDataValue = function (dataValue) {
 		var customConfiguration = A.one(
 			'#<portlet:namespace />customConfiguration'
 		);

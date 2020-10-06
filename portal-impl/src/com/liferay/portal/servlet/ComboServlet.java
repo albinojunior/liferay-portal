@@ -127,11 +127,11 @@ public class ComboServlet extends HttpServlet {
 		Map<String, String[]> parameterMap = HttpUtil.getParameterMap(
 			httpServletRequest.getQueryString());
 
-		Enumeration<String> enu = Collections.enumeration(
+		Enumeration<String> enumeration = Collections.enumeration(
 			parameterMap.keySet());
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (_protectedParameters.contains(name)) {
 				continue;
@@ -283,7 +283,7 @@ public class ComboServlet extends HttpServlet {
 		String contentType = ContentTypes.TEXT_JAVASCRIPT;
 
 		if (StringUtil.equalsIgnoreCase(extension, _CSS_EXTENSION)) {
-			contentType = ContentTypes.TEXT_CSS;
+			contentType = ContentTypes.TEXT_CSS_UTF8;
 		}
 
 		httpServletResponse.setContentType(contentType);
@@ -444,7 +444,9 @@ public class ComboServlet extends HttpServlet {
 
 		String resourcePath = getResourcePath(modulePath);
 
-		if (!PortalUtil.isValidResourceId(resourcePath)) {
+		if (!StringUtil.startsWith(resourcePath, CharPool.SLASH) ||
+			!PortalUtil.isValidResourceId(resourcePath)) {
+
 			if (_log.isWarnEnabled()) {
 				_log.warn(
 					StringBundler.concat(

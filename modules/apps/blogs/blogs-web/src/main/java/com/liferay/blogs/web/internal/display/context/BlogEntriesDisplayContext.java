@@ -135,7 +135,7 @@ public class BlogEntriesDisplayContext {
 		return displayStyle;
 	}
 
-	public SearchContainer getSearchContainer()
+	public SearchContainer<BlogsEntry> getSearchContainer()
 		throws PortalException, PortletException {
 
 		PortletURL portletURL = _liferayPortletResponse.createRenderURL();
@@ -176,14 +176,14 @@ public class BlogEntriesDisplayContext {
 		return entriesSearchContainer;
 	}
 
-	private void _populateResults(SearchContainer searchContainer)
+	private void _populateResults(SearchContainer<BlogsEntry> searchContainer)
 		throws PortalException {
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)_httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		List entriesResults = null;
+		List<BlogsEntry> entriesResults = null;
 
 		long assetCategoryId = ParamUtil.getLong(
 			_httpServletRequest, "categoryId");
@@ -241,7 +241,8 @@ public class BlogEntriesDisplayContext {
 			}
 		}
 		else {
-			Indexer indexer = IndexerRegistryUtil.getIndexer(BlogsEntry.class);
+			Indexer<BlogsEntry> indexer = IndexerRegistryUtil.getIndexer(
+				BlogsEntry.class);
 
 			SearchContext searchContext = SearchContextFactory.getInstance(
 				_httpServletRequest);
@@ -250,6 +251,7 @@ public class BlogEntriesDisplayContext {
 				Field.STATUS, WorkflowConstants.STATUS_ANY);
 			searchContext.setEnd(searchContainer.getEnd());
 			searchContext.setIncludeDiscussions(true);
+			searchContext.setIncludeInternalAssetCategories(true);
 			searchContext.setKeywords(keywords);
 			searchContext.setStart(searchContainer.getStart());
 

@@ -88,7 +88,11 @@ public class StagedExpandoTableStagedModelRepository
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		for (ExpandoTable expandoTable : expandoTables) {
-			_expandoTableLocalService.deleteTable(expandoTable);
+			if (expandoTable.getCompanyId() ==
+					portletDataContext.getCompanyId()) {
+
+				_expandoTableLocalService.deleteTable(expandoTable);
+			}
 		}
 	}
 

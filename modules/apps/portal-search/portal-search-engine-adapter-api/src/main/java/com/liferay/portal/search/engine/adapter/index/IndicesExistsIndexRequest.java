@@ -25,6 +25,8 @@ public class IndicesExistsIndexRequest
 
 	public IndicesExistsIndexRequest(String... indexNames) {
 		_indexNames = indexNames;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

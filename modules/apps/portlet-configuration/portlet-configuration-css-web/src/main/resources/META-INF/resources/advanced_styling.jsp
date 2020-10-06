@@ -22,7 +22,7 @@
 	</p>
 
 	<p>
-		<liferay-ui:message key="portlet-id" />: <strong>#portlet_<%= portletConfigurationCSSPortletDisplayContext.getPortletResource() %></strong>
+		<liferay-ui:message key="portlet-id" />: <strong>#portlet_<%= HtmlUtil.escapeJS(portletConfigurationCSSPortletDisplayContext.getPortletResource()) %></strong>
 	</p>
 
 	<p>
@@ -64,9 +64,9 @@
 	);
 
 	if (<portlet:namespace />addId) {
-		<portlet:namespace />addId.addEventListener('click', function() {
+		<portlet:namespace />addId.addEventListener('click', function () {
 			<portlet:namespace />insertCustomCSSValue(
-				'#portlet_<%= portletConfigurationCSSPortletDisplayContext.getPortletResource() %>'
+				'#portlet_<%= HtmlUtil.escapeJS(portletConfigurationCSSPortletDisplayContext.getPortletResource()) %>'
 			);
 		});
 	}
@@ -76,13 +76,13 @@
 	);
 
 	if (<portlet:namespace />addClass) {
-		<portlet:namespace />addClass.addEventListener('click', function() {
+		<portlet:namespace />addClass.addEventListener('click', function () {
 			<portlet:namespace />insertCustomCSSValue(portletClasses);
 		});
 	}
 
 	var portlet = Liferay.Util.getOpener()[
-		'portlet_<%= portletConfigurationCSSPortletDisplayContext.getPortletResource() %>'
+		'portlet_<%= HtmlUtil.escapeJS(portletConfigurationCSSPortletDisplayContext.getPortletResource()) %>'
 	];
 
 	if (portlet) {
@@ -107,7 +107,7 @@
 
 			portletContent
 				.getAttribute('class')
-				.replace(/(?:([\w\d-]+)-)?portlet(?:-?([\w\d-]+-?))?/g, function(
+				.replace(/(?:([\w\d-]+)-)?portlet(?:-?([\w\d-]+-?))?/g, function (
 					match,
 					subMatch1,
 					subMatch2

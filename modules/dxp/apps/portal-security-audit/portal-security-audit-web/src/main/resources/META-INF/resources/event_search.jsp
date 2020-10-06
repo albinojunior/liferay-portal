@@ -17,14 +17,12 @@
 <%@ include file="/init.jsp" %>
 
 <%
-SearchContainer searchContainer = (SearchContainer)request.getAttribute("liferay-ui:search:searchContainer");
-
-DisplayTerms displayTerms = searchContainer.getDisplayTerms();
+SearchContainer<?> searchContainer = (SearchContainer<?>)request.getAttribute("liferay-ui:search:searchContainer");
 %>
 
 <liferay-ui:search-toggle
 	buttonLabel="search"
-	displayTerms="<%= displayTerms %>"
+	displayTerms="<%= searchContainer.getDisplayTerms() %>"
 	id="toggle_id_audit_event_search"
 >
 	<aui:input label="user-id" name="userId" value="<%= (userId != 0) ? String.valueOf(userId) : StringPool.BLANK %>" />

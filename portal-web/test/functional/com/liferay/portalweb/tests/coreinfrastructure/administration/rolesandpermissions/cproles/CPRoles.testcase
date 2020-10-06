@@ -29,7 +29,7 @@ definition {
 		property portal.acceptance = "true";
 		property testray.component.names = "Training";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -38,7 +38,7 @@ definition {
 
 		Role.add(roleTitle = "Roles Orgrole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -50,14 +50,14 @@ definition {
 
 	@priority = "4"
 	test AddRegularRole {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
 		Role.add(roleTitle = "Roles Regrole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -71,7 +71,7 @@ definition {
 	test AddSiteRole {
 		property portal.acceptance = "true";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -80,7 +80,7 @@ definition {
 
 		Role.add(roleTitle = "Roles Siterole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -93,7 +93,7 @@ definition {
 	@description = "This is a use case for LPS-105001 and LPS-104999."
 	@priority = "3"
 	test AssertRoleTitleNotRequired {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -102,14 +102,14 @@ definition {
 			roleKey = "Administrator",
 			toolTip = "A title is a localizable human-readable name for a role. If not provided, the key will be displayed by default.");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
 		Role.add(roleKey = "Role Key Value");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -119,11 +119,10 @@ definition {
 
 	@priority = "4"
 	test AssignExistingSegmentToRegularRole {
-		Navigator.openURL();
+		ProductMenu.gotoSite(site = "Global");
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
 			portlet = "Segments");
 
 		LexiconEntry.gotoAdd();
@@ -140,14 +139,11 @@ definition {
 
 		Alert.viewSuccessMessage();
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
+		JSONRole.addRegularRole(
+			roleKey = "Roles Regrole Name",
+			roleTitle = "Roles Regrole Name");
 
-		Role.add(roleTitle = "Roles Regrole Name");
-
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -158,7 +154,7 @@ definition {
 
 		Role.addAssignees(assigneeName = "RoleSegment Test");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -171,14 +167,11 @@ definition {
 
 	@priority = "4"
 	test AssignNewSegmentToRegularRole {
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
+		JSONRole.addRegularRole(
+			roleKey = "Roles Regrole Name",
+			roleTitle = "Roles Regrole Name");
 
-		Role.add(roleTitle = "Roles Regrole Name");
-
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -203,19 +196,18 @@ definition {
 
 		Button.clickSave();
 
-		SelectFrame(locator1 = "IFrame#SELECT_ASSIGNEES");
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Roles");
 
-		Search.searchCP(searchTerm = "New RoleSegment Test");
+		RoleNavigator.gotoAssignees(roleTitle = "Roles Regrole Name");
 
-		var key_assigneeName = "New RoleSegment Test";
+		RoleNavigator.gotoAssigneeType(assigneeType = "Segments");
 
-		Check(locator1 = "RolesAssignMembers#ADD_ASSIGNEE_TABLE_CHECKBOX");
+		Role.addAssignees(assigneeName = "New RoleSegment Test");
 
-		SelectFrameTop(value1 = "relative=top");
-
-		Button.clickAdd();
-
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -226,6 +218,41 @@ definition {
 			roleTitle = "Roles Regrole Name");
 	}
 
+	@description = "This is a use case for LPS-109572."
+	@priority = "5"
+	test AssignNewUserToRegularRole {
+		property portal.acceptance = "true";
+
+		JSONRole.addRegularRole(
+			roleKey = "Regular Role",
+			roleTitle = "Regular Role");
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Roles");
+
+		JSONRole.assignRoleToUser(
+			roleTitle = "Regular Role",
+			userEmailAddress = "userea@liferay.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Roles");
+
+		Role.viewAssignee(
+			assigneeName = "userfn userln",
+			assigneeType = "Users",
+			roleTitle = "Regular Role");
+	}
+
 	@priority = "5"
 	test DeleteRegularRole {
 		property app.server.types = "jboss,tcserver,tomcat,weblogic,websphere,wildfly";
@@ -233,21 +260,21 @@ definition {
 		property environment.acceptance = "true";
 		property portal.acceptance = "true";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
 		Role.add(roleTitle = "Roles Regrole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
 		Role.deleteCP(roleTitle = "Roles Regrole Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -257,11 +284,10 @@ definition {
 
 	@priority = "4"
 	test RemoveSegmentFromRegularRole {
-		Navigator.openURL();
+		ProductMenu.gotoSite(site = "Global");
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
 			portlet = "Segments");
 
 		LexiconEntry.gotoAdd();
@@ -278,14 +304,11 @@ definition {
 
 		Alert.viewSuccessMessage();
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
+		JSONRole.addRegularRole(
+			roleKey = "Remove Regrole Assignee",
+			roleTitle = "Remove Regrole Assignee");
 
-		Role.add(roleTitle = "Remove Regrole Assignee");
-
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -296,7 +319,7 @@ definition {
 
 		Role.addAssignees(assigneeName = "Role Assignee Test");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");

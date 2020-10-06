@@ -79,13 +79,14 @@ class CollapseProvider {
 
 		// Reflow to make sure dimention is set, without this transition may
 		// not trigger.
+
 		panel.getBoundingClientRect();
 
 		panel.classList.remove(CssClass.COLLAPSE);
 
 		this._transitioning = true;
 
-		dom.once(panel, this._transitionEndEvent, () => {
+		const onHidden = () => {
 			panel.classList.remove(CssClass.COLLAPSING);
 			panel.classList.remove(CssClass.SHOW);
 			panel.classList.add(CssClass.COLLAPSE);
@@ -93,10 +94,17 @@ class CollapseProvider {
 			this._transitioning = false;
 
 			Liferay.fire(this.EVENT_HIDDEN, {panel, trigger});
-		});
+		};
 
-		panel.classList.add(CssClass.COLLAPSING);
-		panel.style[dimension] = 0;
+		if (this._prefersReducedMotion()) {
+			onHidden();
+		}
+		else {
+			dom.once(panel, this._transitionEndEvent, onHidden);
+
+			panel.classList.add(CssClass.COLLAPSING);
+			panel.style[dimension] = 0;
+		}
 	};
 
 	show = ({panel, trigger}) => {
@@ -122,7 +130,7 @@ class CollapseProvider {
 					Selector.TRIGGER + ':not(.' + CssClass.COLLAPSED + ')'
 				);
 
-				expandedTriggers.forEach(expandedTrigger => {
+				expandedTriggers.forEach((expandedTrigger) => {
 					if (
 						expandedTrigger !== trigger &&
 						expandedTrigger.dataset.parent === parentId
@@ -146,7 +154,7 @@ class CollapseProvider {
 
 		this._transitioning = true;
 
-		dom.once(panel, this._transitionEndEvent, () => {
+		const onShown = () => {
 			panel.classList.remove(CssClass.COLLAPSING);
 			panel.classList.add(CssClass.COLLAPSE);
 			panel.classList.add(CssClass.SHOW);
@@ -155,13 +163,20 @@ class CollapseProvider {
 			this._transitioning = false;
 
 			Liferay.fire(this.EVENT_SHOWN, {panel, trigger});
-		});
+		};
 
-		const capitalizedDimension =
-			dimension[0].toUpperCase() + dimension.slice(1);
-		const scrollSize = `scroll${capitalizedDimension}`;
+		if (this._prefersReducedMotion()) {
+			onShown();
+		}
+		else {
+			dom.once(panel, this._transitionEndEvent, onShown);
 
-		panel.style[dimension] = `${panel[scrollSize]}px`;
+			const capitalizedDimension =
+				dimension[0].toUpperCase() + dimension.slice(1);
+			const scrollSize = `scroll${capitalizedDimension}`;
+
+			panel.style[dimension] = `${panel[scrollSize]}px`;
+		}
 	};
 
 	_getDimension(panel) {
@@ -171,14 +186,16 @@ class CollapseProvider {
 	}
 
 	_getPanel(trigger) {
-		return document.querySelector(trigger.getAttribute('href'));
+		return document.querySelector(
+			trigger.getAttribute('href') || trigger.dataset.target
+		);
 	}
 
 	_getTrigger(panel) {
 		return document.querySelector(`[href="#${panel.getAttribute('id')}"]`);
 	}
 
-	_onTriggerClick = event => {
+	_onTriggerClick = (event) => {
 		const trigger = event.delegateTarget;
 
 		if (trigger.tagName === 'A') {
@@ -197,6 +214,10 @@ class CollapseProvider {
 		}
 	};
 
+	_prefersReducedMotion() {
+		return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	}
+
 	_setTransitionEndEvent() {
 		const sampleElement = document.body;
 
@@ -209,7 +230,7 @@ class CollapseProvider {
 
 		let eventName = false;
 
-		Object.keys(transitionEndEvents).some(name => {
+		Object.keys(transitionEndEvents).some((name) => {
 			if (sampleElement.style[name] !== undefined) {
 				eventName = transitionEndEvents[name];
 

@@ -43,8 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-import java.util.Map;
-
 /**
  * @author Daniel Kocsis
  */
@@ -87,19 +85,17 @@ public class ExportImportLocalServiceImpl
 			throw new LARFileNameException(exportImportConfiguration.getName());
 		}
 
-		Map<String, Serializable> taskContextMap =
-			HashMapBuilder.<String, Serializable>put(
-				"exportImportConfigurationId",
-				exportImportConfiguration.getExportImportConfigurationId()
-			).build();
-
 		BackgroundTask backgroundTask =
 			BackgroundTaskManagerUtil.addBackgroundTask(
 				userId, exportImportConfiguration.getGroupId(),
 				exportImportConfiguration.getName(),
 				BackgroundTaskExecutorNames.
 					LAYOUT_EXPORT_BACKGROUND_TASK_EXECUTOR,
-				taskContextMap, new ServiceContext());
+				HashMapBuilder.<String, Serializable>put(
+					"exportImportConfigurationId",
+					exportImportConfiguration.getExportImportConfigurationId()
+				).build(),
+				new ServiceContext());
 
 		return backgroundTask.getBackgroundTaskId();
 	}
@@ -154,19 +150,17 @@ public class ExportImportLocalServiceImpl
 			throw new LARFileNameException(fileName);
 		}
 
-		Map<String, Serializable> taskContextMap =
-			HashMapBuilder.<String, Serializable>put(
-				"exportImportConfigurationId",
-				exportImportConfiguration.getExportImportConfigurationId()
-			).build();
-
 		BackgroundTask backgroundTask =
 			BackgroundTaskManagerUtil.addBackgroundTask(
 				userId, exportImportConfiguration.getGroupId(),
 				exportImportConfiguration.getName(),
 				BackgroundTaskExecutorNames.
 					PORTLET_EXPORT_BACKGROUND_TASK_EXECUTOR,
-				taskContextMap, new ServiceContext());
+				HashMapBuilder.<String, Serializable>put(
+					"exportImportConfigurationId",
+					exportImportConfiguration.getExportImportConfigurationId()
+				).build(),
+				new ServiceContext());
 
 		return backgroundTask.getBackgroundTaskId();
 	}
@@ -195,10 +189,10 @@ public class ExportImportLocalServiceImpl
 			layoutImportController.importFile(exportImportConfiguration, file);
 		}
 		catch (PortalException portalException) {
-			Throwable cause = portalException.getCause();
+			Throwable throwable = portalException.getCause();
 
-			if (cause instanceof LocaleException) {
-				throw (PortalException)cause;
+			if (throwable instanceof LocaleException) {
+				throw (PortalException)throwable;
 			}
 
 			throw portalException;
@@ -269,10 +263,10 @@ public class ExportImportLocalServiceImpl
 				exportImportConfiguration, file);
 		}
 		catch (PortalException portalException) {
-			Throwable cause = portalException.getCause();
+			Throwable throwable = portalException.getCause();
 
-			if (cause instanceof LocaleException) {
-				throw (PortalException)cause;
+			if (throwable instanceof LocaleException) {
+				throw (PortalException)throwable;
 			}
 
 			throw portalException;
@@ -298,19 +292,17 @@ public class ExportImportLocalServiceImpl
 			File file)
 		throws PortalException {
 
-		Map<String, Serializable> taskContextMap =
-			HashMapBuilder.<String, Serializable>put(
-				"exportImportConfigurationId",
-				exportImportConfiguration.getExportImportConfigurationId()
-			).build();
-
 		BackgroundTask backgroundTask =
 			BackgroundTaskManagerUtil.addBackgroundTask(
 				userId, exportImportConfiguration.getGroupId(),
 				exportImportConfiguration.getName(),
 				BackgroundTaskExecutorNames.
 					LAYOUT_IMPORT_BACKGROUND_TASK_EXECUTOR,
-				taskContextMap, new ServiceContext());
+				HashMapBuilder.<String, Serializable>put(
+					"exportImportConfigurationId",
+					exportImportConfiguration.getExportImportConfigurationId()
+				).build(),
+				new ServiceContext());
 
 		backgroundTask.addAttachment(userId, file.getName(), file);
 
@@ -394,10 +386,10 @@ public class ExportImportLocalServiceImpl
 				exportImportConfiguration, file);
 		}
 		catch (PortalException portalException) {
-			Throwable cause = portalException.getCause();
+			Throwable throwable = portalException.getCause();
 
-			if (cause instanceof LocaleException) {
-				throw (PortalException)cause;
+			if (throwable instanceof LocaleException) {
+				throw (PortalException)throwable;
 			}
 
 			throw portalException;
@@ -430,19 +422,19 @@ public class ExportImportLocalServiceImpl
 			portletImportController.importFile(exportImportConfiguration, file);
 		}
 		catch (PortalException portalException) {
-			Throwable cause = portalException.getCause();
+			Throwable throwable = portalException.getCause();
 
 			while (true) {
-				if (cause == null) {
+				if (throwable == null) {
 					break;
 				}
 
-				if (cause instanceof LocaleException) {
-					throw (PortalException)cause;
+				if (throwable instanceof LocaleException) {
+					throw (PortalException)throwable;
 				}
 
-				if (cause instanceof PortletDataException) {
-					cause = cause.getCause();
+				if (throwable instanceof PortletDataException) {
+					throwable = throwable.getCause();
 				}
 				else {
 					break;
@@ -509,19 +501,17 @@ public class ExportImportLocalServiceImpl
 			File file)
 		throws PortalException {
 
-		Map<String, Serializable> taskContextMap =
-			HashMapBuilder.<String, Serializable>put(
-				"exportImportConfigurationId",
-				exportImportConfiguration.getExportImportConfigurationId()
-			).build();
-
 		BackgroundTask backgroundTask =
 			BackgroundTaskManagerUtil.addBackgroundTask(
 				userId, exportImportConfiguration.getGroupId(),
 				exportImportConfiguration.getName(),
 				BackgroundTaskExecutorNames.
 					PORTLET_IMPORT_BACKGROUND_TASK_EXECUTOR,
-				taskContextMap, new ServiceContext());
+				HashMapBuilder.<String, Serializable>put(
+					"exportImportConfigurationId",
+					exportImportConfiguration.getExportImportConfigurationId()
+				).build(),
+				new ServiceContext());
 
 		backgroundTask.addAttachment(userId, file.getName(), file);
 
@@ -605,10 +595,10 @@ public class ExportImportLocalServiceImpl
 				exportImportConfiguration, file);
 		}
 		catch (PortalException portalException) {
-			Throwable cause = portalException.getCause();
+			Throwable throwable = portalException.getCause();
 
-			if (cause instanceof LocaleException) {
-				throw (PortalException)cause;
+			if (throwable instanceof LocaleException) {
+				throw (PortalException)throwable;
 			}
 
 			throw portalException;
@@ -679,10 +669,10 @@ public class ExportImportLocalServiceImpl
 				exportImportConfiguration, file);
 		}
 		catch (PortalException portalException) {
-			Throwable cause = portalException.getCause();
+			Throwable throwable = portalException.getCause();
 
-			if (cause instanceof LocaleException) {
-				throw (PortalException)cause;
+			if (throwable instanceof LocaleException) {
+				throw (PortalException)throwable;
 			}
 
 			throw portalException;

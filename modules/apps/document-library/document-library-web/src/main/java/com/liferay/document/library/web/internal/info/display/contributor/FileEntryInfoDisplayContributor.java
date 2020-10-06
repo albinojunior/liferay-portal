@@ -19,6 +19,7 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.dynamic.data.mapping.info.display.field.DDMFormValuesInfoDisplayFieldProvider;
 import com.liferay.info.display.contributor.InfoDisplayContributor;
 import com.liferay.info.display.contributor.InfoDisplayField;
@@ -64,6 +65,21 @@ public class FileEntryInfoDisplayContributor
 
 	@Override
 	public Set<InfoDisplayField> getInfoDisplayFields(
+			FileEntry fileEntry, Locale locale)
+		throws PortalException {
+
+		if (fileEntry.getModel() instanceof DLFileEntry) {
+			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
+
+			return getInfoDisplayFields(
+				dlFileEntry.getFileEntryTypeId(), locale);
+		}
+
+		return getInfoDisplayFields(0, locale);
+	}
+
+	@Override
+	public Set<InfoDisplayField> getInfoDisplayFields(
 			long classTypeId, Locale locale)
 		throws PortalException {
 
@@ -85,7 +101,8 @@ public class FileEntryInfoDisplayContributor
 
 		infoDisplayFields.addAll(
 			_expandoInfoDisplayFieldProvider.
-				getContributorExpandoInfoDisplayFields(getClassName(), locale));
+				getContributorExpandoInfoDisplayFields(
+					DLFileEntryConstants.getClassName(), locale));
 
 		return infoDisplayFields;
 	}
@@ -107,13 +124,17 @@ public class FileEntryInfoDisplayContributor
 					getAssetEntryInfoDisplayFieldsValues(
 						DLFileEntryConstants.getClassName(),
 						fileEntry.getFileEntryId(), locale));
+
+			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
+
+			DLFileVersion dlFileVersion = dlFileEntry.getLatestFileVersion(
+				true);
+
 			infoDisplayFieldValues.putAll(
 				_expandoInfoDisplayFieldProvider.
 					getContributorExpandoInfoDisplayFieldsValues(
-						DLFileEntryConstants.getClassName(), fileEntry,
+						DLFileEntryConstants.getClassName(), dlFileVersion,
 						locale));
-
-			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
 
 			DLFileEntryDDMFormValuesReader dlFileEntryDDMFormValuesReader =
 				new DLFileEntryDDMFormValuesReader(
@@ -131,7 +152,13 @@ public class FileEntryInfoDisplayContributor
 	}
 
 	@Override
-	public InfoDisplayObjectProvider getInfoDisplayObjectProvider(long classPK)
+	public long getInfoDisplayObjectClassPK(FileEntry fileEntry) {
+		return fileEntry.getFileEntryId();
+	}
+
+	@Override
+	public InfoDisplayObjectProvider<FileEntry> getInfoDisplayObjectProvider(
+			long classPK)
 		throws PortalException {
 
 		LocalRepository localRepository =
@@ -151,7 +178,7 @@ public class FileEntryInfoDisplayContributor
 	}
 
 	@Override
-	public InfoDisplayObjectProvider getInfoDisplayObjectProvider(
+	public InfoDisplayObjectProvider<FileEntry> getInfoDisplayObjectProvider(
 			long groupId, String urlTitle)
 		throws PortalException {
 
@@ -172,7 +199,7 @@ public class FileEntryInfoDisplayContributor
 		_classTypesInfoDisplayFieldProvider;
 
 	@Reference
-	private DDMFormValuesInfoDisplayFieldProvider
+	private DDMFormValuesInfoDisplayFieldProvider<DLFileEntry>
 		_ddmFormValuesInfoDisplayFieldProvider;
 
 	@Reference

@@ -70,6 +70,8 @@ import com.liferay.portlet.configuration.web.internal.constants.PortletConfigura
 import com.liferay.portlet.configuration.web.internal.constants.PortletConfigurationWebKeys;
 import com.liferay.portlet.portletconfiguration.action.ActionUtil;
 import com.liferay.portlet.portletconfiguration.util.PublicRenderParameterConfiguration;
+import com.liferay.roles.admin.constants.RolesAdminWebKeys;
+import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 
 import java.io.IOException;
 
@@ -221,10 +223,10 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 		actionRequest = ActionUtil.getWrappedActionRequest(
 			actionRequest, portletPreferences);
 
-		Enumeration<String> enu = portletPreferences.getNames();
+		Enumeration<String> enumeration = portletPreferences.getNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.startsWith(
 					PublicRenderParameterConfiguration.IGNORE_PREFIX) ||
@@ -544,9 +546,8 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 		Map<Long, String[]> roleIdsToActionIds = new HashMap<>();
 
 		for (long roleId : roleIds) {
-			String[] actionIds = getActionIds(actionRequest, roleId, false);
-
-			roleIdsToActionIds.put(roleId, actionIds);
+			roleIdsToActionIds.put(
+				roleId, getActionIds(actionRequest, roleId, false));
 		}
 
 		_resourcePermissionService.setIndividualResourcePermissions(
@@ -618,6 +619,10 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 
 			if (mvcPath.equals("/edit_permissions.jsp")) {
 				checkEditPermissionsJSP(renderRequest);
+
+				renderRequest.setAttribute(
+					RolesAdminWebKeys.ROLE_TYPE_CONTRIBUTOR_PROVIDER,
+					_roleTypeContributorProvider);
 
 				super.doDispatch(renderRequest, renderResponse);
 
@@ -698,10 +703,10 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 
 		List<String> actionIds = new ArrayList<>();
 
-		Enumeration<String> enu = actionRequest.getParameterNames();
+		Enumeration<String> enumeration = actionRequest.getParameterNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.startsWith(roleId + ActionUtil.ACTION)) {
 				int pos = name.indexOf(ActionUtil.ACTION);
@@ -773,18 +778,18 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 				scopeLayoutUuid, layout.getGroupId(), layout.isPrivateLayout());
 
 			if (!scopeLayout.hasScopeGroup()) {
-				Map<Locale, String> nameMap = HashMapBuilder.put(
-					LocaleUtil.getDefault(),
-					String.valueOf(scopeLayout.getPlid())
-				).build();
-
 				_groupLocalService.addGroup(
 					themeDisplay.getUserId(),
 					GroupConstants.DEFAULT_PARENT_GROUP_ID,
 					Layout.class.getName(), scopeLayout.getPlid(),
-					GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, null, 0,
-					true, GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null,
-					false, true, null);
+					GroupConstants.DEFAULT_LIVE_GROUP_ID,
+					HashMapBuilder.put(
+						LocaleUtil.getDefault(),
+						String.valueOf(scopeLayout.getPlid())
+					).build(),
+					null, 0, true,
+					GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false,
+					true, null);
 			}
 
 			scopeGroupId = scopeLayout.getGroupId();
@@ -1090,6 +1095,9 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 	private final ThreadLocal<PortletRequest> _portletRequestThreadLocal =
 		new CentralizedThreadLocal<>("_portletRequestThreadLocal");
 	private ResourcePermissionService _resourcePermissionService;
+
+	@Reference
+	private RoleTypeContributorProvider _roleTypeContributorProvider;
 
 	private class PortletConfigurationPortletPortletConfig
 		extends LiferayPortletConfigWrapper {

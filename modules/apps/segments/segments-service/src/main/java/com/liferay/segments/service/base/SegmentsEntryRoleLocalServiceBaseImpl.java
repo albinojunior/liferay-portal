@@ -14,6 +14,8 @@
 
 package com.liferay.segments.service.base;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +35,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -79,6 +84,10 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 	/**
 	 * Adds the segments entry role to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRole the segments entry role
 	 * @return the segments entry role that was added
 	 */
@@ -107,6 +116,10 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 	/**
 	 * Deletes the segments entry role with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRoleId the primary key of the segments entry role
 	 * @return the segments entry role that was removed
 	 * @throws PortalException if a segments entry role with the primary key could not be found
@@ -122,6 +135,10 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 	/**
 	 * Deletes the segments entry role from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRole the segments entry role
 	 * @return the segments entry role that was removed
 	 */
@@ -131,6 +148,11 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 		SegmentsEntryRole segmentsEntryRole) {
 
 		return segmentsEntryRolePersistence.remove(segmentsEntryRole);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return segmentsEntryRolePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -306,6 +328,10 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 			(SegmentsEntryRole)persistedModel);
 	}
 
+	public BasePersistence<SegmentsEntryRole> getBasePersistence() {
+		return segmentsEntryRolePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -345,6 +371,10 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 	/**
 	 * Updates the segments entry role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRole the segments entry role
 	 * @return the segments entry role that was updated
 	 */
@@ -360,7 +390,7 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			SegmentsEntryRoleLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -379,8 +409,23 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 		return SegmentsEntryRoleLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<SegmentsEntryRole> getCTPersistence() {
+		return segmentsEntryRolePersistence;
+	}
+
+	@Override
+	public Class<SegmentsEntryRole> getModelClass() {
 		return SegmentsEntryRole.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SegmentsEntryRole>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(segmentsEntryRolePersistence);
 	}
 
 	protected String getModelClassName() {
@@ -446,6 +491,10 @@ public abstract class SegmentsEntryRoleLocalServiceBaseImpl
 	@Reference
 	protected com.liferay.portal.kernel.service.ResourceLocalService
 		resourceLocalService;
+
+	@Reference
+	protected com.liferay.portal.kernel.service.RoleLocalService
+		roleLocalService;
 
 	@Reference
 	protected com.liferay.portal.kernel.service.UserLocalService

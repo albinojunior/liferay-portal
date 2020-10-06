@@ -3,6 +3,7 @@
 <model-hints>
 	<model name="com.liferay.fragment.model.FragmentCollection">
 		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fragmentCollectionId" type="long" />
 		<field name="groupId" type="long" />
@@ -22,6 +23,7 @@
 	</model>
 	<model name="com.liferay.fragment.model.FragmentComposition">
 		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fragmentCompositionId" type="long" />
 		<field name="groupId" type="long" />
@@ -46,7 +48,9 @@
 	</model>
 	<model name="com.liferay.fragment.model.FragmentEntry">
 		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
 		<field name="uuid" type="String" />
+		<field name="headId" type="long" />
 		<field name="fragmentEntryId" type="long" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />
@@ -83,6 +87,7 @@
 	</model>
 	<model name="com.liferay.fragment.model.FragmentEntryLink">
 		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fragmentEntryLinkId" type="long" />
 		<field name="groupId" type="long" />
@@ -93,8 +98,10 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="originalFragmentEntryLinkId" type="long" />
 		<field name="fragmentEntryId" type="long" />
+		<field name="segmentsExperienceId" type="long" />
 		<field name="classNameId" type="long" />
 		<field name="classPK" type="long" />
+		<field name="plid" type="long" />
 		<field name="css" type="String">
 			<hint-collection name="CLOB" />
 		</field>
@@ -117,5 +124,45 @@
 		</field>
 		<field name="lastPropagationDate" type="Date" />
 		<field name="lastPublishDate" type="Date" />
+	</model>
+	<model name="com.liferay.fragment.model.FragmentEntryVersion">
+		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
+		<field name="fragmentEntryVersionId" type="long" />
+		<field name="version" type="int" />
+		<field name="uuid" type="String" />
+		<field name="fragmentEntryId" type="long" />
+		<field name="groupId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
+		<field name="fragmentCollectionId" type="long" />
+		<field name="fragmentEntryKey" type="String" />
+		<field name="name" type="String">
+			<validator name="required" />
+		</field>
+		<field name="css" type="String">
+			<hint-collection name="CLOB" />
+		</field>
+		<field name="html" type="String">
+			<hint-collection name="CLOB" />
+		</field>
+		<field name="js" type="String">
+			<hint-collection name="CLOB" />
+		</field>
+		<field name="cacheable" type="boolean" />
+		<field name="configuration" type="String">
+			<hint-collection name="CLOB" />
+		</field>
+		<field name="previewFileEntryId" type="long" />
+		<field name="readOnly" type="boolean" />
+		<field name="type" type="int" />
+		<field name="lastPublishDate" type="Date" />
+		<field name="status" type="int" />
+		<field name="statusByUserId" type="long" />
+		<field name="statusByUserName" type="String" />
+		<field name="statusDate" type="Date" />
 	</model>
 </model-hints>

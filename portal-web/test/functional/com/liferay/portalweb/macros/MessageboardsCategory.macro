@@ -51,7 +51,7 @@ definition {
 
 			Click(locator1 = "Icon#DELETE");
 
-			AssertElementPresent(locator1 = "Message#SUCCESS");
+			VerifyElementPresent(locator1 = "Message#SUCCESS");
 		}
 	}
 
@@ -66,7 +66,7 @@ definition {
 
 		PortletEntry.clickMoveToRecycleBin();
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		AssertElementNotPresent(locator1 = "MessageBoards#CATEGORY_LIST_CATEGORY");
 	}
@@ -108,7 +108,7 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "Portlet#HEADER",
-			value1 = "${categoryName}");
+			value1 = "Message Boards");
 	}
 
 	macro gotoPG {
@@ -156,7 +156,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Message Boards");
 
 		IsElementPresent(locator1 = "Checkbox#SELECT_ALL");
@@ -165,7 +164,7 @@ definition {
 
 		Click(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		RecycleBin.emptyCP();
 	}
@@ -230,7 +229,7 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "Portlet#HEADER",
-			value1 = "${categoryName}");
+			value1 = "Message Boards");
 	}
 
 	macro viewDefaultPG {

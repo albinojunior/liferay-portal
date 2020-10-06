@@ -51,16 +51,16 @@ public class ProjectTemplatesSpringPortletMVCTest
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(
 			new Object[][] {
-				{"springportletmvc", "embedded", "jsp", "7.0"},
-				{"springportletmvc", "embedded", "jsp", "7.1"},
-				{"springportletmvc", "embedded", "jsp", "7.2"},
-				{"springportletmvc", "embedded", "jsp", "7.3"},
-				{"portletmvc4spring", "embedded", "jsp", "7.1"},
-				{"portletmvc4spring", "embedded", "jsp", "7.2"},
-				{"portletmvc4spring", "embedded", "jsp", "7.3"},
-				{"portletmvc4spring", "embedded", "thymeleaf", "7.1"},
-				{"portletmvc4spring", "embedded", "thymeleaf", "7.2"},
-				{"portletmvc4spring", "embedded", "thymeleaf", "7.3"}
+				{"springportletmvc", "embedded", "jsp", "7.0.6"},
+				{"springportletmvc", "embedded", "jsp", "7.1.3"},
+				{"springportletmvc", "embedded", "jsp", "7.2.1"},
+				{"springportletmvc", "embedded", "jsp", "7.3.4"},
+				{"portletmvc4spring", "embedded", "jsp", "7.1.3"},
+				{"portletmvc4spring", "embedded", "jsp", "7.2.1"},
+				{"portletmvc4spring", "embedded", "jsp", "7.3.4"},
+				{"portletmvc4spring", "embedded", "thymeleaf", "7.1.3"},
+				{"portletmvc4spring", "embedded", "thymeleaf", "7.2.1"},
+				{"portletmvc4spring", "embedded", "thymeleaf", "7.3.4"}
 			});
 	}
 
@@ -92,9 +92,16 @@ public class ProjectTemplatesSpringPortletMVCTest
 
 	@Test
 	public void testSpringPortletMVC() throws Exception {
+		File gradleWorkspaceDir = buildWorkspace(
+			temporaryFolder, "gradle", "gradleWS", _liferayVersion,
+			mavenExecutor);
+
+		File gradleWorkspaceModulesDir = new File(
+			gradleWorkspaceDir, "modules");
+
 		File gradleProjectDir = _buildSpringMVCTemplate(
-			"gradle", _framework, _frameworkDependencies, _viewType,
-			_liferayVersion);
+			gradleWorkspaceModulesDir, "gradle", _framework,
+			_frameworkDependencies, _viewType, _liferayVersion);
 
 		testNotContains(
 			gradleProjectDir, "src/main/webapp/WEB-INF/web.xml", "false");
@@ -106,7 +113,7 @@ public class ProjectTemplatesSpringPortletMVCTest
 			gradleProjectDir,
 			"src/main/java/com/test/controller/UserController.java");
 
-		if (_liferayVersion.equals("7.0")) {
+		if (_liferayVersion.equals("7.0.6")) {
 			testContains(
 				gradleProjectDir, "src/main/webapp/WEB-INF/liferay-display.xml",
 				"liferay-display_7_0_0.dtd");
@@ -119,7 +126,7 @@ public class ProjectTemplatesSpringPortletMVCTest
 				gradleProjectDir, "src/main/webapp/WEB-INF/web.xml",
 				"version=\"3.0\" xmlns=\"http://java.sun.com/xml/ns/javaee");
 		}
-		else if (_liferayVersion.equals("7.1")) {
+		else if (_liferayVersion.equals("7.1.3")) {
 			testContains(
 				gradleProjectDir, "src/main/webapp/WEB-INF/liferay-display.xml",
 				"liferay-display_7_1_0.dtd");
@@ -132,7 +139,7 @@ public class ProjectTemplatesSpringPortletMVCTest
 				gradleProjectDir, "src/main/webapp/WEB-INF/web.xml",
 				"version=\"3.1\" xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"");
 		}
-		else if (_liferayVersion.equals("7.2")) {
+		else if (_liferayVersion.equals("7.2.1")) {
 			testContains(
 				gradleProjectDir, "src/main/webapp/WEB-INF/liferay-display.xml",
 				"liferay-display_7_2_0.dtd");
@@ -144,7 +151,7 @@ public class ProjectTemplatesSpringPortletMVCTest
 				gradleProjectDir, "src/main/webapp/WEB-INF/web.xml",
 				"version=\"3.1\" xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"");
 		}
-		else if (_liferayVersion.equals("7.3")) {
+		else if (_liferayVersion.startsWith("7.3")) {
 			testContains(
 				gradleProjectDir, "src/main/webapp/WEB-INF/liferay-display.xml",
 				"liferay-display_7_3_0.dtd");
@@ -198,21 +205,34 @@ public class ProjectTemplatesSpringPortletMVCTest
 				"src/main/java/com/test/spring4/ServletContextFactory.java");
 		}
 
-		File mavenProjectDir = _buildSpringMVCTemplate(
-			"maven", _framework, _frameworkDependencies, _viewType,
-			_liferayVersion);
+		File mavenWorkspaceDir = buildWorkspace(
+			temporaryFolder, "maven", "mavenWS", _liferayVersion,
+			mavenExecutor);
 
-		buildProjects(
-			_gradleDistribution, mavenExecutor, gradleProjectDir,
-			mavenProjectDir);
+		File mavenModulesDir = new File(mavenWorkspaceDir, "modules");
+
+		File mavenProjectDir = _buildSpringMVCTemplate(
+			mavenModulesDir, "maven", _framework, _frameworkDependencies,
+			_viewType, _liferayVersion);
+
+		if (isBuildProjects()) {
+			File gradleOutputDir = new File(gradleProjectDir, "build/libs");
+			File mavenOutputDir = new File(mavenProjectDir, "target");
+
+			buildProjects(
+				_gradleDistribution, mavenExecutor, gradleWorkspaceDir,
+				mavenProjectDir, gradleOutputDir, mavenOutputDir,
+				":modules:sampleSpringMVCPortlet" + GRADLE_TASK_PATH_BUILD);
+		}
 	}
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 	private File _buildSpringMVCTemplate(
-			String buildType, String framework, String frameworkDependencies,
-			String viewType, String liferayVersion)
+			File destinationDir, String buildType, String framework,
+			String frameworkDependencies, String viewType,
+			String liferayVersion)
 		throws Exception {
 
 		String template = "spring-mvc-portlet";
@@ -222,27 +242,18 @@ public class ProjectTemplatesSpringPortletMVCTest
 			String groupId = "com.test";
 
 			return buildTemplateWithMaven(
-				temporaryFolder, template, name, groupId, mavenExecutor,
-				"-Dpackage=com.test", "-DclassName=Sample",
+				destinationDir, destinationDir, template, name, groupId,
+				mavenExecutor, "-Dpackage=com.test", "-DclassName=Sample",
 				"-Dframework=" + framework,
 				"-DframeworkDependencies=" + frameworkDependencies,
 				"-DviewType=" + viewType, "-DliferayVersion=" + liferayVersion);
 		}
 
-		return _buildTemplateWithGradle(
-			template, name, "--package-name", "com.test", "--class-name",
-			"Sample", "--framework", framework, "--framework-dependencies",
-			frameworkDependencies, "--view-type", viewType, "--liferay-version",
-			liferayVersion);
-	}
-
-	private File _buildTemplateWithGradle(
-			String template, String name, String... args)
-		throws Exception {
-
-		File destinationDir = temporaryFolder.newFolder("gradle");
-
-		return buildTemplateWithGradle(destinationDir, template, name, args);
+		return buildTemplateWithGradle(
+			destinationDir, template, name, "--package-name", "com.test",
+			"--class-name", "Sample", "--framework", framework,
+			"--framework-dependencies", frameworkDependencies, "--view-type",
+			viewType, "--liferay-version", liferayVersion);
 	}
 
 	private static URI _gradleDistribution;

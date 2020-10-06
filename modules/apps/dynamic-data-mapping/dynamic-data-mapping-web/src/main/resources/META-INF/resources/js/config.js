@@ -12,7 +12,7 @@
  * details.
  */
 
-(function() {
+(function () {
 	var LiferayAUI = Liferay.AUI;
 
 	AUI().applyConfig({
@@ -38,7 +38,6 @@
 							'liferay-layouts-tree-radio',
 							'liferay-layouts-tree-selectable',
 							'liferay-map-base',
-							'liferay-notice',
 							'liferay-translation-manager',
 							'liferay-util-window',
 						],

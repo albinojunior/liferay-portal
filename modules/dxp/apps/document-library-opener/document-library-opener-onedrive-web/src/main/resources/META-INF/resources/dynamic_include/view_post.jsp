@@ -17,17 +17,17 @@
 <%@ include file="/dynamic_include/init.jsp" %>
 
 <liferay-frontend:component
-	componentId='<%= renderResponse.getNamespace() + "DocumentLibraryOpener" %>'
+	componentId='<%= liferayPortletResponse.getNamespace() + "DocumentLibraryOpener" %>'
 	module="js/DocumentLibraryOpener.es"
 />
 
 <aui:script>
-	window.<portlet:namespace />openCreateOfficeDocument = function(
+	window.<portlet:namespace />openCreateOfficeDocument = function (
 		formSubmitURL,
 		dialogTitle
 	) {
 		Liferay.componentReady('<portlet:namespace />DocumentLibraryOpener').then(
-			function(openerOnedrive) {
+			function (openerOnedrive) {
 				openerOnedrive.createWithName({
 					dialogTitle: dialogTitle,
 					formSubmitURL: formSubmitURL,
@@ -36,12 +36,12 @@
 		);
 	};
 
-	window.<portlet:namespace />editOfficeDocument = function(
+	window.<portlet:namespace />editOfficeDocument = function (
 		formSubmitURL,
 		dialogTitle
 	) {
 		Liferay.componentReady('<portlet:namespace />DocumentLibraryOpener').then(
-			function(openerOnedrive) {
+			function (openerOnedrive) {
 				openerOnedrive.edit({
 					formSubmitURL: formSubmitURL,
 				});
@@ -56,7 +56,7 @@
 
 	<c:if test="<%= oneDriveBackgroundTaskStatusURL != null %>">
 		Liferay.componentReady('<portlet:namespace />DocumentLibraryOpener').then(
-			function(openerOnedrive) {
+			function (openerOnedrive) {
 				openerOnedrive.open({
 					dialogMessage: '<%= dialogMessage %>',
 					statusURL: '<%= oneDriveBackgroundTaskStatusURL %>',

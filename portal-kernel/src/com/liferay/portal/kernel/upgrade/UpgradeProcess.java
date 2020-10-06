@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.upgrade.util.UpgradeColumn;
 import com.liferay.portal.kernel.upgrade.util.UpgradeTable;
 import com.liferay.portal.kernel.upgrade.util.UpgradeTableFactoryUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
@@ -59,6 +60,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Brian Wing Shun Chan
@@ -98,10 +103,10 @@ public abstract class UpgradeProcess
 
 			doUpgrade();
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			message = "Failed upgrade process ";
 
-			throw new UpgradeException(t);
+			throw new UpgradeException(throwable);
 		}
 		finally {
 			connection = null;
@@ -233,20 +238,33 @@ public abstract class UpgradeProcess
 
 	public class AlterTableAddColumn implements Alterable {
 
+		/**
+		 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+		 *             #AlterTableAddColumn(String, String)}
+		 */
+		@Deprecated
 		public AlterTableAddColumn(String columnName) {
 			_columnName = columnName;
+			_columnType = StringPool.BLANK;
+		}
+
+		public AlterTableAddColumn(String columnName, String columnType) {
+			_columnName = columnName;
+			_columnType = columnType;
 		}
 
 		@Override
 		public String getSQL(String tableName) {
-			StringBundler sb = new StringBundler(4);
+			StringBundler sb = new StringBundler(6);
 
 			sb.append("alter table ");
 			sb.append(tableName);
 			sb.append(" add ");
 			sb.append(_columnName);
+			sb.append(StringPool.SPACE);
+			sb.append(_columnType);
 
-			return sb.toString();
+			return StringUtil.trim(sb.toString());
 		}
 
 		@Override
@@ -260,6 +278,7 @@ public abstract class UpgradeProcess
 		}
 
 		private final String _columnName;
+		private final String _columnType;
 
 	}
 
@@ -360,26 +379,18 @@ public abstract class UpgradeProcess
 
 					runSQL(alterable.getSQL(tableName));
 
-					List<ObjectValuePair<String, IndexMetadata>>
-						objectValuePairs = getIndexesSQL(
-							tableClass.getClassLoader(), tableName);
+					List<String> indexSQLs = getIndexSQLs(
+						tableClass, tableName);
 
-					if (objectValuePairs == null) {
+					if (ListUtil.isEmpty(indexSQLs)) {
 						continue;
 					}
 
-					for (ObjectValuePair<String, IndexMetadata>
-							objectValuePair : objectValuePairs) {
-
-						IndexMetadata indexMetadata =
-							objectValuePair.getValue();
-
+					for (String indexSQL : indexSQLs) {
 						if (alterable.shouldAddIndex(
-								Arrays.asList(
-									indexMetadata.getColumnNames()))) {
+								_getIndexColumnNames(indexSQL))) {
 
-							runSQLTemplateString(
-								objectValuePair.getKey(), true);
+							runSQLTemplateString(indexSQL, true);
 						}
 					}
 				}
@@ -415,6 +426,11 @@ public abstract class UpgradeProcess
 
 	protected abstract void doUpgrade() throws Exception;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getIndexSQLs(Class, String)}
+	 */
+	@Deprecated
 	protected List<ObjectValuePair<String, IndexMetadata>> getIndexesSQL(
 			ClassLoader classLoader, String tableName)
 		throws IOException {
@@ -495,6 +511,17 @@ public abstract class UpgradeProcess
 		}
 
 		return _portalIndexesSQL.get(tableName);
+	}
+
+	protected List<String> getIndexSQLs(Class<?> tableClass, String tableName)
+		throws Exception {
+
+		Field tableSQLAddIndexesField = tableClass.getField(
+			"TABLE_SQL_ADD_INDEXES");
+
+		String[] indexes = (String[])tableSQLAddIndexesField.get(null);
+
+		return ListUtil.fromArray(indexes);
 	}
 
 	protected Map<String, Integer> getTableColumnsMap(Class<?> tableClass)
@@ -643,6 +670,27 @@ public abstract class UpgradeProcess
 		}
 	}
 
+	private Collection<String> _getIndexColumnNames(String indexSQL) {
+		Matcher matcher = _sqlIndexRegexPattern.matcher(indexSQL);
+
+		if (matcher.find()) {
+			String indexColumnNames = matcher.group(1);
+
+			indexColumnNames = indexColumnNames.trim();
+
+			return Stream.of(
+				indexColumnNames.split(StringPool.COMMA)
+			).map(
+				columnName -> columnName.replaceFirst("\\[.*", StringPool.BLANK)
+			).collect(
+				Collectors.toList()
+			);
+		}
+
+		throw new IllegalArgumentException(
+			"Not a valid SQL index: " + indexSQL);
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(UpgradeProcess.class);
 
 	private static final Set<String> _portal62TableNames = new HashSet<>(
@@ -694,5 +742,7 @@ public abstract class UpgradeProcess
 	private static final Map
 		<String, List<ObjectValuePair<String, IndexMetadata>>>
 			_portalIndexesSQL = new HashMap<>();
+	private static final Pattern _sqlIndexRegexPattern = Pattern.compile(
+		".+?\\((.*)\\)");
 
 }

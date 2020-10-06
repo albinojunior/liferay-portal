@@ -18,6 +18,7 @@ import com.liferay.osgi.util.bundle.BundleStartLevelUtil;
 import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.file.install.FileInstaller;
 import com.liferay.portal.kernel.concurrent.DefaultNoticeableFuture;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -29,6 +30,8 @@ import com.liferay.portal.util.PropsValues;
 import java.io.File;
 import java.io.InputStream;
 
+import java.net.URL;
+
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -39,8 +42,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import org.apache.felix.fileinstall.ArtifactInstaller;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -58,18 +59,28 @@ import org.osgi.service.url.URLStreamHandlerService;
 /**
  * @author Shuyang Zhou
  */
-@Component(immediate = true, service = ArtifactInstaller.class)
-public class LPKGArtifactInstaller implements ArtifactInstaller {
+@Component(immediate = true, service = FileInstaller.class)
+public class LPKGArtifactInstaller implements FileInstaller {
 
 	@Override
-	public boolean canHandle(File file) {
+	public boolean canTransformURL(File file) {
 		String name = StringUtil.toLowerCase(file.getName());
 
 		return name.endsWith(".lpkg");
 	}
 
 	@Override
-	public void install(File file) throws Exception {
+	public URL transformURL(File file) throws Exception {
+		String canonicalPath = LPKGLocationUtil.getLPKGLocation(file);
+
+		Bundle bundle = _bundleContext.getBundle(canonicalPath);
+
+		if (bundle != null) {
+			_update(file, _readMarketplaceProperties(file));
+
+			return null;
+		}
+
 		Properties properties = new Properties();
 
 		List<File> lpkgFiles = ContainerLPKGUtil.deploy(
@@ -78,7 +89,7 @@ public class LPKGArtifactInstaller implements ArtifactInstaller {
 		if (lpkgFiles == null) {
 			_install(file, properties);
 
-			return;
+			return null;
 		}
 
 		try (SafeClosable safeCloseable =
@@ -86,6 +97,8 @@ public class LPKGArtifactInstaller implements ArtifactInstaller {
 
 			_batchInstall(lpkgFiles);
 		}
+
+		return null;
 	}
 
 	@Override
@@ -96,11 +109,6 @@ public class LPKGArtifactInstaller implements ArtifactInstaller {
 		if (bundle != null) {
 			bundle.uninstall();
 		}
-	}
-
-	@Override
-	public void update(File file) throws Exception {
-		_update(file, _readMarketplaceProperties(file));
 	}
 
 	@Activate

@@ -41,10 +41,14 @@ public interface TestResult {
 
 	public String getStatus();
 
+	public TestClassResult getTestClassResult();
+
 	public String getTestName();
 
 	public String getTestReportURL();
 
 	public boolean isFailing();
+
+	public boolean isUniqueFailure();
 
 }

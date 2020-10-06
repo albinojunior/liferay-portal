@@ -1,30 +1,39 @@
 definition {
 
-	@summary = "Toggles the config switch to open and close the configuration floating toolbar"
-	macro _toggleConfigurationFloatingToolbar {
-		Click.clickNoMouseOver(locator1 = "FragmentEditor#FRAGMENTS_EDITOR_FLOATING_TOOLBAR_CONFIGURATION");
-	}
-
 	macro changeConfigColor {
-		Click(
-			fragment_name = "${fragmentName}",
-			locator1 = "PageEditor#SECTION_NAME");
+		var key_fragmentName = "${fragmentName}";
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		if (IsNotVisible(locator1 = "Fragment#FRAGMENT_HEADER")) {
+			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
+		}
+
+		PageEditor.gotoTab(tabName = "Selection");
+
+		AssertClick(
+			key_navItem = "General",
+			locator1 = "PageEditor#NAV_ITEM_BUTTON",
+			value1 = "General");
 
 		Click(
 			colorPalette = "${colorPalette}",
 			locator1 = "FragmentEditor#FRAGMENTS_EDITOR_FLOATING_TOOLBAR_PALETTE_SELECT");
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		PageEditor.waitForAutoSave();
 	}
 
 	macro changeConfigSelection {
-		Click(
-			fragment_name = "${fragmentName}",
-			locator1 = "PageEditor#SECTION_NAME");
+		var key_fragmentName = "${fragmentName}";
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		if (IsNotVisible(locator1 = "Fragment#FRAGMENT_HEADER")) {
+			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
+		}
+
+		PageEditor.gotoTab(tabName = "Selection");
+
+		AssertClick(
+			key_navItem = "General",
+			locator1 = "PageEditor#NAV_ITEM_BUTTON",
+			value1 = "General");
 
 		while (!IsTextEqual(locator1 = "FragmentEditor#FRAGMENTS_EDITOR_FLOATING_TOOLBAR_FIELD_SELECT", value1 = "${optionValue}")) {
 			Select(
@@ -32,49 +41,57 @@ definition {
 				value1 = "${optionValue}");
 		}
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		PageEditor.waitForAutoSave();
 	}
 
 	macro changeConfigText {
-		Click(
-			fragment_name = "${fragmentName}",
-			locator1 = "PageEditor#SECTION_NAME");
+		var key_fragmentName = "${fragmentName}";
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
-
-		while (!IsTextEqual(key_fieldName = "${textConfigName}", locator1 = "FormFields#TEXT_FIELD", value1 = "${editableText}")) {
-			FormFields.editText(
-				fieldName = "${textConfigName}",
-				fieldValue = "${editableText}");
+		if (IsNotVisible(locator1 = "Fragment#FRAGMENT_HEADER")) {
+			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 		}
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		PageEditor.gotoTab(tabName = "Selection");
+
+		AssertClick(
+			key_navItem = "General",
+			locator1 = "PageEditor#NAV_ITEM_BUTTON",
+			value1 = "General");
+
+		FormFields.editText(
+			fieldName = "${textConfigName}",
+			fieldValue = "${editableText}");
+
+		Pause(locator1 = "3000");
+
+		Click(
+			key_sidebarButton = "Selection",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
+
+		PageEditor.waitForAutoSave();
 	}
 
 	macro checkConfigCheckbox {
-		Click(
-			fragment_name = "${fragmentName}",
-			locator1 = "PageEditor#SECTION_NAME");
+		var key_fragmentName = "${fragmentName}";
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		Click(locator1 = "PageEditor#CONTENT_PAGE_DISABLED_HEADER");
 
-		Check.checkToggleSwitch(
-			checkboxName = "${checkboxName}",
-			locator1 = "Fragment#FRAGMENT_CHECKBOX");
+		Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
-	}
+		PageEditor.gotoTab(tabName = "Selection");
 
-	macro restoreConfigValues {
-		Click(
-			fragment_name = "${fragmentName}",
-			locator1 = "PageEditor#SECTION_NAME");
+		AssertClick(
+			key_navItem = "General",
+			locator1 = "PageEditor#NAV_ITEM_BUTTON",
+			value1 = "General");
 
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		while (IsNotChecked.isNotCheckedNotVisible(checkboxName = "${checkboxName}", locator1 = "Checkbox#ANY_CHECKBOX")) {
+			Click.clickAtNotVisible(
+				checkboxName = "${checkboxName}",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+		}
 
-		Button.click(button = "Restore Values");
-
-		PageEditorConfiguration._toggleConfigurationFloatingToolbar();
+		PageEditor.waitForAutoSave();
 	}
 
 }

@@ -14,8 +14,8 @@
 
 /**
  * Updates context with browser resolution information
- * @param {object} request Request object to alter
- * @return {object} The updated request object
+ * @param {Object} request Request object to alter
+ * @returns {Object} The updated request object
  */
 function extendContextWithResolutionData(request) {
 	const devicePixelRatio = window.devicePixelRatio || 1;
@@ -43,7 +43,7 @@ function extendContextWithResolutionData(request) {
 /**
  * Plugin function that registers a custom middleware to alter the event context
  * with the current resolution of the browsers client area
- * @param {object} analytics The Analytics client
+ * @param {Object} analytics The Analytics client
  */
 function resolution(analytics) {
 	analytics.registerMiddleware(extendContextWithResolutionData);

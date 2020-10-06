@@ -17,9 +17,13 @@ package com.liferay.account.rest.resource.v1_0;
 import com.liferay.account.rest.dto.v1_0.AccountUser;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.Locale;
 
 import javax.annotation.Generated;
 
@@ -41,6 +45,19 @@ import org.osgi.annotation.versioning.ProviderType;
 @Generated("")
 @ProviderType
 public interface AccountUserResource {
+
+	public static Builder builder() {
+		return FactoryHolder.factory.create();
+	}
+
+	public Page<AccountUser> getAccountUsersByExternalReferenceCodePage(
+			String externalReferenceCode, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
+		throws Exception;
+
+	public AccountUser postAccountUserByExternalReferenceCode(
+			String externalReferenceCode, AccountUser accountUser)
+		throws Exception;
 
 	public Page<AccountUser> getAccountUsersPage(
 			Long accountId, String search, Filter filter, Pagination pagination,
@@ -70,5 +87,38 @@ public interface AccountUserResource {
 
 	public void setContextUser(
 		com.liferay.portal.kernel.model.User contextUser);
+
+	public void setGroupLocalService(GroupLocalService groupLocalService);
+
+	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public static class FactoryHolder {
+
+		public static volatile Factory factory;
+
+	}
+
+	@ProviderType
+	public interface Builder {
+
+		public AccountUserResource build();
+
+		public Builder checkPermissions(boolean checkPermissions);
+
+		public Builder httpServletRequest(
+			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
+
+		public Builder user(com.liferay.portal.kernel.model.User user);
+
+	}
+
+	@ProviderType
+	public interface Factory {
+
+		public Builder create();
+
+	}
 
 }

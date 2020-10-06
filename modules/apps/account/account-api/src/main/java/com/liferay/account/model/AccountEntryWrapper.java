@@ -43,6 +43,7 @@ public class AccountEntryWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("externalReferenceCode", getExternalReferenceCode());
 		attributes.put("accountEntryId", getAccountEntryId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
@@ -54,6 +55,8 @@ public class AccountEntryWrapper
 		attributes.put("description", getDescription());
 		attributes.put("domains", getDomains());
 		attributes.put("logoId", getLogoId());
+		attributes.put("taxIdNumber", getTaxIdNumber());
+		attributes.put("type", getType());
 		attributes.put("status", getStatus());
 
 		return attributes;
@@ -65,6 +68,13 @@ public class AccountEntryWrapper
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
+		}
+
+		String externalReferenceCode = (String)attributes.get(
+			"externalReferenceCode");
+
+		if (externalReferenceCode != null) {
+			setExternalReferenceCode(externalReferenceCode);
 		}
 
 		Long accountEntryId = (Long)attributes.get("accountEntryId");
@@ -132,6 +142,18 @@ public class AccountEntryWrapper
 
 		if (logoId != null) {
 			setLogoId(logoId);
+		}
+
+		String taxIdNumber = (String)attributes.get("taxIdNumber");
+
+		if (taxIdNumber != null) {
+			setTaxIdNumber(taxIdNumber);
+		}
+
+		String type = (String)attributes.get("type");
+
+		if (type != null) {
+			setType(type);
 		}
 
 		Integer status = (Integer)attributes.get("status");
@@ -202,6 +224,16 @@ public class AccountEntryWrapper
 	}
 
 	/**
+	 * Returns the external reference code of this account entry.
+	 *
+	 * @return the external reference code of this account entry
+	 */
+	@Override
+	public String getExternalReferenceCode() {
+		return model.getExternalReferenceCode();
+	}
+
+	/**
 	 * Returns the logo ID of this account entry.
 	 *
 	 * @return the logo ID of this account entry
@@ -269,6 +301,26 @@ public class AccountEntryWrapper
 	@Override
 	public int getStatus() {
 		return model.getStatus();
+	}
+
+	/**
+	 * Returns the tax ID number of this account entry.
+	 *
+	 * @return the tax ID number of this account entry
+	 */
+	@Override
+	public String getTaxIdNumber() {
+		return model.getTaxIdNumber();
+	}
+
+	/**
+	 * Returns the type of this account entry.
+	 *
+	 * @return the type of this account entry
+	 */
+	@Override
+	public String getType() {
+		return model.getType();
 	}
 
 	/**
@@ -357,6 +409,16 @@ public class AccountEntryWrapper
 	}
 
 	/**
+	 * Sets the external reference code of this account entry.
+	 *
+	 * @param externalReferenceCode the external reference code of this account entry
+	 */
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		model.setExternalReferenceCode(externalReferenceCode);
+	}
+
+	/**
 	 * Sets the logo ID of this account entry.
 	 *
 	 * @param logoId the logo ID of this account entry
@@ -424,6 +486,26 @@ public class AccountEntryWrapper
 	@Override
 	public void setStatus(int status) {
 		model.setStatus(status);
+	}
+
+	/**
+	 * Sets the tax ID number of this account entry.
+	 *
+	 * @param taxIdNumber the tax ID number of this account entry
+	 */
+	@Override
+	public void setTaxIdNumber(String taxIdNumber) {
+		model.setTaxIdNumber(taxIdNumber);
+	}
+
+	/**
+	 * Sets the type of this account entry.
+	 *
+	 * @param type the type of this account entry
+	 */
+	@Override
+	public void setType(String type) {
+		model.setType(type);
 	}
 
 	/**

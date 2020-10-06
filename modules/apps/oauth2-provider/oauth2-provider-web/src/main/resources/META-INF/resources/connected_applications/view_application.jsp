@@ -30,7 +30,9 @@ OAuth2Application oAuth2Application = oAuth2ConnectedApplicationsPortletDisplayC
 renderResponse.setTitle(oAuth2Application.getName());
 %>
 
-<div class="container-fluid-1280 view-application">
+<clay:container-fluid
+	cssClass="view-application"
+>
 	<portlet:actionURL name="/connected_applications/revoke_oauth2_authorizations" var="revokeOAuth2AuthorizationURL" />
 
 	<aui:form action="<%= revokeOAuth2AuthorizationURL %>" method="post" name="fm">
@@ -83,17 +85,19 @@ renderResponse.setTitle(oAuth2Application.getName());
 					%>
 
 						<li class="list-group-item list-group-item-flex">
-							<div class="autofit-col">
+							<clay:content-col>
 								<clay:icon
 									symbol="check"
 								/>
-							</div>
+							</clay:content-col>
 
-							<div class="autofit-col autofit-col-expand">
+							<clay:content-col
+								expand="<%= true %>"
+							>
 								<h4 class="list-group-title text-truncate"><%= HtmlUtil.escape(assignableScopes.getApplicationDescription(applicationName)) %></h4>
 
 								<p class="list-group-subtitle text-truncate"><%= applicationScopeDescription %></p>
-							</div>
+							</clay:content-col>
 						</li>
 
 					<%
@@ -141,7 +145,7 @@ renderResponse.setTitle(oAuth2Application.getName());
 			</div>
 		</aui:fieldset-group>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <script>
 	var removeAccessButton = document.getElementById(
@@ -149,13 +153,13 @@ renderResponse.setTitle(oAuth2Application.getName());
 	);
 
 	if (removeAccessButton) {
-		removeAccessButton.addEventListener('click', function() {
+		removeAccessButton.addEventListener('click', function () {
 			if (
 				confirm(
 					'<%= UnicodeLanguageUtil.format(request, "x-will-no-longer-have-access-to-your-account-removed-access-cannot-be-recovered", new String[] {oAuth2Application.getName()}) %>'
 				)
 			) {
-				submitForm(document.<portlet:namespace/>fm);
+				submitForm(document.<portlet:namespace />fm);
 			}
 		});
 	}

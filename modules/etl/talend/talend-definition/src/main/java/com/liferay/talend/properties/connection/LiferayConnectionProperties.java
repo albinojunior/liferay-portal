@@ -205,8 +205,6 @@ public class LiferayConnectionProperties extends ComponentPropertiesImpl {
 
 	@Override
 	public void setupLayout() {
-		super.setupLayout();
-
 		Form wizardForm = _createForm(this, UIKeys.FORM_WIZARD);
 
 		_addAuthorizationProps(wizardForm);
@@ -239,8 +237,6 @@ public class LiferayConnectionProperties extends ComponentPropertiesImpl {
 
 	@Override
 	public void setupProperties() {
-		super.setupProperties();
-
 		hostURL.setValue(_LIFERAY_URL);
 
 		followRedirects.setValue(true);
@@ -346,14 +342,16 @@ public class LiferayConnectionProperties extends ComponentPropertiesImpl {
 		form.addRow(oAuthAuthorizationPropertiesForm);
 	}
 
-	private Form _createAdvancedForm(Properties properties, Property... props) {
+	private Form _createAdvancedForm(
+		Properties properties, Property<?>... props) {
+
 		Form advancedForm = new Form(properties, Form.ADVANCED);
 
 		if ((props == null) || (props.length == 0)) {
 			return advancedForm;
 		}
 
-		for (Property property : props) {
+		for (Property<?> property : props) {
 			advancedForm.addRow(property);
 		}
 

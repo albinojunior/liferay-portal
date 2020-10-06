@@ -53,18 +53,23 @@ JournalSelectDDMTemplateDisplayContext journalSelectDDMTemplateDisplayContext = 
 					>
 						<c:choose>
 							<c:when test="<%= ddmTemplate.getTemplateId() != journalSelectDDMTemplateDisplayContext.getDDMTemplateId() %>">
-
-								<%
-								Map<String, Object> data = new HashMap<>();
-
-								data.put("ddmtemplateid", ddmTemplate.getTemplateId());
-								data.put("ddmtemplatekey", ddmTemplate.getTemplateKey());
-								data.put("description", ddmTemplate.getDescription(locale));
-								data.put("imageurl", ddmTemplate.getTemplateImageURL(themeDisplay));
-								data.put("name", ddmTemplate.getName(locale));
-								%>
-
-								<aui:a cssClass="selector-button" data="<%= data %>" href="javascript:;">
+								<aui:a
+									cssClass="selector-button"
+									data='<%=
+										HashMapBuilder.<String, Object>put(
+											"ddmtemplateid", ddmTemplate.getTemplateId()
+										).put(
+											"ddmtemplatekey", ddmTemplate.getTemplateKey()
+										).put(
+											"description", ddmTemplate.getDescription(locale)
+										).put(
+											"imageurl", ddmTemplate.getTemplateImageURL(themeDisplay)
+										).put(
+											"name", ddmTemplate.getName(locale)
+										).build()
+									%>'
+									href="javascript:;"
+								>
 									<%= HtmlUtil.escape(ddmTemplate.getName(locale)) %>
 								</aui:a>
 							</c:when>
@@ -96,8 +101,10 @@ JournalSelectDDMTemplateDisplayContext journalSelectDDMTemplateDisplayContext = 
 </aui:form>
 
 <aui:script>
-	Liferay.Util.selectEntityHandler(
-		'#<portlet:namespace />selectDDMTemplateFm',
-		'<%= HtmlUtil.escapeJS(journalSelectDDMTemplateDisplayContext.getEventName()) %>'
-	);
+	document.addEventListener('DOMContentLoaded', function () {
+		Liferay.Util.selectEntityHandler(
+			'#<portlet:namespace />selectDDMTemplateFm',
+			'<%= HtmlUtil.escapeJS(journalSelectDDMTemplateDisplayContext.getEventName()) %>'
+		);
+	});
 </aui:script>

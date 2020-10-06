@@ -25,7 +25,6 @@ portletURL.setParameter("tabs1", tabs1);
 %>
 
 <clay:navigation-bar
-	inverted="<%= true %>"
 	navigationItems='<%=
 		new JSPNavigationItemList(pageContext) {
 			{
@@ -41,13 +40,12 @@ portletURL.setParameter("tabs1", tabs1);
 						navigationItem.setHref(renderResponse.createRenderURL(), "tabs1", "test");
 						navigationItem.setLabel(LanguageUtil.get(request, "test"));
 					});
-
 			}
 		}
 	%>'
 />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<c:choose>
 		<c:when test='<%= tabs1.equals("test") %>'>
 			<%@ include file="/test.jspf" %>
@@ -56,4 +54,4 @@ portletURL.setParameter("tabs1", tabs1);
 			<%@ include file="/devices.jspf" %>
 		</c:otherwise>
 	</c:choose>
-</div>
+</clay:container-fluid>

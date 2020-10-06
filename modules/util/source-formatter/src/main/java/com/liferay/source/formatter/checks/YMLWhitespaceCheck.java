@@ -95,8 +95,8 @@ public class YMLWhitespaceCheck extends WhitespaceCheck {
 	}
 
 	private String _formatDefinition(
-		String fileName, String definition, String indent, int level,
-		boolean hasNestedDefinitions) {
+		String fileName, String definition, String[] definitionLines,
+		String indent, int level, boolean hasNestedDefinitions) {
 
 		String expectedIndent = StringPool.BLANK;
 
@@ -114,13 +114,25 @@ public class YMLWhitespaceCheck extends WhitespaceCheck {
 			return newDefinition;
 		}
 
-		String[] lines = StringUtil.splitLines(newDefinition);
+		if (definitionLines[0].endsWith("|-")) {
+			StringBundler sb = new StringBundler(definitionLines.length * 3);
 
-		if (lines.length <= 1) {
+			for (String line : definitionLines) {
+				sb.append(expectedIndent);
+				sb.append(line.substring(indent.length()));
+				sb.append("\n");
+			}
+
+			sb.setIndex(sb.index() - 1);
+
+			return sb.toString();
+		}
+
+		if (definitionLines.length <= 1) {
 			return newDefinition;
 		}
 
-		String firstLine = lines[1];
+		String firstLine = definitionLines[1];
 
 		String newNestedContent = StringPool.BLANK;
 		String oldNestedContent = StringPool.BLANK;
@@ -131,8 +143,8 @@ public class YMLWhitespaceCheck extends WhitespaceCheck {
 			nestedIndent = StringPool.BLANK;
 		}
 
-		for (int j = 1; j < lines.length; j++) {
-			String line = lines[j];
+		for (int j = 1; j < definitionLines.length; j++) {
+			String line = definitionLines[j];
 
 			if (j > 1) {
 				newNestedContent = newNestedContent + StringPool.NEW_LINE;
@@ -164,7 +176,7 @@ public class YMLWhitespaceCheck extends WhitespaceCheck {
 		}
 
 		if (!newNestedContent.equals(oldNestedContent)) {
-			if (!_hasMapInsideList(lines)) {
+			if (!_hasMapInsideList(definitionLines)) {
 				newDefinition = StringUtil.replaceFirst(
 					newDefinition, oldNestedContent, newNestedContent);
 			}
@@ -191,9 +203,19 @@ public class YMLWhitespaceCheck extends WhitespaceCheck {
 		int pos = lines[0].length();
 
 		for (String definition : definitions) {
-			lines = StringUtil.splitLines(definition);
+			lines = definition.split("\n");
 
 			if ((lines.length != 0) && lines[0].endsWith("|-")) {
+				String newDefinition = _formatDefinition(
+					fileName, definition, lines, indent, level, false);
+
+				if (!newDefinition.equals(definition)) {
+					content = StringUtil.replaceFirst(
+						content, definition, newDefinition, pos);
+				}
+
+				pos = pos + newDefinition.length();
+
 				continue;
 			}
 
@@ -217,8 +239,10 @@ public class YMLWhitespaceCheck extends WhitespaceCheck {
 				}
 			}
 
+			lines = definition.split("\n");
+
 			String newDefinition = _formatDefinition(
-				fileName, definition, indent, level,
+				fileName, definition, lines, indent, level,
 				!nestedDefinitions.isEmpty());
 
 			if (!newDefinition.equals(definition)) {

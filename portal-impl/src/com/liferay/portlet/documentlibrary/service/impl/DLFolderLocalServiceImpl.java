@@ -47,6 +47,7 @@ import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.WebDAVProps;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.repository.event.RepositoryEventTrigger;
 import com.liferay.portal.kernel.repository.event.RepositoryEventType;
@@ -158,7 +159,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	public void deleteAllByGroup(long groupId) throws PortalException {
 		Group group = groupLocalService.getGroup(groupId);
 
-		List<DLFolder> dlFolders = dlFolderPersistence.findByGroupId(groupId);
+		List<DLFolder> dlFolders = dlFolderPersistence.findByG_P(
+			groupId, DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
 		for (DLFolder dlFolder : dlFolders) {
 			dlFolderLocalService.deleteFolder(dlFolder);
@@ -371,29 +373,33 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	@Override
 	public List<DLFolder> getFolders(
 		long groupId, long parentFolderId, boolean includeMountfolders,
-		int status, int start, int end, OrderByComparator<DLFolder> obc) {
+		int status, int start, int end,
+		OrderByComparator<DLFolder> orderByComparator) {
 
 		if (includeMountfolders) {
 			return dlFolderPersistence.findByG_P_H_S(
-				groupId, parentFolderId, false, status, start, end, obc);
+				groupId, parentFolderId, false, status, start, end,
+				orderByComparator);
 		}
 
 		return dlFolderPersistence.findByG_M_P_H_S(
-			groupId, false, parentFolderId, false, status, start, end, obc);
+			groupId, false, parentFolderId, false, status, start, end,
+			orderByComparator);
 	}
 
 	@Override
 	public List<DLFolder> getFolders(
 		long groupId, long parentFolderId, boolean includeMountfolders,
-		int start, int end, OrderByComparator<DLFolder> obc) {
+		int start, int end, OrderByComparator<DLFolder> orderByComparator) {
 
 		if (includeMountfolders) {
 			return dlFolderPersistence.findByG_P(
-				groupId, parentFolderId, start, end, obc);
+				groupId, parentFolderId, start, end, orderByComparator);
 		}
 
 		return dlFolderPersistence.findByG_M_P_H(
-			groupId, false, parentFolderId, false, start, end, obc);
+			groupId, false, parentFolderId, false, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -406,19 +412,20 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	public List<DLFolder> getFolders(
 		long groupId, long parentFolderId, int status,
 		boolean includeMountfolders, int start, int end,
-		OrderByComparator<DLFolder> obc) {
+		OrderByComparator<DLFolder> orderByComparator) {
 
 		return getFolders(
 			groupId, parentFolderId, includeMountfolders, status, start, end,
-			obc);
+			orderByComparator);
 	}
 
 	@Override
 	public List<DLFolder> getFolders(
 		long groupId, long parentFolderId, int start, int end,
-		OrderByComparator<DLFolder> obc) {
+		OrderByComparator<DLFolder> orderByComparator) {
 
-		return getFolders(groupId, parentFolderId, true, start, end, obc);
+		return getFolders(
+			groupId, parentFolderId, true, start, end, orderByComparator);
 	}
 
 	@Override
@@ -522,10 +529,11 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	@Override
 	public List<DLFolder> getMountFolders(
 		long groupId, long parentFolderId, int start, int end,
-		OrderByComparator<DLFolder> obc) {
+		OrderByComparator<DLFolder> orderByComparator) {
 
 		return dlFolderPersistence.findByG_M_P_H(
-			groupId, true, parentFolderId, false, start, end, obc);
+			groupId, true, parentFolderId, false, start, end,
+			orderByComparator);
 	}
 
 	@Override
@@ -1170,8 +1178,13 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		// WebDAVProps
 
-		webDAVPropsLocalService.deleteWebDAVProps(
-			DLFolder.class.getName(), dlFolder.getFolderId());
+		WebDAVProps webDAVProps = webDAVPropsPersistence.fetchByC_C(
+			classNameLocalService.getClassNameId(DLFolder.class),
+			dlFolder.getFolderId());
+
+		if (webDAVProps != null) {
+			webDAVPropsLocalService.deleteWebDAVProps(webDAVProps);
+		}
 
 		// File entries
 

@@ -15,20 +15,17 @@
 package com.liferay.dynamic.data.mapping.internal.upgrade.v1_1_0;
 
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeRequest;
-import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeResponse;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesDeserializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormValuesDeserializerDeserializeRequest;
-import com.liferay.dynamic.data.mapping.io.DDMFormValuesDeserializerDeserializeResponse;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesSerializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormValuesSerializerSerializeRequest;
-import com.liferay.dynamic.data.mapping.io.DDMFormValuesSerializerSerializeResponse;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
+import com.liferay.dynamic.data.mapping.util.DDMFormDeserializeUtil;
 import com.liferay.dynamic.data.mapping.util.DDMFormFieldValueTransformer;
+import com.liferay.dynamic.data.mapping.util.DDMFormValuesDeserializeUtil;
+import com.liferay.dynamic.data.mapping.util.DDMFormValuesSerializeUtil;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesTransformer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -63,29 +60,6 @@ public class UpgradeCheckboxFieldToCheckboxMultipleField
 		_ddmFormValuesDeserializer = ddmFormValuesDeserializer;
 		_ddmFormValuesSerializer = ddmFormValuesSerializer;
 		_jsonFactory = jsonFactory;
-	}
-
-	protected DDMForm deserialize(String content) {
-		DDMFormDeserializerDeserializeRequest.Builder builder =
-			DDMFormDeserializerDeserializeRequest.Builder.newBuilder(content);
-
-		DDMFormDeserializerDeserializeResponse
-			ddmFormDeserializerDeserializeResponse =
-				_ddmFormDeserializer.deserialize(builder.build());
-
-		return ddmFormDeserializerDeserializeResponse.getDDMForm();
-	}
-
-	protected DDMFormValues deserialize(String content, DDMForm ddmForm) {
-		DDMFormValuesDeserializerDeserializeRequest.Builder builder =
-			DDMFormValuesDeserializerDeserializeRequest.Builder.newBuilder(
-				content, ddmForm);
-
-		DDMFormValuesDeserializerDeserializeResponse
-			ddmFormValuesDeserializerDeserializeResponse =
-				_ddmFormValuesDeserializer.deserialize(builder.build());
-
-		return ddmFormValuesDeserializerDeserializeResponse.getDDMFormValues();
 	}
 
 	@Override
@@ -136,7 +110,10 @@ public class UpgradeCheckboxFieldToCheckboxMultipleField
 
 					ps3.addBatch();
 
-					updateRecords(deserialize(definition), recordSetId);
+					updateRecords(
+						DDMFormDeserializeUtil.deserialize(
+							_ddmFormDeserializer, definition),
+						recordSetId);
 				}
 
 				ps2.executeBatch();
@@ -173,10 +150,10 @@ public class UpgradeCheckboxFieldToCheckboxMultipleField
 		JSONObject newPredefinedValueJSONObject =
 			_jsonFactory.createJSONObject();
 
-		Iterator<String> languageKeys = oldPredefinedValueJSONObject.keys();
+		Iterator<String> iterator = oldPredefinedValueJSONObject.keys();
 
-		while (languageKeys.hasNext()) {
-			String languageKey = languageKeys.next();
+		while (iterator.hasNext()) {
+			String languageKey = iterator.next();
 
 			String predefinedValue = oldPredefinedValueJSONObject.getString(
 				languageKey);
@@ -192,18 +169,6 @@ public class UpgradeCheckboxFieldToCheckboxMultipleField
 		}
 
 		return newPredefinedValueJSONObject;
-	}
-
-	protected String serialize(DDMFormValues ddmFormValues) {
-		DDMFormValuesSerializerSerializeRequest.Builder builder =
-			DDMFormValuesSerializerSerializeRequest.Builder.newBuilder(
-				ddmFormValues);
-
-		DDMFormValuesSerializerSerializeResponse
-			ddmFormValuesSerializerSerializeResponse =
-				_ddmFormValuesSerializer.serialize(builder.build());
-
-		return ddmFormValuesSerializerSerializeResponse.getContent();
 	}
 
 	protected void transformCheckboxDDMFormField(
@@ -257,11 +222,16 @@ public class UpgradeCheckboxFieldToCheckboxMultipleField
 				while (rs.next()) {
 					String data_ = rs.getString("data_");
 
-					DDMFormValues ddmFormValues = deserialize(data_, ddmForm);
+					DDMFormValues ddmFormValues =
+						DDMFormValuesDeserializeUtil.deserialize(
+							data_, ddmForm, _ddmFormValuesDeserializer);
 
 					transformCheckboxDDMFormFieldValues(ddmFormValues);
 
-					ps2.setString(1, serialize(ddmFormValues));
+					ps2.setString(
+						1,
+						DDMFormValuesSerializeUtil.serialize(
+							ddmFormValues, _ddmFormValuesSerializer));
 
 					long contentId = rs.getLong("DDMStorageId");
 

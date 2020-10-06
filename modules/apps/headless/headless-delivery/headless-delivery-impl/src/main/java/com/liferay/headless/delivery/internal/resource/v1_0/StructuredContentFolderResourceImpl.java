@@ -16,15 +16,15 @@ package com.liferay.headless.delivery.internal.resource.v1_0;
 
 import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
-import com.liferay.headless.common.spi.service.context.ServiceContextUtil;
+import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.headless.delivery.dto.v1_0.StructuredContentFolder;
 import com.liferay.headless.delivery.internal.dto.v1_0.converter.StructuredContentFolderDTOConverter;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.CustomFieldsUtil;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.EntityFieldsUtil;
 import com.liferay.headless.delivery.internal.odata.entity.v1_0.StructuredContentFolderEntityModel;
 import com.liferay.headless.delivery.resource.v1_0.StructuredContentFolderResource;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalFolderService;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.Field;
@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -73,6 +74,19 @@ public class StructuredContentFolderResourceImpl
 	}
 
 	@Override
+	public Page<StructuredContentFolder>
+			getAssetLibraryStructuredContentFoldersPage(
+				Long assetLibraryId, Boolean flatten, String search,
+				Aggregation aggregation, Filter filter, Pagination pagination,
+				Sort[] sorts)
+		throws Exception {
+
+		return getSiteStructuredContentFoldersPage(
+			assetLibraryId, flatten, search, aggregation, filter, pagination,
+			sorts);
+	}
+
+	@Override
 	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
 		return new StructuredContentFolderEntityModel(
 			EntityFieldsUtil.getEntityFields(
@@ -83,8 +97,9 @@ public class StructuredContentFolderResourceImpl
 
 	@Override
 	public Page<StructuredContentFolder> getSiteStructuredContentFoldersPage(
-			Long siteId, Boolean flatten, String search, Filter filter,
-			Pagination pagination, Sort[] sorts)
+			Long siteId, Boolean flatten, String search,
+			Aggregation aggregation, Filter filter, Pagination pagination,
+			Sort[] sorts)
 		throws Exception {
 
 		Long parentStructuredContentFolderId = null;
@@ -95,8 +110,19 @@ public class StructuredContentFolderResourceImpl
 		}
 
 		return _getFoldersPage(
-			_getSiteListActions(siteId), siteId,
-			parentStructuredContentFolderId, search, filter, pagination, sorts);
+			HashMapBuilder.put(
+				"create",
+				addAction(
+					"UPDATE", "postSiteStructuredContentFolder",
+					"com.liferay.journal", siteId)
+			).put(
+				"get",
+				addAction(
+					"VIEW", "getSiteStructuredContentFoldersPage",
+					"com.liferay.journal", siteId)
+			).build(),
+			parentStructuredContentFolderId, siteId, search, aggregation,
+			filter, pagination, sorts);
 	}
 
 	@Override
@@ -112,16 +138,47 @@ public class StructuredContentFolderResourceImpl
 	public Page<StructuredContentFolder>
 			getStructuredContentFolderStructuredContentFoldersPage(
 				Long parentStructuredContentFolderId, String search,
-				Filter filter, Pagination pagination, Sort[] sorts)
+				Aggregation aggregation, Filter filter, Pagination pagination,
+				Sort[] sorts)
 		throws Exception {
 
 		JournalFolder journalFolder = _journalFolderService.getFolder(
 			parentStructuredContentFolderId);
 
 		return _getFoldersPage(
-			_getStructuredContentFolderListActions(journalFolder),
-			journalFolder.getGroupId(), parentStructuredContentFolderId, search,
-			filter, pagination, sorts);
+			HashMapBuilder.put(
+				"add-subfolder",
+				addAction(
+					"UPDATE", journalFolder,
+					"postStructuredContentFolderStructuredContentFolder")
+			).put(
+				"get",
+				addAction(
+					"VIEW", journalFolder,
+					"getStructuredContentFolderStructuredContentFoldersPage")
+			).put(
+				"subscribe",
+				addAction(
+					"SUBSCRIBE", journalFolder,
+					"putStructuredContentFolderSubscribe")
+			).put(
+				"unsubscribe",
+				addAction(
+					"SUBSCRIBE", journalFolder,
+					"putStructuredContentFolderUnsubscribe")
+			).build(),
+			parentStructuredContentFolderId, journalFolder.getGroupId(), search,
+			aggregation, filter, pagination, sorts);
+	}
+
+	@Override
+	public StructuredContentFolder postAssetLibraryStructuredContentFolder(
+			Long assetLibraryId,
+			StructuredContentFolder structuredContentFolder)
+		throws Exception {
+
+		return postSiteStructuredContentFolder(
+			assetLibraryId, structuredContentFolder);
 	}
 
 	@Override
@@ -164,9 +221,9 @@ public class StructuredContentFolderResourceImpl
 				journalFolder.getParentFolderId(),
 				structuredContentFolder.getName(),
 				structuredContentFolder.getDescription(), false,
-				ServiceContextUtil.createServiceContext(
+				ServiceContextRequestUtil.createServiceContext(
 					_getExpandoBridgeAttributes(structuredContentFolder),
-					journalFolder.getGroupId(),
+					journalFolder.getGroupId(), contextHttpServletRequest,
 					structuredContentFolder.getViewableByAsString())));
 	}
 
@@ -203,39 +260,10 @@ public class StructuredContentFolderResourceImpl
 			_journalFolderService.addFolder(
 				siteId, parentFolderId, structuredContentFolder.getName(),
 				structuredContentFolder.getDescription(),
-				ServiceContextUtil.createServiceContext(
+				ServiceContextRequestUtil.createServiceContext(
 					_getExpandoBridgeAttributes(structuredContentFolder),
-					siteId, structuredContentFolder.getViewableByAsString())));
-	}
-
-	private Map<String, Map<String, String>> _getActions(
-		JournalFolder journalFolder) {
-
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"add-subfolder",
-			addAction(
-				"UPDATE", journalFolder,
-				"postStructuredContentFolderStructuredContentFolder")
-		).put(
-			"delete",
-			addAction("DELETE", journalFolder, "deleteStructuredContentFolder")
-		).put(
-			"get",
-			addAction("VIEW", journalFolder, "getStructuredContentFolder")
-		).put(
-			"replace",
-			addAction("UPDATE", journalFolder, "putStructuredContentFolder")
-		).put(
-			"subscribe",
-			addAction(
-				"SUBSCRIBE", journalFolder,
-				"putStructuredContentFolderSubscribe")
-		).put(
-			"unsubscribe",
-			addAction(
-				"SUBSCRIBE", journalFolder,
-				"putStructuredContentFolderUnsubscribe")
-		).build();
+					siteId, contextHttpServletRequest,
+					structuredContentFolder.getViewableByAsString())));
 	}
 
 	private Map<String, Serializable> _getExpandoBridgeAttributes(
@@ -248,9 +276,10 @@ public class StructuredContentFolderResourceImpl
 	}
 
 	private Page<StructuredContentFolder> _getFoldersPage(
-			Map<String, Map<String, String>> actions, Long siteId,
-			Long parentStructuredContentFolderId, String search, Filter filter,
-			Pagination pagination, Sort[] sorts)
+			Map<String, Map<String, String>> actions,
+			Long parentStructuredContentFolderId, Long siteId, String keywords,
+			Aggregation aggregation, Filter filter, Pagination pagination,
+			Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
@@ -267,10 +296,11 @@ public class StructuredContentFolderResourceImpl
 						BooleanClauseOccur.MUST);
 				}
 			},
-			filter, JournalFolder.class, search, pagination,
+			filter, JournalFolder.class, keywords, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 				searchContext.setGroupIds(new long[] {siteId});
 			},
@@ -280,46 +310,6 @@ public class StructuredContentFolderResourceImpl
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
-	private Map<String, Map<String, String>> _getSiteListActions(Long siteId) {
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"create",
-			addAction(
-				"UPDATE", "postSiteStructuredContentFolder",
-				"com.liferay.journal", siteId)
-		).put(
-			"get",
-			addAction(
-				"VIEW", "getSiteStructuredContentFoldersPage",
-				"com.liferay.journal", siteId)
-		).build();
-	}
-
-	private Map<String, Map<String, String>>
-		_getStructuredContentFolderListActions(JournalFolder journalFolder) {
-
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"add-subfolder",
-			addAction(
-				"UPDATE", journalFolder,
-				"postStructuredContentFolderStructuredContentFolder")
-		).put(
-			"get",
-			addAction(
-				"VIEW", journalFolder,
-				"getStructuredContentFolderStructuredContentFoldersPage")
-		).put(
-			"subscribe",
-			addAction(
-				"SUBSCRIBE", journalFolder,
-				"putStructuredContentFolderSubscribe")
-		).put(
-			"unsubscribe",
-			addAction(
-				"SUBSCRIBE", journalFolder,
-				"putStructuredContentFolderUnsubscribe")
-		).build();
-	}
-
 	private StructuredContentFolder _toStructuredContentFolder(
 			JournalFolder journalFolder)
 		throws Exception {
@@ -327,8 +317,36 @@ public class StructuredContentFolderResourceImpl
 		return _structuredContentFolderDTOConverter.toDTO(
 			new DefaultDTOConverterContext(
 				contextAcceptLanguage.isAcceptAllLanguages(),
-				_getActions(journalFolder), _dtoConverterRegistry,
-				journalFolder.getFolderId(),
+				HashMapBuilder.put(
+					"add-subfolder",
+					addAction(
+						"UPDATE", journalFolder,
+						"postStructuredContentFolderStructuredContentFolder")
+				).put(
+					"delete",
+					addAction(
+						"DELETE", journalFolder,
+						"deleteStructuredContentFolder")
+				).put(
+					"get",
+					addAction(
+						"VIEW", journalFolder, "getStructuredContentFolder")
+				).put(
+					"replace",
+					addAction(
+						"UPDATE", journalFolder, "putStructuredContentFolder")
+				).put(
+					"subscribe",
+					addAction(
+						"SUBSCRIBE", journalFolder,
+						"putStructuredContentFolderSubscribe")
+				).put(
+					"unsubscribe",
+					addAction(
+						"SUBSCRIBE", journalFolder,
+						"putStructuredContentFolderUnsubscribe")
+				).build(),
+				_dtoConverterRegistry, journalFolder.getFolderId(),
 				contextAcceptLanguage.getPreferredLocale(), contextUriInfo,
 				contextUser));
 	}

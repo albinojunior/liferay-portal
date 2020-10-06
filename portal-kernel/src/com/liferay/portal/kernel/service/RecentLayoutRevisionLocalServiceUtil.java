@@ -48,6 +48,10 @@ public class RecentLayoutRevisionLocalServiceUtil {
 	/**
 	 * Adds the recent layout revision to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutRevisionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutRevision the recent layout revision
 	 * @return the recent layout revision that was added
 	 */
@@ -95,6 +99,10 @@ public class RecentLayoutRevisionLocalServiceUtil {
 	/**
 	 * Deletes the recent layout revision with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutRevisionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutRevisionId the primary key of the recent layout revision
 	 * @return the recent layout revision that was removed
 	 * @throws PortalException if a recent layout revision with the primary key could not be found
@@ -108,6 +116,10 @@ public class RecentLayoutRevisionLocalServiceUtil {
 
 	/**
 	 * Deletes the recent layout revision from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutRevisionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutRevision the recent layout revision
 	 * @return the recent layout revision that was removed
@@ -126,6 +138,12 @@ public class RecentLayoutRevisionLocalServiceUtil {
 
 	public static void deleteUserRecentLayoutRevisions(long userId) {
 		getService().deleteUserRecentLayoutRevisions(userId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -302,6 +320,10 @@ public class RecentLayoutRevisionLocalServiceUtil {
 
 	/**
 	 * Updates the recent layout revision in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutRevisionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutRevision the recent layout revision
 	 * @return the recent layout revision that was updated

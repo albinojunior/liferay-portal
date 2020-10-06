@@ -16,29 +16,30 @@ const FIELD_NAME_REGEX = /(_\w+_)ddm\$\$(.+)\$(\w+)\$(\d+)\$\$(\w+)/;
 
 const NESTED_FIELD_NAME_REGEX = /(_\w+_)ddm\$\$(.+)\$(\w+)\$(\d+)#(.+)\$(\w+)\$(\d+)\$\$(\w+)/;
 
-export const generateInstanceId = () =>
-	Math.random()
-		.toString(36)
-		.substr(2, 8);
+export const generateInstanceId = () => Math.random().toString(36).substr(2, 8);
 
-export const generateName = (name, repeatedIndex) => {
+export const generateName = (name, props = {}) => {
 	const parsedName = parseName(name);
-	const {fieldName, instanceId, locale, portletNamespace} = parsedName;
+	const {
+		editingLanguageId = parsedName.editingLanguageId,
+		fieldName = parsedName.fieldName,
+		instanceId = parsedName.instanceId,
+		portletNamespace = parsedName.portletNamespace,
+		repeatedIndex = parsedName.repeatedIndex,
+	} = props;
 
-	return `${portletNamespace}ddm$$${fieldName}$${instanceId}$${repeatedIndex}$$${locale}`;
+	return `${portletNamespace}ddm$$${fieldName}$${instanceId}$${repeatedIndex}$$${editingLanguageId}`;
 };
 
 export const generateNestedFieldName = (name, parentFieldName) => {
-	const parsedName = parseNestedFieldName(name);
 	const parsedParentFieldName = parseName(parentFieldName);
+	let parsedName = parseNestedFieldName(name);
 
-	const {
-		fieldName,
-		instanceId,
-		locale,
-		portletNamespace,
-		repeatedIndex,
-	} = parsedName;
+	if (!parsedName.fieldName) {
+		parsedName = parseName(name);
+	}
+
+	const {fieldName, instanceId, portletNamespace, repeatedIndex} = parsedName;
 
 	return [
 		portletNamespace,
@@ -55,11 +56,11 @@ export const generateNestedFieldName = (name, parentFieldName) => {
 		'$',
 		repeatedIndex,
 		'$$',
-		locale,
+		parsedName.locale || parsedName.editingLanguageId,
 	].join('');
 };
 
-export const getRepeatedIndex = name => {
+export const getRepeatedIndex = (name) => {
 	let parsedName;
 
 	if (NESTED_FIELD_NAME_REGEX.test(name)) {
@@ -72,15 +73,15 @@ export const getRepeatedIndex = name => {
 	return parsedName.repeatedIndex;
 };
 
-export const parseName = name => {
+export const parseName = (name) => {
 	let parsed = {};
 	const result = FIELD_NAME_REGEX.exec(name);
 
 	if (result) {
 		parsed = {
+			editingLanguageId: result[5],
 			fieldName: result[2],
 			instanceId: result[3],
-			locale: result[5],
 			portletNamespace: result[1],
 			repeatedIndex: Number(result[4]),
 		};
@@ -89,7 +90,7 @@ export const parseName = name => {
 	return parsed;
 };
 
-export const parseNestedFieldName = name => {
+export const parseNestedFieldName = (name) => {
 	let parsed = {};
 	const result = NESTED_FIELD_NAME_REGEX.exec(name);
 

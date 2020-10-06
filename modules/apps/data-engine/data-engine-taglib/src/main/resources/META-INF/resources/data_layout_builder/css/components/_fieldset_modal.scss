@@ -1,0 +1,38 @@
+body.has-control-menu .fieldset-modal {
+	.modal-body {
+		overflow-x: hidden;
+	}
+
+	.multi-panel-sidebar {
+		position: absolute;
+		top: 0;
+
+		.field-type .dropdown-action {
+			display: none;
+		}
+
+		.component-tbar {
+			.container-fluid {
+				margin-top: 4px;
+			}
+		}
+	}
+
+	.multi-panel-sidebar-content {
+		position: absolute;
+	}
+
+	.add-fieldset,
+	.tbar-item:not(.tbar-item--fields) {
+		display: none;
+	}
+
+	.sheet {
+		margin: 0 auto;
+		max-width: 808px;
+	}
+}
+
+.fieldset-message {
+	font-size: 14px;
+}

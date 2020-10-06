@@ -12,276 +12,106 @@
  * details.
  */
 
-import '../FieldBase/FieldBase.es';
-
-import '../Text/Text.es';
-
-import './KeyValueRegister.soy';
-
 import {normalizeFieldName} from 'dynamic-data-mapping-form-renderer';
-import Component from 'metal-component';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+import React, {useRef} from 'react';
 
-import templates from './KeyValue.soy';
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
+import Text from '../Text/Text.es';
+import {useSyncValue} from '../hooks/useSyncValue.es';
 
-/**
- * KeyValue.
- * @extends Component
- */
+const KeyValue = ({disabled, onChange, value, ...otherProps}) => (
+	<div className="active form-text key-value-editor">
+		<label className="control-label key-value-label">
+			{Liferay.Language.get('field-id')}:
+		</label>
 
-class KeyValue extends Component {
-	willReceiveState(changes) {
-		if (changes.keyword) {
-			this.setState({
-				_keyword: changes.keyword.newVal,
-			});
-		}
+		<input
+			{...otherProps}
+			className={`${disabled ? 'disabled ' : ''}key-value-input`}
+			onChange={(event) => {
+				const value = normalizeFieldName(event.target.value);
+				onChange({target: {value}});
+			}}
+			readOnly={disabled}
+			tabIndex={disabled ? '-1' : '0'}
+			type="text"
+			value={value}
+		/>
+	</div>
+);
 
-		if (changes.value) {
-			this.setState({
-				_value: changes.value.newVal,
-			});
-		}
-	}
+const Main = ({
+	generateKeyword,
+	keyword: initialKeyword,
+	keywordReadOnly,
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	onKeywordBlur,
+	onKeywordChange,
+	placeholder,
+	readOnly,
+	required,
+	showLabel,
+	spritemap,
+	value,
+	visible,
+	...otherProps
+}) => {
+	const [keyword, setKeyword] = useSyncValue(initialKeyword);
 
-	_handleKeywordInputBlurred(event) {
-		this.emit('fieldKeywordBlurred', {
-			fieldInstance: this,
-			originalEvent: event,
-			value: event.target.value,
-		});
-	}
+	const generateKeywordRef = useRef(generateKeyword);
 
-	_handleKeywordInputChanged(event) {
-		const {target} = event;
-		let {value} = target;
+	return (
+		<FieldBase
+			{...otherProps}
+			name={name}
+			readOnly={readOnly}
+			required={required}
+			showLabel={showLabel}
+			spritemap={spritemap}
+			visible={visible}
+		>
+			<Text
+				name={`keyValueLabel${name}`}
+				onBlur={onBlur}
+				onChange={(event) => {
+					const {value} = event.target;
 
-		value = normalizeFieldName(value);
+					onChange(event);
 
-		target.value = value;
+					if (generateKeywordRef.current) {
+						const newKeyword = normalizeFieldName(value);
+						onKeywordChange(event, newKeyword, true);
+					}
+				}}
+				onFocus={onFocus}
+				placeholder={placeholder}
+				readOnly={readOnly}
+				required={required}
+				showLabel={showLabel}
+				spritemap={spritemap}
+				syncDelay={false}
+				value={value}
+				visible={visible}
+			/>
+			<KeyValue
+				disabled={keywordReadOnly}
+				onBlur={onKeywordBlur}
+				onChange={(event) => {
+					const {value} = event.target;
 
-		this.setState(
-			{
-				generateKeyword: false,
-				keyword: value,
-			},
-			() => {
-				this.emit('fieldKeywordEdited', {
-					fieldInstance: this,
-					originalEvent: event,
-					value,
-				});
-			}
-		);
-	}
-
-	_handleValueInputBlurred({originalEvent, value}) {
-		this.emit('fieldBlurred', {
-			fieldInstance: this,
-			originalEvent,
-			value,
-		});
-	}
-
-	_handleValueInputEdited(event) {
-		const {generateKeyword} = this;
-		let {keyword} = this;
-		const {originalEvent, value} = event;
-
-		if (generateKeyword) {
-			keyword = normalizeFieldName(value);
-		}
-
-		this.setState(
-			{
-				keyword,
-				value,
-			},
-			() => {
-				if (generateKeyword) {
-					this.emit('fieldKeywordEdited', {
-						fieldInstance: this,
-						originalEvent,
-						value: keyword,
-					});
-				}
-
-				this.emit('fieldEdited', {
-					fieldInstance: this,
-					originalEvent,
-					value,
-				});
-			}
-		);
-	}
-
-	_handleValueInputFocused({originalEvent, value}) {
-		this.emit('fieldFocused', {
-			fieldInstance: this,
-			originalEvent,
-			value,
-		});
-	}
-
-	_internalKeywordFn() {
-		const {keyword} = this;
-
-		return keyword;
-	}
-
-	_internalValueFn() {
-		const {value} = this;
-
-		return value;
-	}
-}
-
-KeyValue.STATE = {
-	_keyword: Config.string()
-		.internal()
-		.valueFn('_internalKeywordFn'),
-
-	_value: Config.string()
-		.internal()
-		.valueFn('_internalValueFn'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?bool}
-	 */
-
-	generateKeyword: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?(string|undefined)}
-	 */
-
-	id: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?(string|undefined)}
-	 */
-
-	keyword: Config.string(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?boolean}
-	 */
-
-	keywordReadOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Select
-	 * @type {?string}
-	 */
-
-	predefinedValue: Config.string().value('Option 1'),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?bool}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?bool}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	type: Config.string().value('key-value'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof KeyValue
-	 * @type {?(bool)}
-	 */
-
-	value: Config.string(),
+					generateKeywordRef.current = false;
+					onKeywordChange(event, value, false);
+					setKeyword(value);
+				}}
+				value={keyword}
+			/>
+		</FieldBase>
+	);
 };
 
-Soy.register(KeyValue, templates);
+Main.displayName = 'KeyValue';
 
-export default KeyValue;
+export default Main;

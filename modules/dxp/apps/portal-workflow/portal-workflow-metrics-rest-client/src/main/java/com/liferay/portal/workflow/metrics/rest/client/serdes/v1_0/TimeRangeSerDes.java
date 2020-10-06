@@ -142,12 +142,23 @@ public class TimeRangeSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-		map.put(
-			"dateEnd", liferayToJSONDateFormat.format(timeRange.getDateEnd()));
+		if (timeRange.getDateEnd() == null) {
+			map.put("dateEnd", null);
+		}
+		else {
+			map.put(
+				"dateEnd",
+				liferayToJSONDateFormat.format(timeRange.getDateEnd()));
+		}
 
-		map.put(
-			"dateStart",
-			liferayToJSONDateFormat.format(timeRange.getDateStart()));
+		if (timeRange.getDateStart() == null) {
+			map.put("dateStart", null);
+		}
+		else {
+			map.put(
+				"dateStart",
+				liferayToJSONDateFormat.format(timeRange.getDateStart()));
+		}
 
 		if (timeRange.getDefaultTimeRange() == null) {
 			map.put("defaultTimeRange", null);
@@ -220,9 +231,8 @@ public class TimeRangeSerDes {
 					timeRange.setName((String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -278,10 +288,13 @@ public class TimeRangeSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

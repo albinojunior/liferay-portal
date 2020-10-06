@@ -17,9 +17,13 @@ package com.liferay.headless.admin.user.resource.v1_0;
 import com.liferay.headless.admin.user.dto.v1_0.Organization;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.Locale;
 
 import javax.annotation.Generated;
 
@@ -42,6 +46,10 @@ import org.osgi.annotation.versioning.ProviderType;
 @Generated("")
 @ProviderType
 public interface OrganizationResource {
+
+	public static Builder builder() {
+		return FactoryHolder.factory.create();
+	}
 
 	public Page<Organization> getOrganizationsPage(
 			Boolean flatten, String search, Filter filter,
@@ -97,5 +105,38 @@ public interface OrganizationResource {
 
 	public void setContextUser(
 		com.liferay.portal.kernel.model.User contextUser);
+
+	public void setGroupLocalService(GroupLocalService groupLocalService);
+
+	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public static class FactoryHolder {
+
+		public static volatile Factory factory;
+
+	}
+
+	@ProviderType
+	public interface Builder {
+
+		public OrganizationResource build();
+
+		public Builder checkPermissions(boolean checkPermissions);
+
+		public Builder httpServletRequest(
+			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
+
+		public Builder user(com.liferay.portal.kernel.model.User user);
+
+	}
+
+	@ProviderType
+	public interface Factory {
+
+		public Builder create();
+
+	}
 
 }

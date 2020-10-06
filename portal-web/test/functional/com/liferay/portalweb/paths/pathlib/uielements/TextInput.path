@@ -29,6 +29,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY</td>
+	<td>//div[label[contains(.,'${key_text}')]]//input</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ASSET_PRIORITY</td>
 	<td>//input[contains(@id,'assetPriority')]</td>
 	<td></td>
@@ -189,6 +194,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EMAIL_VERIFICATION_CODE</td>
+	<td>//div[label[contains(.,'Email Verification Code')]]/input</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ENTER_AGAIN</td>
 	<td>//div[label[contains(.,'Enter Again')]]/input</td>
 	<td></td>
@@ -205,7 +215,7 @@
 </tr>
 <tr>
 	<td>FIELD_FILTER_INPUT</td>
-	<td>//div[@data-fieldname='${key_fieldName}']/input</td>
+	<td>//div[@data-fieldname='${key_fieldName}']//input</td>
 	<td></td>
 </tr>
 <tr>
@@ -235,12 +245,27 @@
 </tr>
 <tr>
 	<td>GENERIC_TEXT_INPUT</td>
-	<td>//div[label[contains(.,'${key_fieldLabel}')]]//input[@type='text']</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]]//input[@type='text'] | //div[contains(@class,'ddm-field') and contains(.,'${key_fieldLabel}')]//input[@type='text']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>GOOGLE_ANALYTICS_ID</td>
 	<td>//input[contains(@id,'googleAnalyticsId')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GRACE_LIMIT</td>
+	<td>//div[label[contains(.,'Grace Limit')]]//input[@type='text']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GROUPED_TEXT_INPUT</td>
+	<td>//div[contains(@class,'panel-group')][contains(.,'${key_groupLabel}')]//div[contains(@class,'form-group')][label[normalize-space(text())='${key_fieldLabel}']]//input</td>
+	<td></td>
+</tr>
+<tr>
+	<td>IMAGE_DESCRIPTION</td>
+	<td>//label[contains(.,'Image Description')]/following-sibling::input</td>
 	<td></td>
 </tr>
 <tr>
@@ -399,6 +424,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PASSWORD_CONFIRM</td>
+	<td>//div[label[contains(.,'Your Password')]]/input[not(contains(@type,'hidden')) and not(contains(@class,'hide'))]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PASSWORD_TYPE</td>
 	<td>//input[@type='password']</td>
 	<td></td>
@@ -434,6 +464,21 @@
 	<td></td>
 </tr>
 <tr>
+	<td>REDIRECT_DESTINATION_URL</td>
+	<td>//input[contains(@id,'destinationURL')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REDIRECT_SOURCE_URL</td>
+	<td>//input[contains(@id,'sourceURL')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REDIRECT_SOURCE_URL_PREFIX</td>
+	<td>//div[contains(@class,'form-text')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>REMINDER_QUERY</td>
 	<td>//input[contains(@id,'reminderQueryAnswer')]</td>
 	<td></td>
@@ -446,6 +491,11 @@
 <tr>
 	<td>SAML_NAME_FIELD</td>
 	<td>//input[contains(@id,'SamlAdminPortlet_name')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SEO_META_TAGS_DESCRIPTION</td>
+	<td>//div[label[contains(.,'Description')]]//input</td>
 	<td></td>
 </tr>
 <tr>
@@ -465,7 +515,7 @@
 </tr>
 <tr>
 	<td>REQUIRED_ALERT</td>
-	<td>//div[contains(@class,'has-error')] | //div[contains(@class,'has-error') and contains(.,'key_fieldName')]</td>
+	<td>//div[contains(@class,'has-error')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -486,6 +536,11 @@
 <tr>
 	<td>SEO_HTML_TITLE</td>
 	<td>//div[label[contains(.,'HTML')]]//input</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SEO_MAPPED_FIELD</td>
+	<td>//div[contains(@class,'form-group') and contains(.,'${key_mappedField}')]//input[contains(@id,'mapped')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -519,6 +574,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SPECIFIC_FIELD_REQUIRED_ALERT</td>
+	<td>//div[@data-fieldname='${key_fieldName}']//div[@class='required']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>STREET_1</td>
 	<td>//div[label[contains(.,'Street 1')]]//input[@type='text']</td>
 	<td></td>
@@ -546,6 +606,11 @@
 <tr>
 	<td>TRACKBACKS</td>
 	<td>//input[contains(@id,'trackbacks')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TRANSLATIONS_TARGET_FIELD</td>
+	<td>//input[contains(@id,'${key_fieldName}') and (not(contains(@readonly,'true')))]</td>
 	<td></td>
 </tr>
 <tr>

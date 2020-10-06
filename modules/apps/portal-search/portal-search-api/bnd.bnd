@@ -1,17 +1,21 @@
 Bundle-Name: Liferay Portal Search API
 Bundle-SymbolicName: com.liferay.portal.search.api
-Bundle-Version: 4.2.0
+Bundle-Version: 4.12.2
 Export-Package:\
 	com.liferay.portal.search.aggregation,\
 	com.liferay.portal.search.aggregation.bucket,\
 	com.liferay.portal.search.aggregation.metrics,\
 	com.liferay.portal.search.aggregation.pipeline,\
 	com.liferay.portal.search.analysis,\
+	com.liferay.portal.search.asset,\
 	com.liferay.portal.search.batch,\
 	com.liferay.portal.search.buffer,\
+	com.liferay.portal.search.ccr,\
 	com.liferay.portal.search.configuration,\
 	com.liferay.portal.search.constants,\
+	com.liferay.portal.search.context,\
 	com.liferay.portal.search.contributor,\
+	com.liferay.portal.search.contributor.constants,\
 	com.liferay.portal.search.contributor.sort,\
 	com.liferay.portal.search.document,\
 	com.liferay.portal.search.engine,\
@@ -44,6 +48,7 @@ Export-Package:\
 	com.liferay.portal.search.query.function.score,\
 	com.liferay.portal.search.query.geolocation,\
 	com.liferay.portal.search.query.util,\
+	com.liferay.portal.search.reindexer,\
 	com.liferay.portal.search.rescore,\
 	com.liferay.portal.search.script,\
 	com.liferay.portal.search.searcher,\
@@ -54,7 +59,7 @@ Export-Package:\
 	com.liferay.portal.search.summary,\
 	com.liferay.portal.search.synonym
 Import-Package:\
-	com.liferay.portal.kernel.search;version="[8.1.0,9.2.0)",\
+	com.liferay.portal.kernel.search;version="[8.1.0,9.3.0)",\
 	\
 	*
 -dsannotations-options: inherit

@@ -34,6 +34,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LOCALIZED_BUTTON</td>
+	<td>//button[contains(@class,'localized-trigger')][contains(@id,'JournalPortlet_${key_fieldName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PRIORITY</td>
 	<td>//input[contains(@id,'assetPriority')]</td>
 	<td></td>
@@ -92,12 +97,17 @@
 </tr>
 <tr>
 	<td>ENTRY_LIST_LAST_MODIFIED</td>
-	<td>//*[@data-qa-id='row' and contains(.,'${key_webContentTitle}')]//span[contains(.,'modified')]</td>
+	<td>//*[@data-qa-id='row' and contains(.,'${key_webContentTitle}')]//span[contains(.,'Modified')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ENTRY_LIST_WORKFLOW_STATUS</td>
 	<td>//li[contains(@data-title,'${key_webContentTitle}')]//span[contains(@class,'label')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ENTRY_LIST_WORKFLOW_TRANSLATIONE_STATUS</td>
+	<td>//li[contains(@data-title,'${key_webContentTitle}')]//span[contains(@class,'label-info')]</td>
 	<td></td>
 </tr>
 <tr>

@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.FileImpl;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -76,7 +75,7 @@ public class PluginsGitSvnSyncer {
 		String[] stderr = _getExecOutput(process.getErrorStream());
 
 		if (stderr.length > 0) {
-			StringBundler sb = new StringBundler(stderr.length * 3 + 3);
+			StringBundler sb = new StringBundler((stderr.length * 3) + 3);
 
 			sb.append("Received errors in executing '");
 			sb.append(cmd);
@@ -94,14 +93,14 @@ public class PluginsGitSvnSyncer {
 		return _getExecOutput(process.getInputStream());
 	}
 
-	private String[] _getExecOutput(InputStream is) throws IOException {
+	private String[] _getExecOutput(InputStream inputStream) throws Exception {
 		List<String> list = new ArrayList<>();
 
 		UnsyncBufferedReader unsyncBufferedReader = null;
 
 		try {
 			unsyncBufferedReader = new UnsyncBufferedReader(
-				new InputStreamReader(is));
+				new InputStreamReader(inputStream));
 
 			String line = unsyncBufferedReader.readLine();
 
@@ -173,13 +172,13 @@ public class PluginsGitSvnSyncer {
 
 		Collections.sort(ignores);
 
-		Iterator<String> itr = ignores.iterator();
+		Iterator<String> iterator = ignores.iterator();
 
-		while (itr.hasNext()) {
-			String ignore = itr.next();
+		while (iterator.hasNext()) {
+			String ignore = iterator.next();
 
 			if (ignore.equals("classes")) {
-				itr.remove();
+				iterator.remove();
 			}
 		}
 

@@ -30,18 +30,14 @@ definition {
 
 	@priority = "5"
 	test AddLocalizedWebContentViaSourceEditor {
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "LocalizationWithWebContentUI#AddLocalizedWebContentViaSourceEditor";
 		property testray.component.names = "Training,Web Content Administration";
 
-		JSONLayout.addPublicLayout(
+		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Test Site Name",
-			layoutName = "Test Page Name");
-
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
+			layoutName = "Test Page Name",
+			widgetName = "Web Content Display");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
@@ -51,7 +47,7 @@ definition {
 
 		WebContent.addCP(webContentTitle = "Basic S.P.A.C.E. Banner");
 
-		AlloyEditor.addSourceContent(content = '''
+		CKEditor.addSourceContent(content = '''
 <h2 class="text-center">Space Program Academy of Continuing Education</h2>
 
 <p class="text-center">Dare to Dream out of this world</p>
@@ -73,9 +69,12 @@ definition {
 
 		WebContent.addCP(webContentTitle = "Basic S.P.A.C.E. Banner (Japanese Translation)");
 
-		AlloyEditor.addDescription(description = "A Japanese translation of the basic front page banner");
+		Type.typeCKEditorWaitForCKEditor(
+			key_fieldLabel = "Summary",
+			locator1 = "CKEditor#BODY_FIELD_WEB_CONTENT_ARTICLE",
+			value1 = "A Japanese translation of the basic front page banner");
 
-		AlloyEditor.addSourceContent(content = '''
+		CKEditor.addSourceContent(content = '''
 <h2 class="text-center">Space Program 大学生涯教育</h2>
 
 <p class="text-center">地球から、宇宙の果てへ</p>
@@ -83,11 +82,10 @@ definition {
 
 		Button.clickPublish();
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page Name",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Language Selector");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			widgetName = "Language Selector");
 
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
@@ -144,13 +142,17 @@ definition {
 
 		PortletEntry.publish();
 
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			widgetName = "Language Selector");
+
 		Navigator.gotoSitePage(
 			pageName = "Test Page Name",
 			siteName = "Test Site Name");
 
 		Content.addPG(assetTitle = "WC Title");
-
-		Portlet.addPG(portletName = "Language Selector");
 
 		LanguagePortlet.selectLanguagePG(
 			locale = "es_ES",
@@ -178,17 +180,15 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Web Content Display Page");
 
-		Navigator.gotoSitePage(
-			pageName = "Web Content Display Page",
-			siteName = "Test Site Name");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Web Content Display Page",
+			widgetName = "Web Content Display");
 
-		Portlet.addPG(portletName = "Web Content Display");
-
-		Navigator.gotoSitePage(
-			pageName = "Web Content Display Page",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Language Selector");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Web Content Display Page",
+			widgetName = "Language Selector");
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 

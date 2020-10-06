@@ -14,24 +14,27 @@
 
 package com.liferay.saml.web.internal.portlet.action;
 
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.saml.constants.SamlPortletKeys;
 import com.liferay.saml.constants.SamlWebKeys;
 import com.liferay.saml.persistence.model.SamlIdpSpConnection;
 import com.liferay.saml.persistence.model.SamlSpIdpConnection;
 import com.liferay.saml.persistence.service.SamlIdpSpConnectionLocalService;
 import com.liferay.saml.persistence.service.SamlSpIdpConnectionLocalService;
 import com.liferay.saml.runtime.certificate.CertificateTool;
+import com.liferay.saml.runtime.configuration.SamlConfiguration;
 import com.liferay.saml.runtime.configuration.SamlProviderConfigurationHelper;
 import com.liferay.saml.runtime.metadata.LocalEntityManager;
-import com.liferay.saml.web.internal.constants.SamlAdminPortletKeys;
 import com.liferay.saml.web.internal.display.context.GeneralTabDefaultViewDisplayContext;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
@@ -39,6 +42,7 @@ import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -46,9 +50,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael C. Han
  */
 @Component(
+	configurationPid = "com.liferay.saml.runtime.configuration.SamlConfiguration",
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + SamlAdminPortletKeys.SAML_ADMIN,
+		"javax.portlet.name=" + SamlPortletKeys.SAML_ADMIN,
 		"mvc.command.name=/", "mvc.command.name=/admin"
 	},
 	service = MVCRenderCommand.class
@@ -86,6 +91,12 @@ public class DefaultViewMVCRenderCommand implements MVCRenderCommand {
 		return "/admin/view.jsp";
 	}
 
+	@Activate
+	protected void activate(Map<String, Object> properties) {
+		_samlConfiguration = ConfigurableUtil.createConfigurable(
+			SamlConfiguration.class, properties);
+	}
+
 	protected void renderGeneralTab(
 		RenderRequest renderRequest, RenderResponse renderResponse) {
 
@@ -101,7 +112,8 @@ public class DefaultViewMVCRenderCommand implements MVCRenderCommand {
 
 		GeneralTabDefaultViewDisplayContext
 			generalTabDefaultViewDisplayContext =
-				new GeneralTabDefaultViewDisplayContext(_localEntityManager);
+				new GeneralTabDefaultViewDisplayContext(
+					_localEntityManager, _samlConfiguration);
 
 		renderRequest.setAttribute(
 			GeneralTabDefaultViewDisplayContext.class.getName(),
@@ -119,7 +131,7 @@ public class DefaultViewMVCRenderCommand implements MVCRenderCommand {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<?> searchContainer = new SearchContainer(
 			renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, 0,
 			SearchContainer.DEFAULT_DELTA, renderResponse.createRenderURL(),
 			null, null);
@@ -155,7 +167,7 @@ public class DefaultViewMVCRenderCommand implements MVCRenderCommand {
 
 		PortletURL portletURL = renderResponse.createRenderURL();
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<?> searchContainer = new SearchContainer(
 			renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, 0,
 			SearchContainer.DEFAULT_DELTA, portletURL, null, null);
 
@@ -180,6 +192,8 @@ public class DefaultViewMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private Portal _portal;
+
+	private SamlConfiguration _samlConfiguration;
 
 	@Reference
 	private SamlIdpSpConnectionLocalService _samlIdpSpConnectionLocalService;

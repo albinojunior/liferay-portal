@@ -65,8 +65,7 @@ public class CentralGitSubrepository {
 
 		_gitSubrepositoryDirectory = sb.toString();
 
-		_gitSubrepositoryUpstreamBranchName =
-			_getGitSubrepositoryUpstreamBranchName();
+		_gitSubrepositoryUpstreamBranchName = _centralUpstreamBranchName;
 		_gitSubrepositoryUsername = _getGitSubrepositoryUsername();
 
 		String tempBranchName = "temp-" + System.currentTimeMillis();
@@ -179,31 +178,6 @@ public class CentralGitSubrepository {
 		int y = remote.indexOf(".git");
 
 		return remote.substring(x, y);
-	}
-
-	private String _getGitSubrepositoryUpstreamBranchName() {
-		String remote = _gitrepoProperties.getProperty("remote");
-
-		String gitSubrepositoryUpstreamBranchName = _centralUpstreamBranchName;
-
-		if (gitSubrepositoryUpstreamBranchName.contains("7.0")) {
-			gitSubrepositoryUpstreamBranchName = "7.0.x";
-		}
-		else if (gitSubrepositoryUpstreamBranchName.contains("7.1")) {
-			gitSubrepositoryUpstreamBranchName = "7.1.x";
-		}
-		else if (gitSubrepositoryUpstreamBranchName.contains("7.2")) {
-			gitSubrepositoryUpstreamBranchName = "7.2.x";
-		}
-		else if (gitSubrepositoryUpstreamBranchName.contains("master")) {
-			gitSubrepositoryUpstreamBranchName = "master";
-		}
-
-		if (remote.contains("-private")) {
-			gitSubrepositoryUpstreamBranchName += "-private";
-		}
-
-		return gitSubrepositoryUpstreamBranchName;
 	}
 
 	private String _getGitSubrepositoryUpstreamCommit() throws IOException {

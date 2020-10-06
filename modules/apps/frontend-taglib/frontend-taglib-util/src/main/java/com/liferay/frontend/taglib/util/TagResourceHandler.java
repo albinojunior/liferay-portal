@@ -115,7 +115,7 @@ public class TagResourceHandler {
 	}
 
 	public void outputResource(Position position, String html) {
-		HttpServletRequest httpServletRequest = _getRequest();
+		HttpServletRequest httpServletRequest = _getHttpServletRequest();
 
 		boolean xPjax = GetterUtil.getBoolean(
 			httpServletRequest.getHeader("X-PJAX"));
@@ -153,8 +153,12 @@ public class TagResourceHandler {
 
 	}
 
+	private HttpServletRequest _getHttpServletRequest() {
+		return _tagAccessor.getRequest();
+	}
+
 	private OutputData _getOutputData() {
-		HttpServletRequest httpServletRequest = _getRequest();
+		HttpServletRequest httpServletRequest = _getHttpServletRequest();
 
 		OutputData outputData = (OutputData)httpServletRequest.getAttribute(
 			WebKeys.OUTPUT_DATA);
@@ -168,12 +172,8 @@ public class TagResourceHandler {
 		return outputData;
 	}
 
-	private HttpServletRequest _getRequest() {
-		return _tagAccessor.getRequest();
-	}
-
 	private ThemeDisplay _getThemeDisplay() {
-		ServletRequest servletRequest = _getRequest();
+		ServletRequest servletRequest = _getHttpServletRequest();
 
 		return (ThemeDisplay)servletRequest.getAttribute(WebKeys.THEME_DISPLAY);
 	}

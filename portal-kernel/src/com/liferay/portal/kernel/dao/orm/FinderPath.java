@@ -32,28 +32,73 @@ import java.util.Map;
  */
 public class FinderPath {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #FinderPath(String, String, String[], String[], boolean)}
+	 */
+	@Deprecated
 	public FinderPath(
 		boolean entityCacheEnabled, boolean finderCacheEnabled,
 		Class<?> resultClass, String cacheName, String methodName,
 		String[] params) {
 
 		this(
-			entityCacheEnabled, finderCacheEnabled, resultClass, cacheName,
-			methodName, params, -1);
+			cacheName, methodName, params, new String[0],
+			BaseModel.class.isAssignableFrom(resultClass));
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #FinderPath(String, String, String[], String[], boolean)}
+	 */
+	@Deprecated
 	public FinderPath(
 		boolean entityCacheEnabled, boolean finderCacheEnabled,
 		Class<?> resultClass, String cacheName, String methodName,
 		String[] params, long columnBitmask) {
 
-		_entityCacheEnabled = entityCacheEnabled;
-		_finderCacheEnabled = finderCacheEnabled;
-		_resultClass = resultClass;
-		_cacheName = cacheName;
-		_columnBitmask = columnBitmask;
+		this(
+			cacheName, methodName, params, new String[0],
+			BaseModel.class.isAssignableFrom(resultClass));
+	}
 
-		if (BaseModel.class.isAssignableFrom(_resultClass)) {
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #FinderPath(String, String, String[], String[], boolean)}
+	 */
+	@Deprecated
+	public FinderPath(
+		Class<?> resultClass, String cacheName, String methodName,
+		String[] params) {
+
+		this(
+			cacheName, methodName, params, new String[0],
+			BaseModel.class.isAssignableFrom(resultClass));
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #FinderPath(String, String, String[], String[], boolean)}
+	 */
+	@Deprecated
+	public FinderPath(
+		Class<?> resultClass, String cacheName, String methodName,
+		String[] params, long columnBitmask) {
+
+		this(
+			cacheName, methodName, params, new String[0],
+			BaseModel.class.isAssignableFrom(resultClass));
+	}
+
+	public FinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		_cacheName = cacheName;
+		_columnNames = columnNames;
+		_baseModelResult = baseModelResult;
+
+		if (baseModelResult) {
 			_cacheKeyGeneratorCacheName = _BASE_MODEL_CACHE_KEY_GENERATOR_NAME;
 		}
 		else {
@@ -75,8 +120,8 @@ public class FinderPath {
 	}
 
 	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #encodeCacheKey(
-	 *             Object[])}
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #encodeCacheKey(Object[])}
 	 */
 	@Deprecated
 	public String encodeArguments(Object[] arguments) {
@@ -117,8 +162,8 @@ public class FinderPath {
 	}
 
 	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #encodeCacheKey(
-	 *             Object[])}
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #encodeCacheKey(Object[])}
 	 */
 	@Deprecated
 	public Serializable encodeCacheKey(String encodedArguments) {
@@ -132,11 +177,8 @@ public class FinderPath {
 	public Serializable encodeLocalCacheKey(String encodedArguments) {
 		return _getCacheKey(
 			new String[] {
-				_cacheName.concat(
-					StringPool.PERIOD
-				).concat(
-					_cacheKeyPrefix
-				),
+				StringBundler.concat(
+					_cacheName, StringPool.PERIOD, _cacheKeyPrefix),
 				encodedArguments
 			});
 	}
@@ -145,12 +187,28 @@ public class FinderPath {
 		return _cacheName;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public long getColumnBitmask() {
-		return _columnBitmask;
+		return 0;
 	}
 
+	public String[] getColumnNames() {
+		return _columnNames;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public Class<?> getResultClass() {
-		return _resultClass;
+		return null;
+	}
+
+	public boolean isBaseModelResult() {
+		return _baseModelResult;
 	}
 
 	/**
@@ -158,11 +216,15 @@ public class FinderPath {
 	 */
 	@Deprecated
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	private static Map<String, String> _getEncodedTypes() {
@@ -199,7 +261,7 @@ public class FinderPath {
 	}
 
 	private void _initCacheKeyPrefix(String methodName, String[] params) {
-		StringBundler sb = new StringBundler(params.length * 2 + 3);
+		StringBundler sb = new StringBundler((params.length * 2) + 3);
 
 		sb.append(methodName);
 		sb.append(_PARAMS_SEPARATOR);
@@ -223,13 +285,11 @@ public class FinderPath {
 
 	private static final Map<String, String> _encodedTypes = _getEncodedTypes();
 
+	private final boolean _baseModelResult;
 	private final CacheKeyGenerator _cacheKeyGenerator;
 	private final String _cacheKeyGeneratorCacheName;
 	private String _cacheKeyPrefix;
 	private final String _cacheName;
-	private final long _columnBitmask;
-	private final boolean _entityCacheEnabled;
-	private final boolean _finderCacheEnabled;
-	private final Class<?> _resultClass;
+	private final String[] _columnNames;
 
 }

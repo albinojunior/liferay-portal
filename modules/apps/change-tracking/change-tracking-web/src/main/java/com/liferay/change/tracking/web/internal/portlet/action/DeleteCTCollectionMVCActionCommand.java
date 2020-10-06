@@ -14,13 +14,14 @@
 
 package com.liferay.change.tracking.web.internal.portlet.action;
 
-import com.liferay.change.tracking.constants.CTPortletKeys;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
+import com.liferay.change.tracking.service.CTCollectionService;
+import com.liferay.change.tracking.web.internal.constants.CTPortletKeys;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -34,8 +35,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + CTPortletKeys.CHANGE_LISTS,
-		"mvc.command.name=/change_lists/delete_ct_collection"
+		"javax.portlet.name=" + CTPortletKeys.PUBLICATIONS,
+		"mvc.command.name=/publications/delete_ct_collection"
 	},
 	service = MVCActionCommand.class
 )
@@ -43,7 +44,8 @@ public class DeleteCTCollectionMVCActionCommand extends BaseMVCActionCommand {
 
 	@Override
 	protected void doProcessAction(
-		ActionRequest actionRequest, ActionResponse actionResponse) {
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
 
 		long ctCollectionId = ParamUtil.getLong(
 			actionRequest, "ctCollectionId");
@@ -52,7 +54,13 @@ public class DeleteCTCollectionMVCActionCommand extends BaseMVCActionCommand {
 			ctCollectionId);
 
 		if (ctCollection != null) {
-			_ctCollectionLocalService.deleteCTCollection(ctCollection);
+			_ctCollectionService.deleteCTCollection(ctCollection);
+		}
+
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		if (Validator.isNotNull(redirect)) {
+			sendRedirect(actionRequest, actionResponse, redirect);
 		}
 	}
 
@@ -60,6 +68,6 @@ public class DeleteCTCollectionMVCActionCommand extends BaseMVCActionCommand {
 	private CTCollectionLocalService _ctCollectionLocalService;
 
 	@Reference
-	private Portal _portal;
+	private CTCollectionService _ctCollectionService;
 
 }

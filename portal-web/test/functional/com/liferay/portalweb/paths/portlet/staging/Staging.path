@@ -72,8 +72,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>STAGING_PUBLISH_TEMPLATE_LINK</td>
+	<td>//div[contains(@class,'dropdown-menu show')]//a[contains(@class,'dropdown-item') and contains(.,'${key_publishTemplateName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>STAGING_PUBLISH_TO_LIVE_BUTTON</td>
 	<td>//button[contains(.,'Publish to Live')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>STAGING_PUBLISH_TO_LIVE_CUSTOM_PUBLICATION</td>
+	<td>//button[contains(.,'Publish to Live')]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -118,6 +128,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>STAGING_CONNECTION_TOOLTIP</td>
+	<td>//span[contains(@class,'lfr-portal-tooltip') and contains(@title,'${key_connectionInfo}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>STAGING_LINK_LIVE</td>
+	<td>//a[contains(@data-qa-id,'live')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PAGE_VARIATION</td>
 	<td>//a[contains(.,'${key_pageVariationName}')]</td>
 	<td></td>
@@ -129,12 +149,12 @@
 </tr>
 <tr>
 	<td>SITE_PAGES_VARIATION_DROPDOWN</td>
-	<td>//a[contains(@class,'staging-variation-selector') and contains(.,'${key_sitePagesVariationName}')]/span</td>
+	<td>//a[contains(@class,'staging-variation-selector') and contains(.,'${key_sitePagesVariationName}')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_VARIATION_DROPDOWN</td>
-	<td>//a[contains(@class,'staging-variation-selector') and contains(.,'${key_pageVariationName}')]/span</td>
+	<td>//a[contains(@class,'staging-variation-selector') and contains(.,'${key_pageVariationName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -166,6 +186,11 @@
 <tr>
 	<td>SITE_PAGES_VARIATION_MENULIST_NAME</td>
 	<td>xpath=(//ul//li//a[contains(.,'${key_sitePagesVariationName}')])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_PAGES_VARIATION_MENULIST_ACTIVE</td>
+	<td>//li[contains(@class,'active')]//a[contains(@class,'miller-columns-item-mask')][contains(.,'${key_sitePagesVariationName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -224,7 +249,7 @@
 <!--PUBLICATION_SUMMARY-->
 <tr>
 	<td>PUBLICATION_CONTENT</td>
-	<td>//div[@class='process-summary-section' and contains(.,'${key_contentName}')]</td>
+	<td>//div[@class='process-summary-subsection' and contains(.,'${key_contentName}')]</td>
 	<td></td>
 </tr>
 <tr>

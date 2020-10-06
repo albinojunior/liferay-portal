@@ -27,9 +27,7 @@ public class SafeProperties extends Properties {
 	public synchronized Object get(Object key) {
 		Object value = super.get(key);
 
-		value = _decode((String)value);
-
-		return value;
+		return _decode((String)value);
 	}
 
 	public String getEncodedProperty(String key) {
@@ -65,12 +63,12 @@ public class SafeProperties extends Properties {
 		return super.remove(key);
 	}
 
-	private static String _decode(String value) {
+	private String _decode(String value) {
 		return StringUtil.replace(
 			value, _SAFE_NEWLINE_CHARACTER, StringPool.NEW_LINE);
 	}
 
-	private static String _encode(String value) {
+	private String _encode(String value) {
 		return StringUtil.replace(
 			value,
 			new String[] {

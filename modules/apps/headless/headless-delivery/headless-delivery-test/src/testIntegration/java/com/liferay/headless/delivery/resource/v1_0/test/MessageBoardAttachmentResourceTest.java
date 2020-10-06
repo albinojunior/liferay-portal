@@ -22,6 +22,7 @@ import com.liferay.message.boards.model.MBThread;
 import com.liferay.message.boards.test.util.MBTestUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -32,8 +33,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -60,18 +59,6 @@ public class MessageBoardAttachmentResourceTest
 		_mbThread = mbMessage.getThread();
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLDeleteMessageBoardAttachment() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetMessageBoardAttachment() {
-	}
-
 	@Override
 	protected void assertValid(
 			MessageBoardAttachment messageBoardAttachment,
@@ -86,15 +73,38 @@ public class MessageBoardAttachmentResourceTest
 	}
 
 	@Override
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[] {"title"};
+	}
+
+	@Override
 	protected Map<String, File> getMultipartFiles() throws Exception {
 		return HashMapBuilder.<String, File>put(
 			"file",
 			() -> {
-				String randomString = RandomTestUtil.randomString();
+				File file = new File(_tempFileName);
 
-				return FileUtil.createTempFile(randomString.getBytes());
+				FileUtil.write(file, TestDataConstants.TEST_BYTE_ARRAY);
+
+				return file;
 			}
 		).build();
+	}
+
+	@Override
+	protected MessageBoardAttachment randomMessageBoardAttachment()
+		throws Exception {
+
+		MessageBoardAttachment messageBoardAttachment =
+			super.randomMessageBoardAttachment();
+
+		_tempFileName = FileUtil.createTempFileName();
+
+		File file = new File(_tempFileName);
+
+		messageBoardAttachment.setTitle(file.getName());
+
+		return messageBoardAttachment;
 	}
 
 	@Override
@@ -133,6 +143,14 @@ public class MessageBoardAttachmentResourceTest
 		return _mbThread.getThreadId();
 	}
 
+	@Override
+	protected MessageBoardAttachment
+			testGraphQLMessageBoardAttachment_addMessageBoardAttachment()
+		throws Exception {
+
+		return testDeleteMessageBoardAttachment_addMessageBoardAttachment();
+	}
+
 	private String _read(String url) throws Exception {
 		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
@@ -146,5 +164,6 @@ public class MessageBoardAttachmentResourceTest
 	}
 
 	private MBThread _mbThread;
+	private String _tempFileName;
 
 }

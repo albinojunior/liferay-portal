@@ -24,10 +24,10 @@ String emptyResultsMessage = GetterUtil.getString(request.getAttribute("liferay-
 ItemSelectorReturnType existingFileEntryReturnType = (ItemSelectorReturnType)request.getAttribute("liferay-item-selector:repository-entry-browser:existingFileEntryReturnType");
 List<String> extensions = (List)request.getAttribute("liferay-item-selector:repository-entry-browser:extensions");
 String itemSelectedEventName = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:itemSelectedEventName"));
-ItemSelectorReturnTypeResolver itemSelectorReturnTypeResolver = (ItemSelectorReturnTypeResolver)request.getAttribute("liferay-item-selector:repository-entry-browser:itemSelectorReturnTypeResolver");
+ItemSelectorReturnTypeResolver<?, FileEntry> itemSelectorReturnTypeResolver = (ItemSelectorReturnTypeResolver<?, FileEntry>)request.getAttribute("liferay-item-selector:repository-entry-browser:itemSelectorReturnTypeResolver");
 long maxFileSize = GetterUtil.getLong(request.getAttribute("liferay-item-selector:repository-entry-browser:maxFileSize"));
 PortletURL portletURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:portletURL");
-List repositoryEntries = (List)request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntries");
+List<FileEntry> repositoryEntries = (List<FileEntry>)request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntries");
 int repositoryEntriesCount = GetterUtil.getInteger(request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntriesCount"));
 boolean showBreadcrumb = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showBreadcrumb"));
 boolean showDragAndDropZone = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showDragAndDropZone"));
@@ -35,7 +35,7 @@ boolean showSearch = GetterUtil.getBoolean(request.getAttribute("liferay-item-se
 String tabName = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:tabName"));
 PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:uploadURL");
 
-SearchContainer searchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, emptyResultsMessage);
+SearchContainer<?> searchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, emptyResultsMessage);
 
 String keywords = ParamUtil.getString(request, "keywords");
 
@@ -51,13 +51,16 @@ if (Validator.isNotNull(keywords)) {
 </liferay-util:html-top>
 
 <%
-ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositoryEntryManagementToolbarDisplayContext = new ItemSelectorRepositoryEntryManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse);
+RepositoryEntryBrowserDisplayContext repositoryEntryBrowserDisplayContext = new RepositoryEntryBrowserDisplayContext(request);
+
+ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositoryEntryManagementToolbarDisplayContext = new ItemSelectorRepositoryEntryManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, repositoryEntryBrowserDisplayContext);
 %>
 
 <clay:management-toolbar
-	clearResultsURL="<%= String.valueOf(itemSelectorRepositoryEntryManagementToolbarDisplayContext.getSearchURL()) %>"
+	clearResultsURL="<%= String.valueOf(itemSelectorRepositoryEntryManagementToolbarDisplayContext.getClearResultsURL()) %>"
 	disabled="<%= itemSelectorRepositoryEntryManagementToolbarDisplayContext.isDisabled() %>"
 	filterDropdownItems="<%= itemSelectorRepositoryEntryManagementToolbarDisplayContext.getFilterDropdownItems() %>"
+	filterLabelItems="<%= itemSelectorRepositoryEntryManagementToolbarDisplayContext.getFilterLabelItems() %>"
 	itemsTotal="<%= repositoryEntriesCount %>"
 	searchActionURL="<%= String.valueOf(itemSelectorRepositoryEntryManagementToolbarDisplayContext.getSearchURL()) %>"
 	searchFormMethod="POST"
@@ -70,7 +73,10 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	viewTypeItems="<%= itemSelectorRepositoryEntryManagementToolbarDisplayContext.getViewTypes() %>"
 />
 
-<div class="container-fluid container-fluid-max-xl item-selector lfr-item-viewer" id="<%= randomNamespace %>ItemSelectorContainer">
+<clay:container-fluid
+	cssClass="item-selector lfr-item-viewer"
+	id='<%= randomNamespace + "ItemSelectorContainer" %>'
+>
 	<c:if test="<%= showSearchInfo %>">
 		<liferay-util:include page="/repository_entry_browser/search_info.jsp" servletContext="<%= application %>" />
 	</c:if>
@@ -81,7 +87,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	long folderId = ParamUtil.getLong(request, "folderId");
 
 	if (showBreadcrumb && !showSearchInfo) {
-		ItemSelectorRepositoryEntryBrowserUtil.addPortletBreadcrumbEntries(folderId, displayStyle, request, liferayPortletResponse, PortletURLUtil.clone(portletURL, liferayPortletResponse));
+		ItemSelectorRepositoryEntryBrowserUtil.addPortletBreadcrumbEntries(folderId, displayStyle, request, liferayPortletRequest, liferayPortletResponse, PortletURLUtil.clone(portletURL, liferayPortletResponse));
 	%>
 
 		<liferay-ui:breadcrumb
@@ -154,7 +160,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 						if (fileEntry != null) {
 							FileVersion latestFileVersion = fileEntry.getLatestFileVersion();
 
-							String title = DLUtil.getTitleWithExtension(fileEntry);
+							String title = fileEntry.getTitle();
 
 							JSONObject itemMedatadaJSONObject = ItemSelectorRepositoryEntryBrowserUtil.getItemMetadataJSONObject(fileEntry, locale);
 
@@ -183,6 +189,20 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 								</a>
 							</liferay-ui:search-container-column-text>
 
+							<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+								<liferay-ui:search-container-column-text
+									name="location"
+								>
+									<span class="text-secondary">
+										<clay:icon
+											symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(fileEntry.getGroupId()) %>"
+										/>
+
+										<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(fileEntry.getGroupId(), locale) %></small>
+									</span>
+								</liferay-ui:search-container-column-text>
+							</c:if>
+
 							<liferay-ui:search-container-column-text
 								name="size"
 								value="<%= LanguageUtil.formatStorageSize(fileEntry.getSize(), locale) %>"
@@ -201,10 +221,10 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 
 							<liferay-ui:search-container-column-text>
 								<clay:button
-									elementClasses="btn-outline-borderless btn-outline-secondary component-action icon-view"
+									borderless="<%= true %>"
+									cssClass="component-action icon-view"
+									displayType="secondary"
 									icon="view"
-									monospaced="<%= true %>"
-									style="outline-secondary"
 								/>
 							</liferay-ui:search-container-column-text>
 
@@ -212,9 +232,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 						}
 
 						if (folder != null) {
-							PortletURL viewFolderURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
-
-							viewFolderURL.setParameter("folderId", String.valueOf(folder.getFolderId()));
+							PortletURL viewFolderURL = EntryURLUtil.getFolderPortletURL(folder, liferayPortletRequest, liferayPortletResponse, portletURL);
 						%>
 
 							<liferay-ui:search-container-column-text
@@ -231,6 +249,20 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 									</span>
 								</a>
 							</liferay-ui:search-container-column-text>
+
+							<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+								<liferay-ui:search-container-column-text
+									name="location"
+								>
+									<span class="text-secondary">
+										<clay:icon
+											symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(folder.getGroupId()) %>"
+										/>
+
+										<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(folder.getGroupId(), locale) %></small>
+									</span>
+								</liferay-ui:search-container-column-text>
+							</c:if>
 
 							<liferay-ui:search-container-column-text
 								name="size"
@@ -283,26 +315,43 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 								row.setCssClass("entry-card lfr-asset-folder");
 
 								if (folder != null) {
-									PortletURL viewFolderURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
-
-									viewFolderURL.setParameter("folderId", String.valueOf(folder.getFolderId()));
+									PortletURL viewFolderURL = EntryURLUtil.getFolderPortletURL(folder, liferayPortletRequest, liferayPortletResponse, portletURL);
 								%>
 
 									<liferay-ui:search-container-column-text
 										colspan="<%= 3 %>"
 									>
-										<liferay-frontend:horizontal-card
-											cardCssClass="card-interactive card-interactive-secondary"
-											resultRow="<%= row %>"
-											text="<%= folder.getName() %>"
-											url="<%= viewFolderURL.toString() %>"
-										>
-											<liferay-frontend:horizontal-card-col>
-												<liferay-frontend:horizontal-card-icon
-													icon="folder"
-												/>
-											</liferay-frontend:horizontal-card-col>
-										</liferay-frontend:horizontal-card>
+										<div class="card card-horizontal card-interactive card-interactive-secondary">
+											<div class="card-body">
+												<div class="card-row">
+													<clay:content-col>
+														<clay:sticker
+															displayType="secondary"
+															icon="folder"
+															inline="<%= true %>"
+														/>
+													</clay:content-col>
+
+													<div class="autofit-col autofit-col-expand autofit-col-gutters">
+														<p class="card-title text-truncate">
+															<aui:a href="<%= viewFolderURL.toString() %>" title="<%= HtmlUtil.escapeAttribute(folder.getName()) %>">
+																<%= HtmlUtil.escape(folder.getName()) %>
+															</aui:a>
+														</p>
+
+														<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+															<span class="text-secondary">
+																<clay:icon
+																	symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(folder.getGroupId()) %>"
+																/>
+
+																<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(folder.getGroupId(), locale) %></small>
+															</span>
+														</c:if>
+													</div>
+												</div>
+											</div>
+										</div>
 									</liferay-ui:search-container-column-text>
 
 								<%
@@ -311,13 +360,15 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 								if (fileEntry != null) {
 									FileVersion latestFileVersion = fileEntry.getLatestFileVersion();
 
-									String title = DLUtil.getTitleWithExtension(fileEntry);
+									String title = fileEntry.getTitle();
 
 									JSONObject itemMedatadaJSONObject = ItemSelectorRepositoryEntryBrowserUtil.getItemMetadataJSONObject(fileEntry, locale);
 
-									Map<String, Object> data = new HashMap<>();
-
-									data.put("description", fileEntry.getDescription());
+									Map<String, Object> data = HashMapBuilder.<String, Object>put(
+										"description", fileEntry.getDescription()
+									).put(
+										"fileEntryId", fileEntry.getFileEntryId()
+									).build();
 
 									String thumbnailSrc = DLURLHelperUtil.getThumbnailSrc(fileEntry, themeDisplay);
 
@@ -347,6 +398,18 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 													icon="documents-and-media"
 													title="<%= title %>"
 												>
+													<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+														<liferay-frontend:vertical-card-footer>
+															<span class="text-secondary">
+																<clay:icon
+																	symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(fileEntry.getGroupId()) %>"
+																/>
+
+																<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(fileEntry.getGroupId(), locale) %></small>
+															</span>
+														</liferay-frontend:vertical-card-footer>
+													</c:if>
+
 													<liferay-frontend:vertical-card-sticker-bottom>
 														<liferay-document-library:mime-type-sticker
 															cssClass="sticker-bottom-left sticker-secondary"
@@ -365,6 +428,18 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 													imageUrl="<%= thumbnailSrc %>"
 													title="<%= title %>"
 												>
+													<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+														<liferay-frontend:vertical-card-footer>
+															<span class="text-secondary">
+																<clay:icon
+																	symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(fileEntry.getGroupId()) %>"
+																/>
+
+																<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(fileEntry.getGroupId(), locale) %></small>
+															</span>
+														</liferay-frontend:vertical-card-footer>
+													</c:if>
+
 													<liferay-frontend:vertical-card-sticker-bottom>
 														<liferay-document-library:mime-type-sticker
 															cssClass="sticker-bottom-left sticker-secondary"
@@ -385,15 +460,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 
 								<%
 								if (folder != null) {
-									PortletURL viewFolderURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
-
-									viewFolderURL.setParameter("folderId", String.valueOf(folder.getFolderId()));
-
-									String folderImage = "folder_empty_document";
-
-									if (PropsValues.DL_FOLDER_ICON_CHECK_COUNT && (DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(folder.getRepositoryId(), folder.getFolderId(), WorkflowConstants.STATUS_APPROVED, true) > 0)) {
-										folderImage = "folder_full_document";
-									}
+									PortletURL viewFolderURL = EntryURLUtil.getFolderPortletURL(folder, liferayPortletRequest, liferayPortletResponse, portletURL);
 								%>
 
 									<liferay-ui:search-container-column-icon
@@ -403,18 +470,30 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 									<liferay-ui:search-container-column-text
 										colspan="<%= 3 %>"
 									>
-										<liferay-ui:app-view-entry
-											author="<%= folder.getUserName() %>"
-											createDate="<%= folder.getCreateDate() %>"
-											description="<%= folder.getDescription() %>"
-											displayStyle="descriptive"
-											folder="<%= true %>"
-											markupView="lexicon"
-											modifiedDate="<%= folder.getModifiedDate() %>"
-											showCheckbox="<%= false %>"
-											title="<%= folder.getName() %>"
-											url="<%= viewFolderURL.toString() %>"
-										/>
+										<h5>
+											<a href="<%= HtmlUtil.escapeAttribute(viewFolderURL.toString()) %>" title="<%= folder.getName() %>">
+												<strong><%= HtmlUtil.escape(folder.getName()) %></strong>
+											</a>
+										</h5>
+
+										<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+											<h6 class="text-default">
+												<liferay-ui:message key="location" />:
+												<span class="text-secondary">
+													<clay:icon
+														symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(folder.getGroupId()) %>"
+													/>
+
+													<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(folder.getGroupId(), locale) %></small>
+												</span>
+											</h6>
+										</c:if>
+
+										<h6 class="text-default">
+											<liferay-ui:message key="created" />:
+
+											<liferay-ui:message arguments="<%= new String[] {LanguageUtil.getTimeDescription(locale, System.currentTimeMillis() - folder.getCreateDate().getTime(), true), HtmlUtil.escape(folder.getUserName())} %>" key="x-ago-by-x" translateArguments="<%= false %>" />
+										</h6>
 									</liferay-ui:search-container-column-text>
 
 								<%
@@ -425,7 +504,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 
 									FileVersion latestFileVersion = fileEntry.getLatestFileVersion();
 
-									String title = DLUtil.getTitleWithExtension(fileEntry);
+									String title = fileEntry.getTitle();
 
 									JSONObject itemMedatadaJSONObject = ItemSelectorRepositoryEntryBrowserUtil.getItemMetadataJSONObject(fileEntry, locale);
 
@@ -451,32 +530,43 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 										colspan="<%= 2 %>"
 									>
 										<div class="item-preview" data-href="<%= Validator.isNotNull(thumbnailSrc) ? HtmlUtil.escapeHREF(DLURLHelperUtil.getImagePreviewURL(fileEntry, themeDisplay)) : themeDisplay.getPathThemeImages() + "/file_system/large/default.png" %>" data-metadata="<%= HtmlUtil.escapeAttribute(itemMedatadaJSONObject.toString()) %>" data-returnType="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getItemSelectorReturnTypeClassName(itemSelectorReturnTypeResolver, existingFileEntryReturnType)) %>" data-title="<%= HtmlUtil.escapeAttribute(title) %>" data-url="<%= HtmlUtil.escapeAttribute(DLURLHelperUtil.getPreviewURL(fileEntry, latestFileVersion, themeDisplay, StringPool.BLANK)) %>" data-value="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getValue(itemSelectorReturnTypeResolver, existingFileEntryReturnType, fileEntry, themeDisplay)) %>">
-											<liferay-ui:app-view-entry
-												assetCategoryClassName="<%= DLFileEntry.class.getName() %>"
-												assetCategoryClassPK="<%= fileEntry.getFileEntryId() %>"
-												assetTagClassName="<%= DLFileEntry.class.getName() %>"
-												assetTagClassPK="<%= fileEntry.getFileEntryId() %>"
-												author="<%= fileEntry.getUserName() %>"
-												createDate="<%= fileEntry.getCreateDate() %>"
-												description="<%= fileEntry.getDescription() %>"
-												displayStyle="descriptive"
-												groupId="<%= fileEntry.getGroupId() %>"
-												markupView="lexicon"
-												modifiedDate="<%= fileEntry.getModifiedDate() %>"
-												showCheckbox="<%= false %>"
-												status="<%= latestFileVersion.getStatus() %>"
-												title="<%= title %>"
-												version="<%= String.valueOf(fileEntry.getVersion()) %>"
-											/>
+											<h5>
+												<strong><%= title %></strong>
+											</h5>
+
+											<c:if test="<%= repositoryEntryBrowserDisplayContext.isSearchEverywhere() %>">
+												<h6 class="text-default">
+													<liferay-ui:message key="location" />:
+													<span class="text-secondary">
+														<clay:icon
+															symbol="<%= repositoryEntryBrowserDisplayContext.getGroupCssIcon(fileEntry.getGroupId()) %>"
+														/>
+
+														<small><%= repositoryEntryBrowserDisplayContext.getGroupLabel(fileEntry.getGroupId(), locale) %></small>
+													</span>
+												</h6>
+											</c:if>
+
+											<h6 class="text-default">
+												<liferay-ui:message key="version" />:
+
+												<%= String.valueOf(fileEntry.getVersion()) %>
+											</h6>
+
+											<h6 class="text-default">
+												<liferay-ui:message key="last-updated" />:
+
+												<liferay-ui:message arguments="<%= new String[] {LanguageUtil.getTimeDescription(locale, System.currentTimeMillis() - fileEntry.getModifiedDate().getTime(), true), HtmlUtil.escape(latestFileVersion.getUserName())} %>" key="x-ago-by-x" translateArguments="<%= false %>" />
+											</h6>
 										</div>
 									</liferay-ui:search-container-column-text>
 
 									<liferay-ui:search-container-column-text>
 										<clay:button
-											elementClasses="btn-outline-borderless btn-outline-secondary component-action icon-view"
+											borderless="<%= true %>"
+											cssClass="component-action icon-view"
+											displayType="secondary"
 											icon="view"
-											monospaced="<%= true %>"
-											style="outline-secondary"
 										/>
 									</liferay-ui:search-container-column-text>
 
@@ -506,7 +596,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	</c:if>
 
 	<div class="item-selector-preview-container"></div>
-</div>
+</clay:container-fluid>
 
 <aui:script require='<%= npmResolvedPackageName + "/repository_entry_browser/js/ItemSelectorRepositoryEntryBrowser.es as ItemSelectorRepositoryEntryBrowser" %>'>
 	var itemSelector = new ItemSelectorRepositoryEntryBrowser.default({
@@ -547,7 +637,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 		</c:if>
 	});
 
-	itemSelector.on('selectedItem', function(event) {
+	itemSelector.on('selectedItem', function (event) {
 		Liferay.Util.getOpener().Liferay.fire(
 			'<%= itemSelectedEventName %>',
 			event

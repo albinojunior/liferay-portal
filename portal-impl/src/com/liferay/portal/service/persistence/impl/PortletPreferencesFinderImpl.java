@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.service.persistence.PortletPreferencesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.impl.PortletPreferencesImpl;
-import com.liferay.portal.model.impl.PortletPreferencesModelImpl;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.io.Serializable;
@@ -62,9 +61,6 @@ public class PortletPreferencesFinderImpl
 
 	public static final FinderPath FINDER_PATH_FIND_BY_C_G_O_O_P_P =
 		new FinderPath(
-			PortletPreferencesModelImpl.ENTITY_CACHE_ENABLED,
-			PortletPreferencesModelImpl.FINDER_CACHE_ENABLED,
-			PortletPreferencesImpl.class,
 			PortletPreferencesPersistenceImpl.
 				FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
 			"findByC_G_O_O_P_P",
@@ -72,7 +68,8 @@ public class PortletPreferencesFinderImpl
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Integer.class.getName(),
 				String.class.getName(), Boolean.class.getName()
-			});
+			},
+			new String[] {"ownerId", "ownerType", "portletId"}, true);
 
 	@Override
 	public long countByO_O_P(
@@ -115,10 +112,10 @@ public class PortletPreferencesFinderImpl
 
 			int count = 0;
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Long l = itr.next();
+			while (iterator.hasNext()) {
+				Long l = iterator.next();
 
 				if (l != null) {
 					count += l.intValue();
@@ -189,10 +186,10 @@ public class PortletPreferencesFinderImpl
 
 			int count = 0;
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Long l = itr.next();
+			while (iterator.hasNext()) {
+				Long l = iterator.next();
 
 				if (l != null) {
 					count += l.intValue();
@@ -302,9 +299,6 @@ public class PortletPreferencesFinderImpl
 					FINDER_PATH_FIND_BY_C_G_O_O_P_P, finderArgs, list);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(
-					FINDER_PATH_FIND_BY_C_G_O_O_P_P, finderArgs);
-
 				throw new SystemException(exception);
 			}
 			finally {

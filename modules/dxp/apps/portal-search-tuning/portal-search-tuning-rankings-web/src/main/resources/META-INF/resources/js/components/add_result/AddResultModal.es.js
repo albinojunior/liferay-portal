@@ -13,8 +13,9 @@ import ClayButton from '@clayui/button';
 import {useResource} from '@clayui/data-provider';
 import {ClayCheckbox} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
+import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import ClayModal, {useModal} from '@clayui/modal';
+import ClayModal from '@clayui/modal';
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import getCN from 'classnames';
@@ -40,8 +41,9 @@ import AddResultSearchBar from './AddResultSearchBar.es';
  */
 function AddResultModal({
 	fetchDocumentsSearchUrl,
+	observer,
 	onAddResultSubmit,
-	onCloseModal,
+	onClose,
 }) {
 	const {companyId, namespace, spritemap} = useContext(ThemeContext);
 
@@ -72,10 +74,6 @@ function AddResultModal({
 	 */
 	const [dataMap, setDataMap] = useState(false);
 
-	const {observer, onClose} = useModal({
-		onClose: _handleCloseModal,
-	});
-
 	const {refetch, resource} = useResource({
 		fetchOptions: FETCH_OPTIONS,
 		link: buildUrl(fetchDocumentsSearchUrl, {
@@ -84,7 +82,7 @@ function AddResultModal({
 			[`${namespace}keywords`]: searchQuery,
 			[`${namespace}size`]: delta,
 		}),
-		onNetworkStatusChange: status =>
+		onNetworkStatusChange: (status) =>
 			setResourceState({
 				error: status === 5,
 				loading: status < 4,
@@ -106,7 +104,7 @@ function AddResultModal({
 	function _deselectAll() {
 		setSelectedIds(
 			selectedIds.filter(
-				resultId => !_getCurrentResultIds().includes(resultId)
+				(resultId) => !_getCurrentResultIds().includes(resultId)
 			)
 		);
 	}
@@ -116,7 +114,7 @@ function AddResultModal({
 	 * @returns {Array} List of ids
 	 */
 	function _getCurrentResultIds() {
-		return resource.documents.map(result => result.id);
+		return resource.documents.map((result) => result.id);
 	}
 
 	/**
@@ -126,7 +124,7 @@ function AddResultModal({
 	 * @returns {Array} List of ids
 	 */
 	function _getCurrentResultSelectedIds() {
-		return selectedIds.filter(resultId =>
+		return selectedIds.filter((resultId) =>
 			_getCurrentResultIds().includes(resultId)
 		);
 	}
@@ -159,14 +157,6 @@ function AddResultModal({
 	 */
 	function _handleClearAllSelected() {
 		setSelectedIds([]);
-	}
-
-	/**
-	 * Closes the modal and reverts back to initial state for the next time the
-	 * modal is opened.
-	 */
-	function _handleCloseModal() {
-		onCloseModal();
 	}
 
 	/**
@@ -245,7 +235,7 @@ function AddResultModal({
 	function _handleSubmit(event) {
 		event.preventDefault();
 
-		onAddResultSubmit(selectedIds.map(id => dataMap[id]));
+		onAddResultSubmit(selectedIds.map((id) => dataMap[id]));
 
 		onClose();
 	}
@@ -305,7 +295,11 @@ function AddResultModal({
 			);
 		}
 
-		return <div className="add-result-sheet sheet">{emptyState}</div>;
+		return (
+			<ClayLayout.Sheet className="add-result-sheet">
+				{emptyState}
+			</ClayLayout.Sheet>
+		);
 	}
 
 	/**
@@ -339,9 +333,9 @@ function AddResultModal({
 
 		return (
 			<>
-				<div className="add-result-sheet sheet">
+				<ClayLayout.Sheet className="add-result-sheet">
 					<div className={classManagementBar}>
-						<div className="container-fluid container-fluid-max-xl">
+						<ClayLayout.ContainerFluid>
 							<ul className="navbar-nav navbar-nav-expand">
 								<li className="nav-item">
 									<ClayCheckbox
@@ -375,7 +369,7 @@ function AddResultModal({
 									</li>
 								)}
 							</ul>
-						</div>
+						</ClayLayout.ContainerFluid>
 					</div>
 
 					<ul className="list-group" data-testid="add-result-items">
@@ -384,6 +378,7 @@ function AddResultModal({
 								author={result.author}
 								clicks={result.clicks}
 								date={result.date}
+								description={result.description}
 								hidden={result.hidden}
 								icon={result.icon}
 								id={result.id}
@@ -393,10 +388,11 @@ function AddResultModal({
 								selected={selectedIds.includes(result.id)}
 								title={result.title}
 								type={result.type}
+								viewURL={result.viewURL}
 							/>
 						))}
 					</ul>
-				</div>
+				</ClayLayout.Sheet>
 
 				<div className="add-result-container">
 					<ClayPaginationBarWithBasicItems
@@ -423,7 +419,7 @@ function AddResultModal({
 
 	return (
 		<ClayModal
-			className="modal-full-screen-sm-down result-ranking-modal-root"
+			className="result-ranking-modal-root"
 			observer={observer}
 			size="lg"
 		>
@@ -458,15 +454,15 @@ function AddResultModal({
 						searchQuery={searchQuery}
 					/>
 
-					<div className="add-result-scroller inline-scroller">
+					<div className="add-result-scroller">
 						{loading && (
-							<div className="add-result-sheet sheet">
+							<ClayLayout.Sheet className="add-result-sheet">
 								<div className="sheet-title">
 									<div className="load-more-container">
 										<ClayLoadingIndicator />
 									</div>
 								</div>
-							</div>
+							</ClayLayout.Sheet>
 						)}
 
 						{!loading &&
@@ -504,7 +500,7 @@ function AddResultModal({
 AddResultModal.propTypes = {
 	fetchDocumentsSearchUrl: PropTypes.string.isRequired,
 	onAddResultSubmit: PropTypes.func.isRequired,
-	onCloseModal: PropTypes.func.isRequired,
+	onClose: PropTypes.func.isRequired,
 };
 
 export default AddResultModal;

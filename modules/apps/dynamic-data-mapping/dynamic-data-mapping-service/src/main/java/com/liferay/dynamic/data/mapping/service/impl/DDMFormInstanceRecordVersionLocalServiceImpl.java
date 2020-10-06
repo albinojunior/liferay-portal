@@ -110,4 +110,30 @@ public class DDMFormInstanceRecordVersionLocalServiceImpl
 		return ddmFormInstanceRecordVersions.get(0);
 	}
 
+	@Override
+	public DDMFormInstanceRecordVersion getLatestFormInstanceRecordVersion(
+			long ddmFormInstanceRecordId, int status)
+		throws PortalException {
+
+		List<DDMFormInstanceRecordVersion> ddmFormInstanceRecordVersions =
+			ddmFormInstanceRecordVersionPersistence.findByF_S(
+				ddmFormInstanceRecordId, status);
+
+		if (ddmFormInstanceRecordVersions.isEmpty()) {
+			throw new NoSuchFormInstanceRecordVersionException(
+				"No dynamic data mapping form instance record versions found " +
+					"for dynamic data mapping form instance ID " +
+						ddmFormInstanceRecordId);
+		}
+
+		ddmFormInstanceRecordVersions = ListUtil.copy(
+			ddmFormInstanceRecordVersions);
+
+		Collections.sort(
+			ddmFormInstanceRecordVersions,
+			new FormInstanceRecordVersionVersionComparator());
+
+		return ddmFormInstanceRecordVersions.get(0);
+	}
+
 }

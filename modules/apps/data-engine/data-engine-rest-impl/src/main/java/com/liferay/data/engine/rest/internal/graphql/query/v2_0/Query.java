@@ -15,11 +15,13 @@
 package com.liferay.data.engine.rest.internal.graphql.query.v2_0;
 
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
+import com.liferay.data.engine.rest.dto.v2_0.DataDefinitionFieldLink;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutPage;
 import com.liferay.data.engine.rest.dto.v2_0.DataListView;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecord;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecordCollection;
+import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionFieldLinkResource;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.data.engine.rest.resource.v2_0.DataLayoutResource;
 import com.liferay.data.engine.rest.resource.v2_0.DataListViewResource;
@@ -29,6 +31,8 @@ import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
@@ -63,6 +67,15 @@ public class Query {
 
 		_dataDefinitionResourceComponentServiceObjects =
 			dataDefinitionResourceComponentServiceObjects;
+	}
+
+	public static void
+		setDataDefinitionFieldLinkResourceComponentServiceObjects(
+			ComponentServiceObjects<DataDefinitionFieldLinkResource>
+				dataDefinitionFieldLinkResourceComponentServiceObjects) {
+
+		_dataDefinitionFieldLinkResourceComponentServiceObjects =
+			dataDefinitionFieldLinkResourceComponentServiceObjects;
 	}
 
 	public static void setDataLayoutResourceComponentServiceObjects(
@@ -142,7 +155,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinition(dataDefinitionId: ___){availableLanguageIds, contentType, dataDefinitionFields, dataDefinitionKey, dateCreated, dateModified, defaultDataLayout, defaultLanguageId, description, id, name, siteId, storageType, userId}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinition(dataDefinitionId: ___){availableLanguageIds, contentType, dataDefinitionFields, dataDefinitionKey, dataRules, dateCreated, dateModified, defaultDataLayout, defaultLanguageId, description, id, name, siteId, storageType, userId}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public DataDefinition dataDefinition(
@@ -154,26 +167,6 @@ public class Query {
 			this::_populateResourceContext,
 			dataDefinitionResource -> dataDefinitionResource.getDataDefinition(
 				dataDefinitionId));
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionDataDefinitionFieldLinks(dataDefinitionId: ___, fieldName: ___){}}"}' -u 'test@liferay.com:test'
-	 */
-	@GraphQLField
-	public String dataDefinitionDataDefinitionFieldLinks(
-			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
-			@GraphQLName("fieldName") String fieldName)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_dataDefinitionResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			dataDefinitionResource ->
-				dataDefinitionResource.
-					getDataDefinitionDataDefinitionFieldLinks(
-						dataDefinitionId, fieldName));
 	}
 
 	/**
@@ -225,7 +218,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionByContentTypeByDataDefinitionKey(contentType: ___, dataDefinitionKey: ___, siteKey: ___){availableLanguageIds, contentType, dataDefinitionFields, dataDefinitionKey, dateCreated, dateModified, defaultDataLayout, defaultLanguageId, description, id, name, siteId, storageType, userId}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionByContentTypeByDataDefinitionKey(contentType: ___, dataDefinitionKey: ___, siteKey: ___){availableLanguageIds, contentType, dataDefinitionFields, dataDefinitionKey, dataRules, dateCreated, dateModified, defaultDataLayout, defaultLanguageId, description, id, name, siteId, storageType, userId}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public DataDefinition dataDefinitionByContentTypeByDataDefinitionKey(
@@ -241,6 +234,26 @@ public class Query {
 				dataDefinitionResource.
 					getSiteDataDefinitionByContentTypeByDataDefinitionKey(
 						Long.valueOf(siteKey), contentType, dataDefinitionKey));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionDataDefinitionFieldLink(dataDefinitionId: ___, fieldName: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public DataDefinitionFieldLinkPage dataDefinitionDataDefinitionFieldLink(
+			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
+			@GraphQLName("fieldName") String fieldName)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_dataDefinitionFieldLinkResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			dataDefinitionFieldLinkResource -> new DataDefinitionFieldLinkPage(
+				dataDefinitionFieldLinkResource.
+					getDataDefinitionDataDefinitionFieldLinkPage(
+						dataDefinitionId, fieldName)));
 	}
 
 	/**
@@ -269,7 +282,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataLayout(dataLayoutId: ___){contentType, dataDefinitionId, dataLayoutKey, dataLayoutPages, dateCreated, dateModified, description, id, name, paginationMode, siteId, userId}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataLayout(dataLayoutId: ___){contentType, dataDefinitionId, dataLayoutKey, dataLayoutPages, dataRules, dateCreated, dateModified, description, id, name, paginationMode, siteId, userId}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public DataLayout dataLayout(@GraphQLName("dataLayoutId") Long dataLayoutId)
@@ -285,7 +298,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataLayoutByContentTypeByDataLayoutKey(contentType: ___, dataLayoutKey: ___, siteKey: ___){contentType, dataDefinitionId, dataLayoutKey, dataLayoutPages, dateCreated, dateModified, description, id, name, paginationMode, siteId, userId}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataLayoutByContentTypeByDataLayoutKey(contentType: ___, dataLayoutKey: ___, siteKey: ___){contentType, dataDefinitionId, dataLayoutKey, dataLayoutPages, dataRules, dateCreated, dateModified, description, id, name, paginationMode, siteId, userId}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public DataLayout dataLayoutByContentTypeByDataLayoutKey(
@@ -580,33 +593,6 @@ public class Query {
 	}
 
 	@GraphQLTypeExtension(DataDefinition.class)
-	public class GetDataDefinitionDataDefinitionFieldLinksTypeExtension {
-
-		public GetDataDefinitionDataDefinitionFieldLinksTypeExtension(
-			DataDefinition dataDefinition) {
-
-			_dataDefinition = dataDefinition;
-		}
-
-		@GraphQLField
-		public String dataDefinitionFieldLinks(
-				@GraphQLName("fieldName") String fieldName)
-			throws Exception {
-
-			return _applyComponentServiceObjects(
-				_dataDefinitionResourceComponentServiceObjects,
-				Query.this::_populateResourceContext,
-				dataDefinitionResource ->
-					dataDefinitionResource.
-						getDataDefinitionDataDefinitionFieldLinks(
-							_dataDefinition.getId(), fieldName));
-		}
-
-		private DataDefinition _dataDefinition;
-
-	}
-
-	@GraphQLTypeExtension(DataDefinition.class)
 	public class GetDataDefinitionDataRecordCollectionTypeExtension {
 
 		public GetDataDefinitionDataRecordCollectionTypeExtension(
@@ -676,6 +662,34 @@ public class Query {
 		}
 
 		private DataRecordCollection _dataRecordCollection;
+
+	}
+
+	@GraphQLTypeExtension(DataDefinition.class)
+	public class GetDataDefinitionDataDefinitionFieldLinkPageTypeExtension {
+
+		public GetDataDefinitionDataDefinitionFieldLinkPageTypeExtension(
+			DataDefinition dataDefinition) {
+
+			_dataDefinition = dataDefinition;
+		}
+
+		@GraphQLField
+		public DataDefinitionFieldLinkPage dataDefinitionFieldLink(
+				@GraphQLName("fieldName") String fieldName)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataDefinitionFieldLinkResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataDefinitionFieldLinkResource ->
+					new DataDefinitionFieldLinkPage(
+						dataDefinitionFieldLinkResource.
+							getDataDefinitionDataDefinitionFieldLinkPage(
+								_dataDefinition.getId(), fieldName)));
+		}
+
+		private DataDefinition _dataDefinition;
 
 	}
 
@@ -914,6 +928,7 @@ public class Query {
 
 		public DataDefinitionPage(Page dataDefinitionPage) {
 			actions = dataDefinitionPage.getActions();
+
 			items = dataDefinitionPage.getItems();
 			lastPage = dataDefinitionPage.getLastPage();
 			page = dataDefinitionPage.getPage();
@@ -941,11 +956,45 @@ public class Query {
 
 	}
 
+	@GraphQLName("DataDefinitionFieldLinkPage")
+	public class DataDefinitionFieldLinkPage {
+
+		public DataDefinitionFieldLinkPage(Page dataDefinitionFieldLinkPage) {
+			actions = dataDefinitionFieldLinkPage.getActions();
+
+			items = dataDefinitionFieldLinkPage.getItems();
+			lastPage = dataDefinitionFieldLinkPage.getLastPage();
+			page = dataDefinitionFieldLinkPage.getPage();
+			pageSize = dataDefinitionFieldLinkPage.getPageSize();
+			totalCount = dataDefinitionFieldLinkPage.getTotalCount();
+		}
+
+		@GraphQLField
+		protected Map<String, Map> actions;
+
+		@GraphQLField
+		protected java.util.Collection<DataDefinitionFieldLink> items;
+
+		@GraphQLField
+		protected long lastPage;
+
+		@GraphQLField
+		protected long page;
+
+		@GraphQLField
+		protected long pageSize;
+
+		@GraphQLField
+		protected long totalCount;
+
+	}
+
 	@GraphQLName("DataLayoutPage")
 	public class DataLayoutPage {
 
 		public DataLayoutPage(Page dataLayoutPage) {
 			actions = dataLayoutPage.getActions();
+
 			items = dataLayoutPage.getItems();
 			lastPage = dataLayoutPage.getLastPage();
 			page = dataLayoutPage.getPage();
@@ -978,6 +1027,7 @@ public class Query {
 
 		public DataListViewPage(Page dataListViewPage) {
 			actions = dataListViewPage.getActions();
+
 			items = dataListViewPage.getItems();
 			lastPage = dataListViewPage.getLastPage();
 			page = dataListViewPage.getPage();
@@ -1010,6 +1060,7 @@ public class Query {
 
 		public DataRecordPage(Page dataRecordPage) {
 			actions = dataRecordPage.getActions();
+
 			items = dataRecordPage.getItems();
 			lastPage = dataRecordPage.getLastPage();
 			page = dataRecordPage.getPage();
@@ -1042,6 +1093,7 @@ public class Query {
 
 		public DataRecordCollectionPage(Page dataRecordCollectionPage) {
 			actions = dataRecordCollectionPage.getActions();
+
 			items = dataRecordCollectionPage.getItems();
 			lastPage = dataRecordCollectionPage.getLastPage();
 			page = dataRecordCollectionPage.getPage();
@@ -1100,6 +1152,26 @@ public class Query {
 			_httpServletResponse);
 		dataDefinitionResource.setContextUriInfo(_uriInfo);
 		dataDefinitionResource.setContextUser(_user);
+		dataDefinitionResource.setGroupLocalService(_groupLocalService);
+		dataDefinitionResource.setRoleLocalService(_roleLocalService);
+	}
+
+	private void _populateResourceContext(
+			DataDefinitionFieldLinkResource dataDefinitionFieldLinkResource)
+		throws Exception {
+
+		dataDefinitionFieldLinkResource.setContextAcceptLanguage(
+			_acceptLanguage);
+		dataDefinitionFieldLinkResource.setContextCompany(_company);
+		dataDefinitionFieldLinkResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		dataDefinitionFieldLinkResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		dataDefinitionFieldLinkResource.setContextUriInfo(_uriInfo);
+		dataDefinitionFieldLinkResource.setContextUser(_user);
+		dataDefinitionFieldLinkResource.setGroupLocalService(
+			_groupLocalService);
+		dataDefinitionFieldLinkResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(DataLayoutResource dataLayoutResource)
@@ -1111,6 +1183,8 @@ public class Query {
 		dataLayoutResource.setContextHttpServletResponse(_httpServletResponse);
 		dataLayoutResource.setContextUriInfo(_uriInfo);
 		dataLayoutResource.setContextUser(_user);
+		dataLayoutResource.setGroupLocalService(_groupLocalService);
+		dataLayoutResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(
@@ -1124,6 +1198,8 @@ public class Query {
 			_httpServletResponse);
 		dataListViewResource.setContextUriInfo(_uriInfo);
 		dataListViewResource.setContextUser(_user);
+		dataListViewResource.setGroupLocalService(_groupLocalService);
+		dataListViewResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(DataRecordResource dataRecordResource)
@@ -1135,6 +1211,8 @@ public class Query {
 		dataRecordResource.setContextHttpServletResponse(_httpServletResponse);
 		dataRecordResource.setContextUriInfo(_uriInfo);
 		dataRecordResource.setContextUser(_user);
+		dataRecordResource.setGroupLocalService(_groupLocalService);
+		dataRecordResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(
@@ -1149,10 +1227,14 @@ public class Query {
 			_httpServletResponse);
 		dataRecordCollectionResource.setContextUriInfo(_uriInfo);
 		dataRecordCollectionResource.setContextUser(_user);
+		dataRecordCollectionResource.setGroupLocalService(_groupLocalService);
+		dataRecordCollectionResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private static ComponentServiceObjects<DataDefinitionResource>
 		_dataDefinitionResourceComponentServiceObjects;
+	private static ComponentServiceObjects<DataDefinitionFieldLinkResource>
+		_dataDefinitionFieldLinkResourceComponentServiceObjects;
 	private static ComponentServiceObjects<DataLayoutResource>
 		_dataLayoutResourceComponentServiceObjects;
 	private static ComponentServiceObjects<DataListViewResource>
@@ -1163,12 +1245,14 @@ public class Query {
 		_dataRecordCollectionResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
-	private BiFunction<Object, String, Filter> _filterBiFunction;
-	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private com.liferay.portal.kernel.model.Company _company;
-	private com.liferay.portal.kernel.model.User _user;
+	private BiFunction<Object, String, Filter> _filterBiFunction;
+	private GroupLocalService _groupLocalService;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
+	private RoleLocalService _roleLocalService;
+	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
+	private com.liferay.portal.kernel.model.User _user;
 
 }

@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -40,6 +42,7 @@ public class GroupWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("uuid", getUuid());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
@@ -71,6 +74,12 @@ public class GroupWrapper
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
 		}
 
 		String uuid = (String)attributes.get("uuid");
@@ -242,9 +251,11 @@ public class GroupWrapper
 	@Override
 	public java.util.List<Group> getChildrenWithLayouts(
 		boolean site, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<Group> obc) {
+		com.liferay.portal.kernel.util.OrderByComparator<Group>
+			orderByComparator) {
 
-		return model.getChildrenWithLayouts(site, start, end, obc);
+		return model.getChildrenWithLayouts(
+			site, start, end, orderByComparator);
 	}
 
 	@Override
@@ -310,6 +321,16 @@ public class GroupWrapper
 	@Override
 	public String getCreatorUserUuid() {
 		return model.getCreatorUserUuid();
+	}
+
+	/**
+	 * Returns the ct collection ID of this group.
+	 *
+	 * @return the ct collection ID of this group
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
 	}
 
 	@Override
@@ -858,6 +879,11 @@ public class GroupWrapper
 	}
 
 	@Override
+	public boolean isDepot() {
+		return model.isDepot();
+	}
+
+	@Override
 	public boolean isGuest() {
 		return model.isGuest();
 	}
@@ -1060,6 +1086,16 @@ public class GroupWrapper
 	@Override
 	public void setCreatorUserUuid(String creatorUserUuid) {
 		model.setCreatorUserUuid(creatorUserUuid);
+	}
+
+	/**
+	 * Sets the ct collection ID of this group.
+	 *
+	 * @param ctCollectionId the ct collection ID of this group
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
 	}
 
 	/**
@@ -1345,9 +1381,9 @@ public class GroupWrapper
 	@Override
 	public void setTypeSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties
-			typeSettingsProperties) {
+			typeSettingsUnicodeProperties) {
 
-		model.setTypeSettingsProperties(typeSettingsProperties);
+		model.setTypeSettingsProperties(typeSettingsUnicodeProperties);
 	}
 
 	/**
@@ -1363,6 +1399,18 @@ public class GroupWrapper
 	@Override
 	public void updateTreePath(String treePath) {
 		model.updateTreePath(treePath);
+	}
+
+	@Override
+	public Map<String, Function<Group, Object>> getAttributeGetterFunctions() {
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<Group, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

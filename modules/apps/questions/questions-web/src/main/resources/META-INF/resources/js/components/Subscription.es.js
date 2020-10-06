@@ -12,40 +12,52 @@
  * details.
  */
 
+import {useMutation} from '@apollo/client';
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
-import classnames from 'classnames';
-import React from 'react';
+import {ClayTooltipProvider} from '@clayui/tooltip';
+import React, {useEffect, useState} from 'react';
 
-import {subscribe, unsubscribe} from '../utils/client.es';
+import {subscribeQuery, unsubscribeQuery} from '../utils/client.es';
 
-export default ({onSubscription, question}) => {
+export default ({question: {id: messageBoardThreadId, subscribed}}) => {
+	const [subscription, setSubscription] = useState(false);
+
+	useEffect(() => {
+		setSubscription(subscribed);
+	}, [subscribed]);
+
+	const onCompleted = () => {
+		setSubscription(!subscription);
+	};
+
+	const [subscribe] = useMutation(subscribeQuery, {onCompleted});
+	const [unsubscribe] = useMutation(unsubscribeQuery, {onCompleted});
+
 	const changeSubscription = () => {
-		const promise = question.subscribed
-			? unsubscribe(question.id)
-			: subscribe(question.id);
-		promise.then(() => {
-			if (onSubscription) {
-				onSubscription(!question.subscribed);
-			}
-		});
+		if (subscription) {
+			unsubscribe({variables: {messageBoardThreadId}});
+		}
+		else {
+			subscribe({variables: {messageBoardThreadId}});
+		}
 	};
 
 	return (
-		<ClayButton
-			className={classnames({
-				'question-subscribed': question.subscribed,
-			})}
-			displayType="secondary"
-			monospaced
-			onClick={changeSubscription}
-		>
-			<ClayIcon
-				className={classnames({
-					'question-bell-subscribed': question.subscribed,
-				})}
-				symbol="bell-on"
-			/>
-		</ClayButton>
+		<ClayTooltipProvider>
+			<ClayButton
+				data-tooltip-align="top"
+				displayType={subscription ? 'primary' : 'secondary'}
+				monospaced
+				onClick={changeSubscription}
+				title={
+					subscription
+						? Liferay.Language.get('unsubscribe')
+						: Liferay.Language.get('subscribe')
+				}
+			>
+				<ClayIcon symbol="bell-on" />
+			</ClayButton>
+		</ClayTooltipProvider>
 	);
 };

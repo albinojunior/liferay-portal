@@ -16,6 +16,8 @@ package com.liferay.document.library.item.selector.web.internal.display.context;
 
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryServiceUtil;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.item.selector.web.internal.DLItemSelectorView;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
@@ -30,6 +32,7 @@ import com.liferay.item.selector.ItemSelectorReturnTypeResolver;
 import com.liferay.item.selector.ItemSelectorReturnTypeResolverHandler;
 import com.liferay.item.selector.criteria.info.item.criterion.InfoItemItemSelectorCriterion;
 import com.liferay.item.selector.taglib.servlet.taglib.util.RepositoryEntryBrowserTagUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.dao.search.SearchPaginationUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -51,13 +54,15 @@ import com.liferay.portal.kernel.search.SearchResult;
 import com.liferay.portal.kernel.search.SearchResultUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionHelper;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -66,6 +71,7 @@ import com.liferay.staging.StagingGroupHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.portlet.ActionRequest;
@@ -118,7 +124,9 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		return _itemSelectedEventName;
 	}
 
-	public ItemSelectorReturnTypeResolver getItemSelectorReturnTypeResolver() {
+	public ItemSelectorReturnTypeResolver<?, ?>
+		getItemSelectorReturnTypeResolver() {
+
 		return _itemSelectorReturnTypeResolverHandler.
 			getItemSelectorReturnTypeResolver(
 				_itemSelectorCriterion, _dlItemSelectorView, FileEntry.class);
@@ -138,7 +146,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 	}
 
 	public List<Object> getRepositoryEntries() throws Exception {
-		if (_search) {
+		if (_isSearch()) {
 			Hits hits = _getHits();
 
 			Document[] docs = hits.getDocs();
@@ -212,7 +220,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 	}
 
 	public int getRepositoryEntriesCount() throws PortalException {
-		if (_search) {
+		if (_isSearch()) {
 			Hits hits = _getHits();
 
 			return hits.getLength();
@@ -256,7 +264,8 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 
 		List<AssetVocabulary> assetVocabularies =
 			_assetVocabularyService.getGroupVocabularies(
-				_getStagingAwareGroupId());
+				PortalUtil.getCurrentAndAncestorSiteGroupIds(
+					_themeDisplay.getScopeGroupId()));
 
 		if (!assetVocabularies.isEmpty()) {
 			long classNameId = _classNameLocalService.getClassNameId(
@@ -289,7 +298,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			return _showDragAndDropZone;
 		}
 
-		if (!ModelResourcePermissionHelper.contains(
+		if (!ModelResourcePermissionUtil.contains(
 				_folderModelResourcePermission,
 				_themeDisplay.getPermissionChecker(),
 				_themeDisplay.getScopeGroupId(), _getFolderId(),
@@ -341,6 +350,22 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
 		return _folderId;
+	}
+
+	private long[] _getGroupIds() throws PortalException {
+		if (_isEverywhereScopeFilter()) {
+			return ArrayUtil.append(
+				PortalUtil.getCurrentAndAncestorSiteGroupIds(
+					_themeDisplay.getScopeGroupId()),
+				ListUtil.toLongArray(
+					DepotEntryServiceUtil.getGroupConnectedDepotEntries(
+						_themeDisplay.getScopeGroupId(), QueryUtil.ALL_POS,
+						QueryUtil.ALL_POS),
+					DepotEntry::getGroupId));
+		}
+
+		return PortalUtil.getCurrentAndAncestorSiteGroupIds(
+			_themeDisplay.getScopeGroupId());
 	}
 
 	private Hits _getHits() throws PortalException {
@@ -426,7 +451,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		searchContext.setAttribute("mimeTypes", _getMimeTypes());
 		searchContext.setEnd(startAndEnd[1]);
 		searchContext.setFolderIds(new long[] {_getFolderId()});
-		searchContext.setGroupIds(new long[] {_getStagingAwareGroupId()});
+		searchContext.setGroupIds(_getGroupIds());
 		searchContext.setStart(startAndEnd[0]);
 
 		_searchContext = searchContext;
@@ -474,6 +499,17 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		return _startAndEnd;
 	}
 
+	private boolean _isEverywhereScopeFilter() {
+		if (Objects.equals(
+				ParamUtil.getString(_httpServletRequest, "scope"),
+				"everywhere")) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private boolean _isFilterByFileEntryType() {
 		if (_filterByFileEntryType != null) {
 			return _filterByFileEntryType;
@@ -497,6 +533,14 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		_filterByFileEntryType = filterByFileEntryType;
 
 		return _filterByFileEntryType;
+	}
+
+	private boolean _isSearch() {
+		if (_isEverywhereScopeFilter()) {
+			return true;
+		}
+
+		return _search;
 	}
 
 	private final AssetVocabularyService _assetVocabularyService;

@@ -57,8 +57,8 @@ public class ${entity.name}Util {
 	/**
 	 * @see com.liferay.portal.kernel.service.persistence.BasePersistence#clearCache(com.liferay.portal.kernel.model.BaseModel)
 	 */
-	public static void clearCache(${entity.name} ${entity.varName}) {
-		getPersistence().clearCache(${entity.varName});
+	public static void clearCache(${entity.name} ${entity.variableName}) {
+		getPersistence().clearCache(${entity.variableName});
 	}
 
 	/**
@@ -99,15 +99,15 @@ public class ${entity.name}Util {
 	/**
 	 * @see com.liferay.portal.kernel.service.persistence.BasePersistence#update(com.liferay.portal.kernel.model.BaseModel)
 	 */
-	public static ${entity.name} update(${entity.name} ${entity.varName}) {
-		return getPersistence().update(${entity.varName});
+	public static ${entity.name} update(${entity.name} ${entity.variableName}) {
+		return getPersistence().update(${entity.variableName});
 	}
 
 	/**
 	 * @see com.liferay.portal.kernel.service.persistence.BasePersistence#update(com.liferay.portal.kernel.model.BaseModel, ServiceContext)
 	 */
-	public static ${entity.name} update(${entity.name} ${entity.varName}, ServiceContext serviceContext) {
-		return getPersistence().update(${entity.varName}, serviceContext);
+	public static ${entity.name} update(${entity.name} ${entity.variableName}, ServiceContext serviceContext) {
+		return getPersistence().update(${entity.variableName}, serviceContext);
 	}
 
 	<#list methods as method>

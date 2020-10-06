@@ -24,6 +24,7 @@ import {archiveExperiment} from '../state/actions.es';
 import {DispatchContext, StateContext} from '../state/context.es';
 import {SegmentsExperienceType} from '../types.es';
 import {NO_EXPERIMENT_ILLUSTRATION_FILE_NAME} from '../util/contants.es';
+import {navigateToExperience} from '../util/navigation.es';
 import {
 	STATUS_COMPLETED,
 	STATUS_DRAFT,
@@ -66,7 +67,7 @@ function SegmentsExperiments({
 		? experiment.segmentsExperienceId
 		: selectedExperienceId;
 	const noExperimentIllustration = `${assetsPath}${NO_EXPERIMENT_ILLUSTRATION_FILE_NAME}`;
-	const winnerVariant = variants.find(variant => variant.winner === true);
+	const winnerVariant = variants.find((variant) => variant.winner === true);
 
 	return (
 		<>
@@ -80,7 +81,7 @@ function SegmentsExperiments({
 							defaultValue={_selectedExperienceId}
 							onChange={_handleExperienceSelection}
 						>
-							{segmentsExperiences.map(segmentsExperience => {
+							{segmentsExperiences.map((segmentsExperience) => {
 								return (
 									<ClaySelect.Option
 										key={
@@ -218,7 +219,7 @@ function SegmentsExperiments({
 									allowEdit={
 										experiment.status.value === STATUS_DRAFT
 									}
-									onSelectClickGoalTarget={selector => {
+									onSelectClickGoalTarget={(selector) => {
 										onTargetChange(selector);
 									}}
 									target={experiment.goal.target}
@@ -324,8 +325,9 @@ function SegmentsExperiments({
 							status: segmentsExperiment.status,
 						})
 					);
+					navigateToExperience(experienceId);
 				})
-				.catch(_error => {
+				.catch((_error) => {
 					openErrorToast();
 				});
 		}

@@ -15,6 +15,7 @@
 package com.liferay.mail.reader.service;
 
 import com.liferay.mail.reader.model.Message;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -59,7 +60,7 @@ public interface MessageLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link MessageLocalServiceUtil} to access the message local service. Add custom service methods to <code>com.liferay.mail.reader.service.impl.MessageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.mail.reader.service.impl.MessageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the message local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link MessageLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public Message addMessage(
 			long userId, long folderId, String sender, String to, String cc,
@@ -69,6 +70,10 @@ public interface MessageLocalService
 
 	/**
 	 * Adds the message to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param message the message
 	 * @return the message that was added
@@ -94,6 +99,10 @@ public interface MessageLocalService
 	/**
 	 * Deletes the message with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param messageId the primary key of the message
 	 * @return the message that was removed
 	 * @throws PortalException if a message with the primary key could not be found
@@ -103,6 +112,10 @@ public interface MessageLocalService
 
 	/**
 	 * Deletes the message from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param message the message
 	 * @return the message that was removed
@@ -119,6 +132,9 @@ public interface MessageLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -286,6 +302,10 @@ public interface MessageLocalService
 
 	/**
 	 * Updates the message in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param message the message
 	 * @return the message that was updated

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.kernel.workflow.WorkflowInstance;
 import com.liferay.portal.kernel.workflow.WorkflowInstanceManager;
+import com.liferay.portal.kernel.workflow.search.WorkflowModelSearchResult;
 import com.liferay.portal.lock.service.LockLocalService;
 import com.liferay.portal.workflow.kaleo.runtime.WorkflowEngine;
 import com.liferay.portal.workflow.kaleo.runtime.integration.internal.util.WorkflowLockUtil;
@@ -70,6 +71,9 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 			return _workflowEngine.getNextTransitionNames(
 				workflowInstanceId, serviceContext);
 		}
+		catch (WorkflowException workflowException) {
+			throw workflowException;
+		}
 		catch (Exception exception) {
 			throw new WorkflowException(exception);
 		}
@@ -83,6 +87,20 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setCompanyId(companyId);
+
+		return _workflowEngine.getWorkflowInstance(
+			workflowInstanceId, serviceContext);
+	}
+
+	@Override
+	public WorkflowInstance getWorkflowInstance(
+			long companyId, long userId, long workflowInstanceId)
+		throws WorkflowException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+		serviceContext.setUserId(userId);
 
 		return _workflowEngine.getWorkflowInstance(
 			workflowInstanceId, serviceContext);
@@ -245,6 +263,24 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 		return _workflowEngine.searchCount(
 			userId, assetClassName, assetTitle, assetDescription, nodeName,
 			kaleoDefinitionName, completed, serviceContext);
+	}
+
+	@Override
+	public WorkflowModelSearchResult<WorkflowInstance> searchWorkflowInstances(
+			long companyId, Long userId, String assetClassName,
+			String assetTitle, String assetDescription, String nodeName,
+			String kaleoDefinitionName, Boolean completed, int start, int end,
+			OrderByComparator<WorkflowInstance> orderByComparator)
+		throws WorkflowException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+
+		return _workflowEngine.searchWorkflowInstances(
+			userId, assetClassName, assetTitle, assetDescription, nodeName,
+			kaleoDefinitionName, completed, start, end, orderByComparator,
+			serviceContext);
 	}
 
 	@Override

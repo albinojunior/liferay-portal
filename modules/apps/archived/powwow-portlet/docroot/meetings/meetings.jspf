@@ -23,7 +23,6 @@ if (tabs1.equals("completed")) {
 	statuses = new int[] {PowwowMeetingConstants.STATUS_COMPLETED};
 }
 
-int delta = ParamUtil.getInteger(request, "delta", 10);
 String orderByCol = ParamUtil.getString(request, "orderByCol", "date");
 String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 %>
@@ -47,7 +46,7 @@ String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 	/>
 
 	<liferay-ui:search-container
-		delta="<%= delta %>"
+		delta='<%= ParamUtil.getInteger(request, "delta", 10) %>'
 		emptyResultsMessage="there-are-no-meetings"
 		iteratorURL="<%= portletURL %>"
 		orderByCol="<%= orderByCol %>"
@@ -57,7 +56,7 @@ String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 		<liferay-ui:search-container-results>
 
 			<%
-			Indexer indexer = IndexerRegistryUtil.getIndexer(PowwowMeeting.class);
+			Indexer<PowwowMeeting> indexer = IndexerRegistryUtil.getIndexer(PowwowMeeting.class);
 
 			SearchContext searchContext = SearchContextFactory.getInstance(request);
 
@@ -77,7 +76,9 @@ String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 
 			List<PowwowMeeting> powwowMeetings = new ArrayList<PowwowMeeting>();
 
-			for (int i = 0; i < hits.getDocs().length; i++) {
+			Document[] documents = hits.getDocs();
+
+			for (int i = 0; i < documents.length; i++) {
 				Document document = hits.doc(i);
 
 				long resultPowwowMeetingId = GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK));

@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistryUtil;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.UserNotificationEventPersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
@@ -76,6 +77,10 @@ public abstract class TasksEntryLocalServiceBaseImpl
 	/**
 	 * Adds the tasks entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param tasksEntry the tasks entry
 	 * @return the tasks entry that was added
 	 */
@@ -102,6 +107,10 @@ public abstract class TasksEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the tasks entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param tasksEntryId the primary key of the tasks entry
 	 * @return the tasks entry that was removed
 	 * @throws PortalException if a tasks entry with the primary key could not be found
@@ -116,6 +125,10 @@ public abstract class TasksEntryLocalServiceBaseImpl
 
 	/**
 	 * Deletes the tasks entry from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tasksEntry the tasks entry
 	 * @return the tasks entry that was removed
@@ -295,6 +308,10 @@ public abstract class TasksEntryLocalServiceBaseImpl
 			(TasksEntry)persistedModel);
 	}
 
+	public BasePersistence<TasksEntry> getBasePersistence() {
+		return tasksEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -333,6 +350,10 @@ public abstract class TasksEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the tasks entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tasksEntry the tasks entry
 	 * @return the tasks entry that was updated

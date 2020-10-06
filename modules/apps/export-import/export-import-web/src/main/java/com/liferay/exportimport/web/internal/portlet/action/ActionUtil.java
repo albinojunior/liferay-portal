@@ -14,8 +14,8 @@
 
 package com.liferay.exportimport.web.internal.portlet.action;
 
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
+import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Portlet;
@@ -132,9 +132,6 @@ public class ActionUtil {
 	public static String getTitle(Portlet portlet, RenderRequest renderRequest)
 		throws Exception {
 
-		ServletContext servletContext =
-			(ServletContext)renderRequest.getAttribute(WebKeys.CTX);
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -151,6 +148,9 @@ public class ActionUtil {
 			portletSetup, themeDisplay.getLanguageId());
 
 		if (Validator.isNull(title)) {
+			ServletContext servletContext =
+				(ServletContext)renderRequest.getAttribute(WebKeys.CTX);
+
 			title = PortalUtil.getPortletTitle(
 				portlet, servletContext, themeDisplay.getLocale());
 		}

@@ -14,25 +14,46 @@
 
 package com.liferay.portal.search.internal.background.task;
 
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
+import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
+import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.IndexerRegistry;
+import com.liferay.portal.kernel.search.SearchEngine;
+import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.background.task.ReindexBackgroundTaskConstants;
-import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSenderUtil;
+import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSender;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
+import java.util.Collection;
 import java.util.Map;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Andrew Betts
  */
+@Component(
+	immediate = true,
+	property = "background.task.executor.class.name=com.liferay.portal.search.internal.background.task.ReindexSingleIndexerBackgroundTaskExecutor",
+	service = {
+		BackgroundTaskExecutor.class,
+		ReindexSingleIndexerBackgroundTaskExecutor.class
+	}
+)
 public class ReindexSingleIndexerBackgroundTaskExecutor
 	extends ReindexBackgroundTaskExecutor {
 
@@ -42,7 +63,7 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 
 	@Override
 	public BackgroundTaskExecutor clone() {
-		return new ReindexSingleIndexerBackgroundTaskExecutor();
+		return this;
 	}
 
 	@Override
@@ -59,23 +80,64 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 		return super.generateLockKey(backgroundTask);
 	}
 
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		systemIndexers = ServiceTrackerListFactory.open(
+			bundleContext, (Class<Indexer<?>>)(Class<?>)Indexer.class,
+			"(system.index=true)");
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		if (systemIndexers != null) {
+			systemIndexers.close();
+		}
+	}
+
+	protected boolean isSystemIndexer(Indexer<?> indexer) {
+		if (systemIndexers.size() > 0) {
+			for (Indexer<?> systemIndexer : systemIndexers) {
+				if (indexer.equals(systemIndexer)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	@Override
 	protected void reindex(String className, long[] companyIds)
 		throws Exception {
 
-		Indexer<?> indexer = IndexerRegistryUtil.getIndexer(className);
+		Indexer<?> indexer = indexerRegistry.getIndexer(className);
 
 		if (indexer == null) {
 			return;
 		}
 
+		Collection<SearchEngine> searchEngines =
+			searchEngineHelper.getSearchEngines();
+
+		boolean systemIndexer = isSystemIndexer(indexer);
+
 		for (long companyId : companyIds) {
-			ReindexStatusMessageSenderUtil.sendStatusMessage(
+			if (((companyId == CompanyConstants.SYSTEM) && !systemIndexer) ||
+				((companyId != CompanyConstants.SYSTEM) && systemIndexer)) {
+
+				continue;
+			}
+
+			reindexStatusMessageSender.sendStatusMessage(
 				ReindexBackgroundTaskConstants.SINGLE_START, companyId,
 				companyIds);
 
 			try {
-				IndexWriterHelperUtil.deleteEntityDocuments(
+				for (SearchEngine searchEngine : searchEngines) {
+					searchEngine.initialize(companyId);
+				}
+
+				indexWriterHelper.deleteEntityDocuments(
 					indexer.getSearchEngineId(), companyId, className, true);
 
 				indexer.reindex(new String[] {String.valueOf(companyId)});
@@ -84,12 +146,29 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 				_log.error(exception, exception);
 			}
 			finally {
-				ReindexStatusMessageSenderUtil.sendStatusMessage(
+				reindexStatusMessageSender.sendStatusMessage(
 					ReindexBackgroundTaskConstants.SINGLE_END, companyId,
 					companyIds);
 			}
 		}
 	}
+
+	protected static volatile IndexWriterHelper indexWriterHelper =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			IndexWriterHelper.class,
+			ReindexSingleIndexerBackgroundTaskExecutor.class,
+			"indexWriterHelper", true);
+
+	@Reference
+	protected IndexerRegistry indexerRegistry;
+
+	@Reference
+	protected ReindexStatusMessageSender reindexStatusMessageSender;
+
+	@Reference
+	protected SearchEngineHelper searchEngineHelper;
+
+	protected ServiceTrackerList<Indexer<?>, Indexer<?>> systemIndexers;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ReindexSingleIndexerBackgroundTaskExecutor.class);

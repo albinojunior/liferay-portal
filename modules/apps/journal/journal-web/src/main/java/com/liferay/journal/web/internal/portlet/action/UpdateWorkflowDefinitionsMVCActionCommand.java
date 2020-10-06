@@ -14,9 +14,9 @@
 
 package com.liferay.journal.web.internal.portlet.action;
 
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalFolderService;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -54,7 +54,7 @@ public class UpdateWorkflowDefinitionsMVCActionCommand
 			ParamUtil.getString(
 				actionRequest, "ddmStructuresSearchContainerPrimaryKeys"),
 			0L);
-		int restrinctionType = ParamUtil.getInteger(
+		int restrictionType = ParamUtil.getInteger(
 			actionRequest, "restrictionType");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
@@ -64,7 +64,7 @@ public class UpdateWorkflowDefinitionsMVCActionCommand
 			serviceContext.getScopeGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, null, null,
-			ddmStructureIds, restrinctionType, false, serviceContext);
+			ddmStructureIds, restrictionType, false, serviceContext);
 	}
 
 	@Reference

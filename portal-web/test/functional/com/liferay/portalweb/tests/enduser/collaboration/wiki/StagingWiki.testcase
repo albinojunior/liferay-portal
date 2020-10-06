@@ -1,10 +1,9 @@
-@component-name = "portal-staging"
+@component-name = "portal-collaboration"
 definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
-	property testray.component.names = "Wiki";
-	property testray.main.component.name = "Staging";
+	property testray.main.component.name = "Wiki";
 
 	setUp {
 		TestCase.setUpPortalInstance();
@@ -110,108 +109,6 @@ definition {
 		AssertElementNotPresent(locator1 = "WikiTable#ALL_PAGES_PAGE_2");
 	}
 
-	@description = "This is a use case for LPS-74621."
-	@priority = "3"
-	test CommentAndRateWikiFrontPageOnLiveSite {
-		Navigator.gotoStagedSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		Portlet.addPG(portletName = "Wiki");
-
-		WikiPage.addFrontPagePG(wikiPageContent = "Wiki FrontPage Content");
-
-		Navigator.gotoStagedSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		Staging.gotoPublishToLive();
-
-		Staging.publishToLive();
-
-		Navigator.gotoSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		WikiNavigator.gotoFrontPagePG();
-
-		WikiPage.viewFrontPagePG(
-			wikiPageContent = "Wiki FrontPage Content",
-			wikiPageTitle = "FrontPage");
-
-		WikiPage.rate4StarsPG(wikiPageTitle = "FrontPage");
-
-		Comments.addPG(entryComment = "Wiki FrontPage Comment");
-
-		Navigator.gotoSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		AssetPublisherPortlet.viewAssetRatingPG(rating = "4");
-
-		AssetPublisherPortlet.viewAverageRatingPG(averageRating = "4");
-
-		Comments.viewPG(
-			commentCount = "1",
-			entryComment = "Wiki FrontPage Comment",
-			userFullName = "Test Test (You)");
-
-		Navigator.gotoStagedSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		WikiPage.viewFrontPagePG(
-			wikiPageContent = "Wiki FrontPage Content",
-			wikiPageTitle = "FrontPage");
-
-		Comments.viewCommentReadOnly();
-
-		Ratings.viewRatingWithStarsReadOnly();
-
-		Staging.openStagingAdmin(siteURLKey = "site-name-staging");
-
-		Staging.deactivateStagingCP(siteName = "Site Name");
-
-		Navigator.gotoSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		LAR.exportPortlet(larFileName = "Wiki.portlet.lar");
-
-		JSONGroup.addGroup(groupName = "Second Site");
-
-		JSONLayout.addPublicLayout(
-			groupName = "Second Site",
-			layoutName = "Wiki Page");
-
-		JSONLayout.addWidgetToPublicLayout(
-			column = "1",
-			groupName = "Second Site",
-			layoutName = "Wiki Page",
-			widgetName = "Wiki");
-
-		Navigator.openSiteURL(siteName = "Second Site");
-
-		LAR.importPortlet(larFileName = "Wiki.portlet.lar");
-
-		Navigator.openSiteURL(siteName = "Second Site");
-
-		WikiPage.viewFrontPagePG(
-			viewWikiNode = "true",
-			wikiNodeName = "Main 2",
-			wikiPageContent = "Wiki FrontPage Content",
-			wikiPageTitle = "FrontPage");
-
-		AssetPublisherPortlet.viewAssetRatingPG(rating = "4");
-
-		AssetPublisherPortlet.viewAverageRatingPG(averageRating = "4");
-
-		Comments.viewPG(
-			commentCount = "1",
-			entryComment = "Wiki FrontPage Comment",
-			userFullName = "Test Test (You)");
-	}
-
 	@description = "This is a use case for LPS-73992."
 	@priority = "5"
 	test RemoveStagedWikiAttachment {
@@ -293,7 +190,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -304,7 +200,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -317,11 +212,12 @@ definition {
 
 		WikiEntry.addPageContent(wikiPageContent = "Child Page Content");
 
+		SelectFrame(value1 = "relative=top");
+
 		PortletEntry.publish();
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -344,7 +240,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -365,11 +260,10 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");

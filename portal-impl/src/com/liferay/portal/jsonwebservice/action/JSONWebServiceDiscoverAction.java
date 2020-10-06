@@ -86,7 +86,7 @@ public class JSONWebServiceDiscoverAction implements JSONWebServiceAction {
 
 	@Override
 	public Object invoke() throws Exception {
-		Map<String, Object> resultsMap =
+		return new DiscoveryContent(
 			LinkedHashMapBuilder.<String, Object>put(
 				"contextName", _contextName
 			).put(
@@ -99,9 +99,7 @@ public class JSONWebServiceDiscoverAction implements JSONWebServiceAction {
 				"types", _buildTypes()
 			).put(
 				"version", ReleaseInfo.getVersion()
-			).build();
-
-		return new DiscoveryContent(resultsMap);
+			).build());
 	}
 
 	public static class DiscoveryContent implements JSONSerializable {
@@ -366,7 +364,7 @@ public class JSONWebServiceDiscoverAction implements JSONWebServiceAction {
 			return typeName;
 		}
 
-		StringBundler sb = new StringBundler(genericTypes.length * 2 + 1);
+		StringBundler sb = new StringBundler((genericTypes.length * 2) + 1);
 
 		sb.append(StringPool.LESS_THAN);
 
@@ -451,11 +449,8 @@ public class JSONWebServiceDiscoverAction implements JSONWebServiceAction {
 
 		Method method = jsonWebServiceActionMapping.getRealActionMethod();
 
-		return className.concat(
-			StringPool.POUND
-		).concat(
-			method.getName()
-		);
+		return StringBundler.concat(
+			className, StringPool.POUND, method.getName());
 	}
 
 	private final String _basePath;

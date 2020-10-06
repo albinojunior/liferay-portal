@@ -41,20 +41,20 @@ public class Fields implements Iterable<Field>, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return equals(obj, true);
+	public boolean equals(Object object) {
+		return equals(object, true);
 	}
 
-	public boolean equals(Object obj, boolean includePrivateFields) {
-		if (this == obj) {
+	public boolean equals(Object object, boolean includePrivateFields) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Fields)) {
+		if (!(object instanceof Fields)) {
 			return false;
 		}
 
-		Fields fields = (Fields)obj;
+		Fields fields = (Fields)object;
 
 		if (includePrivateFields) {
 			return Objects.equals(_fieldsMap, fields._fieldsMap);
@@ -97,10 +97,10 @@ public class Fields implements Iterable<Field>, Serializable {
 	public long getDDMStructureId() {
 		long ddmStructureId = 0;
 
-		Iterator<Field> itr = iterator();
+		Iterator<Field> iterator = iterator();
 
-		if (itr.hasNext()) {
-			Field field = itr.next();
+		if (iterator.hasNext()) {
+			Field field = iterator.next();
 
 			ddmStructureId = field.getDDMStructureId();
 		}
@@ -111,10 +111,10 @@ public class Fields implements Iterable<Field>, Serializable {
 	public Locale getDefaultLocale() {
 		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
-		Iterator<Field> itr = iterator();
+		Iterator<Field> iterator = iterator();
 
-		if (itr.hasNext()) {
-			Field field = itr.next();
+		if (iterator.hasNext()) {
+			Field field = iterator.next();
 
 			defaultLocale = field.getDefaultLocale();
 		}

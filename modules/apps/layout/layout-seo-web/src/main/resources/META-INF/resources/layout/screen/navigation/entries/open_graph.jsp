@@ -43,121 +43,155 @@ Layout selLayout = layoutsSEODisplayContext.getSelLayout();
 	<aui:input name="privateLayout" type="hidden" value="<%= layoutsSEODisplayContext.isPrivateLayout() %>" />
 	<aui:input name="layoutId" type="hidden" value="<%= layoutsSEODisplayContext.getLayoutId() %>" />
 
-	<div class="sheet sheet-lg">
-		<div class="sheet-header">
+	<clay:sheet>
+		<clay:sheet-header>
 			<h2 class="sheet-title"><liferay-ui:message key="open-graph" /></h2>
-		</div>
+		</clay:sheet-header>
 
-		<div class="sheet-section">
+		<clay:sheet-section>
 			<liferay-ui:error-marker
 				key="<%= WebKeys.ERROR_SECTION %>"
 				value="open-graph"
 			/>
 
-			<p class="text-muted">
+			<p class="text-secondary">
 				<liferay-ui:message key="open-graph-description" />
 			</p>
 
-			<aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
+			<c:choose>
+				<c:when test="<%= selLayout.isTypeAssetDisplay() %>">
+					<div class="dpt-mapping">
+						<div class="dpt-mapping-placeholder">
+							<aui:input disabled="<%= true %>" label="title" localized="<%= false %>" name="openGraphTitle" />
 
-			<div class="form-group">
-				<label class="control-label"><liferay-ui:message key="image" /> <liferay-ui:icon-help message="open-graph-image-help" /></label>
+							<div class="form-text">
+								<liferay-ui:message arguments='<%= new String[] {"text", "title"} %>' key="map-a-x-field-it-will-be-used-as-x" />
+							</div>
 
-				<aui:input label="<%= StringPool.BLANK %>" name="openGraphImageTitle" placeholder="image" readonly="<%= true %>" title="image" type="text" value="<%= layoutsSEODisplayContext.getOpenGraphImageTitle() %>" wrapperCssClass="mb-3" />
+							<aui:input disabled="<%= true %>" label="description" localized="<%= false %>" name="openGraphDescription" />
 
-				<aui:button-row cssClass="mt-0">
-					<aui:button name="openGraphImageButton" value="select" />
-					<aui:button name="openGraphClearImageButton" value="clear" />
-				</aui:button-row>
-			</div>
+							<div class="form-text">
+								<liferay-ui:message arguments='<%= new String[] {"text", "description"} %>' key="map-a-x-field-it-will-be-used-as-x" />
+							</div>
 
-			<%
-			LayoutSEOEntry selLayoutSEOEntry = layoutsSEODisplayContext.getSelLayoutSEOEntry();
-			%>
+							<aui:input disabled="<%= true %>" label="image" localized="<%= false %>" name="openGraphImageTitle" />
 
-			<div id="<portlet:namespace />openGraphSettings">
-				<aui:model-context bean="<%= selLayoutSEOEntry %>" model="<%= LayoutSEOEntry.class %>" />
+							<div class="form-text">
+								<liferay-ui:message arguments='<%= new String[] {"image", "image"} %>' key="map-a-x-field-it-will-be-used-as-x" />
+							</div>
 
-				<aui:input disabled="<%= (selLayoutSEOEntry != null) ? Validator.isNull(layoutsSEODisplayContext.getOpenGraphImageTitle()) : true %>" helpMessage="open-graph-image-alt-description-help" label="open-graph-image-alt-description" name="openGraphImageAlt" placeholder="open-graph-alt-description" />
+							<aui:input disabled="<%= true %>" label="open-graph-image-alt-description" name="openGraphImageAlt" />
 
-				<aui:input checked="<%= (selLayoutSEOEntry != null) ? selLayoutSEOEntry.isOpenGraphTitleEnabled() : false %>" helpMessage="use-custom-open-graph-title-help" label="use-custom-open-graph-title" name="openGraphTitleEnabled" type="checkbox" wrapperCssClass="mb-1" />
+							<div class="form-text">
+								<liferay-ui:message arguments='<%= new String[] {"text", "open-graph-image-alt-description"} %>' key="map-a-x-field-it-will-be-used-as-x" />
+							</div>
+						</div>
 
-				<aui:input disabled="<%= (selLayoutSEOEntry != null) ? !selLayoutSEOEntry.isOpenGraphTitleEnabled() : true %>" label="<%= StringPool.BLANK %>" name="openGraphTitle" placeholder="title" />
+						<react:component
+							module="js/seo/display_page_templates/OpenGraphMapping"
+							props="<%= layoutsSEODisplayContext.getOpenGraphMappingData() %>"
+							servletContext="<%= application %>"
+						/>
+					</div>
+				</c:when>
+				<c:otherwise>
+					<aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
 
-				<aui:input checked="<%= (selLayoutSEOEntry != null) ? selLayoutSEOEntry.isOpenGraphDescriptionEnabled() : false %>" helpMessage="use-custom-open-graph-description-help" label="use-custom-open-graph-description" name="openGraphDescriptionEnabled" type="checkbox" wrapperCssClass="mb-1" />
+					<div class="form-group">
+						<label class="control-label"><liferay-ui:message key="image" /> <liferay-ui:icon-help message="open-graph-image-help" /></label>
 
-				<aui:input disabled="<%= (selLayoutSEOEntry != null) ? !selLayoutSEOEntry.isOpenGraphDescriptionEnabled() : true %>" label="<%= StringPool.BLANK %>" name="openGraphDescription" placeholder="description" />
+						<aui:input label="<%= StringPool.BLANK %>" name="openGraphImageTitle" placeholder="image" readonly="<%= true %>" title="image" type="text" value="<%= layoutsSEODisplayContext.getOpenGraphImageTitle() %>" wrapperCssClass="mb-3" />
 
-				<aui:input id="openGraphImageFileEntryId" name="openGraphImageFileEntryId" type="hidden" />
-			</div>
-
-			<div class="form-group">
-				<label><liferay-ui:message key="preview" /> <liferay-ui:icon-help message="preview-help" /></label>
-
-				<div>
+						<aui:button-row cssClass="mt-0">
+							<aui:button name="openGraphImageButton" value="select" />
+							<aui:button name="openGraphClearImageButton" value="clear" />
+						</aui:button-row>
+					</div>
 
 					<%
-					Map<String, Object> data = HashMapBuilder.<String, Object>put(
-						"displayType", "og"
-					).put(
-						"targets",
-						HashMapBuilder.<String, Object>put(
-							"description",
-							HashMapBuilder.<String, Object>put(
-								"defaultValue", selLayout.getDescriptionMap()
-							).put(
-								"id", "openGraphDescription"
-							).build()
-						).put(
-							"imgUrl",
-							HashMapBuilder.<String, Object>put(
-								"defaultValue",
-								layoutsSEODisplayContext.getDefaultOpenGraphImageURL()
-							).put(
-								"value",
-								layoutsSEODisplayContext.getOpenGraphImageURL()
-							).build()
-						).put(
-							"title",
-							HashMapBuilder.<String, Object>put(
-								"defaultValue", layoutsSEODisplayContext.getDefaultPageTitleMap()
-							).put(
-								"id", "openGraphTitle"
-							).build()
-						).put(
-							"url",
-							Collections.singletonMap("defaultValue", layoutsSEODisplayContext.getDefaultCanonicalURLMap())
-						).build()
-					).put(
-						"titleSuffix", layoutsSEODisplayContext.getPageTitleSuffix()
-					).build();
+					LayoutSEOEntry selLayoutSEOEntry = layoutsSEODisplayContext.getSelLayoutSEOEntry();
 					%>
 
-					<react:component
-						data="<%= data %>"
-						module="js/seo/PreviewSeo.es"
+					<div id="<portlet:namespace />openGraphSettings">
+						<aui:model-context bean="<%= selLayoutSEOEntry %>" model="<%= LayoutSEOEntry.class %>" />
+
+						<aui:input disabled="<%= (selLayoutSEOEntry != null) ? Validator.isNull(layoutsSEODisplayContext.getOpenGraphImageTitle()) : true %>" helpMessage="open-graph-image-alt-description-help" label="open-graph-image-alt-description" name="openGraphImageAlt" placeholder="open-graph-alt-description" />
+
+						<aui:input checked="<%= (selLayoutSEOEntry != null) ? selLayoutSEOEntry.isOpenGraphTitleEnabled() : false %>" helpMessage="use-custom-open-graph-title-help" label="use-custom-open-graph-title" name="openGraphTitleEnabled" type="checkbox" wrapperCssClass="mb-1" />
+
+						<aui:input disabled="<%= (selLayoutSEOEntry != null) ? !selLayoutSEOEntry.isOpenGraphTitleEnabled() : true %>" label="<%= StringPool.BLANK %>" name="openGraphTitle" placeholder="title" />
+
+						<aui:input checked="<%= (selLayoutSEOEntry != null) ? selLayoutSEOEntry.isOpenGraphDescriptionEnabled() : false %>" helpMessage="use-custom-open-graph-description-help" label="use-custom-open-graph-description" name="openGraphDescriptionEnabled" type="checkbox" wrapperCssClass="mb-1" />
+
+						<aui:input disabled="<%= (selLayoutSEOEntry != null) ? !selLayoutSEOEntry.isOpenGraphDescriptionEnabled() : true %>" label="<%= StringPool.BLANK %>" name="openGraphDescription" placeholder="description" />
+
+						<aui:input id="openGraphImageFileEntryId" name="openGraphImageFileEntryId" type="hidden" />
+					</div>
+
+					<div class="form-group">
+						<label><liferay-ui:message key="preview" /> <liferay-ui:icon-help message="preview-help" /></label>
+
+						<div>
+
+							<react:component
+								module="js/seo/PreviewSeo.es"
+								props='<%=
+									HashMapBuilder.<String, Object>put(
+										"displayType", "og"
+									).put(
+										"targets",
+										HashMapBuilder.<String, Object>put(
+											"description",
+											HashMapBuilder.<String, Object>put(
+												"defaultValue", selLayout.getDescriptionMap()
+											).put(
+												"id", "openGraphDescription"
+											).build()
+										).put(
+											"imgUrl",
+											HashMapBuilder.<String, Object>put(
+												"defaultValue", layoutsSEODisplayContext.getDefaultOpenGraphImageURL()
+											).put(
+												"value", layoutsSEODisplayContext.getOpenGraphImageURL()
+											).build()
+										).put(
+											"title",
+											HashMapBuilder.<String, Object>put(
+												"defaultValue", layoutsSEODisplayContext.getDefaultPageTitleMap()
+											).put(
+												"id", "openGraphTitle"
+											).build()
+										).put(
+											"url", Collections.singletonMap("defaultValue", layoutsSEODisplayContext.getDefaultCanonicalURLMap())
+										).build()
+									).put(
+										"titleSuffix", layoutsSEODisplayContext.getPageTitleSuffix()
+									).build()
+								%>'
+								servletContext="<%= application %>"
+							/>
+						</div>
+					</div>
+
+					<portlet:actionURL name="/layout/upload_open_graph_image" var="uploadOpenGraphImageURL" />
+
+					<liferay-frontend:component
+						context='<%=
+							HashMapBuilder.<String, Object>put(
+								"uploadOpenGraphImageURL", layoutsSEODisplayContext.getItemSelectorURL()
+							).build()
+						%>'
+						module="js/seo/openGraph.es"
 						servletContext="<%= application %>"
 					/>
-				</div>
-			</div>
-		</div>
+				</c:otherwise>
+			</c:choose>
+		</clay:sheet-section>
 
-		<div class="sheet-footer">
+		<clay:sheet-footer>
 			<aui:button primary="<%= true %>" type="submit" />
 
 			<aui:button href="<%= backURL %>" type="cancel" />
-		</div>
-	</div>
+		</clay:sheet-footer>
+	</clay:sheet>
 </aui:form>
-
-<portlet:actionURL name="/layout/upload_open_graph_image" var="uploadOpenGraphImageURL" />
-
-<liferay-frontend:component
-	context='<%=
-		HashMapBuilder.<String, Object>put(
-			"uploadOpenGraphImageURL", layoutsSEODisplayContext.getItemSelectorURL()
-		).build()
-	%>'
-	module="js/seo/openGraph.es"
-	servletContext="<%= application %>"
-/>

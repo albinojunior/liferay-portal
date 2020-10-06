@@ -29,6 +29,8 @@ public class GetFieldMappingIndexRequest
 		_indexNames = indexNames;
 		_mappingName = mappingName;
 		_fields = fields;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

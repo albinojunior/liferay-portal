@@ -47,6 +47,7 @@ public class DefaultTransactionExecutorTest
 	}
 
 	@Override
+	@Test
 	public void testCommit() throws Throwable {
 		super.testCommit();
 
@@ -54,6 +55,7 @@ public class DefaultTransactionExecutorTest
 	}
 
 	@Override
+	@Test
 	public void testCommitWithAppException() throws Throwable {
 		super.testCommitWithAppException();
 
@@ -61,6 +63,7 @@ public class DefaultTransactionExecutorTest
 	}
 
 	@Override
+	@Test
 	public void testCommitWithAppExceptionWithCommitException()
 		throws Throwable {
 
@@ -70,6 +73,7 @@ public class DefaultTransactionExecutorTest
 	}
 
 	@Override
+	@Test
 	public void testCommitWithCommitException() throws Throwable {
 		super.testCommitWithCommitException();
 
@@ -98,10 +102,10 @@ public class DefaultTransactionExecutorTest
 
 				Assert.fail();
 			}
-			catch (Throwable t) {
-				Assert.assertEquals("createThrowable", t.getMessage());
+			catch (Throwable throwable) {
+				Assert.assertEquals("createThrowable", throwable.getMessage());
 
-				Throwable[] throwables = t.getSuppressed();
+				Throwable[] throwables = throwable.getSuppressed();
 
 				Assert.assertEquals(
 					Arrays.toString(throwables), 1, throwables.length);
@@ -120,10 +124,10 @@ public class DefaultTransactionExecutorTest
 
 				Assert.fail();
 			}
-			catch (Throwable t) {
-				Assert.assertSame(exception1, t);
+			catch (Throwable throwable) {
+				Assert.assertSame(exception1, throwable);
 
-				Throwable[] throwables = t.getSuppressed();
+				Throwable[] throwables = throwable.getSuppressed();
 
 				Assert.assertEquals(
 					Arrays.toString(throwables), 1, throwables.length);
@@ -144,10 +148,10 @@ public class DefaultTransactionExecutorTest
 
 				Assert.fail();
 			}
-			catch (Throwable t) {
-				Assert.assertEquals("createThrowable", t.getMessage());
+			catch (Throwable throwable) {
+				Assert.assertEquals("createThrowable", throwable.getMessage());
 
-				Throwable[] throwables = t.getSuppressed();
+				Throwable[] throwables = throwable.getSuppressed();
 
 				Assert.assertEquals(
 					Arrays.toString(throwables), 1, throwables.length);
@@ -166,10 +170,10 @@ public class DefaultTransactionExecutorTest
 
 				Assert.fail();
 			}
-			catch (Throwable t) {
-				Assert.assertSame(exception2, t);
+			catch (Throwable throwable) {
+				Assert.assertSame(exception2, throwable);
 
-				Throwable[] throwables = t.getSuppressed();
+				Throwable[] throwables = throwable.getSuppressed();
 
 				Assert.assertEquals(
 					Arrays.toString(throwables), 1, throwables.length);
@@ -191,6 +195,7 @@ public class DefaultTransactionExecutorTest
 	}
 
 	@Override
+	@Test
 	public void testRollbackOnAppException() throws Throwable {
 		super.testRollbackOnAppException();
 
@@ -198,6 +203,7 @@ public class DefaultTransactionExecutorTest
 	}
 
 	@Override
+	@Test
 	public void testRollbackOnAppExceptionWithRollbackException()
 		throws Throwable {
 

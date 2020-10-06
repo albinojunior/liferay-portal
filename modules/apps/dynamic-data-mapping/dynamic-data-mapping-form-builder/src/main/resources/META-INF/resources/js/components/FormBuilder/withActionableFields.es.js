@@ -12,198 +12,21 @@
  * details.
  */
 
-import {ClayActionsDropdown} from 'clay-dropdown';
-import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
+import {FormSupport} from 'dynamic-data-mapping-form-renderer';
 import dom from 'metal-dom';
 import {EventHandler} from 'metal-events';
 import Component from 'metal-jsx';
 import {Config} from 'metal-state';
 
-import {focusedFieldStructure, pageStructure} from '../../util/config.es';
+import {isFieldSetChild} from '../../util/fieldSupport.es';
+import FieldActionsDropDown from './FieldActionsDropDown.es';
+import formBuilderProps from './props.es';
 
-const getFieldIndexes = (pages, fieldName) => {
-	const visitor = new PagesVisitor(pages);
-	let indexes = {};
+const _CSS_HOVERED = 'hovered';
 
-	visitor.mapFields((field, fieldIndex, columnIndex, rowIndex, pageIndex) => {
-		if (field.fieldName === fieldName) {
-			indexes = {columnIndex, pageIndex, rowIndex};
-		}
-	});
+const ACTIONABLE_FIELDS_CONTAINER = 'ddm-actionable-fields-container';
 
-	return indexes;
-};
-
-const getFieldContainer = (pages, fieldName) => {
-	const {columnIndex, pageIndex, rowIndex} = getFieldIndexes(
-		pages,
-		fieldName
-	);
-
-	return document.querySelector(
-		[
-			'.col-ddm',
-			`[data-ddm-field-column="${columnIndex}"]`,
-			`[data-ddm-field-page="${pageIndex}"]`,
-			`[data-ddm-field-row="${rowIndex}"]`,
-			' .ddm-field-container',
-		].join('')
-	);
-};
-
-class Actions extends Component {
-	created() {
-		this.on('fieldNameChanged', this._handleFieldNameChanged);
-
-		this.expanded = false;
-	}
-
-	render() {
-		const {expanded} = this;
-		const {disabled, items, label, spritemap} = this.props;
-
-		return (
-			<div
-				class="ddm-field-actions-container"
-				onMouseDown={this._handleElementClicked.bind(this)}
-			>
-				<span class="actions-label">{label}</span>
-
-				<ClayActionsDropdown
-					disabled={disabled}
-					events={{
-						expandedChanged: this._handleExpandedChanged.bind(this),
-						itemClicked: this._handleItemClicked.bind(this),
-					}}
-					expanded={expanded}
-					items={items}
-					ref="dropdown"
-					spritemap={spritemap}
-				/>
-			</div>
-		);
-	}
-
-	syncExpanded(expanded) {
-		const {pages} = this.props;
-		const {fieldName} = this.state;
-		const fieldContainer = getFieldContainer(pages, fieldName);
-
-		if (!fieldContainer) {
-			return;
-		}
-
-		if (expanded) {
-			fieldContainer.classList.add('expanded');
-		}
-		else {
-			fieldContainer.classList.remove('expanded');
-		}
-	}
-
-	_handleElementClicked({target}) {
-		const {disabled} = this.props;
-		const {dropdown} = this.refs;
-
-		if (!dropdown.element.contains(target)) {
-			const {dispatch} = this.context;
-			const {fieldName} = this.state;
-			const {pages} = this.props;
-			const indexes = getFieldIndexes(pages, fieldName);
-
-			dispatch('fieldClicked', indexes);
-		}
-		else if (!this.expanded && !disabled) {
-			this.expanded = true;
-		}
-	}
-
-	_handleExpandedChanged({newVal}) {
-		this.expanded = newVal;
-
-		this.syncExpanded(newVal);
-	}
-
-	_handleFieldNameChanged({newVal, prevVal}) {
-		const {pages} = this.props;
-		const {expanded} = this.state;
-		const newFieldContainer = getFieldContainer(pages, newVal);
-		const prevFieldContainer = getFieldContainer(pages, prevVal);
-
-		if (prevFieldContainer && newFieldContainer !== prevFieldContainer) {
-			prevFieldContainer.classList.remove('expanded');
-
-			if (expanded && newFieldContainer) {
-				newFieldContainer.classList.add('expanded');
-			}
-		}
-	}
-
-	_handleItemClicked({
-		data: {
-			item: {action},
-		},
-	}) {
-		const {fieldName} = this.state;
-		const {pages} = this.props;
-		const indexes = getFieldIndexes(pages, fieldName);
-
-		action(indexes);
-
-		this.refs.dropdown.expanded = false;
-	}
-}
-
-Actions.PROPS = {
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Actions
-	 * @type {!boolean}
-	 */
-
-	disabled: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Actions
-	 * @type {!string}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default []
-	 * @instance
-	 * @memberof Actions
-	 * @type {?array<object>}
-	 */
-
-	pages: Config.arrayOf(pageStructure).value([]),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Actions
-	 * @type {!string}
-	 */
-
-	spritemap: Config.string().required(),
-};
-
-Actions.STATE = {
-	/**
-	 * @default {}
-	 * @instance
-	 * @memberof Actions
-	 * @type {!Object}
-	 */
-
-	fieldName: Config.string(),
-};
-
-const withActionableFields = ChildComponent => {
+const withActionableFields = (ChildComponent) => {
 	class ActionableFields extends Component {
 		attached() {
 			this._eventHandler = new EventHandler();
@@ -215,274 +38,276 @@ const withActionableFields = ChildComponent => {
 					this._handleMouseEnterField.bind(this)
 				)
 			);
+
+			this._eventHandler.add(
+				this.delegate(
+					'mouseleave',
+					'.ddm-field-container',
+					this._handleMouseLeaveField.bind(this)
+				)
+			);
+		}
+
+		created() {
+			if (!this._actionableFieldsContainer) {
+				const container = document.createElement('div');
+
+				container.id = ACTIONABLE_FIELDS_CONTAINER;
+
+				document.body.appendChild(container);
+
+				this._actionableFieldsContainer = container;
+			}
 		}
 
 		disposeInternal() {
 			super.disposeInternal();
 
 			this._eventHandler.removeAllListeners();
+
+			if (this._actionableFieldsContainer) {
+				dom.exitDocument(this._actionableFieldsContainer);
+			}
 		}
 
-		isActionsEnabled() {
-			const {defaultLanguageId, editingLanguageId} = this.props;
+		hasFocusedField() {
+			const {focusedField} = this.props;
 
-			return defaultLanguageId === editingLanguageId;
+			return Object.keys(focusedField).length > 0;
+		}
+
+		hideActions(actions) {
+			actions.close();
+			actions.setState({fieldName: null});
+
+			if (actions === this.refs.hoveredFieldActions) {
+				this.setState({hoveredFieldActionsVisible: false});
+			}
 		}
 
 		render() {
-			const {fieldActions, pages, spritemap} = this.props;
+			const {activePage, hoveredFieldActionsVisible} = this.state;
+			const {fieldActions, fieldTypes, pages, spritemap} = this.props;
 
 			return (
 				<div>
 					<ChildComponent {...this.props} />
 
-					<Actions
-						disabled={!this.isActionsEnabled()}
+					<FieldActionsDropDown
+						activePage={activePage}
+						events={{
+							mouseLeave: this._handleMouseLeaveActions.bind(
+								this
+							),
+						}}
+						fieldTypes={fieldTypes}
 						items={fieldActions}
 						pages={pages}
-						portalElement={document.body}
+						portalElement={this._actionableFieldsContainer}
 						ref="selectedFieldActions"
 						spritemap={spritemap}
-						visible={false}
+						visible={this.hasFocusedField()}
 					/>
 
-					<Actions
-						disabled={!this.isActionsEnabled()}
+					<FieldActionsDropDown
+						activePage={activePage}
+						events={{
+							mouseLeave: this._handleMouseLeaveActions.bind(
+								this
+							),
+						}}
+						fieldTypes={fieldTypes}
 						items={fieldActions}
 						pages={pages}
-						portalElement={document.body}
+						portalElement={this._actionableFieldsContainer}
 						ref="hoveredFieldActions"
 						spritemap={spritemap}
-						visible={false}
+						visible={hoveredFieldActionsVisible}
 					/>
 				</div>
 			);
 		}
 
 		rendered() {
-			const {focusedField} = this.props;
+			const {focusedField, pages} = this.props;
 			const {hoveredFieldActions, selectedFieldActions} = this.refs;
 
-			if (Object.keys(focusedField).length > 0) {
+			if (this.hasFocusedField()) {
 				const {fieldName} = focusedField;
 
 				this.showActions(selectedFieldActions, fieldName);
 			}
 			else {
-				selectedFieldActions.props.visible = false;
+				this.hideActions(selectedFieldActions);
 			}
 
-			if (hoveredFieldActions.state.fieldName) {
-				this.showActions(
-					hoveredFieldActions,
-					hoveredFieldActions.state.fieldName
-				);
+			const hoveredFieldName = hoveredFieldActions.state.fieldName;
+
+			if (!FormSupport.findFieldByFieldName(pages, hoveredFieldName)) {
+				this.hideActions(hoveredFieldActions);
+
+				const hoveredNode = this._getHoveredNode();
+
+				if (hoveredNode) {
+					hoveredNode.classList.remove(_CSS_HOVERED);
+				}
 			}
 		}
 
 		showActions(actions, fieldName) {
-			actions.props.label = this._getFieldType(fieldName);
-			actions.props.visible = true;
-
-			if (fieldName !== actions.state.fieldName) {
-				actions.setState({fieldName});
-
-				actions.refs.dropdown.expanded = false;
+			if (actions.state.fieldName !== fieldName) {
+				actions.close();
 			}
 
-			actions.forceUpdate(() => {
-				window.requestAnimationFrame(() => {
-					const {pages} = this.props;
-					const fieldContainer = getFieldContainer(pages, fieldName);
+			actions.setState({fieldName});
 
-					if (fieldContainer) {
-						fieldContainer.appendChild(actions.element);
-					}
-				});
+			if (actions === this.refs.hoveredFieldActions) {
+				this.setState({hoveredFieldActionsVisible: true});
+			}
+		}
+
+		_getClosestParent(node) {
+			return dom.closest(node.parentElement, `.ddm-field-container`);
+		}
+
+		_getHoveredNode() {
+			return this.element.querySelector(
+				`.ddm-field-container.${_CSS_HOVERED}`
+			);
+		}
+
+		_handleMouseEnterField(event) {
+			const {pages} = this.props;
+			const {delegateTarget} = event;
+			const {dispatch} = this.context;
+			const {fieldName} = delegateTarget.dataset;
+			const {hoveredFieldActions, selectedFieldActions} = this.refs;
+			const activePage = parseInt(
+				dom.closest(event.delegateTarget, '[data-ddm-page]').dataset
+					.ddmPage,
+				10
+			);
+			this.setState({activePage});
+
+			if (
+				selectedFieldActions.state.fieldName === fieldName ||
+				isFieldSetChild(pages, fieldName)
+			) {
+				this._handleMouseLeaveField(event);
+
+				return;
+			}
+
+			if (fieldName !== selectedFieldActions.state.fieldName) {
+				selectedFieldActions.close();
+			}
+
+			const hoveredNode = this._getHoveredNode();
+
+			if (hoveredNode) {
+				hoveredNode.classList.remove(_CSS_HOVERED);
+
+				dispatch('fieldBlurred', {});
+			}
+
+			delegateTarget.classList.add(_CSS_HOVERED);
+
+			dispatch('fieldHovered', {fieldName});
+
+			this.showActions(hoveredFieldActions, fieldName);
+
+			event.stopPropagation();
+		}
+
+		_handleMouseLeaveActions(event) {
+			const {delegateTarget, relatedTarget} = event;
+			const {fieldName} = delegateTarget.dataset;
+			const {hoveredFieldActions} = this.refs;
+			const {pages} = this.props;
+
+			if (isFieldSetChild(pages, fieldName)) {
+				return;
+			}
+
+			const closestRelatedParent = this._getClosestParent(relatedTarget);
+
+			if (
+				closestRelatedParent &&
+				closestRelatedParent.dataset.fieldName ===
+					hoveredFieldActions.state.fieldName
+			) {
+				return;
+			}
+
+			this._handleMouseLeaveField({
+				delegateTarget: event.container,
+				relatedTarget,
 			});
 		}
 
-		_getColumnField(indexes) {
-			const {pages} = this.props;
-			const visitor = new PagesVisitor(pages);
-			let field;
+		_handleMouseLeaveField(event) {
+			const {delegateTarget} = event;
+			const {hoveredFieldActions, selectedFieldActions} = this.refs;
 
-			visitor.mapFields(
-				(
-					currentField,
-					fieldIndex,
-					columnIndex,
-					rowIndex,
-					pageIndex
-				) => {
-					if (
-						indexes.pageIndex === pageIndex &&
-						indexes.rowIndex === rowIndex &&
-						indexes.columnIndex === columnIndex
-					) {
-						field = currentField;
-					}
-				}
-			);
-
-			return field;
-		}
-
-		_getFieldType(fieldName) {
-			const {fieldTypes, pages} = this.props;
-			const visitor = new PagesVisitor(pages);
-			const field = visitor.findField(
-				field => field.fieldName === fieldName
-			);
-
-			return (
-				field &&
-				fieldTypes.find(fieldType => {
-					return fieldType.name === field.type;
-				}).label
-			);
-		}
-
-		_handleMouseEnterField({delegateTarget}) {
-			if (!delegateTarget.classList.contains('selected')) {
-				const {hoveredFieldActions} = this.refs;
-				const indexes = FormSupport.getIndexes(
-					dom.closest(delegateTarget, '.col-ddm')
-				);
-				const {fieldName} = this._getColumnField(indexes);
-
-				this.showActions(hoveredFieldActions, fieldName);
+			if (
+				hoveredFieldActions.expanded ||
+				!this._hasLeftField(event.relatedTarget)
+			) {
+				return;
 			}
+
+			delegateTarget.classList.remove(_CSS_HOVERED);
+
+			this.hideActions(hoveredFieldActions);
+
+			this._handleClosestParent({
+				delegateTarget,
+				hoveredFieldActions,
+				selectedFieldActions,
+			});
+
+			if (event.stopPropagation) {
+				event.stopPropagation();
+			}
+		}
+
+		_handleClosestParent({
+			delegateTarget,
+			hoveredFieldActions,
+			selectedFieldActions,
+		}) {
+			const {pages} = this.props;
+			const closestParent = this._getClosestParent(delegateTarget);
+
+			if (closestParent) {
+				const {fieldName} = closestParent.dataset;
+
+				if (
+					selectedFieldActions.state.fieldName !== fieldName &&
+					!isFieldSetChild(pages, fieldName)
+				) {
+					closestParent.classList.add(_CSS_HOVERED);
+
+					this.showActions(hoveredFieldActions, fieldName);
+				}
+			}
+		}
+
+		_hasLeftField(relatedTarget) {
+			return !dom.closest(
+				relatedTarget,
+				'.dropdown-menu,.ddm-field-actions-container'
+			);
 		}
 	}
 
 	ActionableFields.PROPS = {
-		/**
-		 * @default
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?number}
-		 */
+		...formBuilderProps,
+	};
 
-		activePage: Config.number().value(0),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		defaultLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		editingLanguageId: Config.string(),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldActions: Config.array().value([]),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		fieldSetDefinitionURL: Config.string(),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldSets: Config.array().value([]),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldTypes: Config.array().value([]),
-
-		/**
-		 * @default {}
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?object}
-		 */
-
-		focusedField: focusedFieldStructure.value({}),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?array<object>}
-		 */
-
-		pages: Config.arrayOf(pageStructure).value([]),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		paginationMode: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		portletNamespace: Config.string().required(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormRenderer
-		 * @type {!string}
-		 */
-
-		spritemap: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {object}
-		 */
-
-		successPageSettings: Config.shapeOf({
-			body: Config.object(),
-			enabled: Config.bool(),
-			title: Config.object(),
-		}).value({}),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		view: Config.string(),
+	ActionableFields.STATE = {
+		activePage: Config.number(),
+		hoveredFieldActionsVisible: Config.bool().value(false),
 	};
 
 	return ActionableFields;

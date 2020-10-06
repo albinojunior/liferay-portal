@@ -31,7 +31,9 @@ describe('The WorkloadByStepCard component should', () => {
 		items: [
 			{
 				instanceCount: 1,
-				name: 'Task Name',
+				node: {
+					label: 'Node Name',
+				},
 				onTimeInstanceCount: 1,
 				overdueInstanceCount: 0,
 			},
@@ -59,7 +61,7 @@ describe('The WorkloadByStepCard component should', () => {
 		const workloadByStepTable = getByTestId('workloadByStepTable');
 		const tableItems = workloadByStepTable.children[1].children[0].children;
 
-		expect(tableItems[0]).toHaveTextContent('Task Name');
+		expect(tableItems[0]).toHaveTextContent('Node Name');
 		expect(tableItems[1]).toHaveTextContent(0);
 		expect(tableItems[2]).toHaveTextContent(1);
 		expect(tableItems[3]).toHaveTextContent(1);
@@ -72,69 +74,6 @@ describe('The WorkloadByStepCard component should', () => {
 		);
 		expect(tableItems[3].innerHTML).toContain(
 			'/instance/12345/20/1?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&amp;filters.statuses%5B0%5D=Pending'
-		);
-	});
-});
-
-describe('When request fails the WorkloadByStepCard component should', () => {
-	const clientMock = {
-		get: jest.fn().mockRejectedValueOnce(new Error('request-failure')),
-	};
-	let getByTestId;
-
-	beforeAll(() => {
-		const component = render(
-			<MockRouter client={clientMock} withoutRouterProps>
-				<WorkloadByStepCard {...mockProps} routeParams={mockProps} />
-			</MockRouter>
-		);
-
-		getByTestId = component.getByTestId;
-	});
-
-	test('Show error view when request fails', () => {
-		const errorState = getByTestId('emptyState');
-		expect(errorState).toHaveTextContent(
-			'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-		);
-
-		const reloadPage = getByTestId('reloadPage');
-		expect(reloadPage).toHaveTextContent('reload-page');
-	});
-});
-
-describe('When request is pending the WorkloadByStepCard component should', () => {
-	test('Show loading view', () => {
-		const {getByTestId} = render(<WorkloadByStepCard.Body.Loading />);
-
-		const loadingState = getByTestId('loadingState');
-		expect(loadingState.children[0]).toHaveClass('loading-animation');
-		cleanup();
-	});
-});
-
-describe('When request returns do data the WorkloadByStepCard component should', () => {
-	const data = {};
-
-	const clientMock = {
-		get: jest.fn().mockResolvedValue({data}),
-	};
-
-	let getByTestId;
-
-	beforeAll(() => {
-		const component = render(
-			<MockRouter client={clientMock} withoutRouterProps>
-				<WorkloadByStepCard />
-			</MockRouter>
-		);
-		getByTestId = component.getByTestId;
-	});
-
-	test('Show empty view', () => {
-		const emptyState = getByTestId('emptyState');
-		expect(emptyState).toHaveTextContent(
-			'there-are-no-pending-items-at-the-moment'
 		);
 	});
 });

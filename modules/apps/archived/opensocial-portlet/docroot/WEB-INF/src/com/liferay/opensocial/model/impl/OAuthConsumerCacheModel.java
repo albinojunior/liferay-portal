@@ -36,17 +36,17 @@ public class OAuthConsumerCacheModel
 	implements CacheModel<OAuthConsumer>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof OAuthConsumerCacheModel)) {
+		if (!(object instanceof OAuthConsumerCacheModel)) {
 			return false;
 		}
 
 		OAuthConsumerCacheModel oAuthConsumerCacheModel =
-			(OAuthConsumerCacheModel)obj;
+			(OAuthConsumerCacheModel)object;
 
 		if (oAuthConsumerId == oAuthConsumerCacheModel.oAuthConsumerId) {
 			return true;
@@ -149,7 +149,9 @@ public class OAuthConsumerCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		oAuthConsumerId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -158,7 +160,7 @@ public class OAuthConsumerCacheModel
 		gadgetKey = objectInput.readUTF();
 		serviceName = objectInput.readUTF();
 		consumerKey = objectInput.readUTF();
-		consumerSecret = objectInput.readUTF();
+		consumerSecret = (String)objectInput.readObject();
 		keyType = objectInput.readUTF();
 	}
 
@@ -192,10 +194,10 @@ public class OAuthConsumerCacheModel
 		}
 
 		if (consumerSecret == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(consumerSecret);
+			objectOutput.writeObject(consumerSecret);
 		}
 
 		if (keyType == null) {

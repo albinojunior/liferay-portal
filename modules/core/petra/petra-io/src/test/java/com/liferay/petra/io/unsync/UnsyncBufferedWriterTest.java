@@ -252,7 +252,7 @@ public class UnsyncBufferedWriterTest extends BaseWriterTestCase {
 		unsyncBufferedWriter.newLine();
 
 		Assert.assertEquals(
-			lineSeparator.length() * 2 + 1,
+			(lineSeparator.length() * 2) + 1,
 			_countField.getInt(unsyncBufferedWriter));
 
 		unsyncBufferedWriter.flush();

@@ -19,7 +19,6 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeCon
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -30,7 +29,6 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionResponse;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -52,7 +50,6 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -63,7 +60,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * @author Pavel Savinov
@@ -107,8 +103,8 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 	public void testCopyLayoutPageTemplateEntryMVCActionCommand()
 		throws Exception {
 
-		ActionRequest actionRequest = _getMockActionRequest();
-		ActionResponse actionResponse = new MockActionResponse();
+		ActionRequest actionRequest = _getMockLiferayPortletActionRequest();
+		ActionResponse actionResponse = new MockLiferayPortletActionResponse();
 
 		LayoutPageTemplateEntry targetLayoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
@@ -117,10 +113,7 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 
 		Assert.assertNull(targetLayoutPageTemplateEntry);
 
-		ReflectionTestUtil.invoke(
-			_mvcActionCommand, "doProcessAction",
-			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, actionResponse);
+		_mvcActionCommand.processAction(actionRequest, actionResponse);
 
 		targetLayoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
@@ -134,18 +127,15 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 	public void testCopyLayoutPageTemplateEntryRollbackMVCActionCommand()
 		throws Exception {
 
-		ActionRequest actionRequest = _getMockActionRequest();
-		ActionResponse actionResponse = new MockActionResponse();
+		ActionRequest actionRequest = _getMockLiferayPortletActionRequest();
+		ActionResponse actionResponse = new MockLiferayPortletActionResponse();
 
 		_layoutLocalService.deleteLayout(_layoutPageTemplateEntry.getPlid());
 
 		long originalLayoutsCount = _layoutLocalService.getLayoutsCount(
 			_group.getGroupId());
 
-		ReflectionTestUtil.invoke(
-			_mvcActionCommand, "doProcessAction",
-			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, actionResponse);
+		_mvcActionCommand.processAction(actionRequest, actionResponse);
 
 		LayoutPageTemplateEntry targetLayoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
@@ -164,8 +154,8 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 	public void testCopyLayoutPageTemplateEntryUniqueNameMVCActionCommand()
 		throws Exception {
 
-		ActionRequest actionRequest = _getMockActionRequest();
-		ActionResponse actionResponse = new MockActionResponse();
+		ActionRequest actionRequest = _getMockLiferayPortletActionRequest();
+		ActionResponse actionResponse = new MockLiferayPortletActionResponse();
 
 		LayoutPageTemplateEntry targetLayoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
@@ -174,15 +164,9 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 
 		Assert.assertNull(targetLayoutPageTemplateEntry);
 
-		ReflectionTestUtil.invoke(
-			_mvcActionCommand, "doProcessAction",
-			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, actionResponse);
+		_mvcActionCommand.processAction(actionRequest, actionResponse);
 
-		ReflectionTestUtil.invoke(
-			_mvcActionCommand, "doProcessAction",
-			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, actionResponse);
+		_mvcActionCommand.processAction(actionRequest, actionResponse);
 
 		targetLayoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
@@ -202,20 +186,26 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 		Assert.assertNotNull(secondTargetLayoutPageTemplateEntry);
 	}
 
-	private MockActionRequest _getMockActionRequest() throws PortalException {
-		ThemeDisplay themeDisplay = _getThemeDisplay();
+	private MockLiferayPortletActionRequest
+			_getMockLiferayPortletActionRequest()
+		throws Exception {
 
-		MockActionRequest mockActionRequest = new MockActionRequest(
-			themeDisplay);
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
 
-		mockActionRequest.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
+		mockLiferayPortletActionRequest.setAttribute(
+			JavaConstants.JAVAX_PORTLET_RESPONSE,
+			new MockLiferayPortletActionResponse());
 
-		mockActionRequest.setParameter(
+		mockLiferayPortletActionRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, _getThemeDisplay());
+
+		mockLiferayPortletActionRequest.setParameter(
 			"layoutPageTemplateEntryId",
 			String.valueOf(
 				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
 
-		return mockActionRequest;
+		return mockLiferayPortletActionRequest;
 	}
 
 	private String _getName() {
@@ -228,7 +218,8 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 		HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
 		httpServletRequest.setAttribute(
-			JavaConstants.JAVAX_PORTLET_RESPONSE, new MockActionResponse());
+			JavaConstants.JAVAX_PORTLET_RESPONSE,
+			new MockLiferayPortletActionResponse());
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(group, userId);
@@ -238,7 +229,7 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 		return serviceContext;
 	}
 
-	private ThemeDisplay _getThemeDisplay() throws PortalException {
+	private ThemeDisplay _getThemeDisplay() throws Exception {
 		ThemeDisplay themeDisplay = new ThemeDisplay();
 
 		themeDisplay.setCompany(_company);
@@ -280,39 +271,5 @@ public class CopyLayoutPageTemplateEntryMVCActionCommandTest {
 	private MVCActionCommand _mvcActionCommand;
 
 	private ServiceContext _serviceContext;
-
-	private static class MockActionRequest
-		extends MockLiferayPortletActionRequest {
-
-		public MockActionRequest(ThemeDisplay themeDisplay) {
-			_themeDisplay = themeDisplay;
-		}
-
-		@Override
-		public HttpServletRequest getHttpServletRequest() {
-			MockHttpServletRequest httpServletRequest =
-				new MockHttpServletRequest();
-
-			httpServletRequest.setAttribute(
-				JavaConstants.JAVAX_PORTLET_RESPONSE, new MockActionResponse());
-			httpServletRequest.setAttribute(
-				WebKeys.THEME_DISPLAY, _themeDisplay);
-
-			return httpServletRequest;
-		}
-
-		private final ThemeDisplay _themeDisplay;
-
-	}
-
-	private static class MockActionResponse
-		extends MockLiferayPortletActionResponse {
-
-		@Override
-		public HttpServletResponse getHttpServletResponse() {
-			return new MockHttpServletResponse();
-		}
-
-	}
 
 }

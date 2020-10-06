@@ -32,6 +32,8 @@ import com.liferay.portal.kernel.model.PortletURLListener;
 import com.liferay.portal.kernel.portlet.CustomUserAttributes;
 import com.liferay.portal.kernel.portlet.InvokerPortlet;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
@@ -42,8 +44,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -96,9 +96,9 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		try {
 			doInvokeDeploy(hotDeployEvent);
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			throwHotDeployException(
-				hotDeployEvent, "Error registering portlets for ", t);
+				hotDeployEvent, "Error registering portlets for ", throwable);
 		}
 	}
 
@@ -109,9 +109,9 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		try {
 			doInvokeUndeploy(hotDeployEvent);
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			throwHotDeployException(
-				hotDeployEvent, "Error unregistering portlets for ", t);
+				hotDeployEvent, "Error unregistering portlets for ", throwable);
 		}
 	}
 
@@ -125,21 +125,20 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		Registry registry = RegistryUtil.getRegistry();
 
 		ResourceBundleLoader resourceBundleLoader =
-			ResourceBundleUtil.getResourceBundleLoader(
+			new ClassResourceBundleLoader(
 				portlet.getResourceBundle(), classLoader);
-
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-			"resource.bundle.base.name", portlet.getResourceBundle()
-		).put(
-			"service.ranking", Integer.MIN_VALUE
-		).put(
-			"servlet.context.name", portlet.getContextName()
-		).build();
 
 		_resourceBundleLoaderServiceRegistrations.put(
 			portlet.getPortletId(),
 			registry.registerService(
-				ResourceBundleLoader.class, resourceBundleLoader, properties));
+				ResourceBundleLoader.class, resourceBundleLoader,
+				HashMapBuilder.<String, Object>put(
+					"resource.bundle.base.name", portlet.getResourceBundle()
+				).put(
+					"service.ranking", Integer.MIN_VALUE
+				).put(
+					"servlet.context.name", portlet.getContextName()
+				).build()));
 	}
 
 	protected void doInvokeDeploy(HotDeployEvent hotDeployEvent)
@@ -227,10 +226,10 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 		ClassLoader classLoader = hotDeployEvent.getContextClassLoader();
 
-		Iterator<Portlet> itr = portlets.iterator();
+		Iterator<Portlet> iterator = portlets.iterator();
 
-		while (itr.hasNext()) {
-			Portlet portlet = itr.next();
+		while (iterator.hasNext()) {
+			Portlet portlet = iterator.next();
 
 			if (!portletAppInitialized) {
 				initPortletApp(

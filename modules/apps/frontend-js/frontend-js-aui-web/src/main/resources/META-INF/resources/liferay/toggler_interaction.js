@@ -12,9 +12,12 @@
  * details.
  */
 
+/**
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
+ */
 AUI.add(
 	'liferay-toggler-interaction',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var NAME = 'togglerinteraction';

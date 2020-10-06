@@ -18,10 +18,10 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.configuration.icon.BasePortletConfigurationIcon;
 import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration;
@@ -93,11 +93,11 @@ public class DuplicateDefinitionPortletConfigurationIcon
 			(WorkflowDefinition)portletRequest.getAttribute(
 				WebKeys.WORKFLOW_DEFINITION);
 
-		if ((workflowDefinition != null) && workflowDefinition.isActive()) {
-			return true;
+		if (workflowDefinition == null) {
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	@Activate

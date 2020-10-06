@@ -15,42 +15,23 @@
 import fetchMock from 'fetch-mock';
 
 import AnalyticsClient from '../src/analytics';
-
-let EVENT_ID = 0;
+import {
+	STORAGE_KEY_EVENTS,
+	STORAGE_KEY_IDENTITY,
+	STORAGE_KEY_USER_ID,
+} from '../src/utils/constants';
+import {getItem} from '../src/utils/storage';
+import {sendDummyEvents, wait} from './helpers';
 
 const ANALYTICS_IDENTITY = {email: 'foo@bar.com'};
 const ENDPOINT_URL = 'https://ac-server.io';
 const FLUSH_INTERVAL = 100;
 const INITIAL_CONFIG = {
+	channelId: '4321',
 	dataSourceId: '1234',
+	delay: FLUSH_INTERVAL,
 	endpointUrl: ENDPOINT_URL,
 };
-const MOCKED_REQUEST_DURATION = 5000;
-
-// Local Storage keys
-const STORAGE_KEY_EVENTS = 'ac_client_batch';
-const STORAGE_KEY_USER_ID = 'ac_client_user_id';
-const STORAGE_KEY_IDENTITY = 'ac_client_identity';
-
-/**
- * Sends dummy events to test the Analytics API
- * @param {number} eventsNumber Number of events to send
- */
-function sendDummyEvents(client, eventsNumber = 5) {
-	for (let i = 0; i < eventsNumber; i++) {
-		const applicationId = 'test';
-
-		const eventId = EVENT_ID++;
-
-		const properties = {
-			a: 1,
-			b: 2,
-			c: 3,
-		};
-
-		client.send(eventId, applicationId, properties);
-	}
-}
 
 describe('Analytics', () => {
 	let Analytics;
@@ -62,17 +43,6 @@ describe('Analytics', () => {
 
 		localStorage.removeItem(STORAGE_KEY_EVENTS);
 		localStorage.removeItem(STORAGE_KEY_USER_ID);
-
-		if (!global.performance.timing) {
-			Object.defineProperty(global.performance, 'timing', {
-				get() {
-					return {
-						loadEventStart: 1,
-						navigationStart: 0,
-					};
-				},
-			});
-		}
 	});
 
 	afterEach(() => {
@@ -103,218 +73,151 @@ describe('Analytics', () => {
 		expect(Analytics.config).toEqual(config);
 	});
 
-	describe('flush()', () => {
-		it('is exposed as an Analytics static method', () => {
-			expect(typeof Analytics.flush).toBe('function');
+	it('regenerates the stored identity if the identity changed', async () => {
+		fetchMock.mock(/identity$/i, () => Promise.resolve(200));
+
+		Analytics.reset();
+		Analytics.dispose();
+
+		Analytics = AnalyticsClient.create(INITIAL_CONFIG);
+
+		await Analytics.setIdentity(ANALYTICS_IDENTITY);
+
+		const previousIdentityHash = getItem(STORAGE_KEY_IDENTITY);
+
+		await Analytics.setIdentity({
+			email: 'john@liferay.com',
+			name: 'John',
 		});
 
-		it('prevents overlapping requests', done => {
-			fetchMock.restore();
+		const currentIdentityHash = getItem(STORAGE_KEY_IDENTITY);
 
-			let fetchCalled = 0;
+		expect(currentIdentityHash).not.toEqual(previousIdentityHash);
+	});
 
-			fetchMock.mock(/ac-server/i, () => {
-				fetchCalled += 1;
+	it('reports identity changes to the Identity Service', async () => {
+		fetchMock.mock('*', () => Promise.resolve(200));
 
-				return new Promise(resolve => {
-					setTimeout(() => resolve({}), MOCKED_REQUEST_DURATION);
-				});
-			});
+		Analytics.reset();
+		Analytics.dispose();
 
-			Analytics.reset();
-			Analytics.dispose();
+		Analytics = AnalyticsClient.create(INITIAL_CONFIG);
 
-			Analytics = AnalyticsClient.create({
-				flushInterval: FLUSH_INTERVAL,
-				...INITIAL_CONFIG,
-			});
+		let identityCalled = 0;
 
-			const flush = jest.spyOn(Analytics, 'flush');
+		await Analytics.setIdentity(ANALYTICS_IDENTITY);
 
-			sendDummyEvents(Analytics, 10);
+		await wait(FLUSH_INTERVAL);
 
-			setTimeout(() => {
-				// Flush must be called at least 2 times
+		fetchMock.restore();
+		fetchMock.mock(/identity$/, () => {
+			identityCalled += 1;
 
-				expect(flush.mock.calls.length).toBeGreaterThanOrEqual(2);
-
-				// Without sending another Fetch Request
-
-				expect(fetchCalled).toEqual(1);
-
-				done();
-			}, FLUSH_INTERVAL * 3);
+			return '';
 		});
 
-		it('regenerates the stored identity if the identity changed', async () => {
-			fetchMock.mock(/identity$/i, () => Promise.resolve(200));
+		await Analytics.setIdentity({
+			email: 'john@liferay.com',
+		});
 
-			Analytics.reset();
-			Analytics.dispose();
+		await wait(FLUSH_INTERVAL);
 
-			Analytics = AnalyticsClient.create(INITIAL_CONFIG);
+		expect(identityCalled).toBe(1);
+	});
 
-			await Analytics.setIdentity(ANALYTICS_IDENTITY);
+	it("does not request the Identity Service when identity hasn't changed", async () => {
+		fetchMock.mock(/identity$/, () => Promise.resolve(200));
 
-			const previousIdentityHash = localStorage.getItem(
-				STORAGE_KEY_IDENTITY
-			);
+		Analytics.reset();
+		Analytics.dispose();
+
+		Analytics = AnalyticsClient.create(INITIAL_CONFIG);
+
+		let identityCalled = 0;
+
+		await Analytics.setIdentity(ANALYTICS_IDENTITY);
+
+		fetchMock.restore();
+		fetchMock.mock(/identity$/, () => {
+			identityCalled += 1;
+
+			return 200;
+		});
+
+		await Analytics.setIdentity(ANALYTICS_IDENTITY);
+
+		expect(identityCalled).toBe(0);
+	});
+
+	it('preserves the user id whenever the set identity is called after a anonymous navigation', async () => {
+		fetchMock.mock(/ac-server/i, () => Promise.resolve(200));
+		fetchMock.mock(/identity$/, () => Promise.resolve(200));
+
+		sendDummyEvents(Analytics, 1);
+
+		setTimeout(async () => {
+
+			// Flush should have happened at least once
+
+			const userId = getItem(STORAGE_KEY_USER_ID);
 
 			await Analytics.setIdentity({
 				email: 'john@liferay.com',
 				name: 'John',
 			});
 
-			const currentIdentityHash = localStorage.getItem(
-				STORAGE_KEY_IDENTITY
-			);
+			expect(getItem(STORAGE_KEY_USER_ID)).toEqual(userId);
+		}, FLUSH_INTERVAL * 2);
+	});
 
-			expect(currentIdentityHash).not.toEqual(previousIdentityHash);
+	it('replace the user id whenever the set identity hash is changed', async () => {
+		fetchMock.mock(/ac-server/i, () => Promise.resolve(200));
+		fetchMock.mock(/identity$/, () => Promise.resolve(200));
+
+		await Analytics.setIdentity({
+			email: 'john@liferay.com',
+			name: 'John',
 		});
 
-		it('reports identity changes to the Identity Service', async () => {
-			fetchMock.mock('*', () => Promise.resolve(200));
+		const firstUserId = getItem(STORAGE_KEY_USER_ID);
 
-			Analytics.reset();
-			Analytics.dispose();
-
-			Analytics = AnalyticsClient.create(INITIAL_CONFIG);
-
-			let identityCalled = 0;
-
-			await Analytics.setIdentity(ANALYTICS_IDENTITY);
-
-			fetchMock.restore();
-			fetchMock.mock(/identity$/, () => {
-				identityCalled += 1;
-
-				return '';
-			});
-
-			await Analytics.setIdentity({email: 'john@liferay.com'});
-
-			expect(identityCalled).toBe(1);
+		await Analytics.setIdentity({
+			email: 'brian@liferay.com',
+			name: 'Brian',
 		});
 
-		it("does not request the Identity Service when identity hasn't changed", async () => {
-			fetchMock.mock(/identity$/, () => Promise.resolve(200));
+		const secondUserId = getItem(STORAGE_KEY_USER_ID);
 
-			Analytics.reset();
-			Analytics.dispose();
+		expect(firstUserId).not.toEqual(secondUserId);
+	});
 
-			Analytics = AnalyticsClient.create(INITIAL_CONFIG);
+	// Skipping this test because it was broken in the old
+	// Karma-based implementation (the `expect` was failing but it
+	// did so asynchronously after the test has "finished").
 
-			let identityCalled = 0;
+	it.skip('regenerates the user id on logouts or session expirations ', async () => {
+		fetchMock.mock(/ac-server/i, () => Promise.resolve(200));
+		fetchMock.mock(/identity$/, () => Promise.resolve(200));
 
-			await Analytics.setIdentity(ANALYTICS_IDENTITY);
+		sendDummyEvents(Analytics, 1);
 
-			fetchMock.restore();
-			fetchMock.mock(/identity$/, () => {
-				identityCalled += 1;
+		await Analytics.flush();
 
-				return '';
-			});
+		const userId = getItem(STORAGE_KEY_USER_ID);
 
-			await Analytics.setIdentity(ANALYTICS_IDENTITY);
-
-			expect(identityCalled).toBe(0);
+		await Analytics.setIdentity({
+			email: 'john@liferay.com',
+			name: 'John',
 		});
 
-		it('only clears the persisted events when done', async () => {
-			fetchMock.restore();
+		Analytics.reset();
+		Analytics.dispose();
 
-			Analytics.reset();
-			Analytics.dispose();
+		sendDummyEvents(Analytics, 1);
 
-			Analytics = AnalyticsClient.create({
-				flushInterval: FLUSH_INTERVAL * 10,
-				...INITIAL_CONFIG,
-			});
+		await Analytics.flush();
 
-			fetchMock.mock(/ac-server/i, () => {
-				// Send events while flush is in progress
-				sendDummyEvents(Analytics, 7);
-
-				return new Promise(resolve => {
-					setTimeout(() => resolve({}), 300);
-				});
-			});
-
-			sendDummyEvents(Analytics, 5);
-
-			await Analytics.flush();
-
-			expect(Analytics.events.length).toBe(7);
-		});
-
-		it('preserves the user id whenever the set identity is called after a anonymous navigation', async () => {
-			fetchMock.mock(/ac-server/i, () => Promise.resolve(200));
-			fetchMock.mock(/identity$/, () => Promise.resolve(200));
-
-			sendDummyEvents(Analytics, 1);
-
-			await Analytics.flush();
-
-			const userId = localStorage.getItem(STORAGE_KEY_USER_ID);
-
-			await Analytics.setIdentity({
-				email: 'john@liferay.com',
-				name: 'John',
-			});
-
-			expect(localStorage.getItem(STORAGE_KEY_USER_ID)).toEqual(userId);
-		});
-
-		it('replace the user id whenever the set identity hash is changed', async () => {
-			fetchMock.mock(/ac-server/i, () => Promise.resolve(200));
-			fetchMock.mock(/identity$/, () => Promise.resolve(200));
-
-			await Analytics.setIdentity({
-				email: 'john@liferay.com',
-				name: 'John',
-			});
-
-			const firstUserId = localStorage.getItem(STORAGE_KEY_USER_ID);
-
-			await Analytics.setIdentity({
-				email: 'brian@liferay.com',
-				name: 'Brian',
-			});
-
-			const secondUserId = localStorage.getItem(STORAGE_KEY_USER_ID);
-
-			expect(firstUserId).not.toEqual(secondUserId);
-		});
-
-		// Skipping this test because it was broken in the old
-		// Karma-based implementation (the `expect` was failing but it
-		// did so asynchronously after the test has "finished").
-		it.skip('regenerates the user id on logouts or session expirations ', async () => {
-			fetchMock.mock(/ac-server/i, () => Promise.resolve(200));
-			fetchMock.mock(/identity$/, () => Promise.resolve(200));
-
-			sendDummyEvents(Analytics, 1);
-
-			await Analytics.flush();
-
-			const userId = localStorage.getItem(STORAGE_KEY_USER_ID);
-
-			await Analytics.setIdentity({
-				email: 'john@liferay.com',
-				name: 'John',
-			});
-
-			Analytics.reset();
-			Analytics.dispose();
-
-			sendDummyEvents(Analytics, 1);
-
-			await Analytics.flush();
-
-			expect(localStorage.getItem(STORAGE_KEY_USER_ID)).not.toEqual(
-				userId
-			);
-		});
+		expect(getItem(STORAGE_KEY_USER_ID)).not.toEqual(userId);
 	});
 
 	describe('send()', () => {
@@ -329,7 +232,7 @@ describe('Analytics', () => {
 
 			Analytics.send(eventId, applicationId, properties);
 
-			const events = Analytics.events;
+			const events = Analytics.getEvents();
 
 			expect(events).toEqual([
 				expect.objectContaining({
@@ -345,7 +248,7 @@ describe('Analytics', () => {
 
 			sendDummyEvents(Analytics, eventsNumber);
 
-			const events = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS));
+			const events = Analytics.getEvents();
 
 			expect(events.length).toBeGreaterThanOrEqual(eventsNumber);
 		});

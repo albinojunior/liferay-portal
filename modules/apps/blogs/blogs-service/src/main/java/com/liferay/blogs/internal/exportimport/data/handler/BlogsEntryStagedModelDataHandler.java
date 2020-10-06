@@ -22,7 +22,6 @@ import com.liferay.exportimport.content.processor.ExportImportContentProcessor;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
-import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
@@ -255,7 +254,9 @@ public class BlogsEntryStagedModelDataHandler
 
 		BlogsEntry importedEntry = null;
 
-		if (existingEntry == null) {
+		if ((existingEntry == null) ||
+			!portletDataContext.isDataStrategyMirror()) {
+
 			importedEntry = _blogsEntryLocalService.addEntry(
 				userId, entry.getTitle(), entry.getSubtitle(),
 				entry.getDescription(), entry.getContent(),
@@ -354,9 +355,9 @@ public class BlogsEntryStagedModelDataHandler
 			BlogsEntry.class.getName());
 
 		if (trashHandler.isRestorable(existingEntry.getEntryId())) {
-			long userId = portletDataContext.getUserId(entry.getUserUuid());
-
-			trashHandler.restoreTrashEntry(userId, existingEntry.getEntryId());
+			trashHandler.restoreTrashEntry(
+				portletDataContext.getUserId(entry.getUserUuid()),
+				existingEntry.getEntryId());
 		}
 	}
 
@@ -367,7 +368,7 @@ public class BlogsEntryStagedModelDataHandler
 
 	private void _exportAssetDisplayPage(
 			PortletDataContext portletDataContext, BlogsEntry entry)
-		throws PortletDataException {
+		throws Exception {
 
 		AssetDisplayPageEntry assetDisplayPageEntry =
 			_assetDisplayPageEntryLocalService.fetchAssetDisplayPageEntry(
@@ -383,13 +384,13 @@ public class BlogsEntryStagedModelDataHandler
 
 	private void _exportFriendlyURLEntries(
 			PortletDataContext portletDataContext, BlogsEntry blogsEntry)
-		throws PortletDataException {
-
-		long classNameId = _portal.getClassNameId(BlogsEntry.class);
+		throws Exception {
 
 		List<FriendlyURLEntry> friendlyURLEntries =
 			_friendlyURLEntryLocalService.getFriendlyURLEntries(
-				blogsEntry.getGroupId(), classNameId, blogsEntry.getEntryId());
+				blogsEntry.getGroupId(),
+				_portal.getClassNameId(BlogsEntry.class),
+				blogsEntry.getEntryId());
 
 		for (FriendlyURLEntry friendlyURLEntry : friendlyURLEntries) {
 			StagedModelDataHandlerUtil.exportStagedModel(

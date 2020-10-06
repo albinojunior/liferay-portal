@@ -43,10 +43,8 @@ public class ClassTypesInfoDisplayFieldProviderUtil {
 
 		ClassTypeReader classTypeReader = _getClassTypeReader(className);
 
-		ClassType classType = classTypeReader.getClassType(classTypeId, locale);
-
 		return classTypesInfoDisplayFieldProvider.getClassTypeInfoDisplayFields(
-			classType, locale);
+			classTypeReader.getClassType(classTypeId, locale), locale);
 	}
 
 	public static List<ClassType> getClassTypes(
@@ -63,7 +61,7 @@ public class ClassTypesInfoDisplayFieldProviderUtil {
 	}
 
 	private static ClassTypeReader _getClassTypeReader(String className) {
-		AssetRendererFactory assetRendererFactory =
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 

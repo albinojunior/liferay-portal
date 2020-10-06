@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.util.Base64;
@@ -112,14 +113,15 @@ public class ZoomAPICallbackServlet extends HttpServlet {
 		booleanQuery.addExactTerm("zoomHostId", zoomHostId);
 		booleanQuery.addExactTerm("zoomMeetingId", zoomMeetingId);
 
-		BooleanClause booleanClause = BooleanClauseFactoryUtil.create(
+		BooleanClause<Query> booleanClause = BooleanClauseFactoryUtil.create(
 			booleanQuery, BooleanClauseOccur.MUST.getName());
 
 		searchContext.setBooleanClauses(new BooleanClause[] {booleanClause});
 
 		searchContext.setCompanyId(companyId);
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(PowwowMeeting.class);
+		Indexer<PowwowMeeting> indexer = IndexerRegistryUtil.getIndexer(
+			PowwowMeeting.class);
 
 		Hits hits = indexer.search(searchContext);
 

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.util.Portal;
 
 import java.io.IOException;
 
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
 
@@ -47,9 +48,12 @@ public class ItemSelectorViewDescriptorRendererImpl<T>
 			ServletRequest servletRequest, ServletResponse servletResponse,
 			T itemSelectorCriterion, PortletURL portletURL,
 			String itemSelectedEventName, boolean search,
-			ItemSelectorViewDescriptor itemSelectorViewDescriptor)
+			ItemSelectorViewDescriptor<?> itemSelectorViewDescriptor)
 		throws IOException, ServletException {
 
+		PortletRequest portletRequest =
+			(PortletRequest)servletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_REQUEST);
 		PortletResponse portletResponse =
 			(PortletResponse)servletRequest.getAttribute(
 				JavaConstants.JAVAX_PORTLET_RESPONSE);
@@ -58,7 +62,8 @@ public class ItemSelectorViewDescriptorRendererImpl<T>
 			ItemSelectorViewDescriptorRendererDisplayContext.class.getName(),
 			new ItemSelectorViewDescriptorRendererDisplayContext(
 				(HttpServletRequest)servletRequest, itemSelectedEventName,
-				itemSelectorViewDescriptor,
+				(ItemSelectorViewDescriptor<Object>)itemSelectorViewDescriptor,
+				_portal.getLiferayPortletRequest(portletRequest),
 				_portal.getLiferayPortletResponse(portletResponse)));
 
 		RequestDispatcher requestDispatcher =

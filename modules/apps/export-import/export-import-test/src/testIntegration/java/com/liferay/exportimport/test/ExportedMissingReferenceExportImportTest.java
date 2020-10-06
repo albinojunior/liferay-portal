@@ -44,7 +44,6 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.zip.ZipReader;
 import com.liferay.portal.kernel.zip.ZipReaderFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.registry.collections.ServiceTrackerCollections;
@@ -156,9 +155,8 @@ public class ExportedMissingReferenceExportImportTest
 			DummyFolderPortletKeys.DUMMY_FOLDER_WITH_MISSING_REFERENCE,
 			DummyFolderWithMissingDummyPortletDataHandler.class);
 
-		long[] layoutIds = {layout.getLayoutId()};
-
-		exportImportLayouts(layoutIds, getImportParameterMap());
+		exportImportLayouts(
+			new long[] {layout.getLayoutId()}, getImportParameterMap());
 
 		assertMissingReferences();
 
@@ -183,9 +181,8 @@ public class ExportedMissingReferenceExportImportTest
 			DummyFolderPortletKeys.DUMMY_FOLDER_WITH_MISSING_REFERENCE,
 			DummyFolderWithMissingLayoutPortletDataHandler.class);
 
-		long[] layoutIds = {layout.getLayoutId()};
-
-		exportImportLayouts(layoutIds, getImportParameterMap());
+		exportImportLayouts(
+			new long[] {layout.getLayoutId()}, getImportParameterMap());
 
 		assertMissingReferences();
 
@@ -195,8 +192,6 @@ public class ExportedMissingReferenceExportImportTest
 	}
 
 	protected void assertMissingReferences() throws Exception {
-		ZipReader zipReader = ZipReaderFactoryUtil.getZipReader(larFile);
-
 		PortletDataContext portletDataContext =
 			PortletDataContextFactoryUtil.createImportPortletDataContext(
 				TestPropsValues.getCompanyId(), group.getGroupId(),
@@ -204,7 +199,7 @@ public class ExportedMissingReferenceExportImportTest
 				ExportImportHelperUtil.getUserIdStrategy(
 					TestPropsValues.getUserId(),
 					TestUserIdStrategy.CURRENT_USER_ID),
-				zipReader);
+				ZipReaderFactoryUtil.getZipReader(larFile));
 
 		Element missingReferencesElement =
 			portletDataContext.getMissingReferencesElement();
@@ -242,9 +237,10 @@ public class ExportedMissingReferenceExportImportTest
 		return getExportParameterMap();
 	}
 
-	protected int getPortletDataHandlerRank(Class portletDataHandlerClass) {
+	protected int getPortletDataHandlerRank(Class<?> portletDataHandlerClass) {
 		ServiceTrackerList<PortletDataHandler> portletDataHandlerInstances =
-			ServiceTrackerCollections.openList(portletDataHandlerClass);
+			ServiceTrackerCollections.openList(
+				(Class<PortletDataHandler>)portletDataHandlerClass);
 
 		Assert.assertEquals(
 			portletDataHandlerInstances.toString(), 1,
@@ -257,11 +253,12 @@ public class ExportedMissingReferenceExportImportTest
 	}
 
 	protected List<PortletDataHandler> setPortletDataHandler(
-			String portletId, Class portletDataHandlerClass)
+			String portletId, Class<?> portletDataHandlerClass)
 		throws Exception {
 
 		ServiceTrackerList<PortletDataHandler> portletDataHandlerInstances =
-			ServiceTrackerCollections.openList(portletDataHandlerClass);
+			ServiceTrackerCollections.openList(
+				(Class<PortletDataHandler>)portletDataHandlerClass);
 
 		return setPortletDataHandler(portletId, portletDataHandlerInstances);
 	}
@@ -282,10 +279,11 @@ public class ExportedMissingReferenceExportImportTest
 	}
 
 	protected void setPortletDataHandlerRank(
-		Class portletDataHandlerClass, int rank) {
+		Class<?> portletDataHandlerClass, int rank) {
 
 		ServiceTrackerList<PortletDataHandler> portletDataHandlerInstances =
-			ServiceTrackerCollections.openList(portletDataHandlerClass);
+			ServiceTrackerCollections.openList(
+				(Class<PortletDataHandler>)portletDataHandlerClass);
 
 		Assert.assertEquals(
 			portletDataHandlerInstances.toString(), 1,
@@ -321,9 +319,8 @@ public class ExportedMissingReferenceExportImportTest
 				layout,
 				DummyFolderPortletKeys.DUMMY_FOLDER_WITH_MISSING_REFERENCE);
 
-			long[] layoutIds = {layout.getLayoutId()};
-
-			exportImportLayouts(layoutIds, getImportParameterMap());
+			exportImportLayouts(
+				new long[] {layout.getLayoutId()}, getImportParameterMap());
 
 			if (missingFirst) {
 				assertMissingReferences();

@@ -21,6 +21,10 @@ import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.service.permission.UserPermissionUtil;
 import com.liferay.portal.kernel.servlet.DynamicServletRequest;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -63,6 +67,22 @@ public abstract class BaseAccountUserScreenNavigationEntry
 	}
 
 	@Override
+	public boolean isVisible(User user, User selUser) {
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(user);
+
+		if (UserPermissionUtil.contains(
+				permissionChecker, selUser.getUserId(), ActionKeys.VIEW) &&
+			UserPermissionUtil.contains(
+				permissionChecker, selUser.getUserId(), ActionKeys.UPDATE)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
 	public void render(
 			HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
@@ -80,19 +100,20 @@ public abstract class BaseAccountUserScreenNavigationEntry
 		httpServletRequest.setAttribute(
 			AccountWebKeys.SHOW_TITLE, isShowTitle());
 
-		PortletURL redirect = portal.getControlPanelPortletURL(
+		PortletURL redirectURL = portal.getControlPanelPortletURL(
 			httpServletRequest, AccountPortletKeys.ACCOUNT_USERS_ADMIN,
 			PortletRequest.RENDER_PHASE);
 
-		redirect.setParameter(
+		redirectURL.setParameter(
 			"p_u_i_d", ParamUtil.getString(httpServletRequest, "p_u_i_d"));
-		redirect.setParameter(
+		redirectURL.setParameter(
 			"mvcPath", "/account_users_admin/edit_account_user.jsp");
 
 		DynamicServletRequest dynamicServletRequest = new DynamicServletRequest(
 			httpServletRequest);
 
-		dynamicServletRequest.appendParameter("redirect", redirect.toString());
+		dynamicServletRequest.appendParameter(
+			"redirect", redirectURL.toString());
 
 		jspRenderer.renderJSP(
 			servletContext, dynamicServletRequest, httpServletResponse,

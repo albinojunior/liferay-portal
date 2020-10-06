@@ -15,6 +15,7 @@
 package com.liferay.fragment.service;
 
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -40,6 +41,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @generated
  */
 @AccessControlled
+@CTAware
 @JSONWebService
 @ProviderType
 @Transactional(
@@ -51,7 +53,7 @@ public interface FragmentEntryService extends BaseService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link FragmentEntryServiceUtil} to access the fragment entry remote service. Add custom service methods to <code>com.liferay.fragment.service.impl.FragmentEntryServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.fragment.service.impl.FragmentEntryServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the fragment entry remote service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link FragmentEntryServiceUtil} if injection and service tracking are not available.
 	 */
 	public FragmentEntry addFragmentEntry(
 			long groupId, long fragmentCollectionId, String fragmentEntryKey,
@@ -85,8 +87,32 @@ public interface FragmentEntryService extends BaseService {
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry fetchDraft(long primaryKey);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public FragmentEntry fetchFragmentEntry(long fragmentEntryId)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry getDraft(long primaryKey) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Object> getFragmentCompositionsAndFragmentEntries(
+		long groupId, long fragmentCollectionId, int status, int start, int end,
+		OrderByComparator<?> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Object> getFragmentCompositionsAndFragmentEntries(
+		long groupId, long fragmentCollectionId, String name, int status,
+		int start, int end, OrderByComparator<?> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getFragmentCompositionsAndFragmentEntriesCount(
+		long groupId, long fragmentCollectionId, int status);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getFragmentCompositionsAndFragmentEntriesCount(
+		long groupId, long fragmentCollectionId, String name, int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<FragmentEntry> getFragmentEntries(long fragmentCollectionId);
@@ -171,8 +197,23 @@ public interface FragmentEntryService extends BaseService {
 			long fragmentEntryId, long fragmentCollectionId)
 		throws PortalException;
 
+	public FragmentEntry publishDraft(FragmentEntry draftFragmentEntry)
+		throws PortalException;
+
+	public FragmentEntry updateDraft(FragmentEntry draftFragmentEntry)
+		throws PortalException;
+
+	public FragmentEntry updateFragmentEntry(FragmentEntry fragmentEntry)
+		throws PortalException;
+
 	public FragmentEntry updateFragmentEntry(
 			long fragmentEntryId, long previewFileEntryId)
+		throws PortalException;
+
+	public FragmentEntry updateFragmentEntry(
+			long fragmentEntryId, long fragmentCollectionId, String name,
+			String css, String html, String js, boolean cacheable,
+			String configuration, long previewFileEntryId, int status)
 		throws PortalException;
 
 	public FragmentEntry updateFragmentEntry(long fragmentEntryId, String name)

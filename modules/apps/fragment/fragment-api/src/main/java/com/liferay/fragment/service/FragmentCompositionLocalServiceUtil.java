@@ -41,6 +41,10 @@ public class FragmentCompositionLocalServiceUtil {
 	/**
 	 * Adds the fragment composition to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentComposition the fragment composition
 	 * @return the fragment composition that was added
 	 */
@@ -90,6 +94,10 @@ public class FragmentCompositionLocalServiceUtil {
 	/**
 	 * Deletes the fragment composition from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentComposition the fragment composition
 	 * @return the fragment composition that was removed
 	 * @throws PortalException
@@ -105,6 +113,10 @@ public class FragmentCompositionLocalServiceUtil {
 
 	/**
 	 * Deletes the fragment composition with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param fragmentCompositionId the primary key of the fragment composition
 	 * @return the fragment composition that was removed
@@ -126,6 +138,12 @@ public class FragmentCompositionLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -432,8 +450,21 @@ public class FragmentCompositionLocalServiceUtil {
 		return getService().getTempFileNames(userId, groupId, folderName);
 	}
 
+	public static com.liferay.fragment.model.FragmentComposition
+			moveFragmentComposition(
+				long fragmentCompositionId, long fragmentCollectionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().moveFragmentComposition(
+			fragmentCompositionId, fragmentCollectionId);
+	}
+
 	/**
 	 * Updates the fragment composition in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentCompositionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param fragmentComposition the fragment composition
 	 * @return the fragment composition that was updated
@@ -457,6 +488,23 @@ public class FragmentCompositionLocalServiceUtil {
 
 	public static com.liferay.fragment.model.FragmentComposition
 			updateFragmentComposition(
+				long userId, long fragmentCompositionId,
+				long fragmentCollectionId, String name, String description,
+				String data, long previewFileEntryId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateFragmentComposition(
+			userId, fragmentCompositionId, fragmentCollectionId, name,
+			description, data, previewFileEntryId, status);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateFragmentComposition(long, long, long, String, String, String, long, int)}
+	 */
+	@Deprecated
+	public static com.liferay.fragment.model.FragmentComposition
+			updateFragmentComposition(
 				long userId, long fragmentCompositionId, String name,
 				String description, String data, long previewFileEntryId,
 				int status)
@@ -465,6 +513,14 @@ public class FragmentCompositionLocalServiceUtil {
 		return getService().updateFragmentComposition(
 			userId, fragmentCompositionId, name, description, data,
 			previewFileEntryId, status);
+	}
+
+	public static com.liferay.fragment.model.FragmentComposition
+			updateFragmentComposition(long fragmentCompositionId, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateFragmentComposition(
+			fragmentCompositionId, name);
 	}
 
 	public static FragmentCompositionLocalService getService() {

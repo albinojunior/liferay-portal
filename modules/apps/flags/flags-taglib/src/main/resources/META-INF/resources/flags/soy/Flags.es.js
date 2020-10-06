@@ -29,6 +29,7 @@ import templates from './Flags.soy';
  */
 
 class Flags extends PortletBase {
+
 	/**
 	 * @inheritDoc
 	 */
@@ -110,7 +111,6 @@ class Flags extends PortletBase {
 
 		const formData = new FormData();
 
-		// eslint-disable-next-line no-unused-vars
 		for (const name in this.formData) {
 			formData.append(name, this.formData[name]);
 		}
@@ -119,7 +119,7 @@ class Flags extends PortletBase {
 			body: formData,
 			method: 'POST',
 		})
-			.then(response => {
+			.then((response) => {
 				if (response.status === Liferay.STATUS_CODE.OK) {
 					this._showConfirmationMessage = true;
 				}
@@ -138,6 +138,7 @@ class Flags extends PortletBase {
  */
 
 Flags.STATE = {
+
 	/**
 	 * Flag to indicate if dialog should be open.
 	 * @default false
@@ -146,9 +147,7 @@ Flags.STATE = {
 	 * @type {Boolean}
 	 */
 
-	_reportDialogOpen: Config.bool()
-		.internal()
-		.value(false),
+	_reportDialogOpen: Config.bool().internal().value(false),
 
 	/**
 	 * Selected reason to flag.
@@ -167,9 +166,7 @@ Flags.STATE = {
 	 * @type {Boolean}
 	 */
 
-	_showConfirmationMessage: Config.bool()
-		.internal()
-		.value(false),
+	_showConfirmationMessage: Config.bool().internal().value(false),
 
 	/**
 	 * Flag to indicate if dialog should show the error message.
@@ -179,9 +176,7 @@ Flags.STATE = {
 	 * @type {Boolean}
 	 */
 
-	_showErrorMessage: Config.bool()
-		.internal()
-		.value(false),
+	_showErrorMessage: Config.bool().internal().value(false),
 
 	/**
 	 * Company name.

@@ -48,6 +48,13 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 				"setVisible('validation', false)"
 			},
 			condition = "TRUE"
+		),
+		@DDMFormRule(
+			actions = {
+				"setValue('ddmDataProviderInstanceId', '')",
+				"setValue('ddmDataProviderInstanceOutput', '')"
+			},
+			condition = "not(equals(getValue('dataSourceType'), \"data-provider\"))"
 		)
 	}
 )
@@ -82,8 +89,8 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 								"name", "predefinedValue",
 								"visibilityExpression", "validation",
 								"fieldNamespace", "indexType", "localizable",
-								"readOnly", "dataType", "type", "showLabel",
-								"repeatable", "multiple"
+								"nativeField", "readOnly", "dataType", "type",
+								"showLabel", "repeatable", "multiple"
 							}
 						)
 					}

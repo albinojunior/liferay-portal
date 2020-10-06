@@ -24,13 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class MBStatsUserSoap implements Serializable {
 
 	public static MBStatsUserSoap toSoapModel(MBStatsUser model) {
 		MBStatsUserSoap soapModel = new MBStatsUserSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setStatsUserId(model.getStatsUserId());
 		soapModel.setGroupId(model.getGroupId());
 		soapModel.setCompanyId(model.getCompanyId());
@@ -90,6 +94,22 @@ public class MBStatsUserSoap implements Serializable {
 		setStatsUserId(pk);
 	}
 
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getStatsUserId() {
 		return _statsUserId;
 	}
@@ -138,6 +158,8 @@ public class MBStatsUserSoap implements Serializable {
 		_lastPostDate = lastPostDate;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _statsUserId;
 	private long _groupId;
 	private long _companyId;

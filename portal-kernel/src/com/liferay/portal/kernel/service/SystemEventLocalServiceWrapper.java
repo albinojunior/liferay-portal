@@ -14,6 +14,10 @@
 
 package com.liferay.portal.kernel.service;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.model.SystemEvent;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+
 /**
  * Provides a wrapper for {@link SystemEventLocalService}.
  *
@@ -32,10 +36,10 @@ public class SystemEventLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent addSystemEvent(
-			long userId, long groupId, java.lang.String className, long classPK,
-			java.lang.String classUuid, java.lang.String referrerClassName,
-			int type, java.lang.String extraData)
+	public SystemEvent addSystemEvent(
+			long userId, long groupId, String className, long classPK,
+			String classUuid, String referrerClassName, int type,
+			String extraData)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _systemEventLocalService.addSystemEvent(
@@ -44,10 +48,9 @@ public class SystemEventLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent addSystemEvent(
-			long companyId, java.lang.String className, long classPK,
-			java.lang.String classUuid, java.lang.String referrerClassName,
-			int type, java.lang.String extraData)
+	public SystemEvent addSystemEvent(
+			long companyId, String className, long classPK, String classUuid,
+			String referrerClassName, int type, String extraData)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _systemEventLocalService.addSystemEvent(
@@ -58,13 +61,15 @@ public class SystemEventLocalServiceWrapper
 	/**
 	 * Adds the system event to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SystemEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param systemEvent the system event
 	 * @return the system event that was added
 	 */
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent addSystemEvent(
-		com.liferay.portal.kernel.model.SystemEvent systemEvent) {
-
+	public SystemEvent addSystemEvent(SystemEvent systemEvent) {
 		return _systemEventLocalService.addSystemEvent(systemEvent);
 	}
 
@@ -93,9 +98,7 @@ public class SystemEventLocalServiceWrapper
 	 * @return the new system event
 	 */
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent createSystemEvent(
-		long systemEventId) {
-
+	public SystemEvent createSystemEvent(long systemEventId) {
 		return _systemEventLocalService.createSystemEvent(systemEventId);
 	}
 
@@ -113,13 +116,16 @@ public class SystemEventLocalServiceWrapper
 	/**
 	 * Deletes the system event with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SystemEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param systemEventId the primary key of the system event
 	 * @return the system event that was removed
 	 * @throws PortalException if a system event with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent deleteSystemEvent(
-			long systemEventId)
+	public SystemEvent deleteSystemEvent(long systemEventId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _systemEventLocalService.deleteSystemEvent(systemEventId);
@@ -128,13 +134,15 @@ public class SystemEventLocalServiceWrapper
 	/**
 	 * Deletes the system event from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SystemEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param systemEvent the system event
 	 * @return the system event that was removed
 	 */
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent deleteSystemEvent(
-		com.liferay.portal.kernel.model.SystemEvent systemEvent) {
-
+	public SystemEvent deleteSystemEvent(SystemEvent systemEvent) {
 		return _systemEventLocalService.deleteSystemEvent(systemEvent);
 	}
 
@@ -146,6 +154,11 @@ public class SystemEventLocalServiceWrapper
 	@Override
 	public void deleteSystemEvents(long groupId, long systemEventSetKey) {
 		_systemEventLocalService.deleteSystemEvents(groupId, systemEventSetKey);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _systemEventLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -239,14 +252,12 @@ public class SystemEventLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent fetchSystemEvent(
-		long systemEventId) {
-
+	public SystemEvent fetchSystemEvent(long systemEventId) {
 		return _systemEventLocalService.fetchSystemEvent(systemEventId);
 	}
 
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent fetchSystemEvent(
+	public SystemEvent fetchSystemEvent(
 		long groupId, long classNameId, long classPK, int type) {
 
 		return _systemEventLocalService.fetchSystemEvent(
@@ -273,7 +284,7 @@ public class SystemEventLocalServiceWrapper
 	 * @return the OSGi service identifier
 	 */
 	@Override
-	public java.lang.String getOSGiServiceIdentifier() {
+	public String getOSGiServiceIdentifier() {
 		return _systemEventLocalService.getOSGiServiceIdentifier();
 	}
 
@@ -296,8 +307,7 @@ public class SystemEventLocalServiceWrapper
 	 * @throws PortalException if a system event with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent getSystemEvent(
-			long systemEventId)
+	public SystemEvent getSystemEvent(long systemEventId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _systemEventLocalService.getSystemEvent(systemEventId);
@@ -315,24 +325,21 @@ public class SystemEventLocalServiceWrapper
 	 * @return the range of system events
 	 */
 	@Override
-	public java.util.List<com.liferay.portal.kernel.model.SystemEvent>
-		getSystemEvents(int start, int end) {
-
+	public java.util.List<SystemEvent> getSystemEvents(int start, int end) {
 		return _systemEventLocalService.getSystemEvents(start, end);
 	}
 
 	@Override
-	public java.util.List<com.liferay.portal.kernel.model.SystemEvent>
-		getSystemEvents(long groupId, long classNameId, long classPK) {
+	public java.util.List<SystemEvent> getSystemEvents(
+		long groupId, long classNameId, long classPK) {
 
 		return _systemEventLocalService.getSystemEvents(
 			groupId, classNameId, classPK);
 	}
 
 	@Override
-	public java.util.List<com.liferay.portal.kernel.model.SystemEvent>
-		getSystemEvents(
-			long groupId, long classNameId, long classPK, int type) {
+	public java.util.List<SystemEvent> getSystemEvents(
+		long groupId, long classNameId, long classPK, int type) {
 
 		return _systemEventLocalService.getSystemEvents(
 			groupId, classNameId, classPK, type);
@@ -351,13 +358,15 @@ public class SystemEventLocalServiceWrapper
 	/**
 	 * Updates the system event in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SystemEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param systemEvent the system event
 	 * @return the system event that was updated
 	 */
 	@Override
-	public com.liferay.portal.kernel.model.SystemEvent updateSystemEvent(
-		com.liferay.portal.kernel.model.SystemEvent systemEvent) {
-
+	public SystemEvent updateSystemEvent(SystemEvent systemEvent) {
 		return _systemEventLocalService.updateSystemEvent(systemEvent);
 	}
 
@@ -366,6 +375,26 @@ public class SystemEventLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _systemEventLocalService.validateGroup(groupId);
+	}
+
+	@Override
+	public CTPersistence<SystemEvent> getCTPersistence() {
+		return _systemEventLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<SystemEvent> getModelClass() {
+		return _systemEventLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SystemEvent>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _systemEventLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

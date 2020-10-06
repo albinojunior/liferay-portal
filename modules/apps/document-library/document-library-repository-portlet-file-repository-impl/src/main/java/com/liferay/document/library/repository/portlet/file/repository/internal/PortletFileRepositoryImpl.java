@@ -21,8 +21,10 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLTrashLocalService;
 import com.liferay.document.library.kernel.util.DLAppHelperThreadLocal;
 import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -269,14 +271,19 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 		long classNameId = _portal.getClassNameId(
 			PortletRepository.class.getName());
 
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
-		return _run(
-			() -> _repositoryLocalService.addRepository(
-				user.getUserId(), groupId, classNameId,
-				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, portletId,
-				StringPool.BLANK, portletId, typeSettingsProperties, true,
-				serviceContext));
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(0)) {
+
+			return _run(
+				() -> _repositoryLocalService.addRepository(
+					user.getUserId(), groupId, classNameId,
+					DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, portletId,
+					StringPool.BLANK, portletId, typeSettingsUnicodeProperties,
+					true, serviceContext));
+		}
 	}
 
 	@Override
@@ -454,39 +461,40 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 	@Override
 	public List<FileEntry> getPortletFileEntries(
 			long groupId, long folderId, int status, int start, int end,
-			OrderByComparator<FileEntry> obc)
+			OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
 		LocalRepository localRepository =
 			_repositoryProvider.getLocalRepository(groupId);
 
 		return localRepository.getFileEntries(
-			folderId, status, start, end, obc);
+			folderId, status, start, end, orderByComparator);
 	}
 
 	@Override
 	public List<FileEntry> getPortletFileEntries(
-			long groupId, long folderId, OrderByComparator<FileEntry> obc)
+			long groupId, long folderId,
+			OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
 		LocalRepository localRepository =
 			_repositoryProvider.getLocalRepository(groupId);
 
 		return localRepository.getFileEntries(
-			folderId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, obc);
+			folderId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, orderByComparator);
 	}
 
 	@Override
 	public List<FileEntry> getPortletFileEntries(
 			long groupId, long folderId, String[] mimeTypes, int status,
-			int start, int end, OrderByComparator<FileEntry> obc)
+			int start, int end, OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
 		LocalRepository localRepository =
 			_repositoryProvider.getLocalRepository(groupId);
 
 		return localRepository.getFileEntries(
-			folderId, mimeTypes, status, start, end, obc);
+			folderId, mimeTypes, status, start, end, orderByComparator);
 	}
 
 	@Override

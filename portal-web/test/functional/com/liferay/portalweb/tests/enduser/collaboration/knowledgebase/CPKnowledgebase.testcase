@@ -36,11 +36,11 @@ definition {
 
 	@priority = "4"
 	test AddChildArticleToKBArticleViaKBAdmin {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBArticle.addCP(
+		JSONKnowledgeBase.addkBArticle(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addChildArticleViaKBAdmin(
 			kbArticleTitle = "Knowledge Base Article Title",
@@ -113,15 +113,14 @@ definition {
 	test AddKBArticleViaTemplateCP {
 		property test.name.skip.portal.instance = "CPKnowledgebase#AddKBArticleViaTemplateCP";
 
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBTemplate.addCP(
+		JSONKnowledgeBase.addkBTemplate(
 			kbTemplateContent = "Knowledge Base Template Content",
 			kbTemplateTitle = "Knowledge Base Template Title");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
+			kbArticleAddViaTemplate = "true",
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title",
 			kbTemplateTitle = "Knowledge Base Template Title");
@@ -191,7 +190,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Categories");
 
 		Vocabulary.addWithAssociatedAssetTypeCP(
@@ -203,7 +201,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Categories");
 
 		Category.addCP(
@@ -255,15 +252,15 @@ definition {
 			configurationName = "Upload Servlet Request",
 			configurationScope = "System Scope");
 
-		ServerAdministration.configureFileUploadOverallMaximumFileSize(maxFileSize = "2048");
+		ServerAdministration.configureFileUploadOverallMaximumFileSize(maxFileSize = "65536");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCPWithInvalidAttachmentSize(
-			kbArticleAttachment = "Document_1.png",
+			kbArticleAttachment = "high_resolution_photo.jpg",
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title",
-			maxFileSize = "2");
+			maxFileSize = "64");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
@@ -281,7 +278,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Categories");
 
 		Vocabulary.addWithAssociatedAssetTypeCP(
@@ -293,7 +289,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Categories");
 
 		Category.addCP(
@@ -369,9 +364,7 @@ definition {
 	test CancelEditKBArticle {
 		property test.name.skip.portal.instance = "CPKnowledgebase#CancelEditKBArticle";
 
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBArticle.addCP(
+		JSONKnowledgeBase.addkBArticle(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
 
@@ -396,7 +389,8 @@ definition {
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder 1 Description",
 			kbFolderName = "KB Folder 1");
 
@@ -408,9 +402,7 @@ definition {
 
 	@priority = "4"
 	test DeleteKBArticleViaKBAdmin {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBArticle.addCP(
+		JSONKnowledgeBase.addkBArticle(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
 
@@ -427,11 +419,12 @@ definition {
 
 	@priority = "4"
 	test DeleteKBFolder {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder 1 Description",
 			kbFolderName = "KB Folder 1");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBFolder.gotoCP(kbFolderName = "KB Folder 1");
 
@@ -446,9 +439,7 @@ definition {
 
 	@priority = "4"
 	test EditKBArticleAndAddAttachmentViaKBAdmin {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBArticle.addCP(
+		JSONKnowledgeBase.addkBArticle(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
 
@@ -470,9 +461,7 @@ definition {
 
 	@priority = "4"
 	test EditKBArticleViaKBAdmin {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBArticle.addCP(
+		JSONKnowledgeBase.addkBArticle(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
 
@@ -492,11 +481,12 @@ definition {
 
 	@priority = "4"
 	test EditKBFolder {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder 1 Description",
 			kbFolderName = "KB Folder 1");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBFolder.gotoCP(kbFolderName = "KB Folder 1");
 
@@ -554,9 +544,7 @@ definition {
 	}
 
 	test SaveEditedKBArticleAsDraft {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBArticle.addCP(
+		JSONKnowledgeBase.addkBArticle(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
 
@@ -837,7 +825,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Workflow");
 
 		Workflow.configureWorkflow(

@@ -20,6 +20,8 @@ import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
@@ -58,7 +60,33 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {app(appId: ___){appDeployments, dataDefinitionId, dataLayoutId, dataListViewId, dateCreated, dateModified, id, name, siteId, status, userId}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {apps(active: ___, deploymentTypes: ___, keywords: ___, page: ___, pageSize: ___, scope: ___, sorts: ___, userIds: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public AppPage apps(
+			@GraphQLName("active") Boolean active,
+			@GraphQLName("deploymentTypes") String[] deploymentTypes,
+			@GraphQLName("keywords") String keywords,
+			@GraphQLName("scope") String scope,
+			@GraphQLName("userIds") Long[] userIds,
+			@GraphQLName("pageSize") int pageSize,
+			@GraphQLName("page") int page,
+			@GraphQLName("sort") String sortsString)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_appResourceComponentServiceObjects, this::_populateResourceContext,
+			appResource -> new AppPage(
+				appResource.getAppsPage(
+					active, deploymentTypes, keywords, scope, userIds,
+					Pagination.of(page, pageSize),
+					_sortsBiFunction.apply(appResource, sortsString))));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {app(appId: ___){active, appDeployments, dataDefinitionId, dataDefinitionName, dataLayoutId, dataListViewId, dataRecordCollectionId, dateCreated, dateModified, id, name, scope, siteId, userId, version}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public App app(@GraphQLName("appId") Long appId) throws Exception {
@@ -70,12 +98,13 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionApps(dataDefinitionId: ___, keywords: ___, page: ___, pageSize: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionApps(dataDefinitionId: ___, keywords: ___, page: ___, pageSize: ___, scope: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public AppPage dataDefinitionApps(
 			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
 			@GraphQLName("keywords") String keywords,
+			@GraphQLName("scope") String scope,
 			@GraphQLName("pageSize") int pageSize,
 			@GraphQLName("page") int page,
 			@GraphQLName("sort") String sortsString)
@@ -85,19 +114,21 @@ public class Query {
 			_appResourceComponentServiceObjects, this::_populateResourceContext,
 			appResource -> new AppPage(
 				appResource.getDataDefinitionAppsPage(
-					dataDefinitionId, keywords, Pagination.of(page, pageSize),
+					dataDefinitionId, keywords, scope,
+					Pagination.of(page, pageSize),
 					_sortsBiFunction.apply(appResource, sortsString))));
 	}
 
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {apps(keywords: ___, page: ___, pageSize: ___, siteKey: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {siteApps(keywords: ___, page: ___, pageSize: ___, scope: ___, siteKey: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
-	public AppPage apps(
+	public AppPage siteApps(
 			@GraphQLName("siteKey") @NotEmpty String siteKey,
 			@GraphQLName("keywords") String keywords,
+			@GraphQLName("scope") String scope,
 			@GraphQLName("pageSize") int pageSize,
 			@GraphQLName("page") int page,
 			@GraphQLName("sort") String sortsString)
@@ -107,7 +138,7 @@ public class Query {
 			_appResourceComponentServiceObjects, this::_populateResourceContext,
 			appResource -> new AppPage(
 				appResource.getSiteAppsPage(
-					Long.valueOf(siteKey), keywords,
+					Long.valueOf(siteKey), keywords, scope,
 					Pagination.of(page, pageSize),
 					_sortsBiFunction.apply(appResource, sortsString))));
 	}
@@ -117,6 +148,7 @@ public class Query {
 
 		public AppPage(Page appPage) {
 			actions = appPage.getActions();
+
 			items = appPage.getItems();
 			lastPage = appPage.getLastPage();
 			page = appPage.getPage();
@@ -172,18 +204,22 @@ public class Query {
 		appResource.setContextHttpServletResponse(_httpServletResponse);
 		appResource.setContextUriInfo(_uriInfo);
 		appResource.setContextUser(_user);
+		appResource.setGroupLocalService(_groupLocalService);
+		appResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private static ComponentServiceObjects<AppResource>
 		_appResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
-	private BiFunction<Object, String, Filter> _filterBiFunction;
-	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private com.liferay.portal.kernel.model.Company _company;
-	private com.liferay.portal.kernel.model.User _user;
+	private BiFunction<Object, String, Filter> _filterBiFunction;
+	private GroupLocalService _groupLocalService;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
+	private RoleLocalService _roleLocalService;
+	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
+	private com.liferay.portal.kernel.model.User _user;
 
 }

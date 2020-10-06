@@ -19,8 +19,6 @@
 <%
 String randomId = workflowTaskDisplayContext.getWorkflowTaskRandomId();
 
-String mvcPath = ParamUtil.getString(request, "mvcPath", "/view.jsp");
-
 String closeRedirect = ParamUtil.getString(request, "closeRedirect");
 
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
@@ -87,7 +85,7 @@ redirectURL.setParameter("mvcPath", "/view.jsp");
 
 				<liferay-ui:icon
 					message="assign-to-me"
-					onClick='<%= "javascript:" + renderResponse.getNamespace() + "taskAssignToMe('" + assignToMeURL + "');" %>'
+					onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "taskAssignToMe('" + assignToMeURL + "');" %>'
 					url="javascript:;"
 				/>
 			</c:otherwise>
@@ -101,7 +99,7 @@ redirectURL.setParameter("mvcPath", "/view.jsp");
 
 		<liferay-ui:icon
 			message="assign-to-..."
-			onClick='<%= "javascript:" + renderResponse.getNamespace() + "taskAssign('" + assignURL + "');" %>'
+			onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "taskAssign('" + assignURL + "');" %>'
 			url="javascript:;"
 		/>
 
@@ -113,7 +111,7 @@ redirectURL.setParameter("mvcPath", "/view.jsp");
 
 		<liferay-ui:icon
 			message="update-due-date"
-			onClick='<%= "javascript:" + renderResponse.getNamespace() + "taskUpdate('" + updateDueDateURL + "');" %>'
+			onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "taskUpdate('" + updateDueDateURL + "');" %>'
 			url="javascript:;"
 		/>
 	</c:if>

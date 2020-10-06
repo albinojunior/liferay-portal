@@ -25,7 +25,6 @@ import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -79,7 +78,8 @@ public class WikiNodeIndexer extends BaseIndexer<WikiNode> {
 
 	@Override
 	protected void doDelete(WikiNode wikiNode) throws Exception {
-		deleteDocument(wikiNode.getCompanyId(), wikiNode.getNodeId());
+		deleteDocument(
+			wikiNode.getCompanyId(), "UID=" + uidFactory.getUID(wikiNode));
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class WikiNodeIndexer extends BaseIndexer<WikiNode> {
 	@Reference
 	protected UIDFactory uidFactory;
 
-	private void _deleteDocument(WikiNode wikiNode) throws SearchException {
+	private void _deleteDocument(WikiNode wikiNode) throws Exception {
 		_indexWriterHelper.deleteDocument(
 			getSearchEngineId(), wikiNode.getCompanyId(),
 			uidFactory.getUID(wikiNode), isCommitImmediately());

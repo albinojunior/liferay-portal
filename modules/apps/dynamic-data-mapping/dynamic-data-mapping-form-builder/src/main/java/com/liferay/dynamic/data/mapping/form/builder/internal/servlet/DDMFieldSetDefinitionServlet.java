@@ -83,11 +83,19 @@ public class DDMFieldSetDefinitionServlet extends BaseDDMFormBuilderServlet {
 		Optional<DDMStructure> ddmStructureOptional = Optional.ofNullable(
 			getDDMStructure(ddmStructureId));
 
+		DDMFormBuilderContextRequest ddmFormBuilderContextRequest =
+			DDMFormBuilderContextRequest.with(
+				ddmStructureOptional, httpServletRequest, httpServletResponse,
+				locale, true);
+
+		String portletNamespace = ParamUtil.getString(
+			httpServletRequest, "portletNamespace");
+
+		ddmFormBuilderContextRequest.addProperty(
+			"portletNamespace", portletNamespace);
+
 		DDMFormBuilderContextResponse fieldContext =
-			_ddmFormBuilderContextFactory.create(
-				DDMFormBuilderContextRequest.with(
-					ddmStructureOptional, httpServletRequest,
-					httpServletResponse, locale, true));
+			_ddmFormBuilderContextFactory.create(ddmFormBuilderContextRequest);
 
 		httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);

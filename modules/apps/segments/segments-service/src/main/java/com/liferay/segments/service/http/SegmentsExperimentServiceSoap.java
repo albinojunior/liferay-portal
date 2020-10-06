@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Eduardo Garcia
  * @see SegmentsExperimentServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class SegmentsExperimentServiceSoap {
 
 	public static com.liferay.segments.model.SegmentsExperimentSoap
@@ -194,6 +196,25 @@ public class SegmentsExperimentServiceSoap {
 			com.liferay.segments.model.SegmentsExperiment returnValue =
 				SegmentsExperimentServiceUtil.getSegmentsExperiment(
 					segmentsExperimentId);
+
+			return com.liferay.segments.model.SegmentsExperimentSoap.
+				toSoapModel(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.segments.model.SegmentsExperimentSoap
+			getSegmentsExperiment(String segmentsExperimentKey)
+		throws RemoteException {
+
+		try {
+			com.liferay.segments.model.SegmentsExperiment returnValue =
+				SegmentsExperimentServiceUtil.getSegmentsExperiment(
+					segmentsExperimentKey);
 
 			return com.liferay.segments.model.SegmentsExperimentSoap.
 				toSoapModel(returnValue);

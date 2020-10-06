@@ -1,4 +1,4 @@
-.dialog-iframe-popup:not(.article-preview) {
+.portal-popup:not(.article-preview) {
 	#main-content,
 	#wrapper {
 		bottom: 0;
@@ -36,14 +36,14 @@
 	&.modal-dialog-sm {
 		max-width: $modal-md;
 	}
+
+	.yui3-resize-handles-wrapper {
+		pointer-events: all;
+	}
 }
 
 .modal-hidden {
 	display: none;
-}
-
-.modal-open .modal {
-	overflow: hidden;
 }
 
 .portal-popup {

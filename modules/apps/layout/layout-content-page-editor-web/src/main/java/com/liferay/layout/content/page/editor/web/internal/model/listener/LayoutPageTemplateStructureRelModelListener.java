@@ -14,8 +14,8 @@
 
 package com.liferay.layout.content.page.editor.web.internal.model.listener;
 
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
 import com.liferay.layout.content.page.editor.web.internal.util.ContentUtil;
+import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
 import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
@@ -60,26 +60,28 @@ public class LayoutPageTemplateStructureRelModelListener
 			String.valueOf(
 				layoutPageTemplateStructure.getLayoutPageTemplateStructureId()),
 			_portal.getClassNameId(LayoutPageTemplateStructure.class),
-			layoutPageTemplateStructure.getClassPK());
+			layoutPageTemplateStructure.getPlid());
 
-		Set<InfoDisplayObjectProvider> infoDisplayObjectProviders =
-			ContentUtil.getLayoutMappedInfoDisplayObjectProviders(
-				layoutPageTemplateStructureRel.getData());
+		Set<LayoutDisplayPageObjectProvider<?>>
+			layoutDisplayPageObjectProviders =
+				ContentUtil.getLayoutMappedLayoutDisplayPageObjectProviders(
+					layoutPageTemplateStructureRel.getData());
 
-		for (InfoDisplayObjectProvider infoDisplayObjectProvider :
-				infoDisplayObjectProviders) {
+		for (LayoutDisplayPageObjectProvider<?>
+				layoutDisplayPageObjectProvider :
+					layoutDisplayPageObjectProviders) {
 
 			LayoutClassedModelUsage layoutClassedModelUsage =
 				_layoutClassedModelUsageLocalService.
 					fetchLayoutClassedModelUsage(
-						infoDisplayObjectProvider.getClassNameId(),
-						infoDisplayObjectProvider.getClassPK(),
+						layoutDisplayPageObjectProvider.getClassNameId(),
+						layoutDisplayPageObjectProvider.getClassPK(),
 						String.valueOf(
 							layoutPageTemplateStructure.
 								getLayoutPageTemplateStructureId()),
 						_portal.getClassNameId(
 							LayoutPageTemplateStructure.class),
-						layoutPageTemplateStructure.getClassPK());
+						layoutPageTemplateStructure.getPlid());
 
 			if (layoutClassedModelUsage != null) {
 				continue;
@@ -93,13 +95,13 @@ public class LayoutPageTemplateStructureRelModelListener
 
 			_layoutClassedModelUsageLocalService.addLayoutClassedModelUsage(
 				layoutPageTemplateStructure.getGroupId(),
-				infoDisplayObjectProvider.getClassNameId(),
-				infoDisplayObjectProvider.getClassPK(),
+				layoutDisplayPageObjectProvider.getClassNameId(),
+				layoutDisplayPageObjectProvider.getClassPK(),
 				String.valueOf(
 					layoutPageTemplateStructure.
 						getLayoutPageTemplateStructureId()),
 				_portal.getClassNameId(LayoutPageTemplateStructure.class),
-				layoutPageTemplateStructure.getClassPK(), serviceContext);
+				layoutPageTemplateStructure.getPlid(), serviceContext);
 		}
 	}
 

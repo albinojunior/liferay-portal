@@ -13,14 +13,24 @@
  */
 
 import React from 'react';
+import {withRouter} from 'react-router-dom';
 
 import {timeDifference} from '../utils/utils.es';
+import Link from './Link.es';
 import UserIcon from './UserIcon.es';
 import UserPopover from './UserPopover.es';
 
-export default ({question: {creator, creatorStatistics, dateCreated}}) => {
-	return (
-		<div className="align-items-center border-light btn btn-secondary c-ml-3 c-p-3 d-inline-flex justify-content-center position-relative question-user">
+export default withRouter(
+	({
+		match: {
+			params: {sectionTitle},
+		},
+		question: {creator, creatorStatistics, dateCreated},
+	}) => (
+		<Link
+			className="align-items-center border-light btn btn-secondary c-ml-md-3 c-mt-3 c-mt-md-0 c-p-3 d-inline-flex justify-content-center position-relative questions-user"
+			to={`/questions/${sectionTitle}/creator/${creator.id}`}
+		>
 			<UserIcon
 				fullName={creator.name}
 				portraitURL={creator.image}
@@ -36,6 +46,6 @@ export default ({question: {creator, creatorStatistics, dateCreated}}) => {
 			</div>
 
 			<UserPopover creator={creator} statistics={creatorStatistics} />
-		</div>
-	);
-};
+		</Link>
+	)
+);

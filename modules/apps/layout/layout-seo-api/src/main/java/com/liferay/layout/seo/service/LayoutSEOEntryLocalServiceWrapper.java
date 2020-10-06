@@ -36,6 +36,10 @@ public class LayoutSEOEntryLocalServiceWrapper
 	/**
 	 * Adds the layout seo entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSEOEntry the layout seo entry
 	 * @return the layout seo entry that was added
 	 */
@@ -74,6 +78,10 @@ public class LayoutSEOEntryLocalServiceWrapper
 	/**
 	 * Deletes the layout seo entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSEOEntry the layout seo entry
 	 * @return the layout seo entry that was removed
 	 */
@@ -86,6 +94,10 @@ public class LayoutSEOEntryLocalServiceWrapper
 
 	/**
 	 * Deletes the layout seo entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSEOEntryId the primary key of the layout seo entry
 	 * @return the layout seo entry that was removed
@@ -125,6 +137,11 @@ public class LayoutSEOEntryLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _layoutSEOEntryLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _layoutSEOEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -394,6 +411,10 @@ public class LayoutSEOEntryLocalServiceWrapper
 
 	/**
 	 * Updates the layout seo entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSEOEntry the layout seo entry
 	 * @return the layout seo entry that was updated

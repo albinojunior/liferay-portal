@@ -19,7 +19,6 @@ import com.liferay.portal.tools.theme.builder.ThemeBuilderTest;
 import com.liferay.portal.tools.theme.builder.internal.util.FileUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -53,11 +52,29 @@ public class BuildThemeMojoTest extends ThemeBuilderTest {
 		Assert.assertEquals(result.output, 0, result.exitCode);
 	}
 
-	private static void _preparePomXml(
+	private static String _replace(String s, String key, File file) {
+		String value = null;
+
+		if (file != null) {
+			value = file.getAbsolutePath();
+		}
+
+		return _replace(s, key, value);
+	}
+
+	private static String _replace(String s, String key, String value) {
+		if (value == null) {
+			value = "";
+		}
+
+		return s.replace(key, value);
+	}
+
+	private void _preparePomXml(
 			File projectDir, File diffsDir, String name, File outputDir,
 			File parentDir, String parentName, String templateExtension,
 			File unstyledDir)
-		throws IOException {
+		throws Exception {
 
 		String content = FileUtil.read(
 			BuildThemeMojoTest.class, "dependencies/pom_xml.tmpl");
@@ -80,24 +97,6 @@ public class BuildThemeMojoTest extends ThemeBuilderTest {
 
 		Files.write(
 			pomXmlFile.toPath(), content.getBytes(StandardCharsets.UTF_8));
-	}
-
-	private static String _replace(String s, String key, File file) {
-		String value = null;
-
-		if (file != null) {
-			value = file.getAbsolutePath();
-		}
-
-		return _replace(s, key, value);
-	}
-
-	private static String _replace(String s, String key, String value) {
-		if (value == null) {
-			value = "";
-		}
-
-		return s.replace(key, value);
 	}
 
 	private static final String _THEME_BUILDER_VERSION = System.getProperty(

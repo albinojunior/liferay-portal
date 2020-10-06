@@ -31,29 +31,31 @@ PortletURL clearResultsURL = PortletURLUtil.clone(searchURL, liferayPortletRespo
 clearResultsURL.setParameter("navigation", (String)null);
 clearResultsURL.setParameter("keywords", StringPool.BLANK);
 
-SearchContainer loggerSearchContainer = new SearchContainer(liferayPortletRequest, searchURL, null, null);
+SearchContainer<Map.Entry<String, Logger>> loggerSearchContainer = new SearchContainer(liferayPortletRequest, searchURL, null, null);
 
-Map currentLoggerNames = new TreeMap();
+Map<String, Logger> currentLoggerNames = new TreeMap<>();
 
-Enumeration enu = LogManager.getCurrentLoggers();
+Enumeration<Logger> enu = LogManager.getCurrentLoggers();
 
 while (enu.hasMoreElements()) {
-	Logger logger = (Logger)enu.nextElement();
+	Logger logger = enu.nextElement();
 
-	if (Validator.isNull(keywords) || logger.getName().contains(keywords)) {
-		currentLoggerNames.put(logger.getName(), logger);
+	String loggerName = logger.getName();
+
+	if (Validator.isNull(keywords) || loggerName.contains(keywords)) {
+		currentLoggerNames.put(loggerName, logger);
 	}
 }
 
-List currentLoggerNamesList = ListUtil.fromCollection(currentLoggerNames.entrySet());
+List<Map.Entry<String, Logger>> currentLoggerNamesList = ListUtil.fromCollection(currentLoggerNames.entrySet());
 
-Iterator itr = currentLoggerNamesList.iterator();
+Iterator<Map.Entry<String, Logger>> itr = currentLoggerNamesList.iterator();
 
 while (itr.hasNext()) {
-	Map.Entry entry = (Map.Entry)itr.next();
+	Map.Entry<String, Logger> entry = itr.next();
 
-	String name = (String)entry.getKey();
-	Logger logger = (Logger)entry.getValue();
+	String name = entry.getKey();
+	Logger logger = entry.getValue();
 
 	Level level = logger.getLevel();
 
@@ -70,15 +72,16 @@ PortletURL addLogCategoryURL = renderResponse.createRenderURL();
 addLogCategoryURL.setParameter("mvcRenderCommandName", "/server_admin/add_log_category");
 addLogCategoryURL.setParameter("redirect", currentURL);
 
-CreationMenu creationMenu = new CreationMenu() {
-	{
-		addPrimaryDropdownItem(
-			dropdownItem -> {
-				dropdownItem.setHref(addLogCategoryURL);
-				dropdownItem.setLabel(LanguageUtil.get(request, "add-category"));
-			});
-	}
-};
+CreationMenu creationMenu =
+	new CreationMenu() {
+		{
+			addPrimaryDropdownItem(
+				dropdownItem -> {
+					dropdownItem.setHref(addLogCategoryURL);
+					dropdownItem.setLabel(LanguageUtil.get(request, "add-category"));
+				});
+		}
+	};
 %>
 
 <clay:management-toolbar
@@ -92,7 +95,7 @@ CreationMenu creationMenu = new CreationMenu() {
 	showSearch="<%= true %>"
 />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<liferay-ui:search-container
 		searchContainer="<%= loggerSearchContainer %>"
 	>
@@ -120,7 +123,7 @@ CreationMenu creationMenu = new CreationMenu() {
 				Level level = logger.getLevel();
 				%>
 
-				<select name="<%= renderResponse.getNamespace() + "logLevel" + HtmlUtil.escapeAttribute(name) %>">
+				<select name="<%= liferayPortletResponse.getNamespace() + "logLevel" + HtmlUtil.escapeAttribute(name) %>">
 
 					<%
 					for (int j = 0; j < Levels.ALL_LEVELS.length; j++) {
@@ -144,4 +147,4 @@ CreationMenu creationMenu = new CreationMenu() {
 	<aui:button-row>
 		<aui:button cssClass="save-server-button" data-cmd="updateLogLevels" value="save" />
 	</aui:button-row>
-</div>
+</clay:container-fluid>

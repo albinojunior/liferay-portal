@@ -18,6 +18,10 @@ export function getEditableElement(target) {
 	let editableElement = closest(target, 'lfr-editable');
 
 	if (!editableElement) {
+		editableElement = closest(target, '[data-lfr-editable-id]');
+	}
+
+	if (!editableElement) {
 		editableElement = closest(target, '[data-lfr-background-image-id]');
 	}
 

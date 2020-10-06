@@ -12,7 +12,7 @@
 import {cleanup, fireEvent, render} from '@testing-library/react';
 import React, {cloneElement, useState} from 'react';
 
-import {UpdateDueDateStep} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/update-due-date/UpdateDueDateStep.es';
+import UpdateDueDateStep from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/update-due-date/UpdateDueDateStep.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
@@ -44,7 +44,7 @@ describe('The TimePickerInput component should be render with AM/PM format', () 
 
 		const items = getAllByTestId('timeListItem');
 
-		items.forEach(item => {
+		items.forEach((item) => {
 			expect(item.innerHTML).toMatch(/[0-9]{1,2}:[0-9]{2}\s(AM|PM)/);
 		});
 
@@ -85,7 +85,7 @@ describe('The TimePickerInput component should be render without AM/PM format', 
 
 		const items = getAllByTestId('timeListItem');
 
-		items.forEach(item => {
+		items.forEach((item) => {
 			expect(item.innerHTML).toMatch(/[0-9]{1,2}:[0-9]{2}/);
 		});
 

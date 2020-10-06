@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @author Eduardo Lundgren
  */
-public interface WorkflowDefinition {
+public interface WorkflowDefinition extends WorkflowModel {
 
 	public default long getCompanyId() {
 		return 0;
@@ -46,6 +46,10 @@ public interface WorkflowDefinition {
 	public String getName();
 
 	public Map<String, Object> getOptionalAttributes();
+
+	public default String getScope() {
+		return "";
+	}
 
 	public String getTitle();
 

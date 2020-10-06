@@ -113,12 +113,12 @@
 				<plugin>
 					<groupId>com.liferay</groupId>
 					<artifactId>com.liferay.javadoc.formatter</artifactId>
-					<version>1.0.35</version>
+					<version>1.0.36</version>
 				</plugin>
 				<plugin>
 					<groupId>com.liferay</groupId>
 					<artifactId>com.liferay.source.formatter</artifactId>
-					<version>1.0.962</version>
+					<version>1.0.1057</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

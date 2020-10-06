@@ -20,6 +20,7 @@ import com.liferay.mobile.device.rules.service.MDRRuleGroupInstanceLocalService;
 import com.liferay.mobile.device.rules.service.MDRRuleLocalService;
 import com.liferay.mobile.device.rules.service.base.MDRRuleGroupLocalServiceBaseImpl;
 import com.liferay.mobile.device.rules.util.comparator.RuleGroupCreateDateComparator;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -116,12 +117,7 @@ public class MDRRuleGroupLocalServiceImpl
 				PropsValues.MOBILE_DEVICE_RULES_RULE_GROUP_COPY_POSTFIX);
 
 			nameMap.put(
-				locale,
-				name.concat(
-					StringPool.SPACE
-				).concat(
-					postfix
-				));
+				locale, StringBundler.concat(name, StringPool.SPACE, postfix));
 		}
 
 		MDRRuleGroup newRuleGroup = addRuleGroup(
@@ -242,10 +238,10 @@ public class MDRRuleGroupLocalServiceImpl
 	public List<MDRRuleGroup> searchByKeywords(
 		long groupId, String keywords, LinkedHashMap<String, Object> params,
 		boolean andOperator, int start, int end,
-		OrderByComparator<MDRRuleGroup> obc) {
+		OrderByComparator<MDRRuleGroup> orderByComparator) {
 
 		return mdrRuleGroupFinder.findByKeywords(
-			groupId, keywords, params, start, end, obc);
+			groupId, keywords, params, start, end, orderByComparator);
 	}
 
 	@Override

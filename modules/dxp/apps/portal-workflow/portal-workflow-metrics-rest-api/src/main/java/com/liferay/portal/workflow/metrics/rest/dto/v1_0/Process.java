@@ -22,15 +22,22 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Generated;
+
+import javax.validation.Valid;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -43,6 +50,122 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "Process")
 public class Process {
+
+	public static Process toDTO(String json) {
+		return ObjectMapperUtil.readValue(Process.class, json);
+	}
+
+	@Schema
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	@JsonIgnore
+	public void setActive(
+		UnsafeSupplier<Boolean, Exception> activeUnsafeSupplier) {
+
+		try {
+			active = activeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean active;
+
+	@Schema
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	@JsonIgnore
+	public void setDateCreated(
+		UnsafeSupplier<Date, Exception> dateCreatedUnsafeSupplier) {
+
+		try {
+			dateCreated = dateCreatedUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date dateCreated;
+
+	@Schema
+	public Date getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(Date dateModified) {
+		this.dateModified = dateModified;
+	}
+
+	@JsonIgnore
+	public void setDateModified(
+		UnsafeSupplier<Date, Exception> dateModifiedUnsafeSupplier) {
+
+		try {
+			dateModified = dateModifiedUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date dateModified;
+
+	@Schema
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@JsonIgnore
+	public void setDescription(
+		UnsafeSupplier<String, Exception> descriptionUnsafeSupplier) {
+
+		try {
+			description = descriptionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String description;
 
 	@Schema
 	public Long getId() {
@@ -71,20 +194,18 @@ public class Process {
 	protected Long id;
 
 	@Schema
-	public Long getInstanceCount() {
-		return instanceCount;
+	public String getName() {
+		return name;
 	}
 
-	public void setInstanceCount(Long instanceCount) {
-		this.instanceCount = instanceCount;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@JsonIgnore
-	public void setInstanceCount(
-		UnsafeSupplier<Long, Exception> instanceCountUnsafeSupplier) {
-
+	public void setName(UnsafeSupplier<String, Exception> nameUnsafeSupplier) {
 		try {
-			instanceCount = instanceCountUnsafeSupplier.get();
+			name = nameUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -96,63 +217,7 @@ public class Process {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long instanceCount;
-
-	@Schema
-	public Long getOnTimeInstanceCount() {
-		return onTimeInstanceCount;
-	}
-
-	public void setOnTimeInstanceCount(Long onTimeInstanceCount) {
-		this.onTimeInstanceCount = onTimeInstanceCount;
-	}
-
-	@JsonIgnore
-	public void setOnTimeInstanceCount(
-		UnsafeSupplier<Long, Exception> onTimeInstanceCountUnsafeSupplier) {
-
-		try {
-			onTimeInstanceCount = onTimeInstanceCountUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long onTimeInstanceCount;
-
-	@Schema
-	public Long getOverdueInstanceCount() {
-		return overdueInstanceCount;
-	}
-
-	public void setOverdueInstanceCount(Long overdueInstanceCount) {
-		this.overdueInstanceCount = overdueInstanceCount;
-	}
-
-	@JsonIgnore
-	public void setOverdueInstanceCount(
-		UnsafeSupplier<Long, Exception> overdueInstanceCountUnsafeSupplier) {
-
-		try {
-			overdueInstanceCount = overdueInstanceCountUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long overdueInstanceCount;
+	protected String name;
 
 	@Schema
 	public String getTitle() {
@@ -179,24 +244,26 @@ public class Process {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String title;
 
 	@Schema
-	public Long getUntrackedInstanceCount() {
-		return untrackedInstanceCount;
+	@Valid
+	public Map<String, String> getTitle_i18n() {
+		return title_i18n;
 	}
 
-	public void setUntrackedInstanceCount(Long untrackedInstanceCount) {
-		this.untrackedInstanceCount = untrackedInstanceCount;
+	public void setTitle_i18n(Map<String, String> title_i18n) {
+		this.title_i18n = title_i18n;
 	}
 
 	@JsonIgnore
-	public void setUntrackedInstanceCount(
-		UnsafeSupplier<Long, Exception> untrackedInstanceCountUnsafeSupplier) {
+	public void setTitle_i18n(
+		UnsafeSupplier<Map<String, String>, Exception>
+			title_i18nUnsafeSupplier) {
 
 		try {
-			untrackedInstanceCount = untrackedInstanceCountUnsafeSupplier.get();
+			title_i18n = title_i18nUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -208,7 +275,35 @@ public class Process {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long untrackedInstanceCount;
+	protected Map<String, String> title_i18n;
+
+	@Schema
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	@JsonIgnore
+	public void setVersion(
+		UnsafeSupplier<String, Exception> versionUnsafeSupplier) {
+
+		try {
+			version = versionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String version;
 
 	@Override
 	public boolean equals(Object object) {
@@ -237,6 +332,61 @@ public class Process {
 
 		sb.append("{");
 
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		if (active != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"active\": ");
+
+			sb.append(active);
+		}
+
+		if (dateCreated != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateCreated\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateCreated));
+
+			sb.append("\"");
+		}
+
+		if (dateModified != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateModified\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateModified));
+
+			sb.append("\"");
+		}
+
+		if (description != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"description\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(description));
+
+			sb.append("\"");
+		}
+
 		if (id != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -247,34 +397,18 @@ public class Process {
 			sb.append(id);
 		}
 
-		if (instanceCount != null) {
+		if (name != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"instanceCount\": ");
+			sb.append("\"name\": ");
 
-			sb.append(instanceCount);
-		}
+			sb.append("\"");
 
-		if (onTimeInstanceCount != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
+			sb.append(_escape(name));
 
-			sb.append("\"onTimeInstanceCount\": ");
-
-			sb.append(onTimeInstanceCount);
-		}
-
-		if (overdueInstanceCount != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"overdueInstanceCount\": ");
-
-			sb.append(overdueInstanceCount);
+			sb.append("\"");
 		}
 
 		if (title != null) {
@@ -291,14 +425,28 @@ public class Process {
 			sb.append("\"");
 		}
 
-		if (untrackedInstanceCount != null) {
+		if (title_i18n != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"untrackedInstanceCount\": ");
+			sb.append("\"title_i18n\": ");
 
-			sb.append(untrackedInstanceCount);
+			sb.append(_toJSON(title_i18n));
+		}
+
+		if (version != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"version\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(version));
+
+			sb.append("\"");
 		}
 
 		sb.append("}");
@@ -318,6 +466,16 @@ public class Process {
 		return string.replaceAll("\"", "\\\\\"");
 	}
 
+	private static boolean _isArray(Object value) {
+		if (value == null) {
+			return false;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		return clazz.isArray();
+	}
+
 	private static String _toJSON(Map<String, ?> map) {
 		StringBuilder sb = new StringBuilder("{");
 
@@ -333,9 +491,42 @@ public class Process {
 			sb.append("\"");
 			sb.append(entry.getKey());
 			sb.append("\":");
-			sb.append("\"");
-			sb.append(entry.getValue());
-			sb.append("\"");
+
+			Object value = entry.getValue();
+
+			if (_isArray(value)) {
+				sb.append("[");
+
+				Object[] valueArray = (Object[])value;
+
+				for (int i = 0; i < valueArray.length; i++) {
+					if (valueArray[i] instanceof String) {
+						sb.append("\"");
+						sb.append(valueArray[i]);
+						sb.append("\"");
+					}
+					else {
+						sb.append(valueArray[i]);
+					}
+
+					if ((i + 1) < valueArray.length) {
+						sb.append(", ");
+					}
+				}
+
+				sb.append("]");
+			}
+			else if (value instanceof Map) {
+				sb.append(_toJSON((Map<String, ?>)value));
+			}
+			else if (value instanceof String) {
+				sb.append("\"");
+				sb.append(value);
+				sb.append("\"");
+			}
+			else {
+				sb.append(value);
+			}
 
 			if (iterator.hasNext()) {
 				sb.append(",");

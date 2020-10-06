@@ -58,6 +58,10 @@ public class TicketLocalServiceUtil {
 	/**
 	 * Adds the ticket to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ticket the ticket
 	 * @return the ticket that was added
 	 */
@@ -103,6 +107,10 @@ public class TicketLocalServiceUtil {
 	/**
 	 * Deletes the ticket with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ticketId the primary key of the ticket
 	 * @return the ticket that was removed
 	 * @throws PortalException if a ticket with the primary key could not be found
@@ -117,6 +125,10 @@ public class TicketLocalServiceUtil {
 	/**
 	 * Deletes the ticket from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ticket the ticket
 	 * @return the ticket that was removed
 	 */
@@ -124,6 +136,12 @@ public class TicketLocalServiceUtil {
 		com.liferay.portal.kernel.model.Ticket ticket) {
 
 		return getService().deleteTicket(ticket);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -324,6 +342,10 @@ public class TicketLocalServiceUtil {
 
 	/**
 	 * Updates the ticket in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TicketLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ticket the ticket
 	 * @return the ticket that was updated

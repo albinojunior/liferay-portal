@@ -277,8 +277,8 @@ public class MavenExecutor extends ExternalResource {
 			settingsXmlPath, settingsXml.getBytes(StandardCharsets.UTF_8));
 	}
 
-	private static void _append(StringBuilder sb, InputStream inputStream)
-		throws IOException {
+	private void _append(StringBuilder sb, InputStream inputStream)
+		throws Exception {
 
 		try (BufferedReader bufferedReader = new BufferedReader(
 				new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -295,7 +295,16 @@ public class MavenExecutor extends ExternalResource {
 		}
 	}
 
-	private static boolean _isWindows() {
+	private Path _checkMavenHomeDirPath() {
+		if (_mavenHomeDirPath == null) {
+			throw new IllegalStateException(
+				"The Maven home directory has not yet been created");
+		}
+
+		return _mavenHomeDirPath;
+	}
+
+	private boolean _isWindows() {
 		if (File.pathSeparatorChar == ';') {
 			return true;
 		}
@@ -303,7 +312,7 @@ public class MavenExecutor extends ExternalResource {
 		return false;
 	}
 
-	private static String _replaceSettingsXmlElement(
+	private String _replaceSettingsXmlElement(
 		String settingsXml, String placeholder, String value) {
 
 		if (Validator.isNotNull(value)) {
@@ -315,15 +324,6 @@ public class MavenExecutor extends ExternalResource {
 		}
 
 		return settingsXml;
-	}
-
-	private Path _checkMavenHomeDirPath() {
-		if (_mavenHomeDirPath == null) {
-			throw new IllegalStateException(
-				"The Maven home directory has not yet been created");
-		}
-
-		return _mavenHomeDirPath;
 	}
 
 	private Path _mavenHomeDirPath;

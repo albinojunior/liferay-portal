@@ -16,6 +16,7 @@ package com.liferay.knowledge.base.service;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.knowledge.base.model.KBFolder;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -61,11 +62,15 @@ public interface KBFolderLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link KBFolderLocalServiceUtil} to access the kb folder local service. Add custom service methods to <code>com.liferay.knowledge.base.service.impl.KBFolderLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.knowledge.base.service.impl.KBFolderLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the kb folder local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link KBFolderLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the kb folder to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbFolder the kb folder
 	 * @return the kb folder that was added
@@ -97,6 +102,10 @@ public interface KBFolderLocalService
 	/**
 	 * Deletes the kb folder from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbFolder the kb folder
 	 * @return the kb folder that was removed
 	 */
@@ -105,6 +114,10 @@ public interface KBFolderLocalService
 
 	/**
 	 * Deletes the kb folder with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbFolderId the primary key of the kb folder
 	 * @return the kb folder that was removed
@@ -121,6 +134,9 @@ public interface KBFolderLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -194,7 +210,8 @@ public interface KBFolderLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public KBFolder fetchFirstChildKBFolder(
-			long groupId, long kbFolderId, OrderByComparator<KBFolder> obc)
+			long groupId, long kbFolderId,
+			OrderByComparator<KBFolder> orderByComparator)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -341,6 +358,10 @@ public interface KBFolderLocalService
 
 	/**
 	 * Updates the kb folder in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbFolder the kb folder
 	 * @return the kb folder that was updated

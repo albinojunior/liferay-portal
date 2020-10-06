@@ -37,16 +37,17 @@ public class DDMContentCacheModel
 	implements CacheModel<DDMContent>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DDMContentCacheModel)) {
+		if (!(object instanceof DDMContentCacheModel)) {
 			return false;
 		}
 
-		DDMContentCacheModel ddmContentCacheModel = (DDMContentCacheModel)obj;
+		DDMContentCacheModel ddmContentCacheModel =
+			(DDMContentCacheModel)object;
 
 		if ((contentId == ddmContentCacheModel.contentId) &&
 			(mvccVersion == ddmContentCacheModel.mvccVersion)) {
@@ -76,10 +77,12 @@ public class DDMContentCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(25);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", contentId=");
@@ -112,6 +115,7 @@ public class DDMContentCacheModel
 		DDMContentImpl ddmContentImpl = new DDMContentImpl();
 
 		ddmContentImpl.setMvccVersion(mvccVersion);
+		ddmContentImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			ddmContentImpl.setUuid("");
@@ -173,8 +177,12 @@ public class DDMContentCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		contentId = objectInput.readLong();
@@ -189,12 +197,14 @@ public class DDMContentCacheModel
 		modifiedDate = objectInput.readLong();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
-		data = objectInput.readUTF();
+		data = (String)objectInput.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -236,14 +246,15 @@ public class DDMContentCacheModel
 		}
 
 		if (data == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(data);
+			objectOutput.writeObject(data);
 		}
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long contentId;
 	public long groupId;

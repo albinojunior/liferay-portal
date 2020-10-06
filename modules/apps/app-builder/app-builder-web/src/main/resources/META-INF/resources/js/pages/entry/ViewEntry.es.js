@@ -12,24 +12,50 @@
  * details.
  */
 
-import openToast from 'frontend-js-web/liferay/toast/commands/OpenToast.es';
+import {usePrevious} from 'frontend-js-react-web';
 import React, {useContext, useEffect, useState} from 'react';
-import {withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {Loading} from '../../components/loading/Loading.es';
-import useQuery, {toQueryString} from '../../hooks/useQuery.es';
-import {confirmDelete, getItem} from '../../utils/client.es';
-import FieldPreview from './FieldPreview.es';
+import useDataLayout from '../../hooks/useDataLayout.es';
+import useQuery from '../../hooks/useQuery.es';
+import {getItem} from '../../utils/client.es';
+import {errorToast} from '../../utils/toast.es';
+import {isEqualObjects} from '../../utils/utils.es';
+import FieldPreview, {SectionRenderer} from './FieldPreview.es';
 import ViewEntryUpperToolbar from './ViewEntryUpperToolbar.es';
 
-const ViewDataLayoutPageValues = ({
+const getSections = ({dataDefinitionFields = []}) => {
+	const sections = {};
+
+	dataDefinitionFields.forEach(
+		({
+			customProperties: {collapsible},
+			name,
+			nestedDataDefinitionFields,
+		}) => {
+			if (nestedDataDefinitionFields.length) {
+				sections[name] = {
+					collapsible,
+					fields: nestedDataDefinitionFields.map(({name}) => name),
+					nestedDataDefinitionFields,
+				};
+			}
+		}
+	);
+
+	return sections;
+};
+
+export function ViewDataLayoutPageValues({
 	dataDefinition,
 	dataLayoutPage,
 	dataRecordValues,
-}) => {
+}) {
 	const {dataLayoutRows} = dataLayoutPage;
+	const {defaultLanguageId} = dataDefinition;
+	const sections = getSections(dataDefinition);
 
 	return dataLayoutRows
 		.reduce(
@@ -42,157 +68,141 @@ const ViewDataLayoutPageValues = ({
 			],
 			[]
 		)
-		.map(fieldName => (
-			<FieldPreview
-				dataDefinition={dataDefinition}
-				dataRecordValues={dataRecordValues}
-				fieldName={fieldName}
-				key={fieldName}
-			/>
-		));
-};
+		.map((fieldName) => {
+			const fieldGroup = sections[fieldName];
 
-export default withRouter(
-	({
-		history,
-		match: {
-			params: {entryIndex},
-		},
-	}) => {
-		const {basePortletURL, dataDefinitionId, dataLayoutId} = useContext(
-			AppContext
-		);
-		const [isLoading, setLoading] = useState(true);
-		const [dataDefinition, setDataDefinition] = useState();
-		const [dataLayout, setDataLayout] = useState({});
+			if (fieldGroup) {
+				return (
+					<SectionRenderer
+						collapsible={fieldGroup.collapsible}
+						dataDefinition={dataDefinition}
+						fieldName={fieldName}
+					>
+						{fieldGroup.fields.map((field) => (
+							<FieldPreview
+								dataDefinition={{
+									...dataDefinition,
+									dataDefinitionFields:
+										fieldGroup.nestedDataDefinitionFields,
+								}}
+								dataRecordValues={dataRecordValues}
+								defaultLanguageId={defaultLanguageId}
+								fieldName={field}
+								key={field}
+							/>
+						))}
+					</SectionRenderer>
+				);
+			}
 
-		const [{dataRecord, page, total}, setResults] = useState({
-			dataRecord: {},
-			page: 1,
-			total: 0,
+			return (
+				<FieldPreview
+					dataDefinition={dataDefinition}
+					dataRecordValues={dataRecordValues}
+					defaultLanguageId={defaultLanguageId}
+					fieldName={fieldName}
+					key={fieldName}
+				/>
+			);
 		});
+}
 
-		const [query] = useQuery(history, {
-			keywords: '',
-			page: 1,
-			sort: '',
-		});
+export default function ViewEntry({
+	history,
+	match: {
+		params: {entryIndex},
+	},
+}) {
+	const {dataDefinitionId, dataLayoutId, dataListViewId} = useContext(
+		AppContext
+	);
+	const {
+		dataDefinition,
+		dataLayout: {dataLayoutPages},
+		isLoading,
+	} = useDataLayout(dataLayoutId, dataDefinitionId);
 
-		useEffect(() => {
-			Promise.all([
-				getItem(
-					`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-records`,
-					{...query, page: entryIndex, pageSize: 1}
-				).then(({items = [], page, totalCount}) => {
+	const [{dataRecord, isFetching, page, totalCount}, setState] = useState({
+		dataRecord: {},
+		isFetching: true,
+		page: 1,
+		totalCount: 0,
+	});
+
+	const {dataRecordValues = {}, id: dataRecordId} = dataRecord;
+
+	const [query] = useQuery(history, {
+		keywords: '',
+		page: 1,
+		sort: '',
+	});
+
+	const previousQuery = usePrevious(query);
+	const previousIndex = usePrevious(entryIndex);
+
+	useEffect(() => {
+		if (
+			!isEqualObjects(query, previousQuery) ||
+			entryIndex !== previousIndex
+		) {
+			getItem(
+				`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-records`,
+				{...query, dataListViewId, page: entryIndex, pageSize: 1}
+			)
+				.then(({items = [], ...response}) => {
 					if (items.length > 0) {
-						setResults({
+						setState({
 							dataRecord: items.pop(),
-							page,
-							total: totalCount,
+							isFetching: false,
+							...response,
 						});
 					}
-				}),
-				getItem(
-					`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}`
-				).then(dataDefinition => setDataDefinition(dataDefinition)),
-				getItem(
-					`/o/data-engine/v2.0/data-layouts/${dataLayoutId}`
-				).then(dataLayout => setDataLayout(dataLayout)),
-			]).then(() => setLoading(false));
-		}, [dataDefinitionId, dataLayoutId, entryIndex, query]);
-
-		const {dataRecordValues = {}} = dataRecord;
-		const {dataLayoutPages} = dataLayout;
-
-		const onDelete = () => {
-			confirmDelete('/o/data-engine/v2.0/data-records/')({
-				id: dataRecord.id,
-			}).then(confirmed => {
-				if (confirmed) {
-					openToast({
-						message: Liferay.Language.get('an-entry-was-deleted'),
-						title: Liferay.Language.get('success'),
-						type: 'success',
-					});
-
-					history.push('/');
-				}
-			});
-		};
-
-		const onEdit = () => {
-			Liferay.Util.navigate(
-				Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
-					dataDefinitionId: dataDefinition.id,
-					dataLayoutId: dataLayout.id,
-					dataRecordId: dataRecord.id,
-					mvcPath: '/edit_entry.jsp',
-					redirect: location.href,
 				})
-			);
-		};
+				.catch(() => {
+					setState((prevState) => ({
+						...prevState,
+						isFetching: false,
+					}));
 
-		const onNext = () => {
-			const nextIndex = Math.min(parseInt(entryIndex, 10) + 1, total);
+					errorToast();
+				});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [entryIndex, query]);
 
-			setLoading(true);
+	return (
+		<div className="view-entry">
+			<ControlMenu
+				backURL="../../"
+				title={Liferay.Language.get('details-view')}
+			/>
 
-			history.push(`/entries/${nextIndex}?${toQueryString(query)}`);
-		};
+			<ViewEntryUpperToolbar
+				dataRecordId={dataRecordId}
+				page={page}
+				totalCount={totalCount}
+			/>
 
-		const onPrev = () => {
-			const prevIndex = Math.max(parseInt(entryIndex, 10) - 1, 1);
-
-			setLoading(true);
-
-			history.push(`/entries/${prevIndex}?${toQueryString(query)}`);
-		};
-
-		return (
-			<div className="view-entry">
-				<ControlMenu
-					backURL="../../"
-					title={Liferay.Language.get('details-view')}
-				/>
-
-				<ViewEntryUpperToolbar
-					onDelete={onDelete}
-					onEdit={onEdit}
-					onNext={onNext}
-					onPrev={onPrev}
-					page={page}
-					total={total}
-				/>
-
-				<Loading isLoading={isLoading}>
-					<div className="container">
-						<div className="justify-content-center row">
-							<div className="col-lg-8">
-								{dataLayoutPages &&
-									dataRecordValues &&
-									dataLayoutPages.map(
-										(dataLayoutPage, index) => (
-											<div className="sheet" key={index}>
-												<ViewDataLayoutPageValues
-													dataDefinition={
-														dataDefinition
-													}
-													dataLayoutPage={
-														dataLayoutPage
-													}
-													dataRecordValues={
-														dataRecordValues
-													}
-													key={index}
-												/>
-											</div>
-										)
-									)}
-							</div>
+			<Loading isLoading={isLoading || isFetching}>
+				<div className="container">
+					<div className="justify-content-center row">
+						<div className="col-lg-8">
+							{dataLayoutPages &&
+								dataRecordValues &&
+								dataLayoutPages.map((dataLayoutPage, index) => (
+									<div className="sheet" key={index}>
+										<ViewDataLayoutPageValues
+											dataDefinition={dataDefinition}
+											dataLayoutPage={dataLayoutPage}
+											dataRecordValues={dataRecordValues}
+											key={index}
+										/>
+									</div>
+								))}
 						</div>
 					</div>
-				</Loading>
-			</div>
-		);
-	}
-);
+				</div>
+			</Loading>
+		</div>
+	);
+}

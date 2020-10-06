@@ -191,13 +191,9 @@ public class LayoutTestUtil {
 		String friendlyURL =
 			StringPool.SLASH + FriendlyURLNormalizerUtil.normalize(name);
 
-		Layout layout = null;
-
 		try {
-			layout = LayoutLocalServiceUtil.getFriendlyURLLayout(
+			return LayoutLocalServiceUtil.getFriendlyURLLayout(
 				groupId, false, friendlyURL);
-
-			return layout;
 		}
 		catch (NoSuchLayoutException noSuchLayoutException) {
 		}
@@ -235,26 +231,24 @@ public class LayoutTestUtil {
 	public static LayoutPrototype addLayoutPrototype(String name)
 		throws Exception {
 
-		HashMap<Locale, String> nameMap = HashMapBuilder.put(
-			LocaleUtil.getDefault(), name
-		).build();
-
 		return LayoutPrototypeLocalServiceUtil.addLayoutPrototype(
 			TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
-			nameMap, (Map<Locale, String>)null, true,
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), name
+			).build(),
+			(Map<Locale, String>)null, true,
 			ServiceContextTestUtil.getServiceContext());
 	}
 
 	public static LayoutSetPrototype addLayoutSetPrototype(String name)
 		throws Exception {
 
-		HashMap<Locale, String> nameMap = HashMapBuilder.put(
-			LocaleUtil.getDefault(), name
-		).build();
-
 		return LayoutSetPrototypeLocalServiceUtil.addLayoutSetPrototype(
 			TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
-			nameMap, (Map<Locale, String>)null, true, true,
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), name
+			).build(),
+			(Map<Locale, String>)null, true, true,
 			ServiceContextTestUtil.getServiceContext());
 	}
 
@@ -323,10 +317,10 @@ public class LayoutTestUtil {
 
 		Layout layout = addLayout(groupId, false);
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			layout.getTypeSettingsProperties();
 
-		typeSettingsProperties.setProperty(
+		typeSettingsUnicodeProperties.setProperty(
 			"linkToLayoutId", String.valueOf(linkedToLayoutId));
 
 		layout.setType(LayoutConstants.TYPE_LINK_TO_LAYOUT);

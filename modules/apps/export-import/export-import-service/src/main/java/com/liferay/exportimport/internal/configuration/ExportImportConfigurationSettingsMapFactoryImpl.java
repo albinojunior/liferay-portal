@@ -14,9 +14,9 @@
 
 package com.liferay.exportimport.internal.configuration;
 
-import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationParameterMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactory;
+import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -275,30 +275,33 @@ public class ExportImportConfigurationSettingsMapFactoryImpl
 				themeDisplay.getLocale(), themeDisplay.getTimeZone());
 		}
 
-		UnicodeProperties groupTypeSettingsProperties =
+		UnicodeProperties groupTypeSettingsUnicodeProperties =
 			stagingGroup.getTypeSettingsProperties();
 
 		String remoteAddress = ParamUtil.getString(
 			portletRequest, "remoteAddress",
-			groupTypeSettingsProperties.getProperty("remoteAddress"));
+			groupTypeSettingsUnicodeProperties.getProperty("remoteAddress"));
 
 		remoteAddress = _http.removeProtocol(remoteAddress);
 
 		int remotePort = ParamUtil.getInteger(
 			portletRequest, "remotePort",
 			GetterUtil.getInteger(
-				groupTypeSettingsProperties.getProperty("remotePort")));
+				groupTypeSettingsUnicodeProperties.getProperty("remotePort")));
 		String remotePathContext = ParamUtil.getString(
 			portletRequest, "remotePathContext",
-			groupTypeSettingsProperties.getProperty("remotePathContext"));
+			groupTypeSettingsUnicodeProperties.getProperty(
+				"remotePathContext"));
 		boolean secureConnection = ParamUtil.getBoolean(
 			portletRequest, "secureConnection",
 			GetterUtil.getBoolean(
-				groupTypeSettingsProperties.getProperty("secureConnection")));
+				groupTypeSettingsUnicodeProperties.getProperty(
+					"secureConnection")));
 		long remoteGroupId = ParamUtil.getLong(
 			portletRequest, "remoteGroupId",
 			GetterUtil.getLong(
-				groupTypeSettingsProperties.getProperty("remoteGroupId")));
+				groupTypeSettingsUnicodeProperties.getProperty(
+					"remoteGroupId")));
 		boolean remotePrivateLayout = ParamUtil.getBoolean(
 			portletRequest, "remotePrivateLayout");
 

@@ -279,10 +279,10 @@ public class JabberImpl implements Jabber {
 				return;
 			}
 
-			Iterator<Presence> presences = roster.getPresences(jabberId);
+			Iterator<Presence> iterator = roster.getPresences(jabberId);
 
-			while (presences.hasNext()) {
-				Presence presence = presences.next();
+			while (iterator.hasNext()) {
+				Presence presence = iterator.next();
 
 				String from = presence.getFrom();
 
@@ -437,21 +437,15 @@ public class JabberImpl implements Jabber {
 	}
 
 	protected String getFullJabberId(String screenName) {
-		String jabberId = getJabberId(screenName);
-
-		return jabberId.concat(
-			StringPool.SLASH
-		).concat(
-			_chatGroupServiceConfiguration.jabberResource()
-		);
+		return StringBundler.concat(
+			getJabberId(screenName), StringPool.SLASH,
+			_chatGroupServiceConfiguration.jabberResource());
 	}
 
 	protected String getJabberId(String screenName) {
-		return screenName.concat(
-			StringPool.AT
-		).concat(
-			_chatGroupServiceConfiguration.jabberResource()
-		);
+		return StringBundler.concat(
+			screenName, StringPool.AT,
+			_chatGroupServiceConfiguration.jabberResource());
 	}
 
 	protected void importUser(long userId, String password) throws Exception {
@@ -467,18 +461,17 @@ public class JabberImpl implements Jabber {
 
 		User user = _userLocalService.getUserById(userId);
 
-		Map<String, String> attributes = HashMapBuilder.put(
-			"email", user.getEmailAddress()
-		).put(
-			"first", user.getFirstName()
-		).put(
-			"last", user.getLastName()
-		).put(
-			"name", user.getFullName()
-		).build();
-
 		accountManager.createAccount(
-			user.getScreenName(), password, attributes);
+			user.getScreenName(), password,
+			HashMapBuilder.put(
+				"email", user.getEmailAddress()
+			).put(
+				"first", user.getFirstName()
+			).put(
+				"last", user.getLastName()
+			).put(
+				"name", user.getFullName()
+			).build());
 	}
 
 	protected void updateStatus(

@@ -247,17 +247,19 @@ public class CTTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 
 	@Override
 	public List<L> getLeftBaseModels(
-		long rightPrimaryKey, int start, int end, OrderByComparator<L> obc) {
+		long rightPrimaryKey, int start, int end,
+		OrderByComparator<L> orderByComparator) {
 
 		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
 
 		if (ctCollectionId == 0) {
-			return super.getLeftBaseModels(rightPrimaryKey, start, end, obc);
+			return super.getLeftBaseModels(
+				rightPrimaryKey, start, end, orderByComparator);
 		}
 
 		return _getBaseModels(
 			_getCTLeftPrimaryKeysSqlQuery, rightPrimaryKey, ctCollectionId,
-			leftBasePersistence, start, end, obc);
+			leftBasePersistence, start, end, orderByComparator);
 	}
 
 	@Override
@@ -274,17 +276,19 @@ public class CTTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 
 	@Override
 	public List<R> getRightBaseModels(
-		long leftPrimaryKey, int start, int end, OrderByComparator<R> obc) {
+		long leftPrimaryKey, int start, int end,
+		OrderByComparator<R> orderByComparator) {
 
 		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
 
 		if (ctCollectionId == 0) {
-			return super.getRightBaseModels(leftPrimaryKey, start, end, obc);
+			return super.getRightBaseModels(
+				leftPrimaryKey, start, end, orderByComparator);
 		}
 
 		return _getBaseModels(
 			_getCTRightPrimaryKeysSqlQuery, leftPrimaryKey, ctCollectionId,
-			rightBasePersistence, start, end, obc);
+			rightBasePersistence, start, end, orderByComparator);
 	}
 
 	@Override
@@ -391,12 +395,12 @@ public class CTTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 				dataSource,
 				StringBundler.concat(
 					"SELECT DISTINCT (", leftColumnName, ") FROM ", tableName,
-					" WHERE (", rightColumnName, " = ? AND ", leftColumnName,
+					" WHERE ", rightColumnName, " = ? AND ((", leftColumnName,
 					" NOT IN (SELECT ", leftColumnName, " FROM ", tableName,
 					" WHERE ", rightColumnName, " = ? AND ctCollectionId = ? ",
 					"AND ctChangeType = ", db.getTemplateFalse(), ") AND ",
 					"ctCollectionId = 0) OR (ctCollectionId = ? AND ",
-					"ctChangeType = ", db.getTemplateTrue(), ")"),
+					"ctChangeType = ", db.getTemplateTrue(), "))"),
 				RowMapper.PRIMARY_KEY, ParamSetter.BIGINT, ParamSetter.BIGINT,
 				ParamSetter.BIGINT, ParamSetter.BIGINT);
 		_getCTRightPrimaryKeysSqlQuery =
@@ -404,12 +408,12 @@ public class CTTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 				dataSource,
 				StringBundler.concat(
 					"SELECT DISTINCT (", rightColumnName, ") FROM ", tableName,
-					" WHERE (", leftColumnName, " = ? AND ", rightColumnName,
+					" WHERE ", leftColumnName, " = ? AND ((", rightColumnName,
 					" NOT IN (SELECT ", rightColumnName, " FROM ", tableName,
 					" WHERE ", leftColumnName, " = ? AND ctCollectionId = ? ",
 					"AND ctChangeType = ", db.getTemplateFalse(), ") AND ",
 					"ctCollectionId = 0) OR (ctCollectionId = ? AND ",
-					"ctChangeType = ", db.getTemplateTrue(), ")"),
+					"ctChangeType = ", db.getTemplateTrue(), "))"),
 				RowMapper.PRIMARY_KEY, ParamSetter.BIGINT, ParamSetter.BIGINT,
 				ParamSetter.BIGINT, ParamSetter.BIGINT);
 
@@ -421,63 +425,6 @@ public class CTTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 				" = ? AND ctCollectionId = ?"),
 			_booleanParamSetter, ParamSetter.BIGINT, ParamSetter.BIGINT,
 			ParamSetter.BIGINT);
-	}
-
-	private static <T extends BaseModel<T>> List<T> _getBaseModels(
-		MappingSqlQuery<Long> mappingSqlQuery, long masterPrimaryKey,
-		long ctCollectionId, BasePersistence<T> slaveBasePersistence, int start,
-		int end, OrderByComparator<T> obc) {
-
-		long[] slavePrimaryKeys = _getPrimaryKeys(
-			mappingSqlQuery, masterPrimaryKey, ctCollectionId);
-
-		if (slavePrimaryKeys.length == 0) {
-			return Collections.emptyList();
-		}
-
-		List<T> slaveBaseModels = new ArrayList<>(slavePrimaryKeys.length);
-
-		try {
-			for (long slavePrimaryKey : slavePrimaryKeys) {
-				slaveBaseModels.add(
-					slaveBasePersistence.findByPrimaryKey(slavePrimaryKey));
-			}
-		}
-		catch (NoSuchModelException noSuchModelException) {
-			throw new SystemException(noSuchModelException);
-		}
-
-		if (obc != null) {
-			slaveBaseModels.sort(obc);
-		}
-
-		return ListUtil.subList(slaveBaseModels, start, end);
-	}
-
-	private static long[] _getPrimaryKeys(
-		MappingSqlQuery<Long> mappingSqlQuery, long masterPrimaryKey,
-		long ctCollectionId) {
-
-		List<Long> primaryKeysList = null;
-
-		try {
-			primaryKeysList = mappingSqlQuery.execute(
-				masterPrimaryKey, masterPrimaryKey, ctCollectionId,
-				ctCollectionId);
-		}
-		catch (Exception exception) {
-			throw new SystemException(exception);
-		}
-
-		long[] primaryKeys = new long[primaryKeysList.size()];
-
-		for (int i = 0; i < primaryKeys.length; i++) {
-			primaryKeys[i] = primaryKeysList.get(i);
-		}
-
-		Arrays.sort(primaryKeys);
-
-		return primaryKeys;
 	}
 
 	private void _addTableMapping(
@@ -668,6 +615,63 @@ public class CTTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 		}
 
 		return slavePrimaryKeys.length;
+	}
+
+	private <T extends BaseModel<T>> List<T> _getBaseModels(
+		MappingSqlQuery<Long> mappingSqlQuery, long masterPrimaryKey,
+		long ctCollectionId, BasePersistence<T> slaveBasePersistence, int start,
+		int end, OrderByComparator<T> orderByComparator) {
+
+		long[] slavePrimaryKeys = _getPrimaryKeys(
+			mappingSqlQuery, masterPrimaryKey, ctCollectionId);
+
+		if (slavePrimaryKeys.length == 0) {
+			return Collections.emptyList();
+		}
+
+		List<T> slaveBaseModels = new ArrayList<>(slavePrimaryKeys.length);
+
+		try {
+			for (long slavePrimaryKey : slavePrimaryKeys) {
+				slaveBaseModels.add(
+					slaveBasePersistence.findByPrimaryKey(slavePrimaryKey));
+			}
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			throw new SystemException(noSuchModelException);
+		}
+
+		if (orderByComparator != null) {
+			slaveBaseModels.sort(orderByComparator);
+		}
+
+		return ListUtil.subList(slaveBaseModels, start, end);
+	}
+
+	private long[] _getPrimaryKeys(
+		MappingSqlQuery<Long> mappingSqlQuery, long masterPrimaryKey,
+		long ctCollectionId) {
+
+		List<Long> primaryKeysList = null;
+
+		try {
+			primaryKeysList = mappingSqlQuery.execute(
+				masterPrimaryKey, masterPrimaryKey, ctCollectionId,
+				ctCollectionId);
+		}
+		catch (Exception exception) {
+			throw new SystemException(exception);
+		}
+
+		long[] primaryKeys = new long[primaryKeysList.size()];
+
+		for (int i = 0; i < primaryKeys.length; i++) {
+			primaryKeys[i] = primaryKeysList.get(i);
+		}
+
+		Arrays.sort(primaryKeys);
+
+		return primaryKeys;
 	}
 
 	private static final ParamSetter _booleanParamSetter =

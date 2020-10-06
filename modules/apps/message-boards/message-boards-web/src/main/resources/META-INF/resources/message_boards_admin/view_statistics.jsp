@@ -32,53 +32,56 @@ long categoryId = GetterUtil.getLong(request.getAttribute("view.jsp-categoryId")
 MBCategoryDisplay categoryDisplay = new MBCategoryDisplay(scopeGroupId, categoryId);
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<div class="statistics-panel">
 		<h3><liferay-ui:message key="overview" /></h3>
 
-		<div class="row">
-			<div class="col-md-4">
+		<clay:row>
+			<clay:col
+				md="4"
+			>
 				<div class="overview-container statistics-panel">
-					<div class="sticker sticker-categories sticker-user-icon">
-						<clay:icon
-							symbol="categories"
-						/>
-					</div>
+					<clay:sticker
+						cssClass="sticker-categories sticker-user-icon"
+						icon="categories"
+					/>
 
 					<small class="text-uppercase"><liferay-ui:message key="categories" /></small>
 
 					<p class="statistics-number"><%= numberFormat.format(categoryDisplay.getAllCategoriesCount()) %></p>
 				</div>
-			</div>
+			</clay:col>
 
-			<div class="col-md-4">
+			<clay:col
+				md="4"
+			>
 				<div class="overview-container statistics-panel">
-					<div class="sticker sticker-posts sticker-user-icon">
-						<clay:icon
-							symbol="message-boards"
-						/>
-					</div>
+					<clay:sticker
+						cssClass="sticker-posts sticker-user-icon"
+						icon="message-boards"
+					/>
 
 					<small class="text-uppercase"><liferay-ui:message key="posts" /></small>
 
 					<p class="statistics-number"><%= numberFormat.format(MBStatsUserLocalServiceUtil.getMessageCountByGroupId(scopeGroupId)) %></p>
 				</div>
-			</div>
+			</clay:col>
 
-			<div class="col-md-4">
+			<clay:col
+				md="4"
+			>
 				<div class="overview-container statistics-panel">
-					<div class="sticker sticker-participants sticker-user-icon">
-						<clay:icon
-							symbol="users"
-						/>
-					</div>
+					<clay:sticker
+						cssClass="sticker-participants sticker-user-icon"
+						icon="users"
+					/>
 
 					<small class="text-uppercase"><liferay-ui:message key="participants" /></small>
 
 					<p class="statistics-number"><%= numberFormat.format(MBStatsUserLocalServiceUtil.getStatsUsersByGroupIdCount(scopeGroupId)) %></p>
 				</div>
-			</div>
-		</div>
+			</clay:col>
+		</clay:row>
 	</div>
 
 	<div class="statistics-panel">
@@ -107,7 +110,7 @@ MBCategoryDisplay categoryDisplay = new MBCategoryDisplay(scopeGroupId, category
 			/>
 		</liferay-ui:search-container>
 	</div>
-</div>
+</clay:container-fluid>
 
 <%
 PortalUtil.setPageSubtitle(LanguageUtil.get(request, "statistics"), request);

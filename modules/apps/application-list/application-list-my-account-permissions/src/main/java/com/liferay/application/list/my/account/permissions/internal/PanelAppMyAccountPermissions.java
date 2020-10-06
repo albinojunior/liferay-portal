@@ -99,7 +99,8 @@ public class PanelAppMyAccountPermissions {
 
 		String filter = StringBundler.concat(
 			"(&(objectClass=", PanelApp.class.getName(), ")",
-			"(panel.category.key=", PanelCategoryKeys.USER_MY_ACCOUNT, "*))");
+			"(panel.category.key=", PanelCategoryKeys.USER_MY_ACCOUNT,
+			"*)(!(depot.panel.app.wrapper=*)))");
 
 		_serviceTracker = ServiceTrackerFactory.open(
 			bundleContext, filter, new PanelAppServiceTrackerCustomizer());
@@ -210,10 +211,10 @@ public class PanelAppMyAccountPermissions {
 
 				return panelApp;
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				_bundleContext.ungetService(reference);
 
-				throw t;
+				throw throwable;
 			}
 		}
 

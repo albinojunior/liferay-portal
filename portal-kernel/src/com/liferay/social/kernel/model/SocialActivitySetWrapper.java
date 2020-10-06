@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -41,6 +43,8 @@ public class SocialActivitySetWrapper
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("activitySetId", getActivitySetId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
@@ -58,6 +62,18 @@ public class SocialActivitySetWrapper
 
 	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
+		Long mvccVersion = (Long)attributes.get("mvccVersion");
+
+		if (mvccVersion != null) {
+			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
+		}
+
 		Long activitySetId = (Long)attributes.get("activitySetId");
 
 		if (activitySetId != null) {
@@ -196,6 +212,16 @@ public class SocialActivitySetWrapper
 	}
 
 	/**
+	 * Returns the ct collection ID of this social activity set.
+	 *
+	 * @return the ct collection ID of this social activity set
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
+	}
+
+	/**
 	 * Returns the extra data of this social activity set.
 	 *
 	 * @return the extra data of this social activity set
@@ -223,6 +249,16 @@ public class SocialActivitySetWrapper
 	@Override
 	public long getModifiedDate() {
 		return model.getModifiedDate();
+	}
+
+	/**
+	 * Returns the mvcc version of this social activity set.
+	 *
+	 * @return the mvcc version of this social activity set
+	 */
+	@Override
+	public long getMvccVersion() {
+		return model.getMvccVersion();
 	}
 
 	/**
@@ -336,6 +372,16 @@ public class SocialActivitySetWrapper
 	}
 
 	/**
+	 * Sets the ct collection ID of this social activity set.
+	 *
+	 * @param ctCollectionId the ct collection ID of this social activity set
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
+	}
+
+	/**
 	 * Sets the extra data of this social activity set.
 	 *
 	 * @param extraData the extra data of this social activity set
@@ -363,6 +409,16 @@ public class SocialActivitySetWrapper
 	@Override
 	public void setModifiedDate(long modifiedDate) {
 		model.setModifiedDate(modifiedDate);
+	}
+
+	/**
+	 * Sets the mvcc version of this social activity set.
+	 *
+	 * @param mvccVersion the mvcc version of this social activity set
+	 */
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		model.setMvccVersion(mvccVersion);
 	}
 
 	/**
@@ -403,6 +459,20 @@ public class SocialActivitySetWrapper
 	@Override
 	public void setUserUuid(String userUuid) {
 		model.setUserUuid(userUuid);
+	}
+
+	@Override
+	public Map<String, Function<SocialActivitySet, Object>>
+		getAttributeGetterFunctions() {
+
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<SocialActivitySet, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

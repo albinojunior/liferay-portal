@@ -23,6 +23,7 @@ import com.liferay.mail.kernel.template.MailTemplateContext;
 import com.liferay.mail.kernel.template.MailTemplateContextBuilder;
 import com.liferay.mail.kernel.template.MailTemplateFactoryUtil;
 import com.liferay.petra.lang.ClassLoaderPool;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -302,7 +303,40 @@ public class SubscriptionSender implements Serializable {
 		setContextAttribute("[$COMPANY_ID$]", company.getCompanyId());
 		setContextAttribute("[$COMPANY_MX$]", company.getMx());
 		setContextAttribute("[$COMPANY_NAME$]", company.getName());
-		setContextAttribute("[$PORTAL_URL$]", company.getPortalURL(groupId));
+
+		if (Validator.isNotNull(_entryURL)) {
+			boolean secureConnection = HttpUtil.isSecure(_entryURL);
+
+			String portalURL = PortalUtil.getPortalURL(
+				company.getVirtualHostname(),
+				PortalUtil.getPortalServerPort(secureConnection),
+				secureConnection);
+
+			if (_entryURL.startsWith(portalURL)) {
+				setContextAttribute(
+					"[$PORTAL_URL$]",
+					company.getPortalURL(
+						groupId,
+						_entryURL.contains(
+							_LAYOUT_FRIENDLY_URL_PRIVATE_GROUP_SERVLET_MAPPING)));
+			}
+			else {
+				int endIndex = _entryURL.indexOf(
+					CharPool.FORWARD_SLASH, Http.HTTPS_WITH_SLASH.length());
+
+				if (endIndex == -1) {
+					setContextAttribute("[$PORTAL_URL$]", _entryURL);
+				}
+				else {
+					setContextAttribute(
+						"[$PORTAL_URL$]", _entryURL.substring(0, endIndex));
+				}
+			}
+		}
+		else {
+			setContextAttribute(
+				"[$PORTAL_URL$]", company.getPortalURL(groupId));
+		}
 
 		if (groupId > 0) {
 			Group group = GroupLocalServiceUtil.getGroup(groupId);
@@ -360,6 +394,16 @@ public class SubscriptionSender implements Serializable {
 
 	public void setContextAttribute(String key, EscapableObject<String> value) {
 		_context.put(key, value);
+
+		_context.put(
+			_getFilterKey(key, "attr"),
+			new HTMLAtributeEscapableObject<>(value.getOriginalValue(), true));
+		_context.put(
+			_getFilterKey(key, "html"),
+			new HtmlEscapableObject<>(value.getOriginalValue(), true));
+		_context.put(
+			_getFilterKey(key, "uri"),
+			new URIEscapableObject<>(value.getOriginalValue(), true));
 	}
 
 	public void setContextAttribute(String key, Object value) {
@@ -504,6 +548,10 @@ public class SubscriptionSender implements Serializable {
 		}
 
 		this.scopeGroupId = scopeGroupId;
+	}
+
+	public void setSendToCurrentUser(boolean sendToCurrentUser) {
+		_sendToCurrentUser = sendToCurrentUser;
 	}
 
 	public void setServiceContext(ServiceContext serviceContext) {
@@ -910,7 +958,7 @@ public class SubscriptionSender implements Serializable {
 	protected void sendNotification(User user, boolean notifyImmediately)
 		throws Exception {
 
-		if (currentUserId == user.getUserId()) {
+		if (!_sendToCurrentUser && (currentUserId == user.getUserId())) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Skip user " + currentUserId);
 			}
@@ -1036,6 +1084,19 @@ public class SubscriptionSender implements Serializable {
 			_getBasicMailTemplateContext(locale));
 	}
 
+	private String _getFilterKey(String key, String escapeMode) {
+		int i = key.lastIndexOf("$]");
+
+		if (i != (key.length() - 2)) {
+			throw new IllegalArgumentException(
+				"Subscription template key is not syntactically correct: " +
+					key);
+		}
+
+		return StringBundler.concat(
+			key.substring(0, i), StringPool.PIPE, escapeMode, "$]");
+	}
+
 	private <T> List<Hook<T>> _getHooks(Hook.Event<T> event) {
 		return (List)_hooks.computeIfAbsent(event, key -> new ArrayList<>());
 	}
@@ -1095,6 +1156,10 @@ public class SubscriptionSender implements Serializable {
 		objectOutputStream.writeUTF(contextName);
 	}
 
+	private static final String
+		_LAYOUT_FRIENDLY_URL_PRIVATE_GROUP_SERVLET_MAPPING = PropsUtil.get(
+			PropsKeys.LAYOUT_FRIENDLY_URL_PRIVATE_GROUP_SERVLET_MAPPING);
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		SubscriptionSender.class);
 
@@ -1119,6 +1184,42 @@ public class SubscriptionSender implements Serializable {
 	private final List<Tuple> _persistedSubscribersTuples = new ArrayList<>();
 	private final List<ObjectValuePair<String, String>>
 		_runtimeSubscribersOVPs = new ArrayList<>();
+	private boolean _sendToCurrentUser;
 	private final Set<String> _sentEmailAddresses = new HashSet<>();
+
+	private static class HTMLAtributeEscapableObject<T>
+		extends EscapableObject<T> {
+
+		public HTMLAtributeEscapableObject(T originalValue) {
+			super(originalValue);
+		}
+
+		public HTMLAtributeEscapableObject(T originalValue, boolean escape) {
+			super(originalValue, escape);
+		}
+
+		@Override
+		protected String escape(T value) {
+			return HtmlUtil.escapeAttribute(String.valueOf(value));
+		}
+
+	}
+
+	private static class URIEscapableObject<T> extends EscapableObject<T> {
+
+		public URIEscapableObject(T originalValue) {
+			super(originalValue);
+		}
+
+		public URIEscapableObject(T originalValue, boolean escape) {
+			super(originalValue, escape);
+		}
+
+		@Override
+		protected String escape(T value) {
+			return URLCodec.encodeURL(String.valueOf(value));
+		}
+
+	}
 
 }

@@ -20,17 +20,22 @@
 </tr>
 <tr>
 	<td>OUTLINE_ICON</td>
-	<td>//a[contains(.,'Find a Page')]</td>
+	<td>//button[contains(.,'Page Tree')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_ELLIPSIS_ICON</td>
-	<td>//span[contains(@class,'tree-label') and contains(.,'${key_pageName}')]//a[contains(@class,'dropdown')]</td>
+	<td>//span[contains(@class,'tree-label') and contains(.,'${key_pageName}')]//button[contains(@class,'dropdown')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_NAME</td>
-	<td>//a[contains(@class,'layout-tree')][contains(.,'${pageName}')]</td>
+	<td>//a[contains(@class,'layout-tree')][contains(.,'${key_pageName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_SEARCH_RESULT</td>
+	<td>//a[contains(@class,'mb-2')][normalize-space(text())='${key_pageName}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -41,6 +46,11 @@
 <tr>
 	<td>PAGE_TYPE_SELECTOR_ELLIPSIS_ICON</td>
 	<td>//div[contains(@class,'page-type-selector')]//button[contains(@class,'dropdown')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TREE_NODE_ITEM</td>
+	<td>//ul[contains(@class,'tree-container')]/li[contains(@class,'tree-node')][${key_index}][contains(.,'${key_pageName}')]</td>
 	<td></td>
 </tr>
 <tr>

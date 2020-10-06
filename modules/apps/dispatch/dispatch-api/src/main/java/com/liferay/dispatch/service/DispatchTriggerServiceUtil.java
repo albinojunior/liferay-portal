@@ -26,7 +26,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * based on the propagated JAAS credentials because this service can be
  * accessed remotely.
  *
- * @author Alessio Antonio Rendina
+ * @author Matija Petanjek
  * @see DispatchTriggerService
  * @generated
  */
@@ -37,6 +37,22 @@ public class DispatchTriggerServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.dispatch.service.impl.DispatchTriggerServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static com.liferay.dispatch.model.DispatchTrigger addDispatchTrigger(
+			long userId, String name,
+			com.liferay.portal.kernel.util.UnicodeProperties
+				taskSettingsUnicodeProperties,
+			String taskType)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addDispatchTrigger(
+			userId, name, taskSettingsUnicodeProperties, taskType);
+	}
+
+	public static void deleteDispatchTrigger(long dispatchTriggerId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().deleteDispatchTrigger(dispatchTriggerId);
+	}
 
 	/**
 	 * Returns the OSGi service identifier.
@@ -45,6 +61,32 @@ public class DispatchTriggerServiceUtil {
 	 */
 	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static com.liferay.dispatch.model.DispatchTrigger
+			updateDispatchTrigger(
+				long dispatchTriggerId, boolean active, String cronExpression,
+				int endDateMonth, int endDateDay, int endDateYear,
+				int endDateHour, int endDateMinute, boolean neverEnd,
+				int startDateMonth, int startDateDay, int startDateYear,
+				int startDateHour, int startDateMinute)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateDispatchTrigger(
+			dispatchTriggerId, active, cronExpression, endDateMonth, endDateDay,
+			endDateYear, endDateHour, endDateMinute, neverEnd, startDateMonth,
+			startDateDay, startDateYear, startDateHour, startDateMinute);
+	}
+
+	public static com.liferay.dispatch.model.DispatchTrigger
+			updateDispatchTrigger(
+				long dispatchTriggerId, String name,
+				com.liferay.portal.kernel.util.UnicodeProperties
+					taskSettingsUnicodeProperties)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateDispatchTrigger(
+			dispatchTriggerId, name, taskSettingsUnicodeProperties);
 	}
 
 	public static DispatchTriggerService getService() {

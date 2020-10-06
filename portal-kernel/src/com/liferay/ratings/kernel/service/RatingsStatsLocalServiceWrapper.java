@@ -14,7 +14,10 @@
 
 package com.liferay.ratings.kernel.service;
 
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.ratings.kernel.model.RatingsStats;
 
 /**
  * Provides a wrapper for {@link RatingsStatsLocalService}.
@@ -36,20 +39,20 @@ public class RatingsStatsLocalServiceWrapper
 	/**
 	 * Adds the ratings stats to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RatingsStatsLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ratingsStats the ratings stats
 	 * @return the ratings stats that was added
 	 */
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats addRatingsStats(
-		com.liferay.ratings.kernel.model.RatingsStats ratingsStats) {
-
+	public RatingsStats addRatingsStats(RatingsStats ratingsStats) {
 		return _ratingsStatsLocalService.addRatingsStats(ratingsStats);
 	}
 
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats addStats(
-		long classNameId, long classPK) {
-
+	public RatingsStats addStats(long classNameId, long classPK) {
 		return _ratingsStatsLocalService.addStats(classNameId, classPK);
 	}
 
@@ -71,9 +74,7 @@ public class RatingsStatsLocalServiceWrapper
 	 * @return the new ratings stats
 	 */
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats createRatingsStats(
-		long statsId) {
-
+	public RatingsStats createRatingsStats(long statsId) {
 		return _ratingsStatsLocalService.createRatingsStats(statsId);
 	}
 
@@ -91,13 +92,16 @@ public class RatingsStatsLocalServiceWrapper
 	/**
 	 * Deletes the ratings stats with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RatingsStatsLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param statsId the primary key of the ratings stats
 	 * @return the ratings stats that was removed
 	 * @throws PortalException if a ratings stats with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats deleteRatingsStats(
-			long statsId)
+	public RatingsStats deleteRatingsStats(long statsId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ratingsStatsLocalService.deleteRatingsStats(statsId);
@@ -106,19 +110,26 @@ public class RatingsStatsLocalServiceWrapper
 	/**
 	 * Deletes the ratings stats from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RatingsStatsLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ratingsStats the ratings stats
 	 * @return the ratings stats that was removed
 	 */
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats deleteRatingsStats(
-		com.liferay.ratings.kernel.model.RatingsStats ratingsStats) {
-
+	public RatingsStats deleteRatingsStats(RatingsStats ratingsStats) {
 		return _ratingsStatsLocalService.deleteRatingsStats(ratingsStats);
 	}
 
 	@Override
 	public void deleteStats(String className, long classPK) {
 		_ratingsStatsLocalService.deleteStats(className, classPK);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ratingsStatsLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -212,16 +223,12 @@ public class RatingsStatsLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats fetchRatingsStats(
-		long statsId) {
-
+	public RatingsStats fetchRatingsStats(long statsId) {
 		return _ratingsStatsLocalService.fetchRatingsStats(statsId);
 	}
 
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats fetchStats(
-		String className, long classPK) {
-
+	public RatingsStats fetchStats(String className, long classPK) {
 		return _ratingsStatsLocalService.fetchStats(className, classPK);
 	}
 
@@ -268,8 +275,7 @@ public class RatingsStatsLocalServiceWrapper
 	 * @throws PortalException if a ratings stats with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats getRatingsStats(
-			long statsId)
+	public RatingsStats getRatingsStats(long statsId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ratingsStatsLocalService.getRatingsStats(statsId);
@@ -287,9 +293,7 @@ public class RatingsStatsLocalServiceWrapper
 	 * @return the range of ratings statses
 	 */
 	@Override
-	public java.util.List<com.liferay.ratings.kernel.model.RatingsStats>
-		getRatingsStatses(int start, int end) {
-
+	public java.util.List<RatingsStats> getRatingsStatses(int start, int end) {
 		return _ratingsStatsLocalService.getRatingsStatses(start, end);
 	}
 
@@ -304,23 +308,22 @@ public class RatingsStatsLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats getStats(long statsId)
+	public RatingsStats getStats(long statsId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ratingsStatsLocalService.getStats(statsId);
 	}
 
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats getStats(
-			String className, long classPK)
+	public RatingsStats getStats(String className, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ratingsStatsLocalService.getStats(className, classPK);
 	}
 
 	@Override
-	public java.util.Map<Long, com.liferay.ratings.kernel.model.RatingsStats>
-		getStats(String className, long[] classPKs) {
+	public java.util.Map<Long, RatingsStats> getStats(
+		String className, long[] classPKs) {
 
 		return _ratingsStatsLocalService.getStats(className, classPKs);
 	}
@@ -328,14 +331,36 @@ public class RatingsStatsLocalServiceWrapper
 	/**
 	 * Updates the ratings stats in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RatingsStatsLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ratingsStats the ratings stats
 	 * @return the ratings stats that was updated
 	 */
 	@Override
-	public com.liferay.ratings.kernel.model.RatingsStats updateRatingsStats(
-		com.liferay.ratings.kernel.model.RatingsStats ratingsStats) {
-
+	public RatingsStats updateRatingsStats(RatingsStats ratingsStats) {
 		return _ratingsStatsLocalService.updateRatingsStats(ratingsStats);
+	}
+
+	@Override
+	public CTPersistence<RatingsStats> getCTPersistence() {
+		return _ratingsStatsLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<RatingsStats> getModelClass() {
+		return _ratingsStatsLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<RatingsStats>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _ratingsStatsLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

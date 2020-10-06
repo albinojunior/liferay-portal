@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -43,6 +44,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.EmailAddressLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.EmailAddressPersistence;
 import com.liferay.portal.kernel.service.persistence.ListTypePersistence;
@@ -82,6 +84,10 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	/**
 	 * Adds the email address to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param emailAddress the email address
 	 * @return the email address that was added
 	 */
@@ -108,6 +114,10 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	/**
 	 * Deletes the email address with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param emailAddressId the primary key of the email address
 	 * @return the email address that was removed
 	 * @throws PortalException if a email address with the primary key could not be found
@@ -123,6 +133,10 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	/**
 	 * Deletes the email address from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param emailAddress the email address
 	 * @return the email address that was removed
 	 */
@@ -130,6 +144,11 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	@Override
 	public EmailAddress deleteEmailAddress(EmailAddress emailAddress) {
 		return emailAddressPersistence.remove(emailAddress);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return emailAddressPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -407,6 +426,10 @@ public abstract class EmailAddressLocalServiceBaseImpl
 			(EmailAddress)persistedModel);
 	}
 
+	public BasePersistence<EmailAddress> getBasePersistence() {
+		return emailAddressPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -462,6 +485,10 @@ public abstract class EmailAddressLocalServiceBaseImpl
 
 	/**
 	 * Updates the email address in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param emailAddress the email address
 	 * @return the email address that was updated

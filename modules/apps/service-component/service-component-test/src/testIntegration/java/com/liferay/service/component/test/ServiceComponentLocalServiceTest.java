@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBProcessContext;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.model.ServiceComponent;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
@@ -38,7 +39,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,8 +68,17 @@ public class ServiceComponentLocalServiceTest {
 
 	@Before
 	public void setUp() {
-		_serviceComponentsCount =
-			_serviceComponentLocalService.getServiceComponentsCount();
+		Set<String> buildNamespaces = new HashSet<>();
+
+		List<ServiceComponent> serviceComponents =
+			_serviceComponentLocalService.getServiceComponents(
+				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+		for (ServiceComponent serviceComponent : serviceComponents) {
+			buildNamespaces.add(serviceComponent.getBuildNamespace());
+		}
+
+		_initialServiceComponentsCount = buildNamespaces.size();
 
 		_serviceComponents.add(_addServiceComponent(_SERVICE_COMPONENT_1, 1));
 		_serviceComponents.add(_addServiceComponent(_SERVICE_COMPONENT_2, 1));
@@ -83,7 +95,7 @@ public class ServiceComponentLocalServiceTest {
 			_serviceComponentLocalService.getLatestServiceComponents();
 
 		Assert.assertEquals(
-			2, serviceComponents.size() - _serviceComponentsCount);
+			2, serviceComponents.size() - _initialServiceComponentsCount);
 
 		ServiceComponent latestServiceComponent1 = _getServiceComponent(
 			serviceComponents, _SERVICE_COMPONENT_1);
@@ -102,7 +114,7 @@ public class ServiceComponentLocalServiceTest {
 			_serviceComponentLocalService.getLatestServiceComponents();
 
 		Assert.assertEquals(
-			2, serviceComponents.size() - _serviceComponentsCount);
+			2, serviceComponents.size() - _initialServiceComponentsCount);
 
 		ServiceComponent latestServiceComponent1 = _getServiceComponent(
 			serviceComponents, _SERVICE_COMPONENT_1);
@@ -239,6 +251,8 @@ public class ServiceComponentLocalServiceTest {
 	@Inject
 	private CounterLocalService _counterLocalService;
 
+	private int _initialServiceComponentsCount;
+
 	@DeleteAfterTestRun
 	private Release _release;
 
@@ -250,8 +264,6 @@ public class ServiceComponentLocalServiceTest {
 
 	@DeleteAfterTestRun
 	private final List<ServiceComponent> _serviceComponents = new ArrayList<>();
-
-	private int _serviceComponentsCount;
 
 	private class TestUpgradeStep implements UpgradeStep {
 

@@ -61,8 +61,10 @@ import java.util.Map;
  *
  * @author Brian Wing Shun Chan
  * @see SourceServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class SourceServiceSoap {
 
 	public static com.liferay.portal.reports.engine.console.model.SourceSoap
@@ -133,7 +135,8 @@ public class SourceServiceSoap {
 				long groupId, String name, String driverUrl, boolean andSearch,
 				int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.portal.reports.engine.console.model.Source>
+						orderByComparator)
 		throws RemoteException {
 
 		try {

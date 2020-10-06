@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration;
 import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
@@ -64,14 +65,14 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 
 	@Override
 	public WorkflowDefinition deploy(
-			String title, String name, Definition definition,
+			String title, String name, String scope, Definition definition,
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		checkPermissions();
+		checkPermissions(serviceContext);
 
 		KaleoDefinition kaleoDefinition = _addOrUpdateKaleoDefinition(
-			title, name, definition, serviceContext);
+			title, name, scope, definition, serviceContext);
 
 		KaleoDefinitionVersion kaleoDefinitionVersion =
 			_kaleoDefinitionVersionLocalService.
@@ -87,6 +88,7 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 
 		for (Node node : nodes) {
 			KaleoNode kaleoNode = _kaleoNodeLocalService.addKaleoNode(
+				kaleoDefinition.getKaleoDefinitionId(),
 				kaleoDefinitionVersionId, node, serviceContext);
 
 			kaleoNodesMap.put(node.getName(), kaleoNode);
@@ -97,6 +99,7 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 				Task task = (Task)node;
 
 				_kaleoTaskLocalService.addKaleoTask(
+					kaleoDefinition.getKaleoDefinitionId(),
 					kaleoDefinitionVersionId, kaleoNode.getKaleoNodeId(), task,
 					serviceContext);
 			}
@@ -104,6 +107,7 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 				Condition condition = (Condition)node;
 
 				_kaleoConditionLocalService.addKaleoCondition(
+					kaleoDefinition.getKaleoDefinitionId(),
 					kaleoDefinitionVersionId, kaleoNode.getKaleoNodeId(),
 					condition, serviceContext);
 			}
@@ -134,6 +138,7 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 				}
 
 				_kaleoTransitionLocalService.addKaleoTransition(
+					kaleoNode.getKaleoDefinitionId(),
 					kaleoNode.getKaleoDefinitionVersionId(),
 					kaleoNode.getKaleoNodeId(), transition, sourceKaleoNode,
 					targetKaleoNode, serviceContext);
@@ -161,12 +166,12 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 
 	@Override
 	public WorkflowDefinition save(
-			String title, String name, Definition definition,
+			String title, String name, String scope, Definition definition,
 			ServiceContext serviceContext)
 		throws PortalException {
 
 		KaleoDefinition kaleoDefinition = _addOrUpdateKaleoDefinition(
-			title, name, definition, serviceContext);
+			title, name, scope, definition, serviceContext);
 
 		return _kaleoWorkflowModelConverter.toWorkflowDefinition(
 			kaleoDefinition);
@@ -183,11 +188,16 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 			workflowDefinitionConfiguration.companyAdministratorCanPublish();
 	}
 
-	protected void checkPermissions() throws PrincipalException {
+	protected void checkPermissions(ServiceContext serviceContext)
+		throws PrincipalException {
+
 		PermissionChecker permissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
-		if (permissionChecker == null) {
+		if ((permissionChecker == null) ||
+			!GetterUtil.getBoolean(
+				serviceContext.getAttribute("checkPermission"), true)) {
+
 			return;
 		}
 
@@ -207,7 +217,7 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 	}
 
 	private KaleoDefinition _addOrUpdateKaleoDefinition(
-			String title, String name, Definition definition,
+			String title, String name, String scope, Definition definition,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -218,7 +228,7 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 		if (kaleoDefinition == null) {
 			kaleoDefinition = _kaleoDefinitionLocalService.addKaleoDefinition(
 				name, title, definition.getDescription(),
-				definition.getContent(), 1, serviceContext);
+				definition.getContent(), scope, 1, serviceContext);
 		}
 		else {
 			kaleoDefinition =

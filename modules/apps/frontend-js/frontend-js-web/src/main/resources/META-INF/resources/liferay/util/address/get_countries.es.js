@@ -12,15 +12,13 @@
  * details.
  */
 
-import {isFunction} from 'metal';
-
 /**
  * Returns a list of countries
  * @callback callback
  * @return {array} Array of countries
  */
 export default function getCountries(callback) {
-	if (!isFunction(callback)) {
+	if (typeof callback !== 'function') {
 		throw new TypeError('Parameter callback must be a function');
 	}
 

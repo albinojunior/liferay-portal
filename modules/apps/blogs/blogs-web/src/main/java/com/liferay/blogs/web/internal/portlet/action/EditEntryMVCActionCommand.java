@@ -37,10 +37,10 @@ import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.friendly.url.exception.DuplicateFriendlyURLEntryException;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.editor.EditorConstants;
+import com.liferay.portal.kernel.change.tracking.CTTransactionException;
+import com.liferay.portal.kernel.editor.constants.EditorConstants;
 import com.liferay.portal.kernel.exception.ImageResolutionException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -128,21 +128,21 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 					WebKeys.UPLOAD_EXCEPTION);
 
 			if (uploadException != null) {
-				Throwable cause = uploadException.getCause();
+				Throwable throwable = uploadException.getCause();
 
 				if (uploadException.isExceededFileSizeLimit()) {
-					throw new FileSizeException(cause);
+					throw new FileSizeException(throwable);
 				}
 
 				if (uploadException.isExceededLiferayFileItemSizeLimit()) {
-					throw new LiferayFileItemException(cause);
+					throw new LiferayFileItemException(throwable);
 				}
 
 				if (uploadException.isExceededUploadRequestSizeLimit()) {
-					throw new UploadRequestSizeException(cause);
+					throw new UploadRequestSizeException(throwable);
 				}
 
-				throw new PortalException(cause);
+				throw new PortalException(throwable);
 			}
 			else if (cmd.equals(Constants.ADD) ||
 					 cmd.equals(Constants.UPDATE)) {
@@ -172,19 +172,19 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 			boolean ajax = ParamUtil.getBoolean(actionRequest, "ajax");
 
 			if (ajax) {
-				JSONObject jsonObject = JSONUtil.put(
-					"attributeDataImageId",
-					EditorConstants.ATTRIBUTE_DATA_IMAGE_ID
-				).put(
-					"content", entry.getContent()
-				).put(
-					"coverImageFileEntryId", entry.getCoverImageFileEntryId()
-				).put(
-					"entryId", entry.getEntryId()
-				);
-
 				JSONPortletResponseUtil.writeJSON(
-					actionRequest, actionResponse, jsonObject);
+					actionRequest, actionResponse,
+					JSONUtil.put(
+						"attributeDataImageId",
+						EditorConstants.ATTRIBUTE_DATA_IMAGE_ID
+					).put(
+						"content", entry.getContent()
+					).put(
+						"coverImageFileEntryId",
+						entry.getCoverImageFileEntryId()
+					).put(
+						"entryId", entry.getEntryId()
+					));
 
 				return;
 			}
@@ -197,6 +197,8 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			if (Validator.isNotNull(portletResource) &&
 				(workflowAction != WorkflowConstants.ACTION_SAVE_DRAFT)) {
+
+				hideDefaultSuccessMessage(actionRequest);
 
 				MultiSessionMessages.add(
 					actionRequest, portletResource + "requestProcessed");
@@ -229,6 +231,9 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			hideDefaultSuccessMessage(actionRequest);
 		}
+		catch (CTTransactionException ctTransactionException) {
+			throw ctTransactionException;
+		}
 		catch (DuplicateFriendlyURLEntryException | EntryContentException |
 			   EntryCoverImageCropException | EntryDescriptionException |
 			   EntryDisplayDateException | EntrySmallImageNameException |
@@ -251,8 +256,8 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			hideDefaultSuccessMessage(actionRequest);
 		}
-		catch (Throwable t) {
-			_log.error(t, t);
+		catch (Throwable throwable) {
+			_log.error(throwable, throwable);
 
 			actionResponse.setRenderParameter("mvcPath", "/blogs/error.jsp");
 
@@ -274,11 +279,11 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 			blogsEntry -> _deleteEntry(blogsEntry, moveToTrash, trashedModels));
 
 		if (moveToTrash && !trashedModels.isEmpty()) {
-			Map<String, Object> data = HashMapBuilder.<String, Object>put(
-				"trashedModels", trashedModels
-			).build();
-
-			addDeleteSuccessData(actionRequest, data);
+			addDeleteSuccessData(
+				actionRequest,
+				HashMapBuilder.<String, Object>put(
+					"trashedModels", trashedModels
+				).build());
 		}
 	}
 
@@ -301,7 +306,7 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private Map<String, String[]> _getParameterMap(ActionRequest actionRequest)
-		throws PortalException {
+		throws Exception {
 
 		Map<String, String[]> parameterMap = new HashMap<>(
 			actionRequest.getParameterMap());
@@ -416,7 +421,7 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 
 	private String _updateContent(
 			BlogsEntry entry, String content, ThemeDisplay themeDisplay)
-		throws PortalException {
+		throws Exception {
 
 		return _attachmentContentUpdater.updateContent(
 			content, ContentTypes.TEXT_HTML,

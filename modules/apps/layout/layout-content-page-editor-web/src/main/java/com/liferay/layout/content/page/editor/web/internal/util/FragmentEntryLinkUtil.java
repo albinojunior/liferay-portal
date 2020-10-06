@@ -16,6 +16,7 @@ package com.liferay.layout.content.page.editor.web.internal.util;
 
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.entry.processor.util.EditableFragmentEntryProcessorUtil;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.PortletRegistry;
@@ -27,6 +28,9 @@ import com.liferay.fragment.renderer.constants.FragmentRendererConstants;
 import com.liferay.fragment.service.FragmentEntryLinkServiceUtil;
 import com.liferay.fragment.service.FragmentEntryLocalServiceUtil;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
+import com.liferay.item.selector.ItemSelector;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListener;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListenerTracker;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalServiceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -55,7 +59,9 @@ import javax.portlet.ActionResponse;
 public class FragmentEntryLinkUtil {
 
 	public static void deleteFragmentEntryLink(
-			long companyId, long fragmentEntryLinkId, long plid,
+			long companyId,
+			ContentPageEditorListenerTracker contentPageEditorListenerTracker,
+			long fragmentEntryLinkId, long plid,
 			PortletRegistry portletRegistry)
 		throws PortalException {
 
@@ -99,6 +105,16 @@ public class FragmentEntryLinkUtil {
 		LayoutClassedModelUsageLocalServiceUtil.deleteLayoutClassedModelUsages(
 			String.valueOf(fragmentEntryLinkId),
 			PortalUtil.getClassNameId(FragmentEntryLink.class), plid);
+
+		List<ContentPageEditorListener> contentPageEditorListeners =
+			contentPageEditorListenerTracker.getContentPageEditorListeners();
+
+		for (ContentPageEditorListener contentPageEditorListener :
+				contentPageEditorListeners) {
+
+			contentPageEditorListener.onDeleteFragmentEntryLink(
+				fragmentEntryLink);
+		}
 	}
 
 	public static FragmentEntry getFragmentEntry(
@@ -128,7 +144,8 @@ public class FragmentEntryLinkUtil {
 			FragmentCollectionContributorTracker
 				fragmentCollectionContributorTracker,
 			FragmentRendererController fragmentRendererController,
-			FragmentRendererTracker fragmentRendererTracker, String portletId)
+			FragmentRendererTracker fragmentRendererTracker,
+			ItemSelector itemSelector, String portletId)
 		throws PortalException {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -150,10 +167,12 @@ public class FragmentEntryLinkUtil {
 			themeDisplay.getLocale());
 
 		String fragmentEntryKey = null;
+		String icon = null;
 		String name = null;
 
 		if (fragmentEntry != null) {
 			fragmentEntryKey = fragmentEntry.getFragmentEntryKey();
+			icon = fragmentEntry.getIcon();
 			name = fragmentEntry.getName();
 		}
 		else {
@@ -178,8 +197,16 @@ public class FragmentEntryLinkUtil {
 			}
 		}
 
+		JSONObject configurationJSONObject = JSONFactoryUtil.createJSONObject(
+			configuration);
+
+		FragmentEntryLinkItemSelectorUtil.addFragmentEntryLinkFieldsSelectorURL(
+			itemSelector, PortalUtil.getHttpServletRequest(actionRequest),
+			PortalUtil.getLiferayPortletResponse(actionResponse),
+			configurationJSONObject);
+
 		return JSONUtil.put(
-			"configuration", JSONFactoryUtil.createJSONObject(configuration)
+			"configuration", configurationJSONObject
 		).put(
 			"content",
 			fragmentRendererController.render(
@@ -191,6 +218,10 @@ public class FragmentEntryLinkUtil {
 			fragmentEntryConfigurationParser.
 				getConfigurationDefaultValuesJSONObject(configuration)
 		).put(
+			"editableTypes",
+			EditableFragmentEntryProcessorUtil.getEditableTypes(
+				fragmentEntryLink.getHtml())
+		).put(
 			"editableValues",
 			JSONFactoryUtil.createJSONObject(
 				fragmentEntryLink.getEditableValues())
@@ -199,6 +230,8 @@ public class FragmentEntryLinkUtil {
 		).put(
 			"fragmentEntryLinkId",
 			String.valueOf(fragmentEntryLink.getFragmentEntryLinkId())
+		).put(
+			"icon", icon
 		).put(
 			"name", name
 		);

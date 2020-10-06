@@ -16,12 +16,11 @@ package com.liferay.gradle.plugins.workspace.configurators;
 
 import com.liferay.gradle.plugins.LiferayExtPlugin;
 import com.liferay.gradle.plugins.LiferayOSGiExtPlugin;
-import com.liferay.gradle.plugins.extensions.LiferayExtension;
 import com.liferay.gradle.plugins.workspace.WorkspaceExtension;
 import com.liferay.gradle.plugins.workspace.WorkspacePlugin;
 import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
-import com.liferay.gradle.plugins.workspace.tasks.InitBundleTask;
 import com.liferay.gradle.util.FileUtil;
+import com.liferay.gradle.util.Validator;
 
 import groovy.lang.Closure;
 
@@ -34,14 +33,13 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.CopySourceSpec;
-import org.gradle.api.file.CopySpec;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaPlugin;
@@ -62,6 +60,22 @@ public class ExtProjectConfigurator extends BaseProjectConfigurator {
 			WorkspacePlugin.PROPERTY_PREFIX + NAME +
 				".default.repository.enabled",
 			_DEFAULT_REPOSITORY_ENABLED);
+
+		String defaultRootDirNames = GradleUtil.getProperty(
+			settings, getDefaultRootDirPropertyName(), (String)null);
+
+		if (Validator.isNotNull(defaultRootDirNames)) {
+			_defaultRootDirs = new HashSet<>();
+
+			for (String dirName : defaultRootDirNames.split("\\s*,\\s*")) {
+				_defaultRootDirs.add(new File(settings.getRootDir(), dirName));
+			}
+		}
+		else {
+			File dir = new File(settings.getRootDir(), getDefaultRootDirName());
+
+			_defaultRootDirs = Collections.singleton(dir);
+		}
 	}
 
 	@Override
@@ -77,9 +91,14 @@ public class ExtProjectConfigurator extends BaseProjectConfigurator {
 			GradleUtil.addDefaultRepositories(project);
 		}
 
-		_configureLiferay(project, workspaceExtension);
 		_configureRootTaskDistBundle(project, extPlugin);
-		_configureRootTaskInitBundle(project, extPlugin);
+
+		configureLiferay(project, workspaceExtension);
+	}
+
+	@Override
+	public Iterable<File> getDefaultRootDirs() {
+		return _defaultRootDirs;
 	}
 
 	@Override
@@ -129,15 +148,6 @@ public class ExtProjectConfigurator extends BaseProjectConfigurator {
 		}
 	}
 
-	private void _configureLiferay(
-		Project project, WorkspaceExtension workspaceExtension) {
-
-		LiferayExtension liferayExtension = GradleUtil.getExtension(
-			project, LiferayExtension.class);
-
-		liferayExtension.setAppServerParentDir(workspaceExtension.getHomeDir());
-	}
-
 	@SuppressWarnings("serial")
 	private void _configureRootTaskDistBundle(
 		Project project, boolean extPlugin) {
@@ -172,55 +182,12 @@ public class ExtProjectConfigurator extends BaseProjectConfigurator {
 			});
 	}
 
-	private void _configureRootTaskInitBundle(
-		Project project, boolean extPlugin) {
-
-		InitBundleTask initBundleTask = (InitBundleTask)GradleUtil.getTask(
-			project.getRootProject(),
-			RootProjectConfigurator.INIT_BUNDLE_TASK_NAME);
-
-		final String dirName;
-		String taskName = null;
-
-		if (extPlugin) {
-			dirName = "osgi/war";
-			taskName = WarPlugin.WAR_TASK_NAME;
-		}
-		else {
-			dirName = "osgi/marketplace/override";
-			taskName = JavaPlugin.JAR_TASK_NAME;
-		}
-
-		final Task task = GradleUtil.getTask(project, taskName);
-
-		initBundleTask.dependsOn(task);
-
-		initBundleTask.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					project.copy(
-						new Action<CopySpec>() {
-
-							@Override
-							public void execute(CopySpec copySpec) {
-								copySpec.from(task);
-								copySpec.into(dirName);
-							}
-
-						});
-				}
-
-			});
-	}
-
 	private boolean _isExtPlugin(Project project) {
 		if (FileUtil.exists(project, "src/main/webapp")) {
 			return true;
 		}
 
-		for (String name : _EXT_SOURCESET_NAMES) {
+		for (String name : _EXT_SOURCE_SET_NAMES) {
 			if (FileUtil.exists(project, "src/" + name)) {
 				return true;
 			}
@@ -231,14 +198,15 @@ public class ExtProjectConfigurator extends BaseProjectConfigurator {
 
 	private static final boolean _DEFAULT_REPOSITORY_ENABLED = true;
 
-	private static final String[] _EXT_SOURCESET_NAMES = {
-		LiferayExtPlugin.EXT_IMPL_SOURCESET_NAME,
-		LiferayExtPlugin.EXT_KERNEL_SOURCESET_NAME,
-		LiferayExtPlugin.EXT_UTIL_BRIDGES_SOURCESET_NAME,
-		LiferayExtPlugin.EXT_UTIL_JAVA_SOURCESET_NAME,
-		LiferayExtPlugin.EXT_UTIL_TAGLIB_SOURCESET_NAME
+	private static final String[] _EXT_SOURCE_SET_NAMES = {
+		LiferayExtPlugin.EXT_IMPL_SOURCE_SET_NAME,
+		LiferayExtPlugin.EXT_KERNEL_SOURCE_SET_NAME,
+		LiferayExtPlugin.EXT_UTIL_BRIDGES_SOURCE_SET_NAME,
+		LiferayExtPlugin.EXT_UTIL_JAVA_SOURCE_SET_NAME,
+		LiferayExtPlugin.EXT_UTIL_TAGLIB_SOURCE_SET_NAME
 	};
 
 	private final boolean _defaultRepositoryEnabled;
+	private final Set<File> _defaultRootDirs;
 
 }

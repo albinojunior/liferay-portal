@@ -1,9 +1,6 @@
 @component-name = "portal-search-ee"
 definition {
 
-	property osgi.app.includes = "portal-search-elasticsearch7";
-	property osgi.module.configuration.file.names = "com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config";
-	property osgi.module.configurations = "blacklistBundleSymbolicNames=&quot;com.liferay.portal.mobile.device.detection.fiftyonedegrees.api,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise.test.data,com.liferay.portal.mobile.device.detection.fiftyonedegrees,com.liferay.portal.search.elasticsearch6.impl,com.liferay.portal.search.elasticsearch6.spi,com.liferay.portal.search.elasticsearch6.api,com.liferay.portal.search.elasticsearch6.xpack.security.impl&quot;";
 	property portal.release = "true";
 	property portal.suite.search.engine = "elasticsearch7";
 	property portal.upstream = "true";
@@ -32,6 +29,8 @@ definition {
 	}
 
 	test AssertSimilarResultsDisplayTemplate {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		for (var count : list "1,2,3") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -79,6 +78,8 @@ definition {
 	}
 
 	test AssertSimilarResultsMatchesAssetType {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		for (var count : list "1,2,3") {
 			JSONBlog.addEntry(
 				entryContent = "Blogs Content",
@@ -258,6 +259,7 @@ definition {
 	}
 
 	test ConfigureSimilarResultsDocumentFrequency {
+		property osgi.app.includes = "portal-search-similar-results";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#ConfigureSimilarResultsDocumentFrequency";
 
 		JSONWebcontent.addWebContent(
@@ -280,7 +282,7 @@ definition {
 			groupName = "Guest",
 			title = "Charlie");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "Search");
@@ -329,13 +331,14 @@ definition {
 	}
 
 	test ConfigureSimilarResultsFields {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		JSONBlog.addEntry(
 			entryContent = "Content",
 			entryTitle = "No Match Content");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Blogs");
 
 		Blogs.addEntryWithTag(
@@ -378,6 +381,8 @@ definition {
 	}
 
 	test ConfigureSimilarResultsMaximumItemDisplay {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		for (var titleName : list "Alpha,Bravo,Charlie,Delta,Echo,Foxtrot") {
 			JSONWebcontent.addWebContent(
 				content = "${titleName}",
@@ -418,6 +423,8 @@ definition {
 	}
 
 	test ConfigureSimilarResultsMaximumQueryTerms {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		for (var count : list "One, Two, Three") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -451,6 +458,8 @@ definition {
 	}
 
 	test ConfigureSimilarResultsMinimumShouldMatch {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		JSONWebcontent.addWebContent(
 			content = "WC Content",
 			groupName = "Guest",
@@ -510,6 +519,8 @@ definition {
 	}
 
 	test ConfigureSimilarResultsStopWords {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		JSONWebcontent.addWebContent(
 			content = "No Match",
 			groupName = "Guest",
@@ -569,6 +580,8 @@ definition {
 	}
 
 	test ConfigureSimilarResultsTermFrequency {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		for (var count : list "One, Two, Three") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -627,6 +640,8 @@ definition {
 	}
 
 	test ConfigureSimilarResultsWordLength {
+		property osgi.app.includes = "portal-search-similar-results";
+
 		JSONWebcontent.addWebContent(
 			content = "WC Content",
 			groupName = "Guest",
@@ -684,148 +699,18 @@ definition {
 			locator1 = "Search#SIMILAR_RESULTS_LINK_TITLE");
 	}
 
-	@priority = "5"
-	test CrossClusterReplicationSmoke {
-		property osgi.app.includes = "portal-search-elasticsearch-cross-cluster-replication,portal-search-elasticsearch7";
-		property osgi.module.configuration.file.names = "com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConnectionConfiguration-default_ccr.config:com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config";
-		property osgi.module.configurations = "connectionId=&quot;ccr&quot;${line.separator}networkHostAddresses=[&quot;http&colon;//localhost&colon;9202&quot;]:blacklistBundleSymbolicNames=&quot;com.liferay.portal.mobile.device.detection.fiftyonedegrees.api,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise.test.data,com.liferay.portal.mobile.device.detection.fiftyonedegrees,com.liferay.portal.search.elasticsearch6.impl,com.liferay.portal.search.elasticsearch6.spi,com.liferay.portal.search.elasticsearch6.api,com.liferay.portal.search.elasticsearch6.xpack.security.impl,com.liferay.portal.search.elasticsearch6.xpack.monitoring.web,com.liferay.portal.search.tuning.rankings.web&quot;";
-		property remote.elasticsearch.enabled = "true";
-		property remote.elasticsearch.ccr.enabled = "true";
-		property test.name.skip.portal.instance = "Elasticsearch7EE#CrossClusterReplicationSmoke";
-
-		JSONDocument.addFile(
-			dmDocumentDescription = "DM Description",
-			dmDocumentTitle = "DM Title 1",
-			groupName = "Guest");
-
-		OSGiConfig.deployOSGiConfigs(
-			OSGiConfigFileName = "com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config",
-			OSGiConfigs = "operationMode=&quot;REMOTE&quot;,remoteClusterConnectionId=&quot;remote&quot;,logExceptionsOnly=&quot;true&quot;");
-
-		OSGiConfig.deployOSGiConfigs(
-			OSGiConfigFileName = "com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConnectionConfiguration-default_ccr.config",
-			OSGiConfigs = "connectionId=&quot;ccr&quot;,networkHostAddresses=[&quot;http://localhost:9202&quot;]");
-
-		AntCommand(
-			locator1 = "build-test-elasticsearch7.xml",
-			value1 = "create-follower-indices");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "System Settings");
-
-		SystemSettings.gotoConfiguration(
-			configurationCategory = "Search",
-			configurationName = "Cross-Cluster Replication",
-			configurationScope = "System Scope");
-
-		SystemSettings.configureCrossClusterReplication(ccrLocalClusterConnectionID = "ccr");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Search");
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Search");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "SearchAdmin#REMOTE_CLUSTER_NAME",
-			value1 = "LiferayElasticsearchCluster");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "SearchAdmin#LOCAL_CLUSTER_NAME",
-			value1 = "LiferayElasticsearchClusterTwo");
-
-		Navigator.openURL();
-
-		SearchPortlets.searchEmbedded(searchTerm = "DM");
-
-		SearchResultPortlet.viewSearchResults(
-			searchAssetTitle = "DM Title 1",
-			searchAssetType = "Document");
-
-		AntCommand(
-			locator1 = "build-test-elasticsearch7.xml",
-			value1 = "stop-elasticsearch");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Search");
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Search");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "SearchAdmin#LOCAL_CLUSTER_NAME",
-			value1 = "LiferayElasticsearchClusterTwo");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "Message#ERROR",
-			value1 = "Connection refused");
-
-		AssertElementNotPresent(locator1 = "SearchAdmin#REMOTE_CLUSTER_NAME");
-
-		Navigator.openURL();
-
-		SearchPortlets.searchEmbedded(searchTerm = "DM");
-
-		SearchResultPortlet.viewSearchResults(
-			searchAssetTitle = "DM Title 1",
-			searchAssetType = "Document");
-
-		AntCommand(
-			locator1 = "build-test-elasticsearch7.xml",
-			value1 = "start-elasticsearch-node -Dremote.elasticsearch.cluster.size=1");
-
-		Pause(locator1 = "20000");
-
-		AntCommand(
-			locator1 = "build-test-elasticsearch7.xml",
-			value1 = "stop-elasticsearch-local-cluster");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Search");
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Search");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "SearchAdmin#REMOTE_CLUSTER_NAME",
-			value1 = "LiferayElasticsearchCluster");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "Message#ERROR",
-			value1 = "Connection refused");
-
-		AssertElementNotPresent(locator1 = "SearchAdmin#LOCAL_CLUSTER_NAME");
-
-		Navigator.openURL();
-
-		SearchPortlets.searchEmbedded(searchTerm = "DM");
-
-		SearchResultPortlet.viewSearchResultNotPresent(searchTerm = "DM");
-	}
-
 	test HotDeployLearningToRankApp {
 		property hot.deploy.osgi.app.includes = "portal-search-learning-to-rank";
 		property test.assert.warning.exceptions = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#HotDeployLearningToRankApp";
 
-		var appName = "Liferay Learning to Rank ";
+		var appName = "Liferay Enterprise Search Learning to Rank";
 
 		AssertConsoleTextNotPresent(value1 = "The portal instance needs to be restarted");
 
 		AssertConsoleTextPresent(value1 = "STARTED ${appName}");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -835,8 +720,8 @@ definition {
 			configurationName = "Learning to Rank",
 			configurationScope = "System Scope");
 
-		ProductMenu.gotoPortlet(
-			category = "Apps",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "App Manager");
 
@@ -863,8 +748,8 @@ definition {
 
 	@priority = "5"
 	test LearningToRankSmoke {
-		property osgi.module.configuration.file.names = "com.liferay.portal.search.learning.to.rank.configuration.LearningToRankConfiguration.config:com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}model=&quot;linearregression&quot;:blacklistBundleSymbolicNames=&quot;com.liferay.portal.mobile.device.detection.fiftyonedegrees.api,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise.test.data,com.liferay.portal.mobile.device.detection.fiftyonedegrees,com.liferay.portal.search.elasticsearch6.impl,com.liferay.portal.search.elasticsearch6.spi,com.liferay.portal.search.elasticsearch6.api,com.liferay.portal.search.elasticsearch6.xpack.security.impl&quot;";
+		property osgi.app.includes = "portal-search-learning-to-rank";
+		property portal.upstream = "quarantine";
 		property remote.elasticsearch.enabled = "true";
 		property remote.elasticsearch.ltr.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#LearningToRankSmoke";
@@ -873,8 +758,8 @@ definition {
 			locator1 = "build-test-elasticsearch7.xml",
 			value1 = "add-ltr-linear-regression-model -Dbackup.index=.ltrstore -Delasticsearch.port=9200");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
@@ -888,11 +773,59 @@ definition {
 
 		SearchPortlets.searchEmbedded(searchTerm = "alien");
 
-		if (IsTextEqual(locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC_ORDER", resultOrder = "1", value1 = "Alien³")) {
-			SearchResultPortlet.viewSearchResultsSpecificOrder(resultsList = "Alien³,Alien,Alien Nation");
+		var assetEntryTitleListNoLTR = "";
+		var iterator = "1";
+
+		while ("${iterator}" != "21" && (maxIterations = "20")) {
+			var assetEntryTitle = selenium.getText("//div[contains(@id,'SearchResultsPortlet')]//li[${iterator}]/div//a");
+
+			var assetEntryTitleListNoLTR = StringUtil.add("${assetEntryTitleListNoLTR}", "${assetEntryTitle}");
+
+			var iterator = MathUtil.sum("${iterator}", "1");
+		}
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "System Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Search",
+			configurationName = "Learning to Rank",
+			configurationScope = "System Scope");
+
+		FormFields.enableCheckbox(fieldName = "enabled");
+
+		FormFields.editTextMultiline(
+			fieldName = "model",
+			fieldValue = "linearregression");
+
+		SystemSettings.saveConfiguration();
+
+		Navigator.openURL();
+
+		SearchPortlets.searchEmbedded(searchTerm = "alien");
+
+		var assetEntryTitleListLTR = "";
+		var iterator = "1";
+
+		while ("${iterator}" != "21" && (maxIterations = "20")) {
+			var assetEntryTitle = selenium.getText("//div[contains(@id,'SearchResultsPortlet')]//li[${iterator}]/div//a");
+
+			var assetEntryTitleListLTR = StringUtil.add("${assetEntryTitleListLTR}", "${assetEntryTitle}");
+
+			var iterator = MathUtil.sum("${iterator}", "1");
+		}
+
+		if ("${assetEntryTitleListNoLTR}" != "${assetEntryTitleListLTR}") {
+			echo("Assertion succeeded: Search result rankings were different with and without LTR");
+
+			echo("Rankings without LTR: ${assetEntryTitleListNoLTR}");
+
+			echo("Rankings with LTR: ${assetEntryTitleListLTR}");
 		}
 		else {
-			SearchResultPortlet.viewSearchResultsSpecificOrder(resultsList = "Alien,Alien³,Alien Nation");
+			fail("Assertion failed: Search result rankings were the same with and without LTR");
 		}
 	}
 
@@ -900,16 +833,18 @@ definition {
 	test PortalClusterSmokeTest {
 		property app.server.bundles.size = "1";
 		property cluster.enabled = "true";
+		property portal.upstream = "quarantine";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#PortalClusterSmokeTest";
 
-		Elasticsearch.viewClusterStatusViaClusterHealthAPI(numberOfNodes = "1");
+		Elasticsearch.viewClusterStatusViaClusterHealthAPI(
+			nodePort = "9200",
+			numberOfNodes = "1");
 
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Message Boards");
 
 		MessageboardsThread.addCP(
@@ -920,7 +855,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMDocument.addCP(
@@ -986,16 +920,72 @@ definition {
 			searchAssetType = "Message Boards Message");
 	}
 
+	test ViewSimilarResultsOnContentPages {
+		property osgi.app.includes = "portal-search-similar-results";
+
+		JSONWebcontent.addWebContent(
+			content = "WC Content",
+			groupName = "Guest",
+			title = "Similar Results WC Title 1");
+
+		JSONWebcontent.addWebContent(
+			content = "WC Content",
+			groupName = "Guest",
+			title = "Similar Results WC Title 2");
+
+		SitePages.openPagesAdmin(siteURLKey = "guest");
+
+		ContentPages.addPage(pageName = "Similar Results Page");
+
+		PageEditor.addWidget(portletName = "Asset Publisher");
+
+		PageEditor.clickPublish();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/guest/similar-results-page");
+
+		ContentPages.clickPencil();
+
+		PageEditor.addWidget(
+			portletName = "Similar Results",
+			targetFragmentName = "Asset Publisher");
+
+		SearchPortlets.configureSimilarResults(
+			displayTemplate = "Compact Layout",
+			fields = "localized_title_en_US",
+			minimumDocumentFrequency = "1",
+			minimumTermFrequency = "1");
+
+		PageEditor.clickPublish();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/guest/similar-results-page");
+
+		AssetPublisherPortlet.clickAssetTitle(assetTitle = "Similar Results WC Title 1");
+
+		AssertTextEquals.assertPartialText(
+			key_assetTitle = "Similar Results WC Title 1",
+			locator1 = "AP#ASSET_ABSTRACT_TITLE",
+			value1 = "Similar Results WC Title 1");
+
+		AssertClick.assertPartialTextClickAt(
+			key_linkResultTitle = "Similar Results WC Title 2",
+			locator1 = "Search#SIMILAR_RESULTS_LINK_TITLE",
+			value1 = "Similar Results WC Title 2");
+
+		AssertTextEquals.assertPartialText(
+			key_assetTitle = "Similar Results WC Title 2",
+			locator1 = "AP#ASSET_ABSTRACT_TITLE",
+			value1 = "Similar Results WC Title 2");
+	}
+
 	@priority = "5"
 	test XPackSmokeTest {
 		property elastic.xpack.enabled = "true";
-		property osgi.app.includes = "portal-search-elasticsearch6-xpack-monitoring,portal-search-elasticsearch7";
+		property osgi.app.includes = "portal-search-elasticsearch-monitoring";
+		property portal.upstream = "quarantine";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#XPackSmokeTest";
 
-		// Workaround for LPS-104802
-
-		/*JSONWebcontent.addWebContent(
+		JSONWebcontent.addWebContent(
 			content = "WC Content",
 			groupName = "Guest",
 			title = "WC Title");
@@ -1004,34 +994,33 @@ definition {
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetTitle = "WC Title",
-			searchAssetType = "Web Content Article");*/
+			searchAssetType = "Web Content Article");
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(
-			pageName = "X-Pack Monitoring Page",
+			pageName = "Elasticsearch Monitoring Page",
 			sitePageType = "Widget Page");
 
 		SitePages.configurePage(
 			columnName = "1 Column",
-			pageName = "X-Pack Monitoring Page",
+			pageName = "Elasticsearch Monitoring Page",
 			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
-		Navigator.gotoPage(pageName = "X-Pack Monitoring Page");
+		Navigator.gotoPage(pageName = "Elasticsearch Monitoring Page");
 
-		Portlet.addPG(portletName = "X-Pack Monitoring");
+		Portlet.addPG(portletName = "Elasticsearch Monitoring");
 
-		XPackMonitoring.viewPG();
+		ElasticsearchMonitoring.viewPG();
 
 		User.logoutPG();
 
-		Navigator.gotoPage(pageName = "X-Pack Monitoring Page");
+		Navigator.gotoPage(pageName = "Elasticsearch Monitoring Page");
 
-		XPackMonitoring.viewAsGuestPG();
+		ElasticsearchMonitoring.viewAsGuestPG();
 	}
 
 }

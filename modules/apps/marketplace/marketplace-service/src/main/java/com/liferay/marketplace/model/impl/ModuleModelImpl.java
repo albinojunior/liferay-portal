@@ -98,26 +98,61 @@ public class ModuleModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long APPID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long BUNDLESYMBOLICNAME_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long BUNDLEVERSION_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long COMPANYID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CONTEXTNAME_COLUMN_BITMASK = 16L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long UUID_COLUMN_BITMASK = 32L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long MODULEID_COLUMN_BITMASK = 64L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public ModuleModelImpl() {
@@ -169,9 +204,6 @@ public class ModuleModelImpl
 			attributes.put(
 				attributeName, attributeGetterFunction.apply((Module)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -285,17 +317,20 @@ public class ModuleModelImpl
 
 	@Override
 	public void setUuid(String uuid) {
-		_columnBitmask |= UUID_COLUMN_BITMASK;
-
-		if (_originalUuid == null) {
-			_originalUuid = _uuid;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_uuid = uuid;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalUuid() {
-		return GetterUtil.getString(_originalUuid);
+		return getColumnOriginalValue("uuid_");
 	}
 
 	@Override
@@ -305,6 +340,10 @@ public class ModuleModelImpl
 
 	@Override
 	public void setModuleId(long moduleId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_moduleId = moduleId;
 	}
 
@@ -315,19 +354,21 @@ public class ModuleModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
-		_columnBitmask |= COMPANYID_COLUMN_BITMASK;
-
-		if (!_setOriginalCompanyId) {
-			_setOriginalCompanyId = true;
-
-			_originalCompanyId = _companyId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_companyId = companyId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalCompanyId() {
-		return _originalCompanyId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("companyId"));
 	}
 
 	@Override
@@ -337,19 +378,20 @@ public class ModuleModelImpl
 
 	@Override
 	public void setAppId(long appId) {
-		_columnBitmask |= APPID_COLUMN_BITMASK;
-
-		if (!_setOriginalAppId) {
-			_setOriginalAppId = true;
-
-			_originalAppId = _appId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_appId = appId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalAppId() {
-		return _originalAppId;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("appId"));
 	}
 
 	@Override
@@ -364,17 +406,20 @@ public class ModuleModelImpl
 
 	@Override
 	public void setBundleSymbolicName(String bundleSymbolicName) {
-		_columnBitmask |= BUNDLESYMBOLICNAME_COLUMN_BITMASK;
-
-		if (_originalBundleSymbolicName == null) {
-			_originalBundleSymbolicName = _bundleSymbolicName;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_bundleSymbolicName = bundleSymbolicName;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalBundleSymbolicName() {
-		return GetterUtil.getString(_originalBundleSymbolicName);
+		return getColumnOriginalValue("bundleSymbolicName");
 	}
 
 	@Override
@@ -389,17 +434,20 @@ public class ModuleModelImpl
 
 	@Override
 	public void setBundleVersion(String bundleVersion) {
-		_columnBitmask |= BUNDLEVERSION_COLUMN_BITMASK;
-
-		if (_originalBundleVersion == null) {
-			_originalBundleVersion = _bundleVersion;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_bundleVersion = bundleVersion;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalBundleVersion() {
-		return GetterUtil.getString(_originalBundleVersion);
+		return getColumnOriginalValue("bundleVersion");
 	}
 
 	@Override
@@ -414,20 +462,41 @@ public class ModuleModelImpl
 
 	@Override
 	public void setContextName(String contextName) {
-		_columnBitmask |= CONTEXTNAME_COLUMN_BITMASK;
-
-		if (_originalContextName == null) {
-			_originalContextName = _contextName;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_contextName = contextName;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalContextName() {
-		return GetterUtil.getString(_originalContextName);
+		return getColumnOriginalValue("contextName");
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -492,16 +561,16 @@ public class ModuleModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Module)) {
+		if (!(object instanceof Module)) {
 			return false;
 		}
 
-		Module module = (Module)obj;
+		Module module = (Module)object;
 
 		long primaryKey = module.getPrimaryKey();
 
@@ -518,38 +587,29 @@ public class ModuleModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		ModuleModelImpl moduleModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		moduleModelImpl._originalUuid = moduleModelImpl._uuid;
-
-		moduleModelImpl._originalCompanyId = moduleModelImpl._companyId;
-
-		moduleModelImpl._setOriginalCompanyId = false;
-
-		moduleModelImpl._originalAppId = moduleModelImpl._appId;
-
-		moduleModelImpl._setOriginalAppId = false;
-
-		moduleModelImpl._originalBundleSymbolicName =
-			moduleModelImpl._bundleSymbolicName;
-
-		moduleModelImpl._originalBundleVersion = moduleModelImpl._bundleVersion;
-
-		moduleModelImpl._originalContextName = moduleModelImpl._contextName;
-
-		moduleModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -605,7 +665,7 @@ public class ModuleModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -636,7 +696,7 @@ public class ModuleModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -667,24 +727,90 @@ public class ModuleModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private String _uuid;
-	private String _originalUuid;
 	private long _moduleId;
 	private long _companyId;
-	private long _originalCompanyId;
-	private boolean _setOriginalCompanyId;
 	private long _appId;
-	private long _originalAppId;
-	private boolean _setOriginalAppId;
 	private String _bundleSymbolicName;
-	private String _originalBundleSymbolicName;
 	private String _bundleVersion;
-	private String _originalBundleVersion;
 	private String _contextName;
-	private String _originalContextName;
+
+	public <T> T getColumnValue(String columnName) {
+		columnName = _attributeNames.getOrDefault(columnName, columnName);
+
+		Function<Module, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((Module)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("uuid_", _uuid);
+		_columnOriginalValues.put("moduleId", _moduleId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("appId", _appId);
+		_columnOriginalValues.put("bundleSymbolicName", _bundleSymbolicName);
+		_columnOriginalValues.put("bundleVersion", _bundleVersion);
+		_columnOriginalValues.put("contextName", _contextName);
+	}
+
+	private static final Map<String, String> _attributeNames;
+
+	static {
+		Map<String, String> attributeNames = new HashMap<>();
+
+		attributeNames.put("uuid_", "uuid");
+
+		_attributeNames = Collections.unmodifiableMap(attributeNames);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("uuid_", 1L);
+
+		columnBitmasks.put("moduleId", 2L);
+
+		columnBitmasks.put("companyId", 4L);
+
+		columnBitmasks.put("appId", 8L);
+
+		columnBitmasks.put("bundleSymbolicName", 16L);
+
+		columnBitmasks.put("bundleVersion", 32L);
+
+		columnBitmasks.put("contextName", 64L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private Module _escapedModel;
 

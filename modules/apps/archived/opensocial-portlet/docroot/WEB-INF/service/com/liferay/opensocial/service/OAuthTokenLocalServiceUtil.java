@@ -49,6 +49,10 @@ public class OAuthTokenLocalServiceUtil {
 	/**
 	 * Adds the o auth token to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthToken the o auth token
 	 * @return the o auth token that was added
 	 */
@@ -83,6 +87,10 @@ public class OAuthTokenLocalServiceUtil {
 	/**
 	 * Deletes the o auth token with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthTokenId the primary key of the o auth token
 	 * @return the o auth token that was removed
 	 * @throws PortalException if a o auth token with the primary key could not be found
@@ -105,6 +113,10 @@ public class OAuthTokenLocalServiceUtil {
 
 	/**
 	 * Deletes the o auth token from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthToken the o auth token
 	 * @return the o auth token that was removed
@@ -318,6 +330,10 @@ public class OAuthTokenLocalServiceUtil {
 
 	/**
 	 * Updates the o auth token in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthToken the o auth token
 	 * @return the o auth token that was updated

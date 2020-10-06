@@ -73,7 +73,9 @@ public class JournalItemSelectorViewDisplayContext {
 		return _itemSelectedEventName;
 	}
 
-	public ItemSelectorReturnTypeResolver getItemSelectorReturnTypeResolver() {
+	public ItemSelectorReturnTypeResolver<?, ?>
+		getItemSelectorReturnTypeResolver() {
+
 		return _itemSelectorReturnTypeResolverHandler.
 			getItemSelectorReturnTypeResolver(
 				_journalItemSelectorCriterion, _journalItemSelectorView,
@@ -89,7 +91,7 @@ public class JournalItemSelectorViewDisplayContext {
 		return _journalItemSelectorCriterion;
 	}
 
-	public OrderByComparator getOrderByComparator() {
+	public OrderByComparator<?> getOrderByComparator() {
 		return DLUtil.getRepositoryModelOrderByComparator(
 			RepositoryEntryBrowserTagUtil.getOrderByCol(
 				_httpServletRequest, _portalPreferences),

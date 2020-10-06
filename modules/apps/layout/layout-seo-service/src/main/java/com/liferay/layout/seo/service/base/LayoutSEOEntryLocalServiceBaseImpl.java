@@ -22,6 +22,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalService;
 import com.liferay.layout.seo.service.persistence.LayoutSEOEntryPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -42,6 +43,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -78,6 +80,10 @@ public abstract class LayoutSEOEntryLocalServiceBaseImpl
 	/**
 	 * Adds the layout seo entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSEOEntry the layout seo entry
 	 * @return the layout seo entry that was added
 	 */
@@ -104,6 +110,10 @@ public abstract class LayoutSEOEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the layout seo entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSEOEntryId the primary key of the layout seo entry
 	 * @return the layout seo entry that was removed
 	 * @throws PortalException if a layout seo entry with the primary key could not be found
@@ -119,6 +129,10 @@ public abstract class LayoutSEOEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the layout seo entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSEOEntry the layout seo entry
 	 * @return the layout seo entry that was removed
 	 */
@@ -126,6 +140,11 @@ public abstract class LayoutSEOEntryLocalServiceBaseImpl
 	@Override
 	public LayoutSEOEntry deleteLayoutSEOEntry(LayoutSEOEntry layoutSEOEntry) {
 		return layoutSEOEntryPersistence.remove(layoutSEOEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return layoutSEOEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -380,6 +399,10 @@ public abstract class LayoutSEOEntryLocalServiceBaseImpl
 			(LayoutSEOEntry)persistedModel);
 	}
 
+	public BasePersistence<LayoutSEOEntry> getBasePersistence() {
+		return layoutSEOEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -467,6 +490,10 @@ public abstract class LayoutSEOEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the layout seo entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSEOEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSEOEntry the layout seo entry
 	 * @return the layout seo entry that was updated

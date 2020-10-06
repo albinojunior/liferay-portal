@@ -14,21 +14,14 @@
 
 package com.liferay.info.internal.list.provider;
 
-import com.liferay.info.internal.util.GenericsUtil;
+import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.list.provider.InfoListProvider;
 import com.liferay.info.list.provider.InfoListProviderTracker;
-import com.liferay.portal.kernel.util.Validator;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * @author Eudaldo Alonso
@@ -37,61 +30,33 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 public class InfoListProviderTrackerImpl implements InfoListProviderTracker {
 
 	@Override
-	public InfoListProvider getInfoListProvider(String className) {
-		if (Validator.isNull(className)) {
-			return null;
-		}
-
-		return _infoListProviders.get(className);
+	public InfoListProvider<?> getInfoListProvider(String key) {
+		return _infoItemServiceTracker.getInfoItemService(
+			InfoListProvider.class, key);
 	}
 
 	@Override
-	public List<InfoListProvider> getInfoListProviders() {
-		return new ArrayList<>(_infoListProviders.values());
+	public List<InfoListProvider<?>> getInfoListProviders() {
+		return (List<InfoListProvider<?>>)
+			(List<?>)_infoItemServiceTracker.getAllInfoItemServices(
+				InfoListProvider.class);
 	}
 
 	@Override
-	public List<InfoListProvider> getInfoListProviders(Class<?> itemClass) {
-		List<InfoListProvider> infoListProviders =
-			_itemClassInfoListProviders.get(itemClass);
-
-		if (infoListProviders != null) {
-			return new ArrayList<>(infoListProviders);
-		}
-
-		return Collections.emptyList();
+	public List<InfoListProvider<?>> getInfoListProviders(Class<?> itemClass) {
+		return getInfoListProviders(itemClass.getName());
 	}
 
-	@Reference(
-		cardinality = ReferenceCardinality.MULTIPLE,
-		policy = ReferencePolicy.DYNAMIC
-	)
-	protected void setInfoListProvider(InfoListProvider infoListProvider) {
-		_infoListProviders.put(infoListProvider.getKey(), infoListProvider);
+	@Override
+	public List<InfoListProvider<?>> getInfoListProviders(
+		String itemClassName) {
 
-		List<InfoListProvider> itemClassInfoListProviders =
-			_itemClassInfoListProviders.computeIfAbsent(
-				GenericsUtil.getItemClass(infoListProvider),
-				itemClass -> new ArrayList<>());
-
-		itemClassInfoListProviders.add(infoListProvider);
+		return (List<InfoListProvider<?>>)
+			(List<?>)_infoItemServiceTracker.getAllInfoItemServices(
+				InfoListProvider.class, itemClassName);
 	}
 
-	protected void unsetInfoListProvider(InfoListProvider infoListProvider) {
-		_infoListProviders.remove(infoListProvider.getKey());
-
-		List<InfoListProvider> itemClassInfoListProviders =
-			_itemClassInfoListProviders.get(
-				GenericsUtil.getItemClass(infoListProvider));
-
-		if (itemClassInfoListProviders != null) {
-			itemClassInfoListProviders.remove(infoListProvider);
-		}
-	}
-
-	private final Map<String, InfoListProvider> _infoListProviders =
-		new ConcurrentHashMap<>();
-	private final Map<Class, List<InfoListProvider>>
-		_itemClassInfoListProviders = new ConcurrentHashMap<>();
+	@Reference
+	private InfoItemServiceTracker _infoItemServiceTracker;
 
 }

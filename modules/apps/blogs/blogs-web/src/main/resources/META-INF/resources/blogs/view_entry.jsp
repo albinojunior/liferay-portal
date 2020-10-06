@@ -73,7 +73,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 
 <portlet:actionURL name="/blogs/edit_entry" var="editEntryURL" />
 
-<aui:form action="<%= editEntryURL %>" method="post" name="fm1" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveEntry();" %>'>
+<aui:form action="<%= editEntryURL %>" method="post" name="fm1" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveEntry();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
 	<aui:input name="entryId" type="hidden" value="<%= String.valueOf(entryId) %>" />
 
@@ -82,7 +82,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 	</div>
 </aui:form>
 
-<div class="container-fluid">
+<clay:container-fluid>
 	<c:if test="<%= PropsValues.BLOGS_ENTRY_PREVIOUS_AND_NEXT_NAVIGATION_ENABLED %>">
 
 		<%
@@ -93,13 +93,18 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 		%>
 
 		<c:if test="<%= (previousEntry != null) || (nextEntry != null) %>">
-			<div class="row">
-				<div class="col-md-10 col-md-offset-1 entry-navigation">
+			<clay:row>
+				<clay:col
+					cssClass="col-md-offset-1 entry-navigation"
+					md="10"
+				>
 					<h2>
 						<strong><liferay-ui:message key="more-blog-entries" /></strong>
 					</h2>
 
-					<div class="row widget-mode-card">
+					<clay:row
+						cssClass="widget-mode-card"
+					>
 
 						<%
 						request.setAttribute("view_entry_related.jsp-blogs_entry", previousEntry);
@@ -112,14 +117,17 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 						%>
 
 						<liferay-util:include page="/blogs/view_entry_related.jsp" servletContext="<%= application %>" />
-					</div>
-				</div>
-			</div>
+					</clay:row>
+				</clay:col>
+			</clay:row>
 		</c:if>
 	</c:if>
 
-	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
+	<clay:row>
+		<clay:col
+			cssClass="col-md-offset-2"
+			md="8"
+		>
 			<c:if test="<%= blogsPortletInstanceConfiguration.enableComments() %>">
 
 				<%
@@ -142,9 +150,9 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 					/>
 				</c:if>
 			</c:if>
-		</div>
-	</div>
-</div>
+		</clay:col>
+	</clay:row>
+</clay:container-fluid>
 
 <%
 PortalUtil.setPageTitle(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry), request);

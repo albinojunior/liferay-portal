@@ -12,5 +12,5 @@
  * details.
  */
 
+export {FieldBase as ReactFieldBase} from './FieldBase/ReactFieldBase.es';
 export {default as FieldBase} from './FieldBase/FieldBase.es';
-export {default as getConnectedReactComponentAdapter} from './util/ReactComponentAdapter.es';

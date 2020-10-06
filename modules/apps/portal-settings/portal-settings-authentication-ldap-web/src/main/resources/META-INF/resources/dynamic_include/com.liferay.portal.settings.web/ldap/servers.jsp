@@ -93,14 +93,14 @@ boolean ldapAuthEnabled = ldapAuthConfiguration.enabled();
 											icon="order-arrow-up"
 											markupView="lexicon"
 											message="up"
-											url='<%= "javascript:" + renderResponse.getNamespace() + "raiseLDAPServerPriority(" + ldapServerId + ");" %>'
+											url='<%= "javascript:" + liferayPortletResponse.getNamespace() + "raiseLDAPServerPriority(" + ldapServerId + ");" %>'
 										/>
 
 										<liferay-ui:icon
 											icon="order-arrow-down"
 											markupView="lexicon"
 											message="down"
-											url='<%= "javascript:" + renderResponse.getNamespace() + "lowerLDAPServerPriority(" + ldapServerId + ");" %>'
+											url='<%= "javascript:" + liferayPortletResponse.getNamespace() + "lowerLDAPServerPriority(" + ldapServerId + ");" %>'
 										/>
 									</c:if>
 
@@ -182,7 +182,7 @@ boolean ldapAuthEnabled = ldapAuthConfiguration.enabled();
 			'.ldap-servers .table-data tr'
 		);
 
-		var ldapServerIds = Array.prototype.map.call(ldapServerIdsNodes, function(
+		var ldapServerIds = Array.prototype.map.call(ldapServerIdsNodes, function (
 			ldapServerIdsNode
 		) {
 			return ldapServerIdsNode.dataset.ldapserverid;

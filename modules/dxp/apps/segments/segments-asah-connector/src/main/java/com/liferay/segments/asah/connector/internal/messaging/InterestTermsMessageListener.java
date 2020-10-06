@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sarai Díaz
  */
 @Component(
-	immediate = true,
 	property = "destination.name=" + SegmentsAsahDestinationNames.INTEREST_TERMS,
 	service = MessageListener.class
 )
@@ -35,13 +34,14 @@ public class InterestTermsMessageListener extends BaseMessageListener {
 
 	@Override
 	protected void doReceive(Message message) throws Exception {
-		String userId = (String)message.getPayload();
+		String userId = message.getString("userId");
 
 		if (Validator.isNull(userId)) {
 			return;
 		}
 
-		_interestTermsChecker.checkInterestTerms(userId);
+		_interestTermsChecker.checkInterestTerms(
+			message.getLong("companyId"), userId);
 	}
 
 	@Reference

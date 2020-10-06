@@ -46,13 +46,15 @@ public class CheckstyleLogger extends DefaultLogger {
 		super(new UnsyncByteArrayOutputStream(), OutputStreamOptions.CLOSE);
 
 		_baseDirName = baseDirName;
-
-		_sourceFormatterMessages.clear();
 	}
 
 	@Override
 	public void addError(AuditEvent auditEvent) {
 		addError(auditEvent, getRelativizedFileName(auditEvent));
+	}
+
+	public void clearSourceFormatterMessages() {
+		_sourceFormatterMessages.clear();
 	}
 
 	public Set<SourceFormatterMessage> getSourceFormatterMessages() {
@@ -154,22 +156,11 @@ public class CheckstyleLogger extends DefaultLogger {
 			return _getCheckstyleDocumentationURLString(simpleCheckName);
 		}
 
-		String markdownURLString = SourceFormatterUtil.getMarkdownURLString(
-			simpleCheckName);
-
-		if (markdownURLString != null) {
-			return markdownURLString;
-		}
-
 		ClassLoader classLoader = CheckstyleLogger.class.getClassLoader();
 
 		try {
-			Class<?> checkClass = classLoader.loadClass(checkName);
-
-			Class<?> superClass = checkClass.getSuperclass();
-
-			return SourceFormatterUtil.getMarkdownURLString(
-				superClass.getSimpleName());
+			return SourceFormatterUtil.getDocumentationURLString(
+				classLoader.loadClass(checkName));
 		}
 		catch (Exception exception) {
 			return null;

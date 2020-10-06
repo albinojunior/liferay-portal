@@ -6,14 +6,6 @@
 {template .render}
 	{@param? dropdownExpandedIndex: number}
 	{@param rules: list<[
-			conditions: list<[
-				operator: string,
-				operands: list<[
-					type: string,
-					label: string,
-					value: string
-				]>
-			]>,
 			actions: list<[
 				action: string,
 				dataProviderName: ?,
@@ -23,10 +15,19 @@
 				label: string,
 				outputLabel: ?
 			]>,
-			logicalOperator: string
+			conditions: list<[
+				operator: string,
+				operands: list<[
+					type: string,
+					label: string,
+					value: string
+				]>
+			]>,
+			invalidRule: ?,
+			logicalOperator: string,
+			rulesCardOptions: ?
 		]>
 	}
-	{@param? rulesCardOptions: ?}
 	{@param spritemap: string}
 	{@param strings: map<string, string>}
 	{@param _handleDropdownClicked: any}
@@ -41,7 +42,6 @@
 				{param _handleRuleCardClicked: $_handleRuleCardClicked /}
 				{param dropdownExpandedIndex: $dropdownExpandedIndex /}
 				{param rules: $rules /}
-				{param rulesCardOptions: $rulesCardOptions /}
 				{param spritemap: $spritemap /}
 				{param strings: $strings /}
 			{/call}
@@ -54,14 +54,6 @@
  */
 {template .rule_list}
 	{@param rules: list<[
-			conditions: list<[
-				operator: string,
-				operands: list<[
-					type: string,
-					label: string,
-					value: ?
-				]>
-			]>,
 			actions: list<[
 				action: string,
 				dataProviderName: ?,
@@ -71,7 +63,17 @@
 				label: string,
 				outputLabel: ?
 			]>,
-			logicalOperator: string
+			conditions: list<[
+				operator: string,
+				operands: list<[
+					type: string,
+					label: string,
+					value: ?
+				]>
+			]>,
+			invalidRule: ?,
+			logicalOperator: string,
+			rulesCardOptions: ?
 		]>
 	}
 	{@param spritemap: string}
@@ -79,7 +81,6 @@
 	{@param _handleDropdownClicked: any}
 	{@param _handleRuleCardClicked: any}
 	{@param? dropdownExpandedIndex: number}
-	{@param? rulesCardOptions: ?}
 
 	<div class="ddm-rule-list-container form-builder-rule-list">
 		{if length($rules) > 0}
@@ -144,13 +145,30 @@
 
 						<div class="list-group-item-field">
 							<div class="card-col-field">
+								{if $rule.invalidRule}
+									{let $titleMessage kind="text"}
+										{msg desc=""}due-to-missing-fields{/msg}
+									{/let}
+									{let $labelMessage kind="text"}
+										{msg desc=""}broken-rule{/msg}
+									{/let}
+
+									<div class="invalid-rule" title="{$titleMessage}">
+									{call ClayLabel.render}
+										{param spritemap: $spritemap /}
+										{param style: 'danger' /}
+										{param label: $labelMessage /}
+									{/call}
+									</div>
+								{/if}
+
 								<div class="dropdown dropdown-action">
 									{let $ruleIndex: index($rule) /}
 									{let $isExpanded: $dropdownExpandedIndex == $ruleIndex /}
 
 									<div class="ddm-rule-list-settings" data-card-id="{$ruleIndex}">
 										{call ClayActionsDropdown.render}
-											{param items: $rulesCardOptions /}
+											{param items: $rule.rulesCardOptions /}
 											{param expanded: $isExpanded /}
 											{param events: [
 												'itemClicked': $_handleRuleCardClicked
@@ -222,7 +240,7 @@
 	{@param? operandValue: ?}
 
 	<div class="ddm-condition-container">
-		{if $operandType == 'double' or $operandType == 'integer' or $operandType == 'string' or $operandType == 'text' or $operandType == 'numeric'}
+		{if $operandType == 'double' or $operandType == 'integer' or $operandType == 'option' or $operandType == 'string' or $operandType == 'text' or $operandType == 'numeric'}
 			<span>{msg desc=""}value{/msg} </span>
 		{elseif $operandType == 'user'}
 			<span>{msg desc=""}user{/msg} </span>

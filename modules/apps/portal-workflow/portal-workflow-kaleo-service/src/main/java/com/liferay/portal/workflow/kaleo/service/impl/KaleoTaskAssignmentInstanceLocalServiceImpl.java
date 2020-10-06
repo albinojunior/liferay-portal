@@ -69,6 +69,8 @@ public class KaleoTaskAssignmentInstanceLocalServiceImpl
 		kaleoTaskAssignmentInstance.setUserName(user.getFullName());
 		kaleoTaskAssignmentInstance.setCreateDate(now);
 		kaleoTaskAssignmentInstance.setModifiedDate(now);
+		kaleoTaskAssignmentInstance.setKaleoDefinitionId(
+			kaleoTaskInstanceToken.getKaleoDefinitionId());
 		kaleoTaskAssignmentInstance.setKaleoDefinitionVersionId(
 			kaleoTaskInstanceToken.getKaleoDefinitionVersionId());
 		kaleoTaskAssignmentInstance.setKaleoInstanceId(
@@ -145,6 +147,21 @@ public class KaleoTaskAssignmentInstanceLocalServiceImpl
 		return addKaleoTaskAssignmentInstance(
 			kaleoTaskInstanceToken.getGroupId(), kaleoTaskInstanceToken,
 			assigneeClassName, assigneeClassPK, serviceContext);
+	}
+
+	@Override
+	public List<KaleoTaskAssignmentInstance> assignKaleoTaskAssignmentInstances(
+			KaleoTaskInstanceToken kaleoTaskInstanceToken,
+			Collection<KaleoTaskAssignment> kaleoTaskAssignments,
+			Map<String, Serializable> workflowContext,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		deleteKaleoTaskAssignmentInstances(kaleoTaskInstanceToken);
+
+		return addTaskAssignmentInstances(
+			kaleoTaskInstanceToken, kaleoTaskAssignments, workflowContext,
+			serviceContext);
 	}
 
 	@Override

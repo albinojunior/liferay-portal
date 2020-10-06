@@ -20,7 +20,7 @@
 		type="WARNING"
 	>
 		<liferay-ui:message key='<%= LanguageUtil.get(request, "live-group-remote-staging-alert") %>' />
-		<liferay-ui:message arguments='<%= "javascript:" + renderResponse.getNamespace() + "saveGroup(true);" %>' key="you-can-also-forcibly-disable-remote-staging" />
+		<liferay-ui:message arguments='<%= "javascript:" + liferayPortletResponse.getNamespace() + "saveGroup(true);" %>' key="you-can-also-forcibly-disable-remote-staging" />
 	</liferay-staging:alert>
 </c:if>
 
@@ -59,13 +59,13 @@
 	</liferay-staging:alert>
 
 	<script>
-		(function() {
+		(function () {
 			var publishProcessesLink = document.getElementById(
 				'<portlet:namespace />publishProcessesLink'
 			);
 
 			if (publishProcessesLink) {
-				publishProcessesLink.addEventListener('click', function(event) {
+				publishProcessesLink.addEventListener('click', function (event) {
 					Liferay.Util.openWindow({
 						id: 'publishProcesses',
 						title: '<liferay-ui:message key="initial-publication" />',
@@ -139,3 +139,5 @@
 
 	<liferay-ui:message key="<%= se.getMessage() %>" />
 </liferay-ui:error>
+
+<liferay-ui:error key="publicationsEnabled" message="publications-are-enabled-for-the-current-virtual-instance" />

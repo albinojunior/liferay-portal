@@ -16,27 +16,33 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-String appBuilderRootElementId = renderResponse.getNamespace() + "-app-builder-root";
-%>
-
 <liferay-util:html-top>
 	<link href="<%= PortalUtil.getStaticResourceURL(request, PortalUtil.getPathModule() + "/data-engine-taglib/data_layout_builder/css/main.css") %>" rel="stylesheet" />
 </liferay-util:html-top>
 
-<portlet:renderURL var="basePortletURL" />
-
-<div id="<%= appBuilderRootElementId %>">
-
-	<%
-	Map<String, Object> data = new HashMap<>();
-
-	data.put("basePortletURL", basePortletURL);
-	data.put("pathFriendlyURLPublic", PortalUtil.getPathFriendlyURLPublic());
-	%>
+<div id="<portlet:namespace />-app-builder-root">
+	<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" var="baseResourceURL" />
 
 	<react:component
-		data="<%= data %>"
 		module="js/index.es"
+		props='<%=
+			HashMapBuilder.<String, Object>put(
+				"basePortletURL", String.valueOf(renderResponse.createRenderURL())
+			).put(
+				"baseResourceURL", String.valueOf(baseResourceURL)
+			).put(
+				"defaultDelta", PropsValues.SEARCH_CONTAINER_PAGE_DEFAULT_DELTA
+			).put(
+				"deltaValues", PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES
+			).put(
+				"pathFriendlyURLPublic", PortalUtil.getPathFriendlyURLPublic()
+			).put(
+				"scope", AppBuilderAppConstants.SCOPE_STANDARD
+			).put(
+				"showNativeObjectsTab", request.getAttribute(AppBuilderWebKeys.SHOW_NATIVE_OBJECTS_TAB)
+			).put(
+				"showTranslationManager", request.getAttribute(AppBuilderWebKeys.SHOW_TRANSLATION_MANAGER)
+			).build()
+		%>'
 	/>
 </div>

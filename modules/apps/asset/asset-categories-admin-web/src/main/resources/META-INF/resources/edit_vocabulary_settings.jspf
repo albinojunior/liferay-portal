@@ -19,8 +19,8 @@ List<AssetRendererFactory<?>> availableAssetRendererFactories = ListUtil.filter(
 
 List<AssetRendererFactory<?>> classTypedAssetRendererFactories = ListUtil.filter(availableAssetRendererFactories, AssetRendererFactory::isSupportsClassTypes);
 
-long[] selectedClassNameIds = AssetVocabularySettingsHelper.DEFAULT_SELECTED_CLASSNAME_IDS;
-long[] selectedClassTypePKs = AssetVocabularySettingsHelper.DEFAULT_SELECTED_CLASSTYPE_PKS;
+long[] selectedClassNameIds = AssetVocabularySettingsHelper.DEFAULT_SELECTED_CLASS_NAME_IDS;
+long[] selectedClassTypePKs = AssetVocabularySettingsHelper.DEFAULT_SELECTED_CLASS_TYPE_PKS;
 
 if (vocabulary != null) {
 	selectedClassNameIds = vocabulary.getSelectedClassNameIds();
@@ -33,7 +33,7 @@ if (vocabulary != null) {
 <liferay-frontend:fieldset
 	collapsed="<%= true %>"
 	collapsible="<%= true %>"
-	id='<%= renderResponse.getNamespace() + "extraFields" %>'
+	id='<%= liferayPortletResponse.getNamespace() + "extraFields" %>'
 	label="associated-asset-types"
 >
 
@@ -49,7 +49,7 @@ if (vocabulary != null) {
 		boolean exist = true;
 
 		if ((classNameId > 0) && (classTypePK != AssetCategoryConstants.ALL_CLASS_TYPE_PK)) {
-			AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(classNameId);
+			AssetRendererFactory<?> assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(classNameId);
 
 			ClassTypeReader classTypeReader = assetRendererFactory.getClassTypeReader();
 
@@ -100,7 +100,7 @@ if (vocabulary != null) {
 						for (ClassType classType : classTypes) {
 						%>
 
-							<aui:option label="<%= classType.getName() %>" selected="<%= (classNameId == assetRendererFactory.getClassNameId()) && (classTypePK == classType.getClassTypeId()) %>" value="<%= classType.getClassTypeId() %>" />
+							<aui:option label="<%= HtmlUtil.escape(classType.getName()) %>" selected="<%= (classNameId == assetRendererFactory.getClassNameId()) && (classTypePK == classType.getClassTypeId()) %>" value="<%= classType.getClassTypeId() %>" />
 
 						<%
 						}
@@ -140,7 +140,7 @@ if (vocabulary != null) {
 		minimumRows: 1,
 		namespace: '<portlet:namespace />',
 		on: {
-			clone: function(event) {
+			clone: function (event) {
 				event.row.all('.subtype-select').hide();
 			},
 		},
@@ -152,7 +152,7 @@ if (vocabulary != null) {
 
 	form.delegate(
 		'change',
-		function(event) {
+		function (event) {
 			var target = event.currentTarget;
 
 			var row = target.ancestor('.lfr-form-row');
@@ -164,6 +164,8 @@ if (vocabulary != null) {
 			if (select) {
 				select.ancestor('.subtype-select').show();
 			}
+
+			autoFields.save(form);
 		},
 		'.vocabulary-asset-type-select'
 	);

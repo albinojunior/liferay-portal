@@ -29,36 +29,8 @@ import javax.annotation.Generated;
 @Generated("")
 public class WorkflowLog implements Cloneable {
 
-	public static enum Type {
-
-		TASK_ASSIGN("TaskAssign"), TASK_COMPLETION("TaskCompletion"),
-		TASK_UPDATE("TaskUpdate"), TRANSITION("Transition");
-
-		public static Type create(String value) {
-			for (Type type : values()) {
-				if (Objects.equals(type.getValue(), value)) {
-					return type;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Type(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static WorkflowLog toDTO(String json) {
+		return WorkflowLogSerDes.toDTO(json);
 	}
 
 	public Creator getAuditPerson() {
@@ -344,6 +316,38 @@ public class WorkflowLog implements Cloneable {
 
 	public String toString() {
 		return WorkflowLogSerDes.toJSON(this);
+	}
+
+	public static enum Type {
+
+		TASK_ASSIGN("TaskAssign"), TASK_COMPLETION("TaskCompletion"),
+		TASK_UPDATE("TaskUpdate"), TRANSITION("Transition");
+
+		public static Type create(String value) {
+			for (Type type : values()) {
+				if (Objects.equals(type.getValue(), value)) {
+					return type;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Type(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

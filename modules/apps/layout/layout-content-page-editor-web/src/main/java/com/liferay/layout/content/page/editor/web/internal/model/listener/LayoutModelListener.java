@@ -87,7 +87,8 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 		}
 
 		try {
-			Indexer indexer = IndexerRegistryUtil.getIndexer(Layout.class);
+			Indexer<Layout> indexer = IndexerRegistryUtil.getIndexer(
+				Layout.class);
 
 			indexer.delete(layout);
 		}
@@ -104,26 +105,25 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 			LayoutPageTemplateEntry layoutPageTemplateEntry, Layout layout)
 		throws Exception {
 
-		Layout draftLayout = _layoutLocalService.fetchLayout(
-			_portal.getClassNameId(Layout.class), layout.getPlid());
+		Layout draftLayout = layout.fetchDraftLayout();
 
 		Layout pageTemplateLayout = _layoutLocalService.getLayout(
 			layoutPageTemplateEntry.getPlid());
 
 		_layoutPageTemplateStructureLocalService.
 			fetchLayoutPageTemplateStructure(
-				pageTemplateLayout.getGroupId(),
-				_portal.getClassNameId(Layout.class),
-				pageTemplateLayout.getPlid(), true);
+				pageTemplateLayout.getGroupId(), pageTemplateLayout.getPlid(),
+				true);
 
 		draftLayout = _layoutCopyHelper.copyLayout(
 			pageTemplateLayout, draftLayout);
 
 		draftLayout.setStatus(WorkflowConstants.STATUS_APPROVED);
 
-		UnicodeProperties properties = draftLayout.getTypeSettingsProperties();
+		UnicodeProperties unicodeProperties =
+			draftLayout.getTypeSettingsProperties();
 
-		properties.put("published", Boolean.FALSE.toString());
+		unicodeProperties.put("published", Boolean.FALSE.toString());
 
 		_layoutLocalService.updateLayout(draftLayout);
 
@@ -160,7 +160,11 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 	}
 
 	private void _reindexLayout(Layout layout) {
-		Indexer indexer = IndexerRegistryUtil.getIndexer(Layout.class);
+		Indexer<Layout> indexer = IndexerRegistryUtil.getIndexer(Layout.class);
+
+		if (indexer == null) {
+			return;
+		}
 
 		try {
 			indexer.reindex(layout);

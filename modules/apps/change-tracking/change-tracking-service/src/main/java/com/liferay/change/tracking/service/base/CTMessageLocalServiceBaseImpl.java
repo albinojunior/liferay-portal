@@ -17,6 +17,7 @@ package com.liferay.change.tracking.service.base;
 import com.liferay.change.tracking.model.CTMessage;
 import com.liferay.change.tracking.service.CTMessageLocalService;
 import com.liferay.change.tracking.service.persistence.CTMessagePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -72,6 +74,10 @@ public abstract class CTMessageLocalServiceBaseImpl
 	/**
 	 * Adds the ct message to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctMessage the ct message
 	 * @return the ct message that was added
 	 */
@@ -98,6 +104,10 @@ public abstract class CTMessageLocalServiceBaseImpl
 	/**
 	 * Deletes the ct message with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctMessageId the primary key of the ct message
 	 * @return the ct message that was removed
 	 * @throws PortalException if a ct message with the primary key could not be found
@@ -111,6 +121,10 @@ public abstract class CTMessageLocalServiceBaseImpl
 	/**
 	 * Deletes the ct message from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctMessage the ct message
 	 * @return the ct message that was removed
 	 */
@@ -118,6 +132,11 @@ public abstract class CTMessageLocalServiceBaseImpl
 	@Override
 	public CTMessage deleteCTMessage(CTMessage ctMessage) {
 		return ctMessagePersistence.remove(ctMessage);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ctMessagePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -285,6 +304,10 @@ public abstract class CTMessageLocalServiceBaseImpl
 		return ctMessageLocalService.deleteCTMessage((CTMessage)persistedModel);
 	}
 
+	public BasePersistence<CTMessage> getBasePersistence() {
+		return ctMessagePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -323,6 +346,10 @@ public abstract class CTMessageLocalServiceBaseImpl
 
 	/**
 	 * Updates the ct message in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctMessage the ct message
 	 * @return the ct message that was updated

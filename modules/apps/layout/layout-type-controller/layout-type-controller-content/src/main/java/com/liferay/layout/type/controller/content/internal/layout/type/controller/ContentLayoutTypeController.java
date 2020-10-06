@@ -15,23 +15,15 @@
 package com.liferay.layout.type.controller.content.internal.layout.type.controller;
 
 import com.liferay.fragment.constants.FragmentActionKeys;
-import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
 import com.liferay.fragment.renderer.FragmentRendererController;
-import com.liferay.fragment.renderer.FragmentRendererTracker;
-import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
-import com.liferay.info.item.renderer.InfoItemRendererTracker;
-import com.liferay.info.item.selector.InfoItemSelectorTracker;
-import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.security.permission.resource.LayoutContentModelResourcePermission;
 import com.liferay.layout.type.controller.BaseLayoutTypeControllerImpl;
-import com.liferay.layout.type.controller.content.internal.constants.ContentLayoutTypeControllerWebKeys;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -45,9 +37,10 @@ import com.liferay.portal.kernel.service.permission.LayoutPermission;
 import com.liferay.portal.kernel.servlet.TransferHeadersHelperUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.SessionClicks;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
@@ -124,25 +117,9 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 			layoutMode = Constants.VIEW;
 		}
 
-		if (layoutMode.equals(Constants.EDIT)) {
-			httpServletRequest.setAttribute(
-				ContentLayoutTypeControllerWebKeys.ITEM_SELECTOR,
-				_itemSelector);
-			httpServletRequest.setAttribute(
-				ContentPageEditorWebKeys.
-					FRAGMENT_COLLECTION_CONTRIBUTOR_TRACKER,
-				_fragmentCollectionContributorTracker);
-			httpServletRequest.setAttribute(
-				FragmentActionKeys.FRAGMENT_RENDERER_TRACKER,
-				_fragmentRendererTracker);
-		}
-
 		httpServletRequest.setAttribute(
 			FragmentActionKeys.FRAGMENT_RENDERER_CONTROLLER,
 			_fragmentRendererController);
-		httpServletRequest.setAttribute(
-			InfoDisplayWebKeys.INFO_DISPLAY_CONTRIBUTOR_TRACKER,
-			_infoDisplayContributorTracker);
 
 		String page = getViewPage();
 
@@ -191,11 +168,30 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 
 			addAttributes(httpServletRequest);
 
-			SessionClicks.put(
-				httpServletRequest,
-				"com.liferay.frontend.js.web_toggleControls", "visible");
+			Layout draftLayout = layout.fetchDraftLayout();
 
-			requestDispatcher.include(httpServletRequest, servletResponse);
+			if (layoutMode.equals(Constants.EDIT) && (draftLayout != null)) {
+				String layoutFullURL = _portal.getLayoutFullURL(
+					draftLayout, themeDisplay);
+
+				HttpServletRequest originalHttpServletRequest =
+					_portal.getOriginalServletRequest(httpServletRequest);
+
+				String backURL = originalHttpServletRequest.getParameter(
+					"p_l_back_url");
+
+				if (Validator.isNotNull(backURL)) {
+					layoutFullURL = _http.addParameter(
+						layoutFullURL, "p_l_back_url", backURL);
+				}
+
+				httpServletResponse.sendRedirect(
+					_http.addParameter(
+						layoutFullURL, "p_l_mode", Constants.EDIT));
+			}
+			else {
+				requestDispatcher.include(httpServletRequest, servletResponse);
+			}
 		}
 		finally {
 			removeAttributes(httpServletRequest);
@@ -247,6 +243,22 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 	@Override
 	public boolean isURLFriendliable() {
 		return true;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #createServletResponse(HttpServletResponse,
+	 *             UnsyncStringWriter)}
+	 */
+	@Deprecated
+	@Override
+	protected ServletResponse createServletResponse(
+		HttpServletResponse httpServletResponse,
+		com.liferay.portal.kernel.io.unsync.UnsyncStringWriter
+			unsyncStringWriter) {
+
+		return new PipingServletResponse(
+			httpServletResponse, unsyncStringWriter);
 	}
 
 	@Override
@@ -335,26 +347,10 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 		ContentLayoutTypeController.class);
 
 	@Reference
-	private FragmentCollectionContributorTracker
-		_fragmentCollectionContributorTracker;
-
-	@Reference
 	private FragmentRendererController _fragmentRendererController;
 
 	@Reference
-	private FragmentRendererTracker _fragmentRendererTracker;
-
-	@Reference
-	private InfoDisplayContributorTracker _infoDisplayContributorTracker;
-
-	@Reference
-	private InfoItemRendererTracker _infoItemRendererTracker;
-
-	@Reference
-	private InfoItemSelectorTracker _infoItemSelectorTracker;
-
-	@Reference
-	private ItemSelector _itemSelector;
+	private Http _http;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

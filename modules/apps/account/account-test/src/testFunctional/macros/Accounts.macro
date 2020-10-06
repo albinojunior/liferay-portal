@@ -10,17 +10,36 @@ definition {
 			key_assigneeType = "${assigneeType}",
 			locator1 = "IFrame#ADD_ASSIGNEE_TO_ACCOUNT");
 
-		Search.searchCP(searchTerm = "${assigneeName}");
+		if (isSet(addNewAssignee)) {
+			LexiconEntry.gotoAdd();
 
-		Check(
-			key_tableEntry = "${assigneeName}",
-			locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
+			AccountUsers.addUserInfos(
+				accountName = "${accountName}",
+				domainValidation = "${domainValidation}",
+				emailDomainName = "${emailDomainName}",
+				userEmailAddress = "${userEmailAddress}",
+				userFirstName = "${userFirstName}",
+				userLastName = "${userLastName}",
+				userScreenName = "${userScreenName}",
+				validDomainNames = "${validDomainNames}");
 
-		SelectFrameTop();
+			AssertClick(
+				locator1 = "Button#SAVE",
+				value1 = "Save");
+		}
+		else {
+			Search.searchCP(searchTerm = "${assigneeName}");
 
-		Button.clickAssign();
+			Check(
+				key_tableEntry = "${assigneeName}",
+				locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
 
-		Alert.viewSuccessMessage();
+			SelectFrameTop();
+
+			Button.clickAssign();
+
+			Alert.viewSuccessMessage();
+		}
 
 		Refresh();
 
@@ -47,12 +66,35 @@ definition {
 			User.changeProfileImage(imageName = "${accountLogo}");
 		}
 
+		if (isSet(accountType)) {
+			SelectField.select(
+				selectFieldLabel = "Type",
+				selectFieldValue = "${accountType}");
+		}
+		else {
+			AssertTextEquals(
+				key_typeName = "Business",
+				locator1 = "Select#TYPE_SELECTED",
+				value1 = "Business");
+		}
+
+		AssertElementNotPresent(locator1 = "Account#USER_SELECT");
+
+		if (isSet(accountTaxID)) {
+			PortletEntry.inputText(
+				fieldLabel = "Tax ID",
+				text = "${accountTaxID}");
+		}
+
 		if ("${accountStatus}" == "Inactive") {
 			Uncheck.uncheckToggleSwitch(locator1 = "ToggleSwitch#ACCOUNT_STATUS");
 		}
 
 		if (isSet(domainNames)) {
 			Accounts.addDomains(domainNames = "${domainNames}");
+		}
+		else {
+			AssertElementNotPresent(locator1 = "Account#DOMAIN_SECTION");
 		}
 
 		Button.clickSave();
@@ -61,11 +103,13 @@ definition {
 	}
 
 	macro addDomains {
+		AssertElementPresent(locator1 = "Account#DOMAIN_SECTION");
+
 		AssertClick(
 			locator1 = "Account#ACCOUNT_DOMAIN_ADD_Link",
 			value1 = "Add");
 
-		IFrame.selectConfigurationFrame();
+		SelectFrame(locator1 = "IFrame#ADD_DOMAIN");
 
 		PortletEntry.inputText(
 			fieldLabel = "Domain",
@@ -117,13 +161,7 @@ definition {
 	}
 
 	macro editCP {
-		LexiconEntry.gotoEntryMenuItem(
-			menuItem = "Edit",
-			rowEntry = "${accountName}");
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Edit ${accountName}");
+		Accounts.gotoEdit(accountName = "${accountName}");
 
 		PortletEntry.inputName(name = "${accountNameEdit}");
 
@@ -152,7 +190,24 @@ definition {
 	}
 
 	macro gotoAssigneeTab {
-		Navigator.gotoNavItem(navItem = "${assigneeTab}");
+		Navigator.gotoNavTab(navTab = "${assigneeTab}");
+	}
+
+	macro gotoEdit {
+		ApplicationsMenu.gotoPortlet(
+			category = "Accounts",
+			panel = "Applications",
+			portlet = "Accounts");
+
+		Search.searchCP(searchTerm = "${accountName}");
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Edit",
+			rowEntry = "${accountName}");
+
+		AssertTextEquals(
+			locator1 = "Portlet#HEADER",
+			value1 = "Edit ${accountName}");
 	}
 
 	macro inactiveAccount {
@@ -205,10 +260,45 @@ definition {
 			locator1 = "Account#DOMAIN_REMOVE_DOMAIN");
 	}
 
+	macro selectUser {
+		AssertElementPresent(locator1 = "Account#USER_SELECT");
+
+		if (!(IsElementPresent(locator1 = "Message#EMPTY_INFO_DEPOT_HIDE"))) {
+			Alert.viewMutedMessage(muteMessage = "Assign a user to this person account.");
+		}
+
+		AssertClick(
+			locator1 = "Account#USER_SELECT",
+			value1 = "Select");
+
+		SelectFrame(locator1 = "IFrame#ASSIGN_USER");
+
+		Search.searchCP(searchTerm = "${accountUserName}");
+
+		AssertClick(
+			key_accountUserName = "${accountUserName}",
+			locator1 = "Account#CHOOSE_ACCOUNT_USER",
+			value1 = "Choose");
+
+		SelectFrame(value1 = "relative=top");
+
+		AssertElementPresent(
+			key_userName = "${accountUserName}",
+			locator1 = "Account#USER_TABLE_NAME");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		AssertElementPresent(
+			key_userName = "${accountUserName}",
+			locator1 = "Account#USER_TABLE_NAME");
+	}
+
 	macro tearDownCP {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Control Panel",
+			panel = "Applications",
 			portlet = "Accounts");
 
 		PortletEntry.selectAll();
@@ -241,11 +331,62 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
+	macro viewAccountDetails {
+		LexiconEntry.gotoEntry(rowEntry = "${accountName}");
+
+		AssertTextEquals(
+			locator1 = "TextInput#NAME",
+			value1 = "${accountName}");
+
+		if (isSet(accountDescription)) {
+			AssertTextEquals(
+				locator1 = "TextArea#DESCRIPTION",
+				value1 = "${accountDescription}");
+		}
+
+		if (isSet(accountType)) {
+			AssertTextEquals(
+				key_typeName = "${accountType}",
+				locator1 = "Select#TYPE_SELECTED",
+				value1 = "${accountType}");
+		}
+
+		AssertElementPresent(
+			key_selectFieldLabel = "Type",
+			locator1 = "Select#ANY_DISABLED");
+
+		if (isSet(accountTaxID)) {
+			AssertTextEquals(
+				key_fieldLabel = "Tax ID",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${accountTaxID}");
+		}
+
+		AssertTextEquals(
+			key_fieldLabel = "Tax ID",
+			locator1 = "Icon#HELPER",
+			value1 = "Enter the account's tax ID (EIN, VAT number, etc.).");
+
+		if (isSet(domainName)) {
+			LexiconEntry.viewEntryName(rowEntry = "${domainName}");
+		}
+
+		if (isSet(parentAccount)) {
+			LexiconEntry.viewEntryName(rowEntry = "${parentAccount}");
+		}
+	}
+
 	macro viewAssignee {
 		AssertTextEquals.assertPartialText(
 			key_tableEntry = "${assigneeName}",
 			locator1 = "LexiconTable#TABLE_ENTRY",
 			value1 = "${assigneeName}");
+	}
+
+	macro viewAssigneeTab {
+		AssertElementPresent(
+			key_tab = "${navTab}",
+			locator1 = "NavTab#TAB_LINK");
 	}
 
 	macro viewInactiveAccount {
@@ -255,7 +396,7 @@ definition {
 
 		LexiconEntry.viewEntryStatus(
 			rowEntry = "${accountName}",
-			rowStatus = "INACTIVE");
+			rowStatus = "Inactive");
 	}
 
 	macro viewNoAssignee {
@@ -268,6 +409,12 @@ definition {
 		AssertTextEquals(
 			locator1 = "Message#EMPTY_INFO",
 			value1 = "There are no ${assigneeType} associated with this account.");
+	}
+
+	macro viewNoAssigneeTab {
+		AssertElementNotPresent(
+			key_tab = "${navTab}",
+			locator1 = "NavTab#TAB_LINK");
 	}
 
 }

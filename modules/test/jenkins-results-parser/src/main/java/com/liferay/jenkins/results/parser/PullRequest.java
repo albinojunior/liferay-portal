@@ -128,8 +128,7 @@ public class PullRequest {
 			"issues/" + getNumber() + "/labels");
 
 		try {
-			JenkinsResultsParserUtil.toString(
-				gitHubApiUrl, jsonArray.toString());
+			_toString(gitHubApiUrl, jsonArray.toString());
 		}
 		catch (IOException ioException) {
 			System.out.println("Unable to add label " + label.getName());
@@ -148,7 +147,7 @@ public class PullRequest {
 
 			postContentJSONObject.put("state", "closed");
 
-			JenkinsResultsParserUtil.toString(
+			_toString(
 				_jsonObject.getString("url"), postContentJSONObject.toString());
 		}
 
@@ -186,6 +185,10 @@ public class PullRequest {
 		}
 
 		return comments;
+	}
+
+	public String getCommonParentSHA() {
+		return _commonParentSHA;
 	}
 
 	public GitHubRemoteGitCommit getGitHubRemoteGitCommit() {
@@ -285,6 +288,20 @@ public class PullRequest {
 		return headJSONObject.getString("sha");
 	}
 
+	public JSONArray getSenderSHAStatuses() {
+		JSONArray statusesJSONArray = null;
+
+		try {
+			statusesJSONArray = JenkinsResultsParserUtil.toJSONArray(
+				_jsonObject.getString("statuses_url"));
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
+
+		return statusesJSONArray;
+	}
+
 	public String getSenderUsername() {
 		JSONObject headJSONObject = _jsonObject.getJSONObject("head");
 
@@ -359,6 +376,20 @@ public class PullRequest {
 			_jsonObject = JenkinsResultsParserUtil.toJSONObject(
 				getURL(), false);
 
+			JSONArray commitsJSONArray = JenkinsResultsParserUtil.toJSONArray(
+				_jsonObject.getString("commits_url"));
+
+			JSONObject firstCommitJSONObject = commitsJSONArray.getJSONObject(
+				0);
+
+			JSONArray parentsJSONArray = firstCommitJSONObject.getJSONArray(
+				"parents");
+
+			JSONObject firstParentJSONObject = parentsJSONArray.getJSONObject(
+				0);
+
+			_commonParentSHA = firstParentJSONObject.getString("sha");
+
 			_labels.clear();
 
 			JSONArray labelJSONArray = _jsonObject.getJSONArray("labels");
@@ -386,10 +417,10 @@ public class PullRequest {
 		editCommentURL = editCommentURL.replaceFirst("issues/\\d+", "issues");
 
 		try {
-			JenkinsResultsParserUtil.toString(
+			_toString(
 				JenkinsResultsParserUtil.combine(
 					editCommentURL, "/comments/", id),
-				false, HttpRequestMethod.DELETE);
+				HttpRequestMethod.DELETE);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(
@@ -410,8 +441,7 @@ public class PullRequest {
 			getGitHubRemoteGitRepositoryName(), getOwnerUsername(), path);
 
 		try {
-			JenkinsResultsParserUtil.toString(
-				gitHubApiUrl, HttpRequestMethod.DELETE);
+			_toString(gitHubApiUrl, HttpRequestMethod.DELETE);
 
 			refresh();
 		}
@@ -432,6 +462,12 @@ public class PullRequest {
 
 	public void setTestSuiteStatus(
 		TestSuiteStatus testSuiteStatus, String targetURL) {
+
+		setTestSuiteStatus(testSuiteStatus, targetURL, null);
+	}
+
+	public void setTestSuiteStatus(
+		TestSuiteStatus testSuiteStatus, String targetURL, String senderSHA) {
 
 		_testSuiteStatus = testSuiteStatus;
 
@@ -490,6 +526,12 @@ public class PullRequest {
 
 		GitHubRemoteGitCommit gitHubRemoteGitCommit =
 			getGitHubRemoteGitCommit();
+
+		if ((senderSHA != null) && senderSHA.matches("[0-9a-f]{7,40}")) {
+			gitHubRemoteGitCommit = GitCommitFactory.newGitHubRemoteGitCommit(
+				getOwnerUsername(), getGitHubRemoteGitRepositoryName(),
+				senderSHA);
+		}
 
 		GitHubRemoteGitCommit.Status status =
 			GitHubRemoteGitCommit.Status.valueOf(testSuiteStatus.toString());
@@ -594,11 +636,18 @@ public class PullRequest {
 			}
 		}
 
+		public String getUserLogin() {
+			JSONObject userJSONObject = _commentJSONObject.getJSONObject(
+				"user");
+
+			return userJSONObject.getString("login");
+		}
+
 		private static final SimpleDateFormat _UtcIso8601SimpleDateFormat;
 
 		static {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm'Z'");
+				"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
 			simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -650,6 +699,21 @@ public class PullRequest {
 		}
 	}
 
+	private static String _toString(
+			String url, HttpRequestMethod httpRequestMethod)
+		throws IOException {
+
+		return JenkinsResultsParserUtil.toString(
+			url, true, 10, httpRequestMethod, null, 30, 5000, null);
+	}
+
+	private static String _toString(String url, String postContent)
+		throws IOException {
+
+		return JenkinsResultsParserUtil.toString(
+			url, false, 10, null, postContent, 30, 5000, null);
+	}
+
 	private static final String _NAME_TEST_SUITE_DEFAULT = "default";
 
 	private static final Pattern _gitHubPullRequestURLPattern = Pattern.compile(
@@ -658,6 +722,7 @@ public class PullRequest {
 			"(?<gitHubRemoteGitRepositoryName>[^/]+)/pull/(?<number>\\d+)"));
 
 	private Boolean _autoCloseCommentAvailable;
+	private String _commonParentSHA;
 	private GitHubRemoteGitRepository _gitHubRemoteGitRepository;
 	private String _gitHubRemoteGitRepositoryName;
 	private JSONObject _jsonObject;

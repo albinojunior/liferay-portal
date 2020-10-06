@@ -72,6 +72,8 @@ public class AssetEntriesSearchFacetDisplayBuilder implements Serializable {
 			getDisplayStyleGroupId());
 		assetEntriesSearchFacetDisplayContext.setNothingSelected(
 			isNothingSelected());
+		assetEntriesSearchFacetDisplayContext.setPaginationStartParameterName(
+			_paginationStartParameterName);
 		assetEntriesSearchFacetDisplayContext.setParameterName(_parameterName);
 		assetEntriesSearchFacetDisplayContext.setParameterValue(
 			getFirstParameterValue());
@@ -150,13 +152,16 @@ public class AssetEntriesSearchFacetDisplayBuilder implements Serializable {
 				AssetRendererFactoryRegistryUtil.
 					getAssetRendererFactoryByClassName(assetType);
 
-			boolean selected = _parameterValues.contains(
-				termCollector.getTerm());
+			boolean selected = false;
+
+			if (termCollector != null) {
+				selected = _parameterValues.contains(termCollector.getTerm());
+			}
 
 			AssetEntriesSearchFacetTermDisplayContext
 				assetEntriesSearchFacetFieldDisplayContext = buildTermDisplay(
 					assetRendererFactory.getTypeName(_locale), selected,
-					assetType, termCollector.getFrequency());
+					assetType, frequency);
 
 			assetEntriesSearchFacetFieldDisplayContexts.add(
 				assetEntriesSearchFacetFieldDisplayContext);
@@ -199,6 +204,12 @@ public class AssetEntriesSearchFacetDisplayBuilder implements Serializable {
 
 	public void setLocale(Locale locale) {
 		_locale = locale;
+	}
+
+	public void setPaginationStartParameterName(
+		String paginationStartParameterName) {
+
+		_paginationStartParameterName = paginationStartParameterName;
 	}
 
 	public void setParameterName(String parameterName) {
@@ -244,6 +255,7 @@ public class AssetEntriesSearchFacetDisplayBuilder implements Serializable {
 	private boolean _frequenciesVisible;
 	private int _frequencyThreshold;
 	private Locale _locale;
+	private String _paginationStartParameterName;
 	private String _parameterName;
 	private List<String> _parameterValues = Collections.emptyList();
 	private final ThemeDisplay _themeDisplay;

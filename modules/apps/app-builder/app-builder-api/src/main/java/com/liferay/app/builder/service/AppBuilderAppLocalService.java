@@ -16,6 +16,7 @@ package com.liferay.app.builder.service;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -62,11 +63,15 @@ public interface AppBuilderAppLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AppBuilderAppLocalServiceUtil} to access the app builder app local service. Add custom service methods to <code>com.liferay.app.builder.service.impl.AppBuilderAppLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.app.builder.service.impl.AppBuilderAppLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the app builder app local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AppBuilderAppLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the app builder app to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderApp the app builder app
 	 * @return the app builder app that was added
@@ -76,9 +81,27 @@ public interface AppBuilderAppLocalService
 
 	@Indexable(type = IndexableType.REINDEX)
 	public AppBuilderApp addAppBuilderApp(
-			long groupId, long companyId, long userId, long ddmStructureId,
-			long ddmStructureLayoutId, long deDataListViewId,
-			Map<Locale, String> nameMap, int status)
+			long groupId, long companyId, long userId, boolean active,
+			long ddlRecordSetId, long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId, Map<Locale, String> nameMap, String scope)
+		throws PortalException;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #addAppBuilderApp(long, long, long, boolean, long, long,
+	 long, Map, String)}
+	 */
+	@Deprecated
+	public AppBuilderApp addAppBuilderApp(
+			long groupId, long companyId, long userId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId, Map<Locale, String> nameMap)
+		throws PortalException;
+
+	public AppBuilderApp addAppBuilderApp(
+			long groupId, long companyId, long userId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId, Map<Locale, String> nameMap, String scope)
 		throws PortalException;
 
 	/**
@@ -99,6 +122,10 @@ public interface AppBuilderAppLocalService
 	/**
 	 * Deletes the app builder app from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderApp the app builder app
 	 * @return the app builder app that was removed
 	 */
@@ -107,6 +134,10 @@ public interface AppBuilderAppLocalService
 
 	/**
 	 * Deletes the app builder app with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppId the primary key of the app builder app
 	 * @return the app builder app that was removed
@@ -125,6 +156,9 @@ public interface AppBuilderAppLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -234,7 +268,7 @@ public interface AppBuilderAppLocalService
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Long> getAppBuilderAppIds(int status, String type);
+	public List<Long> getAppBuilderAppIds(boolean active, String type);
 
 	/**
 	 * Returns a range of all the app builder apps.
@@ -254,7 +288,12 @@ public interface AppBuilderAppLocalService
 	public List<AppBuilderApp> getAppBuilderApps(long ddmStructureId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<AppBuilderApp> getAppBuilderApps(long companyId, int status);
+	public List<AppBuilderApp> getAppBuilderApps(
+		long companyId, boolean active);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getAppBuilderApps(
+		long companyId, boolean active, String scope);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AppBuilderApp> getAppBuilderApps(
@@ -264,6 +303,16 @@ public interface AppBuilderAppLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AppBuilderApp> getAppBuilderApps(
 		long groupId, long companyId, long ddmStructureId, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getAppBuilderApps(
+		long groupId, long companyId, long ddmStructureId, String scope,
+		int start, int end, OrderByComparator<AppBuilderApp> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getAppBuilderApps(
+		long groupId, String scope, int start, int end,
 		OrderByComparator<AppBuilderApp> orderByComparator);
 
 	/**
@@ -308,6 +357,29 @@ public interface AppBuilderAppLocalService
 		long groupId, long companyId, long ddmStructureId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAppBuilderAppsCount(
+		long groupId, long companyId, long ddmStructureId, String scope);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAppBuilderAppsCount(long groupId, String scope);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getCompanyAppBuilderApps(
+		long companyId, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getCompanyAppBuilderApps(
+		long companyId, String scope, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getCompanyAppBuilderAppsCount(long companyId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getCompanyAppBuilderAppsCount(long companyId, String scope);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		PortletDataContext portletDataContext);
 
@@ -332,6 +404,10 @@ public interface AppBuilderAppLocalService
 	/**
 	 * Updates the app builder app in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderApp the app builder app
 	 * @return the app builder app that was updated
 	 */
@@ -340,9 +416,9 @@ public interface AppBuilderAppLocalService
 
 	@Indexable(type = IndexableType.REINDEX)
 	public AppBuilderApp updateAppBuilderApp(
-			long userId, long appBuilderAppId, long ddmStructureId,
-			long ddmStructureLayoutId, long deDataListViewId,
-			Map<Locale, String> nameMap, int status)
+			long userId, long appBuilderAppId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId, Map<Locale, String> nameMap)
 		throws PortalException;
 
 }

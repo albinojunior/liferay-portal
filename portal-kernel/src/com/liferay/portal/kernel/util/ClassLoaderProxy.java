@@ -30,14 +30,14 @@ import java.lang.reflect.Method;
  */
 public class ClassLoaderProxy {
 
-	public ClassLoaderProxy(Object obj, ClassLoader classLoader) {
-		this(obj, obj.getClass().getName(), classLoader);
+	public ClassLoaderProxy(Object object, ClassLoader classLoader) {
+		this(object, object.getClass().getName(), classLoader);
 	}
 
 	public ClassLoaderProxy(
-		Object obj, String className, ClassLoader classLoader) {
+		Object object, String className, ClassLoader classLoader) {
 
-		_obj = obj;
+		_obj = object;
 		_className = className;
 		_classLoader = classLoader;
 	}
@@ -64,10 +64,10 @@ public class ClassLoaderProxy {
 			throw translateThrowable(
 				invocationTargetException.getCause(), contextClassLoader);
 		}
-		catch (Throwable t) {
-			_log.error(t, t);
+		catch (Throwable throwable) {
+			_log.error(throwable, throwable);
 
-			throw t;
+			throw throwable;
 		}
 		finally {
 			currentThread.setContextClassLoader(contextClassLoader);

@@ -19,13 +19,29 @@ import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.base.AccountEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.OrganizationConstants;
+import com.liferay.portal.kernel.model.OrganizationModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
+import com.liferay.portal.kernel.service.OrganizationLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.OrganizationPermission;
+import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -45,10 +61,48 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 )
 public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #addAccountEntry(long, long, String, String, String[],
+	 *             byte[], String, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public AccountEntry addAccountEntry(
 			long userId, long parentAccountEntryId, String name,
 			String description, String[] domains, byte[] logoBytes, int status)
+		throws PortalException {
+
+		return addAccountEntry(
+			userId, parentAccountEntryId, name, description, domains, logoBytes,
+			null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS, status, null);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #addAccountEntry(long, long, String, String, String[],
+	 *             byte[], String, int, ServiceContext)}
+	 */
+	@Deprecated
+	@Override
+	public AccountEntry addAccountEntry(
+			long userId, long parentAccountEntryId, String name,
+			String description, String[] domains, byte[] logoBytes, int status,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		return addAccountEntry(
+			userId, parentAccountEntryId, name, description, domains, logoBytes,
+			null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS, status,
+			serviceContext);
+	}
+
+	@Override
+	public AccountEntry addAccountEntry(
+			long userId, long parentAccountEntryId, String name,
+			String description, String[] domains, byte[] logoBytes,
+			String taxIdNumber, String type, int status,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		_portletResourcePermission.check(
@@ -56,13 +110,13 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 
 		return accountEntryLocalService.addAccountEntry(
 			userId, parentAccountEntryId, name, description, domains, logoBytes,
-			status);
+			taxIdNumber, type, status, serviceContext);
 	}
 
 	@Override
 	public List<AccountEntry> getAccountEntries(
 			long companyId, int status, int start, int end,
-			OrderByComparator<AccountEntry> obc)
+			OrderByComparator<AccountEntry> orderByComparator)
 		throws PortalException {
 
 		PermissionChecker permissionChecker = getPermissionChecker();
@@ -77,8 +131,104 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 		}
 
 		return accountEntryLocalService.getAccountEntries(
-			companyId, status, start, end, obc);
+			companyId, status, start, end, orderByComparator);
 	}
+
+	@Override
+	public BaseModelSearchResult<AccountEntry> search(
+		String keywords, LinkedHashMap<String, Object> params, int cur,
+		int delta, String orderByField, boolean reverse) {
+
+		PermissionChecker permissionChecker = _getPermissionChecker();
+
+		if (!permissionChecker.isCompanyAdmin()) {
+			try {
+				User user = userLocalService.getUser(
+					permissionChecker.getUserId());
+
+				BaseModelSearchResult<Organization> baseModelSearchResult =
+					_organizationLocalService.searchOrganizations(
+						user.getCompanyId(),
+						OrganizationConstants.ANY_PARENT_ORGANIZATION_ID, null,
+						LinkedHashMapBuilder.<String, Object>put(
+							"accountsOrgsTree",
+							ListUtil.filter(
+								user.getOrganizations(true),
+								organization -> _hasManageAccountsPermission(
+									permissionChecker, organization))
+						).build(),
+						QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+
+				if (baseModelSearchResult.getLength() == 0) {
+					return new BaseModelSearchResult<>(
+						Collections.<AccountEntry>emptyList(), 0);
+				}
+
+				if (params == null) {
+					params = new LinkedHashMap<>();
+				}
+
+				params.put(
+					"organizationIds",
+					ListUtil.toLongArray(
+						baseModelSearchResult.getBaseModels(),
+						OrganizationModel::getOrganizationId));
+			}
+			catch (PortalException portalException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(portalException, portalException);
+				}
+
+				return new BaseModelSearchResult<>(
+					Collections.<AccountEntry>emptyList(), 0);
+			}
+		}
+
+		return accountEntryLocalService.search(
+			permissionChecker.getCompanyId(), keywords, params, cur, delta,
+			orderByField, reverse);
+	}
+
+	private PermissionChecker _getPermissionChecker() {
+		try {
+			return getPermissionChecker();
+		}
+		catch (PrincipalException principalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(principalException, principalException);
+			}
+
+			return PermissionThreadLocal.getPermissionChecker();
+		}
+	}
+
+	private boolean _hasManageAccountsPermission(
+		PermissionChecker permissionChecker, Organization organization) {
+
+		try {
+			_organizationPermission.check(
+				permissionChecker, organization,
+				AccountActionKeys.MANAGE_ACCOUNTS);
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException, portalException);
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		AccountEntryServiceImpl.class);
+
+	@Reference
+	private OrganizationLocalService _organizationLocalService;
+
+	@Reference
+	private OrganizationPermission _organizationPermission;
 
 	@Reference(
 		policy = ReferencePolicy.DYNAMIC,

@@ -14,7 +14,10 @@
 
 package com.liferay.document.library.service;
 
+import com.liferay.document.library.model.DLFileVersionPreview;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 /**
  * Provides a wrapper for {@link DLFileVersionPreviewLocalService}.
@@ -36,14 +39,16 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	/**
 	 * Adds the dl file version preview to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was added
 	 */
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		addDLFileVersionPreview(
-			com.liferay.document.library.model.DLFileVersionPreview
-				dlFileVersionPreview) {
+	public DLFileVersionPreview addDLFileVersionPreview(
+		DLFileVersionPreview dlFileVersionPreview) {
 
 		return _dlFileVersionPreviewLocalService.addDLFileVersionPreview(
 			dlFileVersionPreview);
@@ -65,8 +70,8 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	 * @return the new dl file version preview
 	 */
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		createDLFileVersionPreview(long dlFileVersionPreviewId) {
+	public DLFileVersionPreview createDLFileVersionPreview(
+		long dlFileVersionPreviewId) {
 
 		return _dlFileVersionPreviewLocalService.createDLFileVersionPreview(
 			dlFileVersionPreviewId);
@@ -93,14 +98,16 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	/**
 	 * Deletes the dl file version preview from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was removed
 	 */
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		deleteDLFileVersionPreview(
-			com.liferay.document.library.model.DLFileVersionPreview
-				dlFileVersionPreview) {
+	public DLFileVersionPreview deleteDLFileVersionPreview(
+		DLFileVersionPreview dlFileVersionPreview) {
 
 		return _dlFileVersionPreviewLocalService.deleteDLFileVersionPreview(
 			dlFileVersionPreview);
@@ -109,13 +116,17 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	/**
 	 * Deletes the dl file version preview with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreviewId the primary key of the dl file version preview
 	 * @return the dl file version preview that was removed
 	 * @throws PortalException if a dl file version preview with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-			deleteDLFileVersionPreview(long dlFileVersionPreviewId)
+	public DLFileVersionPreview deleteDLFileVersionPreview(
+			long dlFileVersionPreviewId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dlFileVersionPreviewLocalService.deleteDLFileVersionPreview(
@@ -132,6 +143,11 @@ public class DLFileVersionPreviewLocalServiceWrapper
 
 		return _dlFileVersionPreviewLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _dlFileVersionPreviewLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -227,25 +243,24 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		fetchDLFileVersionPreview(long dlFileVersionPreviewId) {
+	public DLFileVersionPreview fetchDLFileVersionPreview(
+		long dlFileVersionPreviewId) {
 
 		return _dlFileVersionPreviewLocalService.fetchDLFileVersionPreview(
 			dlFileVersionPreviewId);
 	}
 
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		fetchDLFileVersionPreview(long fileEntryId, long fileVersionId) {
+	public DLFileVersionPreview fetchDLFileVersionPreview(
+		long fileEntryId, long fileVersionId) {
 
 		return _dlFileVersionPreviewLocalService.fetchDLFileVersionPreview(
 			fileEntryId, fileVersionId);
 	}
 
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		fetchDLFileVersionPreview(
-			long fileEntryId, long fileVersionId, int previewStatus) {
+	public DLFileVersionPreview fetchDLFileVersionPreview(
+		long fileEntryId, long fileVersionId, int previewStatus) {
 
 		return _dlFileVersionPreviewLocalService.fetchDLFileVersionPreview(
 			fileEntryId, fileVersionId, previewStatus);
@@ -266,8 +281,8 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	 * @throws PortalException if a dl file version preview with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-			getDLFileVersionPreview(long dlFileVersionPreviewId)
+	public DLFileVersionPreview getDLFileVersionPreview(
+			long dlFileVersionPreviewId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dlFileVersionPreviewLocalService.getDLFileVersionPreview(
@@ -275,8 +290,8 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-			getDLFileVersionPreview(long fileEntryId, long fileVersionId)
+	public DLFileVersionPreview getDLFileVersionPreview(
+			long fileEntryId, long fileVersionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dlFileVersionPreviewLocalService.getDLFileVersionPreview(
@@ -284,9 +299,8 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-			getDLFileVersionPreview(
-				long fileEntryId, long fileVersionId, int previewStatus)
+	public DLFileVersionPreview getDLFileVersionPreview(
+			long fileEntryId, long fileVersionId, int previewStatus)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dlFileVersionPreviewLocalService.getDLFileVersionPreview(
@@ -305,9 +319,8 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	 * @return the range of dl file version previews
 	 */
 	@Override
-	public java.util.List
-		<com.liferay.document.library.model.DLFileVersionPreview>
-			getDLFileVersionPreviews(int start, int end) {
+	public java.util.List<DLFileVersionPreview> getDLFileVersionPreviews(
+		int start, int end) {
 
 		return _dlFileVersionPreviewLocalService.getDLFileVersionPreviews(
 			start, end);
@@ -325,9 +338,8 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List
-		<com.liferay.document.library.model.DLFileVersionPreview>
-			getFileEntryDLFileVersionPreviews(long fileEntryId) {
+	public java.util.List<DLFileVersionPreview>
+		getFileEntryDLFileVersionPreviews(long fileEntryId) {
 
 		return _dlFileVersionPreviewLocalService.
 			getFileEntryDLFileVersionPreviews(fileEntryId);
@@ -374,14 +386,16 @@ public class DLFileVersionPreviewLocalServiceWrapper
 	/**
 	 * Updates the dl file version preview in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was updated
 	 */
 	@Override
-	public com.liferay.document.library.model.DLFileVersionPreview
-		updateDLFileVersionPreview(
-			com.liferay.document.library.model.DLFileVersionPreview
-				dlFileVersionPreview) {
+	public DLFileVersionPreview updateDLFileVersionPreview(
+		DLFileVersionPreview dlFileVersionPreview) {
 
 		return _dlFileVersionPreviewLocalService.updateDLFileVersionPreview(
 			dlFileVersionPreview);
@@ -394,6 +408,26 @@ public class DLFileVersionPreviewLocalServiceWrapper
 
 		_dlFileVersionPreviewLocalService.updateDLFileVersionPreview(
 			dlFileVersionPreviewId, previewStatus);
+	}
+
+	@Override
+	public CTPersistence<DLFileVersionPreview> getCTPersistence() {
+		return _dlFileVersionPreviewLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<DLFileVersionPreview> getModelClass() {
+		return _dlFileVersionPreviewLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DLFileVersionPreview>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _dlFileVersionPreviewLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

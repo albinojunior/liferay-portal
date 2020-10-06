@@ -29,6 +29,33 @@ import javax.annotation.Generated;
 @Generated("")
 public class TaxonomyCategoryBrief implements Cloneable {
 
+	public static TaxonomyCategoryBrief toDTO(String json) {
+		return TaxonomyCategoryBriefSerDes.toDTO(json);
+	}
+
+	public Object getEmbeddedTaxonomyCategory() {
+		return embeddedTaxonomyCategory;
+	}
+
+	public void setEmbeddedTaxonomyCategory(Object embeddedTaxonomyCategory) {
+		this.embeddedTaxonomyCategory = embeddedTaxonomyCategory;
+	}
+
+	public void setEmbeddedTaxonomyCategory(
+		UnsafeSupplier<Object, Exception>
+			embeddedTaxonomyCategoryUnsafeSupplier) {
+
+		try {
+			embeddedTaxonomyCategory =
+				embeddedTaxonomyCategoryUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Object embeddedTaxonomyCategory;
+
 	public Long getTaxonomyCategoryId() {
 		return taxonomyCategoryId;
 	}

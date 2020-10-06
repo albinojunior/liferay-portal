@@ -37,17 +37,17 @@ public class FragmentCompositionCacheModel
 	implements CacheModel<FragmentComposition>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof FragmentCompositionCacheModel)) {
+		if (!(object instanceof FragmentCompositionCacheModel)) {
 			return false;
 		}
 
 		FragmentCompositionCacheModel fragmentCompositionCacheModel =
-			(FragmentCompositionCacheModel)obj;
+			(FragmentCompositionCacheModel)object;
 
 		if ((fragmentCompositionId ==
 				fragmentCompositionCacheModel.fragmentCompositionId) &&
@@ -78,10 +78,12 @@ public class FragmentCompositionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(41);
+		StringBundler sb = new StringBundler(43);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", fragmentCompositionId=");
@@ -131,6 +133,7 @@ public class FragmentCompositionCacheModel
 			new FragmentCompositionImpl();
 
 		fragmentCompositionImpl.setMvccVersion(mvccVersion);
+		fragmentCompositionImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			fragmentCompositionImpl.setUuid("");
@@ -229,8 +232,12 @@ public class FragmentCompositionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		fragmentCompositionId = objectInput.readLong();
@@ -248,7 +255,7 @@ public class FragmentCompositionCacheModel
 		fragmentCompositionKey = objectInput.readUTF();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
-		data = objectInput.readUTF();
+		data = (String)objectInput.readObject();
 
 		previewFileEntryId = objectInput.readLong();
 		lastPublishDate = objectInput.readLong();
@@ -263,6 +270,8 @@ public class FragmentCompositionCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -313,10 +322,10 @@ public class FragmentCompositionCacheModel
 		}
 
 		if (data == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(data);
+			objectOutput.writeObject(data);
 		}
 
 		objectOutput.writeLong(previewFileEntryId);
@@ -337,6 +346,7 @@ public class FragmentCompositionCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long fragmentCompositionId;
 	public long groupId;

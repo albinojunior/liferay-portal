@@ -17,6 +17,7 @@ import ClayForm, {ClayInput} from '@clayui/form';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import {useId} from '../../app/utils/useId';
 import {openImageSelector} from '../../core/openImageSelector';
 
 export function ImageSelector({
@@ -25,12 +26,20 @@ export function ImageSelector({
 	onClearButtonPressed,
 	onImageSelected,
 }) {
+	const imageTitleId = useId();
+
 	return (
 		<>
 			<ClayForm.Group>
-				<label htmlFor="imageTitle">{label}</label>
+				<label htmlFor={imageTitleId}>{label}</label>
 				<ClayInput
-					id="imageTitle"
+					className="page-editor__item-selector__content-input"
+					id={imageTitleId}
+					onClick={() =>
+						openImageSelector((image) => {
+							onImageSelected(image);
+						})
+					}
 					placeholder={Liferay.Language.get('none')}
 					readOnly
 					sizing="sm"
@@ -42,7 +51,7 @@ export function ImageSelector({
 					<ClayButton
 						displayType="secondary"
 						onClick={() =>
-							openImageSelector(image => {
+							openImageSelector((image) => {
 								onImageSelected(image);
 							})
 						}

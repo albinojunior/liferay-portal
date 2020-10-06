@@ -30,6 +30,31 @@ import javax.annotation.Generated;
 @Generated("")
 public class ContentStructure implements Cloneable {
 
+	public static ContentStructure toDTO(String json) {
+		return ContentStructureSerDes.toDTO(json);
+	}
+
+	public String getAssetLibraryKey() {
+		return assetLibraryKey;
+	}
+
+	public void setAssetLibraryKey(String assetLibraryKey) {
+		this.assetLibraryKey = assetLibraryKey;
+	}
+
+	public void setAssetLibraryKey(
+		UnsafeSupplier<String, Exception> assetLibraryKeyUnsafeSupplier) {
+
+		try {
+			assetLibraryKey = assetLibraryKeyUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String assetLibraryKey;
+
 	public String[] getAvailableLanguages() {
 		return availableLanguages;
 	}

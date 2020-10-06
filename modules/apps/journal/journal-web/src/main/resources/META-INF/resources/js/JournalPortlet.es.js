@@ -16,6 +16,7 @@ import {AOP} from 'frontend-js-web';
 import PortletBase from 'frontend-js-web/liferay/PortletBase.es';
 import {delegate, on} from 'metal-dom';
 import {EventHandler} from 'metal-events';
+import {Config} from 'metal-state';
 
 const ACTION_INPUT_NAME = 'javax-portlet-action';
 
@@ -30,6 +31,7 @@ const SIDEBAR_VISIBLE_CLASS = 'contextual-sidebar-visible';
  * @extends {PortletBase}
  */
 class JournalPortlet extends PortletBase {
+
 	/**
 	 * @inheritDoc
 	 */
@@ -65,10 +67,17 @@ class JournalPortlet extends PortletBase {
 			);
 		}
 
+		this._defaultLocaleChangedHandler = Liferay.after(
+			'inputLocalized:defaultLocaleChanged',
+			this._onDefaultLocaleChange.bind(this)
+		);
+
 		this._localeChangedHandler = Liferay.after(
 			'inputLocalized:localeChanged',
 			this._onLocaleChange.bind(this)
 		);
+
+		this._selectedLanguageId = this.defaultLanguageId;
 
 		this._setupSidebar();
 	}
@@ -85,7 +94,29 @@ class JournalPortlet extends PortletBase {
 	 */
 	detached() {
 		this._eventHandler.removeAllListeners();
+		this._defaultLocaleChangedHandler.detach();
 		this._localeChangedHandler.detach();
+	}
+
+	/**
+	 * Clean the input if the language is not considered translated when
+	 * submitting the form
+	 * @param {string} name of the input
+	 */
+	_cleanInputIfNeeded(name) {
+		const inputComponent = Liferay.component(this.ns(name));
+		const translatedLanguages = inputComponent.get('translatedLanguages');
+
+		if (
+			!translatedLanguages.has(this._selectedLanguageId) &&
+			this._selectedLanguageId !== this.defaultLanguageId
+		) {
+			inputComponent.updateInput('');
+
+			const form = Liferay.Form.get(this.ns('fm1'));
+
+			form.removeRule(this.ns(name), 'required');
+		}
 	}
 
 	/**
@@ -111,23 +142,34 @@ class JournalPortlet extends PortletBase {
 	}
 
 	/**
+	 * Updates defaultLocale
+	 * @param {Event} event
+	 */
+	_onDefaultLocaleChange(event) {
+		if (event.item) {
+			this.defaultLanguageId = event.item.getAttribute('data-value');
+		}
+	}
+
+	/**
 	 * Updates description and title values on locale changed
 	 * @param {Event} event
 	 */
 	_onLocaleChange(event) {
-		const defaultLanguageId = themeDisplay.getDefaultLanguageId();
 		const selectedLanguageId = event.item.getAttribute('data-value');
+
+		this._selectedLanguageId = selectedLanguageId;
 
 		if (selectedLanguageId) {
 			this._updateLocalizableInput(
 				'descriptionMapAsXML',
-				defaultLanguageId,
+				this.defaultLanguageId,
 				selectedLanguageId
 			);
 
 			this._updateLocalizableInput(
 				'titleMapAsXML',
-				defaultLanguageId,
+				this.defaultLanguageId,
 				selectedLanguageId
 			);
 
@@ -193,6 +235,9 @@ class JournalPortlet extends PortletBase {
 		}
 
 		const form = this._getInputByName(this.ns('fm1'));
+
+		this._cleanInputIfNeeded('titleMapAsXML');
+		this._cleanInputIfNeeded('descriptionMapAsXML');
 
 		submitForm(form);
 	}
@@ -292,11 +337,22 @@ class JournalPortlet extends PortletBase {
 				inputComponent.selectFlag(selectedLanguageId);
 				inputComponent.updateInput(inputDefaultValue);
 
-				eventHandler.detach();
+				// setInterval declared in ckeditor.jsp is triggering
+				// the updateInputLanguage function, so with this
+				// we guarantee that this function is not called
+
+				setTimeout(() => {
+					eventHandler.detach();
+				}, 400);
 			}
 		}
 	}
 }
+
+JournalPortlet.STATE = {
+	_selectedLanguageId: Config.internal().string(),
+	defaultLanguageId: Config.string(),
+};
 
 export {JournalPortlet};
 export default JournalPortlet;

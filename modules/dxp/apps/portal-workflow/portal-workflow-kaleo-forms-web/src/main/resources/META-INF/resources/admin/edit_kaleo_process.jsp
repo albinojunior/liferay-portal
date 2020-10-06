@@ -64,9 +64,11 @@ renderResponse.setTitle(title);
 %>
 
 <c:if test="<%= kaleoProcessStarted %>">
-	<div class="alert alert-info container-fluid-1280">
+	<clay:container-fluid
+		cssClass="alert alert-info"
+	>
 		<liferay-ui:message key="updating-the-field-set-or-workflow-will-cause-loss-of-data" />
-	</div>
+	</clay:container-fluid>
 </c:if>
 
 <portlet:actionURL name="updateKaleoProcess" var="editKaleoProcessURL">
@@ -87,13 +89,13 @@ renderResponse.setTitle(title);
 		var="htmlBottom"
 	>
 		<aui:button-row cssClass="kaleo-process-buttons">
-			<aui:button cssClass='<%= (historyKey.equals("forms") ? StringPool.BLANK : "hide") + " kaleo-process-previous pull-left" %>' icon="icon-circle-arrow-left" value="previous" />
+			<aui:button cssClass='<%= (historyKey.equals("forms") ? StringPool.BLANK : "hide") + " float-left kaleo-process-previous" %>' icon="icon-circle-arrow-left" value="previous" />
 
-			<aui:button cssClass='<%= (historyKey.equals("forms") ? StringPool.BLANK : "hide") + " kaleo-process-submit pull-right" %>' disabled="<%= true %>" primary="<%= true %>" type="submit" />
+			<aui:button cssClass='<%= (historyKey.equals("forms") ? StringPool.BLANK : "hide") + " float-right kaleo-process-submit" %>' disabled="<%= true %>" primary="<%= true %>" type="submit" />
 
-			<aui:button cssClass='<%= (historyKey.equals("forms") ? "hide" : StringPool.BLANK) + " kaleo-process-next pull-right" %>' disabled="<%= true %>" icon="icon-circle-arrow-right" iconAlign="right" primary="<%= true %>" value="next" />
+			<aui:button cssClass='<%= (historyKey.equals("forms") ? "hide" : StringPool.BLANK) + " float-right kaleo-process-next" %>' disabled="<%= true %>" icon="icon-circle-arrow-right" iconAlign="right" primary="<%= true %>" value="next" />
 
-			<aui:button cssClass="kaleo-process-cancel pull-right" href="<%= redirect %>" value="cancel" />
+			<aui:button cssClass="float-right kaleo-process-cancel" href="<%= redirect %>" value="cancel" />
 		</aui:button-row>
 	</liferay-util:buffer>
 
@@ -107,11 +109,11 @@ renderResponse.setTitle(title);
 	/>
 
 	<aui:script use="liferay-component,liferay-form,liferay-kaleo-forms-admin">
-		var afterFormRegistered = function(event) {
+		var afterFormRegistered = function (event) {
 			var form = Liferay.Form.get('<portlet:namespace />fm');
 
 			if (form === event.form) {
-				Liferay.component('<portlet:namespace/>KaleoFormsAdmin', function() {
+				Liferay.component('<portlet:namespace />KaleoFormsAdmin', function () {
 					return new Liferay.KaleoFormsAdmin({
 						currentURL: '<%= currentURL %>',
 						form: form,
@@ -124,13 +126,13 @@ renderResponse.setTitle(title);
 					});
 				});
 
-				Liferay.component('<portlet:namespace/>KaleoFormsAdmin').syncUI();
+				Liferay.component('<portlet:namespace />KaleoFormsAdmin').syncUI();
 			}
 		};
 
 		Liferay.after('form:registered', afterFormRegistered);
 
-		var clearAfterFormRegistered = function(event) {
+		var clearAfterFormRegistered = function (event) {
 			Liferay.detach('form:registered', afterFormRegistered);
 		};
 

@@ -36,17 +36,17 @@ public class SamlIdpSpConnectionCacheModel
 	implements CacheModel<SamlIdpSpConnection>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SamlIdpSpConnectionCacheModel)) {
+		if (!(object instanceof SamlIdpSpConnectionCacheModel)) {
 			return false;
 		}
 
 		SamlIdpSpConnectionCacheModel samlIdpSpConnectionCacheModel =
-			(SamlIdpSpConnectionCacheModel)obj;
+			(SamlIdpSpConnectionCacheModel)object;
 
 		if (samlIdpSpConnectionId ==
 				samlIdpSpConnectionCacheModel.samlIdpSpConnectionId) {
@@ -210,7 +210,9 @@ public class SamlIdpSpConnectionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		samlIdpSpConnectionId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -232,7 +234,7 @@ public class SamlIdpSpConnectionCacheModel
 
 		encryptionForced = objectInput.readBoolean();
 		metadataUrl = objectInput.readUTF();
-		metadataXml = objectInput.readUTF();
+		metadataXml = (String)objectInput.readObject();
 		metadataUpdatedDate = objectInput.readLong();
 		name = objectInput.readUTF();
 		nameIdAttribute = objectInput.readUTF();
@@ -289,10 +291,10 @@ public class SamlIdpSpConnectionCacheModel
 		}
 
 		if (metadataXml == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(metadataXml);
+			objectOutput.writeObject(metadataXml);
 		}
 
 		objectOutput.writeLong(metadataUpdatedDate);

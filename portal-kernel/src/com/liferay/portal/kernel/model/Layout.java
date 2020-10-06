@@ -74,6 +74,8 @@ public interface Layout extends LayoutModel, PersistedModel {
 
 		};
 
+	public Layout fetchDraftLayout();
+
 	/**
 	 * Returns all layouts that are direct or indirect children of the current
 	 * layout.
@@ -436,6 +438,6 @@ public interface Layout extends LayoutModel, PersistedModel {
 
 	public void setTypeSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties
-			typeSettingsProperties);
+			typeSettingsUnicodeProperties);
 
 }

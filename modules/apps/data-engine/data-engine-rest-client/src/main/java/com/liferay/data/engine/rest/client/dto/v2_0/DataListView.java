@@ -30,6 +30,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataListView implements Cloneable {
 
+	public static DataListView toDTO(String json) {
+		return DataListViewSerDes.toDTO(json);
+	}
+
 	public Map<String, Object> getAppliedFilters() {
 		return appliedFilters;
 	}

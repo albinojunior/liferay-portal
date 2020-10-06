@@ -1,0 +1,158 @@
+<html>
+<head>
+<title>ContentDashboard</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">ContentDashboard</td></tr>
+</thead>
+<tbody>
+<tr>
+	<td>AUTHOR_SELECT_DISPLAY_MODE_BUTTON</td>
+	<td>//button[contains(@class, 'dropdown-toggle') and contains(@class, 'btn-unstyled') and contains(@class, 'nav-link-monospaced') and contains(@class, 'btn nav-link')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHOR_CARDS_DISPLAY_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Cards')]</td>
+	<td></td>
+</tr>ç<tr>
+	<td>AUTHOR_CARDS_ELEMENT</td>
+	<td>//*[contains(@class, 'aspect-ratio card-item-first')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHOR_LIST_DISPLAY_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'List')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHOR_ELEMENT_CHECKBOX</td>
+	<td>//*[contains(@title,'Select') and contains(@type,'checkbox')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHOR_TABLE_DISPLAY_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Table')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_NAME_ELEMENT</td>
+	<td>//*[contains(@class, 'text-truncate') and contains(text(),'Category Name')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CLEAR_FILTERS_BUTTON</td>
+	<td>//*[contains(@class, ' component-link tbar-link') and contains(text(),'Clear')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CLOSE_INFO_PANEL_BUTTON</td>
+	<td>//*[contains(@class, 'component-action btn btn-monospaced btn-unstyled')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EDIT_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FILTER_AND_ORDER_DROPDOWN</td>
+	<td>//*[contains(@class, 'dropdown-toggle btn nav-link btn-unstyled')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FILTER_BY_AUTHOR_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Author')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FILTER_BY_CATEGORY_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Categories')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FILTER_BY_MODIFICATION_DATE_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Modified Date')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FILTER_BY_TAG_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Tags')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FILTER_BY_TITLE_OPTION</td>
+	<td>//*[contains(@class, 'dropdown-item') and contains(text(),'Title')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FIRST_CHECKBOX_TAGS</td>
+	<td>//*[contains(@title,'Select') and contains(@value,'tag1')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FIRST_ELEMENT_LISTED</td>
+	<td>(//*[contains(@class, 'text-truncate')])[4]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FIRST_ELEMENT_LISTED_TAGS</td>
+	<td>//*[contains(@class, 'text-truncate') and contains(text(),'Web Content Title')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INFO_OPTION</td>
+	<td>//*[contains(@data-action, 'showInfo')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INFO_PANEL_TITLE</td>
+	<td>//*[contains(@class, 'text-truncate') and contains(text(),'Content Info')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REVERSE_SORT_DIRECTION_BUTTON</td>
+	<td>//*[contains(@class, 'lexicon-icon lexicon-icon-order-arrow')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SEARCH_CATEGORY_FIELD</td>
+	<td>//*[contains(@class, 'form-control h-100 input-group-inset input-group-inset-after')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SEARCH_FIELD</td>
+	<td>//*[contains(@class,'form-control input-group-inset input-group-inset-after')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SECOND_CHECKBOX_TAGS</td>
+	<td>//*[contains(@title,'Select') and contains(@value,'tag2')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_AUTHOR_BUTTON</td>
+	<td>//button[contains(@class, 'btn btn-primary') and contains(text(),'Select')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_CATEGORY_BUTTON</td>
+	<td>//button[contains(@id, 'addButton')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_TAGS_BUTTON</td>
+	<td>//*[contains(@class,'btn btn-primary') and contains(text(),'Select')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>WEB_CONTENT_MENU_DROPDOWN_BUTTON</td>
+	<td>//button[contains(@class, 'dropdown-toggle') and contains(@class, 'btn-unstyled') and contains(@class, 'btn-monospaced') and contains(@class, 'component-action')]</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

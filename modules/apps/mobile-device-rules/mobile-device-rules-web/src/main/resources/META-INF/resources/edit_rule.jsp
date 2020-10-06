@@ -80,7 +80,9 @@ renderResponse.setTitle(title);
 				<c:when test="<%= ruleHandlerTypes.size() == 1 %>">
 
 					<%
-					String ruleHandlerType = ruleHandlerTypes.iterator().next();
+					Iterator<String> iterator = ruleHandlerTypes.iterator();
+
+					String ruleHandlerType = iterator.next();
 					%>
 
 					<aui:input name="type" type="hidden" value="<%= ruleHandlerType %>" />
@@ -103,7 +105,7 @@ renderResponse.setTitle(title);
 			</c:choose>
 		</aui:fieldset>
 
-		<div id="<%= renderResponse.getNamespace() %>typeSettings">
+		<div id="<%= liferayPortletResponse.getNamespace() %>typeSettings">
 			<c:if test="<%= Validator.isNotNull(editorJSP) %>">
 				<liferay-util:include page="<%= editorJSP %>" servletContext="<%= application %>" />
 			</c:if>
@@ -125,7 +127,7 @@ renderResponse.setTitle(title);
 	);
 
 	if (typeNode && typeSettingsContainer) {
-		var loadTypeFields = function() {
+		var loadTypeFields = function () {
 			Liferay.Util.fetch(
 				'<%= editorURL %>' +
 					'&<portlet:namespace />type=' +
@@ -133,10 +135,10 @@ renderResponse.setTitle(title);
 					'&<portlet:namespace />type=' +
 					<%= ruleId %>
 			)
-				.then(function(response) {
+				.then(function (response) {
 					return response.text();
 				})
-				.then(function(response) {
+				.then(function (response) {
 					typeSettingsContainer.innerHTML = response;
 				});
 		};

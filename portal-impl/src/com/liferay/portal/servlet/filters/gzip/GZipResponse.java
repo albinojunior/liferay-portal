@@ -115,6 +115,7 @@ public class GZipResponse extends HttpServletResponseWrapper {
 		}
 	}
 
+	@Override
 	public void setContentLengthLong(long contentLengthLong) {
 		if (contentLengthLong == 0) {
 			super.setContentLengthLong(0);
@@ -202,10 +203,12 @@ public class GZipResponse extends HttpServletResponseWrapper {
 
 	static {
 		try {
-			UnsyncByteArrayOutputStream ubaos =
+			UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 				new UnsyncByteArrayOutputStream();
 
-			GZIPOutputStream gzipOutputStream = new GZIPOutputStream(ubaos) {
+			GZIPOutputStream gzipOutputStream = new GZIPOutputStream(
+				unsyncByteArrayOutputStream) {
+
 				{
 					def.setLevel(PropsValues.GZIP_COMPRESSION_LEVEL);
 				}
@@ -213,7 +216,7 @@ public class GZipResponse extends HttpServletResponseWrapper {
 
 			gzipOutputStream.close();
 
-			_EMPTY_GZIP_OUTPUT_SIZE = ubaos.size();
+			_EMPTY_GZIP_OUTPUT_SIZE = unsyncByteArrayOutputStream.size();
 		}
 		catch (IOException ioException) {
 			throw new ExceptionInInitializerError(ioException);

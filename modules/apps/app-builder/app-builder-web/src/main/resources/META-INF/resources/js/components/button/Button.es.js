@@ -17,7 +17,7 @@ import classNames from 'classnames';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-const Button = props => {
+const Button = (props) => {
 	const {
 		children,
 		className,
@@ -34,6 +34,7 @@ const Button = props => {
 		<Button
 			className={classNames(className)}
 			data-title={tooltip}
+			monospaced={!!symbol}
 			ref={forwardRef}
 			symbol={symbol}
 			{...restProps}

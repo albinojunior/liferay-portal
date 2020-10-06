@@ -36,7 +36,9 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(LanguageUtil.get(request, "select-master-page"));
 %>
 
-<div class="container-fluid-1280 mt-4">
+<clay:container-fluid
+	cssClass="mt-4"
+>
 	<div class="lfr-search-container-wrapper">
 		<ul class="card-page card-page-equal-height">
 
@@ -56,14 +58,14 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-master-page"));
 
 		</ul>
 	</div>
-</div>
+</clay:container-fluid>
 
 <aui:script require="metal-dom/src/all/dom as dom,frontend-js-web/liferay/modal/commands/OpenSimpleInputModal.es as openSimpleInputModal" sandbox="<%= true %>">
 	var addPageTemplateClickHandler = dom.delegate(
 		document.body,
 		'click',
 		'.add-master-page-action-option',
-		function(event) {
+		function (event) {
 			var data = event.delegateTarget.dataset;
 
 			event.preventDefault();
@@ -76,7 +78,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-master-page"));
 				mainFieldPlaceholder: '<liferay-ui:message key="name" />',
 				namespace: '<portlet:namespace />',
 				spritemap:
-					'<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg',
+					'<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg',
 			});
 		}
 	);

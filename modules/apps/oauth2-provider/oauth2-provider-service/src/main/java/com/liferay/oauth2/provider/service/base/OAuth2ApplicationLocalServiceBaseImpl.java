@@ -17,6 +17,7 @@ package com.liferay.oauth2.provider.service.base;
 import com.liferay.oauth2.provider.model.OAuth2Application;
 import com.liferay.oauth2.provider.service.OAuth2ApplicationLocalService;
 import com.liferay.oauth2.provider.service.persistence.OAuth2ApplicationPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +75,10 @@ public abstract class OAuth2ApplicationLocalServiceBaseImpl
 	/**
 	 * Adds the o auth2 application to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2ApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuth2Application the o auth2 application
 	 * @return the o auth2 application that was added
 	 */
@@ -101,6 +107,10 @@ public abstract class OAuth2ApplicationLocalServiceBaseImpl
 	/**
 	 * Deletes the o auth2 application with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2ApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuth2ApplicationId the primary key of the o auth2 application
 	 * @return the o auth2 application that was removed
 	 * @throws PortalException if a o auth2 application with the primary key could not be found
@@ -116,6 +126,10 @@ public abstract class OAuth2ApplicationLocalServiceBaseImpl
 	/**
 	 * Deletes the o auth2 application from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2ApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuth2Application the o auth2 application
 	 * @return the o auth2 application that was removed
 	 */
@@ -125,6 +139,11 @@ public abstract class OAuth2ApplicationLocalServiceBaseImpl
 		OAuth2Application oAuth2Application) {
 
 		return oAuth2ApplicationPersistence.remove(oAuth2Application);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return oAuth2ApplicationPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -300,6 +319,10 @@ public abstract class OAuth2ApplicationLocalServiceBaseImpl
 			(OAuth2Application)persistedModel);
 	}
 
+	public BasePersistence<OAuth2Application> getBasePersistence() {
+		return oAuth2ApplicationPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -338,6 +361,10 @@ public abstract class OAuth2ApplicationLocalServiceBaseImpl
 
 	/**
 	 * Updates the o auth2 application in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2ApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuth2Application the o auth2 application
 	 * @return the o auth2 application that was updated

@@ -26,6 +26,8 @@ public class GetMappingIndexRequest
 	public GetMappingIndexRequest(String[] indexNames, String mappingName) {
 		_indexNames = indexNames;
 		_mappingName = mappingName;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

@@ -41,9 +41,9 @@ portletDisplay.setURLBack(backURL);
 renderResponse.setTitle((role == null) ? LanguageUtil.get(request, "new-role") : role.getTitle(locale));
 %>
 
-<liferay-util:include page="/edit_role_tabs.jsp" servletContext="<%= application %>" />
-
 <c:if test="<%= role != null %>">
+	<liferay-util:include page="/edit_role_tabs.jsp" servletContext="<%= application %>" />
+
 	<c:choose>
 		<c:when test="<%= currentRoleTypeContributor.getType() == RoleConstants.TYPE_REGULAR %>">
 			<liferay-ui:success key="roleCreated" message='<%= LanguageUtil.format(request, "x-was-created-successfully.-you-can-now-define-its-permissions-and-assign-users", HtmlUtil.escape(roleName)) %>' />
@@ -166,7 +166,7 @@ renderResponse.setTitle((role == null) ? LanguageUtil.get(request, "new-role") :
 			Map<String, Serializable> roleCustomAttributes = roleExpandoBridge.getAttributes();
 			%>
 
-			<c:if test="<%= roleCustomAttributes.size() > 0 %>">
+			<c:if test="<%= !roleCustomAttributes.isEmpty() %>">
 				<aui:fieldset-group markupView="lexicon">
 					<aui:fieldset>
 						<liferay-expando:custom-attribute-list
@@ -199,7 +199,7 @@ renderResponse.setTitle((role == null) ? LanguageUtil.get(request, "new-role") :
 			if (nameInput && titleInput) {
 				var debounce = debounceModule.default;
 
-				var handleOnTitleInput = function(event) {
+				var handleOnTitleInput = function (event) {
 					var value = event.target.value;
 
 					if (nameInput.hasAttribute('maxLength')) {

@@ -20,6 +20,7 @@ import com.liferay.mail.reader.service.persistence.AccountPersistence;
 import com.liferay.mail.reader.service.persistence.AttachmentPersistence;
 import com.liferay.mail.reader.service.persistence.FolderPersistence;
 import com.liferay.mail.reader.service.persistence.MessagePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -75,6 +77,10 @@ public abstract class AttachmentLocalServiceBaseImpl
 	/**
 	 * Adds the attachment to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AttachmentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param attachment the attachment
 	 * @return the attachment that was added
 	 */
@@ -101,6 +107,10 @@ public abstract class AttachmentLocalServiceBaseImpl
 	/**
 	 * Deletes the attachment with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AttachmentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param attachmentId the primary key of the attachment
 	 * @return the attachment that was removed
 	 * @throws PortalException if a attachment with the primary key could not be found
@@ -116,6 +126,10 @@ public abstract class AttachmentLocalServiceBaseImpl
 	/**
 	 * Deletes the attachment from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AttachmentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param attachment the attachment
 	 * @return the attachment that was removed
 	 */
@@ -123,6 +137,11 @@ public abstract class AttachmentLocalServiceBaseImpl
 	@Override
 	public Attachment deleteAttachment(Attachment attachment) {
 		return attachmentPersistence.remove(attachment);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return attachmentPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -291,6 +310,10 @@ public abstract class AttachmentLocalServiceBaseImpl
 			(Attachment)persistedModel);
 	}
 
+	public BasePersistence<Attachment> getBasePersistence() {
+		return attachmentPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -329,6 +352,10 @@ public abstract class AttachmentLocalServiceBaseImpl
 
 	/**
 	 * Updates the attachment in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AttachmentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param attachment the attachment
 	 * @return the attachment that was updated

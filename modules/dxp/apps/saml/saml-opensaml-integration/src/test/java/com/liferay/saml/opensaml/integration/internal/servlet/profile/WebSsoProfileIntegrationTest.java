@@ -252,9 +252,7 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 		Assertion assertion = OpenSamlUtil.buildAssertion();
 
-		Credential credential = getCredential(IDP_ENTITY_ID);
-
-		OpenSamlUtil.signObject(assertion, credential, null);
+		OpenSamlUtil.signObject(assertion, getCredential(IDP_ENTITY_ID), null);
 
 		Signature signature = assertion.getSignature();
 
@@ -277,7 +275,7 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			_webSsoProfileImpl.decodeAuthnRequest(
 				mockHttpServletRequest, new MockHttpServletResponse());
 
-		MessageContext messageContext =
+		MessageContext<?> messageContext =
 			samlSsoRequestContext.getSAMLMessageContext();
 
 		SAMLSelfEntityContext samlSelfEntityContext =
@@ -337,7 +335,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			mockHttpServletRequest, new MockHttpServletResponse());
 
 		MessageContext<AuthnRequest> messageContext =
-			samlSsoRequestContext.getSAMLMessageContext();
+			(MessageContext<AuthnRequest>)
+				samlSsoRequestContext.getSAMLMessageContext();
 
 		SAMLSelfEntityContext samlSelfEntityContext =
 			messageContext.getSubcontext(SAMLSelfEntityContext.class);
@@ -421,12 +420,13 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 				mockHttpServletRequest, mockHttpServletResponse);
 
 		MessageContext<AuthnRequest> messageContext =
-			samlSsoRequestContext.getSAMLMessageContext();
+			(MessageContext<AuthnRequest>)
+				samlSsoRequestContext.getSAMLMessageContext();
 
-		InOutOperationContext inOutOperationContext =
+		InOutOperationContext<?, ?> inOutOperationContext =
 			messageContext.getSubcontext(InOutOperationContext.class);
 
-		MessageContext inboundMessageContext =
+		MessageContext<?> inboundMessageContext =
 			inOutOperationContext.getInboundMessageContext();
 
 		SAMLMessageInfoContext samlMessageInfoContext =
@@ -456,7 +456,9 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 		samlSsoRequestContext = _webSsoProfileImpl.decodeAuthnRequest(
 			mockHttpServletRequest, mockHttpServletResponse);
 
-		messageContext = samlSsoRequestContext.getSAMLMessageContext();
+		messageContext =
+			(MessageContext<AuthnRequest>)
+				samlSsoRequestContext.getSAMLMessageContext();
 
 		inOutOperationContext = messageContext.getSubcontext(
 			InOutOperationContext.class);
@@ -533,7 +535,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 				mockHttpServletRequest, mockHttpServletResponse);
 
 		MessageContext<AuthnRequest> messageContext =
-			samlSsoRequestContext.getSAMLMessageContext();
+			(MessageContext<AuthnRequest>)
+				samlSsoRequestContext.getSAMLMessageContext();
 
 		SAMLSelfEntityContext samlSelfEntityContext =
 			messageContext.getSubcontext(SAMLSelfEntityContext.class);
@@ -568,10 +571,10 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 		Assert.assertEquals(RELAY_STATE, samlBindingContext.getRelayState());
 
-		InOutOperationContext inOutOperationContext =
+		InOutOperationContext<?, ?> inOutOperationContext =
 			messageContext.getSubcontext(InOutOperationContext.class);
 
-		MessageContext inboundMessageContext =
+		MessageContext<?> inboundMessageContext =
 			inOutOperationContext.getInboundMessageContext();
 
 		AuthnRequest authnRequest =
@@ -702,9 +705,10 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 				mockHttpServletRequest, mockHttpServletResponse);
 
 		MessageContext<AuthnRequest> messageContext =
-			samlSsoRequestContext.getSAMLMessageContext();
+			(MessageContext<AuthnRequest>)
+				samlSsoRequestContext.getSAMLMessageContext();
 
-		InOutOperationContext inOutOperationContext =
+		InOutOperationContext<AuthnRequest, ?> inOutOperationContext =
 			messageContext.getSubcontext(InOutOperationContext.class);
 
 		MessageContext<AuthnRequest> inboundMessageContext =
@@ -726,11 +730,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 	public void testVerifyAssertionSignatureNoSignatureNotRequired()
 		throws Exception {
 
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLSelfEntityContext samlSelfEntityContext =
 			messageContext.getSubcontext(SAMLSelfEntityContext.class);
@@ -762,11 +763,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 	public void testVerifyAssertionSignatureNoSignatureRequired()
 		throws Exception {
 
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLSelfEntityContext samlSelfEntityContext =
 			messageContext.getSubcontext(SAMLSelfEntityContext.class);
@@ -803,11 +801,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 	public void testVerifyAudienceRestrictionsAllow() throws Exception {
 		List<AudienceRestriction> audienceRestrictions = new ArrayList<>();
 
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
-		MessageContext messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLSelfEntityContext samlSelfEntityContext =
 			messageContext.getSubcontext(SAMLSelfEntityContext.class);
@@ -831,13 +826,11 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 		audienceRestrictions.add(audienceRestriction);
 
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		_webSsoProfileImpl.verifyAudienceRestrictions(
 			audienceRestrictions,
 			_webSsoProfileImpl.getMessageContext(
-				mockHttpServletRequest, new MockHttpServletResponse()));
+				getMockHttpServletRequest(ACS_URL),
+				new MockHttpServletResponse()));
 	}
 
 	@Test(expected = AssertionException.class)
@@ -859,14 +852,10 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 		SamlSsoRequestContext samlSsoRequestContext = new SamlSsoRequestContext(
 			SP_ENTITY_ID, null, idpMessageContext, userLocalService);
 
+		DateTime dateTime = new DateTime(DateTimeZone.UTC);
+
 		Conditions conditions = _webSsoProfileImpl.getSuccessConditions(
-			samlSsoRequestContext,
-			new DateTime(
-				DateTimeZone.UTC
-			).plusDays(
-				1
-			),
-			null);
+			samlSsoRequestContext, dateTime.plusDays(1), null);
 
 		prepareServiceProvider(SP_ENTITY_ID);
 
@@ -886,8 +875,9 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 		MockHttpServletRequest mockHttpServletRequest =
 			getMockHttpServletRequest(SSO_URL);
 
-		MessageContext idpMessageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+		MessageContext<?> idpMessageContext =
+			_webSsoProfileImpl.getMessageContext(
+				mockHttpServletRequest, new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			idpMessageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -897,13 +887,10 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 		SamlSsoRequestContext samlSsoRequestContext = new SamlSsoRequestContext(
 			SP_ENTITY_ID, null, idpMessageContext, userLocalService);
 
+		DateTime dateTime = new DateTime(DateTimeZone.UTC);
+
 		Conditions conditions = _webSsoProfileImpl.getSuccessConditions(
-			samlSsoRequestContext, null,
-			new DateTime(
-				DateTimeZone.UTC
-			).minusYears(
-				1
-			));
+			samlSsoRequestContext, null, dateTime.minusYears(1));
 
 		prepareServiceProvider(SP_ENTITY_ID);
 
@@ -923,8 +910,9 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 		MockHttpServletRequest mockHttpServletRequest =
 			getMockHttpServletRequest(SSO_URL);
 
-		MessageContext idpMessageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+		MessageContext<?> idpMessageContext =
+			_webSsoProfileImpl.getMessageContext(
+				mockHttpServletRequest, new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			idpMessageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -949,11 +937,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test
 	public void testVerifyDestinationAllow() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
-		MessageContext messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLBindingContext samlBindingContext = messageContext.getSubcontext(
 			SAMLBindingContext.class);
@@ -965,11 +950,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test(expected = DestinationException.class)
 	public void testVerifyDestinationDeny() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLBindingContext samlBindingContext = messageContext.getSubcontext(
 			SAMLBindingContext.class);
@@ -1030,11 +1012,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test(expected = IssuerException.class)
 	public void testVerifyIssuerInvalidFormat() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			messageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -1050,11 +1029,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test(expected = IssuerException.class)
 	public void testVerifyIssuerInvalidIssuer() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			messageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -1067,11 +1043,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test
 	public void testVerifyIssuerValidIssuer() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			messageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -1089,8 +1062,9 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 		MockHttpServletRequest mockHttpServletRequest =
 			getMockHttpServletRequest(SSO_URL);
 
-		MessageContext idpMessageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+		MessageContext<?> idpMessageContext =
+			_webSsoProfileImpl.getMessageContext(
+				mockHttpServletRequest, new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			idpMessageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -1140,11 +1114,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test(expected = ExpiredException.class)
 	public void testVerifySubjectExpired() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLBindingContext samlBindingContext = messageContext.getSubcontext(
 			SAMLBindingContext.class);
@@ -1163,20 +1134,16 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 		issueDate = issueDate.minusYears(1);
 
-		Subject subject = getSubject(messageContext, nameID, issueDate);
-
-		_webSsoProfileImpl.verifySubject(messageContext, subject);
+		_webSsoProfileImpl.verifySubject(
+			messageContext, getSubject(messageContext, nameID, issueDate));
 	}
 
 	@Test(expected = SubjectException.class)
 	public void testVerifySubjectNoBearerSubjectConfirmation()
 		throws Exception {
 
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLBindingContext samlBindingContext = messageContext.getSubcontext(
 			SAMLBindingContext.class);
@@ -1207,11 +1174,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 	@Test
 	public void testVerifySubjectValidSubject() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
-
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLBindingContext samlBindingContext = messageContext.getSubcontext(
 			SAMLBindingContext.class);
@@ -1235,16 +1199,16 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			messageContext.getSubcontext(
 				SAMLSubjectNameIdentifierContext.class);
 
-		NameID resolvedNameId =
+		NameID resolvedNameID =
 			samlSubjectNameIdentifierContext.getSAML2SubjectNameID();
 
-		Assert.assertNotNull(resolvedNameId);
-		Assert.assertEquals(nameID.getFormat(), resolvedNameId.getFormat());
-		Assert.assertEquals(nameID.getValue(), resolvedNameId.getValue());
+		Assert.assertNotNull(resolvedNameID);
+		Assert.assertEquals(nameID.getFormat(), resolvedNameID.getFormat());
+		Assert.assertEquals(nameID.getValue(), resolvedNameID.getValue());
 	}
 
 	protected Subject getSubject(
-			MessageContext messageContext, NameID nameID, DateTime issueDate)
+			MessageContext<?> messageContext, NameID nameID, DateTime issueDate)
 		throws Exception {
 
 		SAMLPeerEntityContext samlPeerEntityContext =
@@ -1285,15 +1249,10 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 		Assertion assertion = OpenSamlUtil.buildAssertion();
 
-		Credential credential = getCredential(entityId);
-
-		OpenSamlUtil.signObject(assertion, credential, null);
-
-		MockHttpServletRequest mockHttpServletRequest =
-			getMockHttpServletRequest(ACS_URL);
+		OpenSamlUtil.signObject(assertion, getCredential(entityId), null);
 
 		MessageContext<?> messageContext = _webSsoProfileImpl.getMessageContext(
-			mockHttpServletRequest, new MockHttpServletResponse());
+			getMockHttpServletRequest(ACS_URL), new MockHttpServletResponse());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			messageContext.getSubcontext(SAMLPeerEntityContext.class);

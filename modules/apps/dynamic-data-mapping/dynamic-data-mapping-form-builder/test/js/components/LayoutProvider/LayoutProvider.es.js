@@ -12,14 +12,43 @@
  * details.
  */
 
+import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import {JSXComponent} from 'metal-jsx';
 
 import LayoutProvider from '../../../../src/main/resources/META-INF/resources/js/components/LayoutProvider/LayoutProvider.es';
-import {PagesVisitor} from '../../../../src/main/resources/META-INF/resources/js/util/visitors.es';
-import mockPages from '../../___mock__/mockPages';
+import {DEFAULT_FIELD_NAME_REGEX} from '../../../../src/main/resources/META-INF/resources/js/util/regex.es';
+import mockFieldType from '../../__mock__/mockFieldType.es';
+import mockPages from '../../__mock__/mockPages.es';
 
 let component;
-let pages = null;
+let liferayLanguageSpy;
+
+const changeField = ({settingsContext}, fieldName, value) => {
+	const visitor = new PagesVisitor(settingsContext.pages);
+
+	return visitor.mapFields((field) => {
+		if (field.fieldName === fieldName) {
+			field = {
+				...field,
+				value,
+			};
+		}
+
+		return field;
+	});
+};
+
+const mockLiferayLanguage = () => {
+	liferayLanguageSpy = jest.spyOn(Liferay.Language, 'get');
+
+	liferayLanguageSpy.mockImplementation((key) => {
+		if (key === 'field') {
+			return 'Field';
+		}
+
+		return key;
+	});
+};
 
 const rules = [
 	{
@@ -50,7 +79,9 @@ const rules = [
 	},
 ];
 
-const spritemap = 'icons.svg';
+const unmockLiferayLanguage = () => {
+	liferayLanguageSpy.mockRestore();
+};
 
 class Child extends JSXComponent {
 	render() {
@@ -62,10 +93,13 @@ class Parent extends JSXComponent {
 	render() {
 		return (
 			<LayoutProvider
-				initialPages={[...pages]}
+				defaultLanguageIdd="en_US"
+				editingLanguageId="en_US"
+				initialPages={[...mockPages]}
+				pages={[...mockPages]}
 				ref="provider"
-				rules={[]}
-				spritemap={spritemap}
+				rules={[...rules]}
+				spritemap="icons.svg"
 			>
 				<Child ref="child" />
 			</LayoutProvider>
@@ -75,7 +109,9 @@ class Parent extends JSXComponent {
 
 describe('LayoutProvider', () => {
 	beforeEach(() => {
-		pages = JSON.parse(JSON.stringify(mockPages));
+		fetch.mockResponse(JSON.stringify({}), {
+			status: 200,
+		});
 
 		jest.useFakeTimers();
 	});
@@ -84,39 +120,12 @@ describe('LayoutProvider', () => {
 		if (component) {
 			component.dispose();
 		}
-
-		pages = null;
 	});
 
 	it('receives pages through PROPS and move to the internal state', () => {
-		component = new LayoutProvider({
-			initialPages: pages,
-			rules: [],
-		});
+		component = new Parent();
 
 		expect(component.state.pages).toEqual(component.props.initialPages);
-	});
-
-	it('attaches the events to the child component', () => {
-		component = new Parent();
-
-		const {provider} = component.refs;
-
-		expect(provider.props.children[0].props.events).toMatchObject({
-			fieldAdded: expect.any(Function),
-			fieldClicked: expect.any(Function),
-			fieldDeleted: expect.any(Function),
-			fieldEdited: expect.any(Function),
-			fieldMoved: expect.any(Function),
-		});
-	});
-
-	it('passes to the child component the pages of the internal state', () => {
-		component = new Parent();
-
-		const {child, provider} = component.refs;
-
-		expect(child.props.pages).toEqual(provider.state.pages);
 	});
 
 	it('passes to the child component the focusedField', () => {
@@ -155,7 +164,9 @@ describe('LayoutProvider', () => {
 			target: 'liferay',
 		};
 
-		child.emit('ruleAdded', mockEvent);
+		const {dispatch} = child.context;
+
+		dispatch('ruleAdded', mockEvent);
 
 		jest.runAllTimers();
 
@@ -192,7 +203,9 @@ describe('LayoutProvider', () => {
 			ruleEditedIndex: 0,
 		};
 
-		child.emit('ruleSaved', mockEvent);
+		const {dispatch} = child.context;
+
+		dispatch('ruleSaved', mockEvent);
 
 		jest.runAllTimers();
 
@@ -220,13 +233,8 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					addedToPlaceholder: true,
-					source: {
-						columnIndex: 0,
-						pageIndex: 0,
-						rowIndex: 1,
-					},
-					target: {
+					sourceFieldName: 'text1',
+					targetIndexes: {
 						columnIndex: 0,
 						pageIndex: 0,
 						rowIndex: 0,
@@ -234,16 +242,17 @@ describe('LayoutProvider', () => {
 				};
 
 				const fields =
-					provider.state.pages[0].rows[1].columns[0].fields;
+					provider.state.pages[0].rows[1].columns[0].fields[0];
 
-				child.emit('fieldMoved', mockEvent);
+				const {dispatch} = child.context;
+
+				dispatch('fieldMoved', mockEvent);
 
 				jest.runAllTimers();
 
 				expect(
-					provider.state.pages[0].rows[0].columns[0].fields
+					provider.state.pages[0].rows[0].columns[0].fields[0]
 				).toEqual(fields);
-				expect(child.props.pages).toEqual(provider.state.pages);
 			});
 
 			it('listens to the pagesUpdated event', () => {
@@ -251,38 +260,36 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
-				child.emit('pagesUpdated', pages);
+				const {dispatch} = child.context;
+
+				dispatch('pagesUpdated', mockPages);
 
 				jest.runAllTimers();
 
 				expect(provider.state.pages).toMatchSnapshot();
-				expect(child.props.pages).toEqual(provider.state.pages);
 			});
 
 			it('listens to the fieldMoved event and move the field to the column in pages', () => {
 				component = new Parent();
 
 				const {child, provider} = component.refs;
+
 				const mockEvent = {
-					source: {
-						columnIndex: 1,
-						pageIndex: 0,
-						rowIndex: 1,
-					},
-					target: {
+					sourceFieldName: 'select',
+					targetIndexes: {
 						columnIndex: 1,
 						pageIndex: 0,
 						rowIndex: 0,
 					},
-					targetIsEmptyRow: false,
 				};
 
-				child.emit('fieldMoved', mockEvent);
+				const {dispatch} = child.context;
+
+				dispatch('fieldMoved', mockEvent);
 
 				jest.runAllTimers();
 
 				expect(provider.state.pages).toMatchSnapshot();
-				expect(child.props.pages).toEqual(provider.state.pages);
 			});
 
 			it('moves the field to the column in pages and remove the row if there are no fields', () => {
@@ -290,25 +297,22 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					source: {
-						columnIndex: 0,
-						pageIndex: 0,
-						rowIndex: 2,
-					},
-					target: {
+					sourceFieldName: 'date',
+					sourceFieldPage: 0,
+					targetIndexes: {
 						columnIndex: 1,
 						pageIndex: 0,
 						rowIndex: 0,
 					},
-					targetIsEmptyRow: false,
 				};
 
-				child.emit('fieldMoved', mockEvent);
+				const {dispatch} = child.context;
+
+				dispatch('fieldMoved', mockEvent);
 
 				jest.runAllTimers();
 
 				expect(provider.state.pages).toMatchSnapshot();
-				expect(child.props.pages).toEqual(provider.state.pages);
 			});
 
 			it('moves the field to the row in pages and remove the row if there are no fields', () => {
@@ -316,25 +320,22 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					addedToPlaceholder: true,
-					source: {
-						columnIndex: 0,
-						pageIndex: 0,
-						rowIndex: 0,
-					},
-					target: {
+					sourceFieldName: 'radio',
+					sourceFieldPage: 0,
+					targetIndexes: {
 						columnIndex: 0,
 						pageIndex: 0,
 						rowIndex: 0,
 					},
 				};
 
-				child.emit('fieldMoved', mockEvent);
+				const {dispatch} = child.context;
+
+				dispatch('fieldMoved', mockEvent);
 
 				jest.runAllTimers();
 
 				expect(provider.state.pages).toMatchSnapshot();
-				expect(child.props.pages).toEqual(provider.state.pages);
 			});
 		});
 
@@ -344,24 +345,31 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					focusedField: {
-						name: 'text',
-						settingsContext: {
-							pages: mockPages,
-						},
+					data: {
+						parentFieldName: undefined,
 					},
-					target: {
+					fieldType: mockFieldType,
+					indexes: {
 						columnIndex: 1,
 						pageIndex: 0,
 						rowIndex: 0,
 					},
 				};
 
-				child.emit('fieldAdded', mockEvent);
+				mockLiferayLanguage();
+
+				const {dispatch} = child.context;
+
+				dispatch('fieldAdded', mockEvent);
 
 				jest.runAllTimers();
 
-				expect(child.props.pages).toEqual(provider.state.pages);
+				expect(
+					provider.state.pages[0].rows[0].columns[1].fields[0]
+						.fieldName
+				).toEqual(expect.stringMatching(DEFAULT_FIELD_NAME_REGEX));
+
+				unmockLiferayLanguage();
 			});
 
 			it('listen the fieldAdded event and add the field in the row to the pages', () => {
@@ -369,24 +377,31 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					focusedField: {
-						name: 'text',
-						settingsContext: {
-							pages: mockPages,
-						},
+					data: {
+						parentFieldName: undefined,
 					},
-					target: {
+					fieldType: mockFieldType,
+					indexes: {
 						columnIndex: 0,
 						pageIndex: 0,
 						rowIndex: 0,
 					},
 				};
 
-				child.emit('fieldAdded', mockEvent);
+				mockLiferayLanguage();
+
+				const {dispatch} = child.context;
+
+				dispatch('fieldAdded', mockEvent);
 
 				jest.runAllTimers();
 
-				expect(child.props.pages).toEqual(provider.state.pages);
+				expect(
+					provider.state.pages[0].rows[0].columns[0].fields[0]
+						.fieldName
+				).toEqual(expect.stringMatching(DEFAULT_FIELD_NAME_REGEX));
+
+				unmockLiferayLanguage();
 			});
 
 			it('updates the focusedField with the location of the new field when adding to the pages', () => {
@@ -394,26 +409,30 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					focusedField: {
-						name: 'text',
-						settingsContext: {
-							pages: mockPages,
-						},
+					data: {
+						parentFieldName: undefined,
 					},
-					target: {
+					fieldType: mockFieldType,
+					indexes: {
 						columnIndex: 2,
 						pageIndex: 0,
 						rowIndex: 1,
 					},
 				};
 
-				child.emit('fieldAdded', mockEvent);
+				mockLiferayLanguage();
+
+				const {dispatch} = child.context;
+
+				dispatch('fieldAdded', mockEvent);
 
 				jest.runAllTimers();
 
-				expect(child.props.focusedField).toEqual(
-					provider.state.focusedField
+				expect(provider.state.focusedField.fieldName).toEqual(
+					expect.stringMatching(DEFAULT_FIELD_NAME_REGEX)
 				);
+
+				unmockLiferayLanguage();
 			});
 		});
 
@@ -422,18 +441,70 @@ describe('LayoutProvider', () => {
 				component = new Parent();
 
 				const {child, provider} = component.refs;
+
+				expect(
+					provider.state.pages[0].rows[1].columns[0].fields.length
+				).toEqual(2);
+
 				const mockEvent = {
-					columnIndex: 0,
-					pageIndex: 0,
-					rowIndex: 1,
+					activePage: 0,
+					fieldName: 'text1',
 				};
 
-				child.emit('fieldDeleted', mockEvent);
+				const {dispatch} = child.context;
+
+				dispatch('fieldDeleted', mockEvent);
 
 				jest.runAllTimers();
 
+				expect(
+					provider.state.pages[0].rows[1].columns[0].fields.length
+				).toEqual(1);
 				expect(provider.state.pages).toMatchSnapshot();
-				expect(child.props.pages).toEqual(provider.state.pages);
+			});
+		});
+
+		describe('fieldEdited', () => {
+			it('listens the fieldEdited event and edit the field label keeping the same fieldName', () => {
+				component = new Parent();
+
+				const {child, provider} = component.refs;
+				let mockEvent = {
+					data: {
+						parentFieldName: undefined,
+					},
+					fieldType: mockFieldType,
+					indexes: {
+						columnIndex: 0,
+						pageIndex: 0,
+						rowIndex: 0,
+					},
+				};
+
+				const {dispatch} = child.context;
+
+				dispatch('fieldAdded', mockEvent);
+
+				jest.runAllTimers();
+
+				const expectedFieldName =
+					provider.state.pages[0].rows[0].columns[0].fields[0]
+						.fieldName;
+
+				mockEvent = {
+					fieldName: expectedFieldName,
+					propertyName: 'label',
+					propertyValue: 'newLabel',
+				};
+
+				dispatch('fieldEdited', mockEvent);
+
+				jest.runAllTimers();
+
+				expect(
+					provider.state.pages[0].rows[0].columns[0].fields[0]
+						.fieldName
+				).toEqual(expectedFieldName);
 			});
 		});
 
@@ -443,12 +514,15 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					columnIndex: 0,
-					pageIndex: 0,
-					rowIndex: 0,
+					activePage: 0,
+					fieldName: 'radio',
 				};
 
-				child.emit('fieldDuplicated', mockEvent);
+				mockLiferayLanguage();
+
+				const {dispatch} = child.context;
+
+				dispatch('fieldDuplicated', mockEvent);
 
 				jest.runAllTimers();
 
@@ -468,16 +542,37 @@ describe('LayoutProvider', () => {
 							if (pages.length) {
 								pages[0].rows[0].columns[0].fields[1].value =
 									'Liferay';
+
+								const validation =
+									pages[0].rows[0].columns[0].fields[4]
+										.validation;
+
+								if (validation && validation.fieldName) {
+
+									// Overrides the fieldName because it is generated when a field is duplicated,
+									// toMatchSnapshot has problems with deep arrays so we override it here to
+									// avoid this.
+
+									validation.fieldName = 'Any<String>';
+								}
 							}
 
 							return {
 								...field,
 								fieldName: `name${fieldIndex}${columnIndex}${rowIndex}${pageIndex}`,
+
+								// Overrides the instanceId because it is generated when a field is duplicated,
+								// toMatchSnapshot has problems with deep arrays so we override it here to
+								// avoid this.
+
+								instanceId: 'Any<String>',
 								name: `name${fieldIndex}${columnIndex}${rowIndex}${pageIndex}`,
 							};
 						}
 					)
 				).toMatchSnapshot();
+
+				unmockLiferayLanguage();
 			});
 		});
 
@@ -487,17 +582,17 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
-					columnIndex: 0,
-					pageIndex: 0,
-					rowIndex: 0,
+					activePage: 0,
+					fieldName: 'radio',
 				};
 
-				child.emit('fieldClicked', mockEvent);
+				const {dispatch} = child.context;
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					fieldClicked: expect.any(Function),
-				});
-				expect(provider.state.focusedField).toEqual(mockEvent);
+				dispatch('fieldClicked', mockEvent);
+
+				jest.runAllTimers();
+
+				expect(provider.state.focusedField).toMatchSnapshot();
 			});
 		});
 
@@ -506,99 +601,78 @@ describe('LayoutProvider', () => {
 				component = new Parent();
 
 				const {child, provider} = component.refs;
+				const mockEvent = {
+					editingLanguageId: 'en_US',
+					fieldName: 'name',
+					propertyValue: 'radio',
+				};
 
-				child.emit('fieldBlurred');
+				const {dispatch} = child.context;
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					fieldBlurred: expect.any(Function),
-				});
+				dispatch('fieldBlurred', mockEvent);
+
+				jest.runAllTimers();
+
 				expect(provider.state.focusedField).toMatchSnapshot();
 			});
 		});
 
-		describe('fieldResized', () => {
-			it('listens to the columnResized event and resize the field when the left arrow is pulled', () => {
+		describe('fieldChangesCanceled', () => {
+			it('listens the fieldChangesCanceled event and change the state of the focusedField and pages for the data wich was received', () => {
 				component = new Parent();
 
 				const {child, provider} = component.refs;
-				const mockEvent = {
-					column: 7,
-					direction: 'left',
-					source: {
-						dataset: {
-							ddmFieldColumn: 1,
-							ddmFieldPage: 0,
-							ddmFieldRow: 0,
-						},
-					},
-				};
 
-				child.emit('columnResized', mockEvent);
-
-				jest.runAllTimers();
-
-				expect(provider.state.pages).toMatchSnapshot();
-				expect(child.props.pages).toEqual(provider.state.pages);
-			});
-		});
-
-		xdescribe('fieldChangesCanceled', () => {
-			it('listens the fieldChangesCanceled event and change the state of the focusedField and pages for the data wich was received', () => {
-				component = new Parent({
-					initialPages: pages,
+				provider.setState({
+					previousFocusedField: mockFieldType,
 				});
 
-				const {child, provider} = component.refs;
-				const mockedData = {
-					fieldName: 'original',
-					name: 'text1',
+				const changedFocusedField = {
+					...mockFieldType,
 					settingsContext: {
-						pages: [],
+						...mockFieldType.settingsContext,
+						pages: changeField(mockFieldType, 'required', false),
 					},
-					type: 'text',
 				};
 
 				provider.setState({
-					focusedField: {
-						fieldName: 'changed',
-						icon: 'text',
-						name: 'text1',
-						originalContext: mockedData,
-						settingsContext: {
-							pages: [],
-						},
-					},
+					focusedField: changedFocusedField,
 				});
 
-				child.emit('fieldChangesCanceled');
+				expect(provider.state.focusedField).toEqual(
+					changedFocusedField
+				);
+
+				const {dispatch} = child.context;
+
+				dispatch('fieldChangesCanceled');
 
 				jest.runAllTimers();
 
-				expect(provider.state.focusedField.fieldName).toEqual(
-					'original'
+				expect(provider.state.focusedField).toEqual(
+					provider.state.previousFocusedField
 				);
-				expect(provider.state.pages).toMatchSnapshot();
 			});
 		});
 
 		describe('focusedFieldUpdated', () => {
-			it('listens the focusedFieldUpdated event and change the state of the focusedField and pages for the data wich was received', () => {
+			it.skip('listens the focusedFieldEvaluationEnded event and change the state of the focusedField and pages for the data wich was received', () => {
 				component = new Parent();
 
 				const {child, provider} = component.refs;
-				const mockEvent = {
-					columnIndex: 0,
-					pageIndex: 0,
-					rowIndex: 0,
-				};
 
-				child.emit('focusedFieldUpdated', mockEvent);
+				const {dispatch} = child.context;
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					focusedFieldUpdated: expect.any(Function),
+				dispatch('focusedFieldEvaluationEnded', {
+					...mockFieldType,
+					instanceId: 'instanceId',
 				});
-				expect(provider.state.focusedField).toEqual(mockEvent);
-				expect(provider.state.pages).toMatchSnapshot();
+
+				jest.runAllTimers();
+
+				expect(provider.state.focusedField).toMatchSnapshot({
+					instanceId: expect.any(String),
+				});
 			});
 		});
 
@@ -609,13 +683,13 @@ describe('LayoutProvider', () => {
 				const {child, provider} = component.refs;
 				const pageIndex = 0;
 
-				child.emit('pageDeleted', pageIndex);
+				const {dispatch} = child.context;
 
-				expect(
-					provider.props.children[pageIndex].props.events
-				).toMatchObject({
-					pageDeleted: expect.any(Function),
-				});
+				dispatch('pageDeleted', pageIndex);
+
+				jest.runAllTimers();
+
+				expect(provider.state.pages.length).toEqual(0);
 				expect(provider.state.pages).toMatchSnapshot();
 			});
 		});
@@ -626,11 +700,13 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
-				child.emit('pageAdded');
+				const {dispatch} = child.context;
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					pageAdded: expect.any(Function),
-				});
+				dispatch('pageAdded', {pageIndex: 1});
+
+				jest.runAllTimers();
+
+				expect(provider.state.pages.length).toEqual(2);
 				expect(provider.state.pages).toMatchSnapshot();
 			});
 		});
@@ -641,11 +717,15 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
-				child.emit('pageReset');
+				expect(provider.state.pages[0].rows.length).toEqual(4);
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					pageReset: expect.any(Function),
-				});
+				const {dispatch} = child.context;
+
+				dispatch('pageReset', {pageIndex: 0});
+
+				jest.runAllTimers();
+
+				expect(provider.state.pages[0].rows.length).toEqual(1);
 				expect(provider.state.pages).toMatchSnapshot();
 			});
 		});
@@ -656,12 +736,15 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
-				child.emit('paginationModeUpdated');
+				expect(provider.state.paginationMode).toEqual('wizard');
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					paginationModeUpdated: expect.any(Function),
-				});
-				expect(provider.state.pages).toMatchSnapshot();
+				const {dispatch} = child.context;
+
+				dispatch('paginationModeUpdated');
+
+				jest.runAllTimers();
+
+				expect(provider.state.paginationMode).toEqual('paginated');
 			});
 
 			it('listens the paginationModeUpdated event and change the state of pagination mode from pagination to wizard', () => {
@@ -669,18 +752,23 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
+				expect(provider.state.paginationMode).toEqual('wizard');
+
 				provider.setState({
-					paginationMode: 'pagination',
+					paginationMode: 'paginated',
 				});
 
 				jest.runAllTimers();
 
-				child.emit('paginationModeUpdated');
+				expect(provider.state.paginationMode).toEqual('paginated');
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					paginationModeUpdated: expect.any(Function),
-				});
-				expect(provider.state.pages).toMatchSnapshot();
+				const {dispatch} = child.context;
+
+				dispatch('paginationModeUpdated');
+
+				jest.runAllTimers();
+
+				expect(provider.state.paginationMode).toEqual('wizard');
 			});
 		});
 
@@ -690,14 +778,15 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
-				child.emit('successPageChanged', {
+				const {dispatch} = child.context;
+
+				dispatch('successPageChanged', {
 					enabled: true,
 				});
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					successPageChanged: expect.any(Function),
-				});
-				expect(provider.state.pages).toMatchSnapshot();
+				jest.runAllTimers();
+
+				expect(provider.state.successPageSettings.enabled).toBeTruthy();
 			});
 		});
 
@@ -707,12 +796,13 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 
-				child.emit('activePageUpdated', 1);
+				const {dispatch} = child.context;
 
-				expect(provider.props.children[0].props.events).toMatchObject({
-					activePageUpdated: expect.any(Function),
-				});
-				expect(provider.state.pages).toMatchSnapshot();
+				dispatch('activePageUpdated', 1);
+
+				jest.runAllTimers();
+
+				expect(provider.state.activePage).toEqual(1);
 			});
 		});
 	});

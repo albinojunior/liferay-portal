@@ -106,12 +106,13 @@ definition {
 
 	@priority = "4"
 	test AddDMDocumentSiteMemberRoleInline {
+		property custom.properties = "default.layout.template.id=1_column";
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
 		Permissions.setUpSiteMemberRoleLoginUserPG(
-			page = "Public Pages",
 			pageName = "Documents and Media Page",
 			portletName = "Documents and Media",
 			siteName = "Site Name",
-			siteURLTemp = "true",
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
@@ -184,6 +185,8 @@ definition {
 
 	@priority = "4"
 	test AddDMDocumentSiteRole {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
 		Permissions.setUpSiteRoleLoginUserPG(
 			page = "Public Pages",
 			pageName = "Documents and Media Page",
@@ -294,6 +297,16 @@ definition {
 
 		DMDocument.enableActionsMenuOnPortlet();
 
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Documents and Media");
+
+		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+
+		PermissionsInline.addOrRemoveAccessPermissionFromAllRoles(
+			addOrRemoveViewPermission = "Add",
+			roleList = "guest");
+
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
 			userLoginFullName = "userfn userln");
@@ -347,7 +360,6 @@ definition {
 	test ViewDMDocumentNoGuestRole {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Documents and Media Page");
@@ -385,7 +397,6 @@ definition {
 	test ViewDMFolderGuestInline {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Documents and Media Page");
@@ -402,6 +413,16 @@ definition {
 			pageName = "Documents and Media Page",
 			userLoginEmailAddress = "test@liferay.com",
 			userLoginFullName = "Test Test");
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Documents and Media");
+
+		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+
+		PermissionsInline.addOrRemoveAccessPermissionFromAllRoles(
+			addOrRemoveViewPermission = "Add",
+			roleList = "guest");
 
 		User.logoutPG();
 

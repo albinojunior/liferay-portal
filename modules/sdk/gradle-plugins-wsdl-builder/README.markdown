@@ -12,7 +12,7 @@ To use the plugin, include it in your build script:
 ```gradle
 buildscript {
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.wsdl.builder", version: "3.0.0"
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.wsdl.builder", version: "3.0.1"
 	}
 
 	repositories {
@@ -121,10 +121,10 @@ following dependencies:
 
 - `axis:axis-wsdl4j:1.5.1`
 - `com.liferay:org.apache.axis:1.4.LIFERAY-PATCHED-1`
+- `com.sun.mail:javax.mail:1.6.2`
 - `commons-discovery:commons-discovery:0.2`
 - `commons-logging:commons-logging:1.0.4`
 - `javax.activation:activation:1.1`
-- `javax.mail:mail:1.4`
 - `org.apache.axis:axis-jaxrpc:1.4`
 - `org.apache.axis:axis-saaj:1.4`
 

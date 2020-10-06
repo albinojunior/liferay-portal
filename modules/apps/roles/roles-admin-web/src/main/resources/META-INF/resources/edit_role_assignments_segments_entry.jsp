@@ -16,13 +16,9 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-SearchContainer searchContainer = (SearchContainer)request.getAttribute("edit_role_assignments.jsp-searchContainer");
-%>
-
 <liferay-ui:search-container
 	id="assigneesSearch"
-	searchContainer="<%= searchContainer %>"
+	searchContainer='<%= (SearchContainer)request.getAttribute("edit_role_assignments.jsp-searchContainer") %>'
 	var="segmentsEntrySearchContainer"
 >
 	<liferay-ui:search-container-row
@@ -75,7 +71,7 @@ SearchContainer searchContainer = (SearchContainer)request.getAttribute("edit_ro
 					<liferay-ui:icon
 						label="<%= true %>"
 						message="<%= String.valueOf(SegmentsEntryDisplayContext.getSegmentsEntryUsersCount(segmentsEntry.getSegmentsEntryId())) %>"
-						onClick='<%= renderResponse.getNamespace() + "openViewMembersDialog(event);" %>'
+						onClick='<%= liferayPortletResponse.getNamespace() + "openViewMembersDialog(event);" %>'
 						url="<%= viewMembersURL %>"
 					/>
 				</liferay-ui:search-container-column-text>
@@ -90,7 +86,7 @@ SearchContainer searchContainer = (SearchContainer)request.getAttribute("edit_ro
 					>
 						<liferay-ui:icon
 							message="view-members"
-							onClick='<%= renderResponse.getNamespace() + "openViewMembersDialog(event);" %>'
+							onClick='<%= liferayPortletResponse.getNamespace() + "openViewMembersDialog(event);" %>'
 							url="<%= viewMembersURL %>"
 						/>
 					</liferay-ui:icon-menu>
@@ -112,7 +108,7 @@ SearchContainer searchContainer = (SearchContainer)request.getAttribute("edit_ro
 </liferay-ui:search-container>
 
 <aui:script>
-	function <portlet:namespace/>openViewMembersDialog(event) {
+	function <portlet:namespace />openViewMembersDialog(event) {
 		Liferay.Util.openInDialog(event, {
 			dialog: {
 				constrain: true,

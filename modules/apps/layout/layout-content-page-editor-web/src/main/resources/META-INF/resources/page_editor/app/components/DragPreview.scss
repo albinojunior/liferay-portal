@@ -1,3 +1,5 @@
+@import 'atlas-variables';
+
 @import 'variables';
 
 .page-editor__drag-preview {
@@ -11,18 +13,39 @@
 	z-index: $dragPreviewLayer;
 
 	&__content {
-		background-color: rgba(225, 235, 255, 1);
+		background-color: $white;
 		border-radius: 4px;
-		color: #0b5fff;
+		box-shadow: 0 8px 16px rgba(39, 40, 51, 0.16);
+		color: $secondary-d2;
 		cursor: grabbing;
 		display: block;
+		font-family: $font-family-base;
 		font-size: 12px;
 		font-weight: 600;
-		height: 64px;
+		height: 32px;
 		padding: 8px;
-		text-align: center;
+		position: absolute;
+		text-align: left;
 		text-overflow: ellipsis;
-		width: 116px;
+		width: 246px;
 		word-wrap: break-word;
+
+		.lexicon-icon {
+			font-size: 14px;
+			margin-right: 16px;
+		}
+
+		&__treeview {
+			align-items: center;
+			border: 1px solid $primary-l1;
+			display: flex;
+			padding: 8px 10px;
+			width: auto;
+
+			.lexicon-icon {
+				margin-right: 8px;
+				margin-top: 0;
+			}
+		}
 	}
 }

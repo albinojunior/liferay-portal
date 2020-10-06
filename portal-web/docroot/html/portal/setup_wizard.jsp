@@ -37,7 +37,7 @@
 	</header>
 
 	<div class="container" id="content">
-		<div class="sheet sheet-lg" id="main-content">
+		<div class="pl-4 position-relative pr-4 pt-4 sheet sheet-lg" id="main-content">
 			<h2 class="sheet-title" title="<liferay-ui:message key="basic-configuration" />">
 				<liferay-ui:message key="basic-configuration" />
 			</h2>
@@ -190,18 +190,23 @@
 										for (DBType dbType : DBManagerUtil.getDBTypes()) {
 											String dbTypeString = dbType.toString();
 
-											Map<String, Object> data = new HashMap<String, Object>();
-
 											String driverClassName = PropsUtil.get(PropsKeys.SETUP_DATABASE_DRIVER_CLASS_NAME, new Filter(dbTypeString));
 
-											data.put("driverClassName", driverClassName);
-
 											String url = PropsUtil.get(PropsKeys.SETUP_DATABASE_URL, new Filter(dbTypeString));
-
-											data.put("url", url);
 										%>
 
-											<aui:option data="<%= data %>" label='<%= "database." + dbTypeString %>' selected="<%= PropsValues.JDBC_DEFAULT_URL.contains(dbTypeString) %>" value="<%= dbTypeString %>" />
+											<aui:option
+												data='<%=
+													HashMapBuilder.<String, Object>put(
+														"driverClassName", driverClassName
+													).put(
+														"url", url
+													).build()
+												%>'
+												label='<%= "database." + dbTypeString %>'
+												selected="<%= PropsValues.JDBC_DEFAULT_URL.contains(dbTypeString) %>"
+												value="<%= dbTypeString %>"
+											/>
 
 										<%
 										}
@@ -332,12 +337,12 @@
 						var loadingMask = new A.LoadingMask(
 							{
 								'strings.loading': '<%= UnicodeLanguageUtil.get(request, "liferay-is-being-installed") %>',
-								target: A.getBody()
+								target: A.one('#main-content')
 							}
 						);
 
 						var updateMessage = function(message) {
-							connectionMessages.html('<div class="alert alert-danger"><span class="alert-indicator"><svg aria-hidden="true" class="lexicon-icon lexicon-icon-exclamation-full"><use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#exclamation-full"></use></svg></span><strong class="lead"><liferay-ui:message key="error-colon" /></strong>' + message + '</div>');
+							connectionMessages.html('<div class="alert alert-danger"><span class="alert-indicator"><svg aria-hidden="true" class="lexicon-icon lexicon-icon-exclamation-full"><use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#exclamation-full"></use></svg></span><strong class="lead"><liferay-ui:message key="error-colon" /></strong>' + message + '</div>');
 						};
 
 						var startInstall = function() {
@@ -411,7 +416,7 @@
 							<div class="alert alert-success">
 								<span class="alert-indicator">
 									<svg aria-hidden="true" class="lexicon-icon lexicon-icon-check-circle-full">
-										<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#check-circle-full"></use>
+										<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#check-circle-full"></use>
 									</svg>
 								</span>
 
@@ -440,7 +445,7 @@
 							<div class="alert alert-info">
 								<span class="alert-indicator">
 									<svg aria-hidden="true" class="lexicon-icon lexicon-icon-info-circle">
-										<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#info-circle"></use>
+										<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#info-circle"></use>
 									</svg>
 								</span>
 
@@ -452,7 +457,7 @@
 								<div class="alert alert-warning">
 									<span class="alert-indicator">
 										<svg aria-hidden="true" class="lexicon-icon lexicon-icon-warning-full">
-											<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#warning-full"></use>
+											<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#warning-full"></use>
 										</svg>
 									</span>
 

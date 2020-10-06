@@ -59,18 +59,28 @@ definition {
 	macro confirmSharepointApp {
 		Pause(locator1 = "3000");
 
-		var app_name = "Collaboration Test Application";
+		var app_name = "SPInt";
+
+		if (IsElementPresent(locator1 = "MicrosoftLogin#LOGIN_STAY_SIGNED_IN_CONFIRMATION")) {
+			AssertClick(
+				locator1 = "MicrosoftLogin#LOGIN_YES_BUTTON",
+				value1 = "Yes");
+
+			Pause(locator1 = "5000");
+		}
 
 		if (IsElementPresent(locator1 = "MicrosoftLogin#SHAREPOINT_NOTIFICATION")) {
 			AssertClick(
 				locator1 = "MicrosoftLogin#SHAREPOINT_TRUST_IT_BUTTON",
 				value1 = "Trust It");
+
+			Pause(locator1 = "5000");
 		}
 
 		if (IsElementPresent(locator1 = "Portlet#HEADER")) {
 			AssertTextEquals(
 				locator1 = "Portlet#HEADER",
-				value1 = "${dmRepositoryName}");
+				value1 = "Documents and Media");
 		}
 		else {
 			AssertTextEquals(

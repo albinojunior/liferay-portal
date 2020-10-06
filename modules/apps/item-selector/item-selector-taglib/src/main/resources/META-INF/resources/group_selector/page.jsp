@@ -23,7 +23,7 @@ Set<String> groupTypes = groupSelectorDisplayContext.getGroupTypes();
 %>
 
 <c:if test="<%= groupTypes.size() > 1 %>">
-	<div class="container-fluid-1280">
+	<clay:container-fluid>
 		<div class="btn-group btn-group-sm my-3" role="group">
 
 			<%
@@ -37,10 +37,12 @@ Set<String> groupTypes = groupSelectorDisplayContext.getGroupTypes();
 			%>
 
 		</div>
-	</div>
+	</clay:container-fluid>
 </c:if>
 
-<div class="container-fluid-1280 lfr-item-viewer">
+<clay:container-fluid
+	cssClass="lfr-item-viewer"
+>
 	<liferay-ui:search-container
 		searchContainer="<%= groupSelectorDisplayContext.getSearchContainer() %>"
 		var="listSearchContainer"
@@ -54,14 +56,22 @@ Set<String> groupTypes = groupSelectorDisplayContext.getGroupTypes();
 				colspan="<%= 3 %>"
 			>
 				<liferay-frontend:horizontal-card
-					cardCssClass="card-interactive card-interactive-primary"
 					text="<%= curGroup.getDescriptiveName(locale) %>"
 					url="<%= groupSelectorDisplayContext.getViewGroupURL(curGroup) %>"
 				>
 					<liferay-frontend:horizontal-card-col>
-						<liferay-frontend:horizontal-card-icon
-							icon="<%= groupSelectorDisplayContext.getGroupItemSelectorIcon() %>"
-						/>
+						<c:choose>
+							<c:when test="<%= Validator.isNotNull(curGroup.getLogoURL(themeDisplay, false)) %>">
+								<clay:sticker>
+									<img alt="" class="sticker-img" src="<%= curGroup.getLogoURL(themeDisplay, false) %>" />
+								</clay:sticker>
+							</c:when>
+							<c:otherwise>
+								<liferay-frontend:horizontal-card-icon
+									icon="<%= groupSelectorDisplayContext.getGroupItemSelectorIcon() %>"
+								/>
+							</c:otherwise>
+						</c:choose>
 					</liferay-frontend:horizontal-card-col>
 				</liferay-frontend:horizontal-card>
 			</liferay-ui:search-container-column-text>
@@ -72,4 +82,4 @@ Set<String> groupTypes = groupSelectorDisplayContext.getGroupTypes();
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</div>
+</clay:container-fluid>

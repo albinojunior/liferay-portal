@@ -15,11 +15,10 @@
 package com.liferay.site.memberships.web.internal.servlet.taglib.util;
 
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
@@ -31,7 +30,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.List;
-import java.util.Objects;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletURL;
@@ -58,31 +56,26 @@ public class UserActionDropdownItemsProvider {
 	}
 
 	public List<DropdownItem> getActionDropdownItems() throws Exception {
-		return new DropdownItemList() {
-			{
-				if (GroupPermissionUtil.contains(
-						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getSiteGroupIdOrLiveGroupId(),
-						ActionKeys.ASSIGN_USER_ROLES)) {
-
-					add(_getAssignRolesActionUnsafeConsumer());
-				}
-
-				if (GroupPermissionUtil.contains(
-						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getSiteGroupIdOrLiveGroupId(),
-						ActionKeys.ASSIGN_MEMBERS) &&
-					!SiteMembershipPolicyUtil.isMembershipProtected(
-						_themeDisplay.getPermissionChecker(), _user.getUserId(),
-						_themeDisplay.getSiteGroupIdOrLiveGroupId()) &&
-					!SiteMembershipPolicyUtil.isMembershipRequired(
-						_user.getUserId(),
-						_themeDisplay.getSiteGroupIdOrLiveGroupId())) {
-
-					add(_getDeleteGroupUsersActionUnsafeConsumer());
-				}
-			}
-		};
+		return DropdownItemListBuilder.add(
+			() -> GroupPermissionUtil.contains(
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getSiteGroupIdOrLiveGroupId(),
+				ActionKeys.ASSIGN_USER_ROLES),
+			_getAssignRolesActionUnsafeConsumer()
+		).add(
+			() ->
+				GroupPermissionUtil.contains(
+					_themeDisplay.getPermissionChecker(),
+					_themeDisplay.getSiteGroupIdOrLiveGroupId(),
+					ActionKeys.ASSIGN_MEMBERS) &&
+				!SiteMembershipPolicyUtil.isMembershipProtected(
+					_themeDisplay.getPermissionChecker(), _user.getUserId(),
+					_themeDisplay.getSiteGroupIdOrLiveGroupId()) &&
+				!SiteMembershipPolicyUtil.isMembershipRequired(
+					_user.getUserId(),
+					_themeDisplay.getSiteGroupIdOrLiveGroupId()),
+			_getDeleteGroupUsersActionUnsafeConsumer()
+		).build();
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
@@ -100,9 +93,7 @@ public class UserActionDropdownItemsProvider {
 
 		Group group = _themeDisplay.getScopeGroup();
 
-		if (!group.isSite() &&
-			Objects.equals(group.getType(), GroupConstants.TYPE_DEPOT)) {
-
+		if (!group.isSite() && group.isDepot()) {
 			assignRolesURL.setParameter(
 				"roleType", String.valueOf(RoleConstants.TYPE_DEPOT));
 		}

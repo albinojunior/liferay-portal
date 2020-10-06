@@ -19,8 +19,8 @@ const applicationId = 'Document';
 
 /**
  * Returns analytics payload with Document information.
- * @param {object} documentElement The document DOM element
- * @return {object} The payload with document information
+ * @param {Object} documentElement The document DOM element
+ * @returns {Object} The payload with document information
  */
 function getDocumentPayload(documentElement) {
 	const {dataset} = documentElement;
@@ -42,8 +42,8 @@ function getDocumentPayload(documentElement) {
 
 /**
  * Wether a Document is trackable or not.
- * @param {object} element The Document DOM element
- * @return {boolean} True if the element is trackable.
+ * @param {Object} element The Document DOM element
+ * @returns {boolean} True if the element is trackable.
  */
 function isTrackableDocument(documentElement) {
 	return documentElement && 'analyticsAssetId' in documentElement.dataset;
@@ -51,7 +51,7 @@ function isTrackableDocument(documentElement) {
 
 /**
  * Sends information when user clicks on a Document.
- * @param {object} The Analytics client instance
+ * @param {Object} The Analytics client instance
  */
 function trackDocumentDownloaded(analytics) {
 	const onClick = ({target}) => {
@@ -78,7 +78,7 @@ function trackDocumentDownloaded(analytics) {
 
 /**
  * Sends information when user scrolls on a Document.
- * @param {object} The Analytics client instance
+ * @param {Object} The Analytics client instance
  */
 function trackDocumentPreviewed(analytics) {
 	const stopTrackingOnReady = onReady(() => {
@@ -88,8 +88,8 @@ function trackDocumentPreviewed(analytics) {
 					'[data-analytics-asset-action="preview"]'
 				)
 			)
-			.filter(element => isTrackableDocument(element))
-			.forEach(element => {
+			.filter((element) => isTrackableDocument(element))
+			.forEach((element) => {
 				const payload = getDocumentPayload(element);
 
 				analytics.send('documentPreviewed', applicationId, payload);
@@ -101,7 +101,7 @@ function trackDocumentPreviewed(analytics) {
 
 /**
  * Plugin function that registers listeners for Document events
- * @param {object} analytics The Analytics client
+ * @param {Object} analytics The Analytics client
  */
 function documents(analytics) {
 	const stopTrackingDocumentDownloaded = trackDocumentDownloaded(analytics);

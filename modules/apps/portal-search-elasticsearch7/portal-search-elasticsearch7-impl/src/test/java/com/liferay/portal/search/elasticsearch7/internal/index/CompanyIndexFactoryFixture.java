@@ -16,9 +16,12 @@ package com.liferay.portal.search.elasticsearch7.internal.index;
 
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchFixture;
+import com.liferay.portal.search.elasticsearch7.internal.configuration.ElasticsearchConfigurationWrapper;
+import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchClientResolver;
 import com.liferay.portal.search.elasticsearch7.internal.connection.IndexName;
 import com.liferay.portal.search.index.IndexNameBuilder;
+
+import java.util.HashMap;
 
 import org.elasticsearch.client.RestHighLevelClient;
 
@@ -28,9 +31,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 public class CompanyIndexFactoryFixture {
 
 	public CompanyIndexFactoryFixture(
-		ElasticsearchFixture elasticsearchFixture, String indexName) {
+		ElasticsearchClientResolver elasticsearchClientResolver,
+		String indexName) {
 
-		_elasticsearchFixture = elasticsearchFixture;
+		_elasticsearchClientResolver = elasticsearchClientResolver;
 		_indexName = indexName;
 	}
 
@@ -38,7 +42,7 @@ public class CompanyIndexFactoryFixture {
 		CompanyIndexFactory companyIndexFactory = getCompanyIndexFactory();
 
 		RestHighLevelClient restHighLevelClient =
-			_elasticsearchFixture.getRestHighLevelClient();
+			_elasticsearchClientResolver.getRestHighLevelClient();
 
 		companyIndexFactory.createIndices(
 			restHighLevelClient.indices(), RandomTestUtil.randomLong());
@@ -48,7 +52,7 @@ public class CompanyIndexFactoryFixture {
 		CompanyIndexFactory companyIndexFactory = getCompanyIndexFactory();
 
 		RestHighLevelClient restHighLevelClient =
-			_elasticsearchFixture.getRestHighLevelClient();
+			_elasticsearchClientResolver.getRestHighLevelClient();
 
 		companyIndexFactory.deleteIndices(
 			restHighLevelClient.indices(), RandomTestUtil.randomLong());
@@ -57,8 +61,10 @@ public class CompanyIndexFactoryFixture {
 	public CompanyIndexFactory getCompanyIndexFactory() {
 		return new CompanyIndexFactory() {
 			{
-				indexNameBuilder = new TestIndexNameBuilder();
-				jsonFactory = new JSONFactoryImpl();
+				setIndexNameBuilder(new TestIndexNameBuilder());
+				setJsonFactory(new JSONFactoryImpl());
+				setElasticsearchConfigurationWrapper(
+					createElasticsearchConfigurationWrapper());
 			}
 		};
 	}
@@ -67,6 +73,16 @@ public class CompanyIndexFactoryFixture {
 		IndexName indexName = new IndexName(_indexName);
 
 		return indexName.getName();
+	}
+
+	protected ElasticsearchConfigurationWrapper
+		createElasticsearchConfigurationWrapper() {
+
+		return new ElasticsearchConfigurationWrapper() {
+			{
+				activate(new HashMap<>());
+			}
+		};
 	}
 
 	protected class TestIndexNameBuilder implements IndexNameBuilder {
@@ -78,7 +94,7 @@ public class CompanyIndexFactoryFixture {
 
 	}
 
-	private final ElasticsearchFixture _elasticsearchFixture;
+	private final ElasticsearchClientResolver _elasticsearchClientResolver;
 	private final String _indexName;
 
 }

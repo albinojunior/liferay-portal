@@ -1,5 +1,4 @@
 @component-name = "portal-change-list"
-@ignore = "true"
 definition {
 
 	property portal.release = "true";
@@ -20,105 +19,91 @@ definition {
 		}
 	}
 
-	@description = "Change list cannot be enabled when staging is turned on"
 	@priority = "5"
-	test CannotEnableChangeListWhenStagingIsTurnedOn {
+	test CannotEnablePublicationsWhenStagingIsTurnedOn {
+		property test.name.skip.portal.instance = "ChangeListConfiguration#CannotEnablePublicationsWhenStagingIsTurnedOn";
+
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
-			portlet = "Staging");
+			portlet = "Staging",
+			site = "Guest");
 
 		Staging.activateStagingCP(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
+		ApplicationsMenu.gotoPortlet(
+			category = "Publications",
+			panel = "Applications",
 			portlet = "Settings");
 
-		Alert.viewWarningSpecific(warningMessage = "Staging is enabled for at least one site in the current virtual instance. Staging and change lists cannot be used together.");
+		Check.checkToggleSwitch(locator1 = "ChangeListSettings#CHANGE_LISTS_TOGGLE_SWITCH");
+
+		Click(locator1 = "Button#SUBMIT");
+
+		Alert.viewErrorMessage(errorMessage = "Staging is enabled for at least one site in the current virtual instance. Publications and staging cannot be used together.");
 	}
 
-	@description = "Check Supported Content Types"
-	@priority = "4"
-	test CheckSupportedContentTypes {
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
-			portlet = "Settings");
-
-		for (var changeListContentType : list "Web Content") {
-			var key_changeListContentType = "${changeListContentType}";
-
-			AssertHTMLSourceTextPresent(
-				locator1 = "ChangeListSettings#SUPPORTED_CONTENT_TYPES",
-				value1 = "${changeListContentType}");
-		}
-	}
-
-	@description = "Enable Change List and go to Overview"
 	@priority = "5"
-	test EnableChangeListAndGoToOverview {
-		property portal.acceptance = "true";
+	test EnableDisablePublications {
+		property test.name.skip.portal.instance = "ChangeListConfiguration#EnableDisablePublications";
 
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
+		ApplicationsMenu.gotoPortlet(
+			category = "Publications",
+			panel = "Applications",
 			portlet = "Settings");
 
-		ChangeList.enableChangeList(gotoOverview = "true");
+		ChangeList.enablePublications();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Publications",
+			panel = "Applications",
+			portlet = "Settings");
+
+		ChangeList.disablePublications();
+
+		AssertElementPresent(locator1 = "ChangeListSettings#DISABLED_SAVE_AND_GO_TO_OVERVIEW_BUTTON");
+	}
+
+	@priority = "5"
+	test EnablePublicationsAndGoToOverview {
+		property test.name.skip.portal.instance = "ChangeListConfiguration#EnablePublicationsAndGoToOverview";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Publications",
+			panel = "Applications",
+			portlet = "Settings");
+
+		ChangeList.enablePublications(gotoOverview = "true");
 
 		AssertTextEquals(
-			locator1 = "ChangeList#OVERVIEW_PAGE_TITLE",
-			value1 = "Select Change List");
+			locator1 = "ChangeList#MANGE_PUBLICATIONS_PAGE_TITLE",
+			value1 = "Publications");
 
-		AssertElementPresent(
-			locator1 = "ChangeList#PRODUCTION_CARD_TITLE",
-			value1 = "Work on Production");
+		AssertTextPresent(
+			key_publicationName = "Production",
+			locator1 = "ChangeList#CHANGE_LIST_INDICATOR_TITLE",
+			value1 = "Production");
 
-		AssertElementPresent(locator1 = "ChangeList#INDICATOR");
+		Click(locator1 = "ChangeList#CHANGE_LIST_INDICATOR_BUTTON");
 
-		ChangeList.viewNoStagingMenuitemsNotAvailable();
+		for (var menuItem : list "Select a Publication,Create New Publication") {
+			MenuItem.viewPresent(menuItem = "${menuItem}");
+		}
 
-		ChangeList.viewWarningOnSiteExportImport(portletName = "Export");
+		for (var menuItem : list "Review Changes,Schedule,Publish") {
+			MenuItem.viewNotPresent(menuItem = "${menuItem}");
+		}
 
-		ChangeList.viewWarningOnSiteExportImport(portletName = "Import");
+		Navigator.openURL();
 
-		ChangeList.viewWarningOnPortletExport(portletName = "Web Content");
+		ProductMenuHelper.openProductMenu();
 
-		ChangeList.viewWarningOnPortletImport(portletName = "Web Content");
+		ProductMenuHelper.expandCategory(category = "Publishing");
 
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
-			portlet = "Settings");
-
-		ChangeList.disableChangeList();
-
-		AssertElementPresent(locator1 = "ChangeListSettings#DISABLED_SAVE_AND_GO_TO_OVERVIEW_BUTTON");
-
-		AssertElementNotPresent(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS");
-	}
-
-	@description = "Enable and Disable Change List"
-	@priority = "5"
-	test EnableDisableChangeList {
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
-			portlet = "Settings");
-
-		ChangeList.enableChangeList();
-
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
-			portlet = "Settings");
-
-		ChangeList.disableChangeList();
-
-		AssertElementPresent(locator1 = "ChangeListSettings#DISABLED_SAVE_AND_GO_TO_OVERVIEW_BUTTON");
+		AssertElementNotPresent(
+			key_portlet = "Staging",
+			locator1 = "ProductMenu#PORTLET");
 	}
 
 }

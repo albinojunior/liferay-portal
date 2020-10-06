@@ -27,10 +27,11 @@ SiteNavigationMenuItemType siteNavigationMenuItemType = siteNavigationMenuItemTy
 
 String title = siteNavigationMenuItemType.getTitle(siteNavigationMenuItem, locale);
 
-Map<String, Object> data = new HashMap<String, Object>();
-
-data.put("site-navigation-menu-item-id", siteNavigationMenuItemId);
-data.put("title", HtmlUtil.escape(title));
+Map<String, Object> data = HashMapBuilder.<String, Object>put(
+	"site-navigation-menu-item-id", siteNavigationMenuItemId
+).put(
+	"title", HtmlUtil.escape(title)
+).build();
 
 request.setAttribute("edit_site_navigation_menu.jsp-siteNavigationMenuItemId", siteNavigationMenuItem.getSiteNavigationMenuItemId());
 %>
@@ -40,14 +41,19 @@ request.setAttribute("edit_site_navigation_menu.jsp-siteNavigationMenuItemId", s
 		<div class="card card-horizontal taglib-horizontal-card">
 			<div class="card-body site-navigation-menu-item__card">
 				<div class="card-row">
-					<div class="autofit-col site-navigation-menu-item__drag-icon">
+					<clay:content-col
+						cssClass="site-navigation-menu-item__drag-icon"
+					>
 						<liferay-ui:icon
 							icon="drag"
 							markupView="lexicon"
 						/>
-					</div>
+					</clay:content-col>
 
-					<div class="autofit-col autofit-col-expand autofit-col-gutters">
+					<clay:content-col
+						expand="<%= true %>"
+						gutters="<%= true %>"
+					>
 						<p class="card-title">
 							<span class="text-truncate">
 								<a href="javascript:;">
@@ -59,7 +65,7 @@ request.setAttribute("edit_site_navigation_menu.jsp-siteNavigationMenuItemId", s
 						<p class="card-subtitle text-truncate">
 							<%= HtmlUtil.escape(siteNavigationMenuItemType.getSubtitle(siteNavigationMenuItem, locale)) %>
 						</p>
-					</div>
+					</clay:content-col>
 				</div>
 
 				<c:if test="<%= siteNavigationAdminDisplayContext.hasUpdatePermission() %>">

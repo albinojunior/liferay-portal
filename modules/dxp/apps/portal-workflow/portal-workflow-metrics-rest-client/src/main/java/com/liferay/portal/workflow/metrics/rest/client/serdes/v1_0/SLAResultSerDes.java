@@ -153,9 +153,14 @@ public class SLAResultSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-		map.put(
-			"dateOverdue",
-			liferayToJSONDateFormat.format(slaResult.getDateOverdue()));
+		if (slaResult.getDateOverdue() == null) {
+			map.put("dateOverdue", null);
+		}
+		else {
+			map.put(
+				"dateOverdue",
+				liferayToJSONDateFormat.format(slaResult.getDateOverdue()));
+		}
 
 		if (slaResult.getId() == null) {
 			map.put("id", null);
@@ -246,9 +251,8 @@ public class SLAResultSerDes {
 						SLAResult.Status.create((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -304,10 +308,13 @@ public class SLAResultSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

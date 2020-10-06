@@ -20,6 +20,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -116,7 +117,7 @@ public abstract class BaseAccountResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/account-rest/v1.0/accounts' -d $'{"description": ___, "domains": ___, "name": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/account-rest/v1.0/accounts' -d $'{"description": ___, "domains": ___, "externalReferenceCode": ___, "name": ___, "organizationIds": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -163,6 +164,143 @@ public abstract class BaseAccountResourceImpl
 			vulcanBatchEngineImportTaskResource.postImportTask(
 				Account.class.getName(), callbackURL, null, object)
 		).build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@DELETE
+	@Operation(description = "Deletes an account.")
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "externalReferenceCode")
+		}
+	)
+	@Path("/accounts/by-external-reference-code/{externalReferenceCode}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Account")})
+	public void deleteAccountByExternalReferenceCode(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("externalReferenceCode") String externalReferenceCode)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Operation(description = "")
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "externalReferenceCode")
+		}
+	)
+	@Path("/accounts/by-external-reference-code/{externalReferenceCode}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Account")})
+	public Account getAccountByExternalReferenceCode(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("externalReferenceCode") String externalReferenceCode)
+		throws Exception {
+
+		return new Account();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PATCH' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}' -d $'{"description": ___, "domains": ___, "externalReferenceCode": ___, "name": ___, "organizationIds": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		description = "Updates the account with information sent in the request body. Only the provided fields are updated."
+	)
+	@PATCH
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "externalReferenceCode")
+		}
+	)
+	@Path("/accounts/by-external-reference-code/{externalReferenceCode}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {})
+	public Account patchAccountByExternalReferenceCode(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("externalReferenceCode") String externalReferenceCode,
+			Account account)
+		throws Exception {
+
+		Account existingAccount = getAccountByExternalReferenceCode(
+			externalReferenceCode);
+
+		if (account.getDescription() != null) {
+			existingAccount.setDescription(account.getDescription());
+		}
+
+		if (account.getDomains() != null) {
+			existingAccount.setDomains(account.getDomains());
+		}
+
+		if (account.getExternalReferenceCode() != null) {
+			existingAccount.setExternalReferenceCode(
+				account.getExternalReferenceCode());
+		}
+
+		if (account.getName() != null) {
+			existingAccount.setName(account.getName());
+		}
+
+		if (account.getOrganizationIds() != null) {
+			existingAccount.setOrganizationIds(account.getOrganizationIds());
+		}
+
+		if (account.getParentAccountId() != null) {
+			existingAccount.setParentAccountId(account.getParentAccountId());
+		}
+
+		if (account.getStatus() != null) {
+			existingAccount.setStatus(account.getStatus());
+		}
+
+		preparePatch(account, existingAccount);
+
+		return putAccountByExternalReferenceCode(
+			externalReferenceCode, existingAccount);
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}' -d $'{"description": ___, "domains": ___, "externalReferenceCode": ___, "name": ___, "organizationIds": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		description = "Replaces the account with information sent in the request body. Any missing fields are deleted unless they are required."
+	)
+	@PUT
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "externalReferenceCode")
+		}
+	)
+	@Path("/accounts/by-external-reference-code/{externalReferenceCode}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Account")})
+	public Account putAccountByExternalReferenceCode(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("externalReferenceCode") String externalReferenceCode,
+			Account account)
+		throws Exception {
+
+		return new Account();
 	}
 
 	/**
@@ -242,7 +380,7 @@ public abstract class BaseAccountResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/account-rest/v1.0/accounts/{accountId}' -d $'{"description": ___, "domains": ___, "name": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/account-rest/v1.0/accounts/{accountId}' -d $'{"description": ___, "domains": ___, "externalReferenceCode": ___, "name": ___, "organizationIds": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -270,8 +408,17 @@ public abstract class BaseAccountResourceImpl
 			existingAccount.setDomains(account.getDomains());
 		}
 
+		if (account.getExternalReferenceCode() != null) {
+			existingAccount.setExternalReferenceCode(
+				account.getExternalReferenceCode());
+		}
+
 		if (account.getName() != null) {
 			existingAccount.setName(account.getName());
+		}
+
+		if (account.getOrganizationIds() != null) {
+			existingAccount.setOrganizationIds(account.getOrganizationIds());
 		}
 
 		if (account.getParentAccountId() != null) {
@@ -290,7 +437,7 @@ public abstract class BaseAccountResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/account-rest/v1.0/accounts/{accountId}' -d $'{"description": ___, "domains": ___, "name": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/account-rest/v1.0/accounts/{accountId}' -d $'{"description": ___, "domains": ___, "externalReferenceCode": ___, "name": ___, "organizationIds": ___, "parentAccountId": ___, "status": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -463,6 +610,14 @@ public abstract class BaseAccountResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -472,12 +627,21 @@ public abstract class BaseAccountResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -485,7 +649,7 @@ public abstract class BaseAccountResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected void preparePatch(Account account, Account existingAccount) {

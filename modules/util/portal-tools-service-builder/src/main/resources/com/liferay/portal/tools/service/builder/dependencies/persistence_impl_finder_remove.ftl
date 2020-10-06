@@ -4,7 +4,7 @@
 
 <#if entityFinder.isCollection() && !entityFinder.isUnique()>
 	/**
-	 * Removes all the ${entity.humanNames} where ${entityFinder.getHumanConditions(false)} from the database.
+	 * Removes all the ${entity.pluralHumanName} where ${entityFinder.getHumanConditions(false)} from the database.
 	 *
 	<#list entityColumns as entityColumn>
 	 * @param ${entityColumn.name} the ${entityColumn.humanName}
@@ -18,7 +18,7 @@
 	</#list>
 
 	) {
-		for (${entity.name} ${entity.varName} : findBy${entityFinder.name}(
+		for (${entity.name} ${entity.variableName} : findBy${entityFinder.name}(
 
 		<#list entityColumns as entityColumn>
 			${entityColumn.name},
@@ -26,7 +26,7 @@
 
 		QueryUtil.ALL_POS, QueryUtil.ALL_POS, null
 		)) {
-			remove(${entity.varName});
+			remove(${entity.variableName});
 		}
 	}
 <#else>
@@ -53,7 +53,7 @@
 	</#list>
 
 	) throws ${noSuchEntity}Exception {
-		${entity.name} ${entity.varName} = findBy${entityFinder.name}(
+		${entity.name} ${entity.variableName} = findBy${entityFinder.name}(
 
 		<#list entityColumns as entityColumn>
 			${entityColumn.name}
@@ -65,6 +65,6 @@
 
 		);
 
-		return remove(${entity.varName});
+		return remove(${entity.variableName});
 	}
 </#if>

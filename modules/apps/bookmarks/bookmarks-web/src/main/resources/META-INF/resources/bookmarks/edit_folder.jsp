@@ -55,12 +55,12 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<portlet:actionURL name="/bookmarks/edit_folder" var="editFolderURL">
 		<portlet:param name="mvcRenderCommandName" value="/bookmarks/edit_folder" />
 	</portlet:actionURL>
 
-	<aui:form action="<%= editFolderURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveFolder();" %>'>
+	<aui:form action="<%= editFolderURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveFolder();" %>'>
 		<aui:input name="<%= Constants.CMD %>" type="hidden" />
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="portletResource" type="hidden" value='<%= ParamUtil.getString(request, "portletResource") %>' />
@@ -69,11 +69,11 @@ renderResponse.setTitle(headerTitle);
 
 		<liferay-ui:error exception="<%= FolderNameException.class %>">
 			<p>
-				<liferay-ui:message arguments="<%= new String[] {BookmarksFolderConstants.NAME_RESERVED_WORDS} %>" key="the-folder-name-cannot-be-blank-or-a-reserved-word-such-as-x" />
+				<liferay-ui:message arguments="<%= BookmarksFolderConstants.NAME_RESERVED_WORDS %>" key="the-folder-name-cannot-be-blank-or-a-reserved-word-such-as-x" />
 			</p>
 
 			<p>
-				<liferay-ui:message arguments="<%= new String[] {BookmarksFolderConstants.NAME_INVALID_CHARACTERS} %>" key="the-folder-name-cannot-contain-the-following-invalid-characters-x" />
+				<liferay-ui:message arguments="<%= BookmarksFolderConstants.NAME_INVALID_CHARACTERS %>" key="the-folder-name-cannot-contain-the-following-invalid-characters-x" />
 			</p>
 		</liferay-ui:error>
 
@@ -112,24 +112,11 @@ renderResponse.setTitle(headerTitle);
 							);
 
 							if (<portlet:namespace />selectFolderButton) {
-								<portlet:namespace />selectFolderButton.addEventListener('click', function(
+								<portlet:namespace />selectFolderButton.addEventListener('click', function (
 									event
 								) {
-									Liferay.Util.selectEntity(
-										{
-											dialog: {
-												constrain: true,
-												destroyOnHide: true,
-												modal: true,
-												width: 680,
-											},
-											id: '<portlet:namespace />selectFolder',
-											title:
-												'<liferay-ui:message arguments="folder" key="select-x" />',
-											uri:
-												'<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/bookmarks/select_folder" /></liferay-portlet:renderURL>',
-										},
-										function(event) {
+									Liferay.Util.openSelectionModal({
+										onSelect: function (event) {
 											var folderData = {
 												idString: 'parentFolderId',
 												idValue: event.entityid,
@@ -138,14 +125,18 @@ renderResponse.setTitle(headerTitle);
 											};
 
 											Liferay.Util.selectFolder(folderData, '<portlet:namespace />');
-										}
-									);
+										},
+										selectEventName: '<portlet:namespace />selectFolder',
+										title: '<liferay-ui:message arguments="folder" key="select-x" />',
+										url:
+											'<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/bookmarks/select_folder" /></liferay-portlet:renderURL>',
+									});
 								});
 							}
 						</aui:script>
 
 						<%
-						String taglibRemoveFolder = "Liferay.Util.removeEntitySelection('parentFolderId', 'parentFolderName', this, '" + renderResponse.getNamespace() + "');";
+						String taglibRemoveFolder = "Liferay.Util.removeEntitySelection('parentFolderId', 'parentFolderName', this, '" + liferayPortletResponse.getNamespace() + "');";
 						%>
 
 						<aui:button disabled="<%= parentFolderId <= 0 %>" name="removeFolderButton" onClick="<%= taglibRemoveFolder %>" value="remove" />
@@ -185,7 +176,7 @@ renderResponse.setTitle(headerTitle);
 			<aui:button href="<%= redirect %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
 	function <portlet:namespace />saveFolder() {

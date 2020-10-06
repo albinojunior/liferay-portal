@@ -9,15 +9,16 @@
  * distribution rights of the Software.
  */
 
+import ClayLayout from '@clayui/layout';
 import React, {useMemo} from 'react';
 
 import Panel from '../../../shared/components/Panel.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
-import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
+import {usePost} from '../../../shared/hooks/usePost.es';
 import ProcessStepFilter from '../../filter/ProcessStepFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByAssigneeCardBody.es';
 
 const Header = ({disableFilters, prefixKey, processId}) => {
@@ -29,7 +30,7 @@ const Header = ({disableFilters, prefixKey, processId}) => {
 			elementClasses="dashboard-panel-header"
 			title={Liferay.Language.get('performance-by-assignee')}
 		>
-			<div className="autofit-col m-0 management-bar management-bar-light navbar">
+			<ClayLayout.ContentCol className="m-0 management-bar management-bar-light navbar">
 				<ul className="navbar-nav">
 					<ProcessStepFilter
 						disabled={disableFilters}
@@ -51,55 +52,57 @@ const Header = ({disableFilters, prefixKey, processId}) => {
 						prefixKey={prefixKey}
 					/>
 				</ul>
-			</div>
+			</ClayLayout.ContentCol>
 		</Panel.HeaderWithOptions>
 	);
 };
 
 const PerformanceByAssigneeCard = ({routeParams}) => {
 	const {processId} = routeParams;
-
 	const filterKeys = ['processStep', 'timeRange'];
 	const prefixKey = 'assignee';
 	const prefixKeys = [prefixKey];
-	const {filterState = {}, filterValues, filtersError} = useFilter({
+
+	const {
+		filterValues: {
+			assigneeDateEnd,
+			assigneeDateStart,
+			assigneeTaskNames: [taskName] = ['allSteps'],
+			assigneeTimeRange: [key] = [],
+		},
+		filtersError,
+	} = useFilter({
 		filterKeys,
 		prefixKeys,
 	});
 
-	const params = {
-		completed: true,
-		page: 1,
-		pageSize: 10,
-		sort: 'durationTaskAvg:desc',
-	};
+	const taskNames = taskName !== 'allSteps' ? [taskName] : undefined;
+	const timeRange = useMemo(
+		() => getTimeRangeParams(assigneeDateStart, assigneeDateEnd),
+		[assigneeDateEnd, assigneeDateStart]
+	);
 
-	const processStep = filterValues.assigneeTaskKeys || [];
-	if (processStep.length && processStep[0] !== 'allSteps') {
-		params.taskKeys = processStep[0];
-	}
-
-	const timeRange = filterState.assigneeTimeRange || [];
-	const timeRangeValues = timeRange.length ? timeRange[0] : {};
-	const {dateEnd, dateStart} = timeRangeValues;
-
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		params.dateEnd = dateEnd.toISOString();
-		params.dateStart = dateStart.toISOString();
-	}
-
-	const {data, fetchData} = useFetch({
-		params,
-		url: `/processes/${processId}/assignee-users`,
+	const {data, postData} = usePost({
+		body: {
+			completed: true,
+			taskNames,
+			...timeRange,
+		},
+		params: {
+			page: 1,
+			pageSize: 10,
+			sort: 'durationTaskAvg:desc',
+		},
+		url: `/processes/${processId}/assignees/metrics`,
 	});
 
 	const promises = useMemo(() => {
-		if (params.dateEnd && params.dateStart) {
-			return [fetchData()];
+		if (timeRange.dateEnd && timeRange.dateStart) {
+			return [postData()];
 		}
 
 		return [new Promise((_, reject) => reject(filtersError))];
-	}, [fetchData, filtersError, params.dateEnd, params.dateStart]);
+	}, [filtersError, postData, timeRange.dateEnd, timeRange.dateStart]);
 
 	return (
 		<Panel elementClasses="dashboard-card">
@@ -111,13 +114,13 @@ const PerformanceByAssigneeCard = ({routeParams}) => {
 				/>
 
 				<PerformanceByAssigneeCard.Body
-					data={data}
-					filtered={params.taskKeys}
+					{...data}
+					filtered={!!taskNames}
 				/>
 
 				<PerformanceByAssigneeCard.Footer
-					processStep={params.taskKeys}
-					timeRange={timeRangeValues}
+					processStep={taskName}
+					timeRange={{key, ...timeRange}}
 					totalCount={data.totalCount}
 					{...routeParams}
 				/>

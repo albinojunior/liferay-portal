@@ -121,7 +121,6 @@ import java.util.TimeZone;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
-import javax.portlet.PortletException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -344,17 +343,16 @@ public class MainServlet extends HttpServlet {
 		}
 
 		try {
-			String[] xmls = {
-				StreamUtil.toString(
-					servletContext.getResourceAsStream(
-						"/WEB-INF/liferay-social.xml")),
-				StreamUtil.toString(
-					servletContext.getResourceAsStream(
-						"/WEB-INF/liferay-social-ext.xml"))
-			};
-
 			SocialConfigurationUtil.read(
-				PortalClassLoaderUtil.getClassLoader(), xmls);
+				PortalClassLoaderUtil.getClassLoader(),
+				new String[] {
+					StreamUtil.toString(
+						servletContext.getResourceAsStream(
+							"/WEB-INF/liferay-social.xml")),
+					StreamUtil.toString(
+						servletContext.getResourceAsStream(
+							"/WEB-INF/liferay-social-ext.xml"))
+				});
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);
@@ -762,6 +760,12 @@ public class MainServlet extends HttpServlet {
 			_log.debug("Initialize companies");
 		}
 
+		if (StartupHelperUtil.isDBNew()) {
+			CompanyLocalServiceUtil.addCompany(
+				null, PropsValues.COMPANY_DEFAULT_WEB_ID, "localhost",
+				PropsValues.COMPANY_DEFAULT_WEB_ID, false, 0, true);
+		}
+
 		ServletContext servletContext = getServletContext();
 
 		try {
@@ -793,19 +797,20 @@ public class MainServlet extends HttpServlet {
 
 						ServletContext servletContext = getServletContext();
 
-						String[] xmls = {
-							StreamUtil.toString(
-								servletContext.getResourceAsStream(
-									"/WEB-INF/liferay-layout-templates.xml")),
-							StreamUtil.toString(
-								servletContext.getResourceAsStream(
-									"/WEB-INF" +
-										"/liferay-layout-templates-ext.xml"))
-						};
-
 						List<LayoutTemplate> layoutTemplates =
 							LayoutTemplateLocalServiceUtil.init(
-								servletContext, xmls, pluginPackage);
+								servletContext,
+								new String[] {
+									StreamUtil.toString(
+										servletContext.getResourceAsStream(
+											"/WEB-INF/liferay-layout-" +
+												"templates.xml")),
+									StreamUtil.toString(
+										servletContext.getResourceAsStream(
+											"/WEB-INF/liferay-layout-" +
+												"templates-ext.xml"))
+								},
+								pluginPackage);
 
 						servletContext.setAttribute(
 							WebKeys.PLUGIN_LAYOUT_TEMPLATES, layoutTemplates);
@@ -836,9 +841,7 @@ public class MainServlet extends HttpServlet {
 			sb.append(TemplateManager.class.getName());
 			sb.append("))");
 
-			Filter filter = registry.getFilter(sb.toString());
-
-			filters.add(filter);
+			filters.add(registry.getFilter(sb.toString()));
 		}
 
 		serviceDependencyManager.registerDependencies(
@@ -910,7 +913,7 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _initPortletApp(Portlet portlet, ServletContext servletContext)
-		throws PortletException {
+		throws Exception {
 
 		PortletApp portletApp = portlet.getPortletApp();
 
@@ -975,7 +978,8 @@ public class MainServlet extends HttpServlet {
 	private void _initResourceActions(List<Portlet> portlets) throws Exception {
 		for (Portlet portlet : portlets) {
 			List<String> portletActions =
-				ResourceActionsUtil.getPortletResourceActions(portlet);
+				ResourceActionsUtil.getPortletResourceActions(
+					portlet.getPortletId());
 
 			ResourceActionLocalServiceUtil.checkResourceActions(
 				portlet.getPortletId(), portletActions);
@@ -1133,18 +1137,18 @@ public class MainServlet extends HttpServlet {
 				httpServletResponse);
 		}
 		catch (Exception exception) {
-			Throwable cause = exception.getCause();
+			Throwable throwable = exception.getCause();
 
-			if (cause instanceof NoSuchLayoutException) {
+			if (throwable instanceof NoSuchLayoutException) {
 				PortalUtil.sendError(
-					HttpServletResponse.SC_NOT_FOUND, (Exception)cause,
+					HttpServletResponse.SC_NOT_FOUND, (Exception)throwable,
 					httpServletRequest, httpServletResponse);
 
 				return true;
 			}
-			else if (cause instanceof PrincipalException) {
+			else if (throwable instanceof PrincipalException) {
 				_processServicePrePrincipalException(
-					cause, userId, httpServletRequest, httpServletResponse);
+					throwable, userId, httpServletRequest, httpServletResponse);
 
 				return true;
 			}
@@ -1193,7 +1197,8 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _processServicePrePrincipalException(
-			Throwable t, long userId, HttpServletRequest httpServletRequest,
+			Throwable throwable, long userId,
+			HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
@@ -1201,7 +1206,7 @@ public class MainServlet extends HttpServlet {
 			(ParamUtil.getInteger(httpServletRequest, "p_p_lifecycle") == 2)) {
 
 			PortalUtil.sendError(
-				HttpServletResponse.SC_UNAUTHORIZED, (Exception)t,
+				HttpServletResponse.SC_UNAUTHORIZED, (Exception)throwable,
 				httpServletRequest, httpServletResponse);
 
 			return;

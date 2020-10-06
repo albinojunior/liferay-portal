@@ -156,18 +156,17 @@ public class OrphanPortletsDisplayContext {
 				httpServletRequest.getServletContext(),
 				themeDisplay.getLocale(), orderByAsc);
 
-		orphanPortlets = ListUtil.sort(orphanPortlets, portletTitleComparator);
-
-		return orphanPortlets;
+		return ListUtil.sort(orphanPortlets, portletTitleComparator);
 	}
 
-	public SearchContainer getOrphanPortletsSearchContainer() {
+	public SearchContainer<Portlet> getOrphanPortletsSearchContainer() {
 		if (_orphanPortletsSearchContainer != null) {
 			return _orphanPortletsSearchContainer;
 		}
 
-		SearchContainer orphanPortletsSearchContainer = new SearchContainer(
-			_liferayPortletRequest, getPortletURL(), null, null);
+		SearchContainer<Portlet> orphanPortletsSearchContainer =
+			new SearchContainer(
+				_liferayPortletRequest, getPortletURL(), null, null);
 
 		orphanPortletsSearchContainer.setDeltaConfigurable(false);
 		orphanPortletsSearchContainer.setId("portlets");
@@ -249,7 +248,7 @@ public class OrphanPortletsDisplayContext {
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
 	private String _orderByType;
-	private SearchContainer _orphanPortletsSearchContainer;
+	private SearchContainer<Portlet> _orphanPortletsSearchContainer;
 	private Layout _selLayout;
 	private Long _selPlid;
 

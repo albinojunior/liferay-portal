@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -45,7 +46,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.junit.After;
@@ -125,6 +125,8 @@ public class DLFileEntryTypePersistenceTest {
 
 		newDLFileEntryType.setMvccVersion(RandomTestUtil.nextLong());
 
+		newDLFileEntryType.setCtCollectionId(RandomTestUtil.nextLong());
+
 		newDLFileEntryType.setUuid(RandomTestUtil.randomString());
 
 		newDLFileEntryType.setGroupId(RandomTestUtil.nextLong());
@@ -138,6 +140,8 @@ public class DLFileEntryTypePersistenceTest {
 		newDLFileEntryType.setCreateDate(RandomTestUtil.nextDate());
 
 		newDLFileEntryType.setModifiedDate(RandomTestUtil.nextDate());
+
+		newDLFileEntryType.setDataDefinitionId(RandomTestUtil.nextLong());
 
 		newDLFileEntryType.setFileEntryTypeKey(RandomTestUtil.randomString());
 
@@ -155,6 +159,9 @@ public class DLFileEntryTypePersistenceTest {
 		Assert.assertEquals(
 			existingDLFileEntryType.getMvccVersion(),
 			newDLFileEntryType.getMvccVersion());
+		Assert.assertEquals(
+			existingDLFileEntryType.getCtCollectionId(),
+			newDLFileEntryType.getCtCollectionId());
 		Assert.assertEquals(
 			existingDLFileEntryType.getUuid(), newDLFileEntryType.getUuid());
 		Assert.assertEquals(
@@ -178,6 +185,9 @@ public class DLFileEntryTypePersistenceTest {
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingDLFileEntryType.getModifiedDate()),
 			Time.getShortTimestamp(newDLFileEntryType.getModifiedDate()));
+		Assert.assertEquals(
+			existingDLFileEntryType.getDataDefinitionId(),
+			newDLFileEntryType.getDataDefinitionId());
 		Assert.assertEquals(
 			existingDLFileEntryType.getFileEntryTypeKey(),
 			newDLFileEntryType.getFileEntryTypeKey());
@@ -271,11 +281,11 @@ public class DLFileEntryTypePersistenceTest {
 
 	protected OrderByComparator<DLFileEntryType> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"DLFileEntryType", "mvccVersion", true, "uuid", true,
-			"fileEntryTypeId", true, "groupId", true, "companyId", true,
-			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "fileEntryTypeKey", true, "name", true,
-			"description", true, "lastPublishDate", true);
+			"DLFileEntryType", "mvccVersion", true, "ctCollectionId", true,
+			"uuid", true, "fileEntryTypeId", true, "groupId", true, "companyId",
+			true, "userId", true, "userName", true, "createDate", true,
+			"modifiedDate", true, "dataDefinitionId", true, "fileEntryTypeKey",
+			true, "name", true, "description", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -498,32 +508,72 @@ public class DLFileEntryTypePersistenceTest {
 
 		_persistence.clearCache();
 
-		DLFileEntryType existingDLFileEntryType = _persistence.findByPrimaryKey(
-			newDLFileEntryType.getPrimaryKey());
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(newDLFileEntryType.getPrimaryKey()));
+	}
 
-		Assert.assertTrue(
-			Objects.equals(
-				existingDLFileEntryType.getUuid(),
-				ReflectionTestUtil.invoke(
-					existingDLFileEntryType, "getOriginalUuid",
-					new Class<?>[0])));
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		DLFileEntryType newDLFileEntryType = addDLFileEntryType();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			DLFileEntryType.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"fileEntryTypeId", newDLFileEntryType.getFileEntryTypeId()));
+
+		List<DLFileEntryType> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(DLFileEntryType dlFileEntryType) {
 		Assert.assertEquals(
-			Long.valueOf(existingDLFileEntryType.getGroupId()),
+			dlFileEntryType.getUuid(),
+			ReflectionTestUtil.invoke(
+				dlFileEntryType, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "uuid_"));
+		Assert.assertEquals(
+			Long.valueOf(dlFileEntryType.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingDLFileEntryType, "getOriginalGroupId",
-				new Class<?>[0]));
+				dlFileEntryType, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingDLFileEntryType.getGroupId()),
+			Long.valueOf(dlFileEntryType.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingDLFileEntryType, "getOriginalGroupId",
-				new Class<?>[0]));
-		Assert.assertTrue(
-			Objects.equals(
-				existingDLFileEntryType.getFileEntryTypeKey(),
-				ReflectionTestUtil.invoke(
-					existingDLFileEntryType, "getOriginalFileEntryTypeKey",
-					new Class<?>[0])));
+				dlFileEntryType, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
+		Assert.assertEquals(
+			dlFileEntryType.getFileEntryTypeKey(),
+			ReflectionTestUtil.invoke(
+				dlFileEntryType, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "fileEntryTypeKey"));
 	}
 
 	protected DLFileEntryType addDLFileEntryType() throws Exception {
@@ -532,6 +582,8 @@ public class DLFileEntryTypePersistenceTest {
 		DLFileEntryType dlFileEntryType = _persistence.create(pk);
 
 		dlFileEntryType.setMvccVersion(RandomTestUtil.nextLong());
+
+		dlFileEntryType.setCtCollectionId(RandomTestUtil.nextLong());
 
 		dlFileEntryType.setUuid(RandomTestUtil.randomString());
 
@@ -546,6 +598,8 @@ public class DLFileEntryTypePersistenceTest {
 		dlFileEntryType.setCreateDate(RandomTestUtil.nextDate());
 
 		dlFileEntryType.setModifiedDate(RandomTestUtil.nextDate());
+
+		dlFileEntryType.setDataDefinitionId(RandomTestUtil.nextLong());
 
 		dlFileEntryType.setFileEntryTypeKey(RandomTestUtil.randomString());
 

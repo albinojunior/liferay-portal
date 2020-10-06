@@ -26,7 +26,7 @@ import java.util.Map;
  * This class is a wrapper for {@link DispatchTrigger}.
  * </p>
  *
- * @author Alessio Antonio Rendina
+ * @author Matija Petanjek
  * @see DispatchTrigger
  * @generated
  */
@@ -55,8 +55,8 @@ public class DispatchTriggerWrapper
 		attributes.put("name", getName());
 		attributes.put("startDate", getStartDate());
 		attributes.put("system", isSystem());
-		attributes.put("type", getType());
-		attributes.put("typeSettings", getTypeSettings());
+		attributes.put("taskSettings", getTaskSettings());
+		attributes.put("taskType", getTaskType());
 
 		return attributes;
 	}
@@ -141,16 +141,16 @@ public class DispatchTriggerWrapper
 			setSystem(system);
 		}
 
-		String type = (String)attributes.get("type");
+		String taskSettings = (String)attributes.get("taskSettings");
 
-		if (type != null) {
-			setType(type);
+		if (taskSettings != null) {
+			setTaskSettings(taskSettings);
 		}
 
-		String typeSettings = (String)attributes.get("typeSettings");
+		String taskType = (String)attributes.get("taskType");
 
-		if (typeSettings != null) {
-			setTypeSettings(typeSettings);
+		if (taskType != null) {
+			setTaskType(taskType);
 		}
 	}
 
@@ -275,30 +275,30 @@ public class DispatchTriggerWrapper
 	}
 
 	/**
-	 * Returns the type of this dispatch trigger.
+	 * Returns the task settings of this dispatch trigger.
 	 *
-	 * @return the type of this dispatch trigger
+	 * @return the task settings of this dispatch trigger
 	 */
 	@Override
-	public String getType() {
-		return model.getType();
-	}
-
-	/**
-	 * Returns the type settings of this dispatch trigger.
-	 *
-	 * @return the type settings of this dispatch trigger
-	 */
-	@Override
-	public String getTypeSettings() {
-		return model.getTypeSettings();
+	public String getTaskSettings() {
+		return model.getTaskSettings();
 	}
 
 	@Override
 	public com.liferay.portal.kernel.util.UnicodeProperties
-		getTypeSettingsProperties() {
+		getTaskSettingsUnicodeProperties() {
 
-		return model.getTypeSettingsProperties();
+		return model.getTaskSettingsUnicodeProperties();
+	}
+
+	/**
+	 * Returns the task type of this dispatch trigger.
+	 *
+	 * @return the task type of this dispatch trigger
+	 */
+	@Override
+	public String getTaskType() {
+		return model.getTaskType();
 	}
 
 	/**
@@ -477,31 +477,31 @@ public class DispatchTriggerWrapper
 	}
 
 	/**
-	 * Sets the type of this dispatch trigger.
+	 * Sets the task settings of this dispatch trigger.
 	 *
-	 * @param type the type of this dispatch trigger
+	 * @param taskSettings the task settings of this dispatch trigger
 	 */
 	@Override
-	public void setType(String type) {
-		model.setType(type);
+	public void setTaskSettings(String taskSettings) {
+		model.setTaskSettings(taskSettings);
+	}
+
+	@Override
+	public void setTaskSettingsUnicodeProperties(
+		com.liferay.portal.kernel.util.UnicodeProperties
+			taskSettingsUnicodeProperties) {
+
+		model.setTaskSettingsUnicodeProperties(taskSettingsUnicodeProperties);
 	}
 
 	/**
-	 * Sets the type settings of this dispatch trigger.
+	 * Sets the task type of this dispatch trigger.
 	 *
-	 * @param typeSettings the type settings of this dispatch trigger
+	 * @param taskType the task type of this dispatch trigger
 	 */
 	@Override
-	public void setTypeSettings(String typeSettings) {
-		model.setTypeSettings(typeSettings);
-	}
-
-	@Override
-	public void setTypeSettingsProperties(
-		com.liferay.portal.kernel.util.UnicodeProperties
-			typeSettingsProperties) {
-
-		model.setTypeSettingsProperties(typeSettingsProperties);
+	public void setTaskType(String taskType) {
+		model.setTaskType(taskType);
 	}
 
 	/**

@@ -47,7 +47,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	property = {
 		"javax.portlet.name=" + ConfigurationAdminPortletKeys.INSTANCE_SETTINGS,
-		"mvc.command.name=/analytics/edit_synced_sites"
+		"mvc.command.name=/analytics_settings/edit_synced_sites"
 	},
 	service = MVCActionCommand.class
 )
@@ -104,7 +104,7 @@ public class EditSyncedSitesMVCActionCommand
 		StatusLine statusLine = httpResponse.getStatusLine();
 
 		if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-			disconnectDataSource(themeDisplay.getCompanyId(), httpResponse);
+			checkResponse(themeDisplay.getCompanyId(), httpResponse);
 
 			return;
 		}

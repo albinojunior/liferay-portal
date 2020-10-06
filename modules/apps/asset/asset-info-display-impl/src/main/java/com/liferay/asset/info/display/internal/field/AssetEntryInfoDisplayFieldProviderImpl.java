@@ -39,13 +39,14 @@ import org.osgi.service.component.annotations.Reference;
 public class AssetEntryInfoDisplayFieldProviderImpl
 	implements AssetEntryInfoDisplayFieldProvider {
 
+	@Override
 	public Map<String, Object> getAssetEntryInfoDisplayFieldsValues(
 			String className, long classPK, Locale locale)
 		throws PortalException {
 
 		Map<String, Object> infoDisplayFieldsValues = new HashMap<>();
 
-		AssetRendererFactory assetRendererFactory =
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 
@@ -53,18 +54,24 @@ public class AssetEntryInfoDisplayFieldProviderImpl
 			AssetEntry assetEntry = assetRendererFactory.getAssetEntry(
 				className, classPK);
 
-			List<InfoDisplayContributorField> infoDisplayContributorFields =
+			List<InfoDisplayContributorField<?>> infoDisplayContributorFields =
 				_infoDisplayContributorFieldTracker.
 					getInfoDisplayContributorFields(AssetEntry.class.getName());
 
-			for (InfoDisplayContributorField infoDisplayContributorField :
+			for (InfoDisplayContributorField<?> infoDisplayContributorField :
 					infoDisplayContributorFields) {
 
-				Object fieldValue = infoDisplayContributorField.getValue(
-					assetEntry, locale);
+				InfoDisplayContributorField<AssetEntry>
+					assetEntryInfoDisplayContributorField =
+						(InfoDisplayContributorField<AssetEntry>)
+							infoDisplayContributorField;
+
+				Object fieldValue =
+					assetEntryInfoDisplayContributorField.getValue(
+						assetEntry, locale);
 
 				infoDisplayFieldsValues.putIfAbsent(
-					infoDisplayContributorField.getKey(), fieldValue);
+					assetEntryInfoDisplayContributorField.getKey(), fieldValue);
 			}
 		}
 		catch (PortalException portalException) {

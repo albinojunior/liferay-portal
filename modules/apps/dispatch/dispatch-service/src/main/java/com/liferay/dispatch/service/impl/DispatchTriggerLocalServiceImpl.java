@@ -58,8 +58,8 @@ public class DispatchTriggerLocalServiceImpl
 
 	@Override
 	public DispatchTrigger addDispatchTrigger(
-			long userId, String name, boolean system, String type,
-			UnicodeProperties typeSettingsProperties)
+			long userId, String name, boolean system,
+			UnicodeProperties taskSettingsUnicodeProperties, String taskType)
 		throws PortalException {
 
 		User user = userLocalService.getUser(userId);
@@ -74,8 +74,9 @@ public class DispatchTriggerLocalServiceImpl
 		dispatchTrigger.setUserName(user.getFullName());
 		dispatchTrigger.setName(name);
 		dispatchTrigger.setSystem(system);
-		dispatchTrigger.setType(type);
-		dispatchTrigger.setTypeSettingsProperties(typeSettingsProperties);
+		dispatchTrigger.setTaskSettingsUnicodeProperties(
+			taskSettingsUnicodeProperties);
+		dispatchTrigger.setTaskType(taskType);
 
 		dispatchTrigger = dispatchTriggerPersistence.update(dispatchTrigger);
 
@@ -185,7 +186,10 @@ public class DispatchTriggerLocalServiceImpl
 		dispatchTrigger.setActive(active);
 		dispatchTrigger.setCronExpression(cronExpression);
 
-		if (!neverEnd) {
+		if (neverEnd) {
+			dispatchTrigger.setEndDate(null);
+		}
+		else {
 			dispatchTrigger.setEndDate(
 				_portal.getDate(
 					endDateMonth, endDateDay, endDateYear, endDateHour,
@@ -213,7 +217,7 @@ public class DispatchTriggerLocalServiceImpl
 	@Override
 	public DispatchTrigger updateDispatchTrigger(
 			long dispatchTriggerId, String name,
-			UnicodeProperties typeSettingsProperties)
+			UnicodeProperties taskSettingsUnicodeProperties)
 		throws PortalException {
 
 		DispatchTrigger dispatchTrigger =
@@ -222,7 +226,8 @@ public class DispatchTriggerLocalServiceImpl
 		validate(dispatchTriggerId, dispatchTrigger.getCompanyId(), name);
 
 		dispatchTrigger.setName(name);
-		dispatchTrigger.setTypeSettingsProperties(typeSettingsProperties);
+		dispatchTrigger.setTaskSettingsUnicodeProperties(
+			taskSettingsUnicodeProperties);
 
 		return dispatchTriggerPersistence.update(dispatchTrigger);
 	}
@@ -305,7 +310,7 @@ public class DispatchTriggerLocalServiceImpl
 	}
 
 	private String _getPayload(long dispatchTriggerId) {
-		return String.format("{\"dispatchTriggerId\"=%d}", dispatchTriggerId);
+		return String.format("{\"dispatchTriggerId\": %d}", dispatchTriggerId);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

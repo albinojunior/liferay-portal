@@ -20,7 +20,6 @@
 String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_form_navigator_init") + StringPool.UNDERLINE;
 
 String tabs1Param = randomNamespace + "tabs1";
-String tabs1Value = GetterUtil.getString(SessionClicks.get(request, namespace + id, null));
 %>
 
 <c:choose>
@@ -29,7 +28,7 @@ String tabs1Value = GetterUtil.getString(SessionClicks.get(request, namespace + 
 			names="<%= StringUtil.merge(categoryKeys, StringPool.COMMA) %>"
 			param="<%= tabs1Param %>"
 			refresh="<%= false %>"
-			value="<%= tabs1Value %>"
+			value="<%= GetterUtil.getString(SessionClicks.get(request, namespace + id, null)) %>"
 		>
 
 			<%
@@ -78,7 +77,7 @@ String tabs1Value = GetterUtil.getString(SessionClicks.get(request, namespace + 
 	);
 	var tabs1Param = '<portlet:namespace /><%= tabs1Param %>';
 
-	var updateRedirectField = function(event) {
+	var updateRedirectField = function (event) {
 		var redirectURL = new URL(redirectField.value, window.location.origin);
 
 		redirectURL.searchParams.set(tabs1Param, event.id);
@@ -88,7 +87,7 @@ String tabs1Value = GetterUtil.getString(SessionClicks.get(request, namespace + 
 		Liferay.Util.Session.set('<portlet:namespace /><%= id %>', event.id);
 	};
 
-	var clearFormNavigatorHandles = function(event) {
+	var clearFormNavigatorHandles = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			Liferay.detach('showTab', updateRedirectField);
 			Liferay.detach('destroyPortlet', clearFormNavigatorHandles);

@@ -21,7 +21,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.test.util.TestDataConstants;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -30,8 +30,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
 
 import java.io.Serializable;
-
-import java.util.Map;
 
 /**
  * @author Alexander Chow
@@ -100,16 +98,14 @@ public abstract class DLAppTestUtil {
 
 		FileVersion fileVersion = fileEntry.getFileVersion();
 
-		Map<String, Serializable> workflowContext =
+		DLFileEntryLocalServiceUtil.updateStatus(
+			TestPropsValues.getUserId(), fileVersion.getFileVersionId(),
+			WorkflowConstants.STATUS_APPROVED, serviceContext,
 			HashMapBuilder.<String, Serializable>put(
 				WorkflowConstants.CONTEXT_URL, "http://localhost"
 			).put(
 				"event", "add"
-			).build();
-
-		DLFileEntryLocalServiceUtil.updateStatus(
-			TestPropsValues.getUserId(), fileVersion.getFileVersionId(),
-			WorkflowConstants.STATUS_APPROVED, serviceContext, workflowContext);
+			).build());
 
 		return DLAppLocalServiceUtil.getFileEntry(fileEntry.getFileEntryId());
 	}

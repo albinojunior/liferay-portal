@@ -50,6 +50,45 @@ definition {
 				locator1 = "DocumentsAndMediaEditRepository#LIBRARY_NAME_FIELD",
 				value1 = "${dmRepositoryLibraryName}");
 		}
+
+		if (isSet(permissionDefinitionKey)) {
+			Panel.expandPanel(panel = "Permissions");
+
+			if (IsNotVisible(key_text = "Hide Options",locator1 = "Button#ANY")) {
+				AssertClick(
+					key_text = "More Options",
+					locator1 = "Button#ANY",
+					value1 = "More Options");
+			}
+
+			var key_permissionDefinitionKey = "${permissionDefinitionKey}";
+			var key_roleTitle = "${roleTitle}";
+
+			Check(locator1 = "AssetPermissions#PERMISSIONS_CHECKBOX");
+		}
+	}
+
+	macro cleanRepository {
+		Navigator.openSpecificURL(url = "https://localhost:8443/group/guest/~/control_panel/manage?p_p_id=com_liferay_document_library_web_portlet_DLAdminPortlet");
+
+		DMRepository.gotoCP(dmRepositoryName = "Collaboration Test Application");
+
+		if (isSet(dmDocumentTitle)) {
+			if (IsElementPresent(key_dmDocumentTitle = "${dmDocumentTitle}", locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE")) {
+				DMDocument.deleteCP(
+					dmDocumentTitle = "${dmDocumentTitle}",
+					recycleBinDisabled = "true");
+			}
+		}
+		else if (isSet(dmFolderName)) {
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+			if (IsElementPresent(key_dmFolderName = "${dmFolderName}", locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_FOLDER_TITLE")) {
+				DMFolder.deleteCP(
+					dmFolderName = "${dmFolderName}",
+					recycleBinDisabled = "true");
+			}
+		}
 	}
 
 	macro edit {
@@ -69,7 +108,7 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "Portlet#HEADER",
-			value1 = "${dmRepositoryName}");
+			value1 = "Documents and Media");
 	}
 
 	macro tearDownCP {
@@ -77,7 +116,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		while (IsElementPresent(locator1 = "DocumentsAndMedia#FILTER_REPOSITORY_GENERIC")) {

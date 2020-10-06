@@ -16,6 +16,7 @@ package com.liferay.gradle.plugins.service.builder;
 
 import com.liferay.gradle.plugins.service.builder.internal.util.GradleUtil;
 import com.liferay.gradle.util.FileUtil;
+import com.liferay.gradle.util.OSGiUtil;
 
 import java.io.File;
 
@@ -30,7 +31,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.GradleInternal;
-import org.gradle.api.internal.plugins.osgi.OsgiHelper;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -145,10 +145,9 @@ public class ServiceBuilderPlugin implements Plugin<Project> {
 
 				@Override
 				public File call() throws Exception {
-					File resourcesDir = getResourcesDir(project);
-
 					return new File(
-						resourcesDir, "META-INF/portlet-model-hints.xml");
+						getResourcesDir(project),
+						"META-INF/portlet-model-hints.xml");
 				}
 
 			});
@@ -174,7 +173,7 @@ public class ServiceBuilderPlugin implements Plugin<Project> {
 				public String call() throws Exception {
 					if (buildServiceTask.isOsgiModule()) {
 						String bundleSymbolicName =
-							_osgiHelper.getBundleSymbolicName(project);
+							OSGiUtil.getBundleSymbolicName(project);
 
 						return bundleSymbolicName + ".util.ServiceProps";
 					}
@@ -217,9 +216,7 @@ public class ServiceBuilderPlugin implements Plugin<Project> {
 
 				@Override
 				public File call() throws Exception {
-					File resourcesDir = getResourcesDir(project);
-
-					return new File(resourcesDir, "META-INF/sql");
+					return new File(getResourcesDir(project), "META-INF/sql");
 				}
 
 			});
@@ -413,7 +410,5 @@ public class ServiceBuilderPlugin implements Plugin<Project> {
 
 		return warPluginConvention.getWebAppDir();
 	}
-
-	private static final OsgiHelper _osgiHelper = new OsgiHelper();
 
 }

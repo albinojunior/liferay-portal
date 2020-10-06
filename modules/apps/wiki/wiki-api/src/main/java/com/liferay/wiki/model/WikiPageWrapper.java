@@ -263,10 +263,12 @@ public class WikiPageWrapper
 	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry>
 			getAttachmentsFileEntries(
 				int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator obc)
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.portal.kernel.repository.model.FileEntry>
+						orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return model.getAttachmentsFileEntries(start, end, obc);
+		return model.getAttachmentsFileEntries(start, end, orderByComparator);
 	}
 
 	@Override
@@ -274,10 +276,12 @@ public class WikiPageWrapper
 			getAttachmentsFileEntries(
 				String[] mimeTypes, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.portal.kernel.repository.model.FileEntry> obc)
+					<com.liferay.portal.kernel.repository.model.FileEntry>
+						orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return model.getAttachmentsFileEntries(mimeTypes, start, end, obc);
+		return model.getAttachmentsFileEntries(
+			mimeTypes, start, end, orderByComparator);
 	}
 
 	@Override

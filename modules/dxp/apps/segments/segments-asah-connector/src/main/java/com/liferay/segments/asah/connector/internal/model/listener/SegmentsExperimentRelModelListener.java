@@ -22,7 +22,8 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.segments.asah.connector.internal.client.AsahFaroBackendClientFactory;
+import com.liferay.segments.asah.connector.internal.client.AsahFaroBackendClientImpl;
+import com.liferay.segments.asah.connector.internal.client.JSONWebServiceClient;
 import com.liferay.segments.asah.connector.internal.processor.AsahSegmentsExperimentProcessor;
 import com.liferay.segments.asah.connector.internal.util.AsahUtil;
 import com.liferay.segments.model.SegmentsExperiment;
@@ -34,12 +35,13 @@ import com.liferay.segments.service.SegmentsExperimentRelLocalService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Sarai Díaz
  */
-@Component(immediate = true, service = ModelListener.class)
+@Component(service = ModelListener.class)
 public class SegmentsExperimentRelModelListener
 	extends BaseModelListener<SegmentsExperimentRel> {
 
@@ -92,9 +94,15 @@ public class SegmentsExperimentRelModelListener
 	@Activate
 	protected void activate() {
 		_asahSegmentsExperimentProcessor = new AsahSegmentsExperimentProcessor(
-			_asahFaroBackendClientFactory, _companyLocalService,
-			_groupLocalService, _layoutLocalService, _portal,
-			_segmentsEntryLocalService, _segmentsExperienceLocalService);
+			new AsahFaroBackendClientImpl(_jsonWebServiceClient),
+			_companyLocalService, _groupLocalService, _layoutLocalService,
+			_portal, _segmentsEntryLocalService,
+			_segmentsExperienceLocalService);
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		_asahSegmentsExperimentProcessor = null;
 	}
 
 	private void _processUpdateSegmentsExperimentRel(
@@ -109,13 +117,11 @@ public class SegmentsExperimentRelModelListener
 		}
 
 		_asahSegmentsExperimentProcessor.processUpdateSegmentsExperimentRel(
+			segmentsExperimentRel.getCompanyId(),
 			segmentsExperimentRel.getSegmentsExperimentKey(),
 			_segmentsExperimentRelLocalService.getSegmentsExperimentRels(
 				segmentsExperimentRel.getSegmentsExperimentId()));
 	}
-
-	@Reference
-	private AsahFaroBackendClientFactory _asahFaroBackendClientFactory;
 
 	private AsahSegmentsExperimentProcessor _asahSegmentsExperimentProcessor;
 
@@ -124,6 +130,9 @@ public class SegmentsExperimentRelModelListener
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private JSONWebServiceClient _jsonWebServiceClient;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true, property = "service.ranking:Integer=300",
+	immediate = true, property = "service.ranking:Integer=700",
 	service = ContentPageEditorSidebarPanel.class
 )
 public class PageStructureContentPageEditorSidebarPanel
@@ -53,17 +53,17 @@ public class PageStructureContentPageEditorSidebarPanel
 		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
 			"content.Language", locale, getClass());
 
-		return LanguageUtil.get(resourceBundle, "page-structure");
+		return LanguageUtil.get(resourceBundle, "selection");
 	}
 
 	@Override
 	public boolean isVisible(
-		PermissionChecker permissionChecker, long plid,
-		boolean pageIsDisplayPage) {
+		PermissionChecker permissionChecker, long plid, int layoutType) {
 
 		try {
 			if (LayoutPermissionUtil.contains(
-					permissionChecker, plid, ActionKeys.UPDATE)) {
+					permissionChecker, plid,
+					ActionKeys.UPDATE_LAYOUT_CONTENT)) {
 
 				return true;
 			}

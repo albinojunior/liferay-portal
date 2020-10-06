@@ -34,6 +34,10 @@ public class LayoutSetPrototypeLocalServiceWrapper
 	/**
 	 * Adds the layout set prototype to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetPrototype the layout set prototype
 	 * @return the layout set prototype that was added
 	 */
@@ -92,6 +96,10 @@ public class LayoutSetPrototypeLocalServiceWrapper
 	/**
 	 * Deletes the layout set prototype from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetPrototype the layout set prototype
 	 * @return the layout set prototype that was removed
 	 * @throws PortalException
@@ -109,6 +117,10 @@ public class LayoutSetPrototypeLocalServiceWrapper
 
 	/**
 	 * Deletes the layout set prototype with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSetPrototypeId the primary key of the layout set prototype
 	 * @return the layout set prototype that was removed
@@ -148,6 +160,11 @@ public class LayoutSetPrototypeLocalServiceWrapper
 
 		return _layoutSetPrototypeLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _layoutSetPrototypeLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -387,10 +404,11 @@ public class LayoutSetPrototypeLocalServiceWrapper
 		search(
 			long companyId, java.lang.Boolean active, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.LayoutSetPrototype> obc) {
+				<com.liferay.portal.kernel.model.LayoutSetPrototype>
+					orderByComparator) {
 
 		return _layoutSetPrototypeLocalService.search(
-			companyId, active, start, end, obc);
+			companyId, active, start, end, orderByComparator);
 	}
 
 	@Override
@@ -400,6 +418,10 @@ public class LayoutSetPrototypeLocalServiceWrapper
 
 	/**
 	 * Updates the layout set prototype in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSetPrototype the layout set prototype
 	 * @return the layout set prototype that was updated

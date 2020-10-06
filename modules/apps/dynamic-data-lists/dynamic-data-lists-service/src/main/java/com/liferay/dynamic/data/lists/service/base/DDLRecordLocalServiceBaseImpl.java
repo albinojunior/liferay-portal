@@ -26,6 +26,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -46,6 +47,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -82,6 +84,10 @@ public abstract class DDLRecordLocalServiceBaseImpl
 	/**
 	 * Adds the ddl record to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDLRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddlRecord the ddl record
 	 * @return the ddl record that was added
 	 */
@@ -108,6 +114,10 @@ public abstract class DDLRecordLocalServiceBaseImpl
 	/**
 	 * Deletes the ddl record with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDLRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recordId the primary key of the ddl record
 	 * @return the ddl record that was removed
 	 * @throws PortalException if a ddl record with the primary key could not be found
@@ -121,6 +131,10 @@ public abstract class DDLRecordLocalServiceBaseImpl
 	/**
 	 * Deletes the ddl record from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDLRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddlRecord the ddl record
 	 * @return the ddl record that was removed
 	 */
@@ -128,6 +142,11 @@ public abstract class DDLRecordLocalServiceBaseImpl
 	@Override
 	public DDLRecord deleteDDLRecord(DDLRecord ddlRecord) {
 		return ddlRecordPersistence.remove(ddlRecord);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ddlRecordPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -375,6 +394,10 @@ public abstract class DDLRecordLocalServiceBaseImpl
 		return ddlRecordLocalService.deleteDDLRecord((DDLRecord)persistedModel);
 	}
 
+	public BasePersistence<DDLRecord> getBasePersistence() {
+		return ddlRecordPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -461,6 +484,10 @@ public abstract class DDLRecordLocalServiceBaseImpl
 
 	/**
 	 * Updates the ddl record in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDLRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddlRecord the ddl record
 	 * @return the ddl record that was updated

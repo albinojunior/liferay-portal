@@ -20,17 +20,23 @@
 PanelCategory panelCategory = (PanelCategory)request.getAttribute(ApplicationListWebKeys.PANEL_CATEGORY);
 
 SiteAdministrationPanelCategoryDisplayContext siteAdministrationPanelCategoryDisplayContext = new SiteAdministrationPanelCategoryDisplayContext(liferayPortletRequest, liferayPortletResponse, null);
+
+Group group = siteAdministrationPanelCategoryDisplayContext.getGroup();
 %>
 
 <c:if test="<%= siteAdministrationPanelCategoryDisplayContext.getGroup() != null %>">
-	<div class="row">
-		<div class="col-md-12">
+	<clay:row
+		cssClass="navigation-link-container"
+	>
+		<clay:col
+			md="12"
+		>
 			<c:if test="<%= siteAdministrationPanelCategoryDisplayContext.isShowStagingInfo() %>">
 
 				<%
-				Map<String, Object> data = new HashMap<String, Object>();
-
-				data.put("qa-id", "staging");
+				Map<String, Object> data = HashMapBuilder.<String, Object>put(
+					"qa-id", "staging"
+				).build();
 				%>
 
 				<div class="float-right staging-links">
@@ -80,16 +86,87 @@ SiteAdministrationPanelCategoryDisplayContext siteAdministrationPanelCategoryDis
 			</c:if>
 
 			<c:if test="<%= siteAdministrationPanelCategoryDisplayContext.isDisplaySiteLink() %>">
-				<aui:a cssClass="goto-link list-group-heading panel-header-link" href="<%= siteAdministrationPanelCategoryDisplayContext.getGroupURL() %>" label="go-to-site" />
+				<clay:link
+					cssClass='<%= "list-group-heading navigation-link panel-header-link" + (siteAdministrationPanelCategoryDisplayContext.isFirstLayout() ? " first-layout" : "") %>'
+					href="<%= siteAdministrationPanelCategoryDisplayContext.getGroupURL() %>"
+					icon="home"
+					label="home"
+				/>
 			</c:if>
-		</div>
-	</div>
+
+			<c:if test="<%= !group.isDepot() && !group.isCompany() %>">
+				<clay:button
+					cssClass="list-group-heading navigation-link panel-header-link"
+					displayType="unstyled"
+					icon="pages-tree"
+					id='<%= liferayPortletResponse.getNamespace() + "pagesTreeSidenavToggleId" %>'
+					label='<%= LanguageUtil.get(resourceBundle, "page-tree") %>'
+				/>
+			</c:if>
+		</clay:col>
+	</clay:row>
 
 	<c:if test="<%= siteAdministrationPanelCategoryDisplayContext.isShowSiteAdministration() %>">
 		<liferay-application-list:panel-category-body
 			panelCategory="<%= panelCategory %>"
 		/>
 	</c:if>
+</c:if>
+
+<c:if test="<%= !group.isDepot() && !group.isCompany() %>">
+
+	<%
+	PortletURL portletURL = PortletURLFactoryUtil.create(request, ProductNavigationProductMenuPortletKeys.PRODUCT_NAVIGATION_PRODUCT_MENU, RenderRequest.RENDER_PHASE);
+
+	portletURL.setParameter("mvcPath", "/portlet/pages_tree.jsp");
+	portletURL.setParameter("redirect", themeDisplay.getURLCurrent());
+	portletURL.setParameter("selPpid", portletDisplay.getId());
+	portletURL.setWindowState(LiferayWindowState.EXCLUSIVE);
+	%>
+
+	<aui:script sandbox="<%= true %>">
+		var pagesTreeToggle = document.getElementById(
+			'<portlet:namespace />pagesTreeSidenavToggleId'
+		);
+
+		pagesTreeToggle.addEventListener('click', function (event) {
+			Liferay.Portlet.destroy('#p_p_id<portlet:namespace />', true);
+
+			Liferay.Util.Session.set(
+				'com.liferay.product.navigation.product.menu.web_pagesTreeState',
+				'open'
+			).then(function () {
+				Liferay.Util.fetch('<%= portletURL.toString() %>')
+					.then(function (response) {
+						if (!response.ok) {
+							throw new Error(
+								'<liferay-ui:message key="an-unexpected-error-occurred" />'
+							);
+						}
+
+						return response.text();
+					})
+					.then(function (response) {
+						var sidebar = document.querySelector(
+							'.lfr-product-menu-sidebar .sidebar-body'
+						);
+
+						sidebar.innerHTML = '';
+
+						var range = document.createRange();
+						range.selectNode(sidebar);
+
+						var fragment = range.createContextualFragment(response);
+
+						var pagesTree = document.createElement('div');
+						pagesTree.setAttribute('class', 'pages-tree');
+						pagesTree.appendChild(fragment);
+
+						sidebar.appendChild(pagesTree);
+					});
+			});
+		});
+	</aui:script>
 </c:if>
 
 <%!

@@ -12,6 +12,13 @@ definition {
 			User.firstLoginPG();
 		}
 
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "Search");
+
+		SearchAdministration.executeSearchActions(actionsDescription = "Reindex all search indexes.");
+
 		task ("Add a site via JSON") {
 			JSONGroup.addGroup(groupName = "Test Site Name");
 		}
@@ -21,13 +28,12 @@ definition {
 				groupName = "Test Site Name",
 				layoutName = "Search");
 
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/search");
-
-			Portlet.addPG(portletName = "Search Results");
-
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/search");
-
-			Portlet.addPG(portletName = "Type Facet");
+			for (var widgetName : list "Search Results,Type Facet") {
+				JSONLayout.addWidgetToPublicLayout(
+					groupName = "Test Site Name",
+					layoutName = "Search",
+					widgetName = "${widgetName}");
+			}
 		}
 
 		task ("Import test fragments from dependencies folder") {
@@ -37,9 +43,10 @@ definition {
 		}
 
 		task ("Add a content page") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
-
-			ContentPages.addPage(pageName = "Test Content Page Name");
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
 		}
 	}
 
@@ -57,12 +64,14 @@ definition {
 	@description = "This is a test for LPS-78928. Content pages will appear when users filter search results by page facet."
 	@priority = "5"
 	test FilterByPageFacet {
-
-		// Ignore test from acceptance until POSHI-48 resolved
-
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "ContentPagesWithSearch#FilterByPageFacet";
 
 		task ("Add a Static Text fragment to the content page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
 			PageEditor.addFragment(
 				collectionName = "Collection Name",
 				fragmentName = "Static Text");
@@ -73,7 +82,9 @@ definition {
 		}
 
 		task ("Navigate to the content page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+			Navigator.gotoSitePage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("Add a web content article with the same text as the Static Text fragment") {
@@ -109,18 +120,16 @@ definition {
 	@description = "This is a test for LPS-91405. Content page associated with category will not display after category deleted."
 	@priority = "3"
 	test SearchContentPagesWithDeletedCategory {
+		property test.name.skip.portal.instance = "ContentPagesWithSearch#SearchContentPagesWithDeletedCategory";
+
 		task ("Add a a vocabulary with a category") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
+			JSONCategory.addVocabulary(
+				groupName = "Test Site Name",
+				title = "Vocabulary Name");
 
-			ProductMenu.gotoPortlet(
-				category = "Categorization",
-				panel = "Site Administration",
-				portlet = "Categories");
-
-			Vocabulary.addCP(vocabularyName = "Vocabulary Name");
-
-			Category.addCP(
-				categoryName = "New Category",
+			JSONCategory.addCategory(
+				groupName = "Test Site Name",
+				title = "New Category",
 				vocabularyName = "Vocabulary Name");
 		}
 
@@ -139,7 +148,9 @@ definition {
 		}
 
 		task ("Navigate to the search page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
+			Navigator.gotoSitePage(
+				pageName = "Search",
+				siteName = "Test Site Name");
 		}
 
 		task ("Search for created category") {
@@ -151,12 +162,7 @@ definition {
 		}
 
 		task ("Delete created vocabulary") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
-
-			ProductMenu.gotoPortlet(
-				category = "Categorization",
-				panel = "Site Administration",
-				portlet = "Categories");
+			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
 			Vocabulary.deleteByIconCP(vocabularyName = "Vocabulary Name");
 		}
@@ -177,12 +183,14 @@ definition {
 	@description = "This is a test for LPS-78928. Editable text in content pages is searchable."
 	@priority = "5"
 	test SearchEditableText {
-
-		// Ignore test from acceptance until POSHI-48 resolved
-
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "ContentPagesWithSearch#SearchEditableText";
 
 		task ("Add a Rich Text fragment to the content page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
 			PageEditor.addFragment(
 				collectionName = "Collection Name",
 				fragmentName = "Rich Text");
@@ -193,7 +201,9 @@ definition {
 		}
 
 		task ("Navigate to the content page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+			Navigator.gotoSitePage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("Search by text that appears in the editable text field in the Rich Text fragment") {
@@ -205,11 +215,14 @@ definition {
 		}
 
 		task ("Navigate to the content page's 'Edit Mode'") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name?p_l_mode=edit");
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("Edit the Rich Text fragment's editable text") {
 			PageEditor.editFragmentText(
+				contributed = "false",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				text = "New editable fragment text");
@@ -220,7 +233,9 @@ definition {
 		}
 
 		task ("Navigate to the content page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("Search by the new text that appears in the editable text field in the Rich Text fragment") {
@@ -244,8 +259,13 @@ definition {
 	@priority = "5"
 	test SearchStaticText {
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "ContentPagesWithSearch#SearchStaticText";
 
 		task ("Add a Static Text fragment to the content page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
 			PageEditor.addFragment(
 				collectionName = "Collection Name",
 				fragmentName = "Static Text");
@@ -256,7 +276,9 @@ definition {
 		}
 
 		task ("Navigate to the content page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+			Navigator.gotoSitePage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("Search by the static text in the Static Text fragment") {

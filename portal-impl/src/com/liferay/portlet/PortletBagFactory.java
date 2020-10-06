@@ -277,15 +277,15 @@ public class PortletBagFactory {
 	}
 
 	private javax.portlet.Portlet _getPortletInstance(Portlet portlet)
-		throws IllegalAccessException, InstantiationException {
+		throws Exception {
 
 		Class<?> portletClass = null;
 
 		try {
 			portletClass = _classLoader.loadClass(portlet.getPortletClass());
 		}
-		catch (Throwable t) {
-			_log.error(t, t);
+		catch (Throwable throwable) {
+			_log.error(throwable, throwable);
 
 			PortletLocalServiceUtil.destroyPortlet(portlet);
 
@@ -864,15 +864,13 @@ public class PortletBagFactory {
 			WebDAVStorage webDAVStorageInstance = _newInstance(
 				WebDAVStorage.class, portlet.getWebDAVStorageClass());
 
-			Map<String, Object> webDAVProperties =
+			registry.registerService(
+				WebDAVStorage.class, webDAVStorageInstance,
 				HashMapBuilder.<String, Object>put(
 					"javax.portlet.name", portlet.getPortletId()
 				).put(
 					"webdav.storage.token", portlet.getWebDAVStorageToken()
-				).build();
-
-			registry.registerService(
-				WebDAVStorage.class, webDAVStorageInstance, webDAVProperties);
+				).build());
 		}
 	}
 

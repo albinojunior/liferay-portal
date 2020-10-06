@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -60,11 +61,15 @@ public interface KaleoNodeLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link KaleoNodeLocalServiceUtil} to access the kaleo node local service. Add custom service methods to <code>com.liferay.portal.workflow.kaleo.service.impl.KaleoNodeLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.workflow.kaleo.service.impl.KaleoNodeLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the kaleo node local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link KaleoNodeLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the kaleo node to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNodeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoNode the kaleo node
 	 * @return the kaleo node that was added
@@ -73,7 +78,7 @@ public interface KaleoNodeLocalService
 	public KaleoNode addKaleoNode(KaleoNode kaleoNode);
 
 	public KaleoNode addKaleoNode(
-			long kaleoDefinitionVersionId, Node node,
+			long kaleoDefinitionId, long kaleoDefinitionVersionId, Node node,
 			ServiceContext serviceContext)
 		throws PortalException;
 
@@ -100,6 +105,10 @@ public interface KaleoNodeLocalService
 	/**
 	 * Deletes the kaleo node from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNodeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoNode the kaleo node
 	 * @return the kaleo node that was removed
 	 */
@@ -108,6 +117,10 @@ public interface KaleoNodeLocalService
 
 	/**
 	 * Deletes the kaleo node with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNodeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoNodeId the primary key of the kaleo node
 	 * @return the kaleo node that was removed
@@ -122,6 +135,9 @@ public interface KaleoNodeLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -251,6 +267,10 @@ public interface KaleoNodeLocalService
 
 	/**
 	 * Updates the kaleo node in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNodeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoNode the kaleo node
 	 * @return the kaleo node that was updated

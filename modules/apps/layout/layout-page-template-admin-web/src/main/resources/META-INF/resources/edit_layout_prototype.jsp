@@ -54,6 +54,22 @@ renderResponse.setTitle(layoutPrototype.isNew() ? LanguageUtil.get(request, "new
 	method="post"
 	name="fm"
 >
+	<liferay-ui:error exception="<%= LayoutPageTemplateEntryNameException.MustNotBeDuplicate.class %>" message="a-page-template-entry-with-that-name-already-exists" />
+	<liferay-ui:error exception="<%= LayoutPageTemplateEntryNameException.MustNotBeNull.class %>" message="name-must-not-be-empty" />
+
+	<liferay-ui:error exception="<%= LayoutPageTemplateEntryNameException.MustNotContainInvalidCharacters.class %>">
+
+		<%
+		LayoutPageTemplateEntryNameException.MustNotContainInvalidCharacters exception = (LayoutPageTemplateEntryNameException.MustNotContainInvalidCharacters)errorException;
+		%>
+
+		<liferay-ui:message arguments="<%= exception.character %>" key="name-cannot-contain-the-following-invalid-character-x" />
+	</liferay-ui:error>
+
+	<liferay-ui:error exception="<%= LayoutPageTemplateEntryNameException.MustNotExceedMaximumSize.class %>">
+		<liferay-ui:message arguments='<%= ModelHintsUtil.getMaxLength(LayoutPageTemplateEntry.class.getName(), "name") %>' key="please-enter-a-name-with-fewer-than-x-characters" />
+	</liferay-ui:error>
+
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="layoutPrototypeId" type="hidden" value="<%= layoutPrototypeId %>" />
 

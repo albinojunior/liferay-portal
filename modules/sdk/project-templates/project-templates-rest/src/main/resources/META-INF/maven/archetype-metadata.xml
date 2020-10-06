@@ -31,13 +31,10 @@
 		</requiredProperty>
 		<requiredProperty key="className">
 		</requiredProperty>
-		<requiredProperty key="dependencyManagementEnabled">
-			<defaultValue>false</defaultValue>
-		</requiredProperty>
 		<requiredProperty key="liferayVersion">
 		</requiredProperty>
-		<requiredProperty key="projectType">
-			<defaultValue>standalone</defaultValue>
+		<requiredProperty key="product">
+			<defaultValue>portal</defaultValue>
 		</requiredProperty>
 	</requiredProperties>
 </archetype-descriptor>

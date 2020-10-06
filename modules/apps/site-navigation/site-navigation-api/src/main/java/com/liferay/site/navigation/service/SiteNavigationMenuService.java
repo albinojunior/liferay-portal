@@ -51,7 +51,7 @@ public interface SiteNavigationMenuService extends BaseService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link SiteNavigationMenuServiceUtil} to access the site navigation menu remote service. Add custom service methods to <code>com.liferay.site.navigation.service.impl.SiteNavigationMenuServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.site.navigation.service.impl.SiteNavigationMenuServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the site navigation menu remote service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link SiteNavigationMenuServiceUtil} if injection and service tracking are not available.
 	 */
 	public SiteNavigationMenu addSiteNavigationMenu(
 			long groupId, String name, int type, boolean auto,
@@ -86,22 +86,23 @@ public interface SiteNavigationMenuService extends BaseService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SiteNavigationMenu> getSiteNavigationMenus(
-		long groupId, int start, int end, OrderByComparator orderByComparator);
+		long groupId, int start, int end,
+		OrderByComparator<SiteNavigationMenu> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SiteNavigationMenu> getSiteNavigationMenus(
 		long groupId, String keywords, int start, int end,
-		OrderByComparator orderByComparator);
+		OrderByComparator<SiteNavigationMenu> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SiteNavigationMenu> getSiteNavigationMenus(
 		long[] groupIds, int start, int end,
-		OrderByComparator orderByComparator);
+		OrderByComparator<SiteNavigationMenu> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SiteNavigationMenu> getSiteNavigationMenus(
 		long[] groupIds, String keywords, int start, int end,
-		OrderByComparator orderByComparator);
+		OrderByComparator<SiteNavigationMenu> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getSiteNavigationMenusCount(long groupId);

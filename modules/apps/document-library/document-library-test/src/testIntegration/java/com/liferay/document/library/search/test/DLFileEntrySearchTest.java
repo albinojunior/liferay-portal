@@ -72,7 +72,6 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,7 +91,6 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 			PermissionCheckerMethodTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
-	@Ignore
 	@Override
 	@Test
 	public void testLocalizedSearch() throws Exception {
@@ -186,7 +184,6 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 		testOrderHelper.testOrderByDDMTextFieldRepeatable();
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchAttachments() throws Exception {

@@ -21,6 +21,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -113,6 +114,8 @@ public abstract class BaseMessageBoardThreadResourceImpl
 				@NotNull @Parameter(hidden = true)
 				@PathParam("messageBoardSectionId") Long messageBoardSectionId,
 				@Parameter(hidden = true) @QueryParam("search") String search,
+				@Context com.liferay.portal.vulcan.aggregation.Aggregation
+					aggregation,
 				@Context Filter filter, @Context Pagination pagination,
 				@Context Sort[] sorts)
 		throws Exception {
@@ -123,7 +126,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-delivery/v1.0/message-board-sections/{messageBoardSectionId}/message-board-threads' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "showAsQuestion": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-delivery/v1.0/message-board-sections/{messageBoardSectionId}/message-board-threads' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "friendlyUrlPath": ___, "hasValidAnswer": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "seen": ___, "showAsQuestion": ___, "subscribed": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -204,6 +207,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 		value = {
 			@Parameter(in = ParameterIn.QUERY, name = "dateCreated"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateModified"),
+			@Parameter(in = ParameterIn.QUERY, name = "messageBoardSectionId"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
 			@Parameter(in = ParameterIn.QUERY, name = "sort")
@@ -217,6 +221,8 @@ public abstract class BaseMessageBoardThreadResourceImpl
 				dateCreated,
 			@Parameter(hidden = true) @QueryParam("dateModified") java.util.Date
 				dateModified,
+			@Parameter(hidden = true) @QueryParam("messageBoardSectionId") Long
+				messageBoardSectionId,
 			@Context Pagination pagination, @Context Sort[] sorts)
 		throws Exception {
 
@@ -310,7 +316,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-delivery/v1.0/message-board-threads/{messageBoardThreadId}' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "showAsQuestion": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-delivery/v1.0/message-board-threads/{messageBoardThreadId}' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "friendlyUrlPath": ___, "hasValidAnswer": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "seen": ___, "showAsQuestion": ___, "subscribed": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -360,6 +366,16 @@ public abstract class BaseMessageBoardThreadResourceImpl
 				messageBoardThread.getEncodingFormat());
 		}
 
+		if (messageBoardThread.getFriendlyUrlPath() != null) {
+			existingMessageBoardThread.setFriendlyUrlPath(
+				messageBoardThread.getFriendlyUrlPath());
+		}
+
+		if (messageBoardThread.getHasValidAnswer() != null) {
+			existingMessageBoardThread.setHasValidAnswer(
+				messageBoardThread.getHasValidAnswer());
+		}
+
 		if (messageBoardThread.getHeadline() != null) {
 			existingMessageBoardThread.setHeadline(
 				messageBoardThread.getHeadline());
@@ -368,6 +384,11 @@ public abstract class BaseMessageBoardThreadResourceImpl
 		if (messageBoardThread.getKeywords() != null) {
 			existingMessageBoardThread.setKeywords(
 				messageBoardThread.getKeywords());
+		}
+
+		if (messageBoardThread.getLocked() != null) {
+			existingMessageBoardThread.setLocked(
+				messageBoardThread.getLocked());
 		}
 
 		if (messageBoardThread.getMessageBoardSectionId() != null) {
@@ -383,6 +404,10 @@ public abstract class BaseMessageBoardThreadResourceImpl
 		if (messageBoardThread.getNumberOfMessageBoardMessages() != null) {
 			existingMessageBoardThread.setNumberOfMessageBoardMessages(
 				messageBoardThread.getNumberOfMessageBoardMessages());
+		}
+
+		if (messageBoardThread.getSeen() != null) {
+			existingMessageBoardThread.setSeen(messageBoardThread.getSeen());
 		}
 
 		if (messageBoardThread.getShowAsQuestion() != null) {
@@ -429,7 +454,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/headless-delivery/v1.0/message-board-threads/{messageBoardThreadId}' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "showAsQuestion": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-delivery/v1.0/message-board-threads/{messageBoardThreadId}' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "friendlyUrlPath": ___, "hasValidAnswer": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "seen": ___, "showAsQuestion": ___, "subscribed": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -662,6 +687,8 @@ public abstract class BaseMessageBoardThreadResourceImpl
 			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
 			@Parameter(hidden = true) @QueryParam("flatten") Boolean flatten,
 			@Parameter(hidden = true) @QueryParam("search") String search,
+			@Context com.liferay.portal.vulcan.aggregation.Aggregation
+				aggregation,
 			@Context Filter filter, @Context Pagination pagination,
 			@Context Sort[] sorts)
 		throws Exception {
@@ -672,7 +699,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-delivery/v1.0/sites/{siteId}/message-board-threads' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "showAsQuestion": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-delivery/v1.0/sites/{siteId}/message-board-threads' -d $'{"articleBody": ___, "creatorStatistics": ___, "customFields": ___, "encodingFormat": ___, "friendlyUrlPath": ___, "hasValidAnswer": ___, "headline": ___, "keywords": ___, "messageBoardSectionId": ___, "seen": ___, "showAsQuestion": ___, "subscribed": ___, "taxonomyCategoryIds": ___, "threadType": ___, "viewableBy": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -730,6 +757,33 @@ public abstract class BaseMessageBoardThreadResourceImpl
 		).build();
 	}
 
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/headless-delivery/v1.0/sites/{siteId}/message-board-threads/by-friendly-url-path/{friendlyUrlPath}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "siteId"),
+			@Parameter(in = ParameterIn.PATH, name = "friendlyUrlPath")
+		}
+	)
+	@Path(
+		"/sites/{siteId}/message-board-threads/by-friendly-url-path/{friendlyUrlPath}"
+	)
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "MessageBoardThread")})
+	public MessageBoardThread getSiteMessageBoardThreadByFriendlyUrlPath(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			@NotNull @Parameter(hidden = true) @PathParam("friendlyUrlPath")
+				String friendlyUrlPath)
+		throws Exception {
+
+		return new MessageBoardThread();
+	}
+
 	@Override
 	@SuppressWarnings("PMD.UnusedLocalVariable")
 	public void create(
@@ -778,7 +832,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 
 		return getSiteMessageBoardThreadsPage(
 			(Long)parameters.get("siteId"), (Boolean)parameters.get("flatten"),
-			search, filter, pagination, sorts);
+			search, null, filter, pagination, sorts);
 	}
 
 	@Override
@@ -850,6 +904,14 @@ public abstract class BaseMessageBoardThreadResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -859,12 +921,21 @@ public abstract class BaseMessageBoardThreadResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -872,7 +943,7 @@ public abstract class BaseMessageBoardThreadResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected void preparePatch(

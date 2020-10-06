@@ -88,20 +88,20 @@ public class TaglibUtil {
 			boolean portalSource)
 		throws IOException {
 
-		String[] excludes = {
-			"**/dependencies/**", "**/util-taglib/**", "**/portal-web/**"
-		};
-
 		List<String> tldFileNames = SourceFormatterUtil.filterFileNames(
-			allFileNames, excludes, new String[] {"**/*.tld"},
-			sourceFormatterExcludes, true);
+			allFileNames,
+			new String[] {
+				"**/dependencies/**", "**/util-taglib/**", "**/portal-web/**"
+			},
+			new String[] {"**/*.tld"}, sourceFormatterExcludes, true);
 
 		if (!portalSource) {
 			return tldFileNames;
 		}
 
 		String[] tldDirLocations = {
-			"portal-web/docroot/WEB-INF/tld/", "util-taglib/src/META-INF/"
+			"modules/apps/frontend-taglib/", "portal-web/docroot/WEB-INF/tld/",
+			"util-taglib/src/META-INF/"
 		};
 
 		for (String tldDirLocation : tldDirLocations) {

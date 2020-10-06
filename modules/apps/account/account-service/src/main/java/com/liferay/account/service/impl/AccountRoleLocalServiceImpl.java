@@ -21,7 +21,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.Disjunction;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
-import com.liferay.portal.kernel.dao.orm.Order;
 import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
@@ -34,6 +33,7 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Collections;
@@ -99,10 +99,14 @@ public class AccountRoleLocalServiceImpl
 
 		accountRole = super.deleteAccountRole(accountRole);
 
-		userGroupRoleLocalService.deleteUserGroupRolesByRoleId(
-			accountRole.getRoleId());
+		Role role = roleLocalService.fetchRole(accountRole.getRoleId());
 
-		roleLocalService.deleteRole(accountRole.getRoleId());
+		if (role != null) {
+			userGroupRoleLocalService.deleteUserGroupRolesByRoleId(
+				accountRole.getRoleId());
+
+			roleLocalService.deleteRole(accountRole.getRoleId());
+		}
 
 		return accountRole;
 	}
@@ -111,14 +115,7 @@ public class AccountRoleLocalServiceImpl
 	public AccountRole deleteAccountRole(long accountRoleId)
 		throws PortalException {
 
-		AccountRole accountRole = super.deleteAccountRole(accountRoleId);
-
-		userGroupRoleLocalService.deleteUserGroupRolesByRoleId(
-			accountRole.getRoleId());
-
-		roleLocalService.deleteRole(accountRole.getRoleId());
-
-		return accountRole;
+		return deleteAccountRole(getAccountRole(accountRoleId));
 	}
 
 	@Override
@@ -132,10 +129,10 @@ public class AccountRoleLocalServiceImpl
 		for (AccountRole accountRole :
 				accountRolePersistence.findByCompanyId(companyId)) {
 
+			accountRolePersistence.remove(accountRole);
+
 			userGroupRoleLocalService.deleteUserGroupRolesByRoleId(
 				accountRole.getRoleId());
-
-			accountRolePersistence.remove(accountRole);
 		}
 	}
 
@@ -174,19 +171,20 @@ public class AccountRoleLocalServiceImpl
 	@Override
 	public BaseModelSearchResult<AccountRole> searchAccountRoles(
 		long accountEntryId, String keywords, int start, int end,
-		OrderByComparator obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		return searchAccountRoles(
-			new long[] {accountEntryId}, keywords, start, end, obc);
+			new long[] {accountEntryId}, keywords, start, end,
+			orderByComparator);
 	}
 
 	@Override
 	public BaseModelSearchResult<AccountRole> searchAccountRoles(
 		long[] accountEntryIds, String keywords, int start, int end,
-		OrderByComparator obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		DynamicQuery roleDynamicQuery = _getRoleDynamicQuery(
-			accountEntryIds, keywords, obc);
+			accountEntryIds, keywords, orderByComparator);
 
 		if (roleDynamicQuery == null) {
 			return new BaseModelSearchResult<>(
@@ -219,7 +217,8 @@ public class AccountRoleLocalServiceImpl
 	}
 
 	private DynamicQuery _getRoleDynamicQuery(
-		long[] accountEntryIds, String keywords, OrderByComparator obc) {
+		long[] accountEntryIds, String keywords,
+		OrderByComparator<?> orderByComparator) {
 
 		DynamicQuery accountRoleDynamicQuery =
 			accountRoleLocalService.dynamicQuery();
@@ -241,29 +240,22 @@ public class AccountRoleLocalServiceImpl
 
 		roleDynamicQuery.add(RestrictionsFactoryUtil.in("roleId", roleIds));
 
-		Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
+		if (Validator.isNotNull(keywords)) {
+			Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
 
-		disjunction.add(
-			RestrictionsFactoryUtil.ilike(
-				"name", StringUtil.quote(keywords, StringPool.PERCENT)));
-		disjunction.add(
-			RestrictionsFactoryUtil.ilike(
-				"description", StringUtil.quote(keywords, StringPool.PERCENT)));
+			disjunction.add(
+				RestrictionsFactoryUtil.ilike(
+					"name", StringUtil.quote(keywords, StringPool.PERCENT)));
+			disjunction.add(
+				RestrictionsFactoryUtil.ilike(
+					"description",
+					StringUtil.quote(keywords, StringPool.PERCENT)));
 
-		roleDynamicQuery.add(disjunction);
-
-		if (obc != null) {
-			Order order;
-
-			if (obc.isAscending()) {
-				order = OrderFactoryUtil.asc(obc.getOrderByFields()[0]);
-			}
-			else {
-				order = OrderFactoryUtil.desc(obc.getOrderByFields()[0]);
-			}
-
-			roleDynamicQuery.addOrder(order);
+			roleDynamicQuery.add(disjunction);
 		}
+
+		OrderFactoryUtil.addOrderByComparator(
+			roleDynamicQuery, orderByComparator);
 
 		return roleDynamicQuery;
 	}

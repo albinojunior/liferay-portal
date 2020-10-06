@@ -12,13 +12,15 @@
  * details.
  */
 
-import {debounce} from 'frontend-js-web';
+import {debounce, openSelectionModal} from 'frontend-js-web';
 
 import {config} from '../config/index';
 
 const KEY_ENTER = 13;
+const KEY_SPACE = 32;
+const KEY_SHIFT_ENTER = (window.CKEDITOR?.SHIFT ?? 0) + KEY_ENTER;
 
-const defaultGetEditorWrapper = element => {
+const defaultGetEditorWrapper = (element) => {
 	const wrapper = document.createElement('div');
 
 	wrapper.innerHTML = element.innerHTML;
@@ -30,6 +32,12 @@ const defaultGetEditorWrapper = element => {
 
 const defaultRender = (element, value) => {
 	element.innerHTML = value;
+};
+
+const keyupHandler = (event) => {
+	if (event.keyCode === KEY_SPACE) {
+		event.preventDefault();
+	}
 };
 
 /**
@@ -46,6 +54,7 @@ export default function getAlloyEditorProcessor(
 	let _editor;
 	let _eventHandlers;
 	let _element;
+	let _callbacks = {};
 
 	return {
 		createEditor: (
@@ -54,6 +63,9 @@ export default function getAlloyEditorProcessor(
 			destroyCallback,
 			clickPosition
 		) => {
+			_callbacks.changeCallback = changeCallback;
+			_callbacks.destroyCallback = destroyCallback;
+
 			if (_editor) {
 				return;
 			}
@@ -65,8 +77,34 @@ export default function getAlloyEditorProcessor(
 			_element = element;
 
 			const editorName = `${config.portletNamespace}FragmentEntryLinkEditable_${element.id}`;
-			_editor = AlloyEditor.editable(getEditorWrapper(element), {
+
+			const editorWrapper = getEditorWrapper(element);
+
+			editorWrapper.setAttribute('id', editorName);
+			editorWrapper.setAttribute('name', editorName);
+
+			element.addEventListener('keyup', keyupHandler);
+
+			_editor = AlloyEditor.editable(editorWrapper, {
 				...editorConfig,
+
+				documentBrowseLinkCallback: (
+					editor,
+					url,
+					changeLinkCallback
+				) => {
+					openSelectionModal({
+						onSelect: changeLinkCallback,
+						selectEventName: editor.title + 'selectItem',
+						title: Liferay.Language.get('select-item'),
+						url,
+					});
+				},
+
+				documentBrowseLinkUrl: editorConfig.documentBrowseLinkUrl.replace(
+					'_EDITOR_NAME_',
+					editorName
+				),
 
 				filebrowserImageBrowseLinkUrl: editorConfig.filebrowserImageBrowseLinkUrl.replace(
 					'_EDITOR_NAME_',
@@ -77,34 +115,35 @@ export default function getAlloyEditorProcessor(
 					'_EDITOR_NAME_',
 					editorName
 				),
+
+				title: editorName,
 			});
 
 			const nativeEditor = _editor.get('nativeEditor');
 
 			_eventHandlers = [
-				nativeEditor.on('key', event => {
+				nativeEditor.on('key', (event) => {
 					if (
-						event.data.keyCode === KEY_ENTER &&
+						(event.data.keyCode === KEY_ENTER ||
+							event.data.keyCode === KEY_SHIFT_ENTER) &&
 						_element &&
-						_element.getAttribute('type') === 'text'
+						(_element.getAttribute('type') === 'text' ||
+							_element.dataset.lfrEditableType === 'text')
 					) {
 						event.cancel();
 					}
 				}),
 
-				nativeEditor.on(
-					'change',
-					debounce(() => {
-						changeCallback(nativeEditor.getData());
-					}, 500)
-				),
-
 				nativeEditor.on('blur', () => {
 					if (_editor._mainUI.state.hidden) {
-						changeCallback(nativeEditor.getData());
+						if (_callbacks.changeCallback) {
+							_callbacks.changeCallback(nativeEditor.getData());
+						}
 
 						requestAnimationFrame(() => {
-							destroyCallback();
+							if (_callbacks.destroyCallback) {
+								_callbacks.destroyCallback();
+							}
 						});
 					}
 				}),
@@ -119,11 +158,18 @@ export default function getAlloyEditorProcessor(
 						nativeEditor.execCommand('selectAll');
 					}
 				}),
-
-				_stopEventPropagation(element, 'keydown'),
-				_stopEventPropagation(element, 'keyup'),
-				_stopEventPropagation(element, 'keypress'),
 			];
+
+			_eventHandlers.push(
+				nativeEditor.on(
+					'saveSnapshot',
+					debounce(() => {
+						if (_callbacks.changeCallback) {
+							_callbacks.changeCallback(nativeEditor.getData());
+						}
+					}, 100)
+				)
+			);
 		},
 
 		/**
@@ -134,7 +180,7 @@ export default function getAlloyEditorProcessor(
 
 				_editor.destroy();
 
-				_eventHandlers.forEach(handler => {
+				_eventHandlers.forEach((handler) => {
 					handler.removeListener();
 				});
 
@@ -143,6 +189,11 @@ export default function getAlloyEditorProcessor(
 				_editor = null;
 				_eventHandlers = null;
 				_element = null;
+				_callbacks = {};
+			}
+
+			if (element) {
+				element.removeEventListener('keyup', keyupHandler);
 			}
 		},
 
@@ -156,23 +207,6 @@ export default function getAlloyEditorProcessor(
 			if (element !== _element) {
 				render(element, value, editableConfig);
 			}
-		},
-	};
-}
-
-/**
- * Adds a listener to stop the given element event propagation
- * @param {HTMLElement} element
- * @param {string} eventName
- */
-function _stopEventPropagation(element, eventName) {
-	const handler = event => event.stopPropagation();
-
-	element.addEventListener(eventName, handler);
-
-	return {
-		removeListener: () => {
-			element.removeEventListener(eventName, handler);
 		},
 	};
 }

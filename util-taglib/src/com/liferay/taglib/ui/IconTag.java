@@ -248,11 +248,9 @@ public class IconTag extends IncludeTag {
 		}
 
 		if (Validator.isNotNull(id) && Validator.isNotNull(message)) {
-			id = id.concat(
-				StringPool.UNDERLINE
-			).concat(
-				FriendlyURLNormalizerUtil.normalize(message)
-			);
+			id = StringBundler.concat(
+				id, StringPool.UNDERLINE,
+				FriendlyURLNormalizerUtil.normalize(message));
 
 			PortletResponse portletResponse =
 				(PortletResponse)httpServletRequest.getAttribute(
@@ -272,9 +270,7 @@ public class IconTag extends IncludeTag {
 				httpServletRequest, IconTag.class.getName());
 		}
 
-		id = HtmlUtil.getAUICompatibleId(id);
-
-		return id;
+		return HtmlUtil.getAUICompatibleId(id);
 	}
 
 	protected String getImage() {

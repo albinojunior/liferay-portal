@@ -58,7 +58,7 @@ public interface OAuthConsumerLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link OAuthConsumerLocalServiceUtil} to access the o auth consumer local service. Add custom service methods to <code>com.liferay.opensocial.service.impl.OAuthConsumerLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.opensocial.service.impl.OAuthConsumerLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the o auth consumer local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link OAuthConsumerLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public OAuthConsumer addOAuthConsumer(
 		long companyId, String gadgetKey, String serviceName,
@@ -66,6 +66,10 @@ public interface OAuthConsumerLocalService
 
 	/**
 	 * Adds the o auth consumer to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthConsumerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthConsumer the o auth consumer
 	 * @return the o auth consumer that was added
@@ -91,6 +95,10 @@ public interface OAuthConsumerLocalService
 	/**
 	 * Deletes the o auth consumer with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthConsumerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthConsumerId the primary key of the o auth consumer
 	 * @return the o auth consumer that was removed
 	 * @throws PortalException if a o auth consumer with the primary key could not be found
@@ -101,6 +109,10 @@ public interface OAuthConsumerLocalService
 
 	/**
 	 * Deletes the o auth consumer from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthConsumerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthConsumer the o auth consumer
 	 * @return the o auth consumer that was removed
@@ -265,6 +277,10 @@ public interface OAuthConsumerLocalService
 
 	/**
 	 * Updates the o auth consumer in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthConsumerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthConsumer the o auth consumer
 	 * @return the o auth consumer that was updated

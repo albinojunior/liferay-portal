@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-image-selector',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var CHANGE_IMAGE_CONTROLS_DELAY = 5000;
@@ -231,37 +231,20 @@ AUI.add(
 				_onBrowseClick() {
 					var instance = this;
 
-					Liferay.Loader.require(
-						'frontend-js-web/liferay/ItemSelectorDialog.es',
-						ItemSelectorDialog => {
-							var itemSelectorDialog = new ItemSelectorDialog.default(
-								{
-									eventName: instance.get(
-										'itemSelectorEventName'
-									),
-									singleSelect: true,
-									url: instance.get('itemSelectorURL'),
-								}
-							);
+					Liferay.Util.openSelectionModal({
+						onSelect: (selectedItem) => {
+							if (selectedItem) {
+								instance._updateImageData(
+									JSON.parse(selectedItem.value)
+								);
 
-							itemSelectorDialog.open();
-
-							itemSelectorDialog.on(
-								'selectedItemChange',
-								event => {
-									var selectedItem = event.selectedItem;
-
-									if (selectedItem) {
-										instance._updateImageData(
-											JSON.parse(selectedItem.value)
-										);
-
-										Liferay.fire(STR_IMAGE_SELECTED);
-									}
-								}
-							);
-						}
-					);
+								Liferay.fire(STR_IMAGE_SELECTED);
+							}
+						},
+						selectEventName: instance.get('itemSelectorEventName'),
+						title: Liferay.Language.get('select-file'),
+						url: instance.get('itemSelectorURL'),
+					});
 
 					instance._cancelTimer();
 				},
@@ -575,7 +558,7 @@ AUI.add(
 						'.browse-image-controls'
 					);
 
-					errorNodeAlert.on('visibleChange', event => {
+					errorNodeAlert.on('visibleChange', (event) => {
 						if (!event.newVal) {
 							browseImageControls.show();
 						}

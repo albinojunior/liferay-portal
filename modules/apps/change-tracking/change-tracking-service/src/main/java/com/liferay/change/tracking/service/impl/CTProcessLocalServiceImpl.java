@@ -17,10 +17,9 @@ package com.liferay.change.tracking.service.impl;
 import com.liferay.change.tracking.constants.CTConstants;
 import com.liferay.change.tracking.internal.background.task.CTPublishBackgroundTaskExecutor;
 import com.liferay.change.tracking.model.CTCollection;
-import com.liferay.change.tracking.model.CTPreferences;
 import com.liferay.change.tracking.model.CTProcess;
+import com.liferay.change.tracking.service.CTPreferencesLocalService;
 import com.liferay.change.tracking.service.base.CTProcessLocalServiceBaseImpl;
-import com.liferay.change.tracking.service.persistence.CTPreferencesPersistence;
 import com.liferay.petra.lang.SafeClosable;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.background.task.model.BackgroundTask;
@@ -31,7 +30,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -70,24 +68,8 @@ public class CTProcessLocalServiceImpl extends CTProcessLocalServiceBaseImpl {
 
 		ctCollection = ctCollectionPersistence.update(ctCollection);
 
-		for (CTPreferences ctPreferences :
-				_ctPreferencesPersistence.findByCollectionId(ctCollectionId)) {
-
-			ctPreferences.setCtCollectionId(
-				CTConstants.CT_COLLECTION_ID_PRODUCTION);
-
-			_ctPreferencesPersistence.update(ctPreferences);
-		}
-
-		for (CTPreferences ctPreferences :
-				_ctPreferencesPersistence.findByPreviousCollectionId(
-					ctCollectionId)) {
-
-			ctPreferences.setPreviousCtCollectionId(
-				CTConstants.CT_COLLECTION_ID_PRODUCTION);
-
-			_ctPreferencesPersistence.update(ctPreferences);
-		}
+		_ctPreferencesLocalService.resetCTPreferences(
+			ctCollection.getCtCollectionId());
 
 		long ctProcessId = counterLocalService.increment(
 			CTProcess.class.getName());
@@ -155,15 +137,6 @@ public class CTProcessLocalServiceImpl extends CTProcessLocalServiceBaseImpl {
 		return ctProcessPersistence.findByCollectionId(ctCollectionId);
 	}
 
-	@Override
-	public List<CTProcess> getCTProcesses(
-		long companyId, long userId, String keywords, int status, int start,
-		int end, OrderByComparator<CTProcess> orderByComparator) {
-
-		return ctProcessFinder.findByC_U_N_D_S(
-			companyId, userId, keywords, status, start, end, orderByComparator);
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		CTProcessLocalServiceImpl.class);
 
@@ -171,6 +144,6 @@ public class CTProcessLocalServiceImpl extends CTProcessLocalServiceBaseImpl {
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
 
 	@Reference
-	private CTPreferencesPersistence _ctPreferencesPersistence;
+	private CTPreferencesLocalService _ctPreferencesLocalService;
 
 }

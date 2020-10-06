@@ -75,10 +75,32 @@ public class DepotEntryServiceImpl extends DepotEntryServiceBaseImpl {
 
 	@Override
 	public DepotEntry getDepotEntry(long depotEntryId) throws PortalException {
-		_depotEntryModelResourcePermission.check(
-			getPermissionChecker(), depotEntryId, ActionKeys.VIEW);
+		if (!_depotEntryModelResourcePermission.contains(
+				getPermissionChecker(), depotEntryId, ActionKeys.VIEW) &&
+			!_depotEntryModelResourcePermission.contains(
+				getPermissionChecker(), depotEntryId,
+				ActionKeys.VIEW_SITE_ADMINISTRATION)) {
+
+			_depotEntryModelResourcePermission.check(
+				getPermissionChecker(), depotEntryId, ActionKeys.VIEW);
+		}
 
 		return depotEntryLocalService.getDepotEntry(depotEntryId);
+	}
+
+	@Override
+	public List<DepotEntry> getGroupConnectedDepotEntries(
+			long groupId, boolean ddmStructuresAvailable, int start, int end)
+		throws PortalException {
+
+		if (!_groupPermission.contains(
+				getPermissionChecker(), groupId, ActionKeys.VIEW)) {
+
+			return Collections.emptyList();
+		}
+
+		return depotEntryLocalService.getGroupConnectedDepotEntries(
+			groupId, ddmStructuresAvailable, start, end);
 	}
 
 	@Override
@@ -126,7 +148,7 @@ public class DepotEntryServiceImpl extends DepotEntryServiceBaseImpl {
 			long depotEntryId, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap,
 			Map<String, Boolean> depotAppCustomizationMap,
-			UnicodeProperties typeSettingsProperties,
+			UnicodeProperties typeSettingsUnicodeProperties,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -135,7 +157,7 @@ public class DepotEntryServiceImpl extends DepotEntryServiceBaseImpl {
 
 		return depotEntryLocalService.updateDepotEntry(
 			depotEntryId, nameMap, descriptionMap, depotAppCustomizationMap,
-			typeSettingsProperties, serviceContext);
+			typeSettingsUnicodeProperties, serviceContext);
 	}
 
 	@Reference(

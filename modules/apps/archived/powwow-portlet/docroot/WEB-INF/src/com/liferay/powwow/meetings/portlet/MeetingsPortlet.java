@@ -443,11 +443,9 @@ public class MeetingsPortlet extends MVCPortlet {
 	protected long getCalendarId(long userId, ServiceContext serviceContext)
 		throws Exception {
 
-		long classNameId = PortalUtil.getClassNameId(User.class);
-
 		CalendarResource calendarResource =
 			CalendarResourceLocalServiceUtil.fetchCalendarResource(
-				classNameId, userId);
+				PortalUtil.getClassNameId(User.class), userId);
 
 		if (calendarResource == null) {
 			User user = UserLocalServiceUtil.getUser(userId);
@@ -648,17 +646,16 @@ public class MeetingsPortlet extends MVCPortlet {
 				(OrderByComparator)null);
 
 			for (User user : users) {
-				JSONObject jsonObject = JSONUtil.put(
-					"emailAddress", user.getEmailAddress()
-				).put(
-					"fullName", user.getFullName()
-				).put(
-					"portraitURL", user.getPortraitURL(themeDisplay)
-				).put(
-					"userId", user.getUserId()
-				);
-
-				jsonArray.put(jsonObject);
+				jsonArray.put(
+					JSONUtil.put(
+						"emailAddress", user.getEmailAddress()
+					).put(
+						"fullName", user.getFullName()
+					).put(
+						"portraitURL", user.getPortraitURL(themeDisplay)
+					).put(
+						"userId", user.getUserId()
+					));
 			}
 
 			writeJSON(resourceRequest, resourceResponse, jsonArray);

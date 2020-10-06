@@ -339,11 +339,9 @@ public class UserImpl extends UserBaseImpl {
 
 			return PortalUtil.addPreservedParameters(
 				themeDisplay,
-				portalURL.concat(
-					PortalUtil.getPathContext()
-				).concat(
-					profileFriendlyURL
-				));
+				StringBundler.concat(
+					portalURL, PortalUtil.getPathContext(),
+					profileFriendlyURL));
 		}
 
 		Group group = getGroup();
@@ -541,7 +539,7 @@ public class UserImpl extends UserBaseImpl {
 
 	@Override
 	public String getOriginalEmailAddress() {
-		return super.getOriginalEmailAddress();
+		return getColumnOriginalValue("emailAddress");
 	}
 
 	@Override

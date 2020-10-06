@@ -17,6 +17,7 @@ package com.liferay.external.data.source.test.service.base;
 import com.liferay.external.data.source.test.model.TestEntity;
 import com.liferay.external.data.source.test.service.TestEntityLocalService;
 import com.liferay.external.data.source.test.service.persistence.TestEntityPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -71,6 +73,10 @@ public abstract class TestEntityLocalServiceBaseImpl
 	/**
 	 * Adds the test entity to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TestEntityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param testEntity the test entity
 	 * @return the test entity that was added
 	 */
@@ -97,6 +103,10 @@ public abstract class TestEntityLocalServiceBaseImpl
 	/**
 	 * Deletes the test entity with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TestEntityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param id the primary key of the test entity
 	 * @return the test entity that was removed
 	 * @throws PortalException if a test entity with the primary key could not be found
@@ -110,6 +120,10 @@ public abstract class TestEntityLocalServiceBaseImpl
 	/**
 	 * Deletes the test entity from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TestEntityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param testEntity the test entity
 	 * @return the test entity that was removed
 	 */
@@ -117,6 +131,11 @@ public abstract class TestEntityLocalServiceBaseImpl
 	@Override
 	public TestEntity deleteTestEntity(TestEntity testEntity) {
 		return testEntityPersistence.remove(testEntity);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return testEntityPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -284,6 +303,10 @@ public abstract class TestEntityLocalServiceBaseImpl
 			(TestEntity)persistedModel);
 	}
 
+	public BasePersistence<TestEntity> getBasePersistence() {
+		return testEntityPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -322,6 +345,10 @@ public abstract class TestEntityLocalServiceBaseImpl
 
 	/**
 	 * Updates the test entity in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TestEntityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param testEntity the test entity
 	 * @return the test entity that was updated

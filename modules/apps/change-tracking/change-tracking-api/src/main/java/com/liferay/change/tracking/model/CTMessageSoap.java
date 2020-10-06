@@ -23,8 +23,10 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class CTMessageSoap implements Serializable {
 
 	public static CTMessageSoap toSoapModel(CTMessage model) {
@@ -32,6 +34,7 @@ public class CTMessageSoap implements Serializable {
 
 		soapModel.setMvccVersion(model.getMvccVersion());
 		soapModel.setCtMessageId(model.getCtMessageId());
+		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setMessageContent(model.getMessageContent());
 
@@ -103,6 +106,14 @@ public class CTMessageSoap implements Serializable {
 		_ctMessageId = ctMessageId;
 	}
 
+	public long getCompanyId() {
+		return _companyId;
+	}
+
+	public void setCompanyId(long companyId) {
+		_companyId = companyId;
+	}
+
 	public long getCtCollectionId() {
 		return _ctCollectionId;
 	}
@@ -121,6 +132,7 @@ public class CTMessageSoap implements Serializable {
 
 	private long _mvccVersion;
 	private long _ctMessageId;
+	private long _companyId;
 	private long _ctCollectionId;
 	private String _messageContent;
 

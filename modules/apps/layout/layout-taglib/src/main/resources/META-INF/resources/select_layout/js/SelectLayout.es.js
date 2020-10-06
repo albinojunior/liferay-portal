@@ -14,13 +14,14 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import {ClayInput} from '@clayui/form';
+import ClayLayout from '@clayui/layout';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import {Treeview} from 'frontend-js-components-web';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 
 function visit(nodes, callback) {
-	nodes.forEach(node => {
+	nodes.forEach((node) => {
 		callback(node);
 
 		if (node.children) {
@@ -47,14 +48,14 @@ const SelectLayout = ({
 }) => {
 	const [filterQuery, setFilterQuery] = useState();
 
-	const handleSelectionChange = selectedNodeIds => {
+	const handleSelectionChange = (selectedNodeIds) => {
 		if (!selectedNodeIds.size) {
 			return;
 		}
 
 		let data = [];
 
-		visit(nodes, node => {
+		visit(nodes, (node) => {
 			if (selectedNodeIds.has(node.id)) {
 				data.push({
 					groupId: node.groupId,
@@ -89,7 +90,7 @@ const SelectLayout = ({
 		<div className="select-layout">
 			<ClayManagementToolbar>
 				<ClayManagementToolbar.Search
-					onSubmit={event => {
+					onSubmit={(event) => {
 						event.preventDefault();
 					}}
 				>
@@ -98,7 +99,7 @@ const SelectLayout = ({
 							<ClayInput
 								className="form-control input-group-inset input-group-inset-after"
 								name={`${namespace}filterKeywords`}
-								onInput={event => {
+								onInput={(event) => {
 									setFilterQuery(
 										event.target.value.toLowerCase()
 									);
@@ -123,8 +124,8 @@ const SelectLayout = ({
 				</ClayManagementToolbar.Search>
 			</ClayManagementToolbar>
 
-			<div
-				className="container-fluid-1280 layouts-selector"
+			<ClayLayout.ContainerFluid
+				className="layouts-selector"
 				id={`${namespace}selectLayoutFm`}
 			>
 				<fieldset className="panel-body">
@@ -133,15 +134,15 @@ const SelectLayout = ({
 						id={`${namespace}layoutContainer`}
 					>
 						<Treeview
+							NodeComponent={Treeview.Card}
 							filterQuery={filterQuery}
 							multiSelection={multiSelection}
-							NodeComponent={Treeview.Card}
 							nodes={nodes}
 							onSelectedNodesChange={handleSelectionChange}
 						/>
 					</div>
 				</fieldset>
-			</div>
+			</ClayLayout.ContainerFluid>
 		</div>
 	);
 };
@@ -154,6 +155,4 @@ SelectLayout.propTypes = {
 	nodes: PropTypes.array.isRequired,
 };
 
-export default function(props) {
-	return <SelectLayout {...props} />;
-}
+export default SelectLayout;

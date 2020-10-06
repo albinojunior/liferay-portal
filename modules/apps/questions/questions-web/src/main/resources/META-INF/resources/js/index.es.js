@@ -16,7 +16,9 @@ import React from 'react';
 
 import App from './App.es';
 
-export default function(props) {
+import 'highlight.js/styles/monokai-sublime.css';
+
+export default function (props) {
 	return (
 		<div className="questions-root">
 			<App {...props} />

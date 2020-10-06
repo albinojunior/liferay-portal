@@ -85,10 +85,9 @@ public class UserTestUtil {
 		Role role = RoleLocalServiceUtil.getRole(
 			group.getCompanyId(), roleName);
 
-		long[] userIds = {groupUser.getUserId()};
-
 		UserGroupRoleLocalServiceUtil.addUserGroupRoles(
-			userIds, group.getGroupId(), role.getRoleId());
+			new long[] {groupUser.getUserId()}, group.getGroupId(),
+			role.getRoleId());
 
 		return groupUser;
 	}
@@ -255,7 +254,12 @@ public class UserTestUtil {
 			return user;
 		}
 
-		boolean autoPassword = true;
+		boolean autoPassword = false;
+
+		if ((password == null) || password.equals(StringPool.BLANK)) {
+			autoPassword = true;
+		}
+
 		String password1 = password;
 		String password2 = password;
 		long facebookId = 0;

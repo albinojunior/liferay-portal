@@ -34,18 +34,43 @@ definition {
 			item = "${item}");
 	}
 
-	macro gotoImportCollection {
-		if (IsElementPresent(locator1 = "NavNested#NAV_NESTED_ELLIPSIS")) {
-			Click.waitForMenuToggleJSClick(locator1 = "NavNested#NAV_NESTED_ELLIPSIS");
+	macro gotoExportCollection {
+		var browserType = PropsUtil.get("browser.type");
 
+		if ("${browserType}" == "internetexplorer") {
+			Click(locator1 = "NavNested#NAV_NESTED_ELLIPSIS_IE");
 		}
 		else {
-			Button.click(button = "New");
+			Click.waitForMenuToggleJSClick(locator1 = "NavNested#NAV_NESTED_ELLIPSIS");
 		}
 
-		Button.click(button = "Import");
+		DropdownMenuItem.click(menuItem = "Export");
 
-		IFrame.selectConfigurationFrame();
+		Pause(locator1 = "3000");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_IFRAME");
+	}
+
+	macro gotoImportCollection {
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" == "internetexplorer") {
+			Click(locator1 = "NavNested#NAV_NESTED_ELLIPSIS_IE");
+		}
+		else {
+			if (IsElementPresent(locator1 = "NavNested#NAV_NESTED_ELLIPSIS")) {
+				Click.waitForMenuToggleJSClick(locator1 = "NavNested#NAV_NESTED_ELLIPSIS");
+			}
+			else {
+				Button.click(button = "New");
+			}
+		}
+
+		DropdownMenuItem.click(menuItem = "Import");
+
+		Pause(locator1 = "3000");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_IFRAME");
 	}
 
 	macro gotoSpecificScopeCollection {

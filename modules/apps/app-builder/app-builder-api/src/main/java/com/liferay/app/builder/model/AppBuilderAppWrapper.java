@@ -51,11 +51,13 @@ public class AppBuilderAppWrapper
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("active", isActive());
+		attributes.put("ddlRecordSetId", getDdlRecordSetId());
 		attributes.put("ddmStructureId", getDdmStructureId());
 		attributes.put("ddmStructureLayoutId", getDdmStructureLayoutId());
 		attributes.put("deDataListViewId", getDeDataListViewId());
 		attributes.put("name", getName());
-		attributes.put("status", getStatus());
+		attributes.put("scope", getScope());
 
 		return attributes;
 	}
@@ -110,6 +112,18 @@ public class AppBuilderAppWrapper
 			setModifiedDate(modifiedDate);
 		}
 
+		Boolean active = (Boolean)attributes.get("active");
+
+		if (active != null) {
+			setActive(active);
+		}
+
+		Long ddlRecordSetId = (Long)attributes.get("ddlRecordSetId");
+
+		if (ddlRecordSetId != null) {
+			setDdlRecordSetId(ddlRecordSetId);
+		}
+
 		Long ddmStructureId = (Long)attributes.get("ddmStructureId");
 
 		if (ddmStructureId != null) {
@@ -135,11 +149,21 @@ public class AppBuilderAppWrapper
 			setName(name);
 		}
 
-		Integer status = (Integer)attributes.get("status");
+		String scope = (String)attributes.get("scope");
 
-		if (status != null) {
-			setStatus(status);
+		if (scope != null) {
+			setScope(scope);
 		}
+	}
+
+	/**
+	 * Returns the active of this app builder app.
+	 *
+	 * @return the active of this app builder app
+	 */
+	@Override
+	public boolean getActive() {
+		return model.getActive();
 	}
 
 	/**
@@ -175,6 +199,16 @@ public class AppBuilderAppWrapper
 	@Override
 	public Date getCreateDate() {
 		return model.getCreateDate();
+	}
+
+	/**
+	 * Returns the ddl record set ID of this app builder app.
+	 *
+	 * @return the ddl record set ID of this app builder app
+	 */
+	@Override
+	public long getDdlRecordSetId() {
+		return model.getDdlRecordSetId();
 	}
 
 	/**
@@ -319,13 +353,13 @@ public class AppBuilderAppWrapper
 	}
 
 	/**
-	 * Returns the status of this app builder app.
+	 * Returns the scope of this app builder app.
 	 *
-	 * @return the status of this app builder app
+	 * @return the scope of this app builder app
 	 */
 	@Override
-	public int getStatus() {
-		return model.getStatus();
+	public String getScope() {
+		return model.getScope();
 	}
 
 	/**
@@ -368,6 +402,16 @@ public class AppBuilderAppWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * Returns <code>true</code> if this app builder app is active.
+	 *
+	 * @return <code>true</code> if this app builder app is active; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isActive() {
+		return model.isActive();
+	}
+
 	@Override
 	public void persist() {
 		model.persist();
@@ -386,6 +430,16 @@ public class AppBuilderAppWrapper
 		throws com.liferay.portal.kernel.exception.LocaleException {
 
 		model.prepareLocalizedFieldsForImport(defaultImportLocale);
+	}
+
+	/**
+	 * Sets whether this app builder app is active.
+	 *
+	 * @param active the active of this app builder app
+	 */
+	@Override
+	public void setActive(boolean active) {
+		model.setActive(active);
 	}
 
 	/**
@@ -416,6 +470,16 @@ public class AppBuilderAppWrapper
 	@Override
 	public void setCreateDate(Date createDate) {
 		model.setCreateDate(createDate);
+	}
+
+	/**
+	 * Sets the ddl record set ID of this app builder app.
+	 *
+	 * @param ddlRecordSetId the ddl record set ID of this app builder app
+	 */
+	@Override
+	public void setDdlRecordSetId(long ddlRecordSetId) {
+		model.setDdlRecordSetId(ddlRecordSetId);
 	}
 
 	/**
@@ -542,13 +606,13 @@ public class AppBuilderAppWrapper
 	}
 
 	/**
-	 * Sets the status of this app builder app.
+	 * Sets the scope of this app builder app.
 	 *
-	 * @param status the status of this app builder app
+	 * @param scope the scope of this app builder app
 	 */
 	@Override
-	public void setStatus(int status) {
-		model.setStatus(status);
+	public void setScope(String scope) {
+		model.setScope(scope);
 	}
 
 	/**

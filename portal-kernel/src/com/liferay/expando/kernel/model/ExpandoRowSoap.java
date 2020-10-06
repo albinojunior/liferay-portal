@@ -24,13 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class ExpandoRowSoap implements Serializable {
 
 	public static ExpandoRowSoap toSoapModel(ExpandoRow model) {
 		ExpandoRowSoap soapModel = new ExpandoRowSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setRowId(model.getRowId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setModifiedDate(model.getModifiedDate());
@@ -89,6 +93,22 @@ public class ExpandoRowSoap implements Serializable {
 		setRowId(pk);
 	}
 
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getRowId() {
 		return _rowId;
 	}
@@ -129,6 +149,8 @@ public class ExpandoRowSoap implements Serializable {
 		_classPK = classPK;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _rowId;
 	private long _companyId;
 	private Date _modifiedDate;

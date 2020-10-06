@@ -16,6 +16,7 @@ package com.liferay.portal.util;
 
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -184,25 +185,15 @@ public class PortalInstances {
 	public static long[] getCompanyIdsBySQL() throws SQLException {
 		List<Long> companyIds = new ArrayList<>();
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getConnection();
-
-			ps = con.prepareStatement(_GET_COMPANY_IDS);
-
-			rs = ps.executeQuery();
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(_GET_COMPANY_IDS);
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				long companyId = rs.getLong("companyId");
 
 				companyIds.add(companyId);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 
 		return ArrayUtil.toArray(companyIds.toArray(new Long[0]));
@@ -232,6 +223,8 @@ public class PortalInstances {
 
 				if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
 					webIdsList.add(0, webId);
+
+					DBPartitionUtil.setDefaultCompanyId(company.getCompanyId());
 				}
 				else {
 					webIdsList.add(webId);
@@ -263,12 +256,14 @@ public class PortalInstances {
 		long companyId = 0;
 
 		try {
-			Company company = CompanyLocalServiceUtil.checkCompany(webId);
+			Company company = CompanyLocalServiceUtil.getCompanyByWebId(webId);
 
 			companyId = company.getCompanyId();
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);
+
+			return companyId;
 		}
 
 		Long currentThreadCompanyId = CompanyThreadLocal.getCompanyId();
@@ -277,6 +272,13 @@ public class PortalInstances {
 
 		try {
 			CompanyThreadLocal.setCompanyId(companyId);
+
+			try {
+				CompanyLocalServiceUtil.checkCompany(webId);
+			}
+			catch (Exception exception) {
+				_log.error(exception, exception);
+			}
 
 			String principalName = null;
 

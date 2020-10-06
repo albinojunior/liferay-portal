@@ -23,7 +23,7 @@ String assetTagName = ParamUtil.getString(request, "tag");
 BlogEntriesDisplayContext blogEntriesDisplayContext = (BlogEntriesDisplayContext)request.getAttribute(BlogsWebKeys.BLOG_ENTRIES_DISPLAY_CONTEXT);
 
 String displayStyle = blogEntriesDisplayContext.getDisplayStyle();
-SearchContainer entriesSearchContainer = blogEntriesDisplayContext.getSearchContainer();
+SearchContainer<BlogsEntry> entriesSearchContainer = blogEntriesDisplayContext.getSearchContainer();
 
 PortletURL portletURL = entriesSearchContainer.getIteratorURL();
 
@@ -44,7 +44,9 @@ BlogEntriesManagementToolbarDisplayContext blogEntriesManagementToolbarDisplayCo
 	portletURL="<%= restoreTrashEntriesURL %>"
 />
 
-<div class="container-fluid container-fluid-max-xl main-content-body">
+<clay:container-fluid
+	cssClass="main-content-body"
+>
 	<aui:form action="<%= portletURL.toString() %>" method="get" name="fm">
 		<aui:input name="<%= Constants.CMD %>" type="hidden" />
 		<aui:input name="redirect" type="hidden" value="<%= portletURL.toString() %>" />
@@ -91,7 +93,7 @@ BlogEntriesManagementToolbarDisplayContext blogEntriesManagementToolbarDisplayCo
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <liferay-frontend:component
 	componentId="<%= blogEntriesManagementToolbarDisplayContext.getDefaultEventHandler() %>"

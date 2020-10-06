@@ -15,6 +15,7 @@
 package com.liferay.view.count.service.impl;
 
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.increment.BufferedIncrement;
 import com.liferay.portal.kernel.increment.NumberIncrement;
 import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
@@ -25,6 +26,7 @@ import com.liferay.portal.kernel.spring.aop.Retry;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.view.count.ViewCountManager;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.view.count.model.ViewCountEntry;
 import com.liferay.view.count.service.ViewCountEntryLocalService;
 import com.liferay.view.count.service.base.ViewCountEntryLocalServiceBaseImpl;
@@ -39,6 +41,7 @@ import org.osgi.service.component.annotations.Component;
 	property = "model.class.name=com.liferay.view.count.model.ViewCountEntry",
 	service = AopService.class
 )
+@CTAware
 public class ViewCountEntryLocalServiceImpl
 	extends ViewCountEntryLocalServiceBaseImpl implements ViewCountManager {
 
@@ -67,9 +70,12 @@ public class ViewCountEntryLocalServiceImpl
 
 	@Override
 	public long getViewCount(long companyId, long classNameId, long classPK) {
-		ViewCountEntry viewCountEntry =
-			viewCountEntryPersistence.fetchByPrimaryKey(
+		ViewCountEntry viewCountEntry = null;
+
+		if (PropsValues.VIEW_COUNT_ENABLED) {
+			viewCountEntry = viewCountEntryPersistence.fetchByPrimaryKey(
 				new ViewCountEntryPK(companyId, classNameId, classPK));
+		}
 
 		if (viewCountEntry == null) {
 			return 0;
@@ -93,8 +99,10 @@ public class ViewCountEntryLocalServiceImpl
 	public void incrementViewCount(
 		long companyId, long classNameId, long classPK, int increment) {
 
-		viewCountEntryFinder.incrementViewCount(
-			companyId, classNameId, classPK, increment);
+		if (PropsValues.VIEW_COUNT_ENABLED) {
+			viewCountEntryFinder.incrementViewCount(
+				companyId, classNameId, classPK, increment);
+		}
 	}
 
 }

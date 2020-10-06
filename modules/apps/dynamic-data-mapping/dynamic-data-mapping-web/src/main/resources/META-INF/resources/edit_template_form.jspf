@@ -15,7 +15,7 @@
 --%>
 
 <%
-String namespace = renderResponse.getNamespace();
+String namespace = liferayPortletResponse.getNamespace();
 
 if (Validator.isNotNull(portletResourceNamespace)) {
 	namespace = portletResourceNamespace;
@@ -25,9 +25,7 @@ if (Validator.isNull(script)) {
 	script = structure.getDefinition();
 }
 
-JSONArray fieldsJSONArray = _getFormTemplateFieldsJSONArray(structure, script);
-
-String fieldsJSONArrayString = fieldsJSONArray.toString();
+String fieldsJSONArrayString = String.valueOf(_getFormTemplateFieldsJSONArray(structure, script));
 %>
 
 <aui:input name="language" type="hidden" value="json" />
@@ -38,13 +36,13 @@ String fieldsJSONArrayString = fieldsJSONArray.toString();
 		var modeInput = document.getElementById('<portlet:namespace />mode');
 
 		if (modeInput) {
-			modeInput.addEventListener('change', function(event) {
+			modeInput.addEventListener('change', function (event) {
 				<portlet:namespace />toggleMode(formBuilder, event.target.value);
 			});
 		}
 	}
 
-	Liferay.on('<portlet:namespace />formBuilderLoaded', function(event) {
+	Liferay.on('<portlet:namespace />formBuilderLoaded', function (event) {
 		var formBuilder = event.formBuilder;
 
 		<portlet:namespace />attachValueChange(formBuilder);
@@ -64,11 +62,11 @@ String fieldsJSONArrayString = fieldsJSONArray.toString();
 		var hiddenAttributesMap = formBuilder.MAP_HIDDEN_FIELD_ATTRS;
 		var hiddenAttributes =
 			hiddenAttributesMap[item.get('type')] || hiddenAttributesMap.DEFAULT;
-		var without = function(array) {
+		var without = function (array) {
 			var elems = Array.from(arguments).slice(1);
 
-			elems.forEach(function(value) {
-				array = array.filter(function(elem) {
+			elems.forEach(function (value) {
+				array = array.filter(function (elem) {
 					return elem != value;
 				});
 			});
@@ -106,7 +104,7 @@ String fieldsJSONArrayString = fieldsJSONArray.toString();
 		}
 	}
 
-	window['<%= HtmlUtil.escapeJS(namespace) %>getAvailableFields'] = function(
+	window['<%= HtmlUtil.escapeJS(namespace) %>getAvailableFields'] = function (
 		A,
 		FormBuilder
 	) {
@@ -117,7 +115,7 @@ String fieldsJSONArrayString = fieldsJSONArray.toString();
 
 		var availableFields = <%= structureJSONArray.toString() %>;
 
-		availableFields.forEach(function(item, index) {
+		availableFields.forEach(function (item, index) {
 			item.iconClass = FormBuilder.DEFAULT_ICON_CLASS;
 		});
 

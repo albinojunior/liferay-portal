@@ -508,7 +508,7 @@ public class DDMFormValuesValidatorTest {
 
 		LocalizedValue localizedValue = new LocalizedValue(LocaleUtil.US);
 
-		localizedValue.addString(LocaleUtil.US, StringUtil.randomString());
+		localizedValue.addString(LocaleUtil.US, StringPool.BLANK);
 		localizedValue.addString(LocaleUtil.BRAZIL, StringPool.BLANK);
 
 		DDMFormFieldValue ddmFormFieldValue =
@@ -520,7 +520,7 @@ public class DDMFormValuesValidatorTest {
 		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
 	}
 
-	@Test(expected = MustSetValidAvailableLocales.class)
+	@Test(expected = RequiredValue.class)
 	public void testValidationWithRequiredFieldAndNullValue() throws Exception {
 		DDMForm ddmForm = DDMFormTestUtil.createDDMForm(
 			DDMFormTestUtil.createAvailableLocales(LocaleUtil.US),

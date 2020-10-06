@@ -10,32 +10,68 @@
  */
 
 import {ClayInput} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
 import ClayModal from '@clayui/modal';
+import getCN from 'classnames';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import MaskedInput from 'react-text-mask';
 
-import Icon from '../../../../shared/components/Icon.es';
-import {formatDate, isValidDate} from '../../../../shared/util/date.es';
+import {
+	defaultDateFormat,
+	formatDate,
+	getLocaleDateFormat,
+	getMaskByDateFormat,
+	isValidDate,
+} from '../../../../shared/util/date.es';
 import {toUppercase} from '../../../../shared/util/util.es';
 import {AppContext} from '../../../AppContext.es';
-import {ModalContext} from '../ModalContext.es';
+import {ModalContext} from '../ModalProvider.es';
 
-const UpdateDueDateStep = ({dueDate = new Date()}) => {
+const getTimeOptions = (isAmPm) => {
+	const parse = (number) => (number < 10 ? `0${number}` : number);
+
+	if (isAmPm) {
+		const times = {
+			AM: ['12:00 AM', '12:30 AM'],
+			PM: ['12:00 PM', '12:30 PM'],
+		};
+
+		Object.keys(times).forEach((type) => {
+			for (let i = 1; i < 12; i++) {
+				times[type].push(`${parse(i)}:00 ${type}`);
+				times[type].push(`${parse(i)}:30 ${type}`);
+			}
+		});
+
+		return [...times.AM, ...times.PM];
+	}
+
+	const times = [];
+
+	for (let i = 0; i < 24; i++) {
+		times.push(`${parse(i)}:00`);
+		times.push(`${parse(i)}:30`);
+	}
+
+	return times;
+};
+
+const UpdateDueDateStep = ({className, dueDate = new Date()}) => {
 	const {isAmPm} = useContext(AppContext);
 	const {setUpdateDueDate, updateDueDate} = useContext(ModalContext);
 
-	const dateFormat = 'MM/DD/YYYY';
-	const dateMask = [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/];
-	const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss\\Z';
-	const timeFormat = useMemo(() => (isAmPm ? 'h:mm a' : 'H:mm'), [isAmPm]);
+	const dateFormat = getLocaleDateFormat();
+	const timeFormat = getLocaleDateFormat('LT');
+
+	const dateMask = getMaskByDateFormat(dateFormat);
 
 	const [invalidDate, setInvalidDate] = useState(false);
 	const [comment, setComment] = useState('');
 	const [date, setDate] = useState(
-		formatDate(dueDate, dateFormat, dateTimeFormat)
+		formatDate(dueDate, dateFormat, defaultDateFormat)
 	);
 	const [time, setTime] = useState(
-		toUppercase(formatDate(dueDate, timeFormat, dateTimeFormat))
+		toUppercase(formatDate(dueDate, timeFormat, defaultDateFormat))
 	);
 
 	useEffect(() => {
@@ -45,11 +81,11 @@ const UpdateDueDateStep = ({dueDate = new Date()}) => {
 		if (validDate && isValidDate(time, timeFormat)) {
 			const newDateTime = formatDate(
 				`${date} ${time}`,
-				dateTimeFormat,
+				defaultDateFormat,
 				`${dateFormat} ${timeFormat}`
 			);
 
-			newDueDate = isValidDate(newDateTime, dateTimeFormat)
+			newDueDate = isValidDate(newDateTime, defaultDateFormat)
 				? newDateTime
 				: null;
 		}
@@ -60,53 +96,57 @@ const UpdateDueDateStep = ({dueDate = new Date()}) => {
 	}, [date, time]);
 
 	useEffect(() => {
-		setUpdateDueDate(currentState => ({...currentState, comment}));
+		setUpdateDueDate((currentState) => ({...currentState, comment}));
 	}, [comment, setUpdateDueDate]);
 
 	return (
-		<ClayModal.Body>
-			<div className="form-group-autofit">
-				<div
-					className={`form-group-item ${invalidDate && 'has-error'}`}
-				>
-					<label htmlFor="dateInput">
-						{Liferay.Language.get('new-due-date')}{' '}
-						<span className="reference-mark">
-							<Icon iconName="asterisk" />
-						</span>
-					</label>
+		<div className={getCN('bg-white', className)}>
+			<ClayModal.Body>
+				<div className="form-group-autofit">
+					<div
+						className={`form-group-item ${
+							invalidDate && 'has-error'
+						}`}
+					>
+						<label htmlFor="dateInput">
+							{Liferay.Language.get('new-due-date')}{' '}
+							<span className="reference-mark">
+								<ClayIcon symbol="asterisk" />
+							</span>
+						</label>
 
-					<MaskedInput
-						className="form-control"
-						data-testid="dateInput"
-						mask={dateMask}
-						onChange={({target}) => setDate(target.value)}
-						placeholder={dateFormat}
-						value={date}
+						<MaskedInput
+							className="form-control"
+							data-testid="dateInput"
+							mask={dateMask}
+							onChange={({target}) => setDate(target.value)}
+							placeholder={dateFormat}
+							value={date}
+						/>
+					</div>
+
+					<UpdateDueDateStep.TimePickerInput
+						format={timeFormat}
+						isAmPm={isAmPm}
+						setValue={setTime}
+						value={time}
 					/>
 				</div>
 
-				<UpdateDueDateStep.TimePickerInput
-					format={timeFormat}
-					isAmPm={isAmPm}
-					setValue={setTime}
-					value={time}
-				/>
-			</div>
+				<div className="form-group-item mb-4">
+					<label htmlFor="commentTextArea">
+						{Liferay.Language.get('comment')}
+					</label>
 
-			<div className="form-group-item">
-				<label htmlFor="commentTextArea">
-					{Liferay.Language.get('comment')}
-				</label>
-
-				<textarea
-					className="form-control"
-					data-testid="commentInput"
-					onChange={({target}) => setComment(target.value)}
-					placeholder={Liferay.Language.get('write-a-note')}
-				/>
-			</div>
-		</ClayModal.Body>
+					<textarea
+						className="form-control"
+						data-testid="commentInput"
+						onChange={({target}) => setComment(target.value)}
+						placeholder={Liferay.Language.get('write-a-note')}
+					/>
+				</div>
+			</ClayModal.Body>
+		</div>
 	);
 };
 
@@ -114,51 +154,23 @@ const TimePickerInputWithOptions = ({format, isAmPm, setValue, value}) => {
 	const [invalidTime, setInvalidTime] = useState(false);
 	const [showOptions, setShowOptions] = useState(false);
 	const inputRef = useRef();
+	const options = useMemo(() => getTimeOptions(isAmPm), [isAmPm]);
+	const popoverStyle = useMemo(() => {
+		const {current: {offsetWidth = 270} = {}} = inputRef;
 
-	const {offsetWidth} = inputRef.current || {};
+		return {left: `${(offsetWidth - 120) / 2}px`};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [inputRef.current]);
 
 	useEffect(() => {
 		setInvalidTime(!isValidDate(value, format));
 	}, [format, value]);
 
-	const options = useMemo(() => {
-		const parse = number => (number < 10 ? `0${number}` : number);
-
-		if (isAmPm) {
-			const times = {
-				AM: ['12:00 AM', '12:30 AM'],
-				PM: ['12:00 PM', '12:30 PM'],
-			};
-
-			Object.keys(times).forEach(type => {
-				for (let i = 1; i < 12; i++) {
-					times[type].push(`${parse(i)}:00 ${type}`);
-					times[type].push(`${parse(i)}:30 ${type}`);
-				}
-			});
-
-			return [...times.AM, ...times.PM];
-		}
-
-		const times = [];
-
-		for (let i = 0; i < 24; i++) {
-			times.push(`${parse(i)}:00`);
-			times.push(`${parse(i)}:30`);
-		}
-
-		return times;
-	}, [isAmPm]);
-	const popoverStyle = useMemo(() => {
-		const left = offsetWidth ? `${(offsetWidth - 120) / 2}px` : '75px';
-
-		return {left};
-	}, [offsetWidth]);
-
 	return (
 		<div
-			className={`form-group-item form-group-item-label-spacer ${invalidTime &&
-				'has-error'}`}
+			className={`form-group-item form-group-item-label-spacer ${
+				invalidTime ? 'has-error' : ''
+			}`}
 			data-testid="timePicker"
 		>
 			<ClayInput
@@ -166,7 +178,7 @@ const TimePickerInputWithOptions = ({format, isAmPm, setValue, value}) => {
 				onBlur={() => setShowOptions(false)}
 				onChange={({target}) => setValue(target.value)}
 				onFocus={() => setShowOptions(true)}
-				placeholder={isAmPm ? 'HH:mm am' : 'HH:mm'}
+				placeholder={isAmPm ? 'HH:mm am/pm' : 'HH:mm'}
 				ref={inputRef}
 				value={value}
 			/>
@@ -176,7 +188,7 @@ const TimePickerInputWithOptions = ({format, isAmPm, setValue, value}) => {
 					className="clay-popover-bottom custom-time-select fade popover show"
 					style={popoverStyle}
 				>
-					<div className="arrow" />
+					<div className="arrow"></div>
 					<div className="inline-scroller">
 						<div className="popover-body">
 							{options.map((option, index) => (
@@ -198,4 +210,4 @@ const TimePickerInputWithOptions = ({format, isAmPm, setValue, value}) => {
 
 UpdateDueDateStep.TimePickerInput = TimePickerInputWithOptions;
 
-export {UpdateDueDateStep};
+export default UpdateDueDateStep;

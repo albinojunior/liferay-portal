@@ -57,6 +57,7 @@ import com.liferay.portal.search.script.Script;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
@@ -237,6 +238,13 @@ public class QueriesImpl implements Queries {
 		String[] fields, String... likeTexts) {
 
 		return new MoreLikeThisQueryImpl(fields, likeTexts);
+	}
+
+	@Override
+	public MultiMatchQuery multiMatch(
+		Object value, Map<String, Float> fieldsBoosts) {
+
+		return new MultiMatchQueryImpl(value, fieldsBoosts);
 	}
 
 	@Override

@@ -27,8 +27,10 @@ import java.util.Map;
  * This class is used by SOAP remote services.
  *
  * @author Shuyang Zhou
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class BatchEngineImportTaskSoap implements Serializable {
 
 	public static BatchEngineImportTaskSoap toSoapModel(
@@ -56,6 +58,7 @@ public class BatchEngineImportTaskSoap implements Serializable {
 		soapModel.setOperation(model.getOperation());
 		soapModel.setParameters(model.getParameters());
 		soapModel.setStartTime(model.getStartTime());
+		soapModel.setTaskItemDelegateName(model.getTaskItemDelegateName());
 
 		return soapModel;
 	}
@@ -272,6 +275,14 @@ public class BatchEngineImportTaskSoap implements Serializable {
 		_startTime = startTime;
 	}
 
+	public String getTaskItemDelegateName() {
+		return _taskItemDelegateName;
+	}
+
+	public void setTaskItemDelegateName(String taskItemDelegateName) {
+		_taskItemDelegateName = taskItemDelegateName;
+	}
+
 	private long _mvccVersion;
 	private String _uuid;
 	private long _batchEngineImportTaskId;
@@ -291,5 +302,6 @@ public class BatchEngineImportTaskSoap implements Serializable {
 	private String _operation;
 	private Map<String, Serializable> _parameters;
 	private Date _startTime;
+	private String _taskItemDelegateName;
 
 }

@@ -39,17 +39,22 @@ definition {
 				locator1 = "DDMEditTemplate#DETAILS_SELECT_STRUCTURE",
 				value1 = "Select");
 
-			SelectFrameTop();
-
-			SelectFrame(locator1 = "IFrame#DIALOG");
-
-			Click(locator1 = "Icon#BASIC_SEARCH");
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 			var key_ddlDataDefinitionName = "${structureName}";
 
-			AssertClickNoError(
-				locator1 = "DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME_LINK",
-				value1 = "${structureName}");
+			AssertElementPresent(locator1 = "DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME_LINK");
+
+			var browserType = PropsUtil.get("browser.type");
+
+			if ("${browserType}" == "safari") {
+				Click.javaScriptClick(locator1 = "DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME_LINK");
+			}
+			else {
+				AssertClick.assertTextClickAt(
+					locator1 = "DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME_LINK",
+					value1 = "${structureName}");
+			}
 
 			SelectFrameTop();
 		}
@@ -101,7 +106,7 @@ definition {
 			item = "Permissions",
 			templateName = "${templateName}");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Add",
@@ -234,7 +239,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Web Content");
 
 		Navigator.gotoNavItem(navItem = "Templates");

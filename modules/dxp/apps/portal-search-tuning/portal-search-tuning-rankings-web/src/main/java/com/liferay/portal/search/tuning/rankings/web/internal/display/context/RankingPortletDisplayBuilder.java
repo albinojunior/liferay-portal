@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.engine.SearchEngineInformation;
@@ -37,6 +38,8 @@ import com.liferay.portal.search.sort.Sorts;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.DocumentToRankingTranslator;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.Ranking;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingFields;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexName;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexNameBuilder;
 import com.liferay.portal.search.tuning.rankings.web.internal.request.SearchRankingRequest;
 import com.liferay.portal.search.tuning.rankings.web.internal.request.SearchRankingResponse;
 
@@ -58,15 +61,18 @@ public class RankingPortletDisplayBuilder {
 
 	public RankingPortletDisplayBuilder(
 		DocumentToRankingTranslator documentToRankingTranslator,
-		HttpServletRequest httpServletRequest, Language language,
-		Queries queries, Sorts sorts, RenderRequest renderRequest,
-		RenderResponse renderResponse, SearchEngineAdapter searchEngineAdapter,
+		HttpServletRequest httpServletRequest, Language language, Portal portal,
+		Queries queries, RankingIndexNameBuilder rankingIndexNameBuilder,
+		Sorts sorts, RenderRequest renderRequest, RenderResponse renderResponse,
+		SearchEngineAdapter searchEngineAdapter,
 		SearchEngineInformation searchEngineInformation) {
 
 		_documentToRankingTranslator = documentToRankingTranslator;
 		_httpServletRequest = httpServletRequest;
 		_language = language;
+		_portal = portal;
 		_queries = queries;
+		_rankingIndexNameBuilder = rankingIndexNameBuilder;
 		_sorts = sorts;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
@@ -114,6 +120,11 @@ public class RankingPortletDisplayBuilder {
 			new RankingEntryDisplayContextBuilder(ranking);
 
 		return rankingEntryDisplayContextBuilder.build();
+	}
+
+	protected RankingIndexName buildRankingIndexName() {
+		return _rankingIndexNameBuilder.getRankingIndexName(
+			_portal.getCompanyId(_httpServletRequest));
 	}
 
 	protected List<DropdownItem> getActionDropdownItems() {
@@ -346,8 +357,8 @@ public class RankingPortletDisplayBuilder {
 			getSearchContainer(getKeywords());
 
 		SearchRankingRequest searchRankingRequest = new SearchRankingRequest(
-			_httpServletRequest, _queries, _sorts, searchContainer,
-			_searchEngineAdapter);
+			_httpServletRequest, _queries, buildRankingIndexName(), _sorts,
+			searchContainer, _searchEngineAdapter);
 
 		SearchRankingResponse searchRankingResponse =
 			searchRankingRequest.search();
@@ -369,7 +380,9 @@ public class RankingPortletDisplayBuilder {
 	private final DocumentToRankingTranslator _documentToRankingTranslator;
 	private final HttpServletRequest _httpServletRequest;
 	private final Language _language;
+	private final Portal _portal;
 	private final Queries _queries;
+	private final RankingIndexNameBuilder _rankingIndexNameBuilder;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private final SearchEngineAdapter _searchEngineAdapter;

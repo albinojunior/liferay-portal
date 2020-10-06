@@ -10,7 +10,7 @@ definition {
 	macro _selectContent {
 		Click(locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_MAP_ASSET_SELECT_POPUP_BUTTON");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		NavItem.click(navItem = "${navItem}");
 
@@ -18,7 +18,9 @@ definition {
 
 		Click(
 			key_card = "${entryTitle}",
-			locator1 = "LexiconCard#CARD_TITLE");
+			locator1 = "Card#CARD_TITLE");
+
+		Pause(locator1 = "3000");
 	}
 
 	macro _selectField {
@@ -29,10 +31,16 @@ definition {
 
 	macro gotoEditableFieldLink {
 		PageEditor.clickEditableField(
+			contributed = "${contributed}",
 			fragmentName = "${fragmentName}",
 			id = "${id}");
 
-		Click(locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_LINK_BUTTON");
+		PageEditor.gotoTab(tabName = "Selection");
+
+		AssertClick(
+			key_navItem = "Link",
+			locator1 = "PageEditor#NAV_ITEM_BUTTON",
+			value1 = "Link");
 	}
 
 	macro mapURLToAsset {
@@ -53,6 +61,19 @@ definition {
 		Type(
 			locator1 = "PageEditorEditableLink#URL",
 			value1 = "${url}");
+
+		Click(
+			key_sidebarButton = "Selection",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
+
+		if (isSet(target)) {
+			Select(
+				key_fieldLabel = "Target",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "${target}");
+
+			Pause(locator1 = "3000");
+		}
 
 		PageEditor.waitForAutoSave();
 	}

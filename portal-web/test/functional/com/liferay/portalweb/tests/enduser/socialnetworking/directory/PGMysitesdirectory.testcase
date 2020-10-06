@@ -1,6 +1,8 @@
 @component-name = "portal-social-networking"
+@ignore = "true"
 definition {
 
+	property osgi.app.includes = "directory-web";
 	property portal.upstream = "true";
 	property custom.properties = "default.layout.template.id=1_column";
 	property testray.main.component.name = "Social Networking";
@@ -14,7 +16,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(
@@ -56,7 +57,7 @@ definition {
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -68,7 +69,7 @@ definition {
 			userMiddleName = "usermn",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");

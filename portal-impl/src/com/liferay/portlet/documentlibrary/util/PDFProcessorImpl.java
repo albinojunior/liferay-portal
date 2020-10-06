@@ -25,6 +25,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.petra.log4j.Log4JUtil;
 import com.liferay.petra.process.ProcessCallable;
 import com.liferay.petra.process.ProcessChannel;
+import com.liferay.petra.process.ProcessConfig;
 import com.liferay.petra.process.ProcessException;
 import com.liferay.petra.process.ProcessExecutor;
 import com.liferay.petra.string.StringBundler;
@@ -47,6 +48,7 @@ import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemEnv;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
@@ -61,6 +63,7 @@ import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -239,12 +242,12 @@ public class PDFProcessorImpl
 					String previewFilePath = getPreviewFilePath(
 						destinationFileVersion, i + 1);
 
-					InputStream is = doGetPreviewAsStream(
+					InputStream inputStream = doGetPreviewAsStream(
 						sourceFileVersion, i + 1, PREVIEW_TYPE);
 
 					addFileToStore(
 						destinationFileVersion.getCompanyId(), PREVIEW_PATH,
-						previewFilePath, is);
+						previewFilePath, inputStream);
 				}
 			}
 		}
@@ -327,10 +330,9 @@ public class PDFProcessorImpl
 	protected boolean hasPreview(FileVersion fileVersion, String type)
 		throws Exception {
 
-		String previewFilePath = getPreviewFilePath(fileVersion, 1);
-
 		return DLStoreUtil.hasFile(
-			fileVersion.getCompanyId(), REPOSITORY_ID, previewFilePath);
+			fileVersion.getCompanyId(), REPOSITORY_ID,
+			getPreviewFilePath(fileVersion, 1));
 	}
 
 	protected void importPreviews(
@@ -699,7 +701,7 @@ public class PDFProcessorImpl
 					generatePreview, generateThumbnail);
 
 			ProcessChannel<String> processChannel = _processExecutor.execute(
-				PortalClassPathUtil.getPortalProcessConfig(), processCallable);
+				_pdfProcessConfig, processCallable);
 
 			Future<String> future = processChannel.getProcessNoticeableFuture();
 
@@ -1020,10 +1022,34 @@ public class PDFProcessorImpl
 			ServiceProxyFactory.newServiceTrackedInstance(
 				FileVersionPreviewEventListener.class, PDFProcessorImpl.class,
 				"_fileVersionPreviewEventListener", false, false);
+	private static final ProcessConfig _pdfProcessConfig;
 	private static volatile ProcessExecutor _processExecutor =
 		ServiceProxyFactory.newServiceTrackedInstance(
 			ProcessExecutor.class, PDFProcessorImpl.class, "_processExecutor",
 			true);
+
+	static {
+		ProcessConfig pdfProcessConfig =
+			PortalClassPathUtil.getPortalProcessConfig();
+
+		if (PropsValues.DL_FILE_ENTRY_PREVIEW_FORK_PROCESS_ENABLED) {
+			String jvmOptions = StringUtil.trim(
+				PropsValues.DL_FILE_ENTRY_PREVIEW_FORK_PROCESS_JVM_OPTIONS);
+
+			if (!jvmOptions.isEmpty()) {
+				ProcessConfig.Builder pdfProcessBuilder =
+					new ProcessConfig.Builder(pdfProcessConfig);
+
+				Collections.addAll(
+					pdfProcessBuilder.getArguments(),
+					StringUtil.split(jvmOptions));
+
+				pdfProcessConfig = pdfProcessBuilder.build();
+			}
+		}
+
+		_pdfProcessConfig = pdfProcessConfig;
+	}
 
 	private final List<Long> _fileVersionIds = new Vector<>();
 	private boolean _ghostscriptInitialized;

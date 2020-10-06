@@ -345,7 +345,24 @@ public class ScopeLocatorImplTest extends PowerMockito {
 	protected final Set<String> scopesSet1 = new HashSet<>(
 		Arrays.asList("everything", "everything.readonly"));
 
-	private static void _set(Object object, String fieldName, Object value) {
+	private Set<String> _getScopes(
+		Collection<LiferayOAuth2Scope> liferayOAuth2Scopes) {
+
+		Stream<LiferayOAuth2Scope> stream = liferayOAuth2Scopes.stream();
+
+		return stream.flatMap(
+			liferayOAuth2Scope -> {
+				Set<String> singletonSet = Collections.singleton(
+					liferayOAuth2Scope.getScope());
+
+				return singletonSet.stream();
+			}
+		).collect(
+			Collectors.toSet()
+		);
+	}
+
+	private void _set(Object object, String fieldName, Object value) {
 		Class<?> clazz = object.getClass();
 
 		try {
@@ -358,20 +375,6 @@ public class ScopeLocatorImplTest extends PowerMockito {
 		catch (Exception exception) {
 			throw new IllegalArgumentException(exception);
 		}
-	}
-
-	private Set<String> _getScopes(
-		Collection<LiferayOAuth2Scope> liferayOAuth2Scopes) {
-
-		Stream<LiferayOAuth2Scope> stream = liferayOAuth2Scopes.stream();
-
-		return stream.flatMap(
-			liferayOAuth2Scope -> Collections.singleton(
-				liferayOAuth2Scope.getScope()
-			).stream()
-		).collect(
-			Collectors.toSet()
-		);
 	}
 
 	private static final String _APPLICATION_NAME = "com.liferay.test1";

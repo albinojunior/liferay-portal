@@ -41,6 +41,10 @@ public class MDRRuleGroupLocalServiceUtil {
 	/**
 	 * Adds the mdr rule group to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mdrRuleGroup the mdr rule group
 	 * @return the mdr rule group that was added
 	 */
@@ -106,6 +110,10 @@ public class MDRRuleGroupLocalServiceUtil {
 	/**
 	 * Deletes the mdr rule group with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ruleGroupId the primary key of the mdr rule group
 	 * @return the mdr rule group that was removed
 	 * @throws PortalException if a mdr rule group with the primary key could not be found
@@ -119,6 +127,10 @@ public class MDRRuleGroupLocalServiceUtil {
 
 	/**
 	 * Deletes the mdr rule group from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mdrRuleGroup the mdr rule group
 	 * @return the mdr rule group that was removed
@@ -153,6 +165,12 @@ public class MDRRuleGroupLocalServiceUtil {
 
 	public static void deleteRuleGroups(long groupId) {
 		getService().deleteRuleGroups(groupId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -459,10 +477,12 @@ public class MDRRuleGroupLocalServiceUtil {
 			java.util.LinkedHashMap<String, Object> params, boolean andOperator,
 			int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.mobile.device.rules.model.MDRRuleGroup> obc) {
+				<com.liferay.mobile.device.rules.model.MDRRuleGroup>
+					orderByComparator) {
 
 		return getService().searchByKeywords(
-			groupId, keywords, params, andOperator, start, end, obc);
+			groupId, keywords, params, andOperator, start, end,
+			orderByComparator);
 	}
 
 	public static int searchByKeywordsCount(
@@ -482,6 +502,10 @@ public class MDRRuleGroupLocalServiceUtil {
 
 	/**
 	 * Updates the mdr rule group in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mdrRuleGroup the mdr rule group
 	 * @return the mdr rule group that was updated

@@ -14,27 +14,32 @@
 
 package com.liferay.layout.type.controller.display.page.internal.display.context;
 
-import com.liferay.asset.display.page.constants.AssetDisplayPageConstants;
-import com.liferay.asset.display.page.constants.AssetDisplayPageWebKeys;
-import com.liferay.asset.display.page.model.AssetDisplayPageEntry;
-import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalServiceUtil;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.display.contributor.InfoDisplayContributor;
-import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
-import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
-import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
-import com.liferay.layout.page.template.service.LayoutPageTemplateEntryServiceUtil;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.info.item.ClassPKInfoItemIdentifier;
+import com.liferay.info.item.InfoItemDetails;
+import com.liferay.info.item.InfoItemFieldValues;
+import com.liferay.info.item.InfoItemIdentifier;
+import com.liferay.info.item.InfoItemReference;
+import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.provider.InfoItemDetailsProvider;
+import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
+import com.liferay.info.item.provider.InfoItemObjectProvider;
+import com.liferay.info.item.provider.InfoItemPermissionProvider;
+import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,127 +49,134 @@ import javax.servlet.http.HttpServletRequest;
 public class DisplayPageLayoutTypeControllerDisplayContext {
 
 	public DisplayPageLayoutTypeControllerDisplayContext(
-		HttpServletRequest httpServletRequest) {
+			HttpServletRequest httpServletRequest,
+			InfoItemServiceTracker infoItemServiceTracker)
+		throws Exception {
 
 		_httpServletRequest = httpServletRequest;
+		_infoItemServiceTracker = infoItemServiceTracker;
 
-		_infoDisplayObjectProvider =
-			(InfoDisplayObjectProvider)httpServletRequest.getAttribute(
-				AssetDisplayPageWebKeys.INFO_DISPLAY_OBJECT_PROVIDER);
+		long assetEntryId = ParamUtil.getLong(
+			_httpServletRequest, "assetEntryId");
 
-		InfoDisplayContributor infoDisplayContributor =
-			(InfoDisplayContributor)_httpServletRequest.getAttribute(
-				InfoDisplayWebKeys.INFO_DISPLAY_CONTRIBUTOR);
+		Object infoItem = httpServletRequest.getAttribute(
+			InfoDisplayWebKeys.INFO_ITEM);
+		InfoItemDetails infoItemDetails =
+			(InfoItemDetails)httpServletRequest.getAttribute(
+				InfoDisplayWebKeys.INFO_ITEM_DETAILS);
 
-		if ((infoDisplayContributor == null) &&
-			(_infoDisplayObjectProvider != null)) {
+		if ((assetEntryId > 0) && (infoItem == null) &&
+			(infoItemDetails == null)) {
 
-			InfoDisplayContributorTracker infoDisplayContributorTracker =
-				(InfoDisplayContributorTracker)httpServletRequest.getAttribute(
-					ContentPageEditorWebKeys.ASSET_DISPLAY_CONTRIBUTOR_TRACKER);
+			AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
+				assetEntryId);
 
-			infoDisplayContributor =
-				infoDisplayContributorTracker.getInfoDisplayContributor(
-					PortalUtil.getClassName(
-						_infoDisplayObjectProvider.getClassNameId()));
+			String className = assetEntry.getClassName();
+
+			if (Objects.equals(className, DLFileEntry.class.getName())) {
+				className = FileEntry.class.getName();
+			}
+
+			InfoItemObjectProvider<Object> infoItemObjectProvider =
+				(InfoItemObjectProvider<Object>)
+					infoItemServiceTracker.getFirstInfoItemService(
+						InfoItemObjectProvider.class, className);
+
+			InfoItemIdentifier infoItemIdentifier =
+				new ClassPKInfoItemIdentifier(assetEntry.getClassPK());
+
+			infoItemIdentifier.setVersion(InfoItemIdentifier.VERSION_LATEST);
+
+			infoItem = infoItemObjectProvider.getInfoItem(infoItemIdentifier);
+
+			AssetRenderer<?> assetRenderer = assetEntry.getAssetRenderer();
+
+			if (assetRenderer != null) {
+				InfoItemDetailsProvider infoItemDetailsProvider =
+					infoItemServiceTracker.getFirstInfoItemService(
+						InfoItemDetailsProvider.class, className);
+
+				infoItemDetails = infoItemDetailsProvider.getInfoItemDetails(
+					assetRenderer.getAssetObject());
+			}
+
+			_httpServletRequest.setAttribute(
+				InfoDisplayWebKeys.INFO_ITEM_FIELD_VALUES_PROVIDER,
+				infoItemServiceTracker.getFirstInfoItemService(
+					InfoItemFieldValuesProvider.class, className));
+
+			_httpServletRequest.setAttribute(
+				WebKeys.LAYOUT_ASSET_ENTRY, assetEntry);
 		}
 
-		_infoDisplayContributor = infoDisplayContributor;
+		_infoItem = infoItem;
+		_infoItemDetails = infoItemDetails;
 	}
 
-	public AssetRendererFactory getAssetRendererFactory() {
-		if (_infoDisplayContributor == null) {
+	public AssetRendererFactory<?> getAssetRendererFactory() {
+		if (_infoItemDetails == null) {
 			return null;
 		}
 
 		return AssetRendererFactoryRegistryUtil.
 			getAssetRendererFactoryByClassNameId(
-				_infoDisplayObjectProvider.getClassNameId());
+				PortalUtil.getClassNameId(_infoItemDetails.getClassName()));
 	}
 
-	public Map<String, Object> getInfoDisplayFieldsValues()
-		throws PortalException {
+	public Map<String, Object> getInfoDisplayFieldsValues() {
+		InfoItemFieldValuesProvider<Object> infoItemFieldValuesProvider =
+			(InfoItemFieldValuesProvider)_httpServletRequest.getAttribute(
+				InfoDisplayWebKeys.INFO_ITEM_FIELD_VALUES_PROVIDER);
 
-		if (_infoDisplayFieldsValuesMap.containsKey(
-				_infoDisplayObjectProvider.getClassPK())) {
-
-			return _infoDisplayFieldsValuesMap.get(
-				_infoDisplayObjectProvider.getClassPK());
+		if (infoItemFieldValuesProvider == null) {
+			return null;
 		}
+
+		InfoItemFieldValues infoItemFieldValues =
+			infoItemFieldValuesProvider.getInfoItemFieldValues(_infoItem);
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)_httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		Map<String, Object> infoDisplayFieldsValues = null;
-
-		long versionClassPK = GetterUtil.getLong(
-			_httpServletRequest.getAttribute(
-				InfoDisplayWebKeys.VERSION_CLASS_PK));
-
-		if (versionClassPK > 0) {
-			infoDisplayFieldsValues =
-				_infoDisplayContributor.getVersionInfoDisplayFieldsValues(
-					_infoDisplayObjectProvider.getDisplayObject(),
-					versionClassPK, themeDisplay.getLocale());
-		}
-		else {
-			infoDisplayFieldsValues =
-				_infoDisplayContributor.getInfoDisplayFieldsValues(
-					_infoDisplayObjectProvider.getDisplayObject(),
-					themeDisplay.getLocale());
-		}
-
-		_infoDisplayFieldsValuesMap.put(
-			_infoDisplayObjectProvider.getClassPK(), infoDisplayFieldsValues);
-
-		return infoDisplayFieldsValues;
+		return infoItemFieldValues.getMap(themeDisplay.getLocale());
 	}
 
-	public InfoDisplayObjectProvider getInfoDisplayObjectProvider() {
-		return _infoDisplayObjectProvider;
-	}
+	public boolean hasPermission(
+			PermissionChecker permissionChecker, String actionId)
+		throws Exception {
 
-	public long getLayoutPageTemplateEntryId() {
-		AssetDisplayPageEntry assetDisplayPageEntry =
-			AssetDisplayPageEntryLocalServiceUtil.fetchAssetDisplayPageEntry(
-				_infoDisplayObjectProvider.getGroupId(),
-				_infoDisplayObjectProvider.getClassNameId(),
-				_infoDisplayObjectProvider.getClassPK());
-
-		if (assetDisplayPageEntry != null) {
-			if (assetDisplayPageEntry.getType() ==
-					AssetDisplayPageConstants.TYPE_NONE) {
-
-				return 0;
-			}
-
-			if (assetDisplayPageEntry.getType() ==
-					AssetDisplayPageConstants.TYPE_SPECIFIC) {
-
-				return assetDisplayPageEntry.getLayoutPageTemplateEntryId();
-			}
+		if (_infoItemDetails == null) {
+			return true;
 		}
 
-		LayoutPageTemplateEntry defaultLayoutPageTemplateEntry =
-			LayoutPageTemplateEntryServiceUtil.
-				fetchDefaultLayoutPageTemplateEntry(
-					_infoDisplayObjectProvider.getGroupId(),
-					_infoDisplayObjectProvider.getClassNameId(),
-					_infoDisplayObjectProvider.getClassTypeId());
+		InfoItemPermissionProvider infoItemPermissionProvider =
+			_infoItemServiceTracker.getFirstInfoItemService(
+				InfoItemPermissionProvider.class,
+				_infoItemDetails.getClassName());
 
-		if (defaultLayoutPageTemplateEntry != null) {
-			return defaultLayoutPageTemplateEntry.
-				getLayoutPageTemplateEntryId();
+		if (infoItemPermissionProvider != null) {
+			return infoItemPermissionProvider.hasPermission(
+				permissionChecker, _infoItem, actionId);
 		}
 
-		return 0;
+		AssetRendererFactory<?> assetRendererFactory =
+			getAssetRendererFactory();
+
+		if (assetRendererFactory != null) {
+			InfoItemReference infoItemReference =
+				_infoItemDetails.getInfoItemReference();
+
+			return assetRendererFactory.hasPermission(
+				permissionChecker, infoItemReference.getClassPK(), actionId);
+		}
+
+		return true;
 	}
 
 	private final HttpServletRequest _httpServletRequest;
-	private final InfoDisplayContributor _infoDisplayContributor;
-	private Map<Long, Map<String, Object>> _infoDisplayFieldsValuesMap =
-		new HashMap<>();
-	private final InfoDisplayObjectProvider _infoDisplayObjectProvider;
+	private final Object _infoItem;
+	private final InfoItemDetails _infoItemDetails;
+	private final InfoItemServiceTracker _infoItemServiceTracker;
 
 }

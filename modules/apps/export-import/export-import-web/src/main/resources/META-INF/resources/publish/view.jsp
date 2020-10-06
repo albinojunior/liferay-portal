@@ -124,9 +124,15 @@ simplePublishURL.setParameter("targetGroupId", String.valueOf(liveGroupId));
 %>
 
 <c:if test='<%= !publishConfigurationButtons.equals("template") %>'>
-	<div class="container-fluid-1280 publish-navbar">
-		<div class="autofit-row autofit-row-center">
-			<div class="autofit-col autofit-col-expand">
+	<clay:container-fluid
+		cssClass="publish-navbar"
+	>
+		<clay:content-row
+			verticalAlign="center"
+		>
+			<clay:content-col
+				expand="<%= true %>"
+			>
 				<clay:navigation-bar
 					navigationItems='<%=
 						new JSPNavigationItemList(pageContext) {
@@ -136,31 +142,30 @@ simplePublishURL.setParameter("targetGroupId", String.valueOf(liveGroupId));
 										navigationItem.setActive(publishConfigurationButtons.equals("custom"));
 										navigationItem.setHref(customPublishURL.toString());
 										navigationItem.setLabel(LanguageUtil.get(request, "custom"));
-									}
-								);
+									});
 								add(
 									navigationItem -> {
 										navigationItem.setActive(publishConfigurationButtons.equals("saved"));
 										navigationItem.setHref(publishTemplatesURL.toString());
 										navigationItem.setLabel(LanguageUtil.get(request, "publish-templates"));
-									}
-								);
+									});
 							}
 						}
 					%>'
 				/>
-			</div>
+			</clay:content-col>
 
-			<div class="autofit-col">
+			<clay:content-col>
 				<clay:link
-					buttonStyle="link"
-					elementClasses="btn-sm"
+					displayType="link"
 					href="<%= simplePublishURL.toString() %>"
-					label='<%= LanguageUtil.get(request, "switch-to-simple-publication") %>'
+					label="switch-to-simple-publication"
+					small="<%= true %>"
+					type="button"
 				/>
-			</div>
-		</div>
-	</div>
+			</clay:content-col>
+		</clay:content-row>
+	</clay:container-fluid>
 </c:if>
 
 <c:choose>

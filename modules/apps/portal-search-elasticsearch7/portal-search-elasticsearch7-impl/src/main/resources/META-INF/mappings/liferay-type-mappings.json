@@ -3,6 +3,16 @@
 		"date_detection": false,
 		"dynamic_templates": [
 			{
+				"template_ddmFieldArray_ddmFieldValue_Number_sortable": {
+					"mapping": {
+						"scaling_factor": 1000,
+						"store": true,
+						"type": "scaled_float"
+					},
+					"path_match": "ddmFieldArray.ddmFieldValue*Number_sortable"
+				}
+			},
+			{
 				"template_long_sortable": {
 					"mapping": {
 						"store": true,
@@ -26,7 +36,7 @@
 				"template_geolocation": {
 					"mapping": {
 						"fields": {
-							"geopoint" : {
+							"geopoint": {
 								"store": true,
 								"type": "keyword"
 							}
@@ -35,6 +45,16 @@
 						"type": "geo_point"
 					},
 					"match": "*_geolocation"
+				}
+			},
+			{
+				"template_ddmFieldArray_ddmFieldValueKeyword": {
+					"mapping": {
+						"store": true,
+						"type": "keyword"
+					},
+					"match_mapping_type": "string",
+					"path_match": "ddmFieldArray.ddmFieldValueKeyword*"
 				}
 			},
 			{
@@ -50,9 +70,9 @@
 			{
 				"template_expando_keyword": {
 					"mapping": {
-						"analyzer" : "keyword_lowercase",
+						"analyzer": "keyword_lowercase",
 						"fields": {
-							"raw" : {
+							"raw": {
 								"type": "keyword"
 							}
 						},
@@ -455,6 +475,16 @@
 				}
 			},
 			{
+				"template_ddmFieldArray_ddmFieldValueText": {
+					"mapping": {
+						"store": true,
+						"type": "text"
+					},
+					"match_mapping_type": "string",
+					"path_match": "ddmFieldArray.ddmFieldValueText*"
+				}
+			},
+			{
 				"template_ddm": {
 					"mapping": {
 						"store": true,
@@ -493,6 +523,14 @@
 				"store": true,
 				"type": "keyword"
 			},
+			"assetInternalCategoryId": {
+				"store": true,
+				"type": "keyword"
+			},
+			"assetInternalCategoryIds": {
+				"store": true,
+				"type": "keyword"
+			},
 			"assetTagId": {
 				"store": true,
 				"type": "keyword"
@@ -503,7 +541,7 @@
 			},
 			"assetTagNames": {
 				"fields": {
-					"raw" : {
+					"raw": {
 						"type": "keyword"
 					}
 				},
@@ -557,6 +595,17 @@
 				"store": true,
 				"term_vector": "with_positions_offsets",
 				"type": "text"
+			},
+			"ddmFieldArray": {
+				"properties": {
+					"ddmFieldName": {
+						"type": "keyword"
+					},
+					"ddmValueFieldName": {
+						"type": "keyword"
+					}
+				},
+				"type": "nested"
 			},
 			"ddmStructureKey": {
 				"store": true,
@@ -623,7 +672,7 @@
 			},
 			"geoLocation": {
 				"fields": {
-					"geopoint" : {
+					"geopoint": {
 						"store": true,
 						"type": "keyword"
 					}

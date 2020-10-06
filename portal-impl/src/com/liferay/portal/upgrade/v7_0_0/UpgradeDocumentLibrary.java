@@ -201,9 +201,7 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 				"select companyId, groupId from Group_ where classNameId = " +
 					"?")) {
 
-			long classNameId = PortalUtil.getClassNameId(Company.class);
-
-			ps.setLong(1, classNameId);
+			ps.setLong(1, PortalUtil.getClassNameId(Company.class));
 
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
@@ -559,15 +557,12 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 
 			while (rs.next()) {
 				long fileEntryId = rs.getLong("fileEntryId");
+
 				String extension = GetterUtil.getString(
 					rs.getString("extension"));
 				String title = GetterUtil.getString(rs.getString("title"));
 
-				int availableLength = 254 - extension.length();
-
-				String fileName =
-					title.substring(0, availableLength) + StringPool.PERIOD +
-						extension;
+				String fileName = DLUtil.getSanitizedFileName(title, extension);
 
 				ps2.setString(1, fileName);
 

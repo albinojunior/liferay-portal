@@ -43,8 +43,8 @@ function BulkStatus({
 			fetch(
 				`${Liferay.ThemeDisplay.getPortalURL()}${pathModule}${bulkStatusUrl}`
 			)
-				.then(response => response.json())
-				.then(response => {
+				.then((response) => response.json())
+				.then((response) => {
 					if (response.actionInProgress) {
 						dispatch({type: 'check'});
 					}
@@ -114,4 +114,4 @@ BulkStatus.propTypes = {
 	waitingTime: PropTypes.number,
 };
 
-export default props => <BulkStatus {...props} />;
+export default BulkStatus;

@@ -65,17 +65,23 @@ public class NotificationMessageHelper {
 			WorkflowConstants.CONTEXT_GROUP_ID,
 			String.valueOf(
 				workflowContext.get(WorkflowConstants.CONTEXT_GROUP_ID))
+		).put(
+			WorkflowConstants.CONTEXT_URL,
+			String.valueOf(workflowContext.get(WorkflowConstants.CONTEXT_URL))
 		);
 
 		KaleoInstanceToken kaleoInstanceToken =
 			executionContext.getKaleoInstanceToken();
 
-		long userId = getUserId(executionContext, kaleoInstanceToken);
-
 		jsonObject.put(
-			WorkflowConstants.CONTEXT_USER_ID, String.valueOf(userId)
+			WorkflowConstants.CONTEXT_USER_ID,
+			String.valueOf(getUserId(executionContext, kaleoInstanceToken))
 		).put(
 			"notificationMessage", notificationMessage
+		).put(
+			"plid", workflowContext.get("plid")
+		).put(
+			"portletId", workflowContext.get("portletId")
 		).put(
 			"workflowInstanceId", kaleoInstanceToken.getKaleoInstanceId()
 		);

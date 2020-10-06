@@ -69,6 +69,20 @@ public class BlogPostingImageSerDes {
 			sb.append("\"");
 		}
 
+		if (blogPostingImage.getContentValue() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"contentValue\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(blogPostingImage.getContentValue()));
+
+			sb.append("\"");
+		}
+
 		if (blogPostingImage.getEncodingFormat() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -172,6 +186,15 @@ public class BlogPostingImageSerDes {
 				"contentUrl", String.valueOf(blogPostingImage.getContentUrl()));
 		}
 
+		if (blogPostingImage.getContentValue() == null) {
+			map.put("contentValue", null);
+		}
+		else {
+			map.put(
+				"contentValue",
+				String.valueOf(blogPostingImage.getContentValue()));
+		}
+
 		if (blogPostingImage.getEncodingFormat() == null) {
 			map.put("encodingFormat", null);
 		}
@@ -248,6 +271,12 @@ public class BlogPostingImageSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "contentValue")) {
+				if (jsonParserFieldValue != null) {
+					blogPostingImage.setContentValue(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "encodingFormat")) {
 				if (jsonParserFieldValue != null) {
 					blogPostingImage.setEncodingFormat(
@@ -284,9 +313,8 @@ public class BlogPostingImageSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -342,10 +370,13 @@ public class BlogPostingImageSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

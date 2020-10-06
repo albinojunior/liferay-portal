@@ -54,19 +54,11 @@ LayoutClassedModelUsagesDisplayContext layoutClassedModelUsagesDisplayContext = 
 					%>
 
 					<c:if test="<%= curLayout != null %>">
-
-						<%
-						Map<String, String> data = new HashMap<>();
-
-						data.put("href", layoutClassedModelUsagesDisplayContext.getPreviewURL(layoutClassedModelUsage));
-						%>
-
 						<clay:button
-							data="<%= data %>"
-							elementClasses="preview-layout-classed-model-usage table-action-link"
+							cssClass="preview-layout-classed-model-usage table-action-link"
+							data-href="<%= layoutClassedModelUsagesDisplayContext.getPreviewURL(layoutClassedModelUsage) %>"
+							displayType="secondary"
 							icon="view"
-							monospaced="<%= true %>"
-							style="secondary"
 						/>
 					</c:if>
 				</c:if>
@@ -83,27 +75,19 @@ LayoutClassedModelUsagesDisplayContext layoutClassedModelUsagesDisplayContext = 
 
 <aui:script require="metal-dom/src/all/dom as dom">
 	if (
-		document.querySelector('#<portlet:namespace/>layoutClassedModelUsagesList')
+		document.querySelector('#<portlet:namespace />layoutClassedModelUsagesList')
 	) {
 		var previewLayoutClassedModelUsagesList = dom.delegate(
 			document.querySelector(
-				'#<portlet:namespace/>layoutClassedModelUsagesList'
+				'#<portlet:namespace />layoutClassedModelUsagesList'
 			),
 			'click',
 			'.preview-layout-classed-model-usage',
-			function(event) {
-				var delegateTarget = event.delegateTarget;
-
-				Liferay.Util.openWindow({
-					dialog: {
-						destroyOnHide: true,
-						modal: true,
-					},
-					dialogIframe: {
-						bodyCssClass: 'dialog-with-footer article-preview',
-					},
+			function (event) {
+				Liferay.Util.openModal({
+					iframeBodyCssClass: 'article-preview',
 					title: '<liferay-ui:message key="preview" />',
-					uri: delegateTarget.getAttribute('data-href'),
+					url: event.delegateTarget.getAttribute('data-href'),
 				});
 			}
 		);

@@ -112,25 +112,15 @@ public class CustomSQLImpl implements CustomSQL {
 		int pos = sql.indexOf(_GROUP_BY_CLAUSE);
 
 		if (pos != -1) {
-			return sql.substring(
-				0, pos + 1
-			).concat(
-				criteria
-			).concat(
-				sql.substring(pos + 1)
-			);
+			return StringBundler.concat(
+				sql.substring(0, pos + 1), criteria, sql.substring(pos + 1));
 		}
 
 		pos = sql.indexOf(_ORDER_BY_CLAUSE);
 
 		if (pos != -1) {
-			return sql.substring(
-				0, pos + 1
-			).concat(
-				criteria
-			).concat(
-				sql.substring(pos + 1)
-			);
+			return StringBundler.concat(
+				sql.substring(0, pos + 1), criteria, sql.substring(pos + 1));
 		}
 
 		return sql.concat(criteria);
@@ -458,9 +448,7 @@ public class CustomSQLImpl implements CustomSQL {
 				});
 		}
 
-		sql = replaceIsNull(sql);
-
-		return sql;
+		return replaceIsNull(sql);
 	}
 
 	@Override
@@ -480,24 +468,16 @@ public class CustomSQLImpl implements CustomSQL {
 				sql = sql.concat(groupBy);
 			}
 			else {
-				sql = sql.substring(
-					0, x + _GROUP_BY_CLAUSE.length()
-				).concat(
-					groupBy
-				).concat(
-					sql.substring(y)
-				);
+				sql = StringBundler.concat(
+					sql.substring(0, x + _GROUP_BY_CLAUSE.length()), groupBy,
+					sql.substring(y));
 			}
 		}
 		else {
 			int y = sql.indexOf(_ORDER_BY_CLAUSE);
 
 			if (y == -1) {
-				sql = sql.concat(
-					_GROUP_BY_CLAUSE
-				).concat(
-					groupBy
-				);
+				sql = StringBundler.concat(sql, _GROUP_BY_CLAUSE, groupBy);
 			}
 			else {
 				StringBundler sb = new StringBundler(4);
@@ -547,7 +527,7 @@ public class CustomSQLImpl implements CustomSQL {
 			return StringUtil.removeSubstring(sql, oldSqlSB.toString());
 		}
 
-		StringBundler newSqlSB = new StringBundler(values.length * 4 + 3);
+		StringBundler newSqlSB = new StringBundler((values.length * 4) + 3);
 
 		newSqlSB.append(StringPool.OPEN_PARENTHESIS);
 
@@ -593,7 +573,7 @@ public class CustomSQLImpl implements CustomSQL {
 			return StringUtil.removeSubstring(sql, oldSqlSB.toString());
 		}
 
-		StringBundler newSqlSB = new StringBundler(values.length * 4 + 3);
+		StringBundler newSqlSB = new StringBundler((values.length * 4) + 3);
 
 		newSqlSB.append(StringPool.OPEN_PARENTHESIS);
 
@@ -638,7 +618,7 @@ public class CustomSQLImpl implements CustomSQL {
 			oldSqlSB.append(" [$AND_OR_CONNECTOR$]");
 		}
 
-		StringBundler newSqlSB = new StringBundler(values.length * 6 + 2);
+		StringBundler newSqlSB = new StringBundler((values.length * 6) + 2);
 
 		newSqlSB.append(StringPool.OPEN_PARENTHESIS);
 
@@ -665,12 +645,14 @@ public class CustomSQLImpl implements CustomSQL {
 	}
 
 	@Override
-	public String replaceOrderBy(String sql, OrderByComparator<?> obc) {
-		if (obc == null) {
+	public String replaceOrderBy(
+		String sql, OrderByComparator<?> orderByComparator) {
+
+		if (orderByComparator == null) {
 			return sql;
 		}
 
-		String orderBy = obc.getOrderBy();
+		String orderBy = orderByComparator.getOrderBy();
 
 		int pos = sql.indexOf(_ORDER_BY_CLAUSE);
 
@@ -680,11 +662,7 @@ public class CustomSQLImpl implements CustomSQL {
 			sql = sql.concat(orderBy);
 		}
 		else {
-			sql = sql.concat(
-				_ORDER_BY_CLAUSE
-			).concat(
-				orderBy
-			);
+			sql = StringBundler.concat(sql, _ORDER_BY_CLAUSE, orderBy);
 		}
 
 		return sql;
@@ -696,12 +674,10 @@ public class CustomSQLImpl implements CustomSQL {
 
 		_portal.initCustomSQL();
 
-		Connection con = DataAccess.getConnection();
-
 		String functionIsNull = _portal.getCustomSQLFunctionIsNull();
 		String functionIsNotNull = _portal.getCustomSQLFunctionIsNotNull();
 
-		try {
+		try (Connection con = DataAccess.getConnection()) {
 			if (Validator.isNotNull(functionIsNull) &&
 				Validator.isNotNull(functionIsNotNull)) {
 
@@ -798,9 +774,6 @@ public class CustomSQLImpl implements CustomSQL {
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);
-		}
-		finally {
-			DataAccess.cleanUp(con);
 		}
 
 		_bundleContext.addBundleListener(_synchronousBundleListener);

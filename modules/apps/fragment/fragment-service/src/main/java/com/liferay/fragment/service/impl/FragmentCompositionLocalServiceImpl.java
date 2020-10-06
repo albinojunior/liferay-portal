@@ -245,6 +245,26 @@ public class FragmentCompositionLocalServiceImpl
 	}
 
 	@Override
+	public FragmentComposition moveFragmentComposition(
+			long fragmentCompositionId, long fragmentCollectionId)
+		throws PortalException {
+
+		FragmentComposition fragmentComposition =
+			fragmentCompositionPersistence.findByPrimaryKey(
+				fragmentCompositionId);
+
+		if (fragmentComposition.getFragmentCollectionId() ==
+				fragmentCollectionId) {
+
+			return fragmentComposition;
+		}
+
+		fragmentComposition.setFragmentCollectionId(fragmentCollectionId);
+
+		return fragmentCompositionPersistence.update(fragmentComposition);
+	}
+
+	@Override
 	public FragmentComposition updateFragmentComposition(
 			long fragmentCompositionId, long previewFileEntryId)
 		throws PortalException {
@@ -261,9 +281,9 @@ public class FragmentCompositionLocalServiceImpl
 
 	@Override
 	public FragmentComposition updateFragmentComposition(
-			long userId, long fragmentCompositionId, String name,
-			String description, String data, long previewFileEntryId,
-			int status)
+			long userId, long fragmentCompositionId, long fragmentCollectionId,
+			String name, String description, String data,
+			long previewFileEntryId, int status)
 		throws PortalException {
 
 		FragmentComposition fragmentComposition =
@@ -275,6 +295,7 @@ public class FragmentCompositionLocalServiceImpl
 		User user = userLocalService.getUser(userId);
 
 		fragmentComposition.setModifiedDate(new Date());
+		fragmentComposition.setFragmentCollectionId(fragmentCollectionId);
 		fragmentComposition.setName(name);
 		fragmentComposition.setDescription(description);
 		fragmentComposition.setData(data);
@@ -284,10 +305,45 @@ public class FragmentCompositionLocalServiceImpl
 		fragmentComposition.setStatusByUserName(user.getFullName());
 		fragmentComposition.setStatusDate(new Date());
 
-		fragmentComposition = fragmentCompositionPersistence.update(
-			fragmentComposition);
+		return fragmentCompositionPersistence.update(fragmentComposition);
+	}
 
-		return fragmentComposition;
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 * #updateFragmentComposition(long, long, long, String, String, String, long, int)}
+	 */
+	@Deprecated
+	@Override
+	public FragmentComposition updateFragmentComposition(
+			long userId, long fragmentCompositionId, String name,
+			String description, String data, long previewFileEntryId,
+			int status)
+		throws PortalException {
+
+		FragmentComposition fragmentComposition =
+			fragmentCompositionPersistence.findByPrimaryKey(
+				fragmentCompositionId);
+
+		return updateFragmentComposition(
+			userId, fragmentCompositionId,
+			fragmentComposition.getFragmentCollectionId(), name, description,
+			data, previewFileEntryId, status);
+	}
+
+	@Override
+	public FragmentComposition updateFragmentComposition(
+			long fragmentCompositionId, String name)
+		throws PortalException {
+
+		FragmentComposition fragmentComposition =
+			fragmentCompositionPersistence.findByPrimaryKey(
+				fragmentCompositionId);
+
+		validate(name);
+
+		fragmentComposition.setName(name);
+
+		return fragmentCompositionPersistence.update(fragmentComposition);
 	}
 
 	protected void validate(String name) throws PortalException {

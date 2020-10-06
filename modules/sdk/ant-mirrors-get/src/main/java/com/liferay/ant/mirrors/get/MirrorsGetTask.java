@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +73,12 @@ public class MirrorsGetTask extends Task {
 		_ignoreErrors = ignoreErrors;
 	}
 
+	public void setPassword(String password) {
+		if (_password == null) {
+			_password = password;
+		}
+	}
+
 	public void setRetries(int retries) {
 		_retries = retries;
 	}
@@ -81,6 +88,15 @@ public class MirrorsGetTask extends Task {
 	}
 
 	public void setSrc(String src) {
+		Matcher matcher = _basicAuthenticationURLPattern.matcher(src);
+
+		if (matcher.matches()) {
+			_username = matcher.group(2);
+			_password = matcher.group(3);
+
+			src = matcher.group(1) + matcher.group(4);
+		}
+
 		Project project = getProject();
 
 		_src = project.replaceProperties(src);
@@ -89,7 +105,7 @@ public class MirrorsGetTask extends Task {
 			return;
 		}
 
-		Matcher matcher = _srcPattern.matcher(_src);
+		matcher = _srcPattern.matcher(_src);
 
 		if (!matcher.find()) {
 			throw new RuntimeException("Invalid src attribute: " + _src);
@@ -108,8 +124,18 @@ public class MirrorsGetTask extends Task {
 		}
 	}
 
+	public void setSSL(boolean ssl) {
+		_ssl = ssl;
+	}
+
 	public void setTryLocalNetwork(boolean tryLocalNetwork) {
 		_tryLocalNetwork = tryLocalNetwork;
+	}
+
+	public void setUsername(String username) {
+		if (_username == null) {
+			_username = username;
+		}
 	}
 
 	public void setVerbose(boolean verbose) {
@@ -202,19 +228,19 @@ public class MirrorsGetTask extends Task {
 		}
 
 		if (!localCacheFile.exists()) {
-			URL sourceURL = null;
+			String mirrorsHostname = getMirrorsHostname();
 
-			if (_tryLocalNetwork) {
+			if (_tryLocalNetwork && !mirrorsHostname.isEmpty()) {
 				sb = new StringBuilder();
 
-				sb.append("http://");
-				sb.append(getMirrorsHostname());
+				sb.append(getURLScheme());
+				sb.append(mirrorsHostname);
 				sb.append("/");
 				sb.append(_path);
 				sb.append("/");
 				sb.append(_fileName);
 
-				sourceURL = new URL(sb.toString());
+				URL sourceURL = new URL(sb.toString());
 
 				try {
 					downloadFile(sourceURL, localCacheFile, _retries);
@@ -285,7 +311,23 @@ public class MirrorsGetTask extends Task {
 
 		_mirrorsHostname = project.getProperty("mirrors.hostname");
 
+		if (_mirrorsHostname == null) {
+			_mirrorsHostname = "";
+		}
+
 		return _mirrorsHostname;
+	}
+
+	protected String getPassword() {
+		if (_password != null) {
+			return _password;
+		}
+
+		Project project = getProject();
+
+		_password = project.getProperty("mirrors.password");
+
+		return _password;
 	}
 
 	protected String getPlatformIndependentPath(String path) {
@@ -298,6 +340,36 @@ public class MirrorsGetTask extends Task {
 		}
 
 		return path;
+	}
+
+	protected String getURLScheme() {
+		Project project = getProject();
+
+		boolean ssl = _ssl;
+
+		String mirrorsSSL = project.getProperty("mirrors.ssl");
+
+		if ((mirrorsSSL != null) && !mirrorsSSL.isEmpty()) {
+			ssl = Boolean.parseBoolean(mirrorsSSL);
+		}
+
+		if (ssl) {
+			return "https://";
+		}
+
+		return "http://";
+	}
+
+	protected String getUsername() {
+		if (_username != null) {
+			return _username;
+		}
+
+		Project project = getProject();
+
+		_username = project.getProperty("mirrors.username");
+
+		return _username;
 	}
 
 	protected boolean isValidMD5(File file, URL url) throws IOException {
@@ -403,6 +475,18 @@ public class MirrorsGetTask extends Task {
 
 			HttpURLConnection httpURLConnection =
 				(HttpURLConnection)urlConnection;
+
+			String password = getPassword();
+			String username = getUsername();
+
+			if ((password != null) && (username != null)) {
+				String auth = username + ":" + password;
+				Base64.Encoder encoder = Base64.getEncoder();
+
+				httpURLConnection.setRequestProperty(
+					"Authorization",
+					"Basic " + encoder.encodeToString(auth.getBytes()));
+			}
 
 			int responseCode = httpURLConnection.getResponseCode();
 
@@ -561,6 +645,8 @@ public class MirrorsGetTask extends Task {
 		}
 	}
 
+	private static final Pattern _basicAuthenticationURLPattern =
+		Pattern.compile("(https?://)([^:]+):([^@]+)@(.+)");
 	private static final Pattern _mirrorsHostNamePattern = Pattern.compile(
 		"^mirrors\\.[^\\.]+\\.liferay.com/");
 	private static final Pattern _srcPattern = Pattern.compile(
@@ -571,11 +657,14 @@ public class MirrorsGetTask extends Task {
 	private boolean _force;
 	private boolean _ignoreErrors;
 	private String _mirrorsHostname;
+	private String _password;
 	private String _path;
 	private int _retries = 1;
 	private boolean _skipChecksum;
 	private String _src;
+	private boolean _ssl;
 	private boolean _tryLocalNetwork = true;
+	private String _username;
 	private boolean _verbose;
 
 }

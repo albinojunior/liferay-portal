@@ -209,6 +209,41 @@ public interface AppBuilderAppModel
 	public void setModifiedDate(Date modifiedDate);
 
 	/**
+	 * Returns the active of this app builder app.
+	 *
+	 * @return the active of this app builder app
+	 */
+	public boolean getActive();
+
+	/**
+	 * Returns <code>true</code> if this app builder app is active.
+	 *
+	 * @return <code>true</code> if this app builder app is active; <code>false</code> otherwise
+	 */
+	public boolean isActive();
+
+	/**
+	 * Sets whether this app builder app is active.
+	 *
+	 * @param active the active of this app builder app
+	 */
+	public void setActive(boolean active);
+
+	/**
+	 * Returns the ddl record set ID of this app builder app.
+	 *
+	 * @return the ddl record set ID of this app builder app
+	 */
+	public long getDdlRecordSetId();
+
+	/**
+	 * Sets the ddl record set ID of this app builder app.
+	 *
+	 * @param ddlRecordSetId the ddl record set ID of this app builder app
+	 */
+	public void setDdlRecordSetId(long ddlRecordSetId);
+
+	/**
 	 * Returns the ddm structure ID of this app builder app.
 	 *
 	 * @return the ddm structure ID of this app builder app
@@ -350,18 +385,19 @@ public interface AppBuilderAppModel
 	public void setNameMap(Map<Locale, String> nameMap, Locale defaultLocale);
 
 	/**
-	 * Returns the status of this app builder app.
+	 * Returns the scope of this app builder app.
 	 *
-	 * @return the status of this app builder app
+	 * @return the scope of this app builder app
 	 */
-	public int getStatus();
+	@AutoEscape
+	public String getScope();
 
 	/**
-	 * Sets the status of this app builder app.
+	 * Sets the scope of this app builder app.
 	 *
-	 * @param status the status of this app builder app
+	 * @param scope the scope of this app builder app
 	 */
-	public void setStatus(int status);
+	public void setScope(String scope);
 
 	@Override
 	public String[] getAvailableLanguageIds();

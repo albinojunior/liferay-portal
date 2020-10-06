@@ -39,11 +39,13 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.PermissionCheckerUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -69,23 +71,21 @@ import org.osgi.service.component.annotations.Reference;
 public class MessageListenerImpl implements MessageListener {
 
 	@Override
-	public boolean accept(String from, String recipient, Message message) {
+	public boolean accept(
+		String from, List<String> recipients, Message message) {
+
 		try {
-			if (isAutoReply(message)) {
+			if (_isAutoReply(message)) {
 				return false;
 			}
 
-			String messageIdString = getMessageIdString(recipient, message);
+			String messageIdString = _getMessageIdString(recipients, message);
 
-			if ((messageIdString == null) ||
-				!messageIdString.startsWith(
-					MBMailUtil.MESSAGE_POP_PORTLET_PREFIX,
-					MBMailUtil.getMessageIdStringOffset())) {
-
+			if (Validator.isNull(messageIdString)) {
 				return false;
 			}
 
-			Company company = getCompany(messageIdString);
+			Company company = _getCompany(messageIdString);
 
 			MBCategory category = _mbCategoryLocalService.getCategory(
 				MBMailUtil.getCategoryId(messageIdString));
@@ -120,8 +120,18 @@ public class MessageListenerImpl implements MessageListener {
 		}
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #accept(String,
+	 *             List, Message)}
+	 */
+	@Deprecated
 	@Override
-	public void deliver(String from, String recipient, Message message)
+	public boolean accept(String from, String recipient, Message message) {
+		return accept(from, ListUtil.toList(recipient), message);
+	}
+
+	@Override
+	public void deliver(String from, List<String> recipients, Message message)
 		throws MessageListenerException {
 
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs = null;
@@ -131,15 +141,21 @@ public class MessageListenerImpl implements MessageListener {
 
 			stopWatch.start();
 
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					StringBundler.concat(
-						"Deliver message from ", from, " to ", recipient));
+			String messageIdString = _getMessageIdString(recipients, message);
+
+			if (Validator.isNull(messageIdString)) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(
+						StringBundler.concat(
+							"Cannot deliver message ", message.toString(),
+							", none of the recipients contain a message ID: ",
+							recipients.toString()));
+				}
+
+				return;
 			}
 
-			String messageIdString = getMessageIdString(recipient, message);
-
-			Company company = getCompany(messageIdString);
+			Company company = _getCompany(messageIdString);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug("Message id " + messageIdString);
@@ -266,12 +282,24 @@ public class MessageListenerImpl implements MessageListener {
 		}
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #deliver(String,
+	 *             List, Message)}
+	 */
+	@Deprecated
+	@Override
+	public void deliver(String from, String recipient, Message message)
+		throws MessageListenerException {
+
+		deliver(from, ListUtil.toList(recipient), message);
+	}
+
 	@Override
 	public String getId() {
 		return MessageListenerImpl.class.getName();
 	}
 
-	protected Company getCompany(String messageIdString) throws Exception {
+	private Company _getCompany(String messageIdString) throws Exception {
 		int pos =
 			messageIdString.indexOf(CharPool.AT) +
 				PropsValues.POP_SERVER_SUBDOMAIN.length() + 1;
@@ -291,17 +319,27 @@ public class MessageListenerImpl implements MessageListener {
 		return _companyLocalService.getCompanyByMx(mx);
 	}
 
-	protected String getMessageIdString(String recipient, Message message)
+	private String _getMessageIdString(List<String> recipients, Message message)
 		throws Exception {
 
-		if (PropsValues.POP_SERVER_SUBDOMAIN.length() > 0) {
-			return recipient;
+		if (PropsValues.POP_SERVER_SUBDOMAIN.length() == 0) {
+			return MBMailUtil.getParentMessageIdString(message);
 		}
 
-		return MBMailUtil.getParentMessageIdString(message);
+		for (String recipient : recipients) {
+			if ((recipient != null) &&
+				recipient.startsWith(
+					MBMailUtil.MESSAGE_POP_PORTLET_PREFIX,
+					MBMailUtil.getMessageIdStringOffset())) {
+
+				return recipient;
+			}
+		}
+
+		return null;
 	}
 
-	protected boolean isAutoReply(Message message) throws MessagingException {
+	private boolean _isAutoReply(Message message) throws MessagingException {
 		String[] autoReply = message.getHeader("X-Autoreply");
 
 		if (ArrayUtil.isNotEmpty(autoReply)) {
@@ -323,48 +361,25 @@ public class MessageListenerImpl implements MessageListener {
 		return false;
 	}
 
-	@Reference(unbind = "-")
-	protected void setCompanyLocalService(
-		CompanyLocalService companyLocalService) {
-
-		_companyLocalService = companyLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setMBCategoryLocalService(
-		MBCategoryLocalService mbCategoryLocalService) {
-
-		_mbCategoryLocalService = mbCategoryLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setMBMessageLocalService(
-		MBMessageLocalService mbMessageLocalService) {
-
-		_mbMessageLocalService = mbMessageLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setMBMessageService(MBMessageService mbMessageService) {
-		_mbMessageService = mbMessageService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setUserLocalService(UserLocalService userLocalService) {
-		_userLocalService = userLocalService;
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		MessageListenerImpl.class);
 
+	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
 	private MBCategoryLocalService _mbCategoryLocalService;
+
+	@Reference
 	private MBMessageLocalService _mbMessageLocalService;
+
+	@Reference
 	private MBMessageService _mbMessageService;
 
 	@Reference
 	private Portal _portal;
 
+	@Reference
 	private UserLocalService _userLocalService;
 
 }

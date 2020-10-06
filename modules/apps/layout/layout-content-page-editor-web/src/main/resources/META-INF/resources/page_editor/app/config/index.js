@@ -17,7 +17,7 @@ const DEFAULT_CONFIG = {
 };
 
 /** @type {import('../../types/config').Config} */
-export let config = null;
+export let config = DEFAULT_CONFIG;
 
 /**
  * Extracts the immutable parts from the server data.
@@ -30,9 +30,11 @@ export function initializeConfig(backendConfig) {
 	const toolbarId = `${portletNamespace}${DEFAULT_CONFIG.toolbarId}`;
 
 	// Special items requiring augmentation, creation, or transformation.
+
 	const augmentedPanels = augmentPanelData(pluginsRootPath, sidebarPanels);
 
 	const syntheticItems = {
+		marginOptions: [...backendConfig.paddingOptions],
 		panels: generatePanels(augmentedPanels),
 		sidebarPanels: partitionPanels(augmentedPanels),
 		toolbarId,
@@ -53,12 +55,10 @@ export function initializeConfig(backendConfig) {
  * of a plugin. Here we deal with the exceptions by mapping IDs to
  * plugin names.
  */
-const SIDEBAR_PANEL_IDS_TO_PLUGINS = {
-	elements: 'fragments',
-};
+const SIDEBAR_PANEL_IDS_TO_PLUGINS = {};
 
 function augmentPanelData(pluginsRootPath, sidebarPanels) {
-	return sidebarPanels.map(panel => {
+	return sidebarPanels.map((panel) => {
 		if (isSeparator(panel) || panel.isLink) {
 			return panel;
 		}
@@ -71,6 +71,7 @@ function augmentPanelData(pluginsRootPath, sidebarPanels) {
 			...panel,
 
 			// https://github.com/liferay/liferay-js-toolkit/issues/324
+
 			pluginEntryPoint: `${pluginsRootPath}/${sidebarPanelId}/index`,
 
 			sidebarPanelId,

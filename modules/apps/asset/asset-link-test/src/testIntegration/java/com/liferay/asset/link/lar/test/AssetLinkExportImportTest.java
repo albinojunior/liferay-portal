@@ -32,9 +32,9 @@ import com.liferay.exportimport.kernel.lar.UserIdStrategy;
 import com.liferay.exportimport.kernel.service.StagingLocalServiceUtil;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.exportimport.test.util.lar.BaseExportImportTestCase;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.string.StringPool;
@@ -87,9 +87,8 @@ public class AssetLinkExportImportTest extends BaseExportImportTestCase {
 
 	@Test
 	public void testBothAssetEntriesExported() throws Exception {
-		long[] layoutIds = {layout.getLayoutId()};
-
-		exportImportLayouts(layoutIds, getImportParameterMap());
+		exportImportLayouts(
+			new long[] {layout.getLayoutId()}, getImportParameterMap());
 
 		AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(
 			importedGroup.getGroupId(),

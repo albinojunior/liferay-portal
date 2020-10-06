@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see KBFolderServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class KBFolderServiceSoap {
 
 	public static com.liferay.knowledge.base.model.KBFolderSoap addKBFolder(
@@ -124,13 +126,14 @@ public class KBFolderServiceSoap {
 			fetchFirstChildKBFolder(
 				long groupId, long kbFolderId,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.knowledge.base.model.KBFolder> obc)
+					<com.liferay.knowledge.base.model.KBFolder>
+						orderByComparator)
 		throws RemoteException {
 
 		try {
 			com.liferay.knowledge.base.model.KBFolder returnValue =
 				KBFolderServiceUtil.fetchFirstChildKBFolder(
-					groupId, kbFolderId, obc);
+					groupId, kbFolderId, orderByComparator);
 
 			return com.liferay.knowledge.base.model.KBFolderSoap.toSoapModel(
 				returnValue);

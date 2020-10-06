@@ -21,6 +21,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.journal.constants.JournalFeedConstants;
 import com.liferay.journal.exception.DuplicateFeedIdException;
 import com.liferay.journal.exception.FeedContentFieldException;
 import com.liferay.journal.exception.FeedIdException;
@@ -28,7 +29,6 @@ import com.liferay.journal.exception.FeedNameException;
 import com.liferay.journal.exception.FeedTargetLayoutFriendlyUrlException;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFeed;
-import com.liferay.journal.model.JournalFeedConstants;
 import com.liferay.journal.service.base.JournalFeedLocalServiceBaseImpl;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
@@ -266,21 +266,21 @@ public class JournalFeedLocalServiceImpl
 	@Override
 	public List<JournalFeed> search(
 		long companyId, long groupId, String keywords, int start, int end,
-		OrderByComparator<JournalFeed> obc) {
+		OrderByComparator<JournalFeed> orderByComparator) {
 
 		return journalFeedFinder.findByKeywords(
-			companyId, groupId, keywords, start, end, obc);
+			companyId, groupId, keywords, start, end, orderByComparator);
 	}
 
 	@Override
 	public List<JournalFeed> search(
 		long companyId, long groupId, String feedId, String name,
 		String description, boolean andOperator, int start, int end,
-		OrderByComparator<JournalFeed> obc) {
+		OrderByComparator<JournalFeed> orderByComparator) {
 
 		return journalFeedFinder.findByC_G_F_N_D(
 			companyId, groupId, feedId, name, description, andOperator, start,
-			end, obc);
+			end, orderByComparator);
 	}
 
 	@Override

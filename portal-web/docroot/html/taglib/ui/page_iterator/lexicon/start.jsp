@@ -98,7 +98,11 @@ if (forcePost && (portletURL != null)) {
 							continue;
 						}
 
-						String curDeltaURL = HttpUtil.addParameter(deltaURL + urlAnchor, namespace + deltaParam, curDelta);
+						String curDeltaURL = deltaURL + urlAnchor;
+
+						if (curDelta != delta) {
+							curDeltaURL = HttpUtil.addParameter(deltaURL + urlAnchor, namespace + deltaParam, curDelta);
+						}
 					%>
 
 						<li>
@@ -125,7 +129,7 @@ if (forcePost && (portletURL != null)) {
 			<li class="page-item <%= (cur > 1) ? StringPool.BLANK : "disabled" %>">
 				<a class="page-link" href="<%= (cur > 1) ? _getHREF(formName, namespace + curParam, cur - 1, jsCall, url, urlAnchor) : "javascript:;" %>" onclick="<%= ((cur > 1) && forcePost) ? _getOnClick(namespace, curParam, cur -1) : "" %>">
 					<liferay-ui:icon
-						icon="angle-left"
+						icon='<%= PortalUtil.isRightToLeft(request) ? "angle-right" : "angle-left" %>'
 						markupView="lexicon"
 						message="previous-page"
 					/>
@@ -321,7 +325,7 @@ if (forcePost && (portletURL != null)) {
 			<li class="page-item <%= (cur < pages) ? StringPool.BLANK : "disabled" %>">
 				<a class="page-link" href="<%= (cur < pages) ? _getHREF(formName, namespace + curParam, cur + 1, jsCall, url, urlAnchor) : "javascript:;" %>" onclick="<%= ((cur < pages) && forcePost) ? _getOnClick(namespace, curParam, cur + 1) : "" %>">
 					<liferay-ui:icon
-						icon="angle-right"
+						icon='<%= PortalUtil.isRightToLeft(request) ? "angle-left" : "angle-right" %>'
 						markupView="lexicon"
 						message="next-page"
 					/>

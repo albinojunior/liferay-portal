@@ -12,55 +12,34 @@
  * details.
  */
 
-import updateEditableValues from '../actions/updateEditableValues';
-import updateFragmentEntryLinkContent from '../actions/updateFragmentEntryLinkContent';
+import updateFragmentEntryLinkConfiguration from '../actions/updateFragmentEntryLinkConfiguration';
 import {FREEMARKER_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/freemarkerFragmentEntryProcessor';
 import FragmentService from '../services/FragmentService';
 
 export default function updateFragmentConfiguration({
 	configurationValues,
 	fragmentEntryLink,
-	segmentsExperienceId,
 }) {
 	const {editableValues, fragmentEntryLinkId} = fragmentEntryLink;
 
 	const nextEditableValues = {
 		...editableValues,
-		[FREEMARKER_FRAGMENT_ENTRY_PROCESSOR]: segmentsExperienceId
-			? {
-					[segmentsExperienceId]: configurationValues,
-			  }
-			: configurationValues,
+		[FREEMARKER_FRAGMENT_ENTRY_PROCESSOR]: configurationValues,
 	};
 
-	return dispatch => {
-		return FragmentService.updateEditableValues({
-			editableValues: nextEditableValues,
+	return (dispatch) => {
+		return FragmentService.updateConfigurationValues({
+			configurationValues: nextEditableValues,
 			fragmentEntryLinkId,
 			onNetworkStatus: dispatch,
-		})
-			.then(() => {
-				return FragmentService.renderFragmentEntryLinkContent({
+		}).then(({fragmentEntryLink, layoutData}) => {
+			dispatch(
+				updateFragmentEntryLinkConfiguration({
+					fragmentEntryLink,
 					fragmentEntryLinkId,
-					onNetworkStatus: dispatch,
-					segmentsExperienceId,
-				});
-			})
-			.then(({content}) => {
-				dispatch(
-					updateEditableValues({
-						editableValues: nextEditableValues,
-						fragmentEntryLinkId,
-						segmentsExperienceId,
-					})
-				);
-
-				dispatch(
-					updateFragmentEntryLinkContent({
-						content,
-						fragmentEntryLinkId,
-					})
-				);
-			});
+					layoutData,
+				})
+			);
+		});
 	};
 }

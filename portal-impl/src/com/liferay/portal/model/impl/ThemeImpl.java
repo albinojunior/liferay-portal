@@ -89,16 +89,16 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Theme)) {
+		if (!(object instanceof Theme)) {
 			return false;
 		}
 
-		Theme theme = (Theme)obj;
+		Theme theme = (Theme)object;
 
 		if (getThemeId().equals(theme.getThemeId())) {
 			return true;
@@ -256,11 +256,7 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 		String key = path;
 
 		if (Validator.isNotNull(portletId)) {
-			key = path.concat(
-				StringPool.POUND
-			).concat(
-				portletId
-			);
+			key = StringBundler.concat(path, StringPool.POUND, portletId);
 		}
 
 		String resourcePath = _resourcePathsMap.get(key);
@@ -480,11 +476,7 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 		String key = path;
 
 		if (Validator.isNotNull(portletId)) {
-			key = path.concat(
-				StringPool.POUND
-			).concat(
-				portletId
-			);
+			key = StringBundler.concat(path, StringPool.POUND, portletId);
 		}
 
 		Boolean resourceExists = _resourceExistsMap.get(key);

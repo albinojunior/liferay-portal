@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -89,7 +90,7 @@ public class AuthenticatedSessionManagerImpl
 		httpServletRequest = PortalUtil.getOriginalServletRequest(
 			httpServletRequest);
 
-		String queryString = httpServletRequest.getQueryString();
+		String queryString = HttpUtil.getQueryString(httpServletRequest);
 
 		if (Validator.isNotNull(queryString) &&
 			queryString.contains("password=")) {
@@ -292,11 +293,8 @@ public class AuthenticatedSessionManagerImpl
 			return;
 		}
 
-		String userUUID = userIdString.concat(
-			StringPool.PERIOD
-		).concat(
-			String.valueOf(System.nanoTime())
-		);
+		String userUUID = StringBundler.concat(
+			userIdString, StringPool.PERIOD, System.nanoTime());
 
 		Cookie userUUIDCookie = new Cookie(
 			CookieKeys.USER_UUID,
@@ -460,17 +458,18 @@ public class AuthenticatedSessionManagerImpl
 
 		Map<String, String[]> headerMap = new HashMap<>();
 
-		Enumeration<String> enu1 = httpServletRequest.getHeaderNames();
+		Enumeration<String> enumeration1 = httpServletRequest.getHeaderNames();
 
-		while (enu1.hasMoreElements()) {
-			String name = enu1.nextElement();
+		while (enumeration1.hasMoreElements()) {
+			String name = enumeration1.nextElement();
 
-			Enumeration<String> enu2 = httpServletRequest.getHeaders(name);
+			Enumeration<String> enumeration2 = httpServletRequest.getHeaders(
+				name);
 
 			List<String> headers = new ArrayList<>();
 
-			while (enu2.hasMoreElements()) {
-				String value = enu2.nextElement();
+			while (enumeration2.hasMoreElements()) {
+				String value = enumeration2.nextElement();
 
 				headers.add(value);
 			}

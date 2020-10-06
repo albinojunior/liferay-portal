@@ -19,6 +19,8 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 
+import java.util.Set;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -31,14 +33,22 @@ import org.osgi.service.component.annotations.Deactivate;
 @Component(service = DTOConverterRegistry.class)
 public class DTOConverterRegistryImpl implements DTOConverterRegistry {
 
-	public DTOConverter getDTOConverter(String dtoClassName) {
+	@Override
+	public Set<String> getDTOClassNames() {
+		return _serviceTrackerMap.keySet();
+	}
+
+	@Override
+	public DTOConverter<?, ?> getDTOConverter(String dtoClassName) {
 		return _serviceTrackerMap.getService(dtoClassName);
 	}
 
 	@Activate
 	protected void activate(final BundleContext bundleContext) {
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
-			bundleContext, DTOConverter.class, "(dto.class.name=*)",
+			bundleContext,
+			(Class<DTOConverter<?, ?>>)(Class<?>)DTOConverter.class,
+			"(dto.class.name=*)",
 			(serviceReference, emitter) -> {
 				String dtoClassName = (String)serviceReference.getProperty(
 					"dto.class.name");
@@ -52,6 +62,6 @@ public class DTOConverterRegistryImpl implements DTOConverterRegistry {
 		_serviceTrackerMap.close();
 	}
 
-	private ServiceTrackerMap<String, DTOConverter> _serviceTrackerMap;
+	private ServiceTrackerMap<String, DTOConverter<?, ?>> _serviceTrackerMap;
 
 }

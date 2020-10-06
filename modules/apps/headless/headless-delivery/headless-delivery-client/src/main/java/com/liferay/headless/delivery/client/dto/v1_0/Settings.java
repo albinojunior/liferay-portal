@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Settings implements Cloneable {
 
+	public static Settings toDTO(String json) {
+		return SettingsSerDes.toDTO(json);
+	}
+
 	public String getColorSchemeName() {
 		return colorSchemeName;
 	}

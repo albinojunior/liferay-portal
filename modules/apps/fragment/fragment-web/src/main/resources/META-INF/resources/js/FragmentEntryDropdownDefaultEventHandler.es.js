@@ -14,7 +14,7 @@
 
 import {
 	DefaultEventHandler,
-	ItemSelectorDialog,
+	openSelectionModal,
 	openSimpleInputModal,
 } from 'frontend-js-web';
 import {Config} from 'metal-state';
@@ -28,19 +28,9 @@ class FragmentEntryDropdownDefaultEventHandler extends DefaultEventHandler {
 	}
 
 	copyToContributedFragmentEntry(itemData) {
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					destroyOnHide: true,
-					modal: true,
-				},
-				eventName: this.ns('selectFragmentCollection'),
-				id: this.ns('selectFragmentCollection'),
-				title: Liferay.Language.get('select-collection'),
-				uri: itemData.selectFragmentCollectionURL,
-			},
-			selectedItem => {
+		openSelectionModal({
+			id: this.ns('selectFragmentCollection'),
+			onSelect: (selectedItem) => {
 				if (selectedItem) {
 					this.one('#fragmentCollectionId').value = selectedItem.id;
 					this.one('#fragmentEntryKeys').value =
@@ -51,8 +41,11 @@ class FragmentEntryDropdownDefaultEventHandler extends DefaultEventHandler {
 						itemData.copyContributedFragmentEntryURL
 					);
 				}
-			}
-		);
+			},
+			selectEventName: this.ns('selectFragmentCollection'),
+			title: Liferay.Language.get('select-collection'),
+			url: itemData.selectFragmentCollectionURL,
+		});
 	}
 
 	copyToFragmentEntry(itemData) {
@@ -61,6 +54,16 @@ class FragmentEntryDropdownDefaultEventHandler extends DefaultEventHandler {
 			itemData.selectFragmentCollectionURL,
 			itemData.copyFragmentEntryURL
 		);
+	}
+
+	deleteDraftFragmentEntry(itemData) {
+		if (
+			confirm(
+				Liferay.Language.get('are-you-sure-you-want-to-delete-this')
+			)
+		) {
+			this._send(itemData.deleteDraftFragmentEntryURL);
+		}
 	}
 
 	deleteFragmentEntry(itemData) {
@@ -101,26 +104,21 @@ class FragmentEntryDropdownDefaultEventHandler extends DefaultEventHandler {
 	}
 
 	updateFragmentEntryPreview(itemData) {
-		const itemSelectorDialog = new ItemSelectorDialog({
-			eventName: this.ns('changePreview'),
-			singleSelect: true,
+		openSelectionModal({
+			onSelect: (selectedItem) => {
+				if (selectedItem) {
+					const itemValue = JSON.parse(selectedItem.value);
+
+					this.one('#fragmentEntryId').value =
+						itemData.fragmentEntryId;
+					this.one('#fileEntryId').value = itemValue.fileEntryId;
+
+					submitForm(this.one('#fragmentEntryPreviewFm'));
+				}
+			},
+			selectEventName: this.ns('changePreview'),
 			title: Liferay.Language.get('fragment-thumbnail'),
 			url: itemData.itemSelectorURL,
-		});
-
-		itemSelectorDialog.open();
-
-		itemSelectorDialog.on('selectedItemChange', event => {
-			const selectedItem = event.selectedItem;
-
-			if (selectedItem) {
-				const itemValue = JSON.parse(selectedItem.value);
-
-				this.one('#fragmentEntryId').value = itemData.fragmentEntryId;
-				this.one('#fileEntryId').value = itemValue.fileEntryId;
-
-				submitForm(this.one('#fragmentEntryPreviewFm'));
-			}
 		});
 	}
 
@@ -129,30 +127,27 @@ class FragmentEntryDropdownDefaultEventHandler extends DefaultEventHandler {
 		selectFragmentCollectionURL,
 		targetFragmentEntryURL
 	) {
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					destroyOnHide: true,
-					modal: true,
-				},
-				eventName: this.ns('selectFragmentCollection'),
-				id: this.ns('selectFragmentCollection'),
-				title: Liferay.Language.get('select-collection'),
-				uri: selectFragmentCollectionURL,
-			},
-			selectedItem => {
+		openSelectionModal({
+			id: this.ns('selectFragmentCollection'),
+			onSelect: (selectedItem) => {
 				if (selectedItem) {
-					this.one('#fragmentCollectionId').value = selectedItem.id;
-					this.one('#fragmentEntryIds').value = fragmentEntryId;
+					const form = this.one('#fragmentEntryFm');
 
-					submitForm(
-						this.one('#fragmentEntryFm'),
-						targetFragmentEntryURL
-					);
+					form.querySelector(
+						`#${this.ns('fragmentCollectionId')}`
+					).value = selectedItem.id;
+
+					form.querySelector(
+						`#${this.ns('fragmentEntryIds')}`
+					).value = fragmentEntryId;
+
+					submitForm(form, targetFragmentEntryURL);
 				}
-			}
-		);
+			},
+			selectEventName: this.ns('selectFragmentCollection'),
+			title: Liferay.Language.get('select-collection'),
+			url: selectFragmentCollectionURL,
+		});
 	}
 
 	_send(url) {

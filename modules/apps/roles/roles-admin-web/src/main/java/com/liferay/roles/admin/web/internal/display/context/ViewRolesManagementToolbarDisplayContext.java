@@ -184,14 +184,15 @@ public class ViewRolesManagementToolbarDisplayContext {
 		return searchActionURL.toString();
 	}
 
-	public SearchContainer getSearchContainer() throws Exception {
+	public SearchContainer<Role> getSearchContainer() throws Exception {
 		if (_roleSearch != null) {
 			return _roleSearch;
 		}
 
 		RoleSearch roleSearch = new RoleSearch(_renderRequest, getPortletURL());
 
-		roleSearch.setRowChecker(new RoleChecker(_renderResponse));
+		roleSearch.setRowChecker(
+			new RoleChecker(_renderRequest, _renderResponse));
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)_httpServletRequest.getAttribute(

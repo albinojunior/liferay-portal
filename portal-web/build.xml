@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
-<project basedir="." default="war" name="portal-web" xmlns:antelope="antlib:ise.antelope.tasks">
+<project basedir="." default="war" name="portal-web" xmlns:antelope="antlib:ise.antelope.tasks" xmlns:if="ant:if">
 	<import file="../build-common-web.xml" />
 
-	<property name="artifact.version" value="4.0.9" />
+	<property name="artifact.version" value="4.0.105" />
 	<property name="war.file" value="${ant.project.name}" />
 
 	<path id="jspc.common.classpath">
@@ -100,11 +100,12 @@
 		<java
 			classname="org.apache.jasper.JspC"
 			classpathref="jspc.classpath"
-			fork="true"
+			fork="${fork.mode}"
 			jvm="${jspc.java.home}/bin/java"
 			newenvironment="true"
 			outputproperty="jspc.output"
 		>
+			<jvmarg if:true="${jvm.debug}" line="${jpda.settings}" />
 			<arg line="${arg.line}" />
 		</java>
 
@@ -233,7 +234,7 @@ ${oversize.files.jsp}</fail>
 		</path>
 
 		<antcall inheritrefs="true" target="compile-common-jsp">
-			<param name="arg.line" value="-d ${jspc.classes.dir} -webapp ${jsp.precompile.dir}" />
+			<param name="arg.line" value="-d ${basedir}/${jspc.classes.dir} -webapp ${basedir}/${jsp.precompile.dir}" />
 		</antcall>
 	</target>
 

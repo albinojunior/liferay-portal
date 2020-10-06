@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Map;
 
-import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceURL;
@@ -89,8 +88,7 @@ public class EditRankingDisplayBuilder {
 		).put(
 			"namespace", _renderResponse.getNamespace()
 		).put(
-			"spritemap",
-			_themeDisplay.getPathThemeImages() + "/lexicon/icons.svg"
+			"spritemap", _themeDisplay.getPathThemeImages() + "/clay/icons.svg"
 		).build();
 	}
 
@@ -103,7 +101,7 @@ public class EditRankingDisplayBuilder {
 
 		resourceURL.setParameter(
 			"companyId", String.valueOf(_themeDisplay.getCompanyId()));
-		resourceURL.setParameter(Constants.CMD, "getHiddenResults");
+		resourceURL.setParameter(Constants.CMD, "getHiddenResultsJSONObject");
 		resourceURL.setParameter("resultsRankingUid", _getResultsRankingUid());
 		resourceURL.setResourceID("/results_ranking/get_results");
 
@@ -146,9 +144,7 @@ public class EditRankingDisplayBuilder {
 		String redirect = ParamUtil.getString(_httpServletRequest, "redirect");
 
 		if (Validator.isNull(redirect)) {
-			PortletURL portletURL = _renderResponse.createRenderURL();
-
-			redirect = portletURL.toString();
+			redirect = String.valueOf(_renderResponse.createRenderURL());
 		}
 
 		return redirect;
@@ -163,7 +159,7 @@ public class EditRankingDisplayBuilder {
 
 		resourceURL.setParameter(
 			"companyId", String.valueOf(_themeDisplay.getCompanyId()));
-		resourceURL.setParameter(Constants.CMD, "getSearchResults");
+		resourceURL.setParameter(Constants.CMD, "getSearchResultsJSONObject");
 		resourceURL.setResourceID("/results_ranking/get_results");
 
 		return resourceURL.toString();
@@ -182,7 +178,7 @@ public class EditRankingDisplayBuilder {
 
 		resourceURL.setParameter(
 			"companyId", String.valueOf(_themeDisplay.getCompanyId()));
-		resourceURL.setParameter(Constants.CMD, "getVisibleResults");
+		resourceURL.setParameter(Constants.CMD, "getVisibleResultsJSONObject");
 		resourceURL.setParameter("resultsRankingUid", _getResultsRankingUid());
 		resourceURL.setResourceID("/results_ranking/get_results");
 
@@ -205,13 +201,12 @@ public class EditRankingDisplayBuilder {
 	}
 
 	private void _setData(EditRankingDisplayContext editRankingDisplayContext) {
-		Map<String, Object> data = HashMapBuilder.<String, Object>put(
-			"context", _getContext()
-		).put(
-			"props", _getProps()
-		).build();
-
-		editRankingDisplayContext.setData(data);
+		editRankingDisplayContext.setData(
+			HashMapBuilder.<String, Object>put(
+				"context", _getContext()
+			).put(
+				"props", _getProps()
+			).build());
 	}
 
 	private void _setFormName(

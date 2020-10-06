@@ -17,10 +17,6 @@
 			<matches>.*The web application \[.*\] appears to have started a thread.*\[Thread-[0-9]+\].*</matches>
 		</ignore-error>
 		<ignore-error description="">
-			<contains></contains>
-			<matches>.*The web application \[.*\] appears to have started a thread.*\[TrueZIP InputStream Reader\].*</matches>
-		</ignore-error>
-		<ignore-error description="">
 			<contains>[antelope:post]</contains>
 			<matches></matches>
 		</ignore-error>
@@ -53,7 +49,7 @@
 			<matches></matches>
 		</ignore-error>
 		<ignore-error description="">
-			<contains>Do NOT use embedded Elasticsearch in production</contains>
+			<contains>Do NOT use sidecar in production</contains>
 			<matches></matches>
 		</ignore-error>
 		<ignore-error description="">
@@ -236,12 +232,16 @@
 			<contains>IX_14E638B0</contains>
 			<matches></matches>
 		</ignore-error>
-		<ignore-error description="LRQA-24859">
-			<contains>No binary licenses found</contains>
+		<ignore-error description="LPS-105385 - temporarily ignore until fixed">
+			<contains>Unable to deserialize com.liferay.portal.kernel.util.EscapableLocalizableFunction due to security restrictions</contains>
 			<matches></matches>
 		</ignore-error>
-		<ignore-error description="LRQA-46637, temporarily ignore metadata errors">
-			<contains>Unable to save metadata for file version</contains>
+		<ignore-error description="LPS-111433 - temporarily ignore until fixed">
+			<contains>IX_EE41CBEB</contains>
+			<matches></matches>
+		</ignore-error>
+		<ignore-error description="LRQA-24859">
+			<contains>No binary licenses found</contains>
 			<matches></matches>
 		</ignore-error>
 		<ignore-error description="WCM-202">

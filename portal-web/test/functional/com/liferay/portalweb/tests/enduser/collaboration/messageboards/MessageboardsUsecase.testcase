@@ -31,56 +31,6 @@ definition {
 		}
 	}
 
-	@priority = "4"
-	test CopyAndPasteTextInAlloyEditor {
-		JSONLayout.addPublicLayout(
-			groupName = "Guest",
-			layoutName = "Message Boards Page");
-
-		JSONLayout.addWidgetToPublicLayout(
-			column = "1",
-			groupName = "Guest",
-			layoutName = "Message Boards Page",
-			widgetName = "Message Boards");
-
-		Navigator.gotoPage(pageName = "Message Boards Page");
-
-		AssertClick(
-			locator1 = "Button#NEW_THREAD",
-			value1 = "New Thread");
-
-		AssertElementPresent.assertElementPresent(locator1 = "TextInput#SUBJECT");
-
-		Type(
-			locator1 = "TextInput#SUBJECT",
-			value1 = "Message Boards Subject");
-
-		AlloyEditor.typeEditor(
-			content = "Message Boards Body",
-			editor = "body");
-
-		Copy(locator1 = "TextInput#SUBJECT");
-
-		Paste(
-			key_editor = "body",
-			locator1 = "AlloyEditor#EDITOR");
-
-		PortletEntry.publish();
-
-		Navigator.gotoPage(pageName = "Message Boards Page");
-
-		MessageboardsThread.gotoPG(
-			lastPostUserName = "Test Test",
-			replyCount = "0",
-			threadBody = "Message Boards Subject",
-			threadSubject = "Message Boards Subject");
-
-		MessageboardsThread.viewPG(
-			threadBody = "Message Boards Subject",
-			threadSubject = "Message Boards Subject",
-			userName = "Test Test");
-	}
-
 	@priority = "5"
 	test DeleteMessageboardsThread {
 		JSONMBMessage.addMessage(
@@ -115,33 +65,58 @@ definition {
 	test RestoreMessageboardsThread {
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
+		MessageboardsCategory.addCP(categoryName = "MB Category Name");
+
+		MessageboardsCategory.gotoCP(categoryName = "MB Category Name");
+
 		MessageboardsThread.addCP(
 			threadBody = "MB Thread Message Body",
 			threadSubject = "MB Thread Message Subject");
 
-		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
-
-		MessageboardsThread.moveToRecycleBinCP(
-			threadBody = "MB Thread Message Body",
+		MessageboardsThread.replyCP(
+			threadReplyBody = "MB Body Reply",
 			threadSubject = "MB Thread Message Subject");
 
+		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
+
+		MessageboardsCategory.deleteCP(
+			assetType = "Message Boards Category",
+			categoryName = "MB Category Name");
+
 		RecycleBin.openRecycleBinAdmin(siteURLKey = "guest");
+
+		RecycleBin.viewCP(
+			assetName = "MB Category Name",
+			assetType = "Message Boards Category",
+			deleteUser = "Test Test");
 
 		RecycleBin.restoreCP(
-			assetName = "MB Thread Message Subject",
+			assetName = "MB Category Name",
 			assetRestoreLocation = "Home",
-			assetType = "Message Boards Thread");
+			assetType = "Message Boards Category");
 
 		RecycleBin.openRecycleBinAdmin(siteURLKey = "guest");
 
-		RecycleBin.viewDefaultCP(assetName = "MB Thread Message Subject");
+		RecycleBin.viewDefaultCP(assetName = "MB Category Name");
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
+		MessageboardsCategory.viewCP(
+			categoryCount = "0",
+			categoryName = "MB Category Name",
+			replyCount = "1",
+			threadCount = "1");
+
 		MessageboardsThread.viewCP(
-			replyCount = "0",
+			replyCount = "1",
 			threadBody = "MB Thread Message Body",
-			threadSubject = "MB Thread Message Subject");
+			threadSubject = "MB Thread Message Subject",
+			userName = "Test Test");
+
+		MessageboardsThread.viewReplyCP(
+			threadBody = "MB Body Reply",
+			threadSubject = "MB Thread Message Subject",
+			userName = "Test Test");
 	}
 
 	@description = "This ensures that an MB thread can be searched via category."
@@ -151,7 +126,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Categories");
 
 		Vocabulary.addCP(vocabularyName = "Vocabulary Name");
@@ -312,7 +286,7 @@ definition {
 
 	@priority = "3"
 	test ViewCorrectViewPermissionsInMessageBoardsQuickReplyInPrivateSite {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -323,7 +297,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(
@@ -381,8 +354,8 @@ definition {
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
@@ -393,8 +366,8 @@ definition {
 
 		Navigator.openURL();
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -413,7 +386,7 @@ definition {
 			requireReset = "false",
 			userEmailAddress = PropsUtil.get("email.address.3"));
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -430,7 +403,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(
@@ -617,11 +589,15 @@ definition {
 
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
-		MessageboardsPortlet.viewBannedUserCP(userScreenName = "userfn1 userln1");
+		MessageboardsPortlet.viewBannedUserCP(
+			site = "Guest",
+			userScreenName = "userfn1 userln1");
 
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
-		MessageboardsPortlet.viewBannedUserCP(userScreenName = "userfn2 userln2");
+		MessageboardsPortlet.viewBannedUserCP(
+			site = "Guest",
+			userScreenName = "userfn2 userln2");
 	}
 
 	@ignore = "true"
@@ -950,7 +926,7 @@ definition {
 			locator1 = "MessageBoards#PAGER_TITLE",
 			value1 = "Threads");
 
-		Pagination.changePagination(itemsPerPage = "5");
+		Pagination.changePagination(itemsPerPage = "4");
 
 		Click(locator1 = "Pagination#NEXT_LINK");
 
@@ -961,7 +937,7 @@ definition {
 
 		Click(locator1 = "Pagination#ITEMS_PER_PAGE_SELECT_2");
 
-		MenuItem.click(menuItem = "5");
+		MenuItem.click(menuItem = "4");
 
 		Click(locator1 = "Pagination#NEXT_LINK_2");
 
@@ -970,7 +946,7 @@ definition {
 			locator1 = "MessageBoards#CATEGORY_LIST_CATEGORY",
 			value1 = "MB Category6 Name");
 
-		AssertTextEquals(
+		AssertTextEquals.assertPartialText(
 			key_threadSubject = "MB Thread Message 1 Subject",
 			locator1 = "MessageBoards#THREAD_LIST_THREAD",
 			value1 = "MB Thread Message 1 Subject");
@@ -1016,7 +992,9 @@ definition {
 			locator1 = "MessageBoardsThread#THREAD_SUBJECT",
 			value1 = "MB Thread Message");
 
-		Pagination.viewResults(results = "Showing 1 to 5 of 6 entries.");
+		Pagination.changePagination(itemsPerPage = "8");
+
+		Pagination.viewResults(results = "Showing 1 to 6 of 6 entries.");
 	}
 
 	@priority = "3"

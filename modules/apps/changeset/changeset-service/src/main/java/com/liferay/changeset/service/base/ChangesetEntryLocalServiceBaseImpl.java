@@ -18,6 +18,7 @@ import com.liferay.changeset.model.ChangesetEntry;
 import com.liferay.changeset.service.ChangesetEntryLocalService;
 import com.liferay.changeset.service.persistence.ChangesetCollectionPersistence;
 import com.liferay.changeset.service.persistence.ChangesetEntryPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +75,10 @@ public abstract class ChangesetEntryLocalServiceBaseImpl
 	/**
 	 * Adds the changeset entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param changesetEntry the changeset entry
 	 * @return the changeset entry that was added
 	 */
@@ -99,6 +105,10 @@ public abstract class ChangesetEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the changeset entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param changesetEntryId the primary key of the changeset entry
 	 * @return the changeset entry that was removed
 	 * @throws PortalException if a changeset entry with the primary key could not be found
@@ -114,6 +124,10 @@ public abstract class ChangesetEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the changeset entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param changesetEntry the changeset entry
 	 * @return the changeset entry that was removed
 	 */
@@ -121,6 +135,11 @@ public abstract class ChangesetEntryLocalServiceBaseImpl
 	@Override
 	public ChangesetEntry deleteChangesetEntry(ChangesetEntry changesetEntry) {
 		return changesetEntryPersistence.remove(changesetEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return changesetEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -292,6 +311,10 @@ public abstract class ChangesetEntryLocalServiceBaseImpl
 			(ChangesetEntry)persistedModel);
 	}
 
+	public BasePersistence<ChangesetEntry> getBasePersistence() {
+		return changesetEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -330,6 +353,10 @@ public abstract class ChangesetEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the changeset entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ChangesetEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param changesetEntry the changeset entry
 	 * @return the changeset entry that was updated

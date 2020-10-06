@@ -22,7 +22,7 @@ PortletURL portletURL = PortalUtil.getControlPanelPortletURL(request, liveGroup,
 
 <liferay-ui:icon
 	message="staging-configuration"
-	onClick='<%= renderResponse.getNamespace() + "openStagingConfigurationPortlet();" %>'
+	onClick='<%= liferayPortletResponse.getNamespace() + "openStagingConfigurationPortlet();" %>'
 	url="javascript:;"
 />
 
@@ -36,7 +36,7 @@ PortletURL portletURL = PortalUtil.getControlPanelPortletURL(request, liveGroup,
 			dialog: {
 				destroyOnHide: true,
 				on: {
-					visibleChange: function(event) {
+					visibleChange: function (event) {
 						if (!event.newVal) {
 							document.location.href =
 								'<%= HtmlUtil.escapeJS(portletURL.toString()) %>';

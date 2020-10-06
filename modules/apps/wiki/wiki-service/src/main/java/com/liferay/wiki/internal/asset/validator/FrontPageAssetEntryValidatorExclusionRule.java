@@ -21,8 +21,8 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
+import com.liferay.wiki.constants.WikiPageConstants;
 import com.liferay.wiki.model.WikiPage;
-import com.liferay.wiki.model.WikiPageConstants;
 import com.liferay.wiki.service.WikiPageLocalService;
 
 import java.util.Map;
@@ -48,7 +48,7 @@ public class FrontPageAssetEntryValidatorExclusionRule
 	@Override
 	public boolean isValidationExcluded(
 		long groupId, String className, long classPK, long classTypePK,
-		long[] categoryIds, String[] tagNames) {
+		long[] assetCategoryIds, String[] assetTagNames) {
 
 		WikiPage wikiPage = _wikiPageLocalService.fetchWikiPage(classPK);
 

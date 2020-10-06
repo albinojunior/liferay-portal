@@ -55,9 +55,9 @@ for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 	}
 }
 
-List filteredPropertiesList = ListUtil.fromCollection(filteredProperties.entrySet());
+List<Map.Entry<String, String>> filteredPropertiesList = ListUtil.fromCollection(filteredProperties.entrySet());
 
-SearchContainer propertiesSearchContainer = new SearchContainer(liferayPortletRequest, serverURL, null, null);
+SearchContainer<Map.Entry<String, String>> propertiesSearchContainer = new SearchContainer(liferayPortletRequest, serverURL, null, null);
 
 propertiesSearchContainer.setResults(ListUtil.subList(filteredPropertiesList, propertiesSearchContainer.getStart(), propertiesSearchContainer.getEnd()));
 propertiesSearchContainer.setTotal(filteredPropertiesList.size());
@@ -72,7 +72,7 @@ propertiesSearchContainer.setTotal(filteredPropertiesList.size());
 	showSearch="<%= true %>"
 />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<liferay-ui:search-container
 		emptyResultsMessage='<%= tabs2.equals("portal-properties") ? "no-portal-properties-were-found-that-matched-the-keywords" : "no-system-properties-were-found-that-matched-the-keywords" %>'
 		iteratorURL="<%= serverURL %>"
@@ -105,7 +105,7 @@ propertiesSearchContainer.setTotal(filteredPropertiesList.size());
 				<c:if test="<%= Validator.isNotNull(value) %>">
 					<c:choose>
 						<c:when test="<%= value.length() > 80 %>">
-							<span onmouseover="Liferay.Portal.ToolTip.show(this, '<%= HtmlUtil.escapeJS(value) %>');">
+							<span class="lfr-portal-tooltip" title="<%= HtmlUtil.escape(value) %>">
 								<%= HtmlUtil.escape(StringUtil.shorten(value, 80)) %>
 							</span>
 						</c:when>
@@ -121,4 +121,4 @@ propertiesSearchContainer.setTotal(filteredPropertiesList.size());
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</div>
+</clay:container-fluid>

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -92,6 +94,10 @@ public abstract class KaleoTaskFormInstanceLocalServiceBaseImpl
 	/**
 	 * Adds the kaleo task form instance to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskFormInstance the kaleo task form instance
 	 * @return the kaleo task form instance that was added
 	 */
@@ -122,6 +128,10 @@ public abstract class KaleoTaskFormInstanceLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo task form instance with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskFormInstanceId the primary key of the kaleo task form instance
 	 * @return the kaleo task form instance that was removed
 	 * @throws PortalException if a kaleo task form instance with the primary key could not be found
@@ -138,6 +148,10 @@ public abstract class KaleoTaskFormInstanceLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo task form instance from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskFormInstance the kaleo task form instance
 	 * @return the kaleo task form instance that was removed
 	 */
@@ -147,6 +161,11 @@ public abstract class KaleoTaskFormInstanceLocalServiceBaseImpl
 		KaleoTaskFormInstance kaleoTaskFormInstance) {
 
 		return kaleoTaskFormInstancePersistence.remove(kaleoTaskFormInstance);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return kaleoTaskFormInstancePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -330,6 +349,10 @@ public abstract class KaleoTaskFormInstanceLocalServiceBaseImpl
 			(KaleoTaskFormInstance)persistedModel);
 	}
 
+	public BasePersistence<KaleoTaskFormInstance> getBasePersistence() {
+		return kaleoTaskFormInstancePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -370,6 +393,10 @@ public abstract class KaleoTaskFormInstanceLocalServiceBaseImpl
 
 	/**
 	 * Updates the kaleo task form instance in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskFormInstance the kaleo task form instance
 	 * @return the kaleo task form instance that was updated

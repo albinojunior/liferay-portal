@@ -18,8 +18,8 @@ import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
-import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleConstants;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManagerUtil;
+import com.liferay.exportimport.kernel.lifecycle.constants.ExportImportLifecycleConstants;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.comment.DiscussionStagingHandler;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
@@ -131,22 +131,22 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 			throw portletDataException;
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				ExportImportLifecycleConstants.EVENT_STAGED_MODEL_EXPORT_FAILED,
 				getProcessFlag(), portletDataContext.getExportImportProcessId(),
 				PortletDataContextFactoryUtil.clonePortletDataContext(
 					portletDataContext),
-				new TransientValue<T>(stagedModel), t);
+				new TransientValue<T>(stagedModel), throwable);
 
-			if ((t instanceof SystemException) &&
-				(t.getCause() instanceof PortletDataException)) {
+			if ((throwable instanceof SystemException) &&
+				(throwable.getCause() instanceof PortletDataException)) {
 
-				throw (PortletDataException)t.getCause();
+				throw (PortletDataException)throwable.getCause();
 			}
 
 			PortletDataException portletDataException =
-				new PortletDataException(t.getMessage(), t);
+				new PortletDataException(throwable.getMessage(), throwable);
 
 			portletDataException.setStagedModelDisplayName(
 				getDisplayName(stagedModel));
@@ -155,7 +155,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			portletDataException.setStagedModelClassPK(
 				GetterUtil.getString(stagedModel.getPrimaryKeyObj()));
 
-			if (t instanceof NoSuchModelException) {
+			if (throwable instanceof NoSuchModelException) {
 				portletDataException.setType(
 					PortletDataException.MISSING_DEPENDENCY);
 			}
@@ -390,22 +390,22 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 			throw portletDataException;
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				ExportImportLifecycleConstants.EVENT_STAGED_MODEL_IMPORT_FAILED,
 				getProcessFlag(), portletDataContext.getExportImportProcessId(),
 				PortletDataContextFactoryUtil.clonePortletDataContext(
 					portletDataContext),
-				new TransientValue<T>(stagedModel), t);
+				new TransientValue<T>(stagedModel), throwable);
 
-			if ((t instanceof SystemException) &&
-				(t.getCause() instanceof PortletDataException)) {
+			if ((throwable instanceof SystemException) &&
+				(throwable.getCause() instanceof PortletDataException)) {
 
-				throw (PortletDataException)t.getCause();
+				throw (PortletDataException)throwable.getCause();
 			}
 
 			PortletDataException portletDataException =
-				new PortletDataException(t.getMessage(), t);
+				new PortletDataException(throwable.getMessage(), throwable);
 
 			portletDataException.setStagedModelDisplayName(
 				getDisplayName(stagedModel));
@@ -414,7 +414,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			portletDataException.setStagedModelClassPK(
 				GetterUtil.getString(stagedModel.getPrimaryKeyObj()));
 
-			if (t instanceof NoSuchModelException) {
+			if (throwable instanceof NoSuchModelException) {
 				portletDataException.setType(
 					PortletDataException.MISSING_DEPENDENCY);
 			}

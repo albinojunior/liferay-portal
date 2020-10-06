@@ -20,11 +20,13 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PortletEntry.selectAll();
 
 		SelectFrameTop();
+
+		Pause(locator1 = "3000");
 
 		AssertClick(
 			locator1 = "Button#DONE",
@@ -41,16 +43,6 @@ definition {
 			siteName = "${siteName}",
 			siteTemplateName = "${siteTemplateName}",
 			siteType = "Blank",
-			uncheckPropagation = "${uncheckPropagation}");
-	}
-
-	macro addCommunityCP {
-		Site.addCP(
-			membershipType = "${membershipType}",
-			parentSiteName = "${parentSiteName}",
-			siteName = "${siteName}",
-			siteTemplateName = "${siteTemplateName}",
-			siteType = "Community",
 			uncheckPropagation = "${uncheckPropagation}");
 	}
 
@@ -71,7 +63,7 @@ definition {
 			Modal.save();
 		}
 
-		if (("${siteType}" == "Community") || ("${siteType}" == "Site Template")) {
+		if ("${siteType}" == "Site Template") {
 			if ("${uncheckPropagation}" == "true") {
 				Panel.expandPanel(panel = "Pages");
 
@@ -102,7 +94,7 @@ definition {
 
 			var key_parentSiteName = "${parentSiteName}";
 
-			SelectFrame(locator1 = "SitesSelectSite#SELECT_SITE_IFRAME");
+			SelectFrame.selectFrameNoLoading(locator1 = "SitesSelectSite#SELECT_SITE_IFRAME");
 
 			Search.searchCP(searchTerm = "${parentSiteName}");
 
@@ -128,14 +120,20 @@ definition {
 			value1 = "${siteName}");
 	}
 
-	macro addIntranetCP {
-		Site.addCP(
-			membershipType = "${membershipType}",
-			parentSiteName = "${parentSiteName}",
-			siteName = "${siteName}",
-			siteTemplateName = "${siteTemplateName}",
-			siteType = "Intranet",
-			uncheckPropagation = "${uncheckPropagation}");
+	macro addCustomCP {
+		LexiconEntry.gotoAdd();
+
+		MetalComponent.waitForCard(card = "${siteTemplateName}");
+
+		LexiconCard.clickCard(card = "${siteTemplateName}");
+
+		PortletEntry.inputName(name = "${siteName}");
+
+		Modal.save();
+
+		AssertTextEquals(
+			locator1 = "SitesEditSite#DETAILS_NAME",
+			value1 = "${siteName}");
 	}
 
 	macro addSiteTemplateCP {
@@ -213,7 +211,7 @@ definition {
 
 		Button.clickSave();
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		Navigator.gotoNavItem(navItem = "Approved");
 
@@ -258,7 +256,7 @@ definition {
 			locator1 = "SiteSettingsDefaultUserAssociations#TEAMS_SELECT",
 			value1 = "Select");
 
-		SelectFrame(locator1 = "SiteSettingsDefaultUserAssociations#TEAMS_SELECT_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "table");
 
@@ -288,12 +286,12 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "cards");
 
 		AssertTextEquals(
-			locator1 = "LexiconCard#CARD_TITLE",
+			locator1 = "Card#CARD_TITLE",
 			value1 = "${orgName}");
 
 		LexiconCard.checkCardCheckbox(card = "${orgName}");
@@ -310,7 +308,7 @@ definition {
 			card = "${resourceName}",
 			item = "Assign Roles");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconCard.checkCardCheckbox(card = "${roleTitle}");
 
@@ -339,7 +337,7 @@ definition {
 			locator1 = "MenuItem#ANY_MENU_ITEM",
 			value1 = "Assign Roles");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "cards");
 
@@ -359,9 +357,17 @@ definition {
 
 		AssertVisible(locator1 = "Button#DONE");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		if (isSet(depotName)) {
+			SelectFrame(locator1 = "IFrame#ADD_USERS_TO_ASSET_LIBRARY");
+		}
+
+		else {
+			SelectFrame(locator1 = "IFrame#ADD_USERS_TO_SITE");
+		}
 
 		Pause(locator1 = "3000");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "cards");
 
 		if (isSet(userMiddleName)) {
 			LexiconCard.checkCardCheckbox(card = "${userFirstName} ${userMiddleName} ${userLastName}");
@@ -384,7 +390,7 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Pause(locator1 = "3000");
 
@@ -440,7 +446,6 @@ definition {
 	macro changeSiteLogo {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.togglePrivacy(privacy = "${pageName}");
@@ -504,13 +509,17 @@ definition {
 				value1 = "${localizedSaveButton}");
 		}
 		else {
+			while (IsElementNotPresent(locator1 = "Button#SAVE")) {
+				Pause(locator1 = "1000");
+			}
+
 			Click(locator1 = "Button#SAVE");
 		}
 
 		if (isSet(localizedSuccessMessage)) {
 			var localizedSuccessMessage = "${localizedSuccessMessage}";
 
-			AssertElementPresent(locator1 = "Message#SUCCESS");
+			VerifyElementPresent(locator1 = "Message#SUCCESS");
 		}
 		else {
 			Alert.viewSuccessMessage();
@@ -656,7 +665,6 @@ definition {
 	macro getSiteId {
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Settings");
 
 		AssertElementPresent(locator1 = "SitesEditSite#SITE_ID");
@@ -827,8 +835,9 @@ definition {
 	macro manageMembershipOptions {
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Settings");
+
+		Pause(locator1 = "5000");
 
 		if ("${selectMembershipType}" == "true") {
 			AssertTextEquals(
@@ -860,6 +869,10 @@ definition {
 
 	macro openSiteSettingsAdmin {
 		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage/-/site/settings");
+	}
+
+	macro openSiteTeamsAdmin {
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage/-/site_teams");
 	}
 
 	macro removeMemberCP {
@@ -1027,7 +1040,7 @@ definition {
 	}
 
 	macro tearDownCP {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -1066,7 +1079,7 @@ definition {
 
 		MenuItem.click(menuItem = "Unassign Roles");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "cards");
 
@@ -1081,6 +1094,8 @@ definition {
 
 	macro viewCannotAdd {
 		LexiconEntry.gotoAdd();
+
+		MetalComponent.waitForCard(card = "Blank Site");
 
 		LexiconEntry.gotoEntry(rowEntry = "Blank Site");
 
@@ -1178,6 +1193,34 @@ definition {
 		}
 	}
 
+	macro viewCustomSiteLogoInDifferentViews {
+		ProductMenuHelper.openProductMenu();
+
+		ProductMenuHelper.openWorkspace();
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		Pause(locator1 = "3000");
+
+		Navigator.gotoNavItem(navItem = "My Sites");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "Cards");
+
+		SiteSelector._searchSite(site = "${site}");
+
+		AssertElementPresent(
+			key_card = "${site}",
+			locator1 = "Card#CARD_CUSTOM_LOGO");
+
+		SiteSelector._searchSite(site = "${site}");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "List");
+
+		AssertElementPresent(
+			key_listEntry = "${site}",
+			locator1 = "LexiconList#LIST_CUSTOM_LOGO");
+	}
+
 	macro viewGlobalLandingDefault {
 		var key_portletName = "${portletName}";
 		var key_siteName = "${siteName}";
@@ -1198,7 +1241,7 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertTextNotPresent(
 			locator1 = "SiteMembershipsAddMembers#USER_TABLE_NAME",
@@ -1220,7 +1263,7 @@ definition {
 
 		AssertVisible(
 			key_card = "${userFirstName} ${userLastName}",
-			locator1 = "LexiconCard#CARD_ELLIPSIS");
+			locator1 = "Card#CARD_ELLIPSIS");
 	}
 
 	macro viewMemberListCP {
@@ -1335,7 +1378,7 @@ definition {
 			locator1 = "Sites#SELECT_SITE_MODAL_HEADER",
 			value1 = "Select Site");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertElementPresent(
 			key_siteName = "${siteName}",

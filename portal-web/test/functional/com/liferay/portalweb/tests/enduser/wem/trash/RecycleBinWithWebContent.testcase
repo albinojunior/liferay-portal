@@ -109,6 +109,8 @@ definition {
 
 	@priority = "5"
 	test RestoreWebcontent {
+		property portal.acceptance = "true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Test Site Name",

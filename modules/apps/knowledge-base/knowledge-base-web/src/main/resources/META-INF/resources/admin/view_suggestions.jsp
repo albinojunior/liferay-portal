@@ -23,7 +23,7 @@ KBSuggestionListDisplayContext kbSuggestionListDisplayContext = new KBSuggestion
 
 request.setAttribute(KBWebKeys.KNOWLEDGE_BASE_KB_SUGGESTION_LIST_DISPLAY_CONTEXT, kbSuggestionListDisplayContext);
 
-SearchContainer kbCommentsSearchContainer = new SearchContainer(renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, SearchContainer.DEFAULT_DELTA, currentURLObj, null, kbSuggestionListDisplayContext.getEmptyResultsMessage());
+SearchContainer<KBComment> kbCommentsSearchContainer = new SearchContainer(renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, SearchContainer.DEFAULT_DELTA, currentURLObj, null, kbSuggestionListDisplayContext.getEmptyResultsMessage());
 
 String orderByCol = ParamUtil.getString(request, "orderByCol");
 String orderByType = ParamUtil.getString(request, "orderByType");
@@ -58,8 +58,6 @@ KBSuggestionListManagementToolbarDisplayContext kbSuggestionListManagementToolba
 request.setAttribute("view_suggestions.jsp-kbSuggestionListManagementToolbarDisplayContext", kbSuggestionListManagementToolbarDisplayContext);
 request.setAttribute("view_suggestions.jsp-resultRowSplitter", kbCommentResultRowSplitter);
 request.setAttribute("view_suggestions.jsp-searchContainer", kbCommentsSearchContainer);
-
-List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 %>
 
 <liferay-util:include page="/admin/common/top_tabs.jsp" servletContext="<%= application %>" />
@@ -74,12 +72,12 @@ List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 	itemsTotal="<%= kbSuggestionListManagementToolbarDisplayContext.getTotal() %>"
 	searchContainerId="kbComments"
 	selectable="<%= true %>"
-	showSearch="false"
+	showSearch="<%= false %>"
 	sortingOrder="<%= kbSuggestionListManagementToolbarDisplayContext.getOrderByType() %>"
 	sortingURL="<%= String.valueOf(kbSuggestionListManagementToolbarDisplayContext.getSortingURL()) %>"
 />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<liferay-ui:success key="suggestionDeleted" message="suggestion-deleted-successfully" />
 
 	<liferay-ui:success key="suggestionsDeleted" message="suggestions-deleted-successfully" />
@@ -89,10 +87,10 @@ List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 	<liferay-ui:success key="suggestionSaved" message="suggestion-saved-successfully" />
 
 	<liferay-util:include page="/admin/common/view_suggestions_by_status.jsp" servletContext="<%= application %>" />
-</div>
+</clay:container-fluid>
 
 <aui:script>
-	var deleteKBComments = function() {
+	var deleteKBComments = function () {
 		if (
 			confirm(
 				'<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />'
@@ -110,10 +108,10 @@ List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 		deleteKBComments: deleteKBComments,
 	};
 
-	Liferay.componentReady('kbSuggestionListManagementToolbar').then(function(
+	Liferay.componentReady('kbSuggestionListManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

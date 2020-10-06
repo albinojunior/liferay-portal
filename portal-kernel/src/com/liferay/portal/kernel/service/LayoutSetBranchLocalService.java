@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -56,11 +57,15 @@ public interface LayoutSetBranchLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link LayoutSetBranchLocalServiceUtil} to access the layout set branch local service. Add custom service methods to <code>com.liferay.portal.service.impl.LayoutSetBranchLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.LayoutSetBranchLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the layout set branch local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link LayoutSetBranchLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the layout set branch to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSetBranch the layout set branch
 	 * @return the layout set branch that was added
@@ -92,6 +97,10 @@ public interface LayoutSetBranchLocalService
 	/**
 	 * Deletes the layout set branch from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetBranch the layout set branch
 	 * @return the layout set branch that was removed
 	 * @throws PortalException
@@ -108,12 +117,25 @@ public interface LayoutSetBranchLocalService
 	/**
 	 * Deletes the layout set branch with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetBranchId the primary key of the layout set branch
 	 * @return the layout set branch that was removed
 	 * @throws PortalException if a layout set branch with the primary key could not be found
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public LayoutSetBranch deleteLayoutSetBranch(long layoutSetBranchId)
+		throws PortalException;
+
+	public LayoutSetBranch deleteLayoutSetBranch(
+			long currentLayoutPlid, LayoutSetBranch layoutSetBranch,
+			boolean includeMaster)
+		throws PortalException;
+
+	public LayoutSetBranch deleteLayoutSetBranch(
+			long currentLayoutPlid, long layoutSetBranchId)
 		throws PortalException;
 
 	public void deleteLayoutSetBranches(long groupId, boolean privateLayout)
@@ -129,6 +151,9 @@ public interface LayoutSetBranchLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -230,23 +255,23 @@ public interface LayoutSetBranchLocalService
 		long groupId, boolean privateLayout);
 
 	/**
-	 * Returns a range of all the layout set branchs.
+	 * Returns a range of all the layout set branches.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portal.model.impl.LayoutSetBranchModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of layout set branchs
-	 * @param end the upper bound of the range of layout set branchs (not inclusive)
-	 * @return the range of layout set branchs
+	 * @param start the lower bound of the range of layout set branches
+	 * @param end the upper bound of the range of layout set branches (not inclusive)
+	 * @return the range of layout set branches
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<LayoutSetBranch> getLayoutSetBranchs(int start, int end);
 
 	/**
-	 * Returns the number of layout set branchs.
+	 * Returns the number of layout set branches.
 	 *
-	 * @return the number of layout set branchs
+	 * @return the number of layout set branches
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getLayoutSetBranchsCount();
@@ -284,6 +309,10 @@ public interface LayoutSetBranchLocalService
 
 	/**
 	 * Updates the layout set branch in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSetBranch the layout set branch
 	 * @return the layout set branch that was updated

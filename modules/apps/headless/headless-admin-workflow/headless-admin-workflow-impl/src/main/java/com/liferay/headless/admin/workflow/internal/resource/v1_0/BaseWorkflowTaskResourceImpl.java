@@ -19,11 +19,12 @@ import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTask;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToMe;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToRole;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToUser;
+import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTasksBulkSelection;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowTaskResource;
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -169,25 +170,13 @@ public abstract class BaseWorkflowTaskResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks'  -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks' -d $'{"andOperator": ___, "assetPrimaryKeys": ___, "assetTitle": ___, "assetTypes": ___, "assigneeIds": ___, "completed": ___, "dateDueEnd": ___, "dateDueStart": ___, "searchByRoles": ___, "searchByUserRoles": ___, "workflowDefinitionId": ___, "workflowInstanceIds": ___, "workflowTaskNames": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
-	@GET
+	@Consumes({"application/json", "application/xml"})
+	@POST
 	@Parameters(
 		value = {
-			@Parameter(in = ParameterIn.QUERY, name = "andOperator"),
-			@Parameter(in = ParameterIn.QUERY, name = "assetPrimaryKeys"),
-			@Parameter(in = ParameterIn.QUERY, name = "assetTitle"),
-			@Parameter(in = ParameterIn.QUERY, name = "assetTypes"),
-			@Parameter(in = ParameterIn.QUERY, name = "assigneeIds"),
-			@Parameter(in = ParameterIn.QUERY, name = "completed"),
-			@Parameter(in = ParameterIn.QUERY, name = "dateDueEnd"),
-			@Parameter(in = ParameterIn.QUERY, name = "dateDueStart"),
-			@Parameter(in = ParameterIn.QUERY, name = "searchByRoles"),
-			@Parameter(in = ParameterIn.QUERY, name = "searchByUserRoles"),
-			@Parameter(in = ParameterIn.QUERY, name = "taskNames"),
-			@Parameter(in = ParameterIn.QUERY, name = "workflowDefinitionId"),
-			@Parameter(in = ParameterIn.QUERY, name = "workflowInstanceIds"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
 			@Parameter(in = ParameterIn.QUERY, name = "sort")
@@ -196,34 +185,9 @@ public abstract class BaseWorkflowTaskResourceImpl
 	@Path("/workflow-tasks")
 	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "WorkflowTask")})
-	public Page<WorkflowTask> getWorkflowTasksPage(
-			@Parameter(hidden = true) @QueryParam("andOperator") Boolean
-				andOperator,
-			@Parameter(hidden = true) @QueryParam("assetPrimaryKeys") Long[]
-				assetPrimaryKeys,
-			@Parameter(hidden = true) @QueryParam("assetTitle") String
-				assetTitle,
-			@Parameter(hidden = true) @QueryParam("assetTypes") String[]
-				assetTypes,
-			@Parameter(hidden = true) @QueryParam("assigneeIds") Long[]
-				assigneeIds,
-			@Parameter(hidden = true) @QueryParam("completed") Boolean
-				completed,
-			@Parameter(hidden = true) @QueryParam("dateDueEnd") java.util.Date
-				dateDueEnd,
-			@Parameter(hidden = true) @QueryParam("dateDueStart") java.util.Date
-				dateDueStart,
-			@Parameter(hidden = true) @QueryParam("searchByRoles") Boolean
-				searchByRoles,
-			@Parameter(hidden = true) @QueryParam("searchByUserRoles") Boolean
-				searchByUserRoles,
-			@Parameter(hidden = true) @QueryParam("taskNames") String[]
-				taskNames,
-			@Parameter(hidden = true) @QueryParam("workflowDefinitionId") Long
-				workflowDefinitionId,
-			@Parameter(hidden = true) @QueryParam("workflowInstanceIds") Long[]
-				workflowInstanceIds,
-			@Context Pagination pagination, @Context Sort[] sorts)
+	public Page<WorkflowTask> postWorkflowTasksPage(
+			@Context Pagination pagination, @Context Sort[] sorts,
+			WorkflowTasksBulkSelection workflowTasksBulkSelection)
 		throws Exception {
 
 		return Page.of(Collections.emptyList());
@@ -411,6 +375,22 @@ public abstract class BaseWorkflowTaskResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks/update-due-date'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PATCH
+	@Path("/workflow-tasks/update-due-date")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "WorkflowTask")})
+	public void patchWorkflowTaskUpdateDueDate(
+			WorkflowTaskAssignToMe[] workflowTaskAssignToMes)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks/{workflowTaskId}'  -u 'test@liferay.com:test'
 	 */
 	@Override
@@ -432,7 +412,7 @@ public abstract class BaseWorkflowTaskResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks/{workflowTaskId}/assign-to-me' -d $'{"comment": ___, "dueDate": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks/{workflowTaskId}/assign-to-me' -d $'{"comment": ___, "dueDate": ___, "workflowTaskId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -534,18 +514,18 @@ public abstract class BaseWorkflowTaskResourceImpl
 	@Path("/workflow-tasks/{workflowTaskId}/has-assignable-users")
 	@Produces("text/plain")
 	@Tags(value = {@Tag(name = "WorkflowTask")})
-	public String getWorkflowTaskHasAssignableUsers(
+	public Boolean getWorkflowTaskHasAssignableUsers(
 			@NotNull @Parameter(hidden = true) @PathParam("workflowTaskId") Long
 				workflowTaskId)
 		throws Exception {
 
-		return StringPool.BLANK;
+		return false;
 	}
 
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks/{workflowTaskId}/update-due-date' -d $'{"comment": ___, "dueDate": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-tasks/{workflowTaskId}/update-due-date' -d $'{"comment": ___, "dueDate": ___, "workflowTaskId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -597,6 +577,14 @@ public abstract class BaseWorkflowTaskResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -606,12 +594,21 @@ public abstract class BaseWorkflowTaskResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -619,11 +616,7 @@ public abstract class BaseWorkflowTaskResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(
-		WorkflowTask workflowTask, WorkflowTask existingWorkflowTask) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

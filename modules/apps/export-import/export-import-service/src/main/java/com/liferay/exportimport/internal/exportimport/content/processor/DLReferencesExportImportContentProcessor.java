@@ -152,12 +152,16 @@ public class DLReferencesExportImportContentProcessor
 	protected Map<String, String[]> getDLReferenceParameters(
 		long groupId, String content, int beginPos, int endPos) {
 
+		ObjectValuePair<String, Integer> dlReferenceEndPosObjectValuePair =
+			getDLReferenceEndPosObjectValuePair(content, beginPos, endPos);
+
+		if (dlReferenceEndPosObjectValuePair == null) {
+			return null;
+		}
+
 		boolean legacyURL = isLegacyURL(content, beginPos);
 
 		Map<String, String[]> map = new HashMap<>();
-
-		ObjectValuePair<String, Integer> dlReferenceEndPosObjectValuePair =
-			getDLReferenceEndPosObjectValuePair(content, beginPos, endPos);
 
 		String dlReference = dlReferenceEndPosObjectValuePair.getKey();
 
@@ -613,6 +617,12 @@ public class DLReferencesExportImportContentProcessor
 				getDLReferenceParameters(
 					groupId, content, beginPos + pathContext.length(), endPos);
 
+			if (dlReferenceParameters == null) {
+				endPos = beginPos - 1;
+
+				continue;
+			}
+
 			FileEntry fileEntry = getFileEntry(dlReferenceParameters);
 
 			if (fileEntry == null) {
@@ -733,8 +743,9 @@ public class DLReferencesExportImportContentProcessor
 		StringPool.APOSTROPHE, StringPool.APOSTROPHE_ENCODED,
 		StringPool.CLOSE_BRACKET, StringPool.CLOSE_CURLY_BRACE,
 		StringPool.CLOSE_PARENTHESIS, StringPool.GREATER_THAN,
-		StringPool.LESS_THAN, StringPool.PIPE, StringPool.QUESTION,
-		StringPool.QUOTE, StringPool.QUOTE_ENCODED, StringPool.SPACE
+		StringPool.LESS_THAN, StringPool.NEW_LINE, StringPool.PIPE,
+		StringPool.QUESTION, StringPool.QUOTE, StringPool.QUOTE_ENCODED,
+		StringPool.SPACE
 	};
 
 	private static final int _OFFSET_HREF_ATTRIBUTE = 6;

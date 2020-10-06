@@ -112,12 +112,12 @@ public class RadioDDMFormFieldTemplateContextContributorTest
 
 		Assert.assertEquals(options.toString(), 2, options.size());
 
-		Map option0 = (Map)options.get(0);
+		Map<String, String> option0 = (Map<String, String>)options.get(0);
 
 		Assert.assertEquals("Label 0", option0.get("label"));
 		Assert.assertEquals("Value 0", option0.get("value"));
 
-		Map option1 = (Map)options.get(1);
+		Map<String, String> option1 = (Map<String, String>)options.get(1);
 
 		Assert.assertEquals("Label 1", option1.get("label"));
 		Assert.assertEquals("Value 1", option1.get("value"));
@@ -230,19 +230,17 @@ public class RadioDDMFormFieldTemplateContextContributorTest
 	}
 
 	protected List<Map<String, String>> createDDMFormOptions() {
-		Map<String, String> keyValuePair0 = HashMapBuilder.put(
-			"label", "Label 0"
-		).put(
-			"value", "Value 0"
-		).build();
-
-		Map<String, String> keyValuePair1 = HashMapBuilder.put(
-			"label", "Label 1"
-		).put(
-			"value", "Value 1"
-		).build();
-
-		return Arrays.asList(keyValuePair0, keyValuePair1);
+		return Arrays.asList(
+			HashMapBuilder.put(
+				"label", "Label 0"
+			).put(
+				"value", "Value 0"
+			).build(),
+			HashMapBuilder.put(
+				"label", "Label 1"
+			).put(
+				"value", "Value 1"
+			).build());
 	}
 
 	protected void setUpJSONFactory() throws Exception {

@@ -14,6 +14,7 @@
 
 package com.liferay.trash.service;
 
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.exception.TrashPermissionException;
@@ -43,6 +44,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @generated
  */
 @AccessControlled
+@CTAware
 @JSONWebService
 @ProviderType
 @Transactional(
@@ -54,7 +56,7 @@ public interface TrashEntryService extends BaseService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link TrashEntryServiceUtil} to access the trash entry remote service. Add custom service methods to <code>com.liferay.trash.service.impl.TrashEntryServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.trash.service.impl.TrashEntryServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the trash entry remote service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link TrashEntryServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
@@ -118,14 +120,15 @@ public interface TrashEntryService extends BaseService {
 	 * @param start the lower bound of the range of trash entries to return
 	 * @param end the upper bound of the range of trash entries to return (not
 	 inclusive)
-	 * @param obc the comparator to order the trash entries (optionally
-	 <code>null</code>)
+	 * @param orderByComparator the comparator to order the trash entries
+	 (optionally <code>null</code>)
 	 * @return the range of matching trash entries ordered by comparator
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public TrashEntryList getEntries(
-			long groupId, int start, int end, OrderByComparator<TrashEntry> obc)
+			long groupId, int start, int end,
+			OrderByComparator<TrashEntry> orderByComparator)
 		throws PrincipalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -140,15 +143,15 @@ public interface TrashEntryService extends BaseService {
 	 * @param start the lower bound of the range of trash entries to return
 	 * @param end the upper bound of the range of trash entries to return (not
 	 inclusive)
-	 * @param obc the comparator to order the trash entries (optionally
-	 <code>null</code>)
+	 * @param orderByComparator the comparator to order the trash entries
+	 (optionally <code>null</code>)
 	 * @return the range of matching trash entries ordered by comparator
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public TrashEntryList getEntries(
 			long groupId, String className, int start, int end,
-			OrderByComparator<TrashEntry> obc)
+			OrderByComparator<TrashEntry> orderByComparator)
 		throws PrincipalException;
 
 	/**

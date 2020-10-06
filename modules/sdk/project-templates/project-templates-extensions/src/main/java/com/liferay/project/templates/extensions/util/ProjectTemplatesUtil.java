@@ -15,7 +15,7 @@
 package com.liferay.project.templates.extensions.util;
 
 import com.liferay.project.templates.extensions.ProjectTemplatesArgs;
-import com.liferay.project.templates.extensions.ProjectTemplatesConstants;
+import com.liferay.project.templates.extensions.constants.ProjectTemplatesConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -253,11 +253,9 @@ public class ProjectTemplatesUtil {
 			String templateName = name.substring(
 				projectTemplatesEndIndex, dashIndex);
 
-			templateName = templateName.replace('.', '-');
-
-			return templateName;
+			return templateName.replace('.', '-');
 		}
-		catch (Throwable th) {
+		catch (Throwable throwable) {
 			return name;
 		}
 	}

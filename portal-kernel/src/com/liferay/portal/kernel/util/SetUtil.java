@@ -97,8 +97,8 @@ public class SetUtil {
 
 		Set<E> set = new HashSet<>();
 
-		for (E obj : array) {
-			set.add(obj);
+		for (E object : array) {
+			set.add(object);
 		}
 
 		return set;
@@ -172,11 +172,13 @@ public class SetUtil {
 		return new HashSet<>(c);
 	}
 
-	public static <E> Set<E> fromEnumeration(Enumeration<? extends E> enu) {
+	public static <E> Set<E> fromEnumeration(
+		Enumeration<? extends E> enumeration) {
+
 		Set<E> set = new HashSet<>();
 
-		while (enu.hasMoreElements()) {
-			set.add(enu.nextElement());
+		while (enumeration.hasMoreElements()) {
+			set.add(enumeration.nextElement());
 		}
 
 		return set;
@@ -202,11 +204,11 @@ public class SetUtil {
 		return fromFile(new File(fileName));
 	}
 
-	public static <E> Set<E> fromIterator(Iterator<E> itr) {
+	public static <E> Set<E> fromIterator(Iterator<E> iterator) {
 		Set<E> set = new HashSet<>();
 
-		while (itr.hasNext()) {
-			set.add(itr.next());
+		while (iterator.hasNext()) {
+			set.add(iterator.next());
 		}
 
 		return set;

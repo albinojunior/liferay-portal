@@ -2,13 +2,7 @@
 
 <#include "default_user.ftl">
 
-<#assign layoutModel = dataFactory.newLayoutModel(guestGroupModel.groupId, "welcome", "com_liferay_login_web_portlet_LoginPortlet,", "com_liferay_hello_world_web_portlet_HelloWorldPortlet,") />
-
-<@insertLayout _layoutModel=layoutModel />
-
-<@insertGroup _groupModel=dataFactory.commerceCatalogGroupModel />
-
-<@insertGroup _groupModel=dataFactory.commerceChannelGroupModel />
+<@insertLayout _layoutModel=dataFactory.newLayoutModel(guestGroupModel.groupId, "welcome", "com_liferay_login_web_portlet_LoginPortlet,", "com_liferay_hello_world_web_portlet_HelloWorldPortlet,") />
 
 <@insertGroup _groupModel=dataFactory.newGlobalGroupModel() />
 
@@ -50,5 +44,5 @@
 
 	<@insertGroup _groupModel=groupModel />
 
-	${dataFactory.getCSVWriter("repository").write(groupId + ", " + groupModel.name + "\n")}
+	${csvFileWriter.write("repository", groupId + ", " + groupModel.name + "\n")}
 </#list>

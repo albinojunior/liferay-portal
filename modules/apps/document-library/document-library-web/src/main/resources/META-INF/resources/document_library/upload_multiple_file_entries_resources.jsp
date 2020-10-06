@@ -194,9 +194,10 @@ else {
 										classNameId="<%= PortalUtil.getClassNameId(com.liferay.dynamic.data.mapping.model.DDMStructure.class) %>"
 										classPK="<%= ddmStructure.getPrimaryKey() %>"
 										ddmFormValues="<%= ddmFormValues %>"
+										defaultEditLocale="<%= LocaleUtil.fromLanguageId(themeDisplay.getLanguageId()) %>"
 										fieldsNamespace="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>"
 										groupId="<%= groupId %>"
-										localizable="<%= false %>"
+										localizable="<%= true %>"
 										requestedLocale="<%= locale %>"
 										synchronousFormSubmission="<%= false %>"
 									/>
@@ -212,18 +213,18 @@ else {
 
 					<aui:script position="inline" require="metal-dom/src/all/dom as dom">
 						var documentTypeMenuList = document.querySelector(
-							'#<portlet:namespace/>documentTypeSelector .lfr-menu-list'
+							'#<portlet:namespace />documentTypeSelector .lfr-menu-list'
 						);
 
 						if (documentTypeMenuList) {
-							dom.delegate(documentTypeMenuList, 'click', 'li a', function(event) {
+							dom.delegate(documentTypeMenuList, 'click', 'li a', function (event) {
 								event.preventDefault();
 
 								Liferay.Util.fetch(event.delegateTarget.getAttribute('href'))
-									.then(function(response) {
+									.then(function (response) {
 										return response.text();
 									})
-									.then(function(response) {
+									.then(function (response) {
 										var commonFileMetadataContainer = document.getElementById(
 											'<portlet:namespace />commonFileMetadataContainer'
 										);
@@ -242,7 +243,7 @@ else {
 
 										var selectedFileNodes = Array.prototype.filter.call(
 											fileNodes,
-											function(fileNode) {
+											function (fileNode) {
 												return fileNode.checked;
 											}
 										);
@@ -334,6 +335,7 @@ else {
 						className="<%= DLFileEntry.class.getName() %>"
 						classPK="<%= assetClassPK %>"
 						classTypePK="<%= fileEntryTypeId %>"
+						visibilityTypes="<%= AssetVocabularyConstants.VISIBILITY_TYPES %>"
 					/>
 
 					<liferay-asset:asset-tags-selector

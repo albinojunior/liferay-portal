@@ -1,6 +1,7 @@
 {
 	"fieldSets": [
 		{
+			"configurationRole": "style",
 			"fields": [
 				{
 					"dataType": "string",
@@ -30,8 +31,8 @@
 				},
 				{
 					"dataType": "object",
-					"label": "border-color",
-					"name": "borderColor",
+					"label": "separator-color",
+					"name": "separatorColor",
 					"type": "colorPalette"
 				}
 			]

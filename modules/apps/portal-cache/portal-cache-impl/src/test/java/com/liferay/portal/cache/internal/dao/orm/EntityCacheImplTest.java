@@ -47,30 +47,38 @@ public class EntityCacheImplTest {
 		_nullModel = ReflectionTestUtil.getFieldValue(
 			BasePersistenceImpl.class, "nullModel");
 
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-			PropsKeys.VALUE_OBJECT_ENTITY_BLOCKING_CACHE, "true"
-		).put(
-			PropsKeys.VALUE_OBJECT_ENTITY_CACHE_ENABLED, "true"
-		).put(
-			PropsKeys.VALUE_OBJECT_FINDER_CACHE_ENABLED, "true"
-		).put(
-			PropsKeys.VALUE_OBJECT_FINDER_CACHE_LIST_THRESHOLD, "-1"
-		).put(
-			PropsKeys.VALUE_OBJECT_MVCC_ENTITY_CACHE_ENABLED, "true"
-		).build();
-
-		_props = PropsTestUtil.setProps(properties);
+		_props = PropsTestUtil.setProps(
+			HashMapBuilder.<String, Object>put(
+				PropsKeys.VALUE_OBJECT_ENTITY_CACHE_ENABLED, "true"
+			).put(
+				PropsKeys.VALUE_OBJECT_FINDER_CACHE_ENABLED, "true"
+			).put(
+				PropsKeys.VALUE_OBJECT_FINDER_CACHE_LIST_THRESHOLD, "-1"
+			).put(
+				PropsKeys.VALUE_OBJECT_MVCC_ENTITY_CACHE_ENABLED, "true"
+			).build());
 	}
 
 	@Test
 	public void testNotifyPortalCacheRemovedPortalCacheName() {
 		EntityCacheImpl entityCacheImpl = new EntityCacheImpl();
 
-		entityCacheImpl.setMultiVMPool(
-			(MultiVMPool)ProxyUtil.newProxyInstance(
-				_classLoader, new Class<?>[] {MultiVMPool.class},
-				new MultiVMPoolInvocationHandler(_classLoader, true)));
-		entityCacheImpl.setProps(_props);
+		MultiVMPool multiVMPool = (MultiVMPool)ProxyUtil.newProxyInstance(
+			_classLoader, new Class<?>[] {MultiVMPool.class},
+			new MultiVMPoolInvocationHandler(_classLoader, true));
+
+		ReflectionTestUtil.setFieldValue(
+			entityCacheImpl, "_multiVMPool", multiVMPool);
+
+		ReflectionTestUtil.setFieldValue(entityCacheImpl, "_props", _props);
+
+		FinderCacheImpl finderCacheImpl = new FinderCacheImpl();
+
+		ReflectionTestUtil.setFieldValue(
+			entityCacheImpl, "_finderCacheImpl", finderCacheImpl);
+
+		ReflectionTestUtil.setFieldValue(
+			finderCacheImpl, "_multiVMPool", multiVMPool);
 
 		entityCacheImpl.activate();
 
@@ -96,22 +104,22 @@ public class EntityCacheImplTest {
 		_testPutAndGetNullModel(true);
 	}
 
-	private void _testPutAndGetNullModel(boolean serialized) throws Exception {
+	private void _testPutAndGetNullModel(boolean serialized) {
 		EntityCacheImpl entityCacheImpl = new EntityCacheImpl();
 
-		entityCacheImpl.setMultiVMPool(
-			(MultiVMPool)ProxyUtil.newProxyInstance(
+		ReflectionTestUtil.setFieldValue(
+			entityCacheImpl, "_multiVMPool",
+			ProxyUtil.newProxyInstance(
 				_classLoader, new Class<?>[] {MultiVMPool.class},
 				new MultiVMPoolInvocationHandler(_classLoader, serialized)));
-		entityCacheImpl.setProps(_props);
+		ReflectionTestUtil.setFieldValue(entityCacheImpl, "_props", _props);
 
 		entityCacheImpl.activate();
 
-		entityCacheImpl.putResult(
-			true, EntityCacheImplTest.class, 12345, _nullModel);
+		entityCacheImpl.putResult(EntityCacheImplTest.class, 12345, _nullModel);
 
 		Serializable result = entityCacheImpl.getResult(
-			true, EntityCacheImplTest.class, 12345);
+			EntityCacheImplTest.class, 12345);
 
 		Assert.assertSame(_nullModel, result);
 	}

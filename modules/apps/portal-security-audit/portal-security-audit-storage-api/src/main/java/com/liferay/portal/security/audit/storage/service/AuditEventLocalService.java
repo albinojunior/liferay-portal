@@ -14,6 +14,7 @@
 
 package com.liferay.portal.security.audit.storage.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.audit.AuditMessage;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -60,11 +61,15 @@ public interface AuditEventLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AuditEventLocalServiceUtil} to access the audit event local service. Add custom service methods to <code>com.liferay.portal.security.audit.storage.service.impl.AuditEventLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.security.audit.storage.service.impl.AuditEventLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the audit event local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AuditEventLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the audit event to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param auditEvent the audit event
 	 * @return the audit event that was added
@@ -92,6 +97,10 @@ public interface AuditEventLocalService
 	/**
 	 * Deletes the audit event from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param auditEvent the audit event
 	 * @return the audit event that was removed
 	 */
@@ -100,6 +109,10 @@ public interface AuditEventLocalService
 
 	/**
 	 * Deletes the audit event with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param auditEventId the primary key of the audit event
 	 * @return the audit event that was removed
@@ -115,6 +128,9 @@ public interface AuditEventLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -218,7 +234,7 @@ public interface AuditEventLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AuditEvent> getAuditEvents(
 		long companyId, int start, int end,
-		OrderByComparator orderByComparator);
+		OrderByComparator<AuditEvent> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AuditEvent> getAuditEvents(
@@ -233,7 +249,7 @@ public interface AuditEventLocalService
 		Date createDateLT, String eventType, String className, String classPK,
 		String clientHost, String clientIP, String serverName, int serverPort,
 		String sessionID, boolean andSearch, int start, int end,
-		OrderByComparator orderByComparator);
+		OrderByComparator<AuditEvent> orderByComparator);
 
 	/**
 	 * Returns the number of audit events.
@@ -273,6 +289,10 @@ public interface AuditEventLocalService
 
 	/**
 	 * Updates the audit event in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param auditEvent the audit event
 	 * @return the audit event that was updated

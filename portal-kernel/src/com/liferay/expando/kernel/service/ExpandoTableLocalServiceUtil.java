@@ -52,6 +52,10 @@ public class ExpandoTableLocalServiceUtil {
 	/**
 	 * Adds the expando table to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoTableLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param expandoTable the expando table
 	 * @return the expando table that was added
 	 */
@@ -100,6 +104,10 @@ public class ExpandoTableLocalServiceUtil {
 	/**
 	 * Deletes the expando table from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoTableLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param expandoTable the expando table
 	 * @return the expando table that was removed
 	 */
@@ -112,6 +120,10 @@ public class ExpandoTableLocalServiceUtil {
 
 	/**
 	 * Deletes the expando table with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoTableLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tableId the primary key of the expando table
 	 * @return the expando table that was removed
@@ -167,6 +179,12 @@ public class ExpandoTableLocalServiceUtil {
 
 	public static void deleteTables(long companyId, String className) {
 		getService().deleteTables(companyId, className);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -399,6 +417,10 @@ public class ExpandoTableLocalServiceUtil {
 
 	/**
 	 * Updates the expando table in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoTableLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param expandoTable the expando table
 	 * @return the expando table that was updated

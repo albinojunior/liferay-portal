@@ -51,6 +51,10 @@ public class OAuthUserLocalServiceUtil {
 	/**
 	 * Adds the o auth user to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthUserLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthUser the o auth user
 	 * @return the o auth user that was added
 	 */
@@ -85,6 +89,10 @@ public class OAuthUserLocalServiceUtil {
 	/**
 	 * Deletes the o auth user with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthUserLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthUserId the primary key of the o auth user
 	 * @return the o auth user that was removed
 	 * @throws PortalException if a o auth user with the primary key could not be found
@@ -106,6 +114,10 @@ public class OAuthUserLocalServiceUtil {
 	/**
 	 * Deletes the o auth user from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthUserLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthUser the o auth user
 	 * @return the o auth user that was removed
 	 * @throws PortalException
@@ -126,6 +138,12 @@ public class OAuthUserLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -248,7 +266,7 @@ public class OAuthUserLocalServiceUtil {
 		getOAuthApplicationOAuthUsers(
 			long oAuthApplicationId, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				orderByComparator) {
+				<com.liferay.oauth.model.OAuthUser> orderByComparator) {
 
 		return getService().getOAuthApplicationOAuthUsers(
 			oAuthApplicationId, start, end, orderByComparator);
@@ -338,7 +356,7 @@ public class OAuthUserLocalServiceUtil {
 		getUserOAuthUsers(
 			long userId, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				orderByComparator) {
+				<com.liferay.oauth.model.OAuthUser> orderByComparator) {
 
 		return getService().getUserOAuthUsers(
 			userId, start, end, orderByComparator);
@@ -361,6 +379,10 @@ public class OAuthUserLocalServiceUtil {
 
 	/**
 	 * Updates the o auth user in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthUserLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthUser the o auth user
 	 * @return the o auth user that was updated

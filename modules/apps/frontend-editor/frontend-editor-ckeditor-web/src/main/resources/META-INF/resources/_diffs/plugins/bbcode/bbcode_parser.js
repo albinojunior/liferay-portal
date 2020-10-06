@@ -12,10 +12,8 @@
  * details.
  */
 
-(function() {
+(function () {
 	var A = AUI();
-
-	var LString = A.Lang.String;
 
 	var entities = A.merge(Liferay.Util.MAP_HTML_CHARS_ESCAPED, {
 		'(': '&#40;',
@@ -26,14 +24,14 @@
 
 	var BBCodeUtil = Liferay.namespace('BBCodeUtil');
 
-	BBCodeUtil.escape = A.rbind('escapeHTML', LString, true, entities);
-	BBCodeUtil.unescape = A.rbind('unescapeHTML', LString, entities);
+	BBCodeUtil.escape = A.rbind('escapeHTML', Liferay.Util, true, entities);
+	BBCodeUtil.unescape = A.rbind('unescapeHTML', Liferay.Util, entities);
 })();
-(function() {
+(function () {
 	// eslint-disable-next-line no-control-regex
 	var REGEX_BBCODE = /(?:\[((?:[a-z]|\*){1,16})(?:[=\s]([^\x00-\x1F'<>[\]]{1,2083}))?\])|(?:\[\/([a-z]{1,16})\])/gi;
 
-	var Lexer = function(data) {
+	var Lexer = function (data) {
 		var instance = this;
 
 		instance._data = data;
@@ -55,10 +53,10 @@
 
 	Liferay.BBCodeLexer = Lexer;
 })();
-(function() {
+(function () {
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-	var isString = function(val) {
+	var isString = function (val) {
 		return typeof val == 'string';
 	};
 
@@ -99,7 +97,7 @@
 
 	var STR_TAG_CODE = 'code';
 
-	var Parser = function(config) {
+	var Parser = function (config) {
 		var instance = this;
 
 		config = config || {};
@@ -243,7 +241,7 @@
 
 			stack.last =
 				stack.last ||
-				function() {
+				function () {
 					var instance = this;
 
 					return instance[instance.length - 1];
@@ -276,7 +274,9 @@
 							(token = lexer.getNextToken()) &&
 							token[3] != STR_TAG_CODE
 						) {
+
 							// Continue.
+
 						}
 
 						instance._handleData(token, data);
@@ -312,9 +312,7 @@
 
 	Liferay.BBCodeParser = Parser;
 })();
-(function() {
-	var A = AUI();
-
+(function () {
 	var BBCodeUtil = Liferay.BBCodeUtil;
 	var CKTools = CKEDITOR.tools;
 
@@ -466,7 +464,7 @@
 		'<img src="{imageSrc}" {attributes} />'
 	);
 
-	var Converter = function(config) {
+	var Converter = function (config) {
 		var instance = this;
 
 		config = config || {};
@@ -477,7 +475,7 @@
 	};
 
 	Converter.prototype = {
-		_escapeHTML: A.Lang.String.escapeHTML,
+		_escapeHTML: Liferay.Util.escapeHTML,
 
 		_extractData(toTagName, consume) {
 			var instance = this;
@@ -767,7 +765,7 @@
 
 			var cite = token.attribute;
 
-			var result = '<blockquote>';
+			var result = '<blockquote><p>';
 
 			if (cite && cite.length) {
 				cite = BBCodeUtil.escape(cite);
@@ -777,7 +775,7 @@
 
 			instance._result.push(result);
 
-			instance._stack.push('</blockquote>');
+			instance._stack.push('</p></blockquote>');
 		},
 
 		_handleSimpleTag(tagName) {

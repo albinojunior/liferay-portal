@@ -20,7 +20,6 @@ import com.liferay.friendly.url.exception.FriendlyURLLengthException;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.model.FriendlyURLEntryLocalization;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalServiceUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
@@ -129,13 +128,13 @@ public class FriendlyURLEntryLocalServiceTest {
 
 	@Test
 	public void testGetUniqueUrlTitleNormalizesUrlTitle() throws Exception {
-		long classNameId = ClassNameLocalServiceUtil.getClassNameId(User.class);
 		String urlTitle = "url title with spaces";
 
 		String uniqueUrlTitle =
 			FriendlyURLEntryLocalServiceUtil.getUniqueUrlTitle(
-				_group.getGroupId(), classNameId, TestPropsValues.getUserId(),
-				urlTitle);
+				_group.getGroupId(),
+				ClassNameLocalServiceUtil.getClassNameId(User.class),
+				TestPropsValues.getUserId(), urlTitle);
 
 		Assert.assertEquals("url-title-with-spaces", uniqueUrlTitle);
 	}
@@ -289,7 +288,7 @@ public class FriendlyURLEntryLocalServiceTest {
 			_group.getGroupId(), classNameId, urlTitle);
 	}
 
-	private ServiceContext _getServiceContext() throws PortalException {
+	private ServiceContext _getServiceContext() throws Exception {
 		return ServiceContextTestUtil.getServiceContext(
 			_group.getGroupId(), _user.getUserId());
 	}

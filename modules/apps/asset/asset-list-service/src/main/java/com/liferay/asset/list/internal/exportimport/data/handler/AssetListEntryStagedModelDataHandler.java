@@ -28,7 +28,6 @@ import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
-import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
@@ -170,10 +169,10 @@ public class AssetListEntryStagedModelDataHandler
 
 		_importAssetObjects(portletDataContext);
 
-		_importAssetEntryListAssetEntryRelElements(
+		_importAssetEntryListSegmentsEntryRelElements(
 			portletDataContext, assetListEntry);
 
-		_importAssetEntryListSegmentsEntryRelElements(
+		_importAssetEntryListAssetEntryRelElements(
 			portletDataContext, assetListEntry);
 	}
 
@@ -190,7 +189,7 @@ public class AssetListEntryStagedModelDataHandler
 	private void _exportAssetListEntryAssetEntryRels(
 			PortletDataContext portletDataContext,
 			AssetListEntry assetListEntry)
-		throws PortletDataException {
+		throws Exception {
 
 		List<AssetListEntryAssetEntryRel> assetListEntryAssetEntryRels =
 			_assetListEntryAssetEntryRelLocalService.
@@ -210,7 +209,7 @@ public class AssetListEntryStagedModelDataHandler
 	private void _exportAssetListEntrySegmentsEntryRels(
 			PortletDataContext portletDataContext,
 			AssetListEntry assetListEntry)
-		throws PortletDataException {
+		throws Exception {
 
 		List<AssetListEntrySegmentsEntryRel> assetListEntrySegmentsEntryRels =
 			_assetListEntrySegmentsEntryRelLocalService.
@@ -264,7 +263,7 @@ public class AssetListEntryStagedModelDataHandler
 				continue;
 			}
 
-			AssetRendererFactory assetRendererFactory =
+			AssetRendererFactory<?> assetRendererFactory =
 				assetRenderer.getAssetRendererFactory();
 
 			if ((assetRendererFactory != null) &&
@@ -285,7 +284,7 @@ public class AssetListEntryStagedModelDataHandler
 	private void _importAssetEntryListAssetEntryRelElements(
 			PortletDataContext portletDataContext,
 			AssetListEntry assetListEntry)
-		throws PortletDataException {
+		throws Exception {
 
 		List<Element> assetEntryListAssetEntryRelElements =
 			portletDataContext.getReferenceDataElements(
@@ -303,7 +302,7 @@ public class AssetListEntryStagedModelDataHandler
 	private void _importAssetEntryListSegmentsEntryRelElements(
 			PortletDataContext portletDataContext,
 			AssetListEntry assetListEntry)
-		throws PortletDataException {
+		throws Exception {
 
 		List<Element> assetEntryListSegmentsEntryRelElements =
 			portletDataContext.getReferenceDataElements(

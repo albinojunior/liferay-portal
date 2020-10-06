@@ -284,6 +284,36 @@ public interface AssetListEntryModel
 	public void setType(int type);
 
 	/**
+	 * Returns the asset entry subtype of this asset list entry.
+	 *
+	 * @return the asset entry subtype of this asset list entry
+	 */
+	@AutoEscape
+	public String getAssetEntrySubtype();
+
+	/**
+	 * Sets the asset entry subtype of this asset list entry.
+	 *
+	 * @param assetEntrySubtype the asset entry subtype of this asset list entry
+	 */
+	public void setAssetEntrySubtype(String assetEntrySubtype);
+
+	/**
+	 * Returns the asset entry type of this asset list entry.
+	 *
+	 * @return the asset entry type of this asset list entry
+	 */
+	@AutoEscape
+	public String getAssetEntryType();
+
+	/**
+	 * Sets the asset entry type of this asset list entry.
+	 *
+	 * @param assetEntryType the asset entry type of this asset list entry
+	 */
+	public void setAssetEntryType(String assetEntryType);
+
+	/**
 	 * Returns the last publish date of this asset list entry.
 	 *
 	 * @return the last publish date of this asset list entry

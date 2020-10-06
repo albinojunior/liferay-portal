@@ -15,7 +15,7 @@
 package com.liferay.dynamic.data.mapping.form.web.internal.display.context;
 
 import com.liferay.dynamic.data.mapping.form.web.internal.display.context.util.DDMFormWebRequestHelper;
-import com.liferay.dynamic.data.mapping.form.web.internal.search.FormInstanceSearch;
+import com.liferay.dynamic.data.mapping.form.web.internal.search.DDMFormInstanceSearch;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
 import com.liferay.dynamic.data.mapping.util.comparator.DDMFormInstanceModifiedDateComparator;
@@ -70,6 +70,54 @@ public class DDMFormBrowserDisplayContext {
 		return clearResultsURL.toString();
 	}
 
+	public DDMFormInstanceSearch getDDMFormInstanceSearch()
+		throws PortalException {
+
+		if (_ddmFormInstanceSearch != null) {
+			return _ddmFormInstanceSearch;
+		}
+
+		String displayStyle = getDisplayStyle();
+
+		PortletURL portletURL = getPortletURL();
+
+		portletURL.setParameter("displayStyle", displayStyle);
+
+		DDMFormInstanceSearch ddmFormInstanceSearch = new DDMFormInstanceSearch(
+			_renderRequest, portletURL);
+
+		String orderByType = getOrderByType();
+
+		OrderByComparator<DDMFormInstance> orderByComparator =
+			_getDDMFormInstanceOrderByComparator(orderByType);
+
+		ddmFormInstanceSearch.setOrderByCol(getOrderByCol());
+
+		ddmFormInstanceSearch.setOrderByComparator(orderByComparator);
+		ddmFormInstanceSearch.setOrderByType(orderByType);
+
+		if (ddmFormInstanceSearch.isSearch()) {
+			ddmFormInstanceSearch.setEmptyResultsMessage("no-forms-were-found");
+		}
+		else {
+			ddmFormInstanceSearch.setEmptyResultsMessage("there-are-no-forms");
+		}
+
+		List<DDMFormInstance> results = _ddmFormInstanceService.search(
+			_formWebRequestHelper.getCompanyId(),
+			_formWebRequestHelper.getScopeGroupId(), getKeywords(),
+			ddmFormInstanceSearch.getStart(), ddmFormInstanceSearch.getEnd(),
+			ddmFormInstanceSearch.getOrderByComparator());
+
+		ddmFormInstanceSearch.setResults(results);
+
+		ddmFormInstanceSearch.setTotal(getTotalItems());
+
+		_ddmFormInstanceSearch = ddmFormInstanceSearch;
+
+		return _ddmFormInstanceSearch;
+	}
+
 	public String getDisplayStyle() {
 		if (Validator.isNotNull(_displayStyle)) {
 			return _displayStyle;
@@ -112,52 +160,6 @@ public class DDMFormBrowserDisplayContext {
 					LanguageUtil.get(httpServletRequest, "order-by"));
 			}
 		).build();
-	}
-
-	public FormInstanceSearch getFormInstanceSearch() throws PortalException {
-		if (_formInstanceSearch != null) {
-			return _formInstanceSearch;
-		}
-
-		String displayStyle = getDisplayStyle();
-
-		PortletURL portletURL = getPortletURL();
-
-		portletURL.setParameter("displayStyle", displayStyle);
-
-		FormInstanceSearch formInstanceSearch = new FormInstanceSearch(
-			_renderRequest, portletURL);
-
-		String orderByType = getOrderByType();
-
-		OrderByComparator<DDMFormInstance> orderByComparator =
-			_getDDMFormInstanceOrderByComparator(orderByType);
-
-		formInstanceSearch.setOrderByCol(getOrderByCol());
-
-		formInstanceSearch.setOrderByComparator(orderByComparator);
-		formInstanceSearch.setOrderByType(orderByType);
-
-		if (formInstanceSearch.isSearch()) {
-			formInstanceSearch.setEmptyResultsMessage("no-forms-were-found");
-		}
-		else {
-			formInstanceSearch.setEmptyResultsMessage("there-are-no-forms");
-		}
-
-		List<DDMFormInstance> results = _ddmFormInstanceService.search(
-			_formWebRequestHelper.getCompanyId(),
-			_formWebRequestHelper.getScopeGroupId(), getKeywords(),
-			formInstanceSearch.getStart(), formInstanceSearch.getEnd(),
-			formInstanceSearch.getOrderByComparator());
-
-		formInstanceSearch.setResults(results);
-
-		formInstanceSearch.setTotal(getTotalItems());
-
-		_formInstanceSearch = formInstanceSearch;
-
-		return _formInstanceSearch;
 	}
 
 	public String getKeywords() {
@@ -342,10 +344,10 @@ public class DDMFormBrowserDisplayContext {
 		return new DDMFormInstanceModifiedDateComparator(orderByAsc);
 	}
 
+	private DDMFormInstanceSearch _ddmFormInstanceSearch;
 	private final DDMFormInstanceService _ddmFormInstanceService;
 	private String _displayStyle;
 	private String _eventName;
-	private FormInstanceSearch _formInstanceSearch;
 	private Integer _formInstanceSearchTotal;
 	private final DDMFormWebRequestHelper _formWebRequestHelper;
 	private final HttpServletRequest _httpServletRequest;

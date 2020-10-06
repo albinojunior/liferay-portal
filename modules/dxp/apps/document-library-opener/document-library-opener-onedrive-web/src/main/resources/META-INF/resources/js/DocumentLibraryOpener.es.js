@@ -44,14 +44,14 @@ class DocumentLibraryOpener {
 
 	_polling({statusURL}) {
 		return fetch(statusURL)
-			.then(response => {
+			.then((response) => {
 				if (!response.ok) {
 					throw DEFAULT_ERROR;
 				}
 
 				return response.json();
 			})
-			.then(response => {
+			.then((response) => {
 				if (response.complete) {
 					this._openExternal({
 						externalURL: response.office365EditURL,
@@ -61,14 +61,14 @@ class DocumentLibraryOpener {
 					throw DEFAULT_ERROR;
 				}
 				else {
-					return new Promise(resolve => {
+					return new Promise((resolve) => {
 						setTimeout(() => {
 							this._polling({statusURL}).then(resolve);
 						}, TIME_POLLING);
 					});
 				}
 			})
-			.catch(error => {
+			.catch((error) => {
 				this._showError(error);
 			});
 	}
@@ -76,13 +76,12 @@ class DocumentLibraryOpener {
 	_showError(message) {
 		openToast({
 			message,
-			title: Liferay.Language.get('error'),
 			type: 'danger',
 		});
 	}
 
 	_showLoading({dialogMessage}) {
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			Liferay.Util.openWindow(
 				{
 					dialog: {
@@ -117,7 +116,7 @@ class DocumentLibraryOpener {
 			mainFieldLabel: Liferay.Language.get('title'),
 			mainFieldName: 'title',
 			namespace: this._namespace,
-			onFormSuccess: serverResponseContent => {
+			onFormSuccess: (serverResponseContent) => {
 				if (serverResponseContent.oneDriveBackgroundTaskStatusURL) {
 					this.open({
 						dialogMessage: serverResponseContent.dialogMessage,
@@ -128,8 +127,7 @@ class DocumentLibraryOpener {
 				}
 			},
 			spritemap:
-				Liferay.ThemeDisplay.getPathThemeImages() +
-				'/lexicon/icons.svg',
+				Liferay.ThemeDisplay.getPathThemeImages() + '/clay/icons.svg',
 		});
 	}
 
@@ -143,14 +141,14 @@ class DocumentLibraryOpener {
 		});
 
 		const fetchPromise = fetch(formSubmitURL)
-			.then(response => {
+			.then((response) => {
 				if (!response.ok) {
 					throw DEFAULT_ERROR;
 				}
 
 				return response.json();
 			})
-			.then(response => {
+			.then((response) => {
 				if (response.redirectURL) {
 					navigate(response.redirectURL);
 				}
@@ -163,7 +161,7 @@ class DocumentLibraryOpener {
 					throw response.error.errorMessage || DEFAULT_ERROR;
 				}
 			})
-			.catch(error => {
+			.catch((error) => {
 				this._showError(error);
 			});
 

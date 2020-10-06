@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.search.engine.adapter.search.SearchRequestExecutor;
@@ -29,6 +30,7 @@ import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Node;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.util.NodeUtil;
 import com.liferay.portal.workflow.metrics.rest.spi.resource.SPINodeResource;
+import com.liferay.portal.workflow.metrics.search.index.name.WorkflowMetricsIndexNameBuilder;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 
 import java.util.Collection;
@@ -143,9 +145,16 @@ public class WorkflowMetricsSLADefinitionDemoDataCreatorImpl
 		for (Long workflowMetricsSLADefinitionId :
 				_workflowMetricsSLADefinitionIds) {
 
-			_workflowMetricsSLADefinitionLocalService.
-				deleteWorkflowMetricsSLADefinition(
-					workflowMetricsSLADefinitionId);
+			WorkflowMetricsSLADefinition workflowMetricsSLADefinition =
+				_workflowMetricsSLADefinitionLocalService.
+					fetchWorkflowMetricsSLADefinition(
+						workflowMetricsSLADefinitionId);
+
+			if (workflowMetricsSLADefinition != null) {
+				_workflowMetricsSLADefinitionLocalService.
+					deleteWorkflowMetricsSLADefinition(
+						workflowMetricsSLADefinition);
+			}
 		}
 	}
 
@@ -153,19 +162,12 @@ public class WorkflowMetricsSLADefinitionDemoDataCreatorImpl
 			long companyId, long userId, Date createDate, long duration,
 			String name, long processId, String[] startNodeKeys,
 			String[] stopNodeKeys)
-		throws PortalException {
+		throws Exception {
 
 		WorkflowMetricsSLADefinition workflowMetricsSLADefinition =
-			_workflowMetricsSLADefinitionLocalService.
-				addWorkflowMetricsSLADefinition(
-					null, null, duration, name, null, processId, startNodeKeys,
-					stopNodeKeys,
-					new ServiceContext() {
-						{
-							setCompanyId(companyId);
-							setUserId(userId);
-						}
-					});
+			_getWorkflowMetricsSLADefinition(
+				companyId, userId, duration, name, processId, startNodeKeys,
+				stopNodeKeys);
 
 		workflowMetricsSLADefinition.setCreateDate(createDate);
 
@@ -202,12 +204,40 @@ public class WorkflowMetricsSLADefinitionDemoDataCreatorImpl
 
 	private SPINodeResource<Node> _getSPINodeResource(long companyId) {
 		return new SPINodeResource<>(
-			companyId, _queries, _searchRequestExecutor,
+			companyId, _nodeWorkflowMetricsIndexNameBuilder,
+			_processWorkflowMetricsIndexNameBuilder, _queries,
+			_searchRequestExecutor,
 			document -> NodeUtil.toNode(
 				document, _language,
 				ResourceBundleUtil.getModuleAndPortalResourceBundle(
 					LocaleUtil.getMostRelevantLocale(),
 					WorkflowMetricsSLADefinitionDemoDataCreatorImpl.class)));
+	}
+
+	private WorkflowMetricsSLADefinition _getWorkflowMetricsSLADefinition(
+			long companyId, long userId, long duration, String name,
+			long processId, String[] startNodeKeys, String[] stopNodeKeys)
+		throws Exception {
+
+		List<WorkflowMetricsSLADefinition> workflowMetricsSLADefinitions =
+			_workflowMetricsSLADefinitionLocalService.
+				getWorkflowMetricsSLADefinitions(companyId, name, processId);
+
+		if (ListUtil.isNotEmpty(workflowMetricsSLADefinitions)) {
+			return workflowMetricsSLADefinitions.get(
+				workflowMetricsSLADefinitions.size() - 1);
+		}
+
+		return _workflowMetricsSLADefinitionLocalService.
+			addWorkflowMetricsSLADefinition(
+				null, null, duration, name, null, processId, startNodeKeys,
+				stopNodeKeys,
+				new ServiceContext() {
+					{
+						setCompanyId(companyId);
+						setUserId(userId);
+					}
+				});
 	}
 
 	private String[] _toStringArray(String... nodeKeys) {
@@ -220,6 +250,14 @@ public class WorkflowMetricsSLADefinitionDemoDataCreatorImpl
 
 	@Reference
 	private Language _language;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=node)")
+	private WorkflowMetricsIndexNameBuilder
+		_nodeWorkflowMetricsIndexNameBuilder;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=process)")
+	private WorkflowMetricsIndexNameBuilder
+		_processWorkflowMetricsIndexNameBuilder;
 
 	@Reference
 	private Queries _queries;

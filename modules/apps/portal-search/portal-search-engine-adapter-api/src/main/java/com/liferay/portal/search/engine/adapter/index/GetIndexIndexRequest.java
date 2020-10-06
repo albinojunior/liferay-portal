@@ -24,6 +24,8 @@ public class GetIndexIndexRequest
 
 	public GetIndexIndexRequest(String indexName) {
 		_indexName = indexName;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

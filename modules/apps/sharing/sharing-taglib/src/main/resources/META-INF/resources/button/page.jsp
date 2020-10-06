@@ -23,17 +23,16 @@ String buttonComponentId = randomNamespace + "shareButton";
 %>
 
 <clay:button
-	elementClasses="btn-secondary"
+	displayType="secondary"
 	id="<%= buttonComponentId %>"
-	label='<%= LanguageUtil.get(request, "share") %>'
-	size="sm"
-	style="secondary"
+	label="share"
+	small="<%= true %>"
 />
 
 <aui:script>
 	var button = document.getElementById('<%= buttonComponentId %>');
 
-	button.addEventListener('click', function() {
+	button.addEventListener('click', function () {
 		<%= request.getAttribute("liferay-sharing:button:onClick") %>;
 	});
 </aui:script>

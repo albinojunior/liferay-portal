@@ -49,12 +49,12 @@ import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.zip.ZipReader;
 import com.liferay.portal.kernel.zip.ZipReaderFactoryUtil;
 import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
+import com.liferay.wiki.constants.WikiPageConstants;
 import com.liferay.wiki.exception.ImportFilesException;
 import com.liferay.wiki.exception.NoSuchPageException;
 import com.liferay.wiki.importer.WikiImporter;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
-import com.liferay.wiki.model.WikiPageConstants;
 import com.liferay.wiki.service.WikiPageLocalService;
 import com.liferay.wiki.validator.WikiPageTitleValidator;
 import com.liferay.wiki.web.internal.translator.MediaWikiToCreoleTranslator;
@@ -405,7 +405,7 @@ public class MediaWikiImporter implements WikiImporter {
 
 					inputStreamOVPs.clear();
 
-					percentage = Math.min(50 + (i * 50) / total, 99);
+					percentage = Math.min(50 + ((i * 50) / total), 99);
 
 					if (progressTracker != null) {
 						progressTracker.setPercent(percentage);
@@ -479,7 +479,7 @@ public class MediaWikiImporter implements WikiImporter {
 			title = _wikiPageTitleValidator.normalize(title);
 
 			percentage = Math.min(
-				10 + (i * (maxPercentage - percentage)) / pageElements.size(),
+				10 + ((i * (maxPercentage - percentage)) / pageElements.size()),
 				maxPercentage);
 
 			progressTracker.setPercent(percentage);

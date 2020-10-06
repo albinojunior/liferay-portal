@@ -8,11 +8,13 @@
 	}
 }
 
-:-ms-input-placeholder.form-builder-page-header-title,
-:-ms-input-placeholder.form-builder-page-header-description,
-.form-builder-page-header-description:-ms-input-placeholder,
-.form-builder-page-header-title:-ms-input-placeholder {
-	color: #6b6c7d !important;
+.error-icon {
+	color: #da1414;
+	margin-right: 5px;
+}
+
+.exception-container > div:first-child {
+	margin-top: 24px;
 }
 
 .form-builder-publish-popover {
@@ -71,6 +73,10 @@
 	width: 500px;
 }
 
+.invalid-form-instance {
+	font-weight: normal;
+}
+
 .publish-popover-content {
 	display: none;
 
@@ -85,12 +91,20 @@
 	}
 
 	.autosave-feedback {
+		color: #6b6c7e;
 		display: block;
+		font-style: italic;
 		padding-bottom: 18.071px;
-		padding-left: 124px;
+		padding-left: 335px;
+		padding-right: 25px;
 		padding-top: 18.071px;
 		text-align: center;
-		width: 100%;
+	}
+
+	.autosave-feedback-container {
+		align-items: center;
+		display: flex;
+		justify-content: center;
 	}
 
 	.management-bar .liferayalert {
@@ -499,4 +513,8 @@
 	.liferay-ddm-form-renderer-wizard-navigation-allowed > li {
 		cursor: pointer;
 	}
+}
+
+.autocomplete-dropdown-menu.dropdown-menu {
+	z-index: 1100;
 }

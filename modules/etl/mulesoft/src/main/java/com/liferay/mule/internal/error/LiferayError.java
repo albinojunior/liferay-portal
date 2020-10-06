@@ -25,17 +25,20 @@ import org.mule.runtime.extension.api.error.MuleErrors;
 public enum LiferayError implements ErrorTypeDefinition<LiferayError> {
 
 	BAD_REQUEST(MuleErrors.CONNECTIVITY, 400),
+	CONNECTION_TIMEOUT(MuleErrors.CONNECTIVITY), EXECUTION,
+	INVALID_OAS_DOCUMENT(EXECUTION),
 	NOT_ACCEPTABLE(MuleErrors.CONNECTIVITY, 406),
 	NOT_ALLOWED(MuleErrors.CONNECTIVITY, 405),
 	NOT_FOUND(MuleErrors.CONNECTIVITY, 404),
 	NOT_IMPLEMENTED(MuleErrors.CONNECTIVITY, 501),
+	OAUTH2_ERROR(MuleErrors.CONNECTIVITY),
 	SERVER_ERROR(MuleErrors.CONNECTIVITY, 500),
 	UNAUTHORIZED(MuleErrors.CONNECTIVITY, 401),
 	UNSUPPORTED_MEDIA_TYPE(MuleErrors.CONNECTIVITY, 415);
 
 	public static LiferayError fromStatus(int status) {
 		for (LiferayError liferayError : values()) {
-			if (liferayError._status == status) {
+			if (liferayError.status == status) {
 				return liferayError;
 			}
 		}
@@ -46,15 +49,22 @@ public enum LiferayError implements ErrorTypeDefinition<LiferayError> {
 
 	@Override
 	public Optional<ErrorTypeDefinition<? extends Enum<?>>> getParent() {
-		return Optional.ofNullable(_parent);
+		return Optional.ofNullable(parent);
 	}
 
-	private LiferayError(ErrorTypeDefinition parent, int status) {
-		_parent = parent;
-		_status = status;
+	private LiferayError() {
 	}
 
-	private final ErrorTypeDefinition _parent;
-	private int _status;
+	private LiferayError(ErrorTypeDefinition<?> parent) {
+		this.parent = parent;
+	}
+
+	private LiferayError(ErrorTypeDefinition<?> parent, int status) {
+		this.parent = parent;
+		this.status = status;
+	}
+
+	private ErrorTypeDefinition<?> parent;
+	private int status;
 
 }

@@ -16,6 +16,7 @@ package com.liferay.account.internal.instance.lifecycle;
 
 import com.liferay.account.constants.AccountActionKeys;
 import com.liferay.account.constants.AccountConstants;
+import com.liferay.account.constants.AccountPortletKeys;
 import com.liferay.account.constants.AccountRoleConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountRole;
@@ -23,8 +24,10 @@ import com.liferay.account.service.AccountRoleLocalService;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener;
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
@@ -34,8 +37,11 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.LocaleThreadLocal;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
@@ -50,61 +56,69 @@ public class AddDefaultAccountRolesPortalInstanceLifecycleListener
 
 	@Override
 	public void portalInstanceRegistered(Company company) throws Exception {
+		long companyId = company.getCompanyId();
+
 		User defaultUser = company.getDefaultUser();
 
-		if (!_exists(AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_USER)) {
-			AccountRole accountRole = _addAccountRole(
-				defaultUser.getUserId(),
-				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_USER);
-
-			_addResourcePermissions(
-				accountRole.getRoleId(), _accountUserResourceActionsMap);
-		}
-
 		if (!_exists(
-				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_POWER_USER)) {
+				companyId,
+				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MEMBER)) {
 
 			AccountRole accountRole = _addAccountRole(
 				defaultUser.getUserId(),
-				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_POWER_USER);
+				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MEMBER);
 
 			_addResourcePermissions(
-				accountRole.getRoleId(), _accountUserResourceActionsMap);
-			_addResourcePermissions(
-				accountRole.getRoleId(), _accountPowerUserResourceActionsMap);
-		}
-
-		if (!_exists(AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_OWNER)) {
-			_addRole(
-				defaultUser.getUserId(),
-				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_OWNER);
+				accountRole.getRoleId(), _accountMemberResourceActionsMap);
 		}
 
 		if (!_exists(
+				companyId,
 				AccountRoleConstants.
 					REQUIRED_ROLE_NAME_ACCOUNT_ADMINISTRATOR)) {
 
-			_addRole(
+			AccountRole accountRole = _addAccountRole(
 				defaultUser.getUserId(),
 				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_ADMINISTRATOR);
+
+			_addResourcePermissions(
+				accountRole.getRoleId(), _accountMemberResourceActionsMap);
+			_addResourcePermissions(
+				accountRole.getRoleId(),
+				_accountAdministratorResourceActionsMap);
+		}
+
+		if (!_exists(
+				companyId,
+				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MANAGER)) {
+
+			Role role = _roleLocalService.addRole(
+				defaultUser.getUserId(), null, 0,
+				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MANAGER, null,
+				_roleDescriptionsMaps.get(
+					AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MANAGER),
+				RoleConstants.TYPE_ORGANIZATION, null, null);
+
+			_addResourcePermissions(
+				role.getRoleId(), _accountMemberResourceActionsMap);
+			_addResourcePermissions(
+				role.getRoleId(), _accountManagerResourceActionsMap);
 		}
 	}
 
 	private AccountRole _addAccountRole(long userId, String roleName)
-		throws PortalException {
+		throws Exception {
 
 		AccountRole accountRole = _accountRoleLocalService.createAccountRole(
 			_counterLocalService.increment());
 
 		Role role = _roleLocalService.addRole(
 			userId, AccountRole.class.getName(), accountRole.getAccountRoleId(),
-			roleName,
-			HashMapBuilder.put(
-				LocaleThreadLocal.getDefaultLocale(), roleName
-			).build(),
-			null, RoleConstants.TYPE_ACCOUNT, null, null);
+			roleName, null, _roleDescriptionsMaps.get(roleName),
+			RoleConstants.TYPE_ACCOUNT, null, null);
 
 		accountRole.setCompanyId(role.getCompanyId());
+
 		accountRole.setAccountEntryId(
 			AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT);
 		accountRole.setRoleId(role.getRoleId());
@@ -114,7 +128,7 @@ public class AddDefaultAccountRolesPortalInstanceLifecycleListener
 
 	private void _addResourcePermissions(
 			long roleId, Map<String, String[]> resourceActionsMap)
-		throws PortalException {
+		throws Exception {
 
 		for (Map.Entry<String, String[]> entry :
 				resourceActionsMap.entrySet()) {
@@ -130,20 +144,20 @@ public class AddDefaultAccountRolesPortalInstanceLifecycleListener
 		}
 	}
 
-	private void _addRole(long userId, String roleName) throws PortalException {
-		_roleLocalService.addRole(
-			userId, null, 0, roleName,
-			HashMapBuilder.put(
-				LocaleThreadLocal.getDefaultLocale(), roleName
-			).build(),
-			null, RoleConstants.TYPE_REGULAR, null, null);
+	private void _checkRoleDescription(Role role) {
+		if (MapUtil.isEmpty(role.getDescriptionMap())) {
+			role.setDescriptionMap(_roleDescriptionsMaps.get(role.getName()));
+
+			_roleLocalService.updateRole(role);
+		}
 	}
 
-	private boolean _exists(String roleName) {
-		Role role = _roleLocalService.fetchRole(
-			CompanyThreadLocal.getCompanyId(), roleName);
+	private boolean _exists(long companyId, String roleName) {
+		Role role = _roleLocalService.fetchRole(companyId, roleName);
 
 		if (role != null) {
+			_checkRoleDescription(role);
+
 			return true;
 		}
 
@@ -151,23 +165,85 @@ public class AddDefaultAccountRolesPortalInstanceLifecycleListener
 	}
 
 	private static final Map<String, String[]>
-		_accountPowerUserResourceActionsMap = HashMapBuilder.put(
+		_accountAdministratorResourceActionsMap = HashMapBuilder.put(
 			AccountConstants.RESOURCE_NAME,
 			new String[] {AccountActionKeys.ADD_ACCOUNT_ENTRY}
 		).put(
 			AccountEntry.class.getName(),
-			new String[] {ActionKeys.UPDATE, ActionKeys.MANAGE_USERS}
+			new String[] {
+				ActionKeys.UPDATE, ActionKeys.MANAGE_USERS,
+				AccountActionKeys.VIEW_USERS
+			}
 		).build();
-	private static final Map<String, String[]> _accountUserResourceActionsMap =
-		HashMapBuilder.put(
+	private static final Map<String, String[]>
+		_accountManagerResourceActionsMap = HashMapBuilder.put(
+			AccountEntry.class.getName(),
+			new String[] {
+				AccountActionKeys.MANAGE_ORGANIZATIONS,
+				AccountActionKeys.VIEW_ORGANIZATIONS,
+				AccountActionKeys.VIEW_USERS, ActionKeys.MANAGE_USERS,
+				ActionKeys.UPDATE
+			}
+		).put(
+			AccountPortletKeys.ACCOUNT_ENTRIES_ADMIN,
+			new String[] {ActionKeys.ACCESS_IN_CONTROL_PANEL}
+		).put(
+			AccountPortletKeys.ACCOUNT_USERS_ADMIN,
+			new String[] {
+				AccountActionKeys.ASSIGN_ACCOUNTS,
+				ActionKeys.ACCESS_IN_CONTROL_PANEL
+			}
+		).put(
+			Organization.class.getName(),
+			new String[] {
+				AccountActionKeys.MANAGE_ACCOUNTS,
+				AccountActionKeys.MANAGE_SUBORGANIZATIONS_ACCOUNTS
+			}
+		).build();
+	private static final Map<String, String[]>
+		_accountMemberResourceActionsMap = HashMapBuilder.put(
 			AccountEntry.class.getName(), new String[] {ActionKeys.VIEW}
 		).build();
+	private static final Map<String, Map<Locale, String>>
+		_roleDescriptionsMaps = HashMapBuilder.<String, Map<Locale, String>>put(
+			AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_ADMINISTRATOR,
+			Collections.singletonMap(
+				LocaleUtil.US,
+				"Account Administrators are super users of their account.")
+		).put(
+			AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MANAGER,
+			Collections.singletonMap(
+				LocaleUtil.US,
+				"Account Managers who belong to an organization can " +
+					"administer all accounts associated to that organization.")
+		).put(
+			AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MEMBER,
+			Collections.singletonMap(
+				LocaleUtil.US,
+				"All users who belong to an account have this role within " +
+					"that account.")
+		).build();
+
+	@Reference(
+		target = "(javax.portlet.name=" + AccountPortletKeys.ACCOUNT_ENTRIES_ADMIN + ")"
+	)
+	private Portlet _accountEntriesAdminPortlet;
 
 	@Reference
 	private AccountRoleLocalService _accountRoleLocalService;
 
+	@Reference(
+		target = "(javax.portlet.name=" + AccountPortletKeys.ACCOUNT_USERS_ADMIN + ")"
+	)
+	private Portlet _accountUsersAdminPortlet;
+
 	@Reference
 	private CounterLocalService _counterLocalService;
+
+	@Reference(
+		target = "(&(release.bundle.symbolic.name=com.liferay.account.service)(&(release.schema.version>=1.0.2)))"
+	)
+	private Release _release;
 
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;

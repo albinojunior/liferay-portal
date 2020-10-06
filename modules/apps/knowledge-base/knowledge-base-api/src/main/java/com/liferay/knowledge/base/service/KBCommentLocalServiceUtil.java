@@ -41,6 +41,10 @@ public class KBCommentLocalServiceUtil {
 	/**
 	 * Adds the kb comment to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBCommentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbComment the kb comment
 	 * @return the kb comment that was added
 	 */
@@ -94,6 +98,10 @@ public class KBCommentLocalServiceUtil {
 	/**
 	 * Deletes the kb comment from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBCommentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbComment the kb comment
 	 * @return the kb comment that was removed
 	 * @throws PortalException
@@ -107,6 +115,10 @@ public class KBCommentLocalServiceUtil {
 
 	/**
 	 * Deletes the kb comment with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBCommentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbCommentId the primary key of the kb comment
 	 * @return the kb comment that was removed
@@ -134,6 +146,12 @@ public class KBCommentLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -324,18 +342,22 @@ public class KBCommentLocalServiceUtil {
 		getKBComments(
 			long groupId, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.knowledge.base.model.KBComment> obc) {
+				<com.liferay.knowledge.base.model.KBComment>
+					orderByComparator) {
 
-		return getService().getKBComments(groupId, status, start, end, obc);
+		return getService().getKBComments(
+			groupId, status, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.knowledge.base.model.KBComment>
 		getKBComments(
 			long groupId, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.knowledge.base.model.KBComment> obc) {
+				<com.liferay.knowledge.base.model.KBComment>
+					orderByComparator) {
 
-		return getService().getKBComments(groupId, start, end, obc);
+		return getService().getKBComments(
+			groupId, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.knowledge.base.model.KBComment>
@@ -361,17 +383,19 @@ public class KBCommentLocalServiceUtil {
 		getKBComments(
 			String className, long classPK, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.knowledge.base.model.KBComment> obc) {
+				<com.liferay.knowledge.base.model.KBComment>
+					orderByComparator) {
 
 		return getService().getKBComments(
-			className, classPK, status, start, end, obc);
+			className, classPK, status, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.knowledge.base.model.KBComment>
 		getKBComments(
 			String className, long classPK, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				orderByComparator) {
+				<com.liferay.knowledge.base.model.KBComment>
+					orderByComparator) {
 
 		return getService().getKBComments(
 			className, classPK, start, end, orderByComparator);
@@ -475,6 +499,10 @@ public class KBCommentLocalServiceUtil {
 
 	/**
 	 * Updates the kb comment in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBCommentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbComment the kb comment
 	 * @return the kb comment that was updated

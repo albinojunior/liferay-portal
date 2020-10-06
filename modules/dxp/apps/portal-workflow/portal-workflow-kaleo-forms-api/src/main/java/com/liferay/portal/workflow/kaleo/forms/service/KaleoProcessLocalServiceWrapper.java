@@ -36,6 +36,10 @@ public class KaleoProcessLocalServiceWrapper
 	/**
 	 * Adds the kaleo process to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoProcess the kaleo process
 	 * @return the kaleo process that was added
 	 */
@@ -117,6 +121,10 @@ public class KaleoProcessLocalServiceWrapper
 	/**
 	 * Deletes the kaleo process from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoProcess the kaleo process
 	 * @return the kaleo process that was removed
 	 * @throws PortalException
@@ -133,6 +141,10 @@ public class KaleoProcessLocalServiceWrapper
 
 	/**
 	 * Deletes the kaleo process with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoProcessId the primary key of the kaleo process
 	 * @return the kaleo process that was removed
@@ -155,6 +167,11 @@ public class KaleoProcessLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kaleoProcessLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _kaleoProcessLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -400,7 +417,8 @@ public class KaleoProcessLocalServiceWrapper
 			getKaleoProcesses(
 				long groupId, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator) {
+					<com.liferay.portal.workflow.kaleo.forms.model.KaleoProcess>
+						orderByComparator) {
 
 		return _kaleoProcessLocalService.getKaleoProcesses(
 			groupId, start, end, orderByComparator);
@@ -489,6 +507,10 @@ public class KaleoProcessLocalServiceWrapper
 
 	/**
 	 * Updates the kaleo process in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoProcess the kaleo process
 	 * @return the kaleo process that was updated

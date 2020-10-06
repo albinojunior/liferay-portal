@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -55,6 +54,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -75,6 +75,7 @@ public class AssetAutoTaggerOSGiCommandsTest
 			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
+	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
@@ -171,20 +172,21 @@ public class AssetAutoTaggerOSGiCommandsTest
 
 		Registry registry = RegistryUtil.getRegistry();
 
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-			"model.class.name", AssetEntry.class.getName()
-		).build();
-
-		ServiceRegistration<AssetAutoTagProvider>
+		ServiceRegistration<AssetAutoTagProvider<?>>
 			assetAutoTagProviderServiceRegistration = registry.registerService(
-				AssetAutoTagProvider.class,
-				model -> Arrays.asList(ASSET_TAG_NAME_AUTO), properties);
+				(Class<AssetAutoTagProvider<?>>)
+					(Class<?>)AssetAutoTagProvider.class,
+				model -> Arrays.asList(ASSET_TAG_NAME_AUTO),
+				HashMapBuilder.<String, Object>put(
+					"model.class.name", AssetEntry.class.getName()
+				).build());
 
 		String className = RandomTestUtil.randomString();
 
-		ServiceRegistration<AssetRendererFactory>
+		ServiceRegistration<AssetRendererFactory<?>>
 			assetRendererFactoryServiceRegistration = registry.registerService(
-				AssetRendererFactory.class,
+				(Class<AssetRendererFactory<?>>)
+					(Class<?>)AssetRendererFactory.class,
 				new TestAssetRendererFactory(className));
 
 		try {
@@ -290,14 +292,15 @@ public class AssetAutoTaggerOSGiCommandsTest
 	@Inject
 	private AssetEntryLocalService _assetEntryLocalService;
 
-	private class TestAssetRendererFactory extends BaseAssetRendererFactory {
+	private class TestAssetRendererFactory
+		extends BaseAssetRendererFactory<Object> {
 
 		public TestAssetRendererFactory(String className) {
 			_className = className;
 		}
 
 		@Override
-		public AssetRenderer getAssetRenderer(long classPK, int type) {
+		public AssetRenderer<Object> getAssetRenderer(long classPK, int type) {
 			return new BaseAssetRenderer() {
 
 				@Override

@@ -1,14 +1,4 @@
 .data-layout-builder-sidebar {
-	background: white;
-	border-left: 1px solid rgb(225, 224, 232);
-	border-top-width: 0;
-	display: flex;
-	flex-flow: column;
-	height: 100%;
-	position: fixed;
-	right: 0;
-	top: 7rem;
-
 	&.main {
 		transform: translateX(0%);
 		transition: transform 0.3s $animation, opacity 0.3s $animation;
@@ -35,11 +25,9 @@
 
 	.sidebar {
 		box-shadow: none;
-		overflow: visible;
 
 		.sidebar-body {
-			height: calc(100vh - 168px);
-			overflow: visible;
+			height: calc(100vh - 224px);
 
 			.component-tbar {
 				height: auto;
@@ -62,16 +50,12 @@
 	}
 }
 
-.data-layout-builder-sidebar-content {
-	margin-top: 0;
-	padding-right: $sidebarMainWidth;
-	transition: padding-right 0.3s $animation;
+.display-settings.data-layout-builder-sidebar {
+	.sidebar-header {
+		padding-top: 0;
 
-	.ddm-form-builder .sheet {
-		margin-top: 0;
-	}
-
-	&.closed {
-		padding-right: $sidebarMiniWidth;
+		.component-title {
+			display: none;
+		}
 	}
 }

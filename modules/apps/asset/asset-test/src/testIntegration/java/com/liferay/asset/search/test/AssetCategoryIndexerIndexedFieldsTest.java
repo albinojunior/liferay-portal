@@ -17,12 +17,14 @@ package com.liferay.asset.search.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetCategoryService;
+import com.liferay.asset.kernel.service.AssetVocabularyService;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -32,12 +34,18 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.search.document.DocumentBuilderFactory;
+import com.liferay.portal.search.model.uid.UIDFactory;
+import com.liferay.portal.search.searcher.SearchRequestBuilderFactory;
+import com.liferay.portal.search.searcher.Searcher;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
 import com.liferay.portal.search.test.util.IndexedFieldsFixture;
-import com.liferay.portal.search.test.util.IndexerFixture;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.users.admin.test.util.search.GroupBlueprint;
+import com.liferay.users.admin.test.util.search.GroupSearchFixture;
 import com.liferay.users.admin.test.util.search.UserSearchFixture;
 
 import java.util.List;
@@ -68,13 +76,28 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 
 	@Before
 	public void setUp() throws Exception {
-		setUpUserSearchFixture();
+		GroupSearchFixture groupSearchFixture = new GroupSearchFixture();
 
-		setUpAssetCategoryFixture();
+		Group group = groupSearchFixture.addGroup(new GroupBlueprint());
 
-		setUpAssetCategoryIndexerFixture();
+		AssetVocabularyFixture assetVocabularyFixture =
+			new AssetVocabularyFixture(assetVocabularyService, group);
 
-		setUpIndexedFieldsFixture();
+		AssetCategoryFixture assetCategoryFixture = new AssetCategoryFixture(
+			assetCategoryService, assetVocabularyFixture, group);
+
+		_assetCategoryFixture = assetCategoryFixture;
+
+		_assetCategories = assetCategoryFixture.getAssetCategories();
+
+		_assetVocabularies = assetVocabularyFixture.getAssetVocabularies();
+
+		_group = group;
+
+		_groups = groupSearchFixture.getGroups();
+		_indexedFieldsFixture = new IndexedFieldsFixture(
+			resourcePermissionLocalService, searchEngineHelper, uidFactory,
+			documentBuilderFactory);
 	}
 
 	@Test
@@ -83,63 +106,74 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 
 		setTestLocale(locale);
 
-		AssetCategory assetCategory = assetCategoryFixture.createAssetCategory(
+		AssetCategory assetCategory = _assetCategoryFixture.createAssetCategory(
 			"新しい商品");
 
 		String searchTerm = "新しい";
 
-		Document document = assetCategoryIndexerFixture.searchOnlyOne(
-			searchTerm, locale);
+		assertFieldValues(
+			_expectedFieldValues(assetCategory), locale, searchTerm);
+	}
 
-		indexedFieldsFixture.postProcessDocument(document);
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
+	protected void assertFieldValues(
+		Map<String, String> map, Locale locale, String searchTerm) {
 
 		FieldValuesAssert.assertFieldValues(
-			_expectedFieldValues(assetCategory), document, searchTerm);
+			map, name -> !name.equals("score"),
+			searcher.search(
+				searchRequestBuilderFactory.builder(
+				).companyId(
+					_group.getCompanyId()
+				).groupIds(
+					_group.getGroupId()
+				).locale(
+					locale
+				).fields(
+					StringPool.STAR
+				).modelIndexerClasses(
+					AssetCategory.class
+				).queryString(
+					searchTerm
+				).build()));
 	}
 
 	protected void setTestLocale(Locale locale) throws Exception {
-		assetCategoryFixture.updateDisplaySettings(locale);
+		_assetCategoryFixture.updateDisplaySettings(locale);
 
 		LocaleThreadLocal.setDefaultLocale(locale);
 	}
 
-	protected void setUpAssetCategoryFixture() throws Exception {
-		assetCategoryFixture = new AssetCategoryFixture(_group);
+	@Inject(
+		filter = "indexer.class.name=com.liferay.asset.kernel.model.AssetCategory"
+	)
+	protected static Indexer<AssetCategory> indexer;
 
-		_assetCategories = assetCategoryFixture.getAssetCategories();
-		_assetVocabularies = assetCategoryFixture.getAssetVocabularies();
-	}
+	@Inject
+	protected AssetCategoryService assetCategoryService;
 
-	protected void setUpAssetCategoryIndexerFixture() {
-		assetCategoryIndexerFixture = new IndexerFixture<>(AssetCategory.class);
-	}
+	@Inject
+	protected AssetVocabularyService assetVocabularyService;
 
-	protected void setUpIndexedFieldsFixture() {
-		indexedFieldsFixture = new IndexedFieldsFixture(
-			resourcePermissionLocalService, searchEngineHelper);
-	}
-
-	protected void setUpUserSearchFixture() throws Exception {
-		userSearchFixture = new UserSearchFixture();
-
-		userSearchFixture.setUp();
-
-		_group = userSearchFixture.addGroup();
-
-		_groups = userSearchFixture.getGroups();
-
-		_users = userSearchFixture.getUsers();
-	}
-
-	protected AssetCategoryFixture assetCategoryFixture;
-	protected IndexerFixture<AssetCategory> assetCategoryIndexerFixture;
-	protected IndexedFieldsFixture indexedFieldsFixture;
+	@Inject
+	protected DocumentBuilderFactory documentBuilderFactory;
 
 	@Inject
 	protected ResourcePermissionLocalService resourcePermissionLocalService;
 
 	@Inject
 	protected SearchEngineHelper searchEngineHelper;
+
+	@Inject
+	protected Searcher searcher;
+
+	@Inject
+	protected SearchRequestBuilderFactory searchRequestBuilderFactory;
+
+	@Inject
+	protected UIDFactory uidFactory;
 
 	protected UserSearchFixture userSearchFixture;
 
@@ -192,8 +226,7 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 			"treePath", assetCategory.getTreePath()
 		).build();
 
-		indexedFieldsFixture.populateUID(
-			AssetCategory.class.getName(), assetCategory.getCategoryId(), map);
+		_indexedFieldsFixture.populateUID(assetCategory, map);
 
 		_populateDates(assetCategory, map);
 		_populateRoles(assetCategory, map);
@@ -205,9 +238,9 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 	private void _populateDates(
 		AssetCategory assetCategory, Map<String, String> map) {
 
-		indexedFieldsFixture.populateDate(
+		_indexedFieldsFixture.populateDate(
 			Field.CREATE_DATE, assetCategory.getCreateDate(), map);
-		indexedFieldsFixture.populateDate(
+		_indexedFieldsFixture.populateDate(
 			Field.MODIFIED_DATE, assetCategory.getModifiedDate(), map);
 	}
 
@@ -215,7 +248,7 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 			AssetCategory assetCategory, Map<String, String> map)
 		throws Exception {
 
-		indexedFieldsFixture.populateRoleIdFields(
+		_indexedFieldsFixture.populateRoleIdFields(
 			assetCategory.getCompanyId(), AssetCategory.class.getName(),
 			assetCategory.getCategoryId(), assetCategory.getGroupId(), null,
 			map);
@@ -243,6 +276,8 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 	@DeleteAfterTestRun
 	private List<AssetCategory> _assetCategories;
 
+	private AssetCategoryFixture _assetCategoryFixture;
+
 	@DeleteAfterTestRun
 	private List<AssetVocabulary> _assetVocabularies;
 
@@ -251,7 +286,6 @@ public class AssetCategoryIndexerIndexedFieldsTest {
 	@DeleteAfterTestRun
 	private List<Group> _groups;
 
-	@DeleteAfterTestRun
-	private List<User> _users;
+	private IndexedFieldsFixture _indexedFieldsFixture;
 
 }

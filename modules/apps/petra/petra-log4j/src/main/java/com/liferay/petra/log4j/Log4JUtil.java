@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import org.dom4j.Document;
@@ -59,11 +60,11 @@ public class Log4JUtil {
 		configureLog4J(classLoader.getResource("META-INF/portal-log4j.xml"));
 
 		try {
-			Enumeration<URL> enu = classLoader.getResources(
+			Enumeration<URL> enumeration = classLoader.getResources(
 				"META-INF/portal-log4j-ext.xml");
 
-			while (enu.hasMoreElements()) {
-				configureLog4J(enu.nextElement());
+			while (enumeration.hasMoreElements()) {
+				configureLog4J(enumeration.nextElement());
 			}
 		}
 		catch (IOException ioException) {
@@ -148,10 +149,10 @@ public class Log4JUtil {
 	public static String getOriginalLevel(String className) {
 		Level level = Level.ALL;
 
-		Enumeration<Logger> enu = LogManager.getCurrentLoggers();
+		Enumeration<Logger> enumeration = LogManager.getCurrentLoggers();
 
-		while (enu.hasMoreElements()) {
-			Logger logger = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			Logger logger = enumeration.nextElement();
 
 			if (className.equals(logger.getName())) {
 				level = logger.getLevel();
@@ -200,6 +201,12 @@ public class Log4JUtil {
 		if (custom) {
 			_customLogSettings.put(name, priority);
 		}
+	}
+
+	public static void shutdownLog4J() {
+		LoggerRepository loggerRepository = LogManager.getLoggerRepository();
+
+		loggerRepository.shutdown();
 	}
 
 	private static String _escapeXMLAttribute(String s) {

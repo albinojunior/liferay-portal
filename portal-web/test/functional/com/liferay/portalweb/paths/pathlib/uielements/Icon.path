@@ -24,6 +24,21 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY</td>
+	<td>//*[*[name()='svg'][contains(@class,'lexicon-icon-${key_text}')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_ENABLED</td>
+	<td>//*[*[name()='svg'][contains(@class,'lexicon-icon-${key_text}')]][not(@disabled='')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_DISABLED</td>
+	<td>//*[*[name()='svg'][contains(@class,'lexicon-icon-${key_text}')]][@disabled='']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ASTERISK</td>
 	<td>//span[*[name()='svg'][contains(@class,'icon-asterisk')]] | //span[contains(@class,'icon-asterisk')] | //label[*[name()='svg'][contains(@class,'icon-asterisk')] and not(contains(@class,'required-warning'))]</td>
 	<td></td>
@@ -71,6 +86,11 @@
 <tr>
 	<td>DELETE</td>
 	<td>//*[*[name()='svg'][contains(@class,'icon-trash')]] | //button[@data-title='Delete' or @title='Delete'] | //*[*[name()='svg'][contains(@class,'times-circle')]] | //a[@data-title='Deactivate' or @title='Deactivate'] | //a[@data-title='Remove' or @title='Remove']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DELETE_ATTACHMENT</td>
+	<td>//div[contains(@class,'card-body') and contains(.,'${key_fileName}')]//a[*[name()='svg'][contains(@class,'icon-times')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -125,12 +145,47 @@
 </tr>
 <tr>
 	<td>EXPIRE</td>
-	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-time')]]</td>
+	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-time') and not(contains(@class,'circle'))]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EXPORT</td>
+	<td>//*[*[name()='svg'][contains(@class,'icon-download')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EXPORT_DISABLED</td>
+	<td>//button[*[name()='svg'][contains(@class,'icon-download')] and contains(@disabled,'disabled')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>EYE_PREVIEW</td>
 	<td>//*[*[name()='svg'][contains(@class,'lexicon-icon-view')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRIENDLY_URL_HISTORY_ITEM_DELETE</td>
+	<td>//*[normalize-space()='${key_oldFriendlyURL}']//following-sibling::button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRIENDLY_URL_HISTORY_ITEM_RESTORE</td>
+	<td>//button[contains(@class,'quick-action-item')][*[name()='svg'][contains(@class,'lexicon-icon-reload')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRIENDLY_URL_HISTORY_LOCALIZATION</td>
+	<td>//div[contains(@class,'language-selector-container')]//*[*[name()='svg'][contains(@class,'lexicon-icon-en-us')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRIENDLY_URL_HISTORY_SPANISH_LOCALIZATION</td>
+	<td>//button[contains(@class,'dropdown-item')]//*[*[name()='svg'][contains(@class,'exicon-icon-es-es')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRIENDLY_URL_HISTORY</td>
+	<td>//button[contains(@class,'history')][*[name()='svg'][contains(@class,'lexicon-icon-restore')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -145,7 +200,7 @@
 </tr>
 <tr>
 	<td>INFO_IE</td>
-	<td>//button[contains(@aria-label,'info-circle') and @title='Info'] | //*[@data-qa-id='infoButton']</td>
+	<td>//button[contains(@aria-label,'info-circle-open') or contains(@id,'OpenContextualSidebar')] | //*[@data-qa-id='infoButton']</td>
 	<td></td>
 </tr>
 <tr>
@@ -170,7 +225,7 @@
 </tr>
 <tr>
 	<td>MOVE_TO_RECYCLE_BIN</td>
-	<td>//a[contains(@data-qa-id,'recycle-binButton')]/span[contains(@class,'icon-monospaced')] | //*[*[name()='svg'][contains(@class,'icon-trash')] | //a[@data-title='Deactivate']]  | //a[@title='Deactivate'] | //a[@title='Delete']</td>
+	<td>//*[*[name()='svg'][contains(@class,'icon-trash')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -209,8 +264,13 @@
 	<td></td>
 </tr>
 <tr>
+	<td>RESTORE</td>
+	<td>//*[*[name()='svg'][contains(@class,'icon-restore')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SHARE</td>
-	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-share')]]</td>
+	<td>//button[contains(@class,'dropdown-toggle')]//span[*[name()='svg'][contains(@class,'lexicon-icon-share')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -234,11 +294,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>TRASH</td>
-	<td>//*[*[name()='svg'][contains(@class,'icon-trash')]]</td>
-	<td></td>
-</tr>
-<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -247,6 +302,11 @@
 <tr>
 	<td>VERTICAL_ELLIPSIS_BUTTON</td>
 	<td>//div[contains(@class,'dropdown-action')]//button[contains(@class,'dropdown-toggle')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SIDEBAR_HEADER_ACTION_VERTICAL_ELLIPSIS_BUTTON</td>
+	<td>//*[contains(@class,'sidebar-header-actions')]//button[contains(@class,'dropdown-toggle')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -269,12 +329,6 @@
 	<td>//tr[contains(.,'${key_language}')]//*[name()='svg'][contains(@class,'icon-ellipsis')]</td>
 	<td></td>
 </tr>
-
-<tr>
-	<td>FRAGMENT_VERTICAL_ELLIPSIS</td>
-	<td>//*[contains(@class, 'fragments-editor-sidebar')]//*[contains(@class, 'lexicon-icon-ellipsis-v')]</td>
-	<td></td>
-</tr>
 <tr>
 	<td>FRAGMENT_PAGE_CONTENT_VERTICAL_ELLIPSIS</td>
 	<td>//li[contains(@class,'page-content') and contains(.,'${key_rowEntry}')]//button[contains(@class,'btn-monospaced')]</td>
@@ -291,13 +345,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>HELPER</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]]//span[contains(@class,'icon-help')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>HISTORY_VERTICAL_ELLIPSIS</td>
 	<td>//a[span/*[contains(@class,'lexicon-icon-ellipsis-v')]]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_CUSTOMIZATION_ELLIPSIS</td>
-	<td>//*[@data-qa-id='controlMenu']//div[contains(@class,'icon-menu')]</td>
+	<td>//div[@class='control-menu-level-2']//div[contains(@class,'icon-menu')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -328,6 +387,11 @@
 <tr>
 	<td>ROW_VERTICAL_ELLIPSIS_IE</td>
 	<td>//*[@data-qa-id='row' and contains(.,'${key_rowEntry}')]//a[contains(@class,'icon-monospaced')]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ROW_VERTICAL_ELLIPSIS_SAFARI</td>
+	<td>//*[@data-qa-id='row' and contains(.,'${key_rowEntry}')]//a[contains(@class,'dropdown-toggle')]</td>
 	<td></td>
 </tr>
 <tr>

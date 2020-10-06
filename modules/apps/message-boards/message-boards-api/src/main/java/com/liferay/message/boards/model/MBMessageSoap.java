@@ -24,13 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.message.boards.service.http.MBMessageServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class MBMessageSoap implements Serializable {
 
 	public static MBMessageSoap toSoapModel(MBMessage model) {
 		MBMessageSoap soapModel = new MBMessageSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUuid(model.getUuid());
 		soapModel.setMessageId(model.getMessageId());
 		soapModel.setGroupId(model.getGroupId());
@@ -47,6 +51,7 @@ public class MBMessageSoap implements Serializable {
 		soapModel.setParentMessageId(model.getParentMessageId());
 		soapModel.setTreePath(model.getTreePath());
 		soapModel.setSubject(model.getSubject());
+		soapModel.setUrlSubject(model.getUrlSubject());
 		soapModel.setBody(model.getBody());
 		soapModel.setFormat(model.getFormat());
 		soapModel.setAnonymous(model.isAnonymous());
@@ -109,6 +114,22 @@ public class MBMessageSoap implements Serializable {
 
 	public void setPrimaryKey(long pk) {
 		setMessageId(pk);
+	}
+
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getUuid() {
@@ -239,6 +260,14 @@ public class MBMessageSoap implements Serializable {
 		_subject = subject;
 	}
 
+	public String getUrlSubject() {
+		return _urlSubject;
+	}
+
+	public void setUrlSubject(String urlSubject) {
+		_urlSubject = urlSubject;
+	}
+
 	public String getBody() {
 		return _body;
 	}
@@ -339,6 +368,8 @@ public class MBMessageSoap implements Serializable {
 		_statusDate = statusDate;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private long _messageId;
 	private long _groupId;
@@ -355,6 +386,7 @@ public class MBMessageSoap implements Serializable {
 	private long _parentMessageId;
 	private String _treePath;
 	private String _subject;
+	private String _urlSubject;
 	private String _body;
 	private String _format;
 	private boolean _anonymous;

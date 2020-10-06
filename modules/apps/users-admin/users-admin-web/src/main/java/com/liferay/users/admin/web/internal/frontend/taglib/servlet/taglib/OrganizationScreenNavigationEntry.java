@@ -22,12 +22,14 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.portlet.PortletURLFactory;
+import com.liferay.portal.kernel.model.UserConstants;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.service.OrganizationService;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.users.admin.constants.UserScreenNavigationEntryConstants;
+import com.liferay.users.admin.constants.UsersAdminPortletKeys;
 import com.liferay.users.admin.web.internal.constants.UsersAdminWebKeys;
 import com.liferay.users.admin.web.internal.display.context.OrganizationScreenNavigationDisplayContext;
 
@@ -36,7 +38,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
-import javax.portlet.ActionRequest;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
@@ -49,24 +50,8 @@ import javax.servlet.http.HttpServletResponse;
 public class OrganizationScreenNavigationEntry
 	implements ScreenNavigationEntry<Organization> {
 
-	public OrganizationScreenNavigationEntry(
-		JSPRenderer jspRenderer, OrganizationService organizationService,
-		Portal portal, PortletURLFactory portletURLFactory, String entryKey,
-		String categoryKey, String jspPath, String mvcActionCommandName,
-		boolean showControls, boolean showTitle,
-		BiFunction<User, Organization, Boolean> isVisibleBiFunction) {
-
-		_jspRenderer = jspRenderer;
-		_organizationService = organizationService;
-		_portal = portal;
-		_portletURLFactory = portletURLFactory;
-		_entryKey = entryKey;
-		_categoryKey = categoryKey;
-		_jspPath = jspPath;
-		_mvcActionCommandName = mvcActionCommandName;
-		_showControls = showControls;
-		_showTitle = showTitle;
-		_isVisibleBiFunction = isVisibleBiFunction;
+	public static Builder builder() {
+		return new Builder();
 	}
 
 	@Override
@@ -95,7 +80,7 @@ public class OrganizationScreenNavigationEntry
 
 	@Override
 	public boolean isVisible(User user, Organization organization) {
-		return _isVisibleBiFunction.apply(user, organization);
+		return _visibleBiFunction.apply(user, organization);
 	}
 
 	@Override
@@ -108,12 +93,44 @@ public class OrganizationScreenNavigationEntry
 			organizationScreenNavigationDisplayContext =
 				new OrganizationScreenNavigationDisplayContext();
 
-		String redirect = ParamUtil.getString(httpServletRequest, "redirect");
+		organizationScreenNavigationDisplayContext.setActionName(
+			_mvcActionCommandName);
 
-		String backURL = ParamUtil.getString(
-			httpServletRequest, "backURL", redirect);
+		String backURL = ParamUtil.getString(httpServletRequest, "backURL");
+
+		if (Validator.isNull(backURL)) {
+			PortletURL viewOrganizationsURL = PortletURLFactoryUtil.create(
+				httpServletRequest, UsersAdminPortletKeys.USERS_ADMIN,
+				PortletRequest.RENDER_PHASE);
+
+			viewOrganizationsURL.setParameter(
+				"toolbarItem", "view-all-organizations");
+			viewOrganizationsURL.setParameter(
+				"usersListView", UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS);
+
+			backURL = viewOrganizationsURL.toString();
+		}
 
 		organizationScreenNavigationDisplayContext.setBackURL(backURL);
+
+		String redirect = ParamUtil.getString(httpServletRequest, "redirect");
+
+		if (Validator.isNull(redirect)) {
+			PortletURL editOrganizationURL = PortletURLFactoryUtil.create(
+				httpServletRequest, UsersAdminPortletKeys.USERS_ADMIN,
+				PortletRequest.RENDER_PHASE);
+
+			editOrganizationURL.setParameter(
+				"mvcRenderCommandName", "/users_admin/edit_organization");
+			editOrganizationURL.setParameter("backURL", backURL);
+			editOrganizationURL.setParameter(
+				"organizationId",
+				ParamUtil.getString(httpServletRequest, "organizationId"));
+
+			redirect = editOrganizationURL.toString();
+		}
+
+		organizationScreenNavigationDisplayContext.setRedirect(redirect);
 
 		organizationScreenNavigationDisplayContext.setFormLabel(
 			getLabel(httpServletRequest.getLocale()));
@@ -142,41 +159,6 @@ public class OrganizationScreenNavigationEntry
 			_showControls);
 		organizationScreenNavigationDisplayContext.setShowTitle(_showTitle);
 
-		String portletId = _portal.getPortletId(httpServletRequest);
-
-		PortletURL editOrganizationActionURL = _portletURLFactory.create(
-			httpServletRequest, portletId, PortletRequest.ACTION_PHASE);
-
-		editOrganizationActionURL.setParameter(
-			ActionRequest.ACTION_NAME, _mvcActionCommandName);
-
-		PortletURL editOrganizationRenderURL = _portletURLFactory.create(
-			httpServletRequest, portletId, PortletRequest.RENDER_PHASE);
-
-		editOrganizationRenderURL.setParameter(
-			"mvcRenderCommandName", "/users_admin/edit_organization");
-		editOrganizationRenderURL.setParameter("backURL", backURL);
-		editOrganizationRenderURL.setParameter(
-			"organizationId", String.valueOf(organizationId));
-		editOrganizationRenderURL.setParameter(
-			"screenNavigationCategoryKey", _categoryKey);
-		editOrganizationRenderURL.setParameter(
-			"screenNavigationEntryKey", _entryKey);
-
-		editOrganizationActionURL.setParameter(
-			"redirect", editOrganizationRenderURL.toString());
-
-		editOrganizationActionURL.setParameter("backURL", backURL);
-		editOrganizationActionURL.setParameter(
-			"organizationId", String.valueOf(organizationId));
-		editOrganizationActionURL.setParameter(
-			"screenNavigationCategoryKey", _categoryKey);
-		editOrganizationActionURL.setParameter(
-			"screenNavigationEntryKey", _entryKey);
-
-		organizationScreenNavigationDisplayContext.setEditOrganizationActionURL(
-			editOrganizationActionURL.toString());
-
 		httpServletRequest.setAttribute(
 			UsersAdminWebKeys.ORGANIZATION_SCREEN_NAVIGATION_DISPLAY_CONTEXT,
 			organizationScreenNavigationDisplayContext);
@@ -186,19 +168,124 @@ public class OrganizationScreenNavigationEntry
 			"/edit_organization_navigation.jsp");
 	}
 
+	public static class Builder {
+
+		public OrganizationScreenNavigationEntry build() {
+			return new OrganizationScreenNavigationEntry(
+				_jspRenderer, _organizationService, _entryKey, _categoryKey,
+				_jspPath, _mvcActionCommandName, _showControls, _showTitle,
+				_visibleBiFunction);
+		}
+
+		public Builder categoryKey(String categoryKey) {
+			_categoryKey = categoryKey;
+
+			return this;
+		}
+
+		public Builder entryKey(String entryKey) {
+			_entryKey = entryKey;
+
+			return this;
+		}
+
+		public Builder jspPath(String jspPath) {
+			_jspPath = jspPath;
+
+			return this;
+		}
+
+		public Builder jspRenderer(JSPRenderer jspRenderer) {
+			_jspRenderer = jspRenderer;
+
+			return this;
+		}
+
+		public Builder mvcActionCommandName(String mvcActionCommandName) {
+			_mvcActionCommandName = mvcActionCommandName;
+
+			return this;
+		}
+
+		public Builder organizationService(
+			OrganizationService organizationService) {
+
+			_organizationService = organizationService;
+
+			return this;
+		}
+
+		public Builder showControls(boolean showControls) {
+			_showControls = showControls;
+
+			return this;
+		}
+
+		public Builder showTitle(boolean showTitle) {
+			_showTitle = showTitle;
+
+			return this;
+		}
+
+		public Builder visibleBiFunction(
+			BiFunction<User, Organization, Boolean> visibleBiFunction) {
+
+			_visibleBiFunction = visibleBiFunction;
+
+			return this;
+		}
+
+		private Builder() {
+		}
+
+		private String _categoryKey;
+		private String _entryKey;
+		private String _jspPath;
+		private JSPRenderer _jspRenderer;
+		private String _mvcActionCommandName;
+		private OrganizationService _organizationService;
+		private boolean _showControls = true;
+		private boolean _showTitle = true;
+
+		private BiFunction<User, Organization, Boolean> _visibleBiFunction =
+			(user, organization) -> {
+				if (organization == null) {
+					return false;
+				}
+
+				return true;
+			};
+
+	}
+
+	private OrganizationScreenNavigationEntry(
+		JSPRenderer jspRenderer, OrganizationService organizationService,
+		String entryKey, String categoryKey, String jspPath,
+		String mvcActionCommandName, boolean showControls, boolean showTitle,
+		BiFunction<User, Organization, Boolean> visibleBiFunction) {
+
+		_jspRenderer = jspRenderer;
+		_organizationService = organizationService;
+		_entryKey = entryKey;
+		_categoryKey = categoryKey;
+		_jspPath = jspPath;
+		_mvcActionCommandName = mvcActionCommandName;
+		_showControls = showControls;
+		_showTitle = showTitle;
+		_visibleBiFunction = visibleBiFunction;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		OrganizationScreenNavigationEntry.class);
 
 	private final String _categoryKey;
 	private final String _entryKey;
-	private final BiFunction<User, Organization, Boolean> _isVisibleBiFunction;
 	private final String _jspPath;
 	private final JSPRenderer _jspRenderer;
 	private final String _mvcActionCommandName;
 	private final OrganizationService _organizationService;
-	private final Portal _portal;
-	private final PortletURLFactory _portletURLFactory;
 	private final boolean _showControls;
 	private final boolean _showTitle;
+	private final BiFunction<User, Organization, Boolean> _visibleBiFunction;
 
 }

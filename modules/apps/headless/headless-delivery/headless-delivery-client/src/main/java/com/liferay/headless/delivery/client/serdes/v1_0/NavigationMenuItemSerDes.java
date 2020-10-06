@@ -62,6 +62,35 @@ public class NavigationMenuItemSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+		if (navigationMenuItem.getAvailableLanguages() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"availableLanguages\": ");
+
+			sb.append("[");
+
+			for (int i = 0;
+				 i < navigationMenuItem.getAvailableLanguages().length; i++) {
+
+				sb.append("\"");
+
+				sb.append(
+					_escape(navigationMenuItem.getAvailableLanguages()[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) <
+						navigationMenuItem.getAvailableLanguages().length) {
+
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (navigationMenuItem.getCreator() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -216,6 +245,16 @@ public class NavigationMenuItemSerDes {
 			sb.append("\"");
 		}
 
+		if (navigationMenuItem.getUseCustomName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"useCustomName\": ");
+
+			sb.append(navigationMenuItem.getUseCustomName());
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -240,6 +279,15 @@ public class NavigationMenuItemSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+		if (navigationMenuItem.getAvailableLanguages() == null) {
+			map.put("availableLanguages", null);
+		}
+		else {
+			map.put(
+				"availableLanguages",
+				String.valueOf(navigationMenuItem.getAvailableLanguages()));
+		}
+
 		if (navigationMenuItem.getCreator() == null) {
 			map.put("creator", null);
 		}
@@ -247,15 +295,25 @@ public class NavigationMenuItemSerDes {
 			map.put("creator", String.valueOf(navigationMenuItem.getCreator()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(
-				navigationMenuItem.getDateCreated()));
+		if (navigationMenuItem.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(
+					navigationMenuItem.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(
-				navigationMenuItem.getDateModified()));
+		if (navigationMenuItem.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(
+					navigationMenuItem.getDateModified()));
+		}
 
 		if (navigationMenuItem.getId() == null) {
 			map.put("id", null);
@@ -318,6 +376,15 @@ public class NavigationMenuItemSerDes {
 			map.put("url", String.valueOf(navigationMenuItem.getUrl()));
 		}
 
+		if (navigationMenuItem.getUseCustomName() == null) {
+			map.put("useCustomName", null);
+		}
+		else {
+			map.put(
+				"useCustomName",
+				String.valueOf(navigationMenuItem.getUseCustomName()));
+		}
+
 		return map;
 	}
 
@@ -339,7 +406,13 @@ public class NavigationMenuItemSerDes {
 			NavigationMenuItem navigationMenuItem, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "creator")) {
+			if (Objects.equals(jsonParserFieldName, "availableLanguages")) {
+				if (jsonParserFieldValue != null) {
+					navigationMenuItem.setAvailableLanguages(
+						toStrings((Object[])jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "creator")) {
 				if (jsonParserFieldValue != null) {
 					navigationMenuItem.setCreator(
 						CreatorSerDes.toDTO((String)jsonParserFieldValue));
@@ -413,9 +486,14 @@ public class NavigationMenuItemSerDes {
 					navigationMenuItem.setUrl((String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (Objects.equals(jsonParserFieldName, "useCustomName")) {
+				if (jsonParserFieldValue != null) {
+					navigationMenuItem.setUseCustomName(
+						(Boolean)jsonParserFieldValue);
+				}
+			}
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -471,10 +549,13 @@ public class NavigationMenuItemSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

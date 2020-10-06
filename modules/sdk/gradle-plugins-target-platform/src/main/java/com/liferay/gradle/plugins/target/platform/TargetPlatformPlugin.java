@@ -134,9 +134,7 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 			});
 	}
 
-	private static Configuration _addConfigurationTargetPlatformBoms(
-		Project project) {
-
+	private Configuration _addConfigurationTargetPlatformBoms(Project project) {
 		Configuration configuration = GradleUtil.addConfiguration(
 			project, TARGET_PLATFORM_BOMS_CONFIGURATION_NAME);
 
@@ -148,7 +146,7 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 		return configuration;
 	}
 
-	private static Configuration _addConfigurationTargetPlatformDistro(
+	private Configuration _addConfigurationTargetPlatformDistro(
 		Project project) {
 
 		Configuration configuration = GradleUtil.addConfiguration(
@@ -263,10 +261,11 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 
 	private static final List<String> _configurationNames = Arrays.asList(
 		"compile", "compileClasspath", "compileInclude", "compileOnly",
-		"default", "implementation", "originalModule", "parentThemes",
-		"portalCommonCSS", "runtime", "runtimeClasspath",
-		"runtimeImplementation", "runtimeOnly", "testCompileClasspath",
-		"testCompileOnly", "testImplementation", "testIntegration",
-		"testRuntime", "testRuntimeClasspath", "testRuntimeOnly");
+		"default", "implementation", "jsCompile", "originalModule",
+		"parentThemes", "portalCommonCSS", "providedModules", "runtime",
+		"runtimeClasspath", "runtimeImplementation", "runtimeOnly",
+		"testCompileClasspath", "testCompileOnly", "testImplementation",
+		"testIntegration", "testRuntime", "testRuntimeClasspath",
+		"testRuntimeOnly");
 
 }

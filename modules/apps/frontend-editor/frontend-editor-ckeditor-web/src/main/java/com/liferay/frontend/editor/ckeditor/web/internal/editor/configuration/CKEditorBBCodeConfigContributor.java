@@ -16,7 +16,6 @@ package com.liferay.frontend.editor.ckeditor.web.internal.editor.configuration;
 
 import com.liferay.message.boards.constants.MBThreadConstants;
 import com.liferay.portal.kernel.editor.configuration.EditorConfigContributor;
-import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -54,7 +53,8 @@ public class CKEditorBBCodeConfigContributor
 		).put(
 			"enterMode", 2
 		).put(
-			"extraPlugins", "a11yhelpbtn,bbcode,itemselector,wikilink"
+			"extraPlugins",
+			"a11yhelpbtn,bbcode,itemselector,sourcearea,wikilink"
 		).put(
 			"fontSize_defaultLabel", "14"
 		).put(
@@ -72,9 +72,9 @@ public class CKEditorBBCodeConfigContributor
 			"newThreadURL", MBThreadConstants.NEW_THREAD_URL
 		).put(
 			"removePlugins",
-			"bidi,div,elementspath,flash,forms,indentblock,keystrokes,link," +
-				"maximize,newpage,pagebreak,preview,print,save,showblocks," +
-					"templates,video"
+			"bidi,codemirror,div,elementspath,flash,forms,indentblock," +
+				"keystrokes,link,maximize,newpage,pagebreak,preview," +
+					"print,save,showblocks,templates,video"
 		).put(
 			"smiley_descriptions",
 			toJSONArray(BBCodeTranslatorUtil.getEmoticonDescriptions())
@@ -87,15 +87,6 @@ public class CKEditorBBCodeConfigContributor
 		).put(
 			"smiley_symbols",
 			toJSONArray(BBCodeTranslatorUtil.getEmoticonSymbols())
-		).put(
-			"toolbar_bbcode",
-			getToolbarsBBCodeJSONArray(inputEditorTaglibAttributes)
-		).put(
-			"toolbar_phone",
-			getToolbarsPhoneJSONArray(inputEditorTaglibAttributes)
-		).put(
-			"toolbar_tablet",
-			getToolbarsTabletJSONArray(inputEditorTaglibAttributes)
 		);
 	}
 
@@ -106,70 +97,6 @@ public class CKEditorBBCodeConfigContributor
 			"code",
 			LanguageUtil.get(
 				getContentsLocale(inputEditorTaglibAttributes), "code"));
-	}
-
-	protected JSONArray getToolbarsBBCodeJSONArray(
-		Map<String, Object> inputEditorTaglibAttributes) {
-
-		JSONArray jsonArray = JSONUtil.putAll(
-			toJSONArray("['Bold', 'Italic', 'Underline', 'Strike']"),
-			toJSONArray("['TextColor']"),
-			toJSONArray(
-				"['JustifyLeft', 'JustifyCenter', 'JustifyRight', " +
-					"'JustifyBlock']"),
-			toJSONArray(
-				"['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', " +
-					"'-', 'Blockquote', '-', 'Code']"),
-			"/", toJSONArray("['Format', 'Font', 'FontSize']"),
-			toJSONArray("['Link', 'Unlink']"),
-			toJSONArray("['ImageSelector', '-', 'Smiley']"), "/",
-			toJSONArray(
-				"['Cut', 'Copy', 'Paste', '-', 'SelectAll', '-', 'Undo', " +
-					"'Redo']"));
-
-		if (isShowSource(inputEditorTaglibAttributes)) {
-			jsonArray.put(toJSONArray("['Source']"));
-		}
-
-		jsonArray.put(toJSONArray("['A11YBtn']"));
-
-		return jsonArray;
-	}
-
-	protected JSONArray getToolbarsPhoneJSONArray(
-		Map<String, Object> inputEditorTaglibAttributes) {
-
-		JSONArray jsonArray = JSONUtil.putAll(
-			toJSONArray("['Bold', 'Italic', 'Underline']"),
-			toJSONArray("['NumberedList', 'BulletedList']"),
-			toJSONArray("['Link', 'Unlink']"),
-			toJSONArray("['ImageSelector']"));
-
-		if (isShowSource(inputEditorTaglibAttributes)) {
-			jsonArray.put(toJSONArray("['Source']"));
-		}
-
-		return jsonArray;
-	}
-
-	protected JSONArray getToolbarsTabletJSONArray(
-		Map<String, Object> inputEditorTaglibAttributes) {
-
-		JSONArray jsonArray = JSONUtil.putAll(
-			toJSONArray("['Bold', 'Italic', 'Underline', 'Strike']"),
-			toJSONArray(
-				"['JustifyLeft', 'JustifyCenter', 'JustifyRight', " +
-					"'JustifyBlock']"),
-			toJSONArray("['NumberedList', 'BulletedList']"),
-			toJSONArray("['Styles', 'FontSize']"),
-			toJSONArray("['Link', 'Unlink']"),
-			toJSONArray("['ImageSelector']"));
-
-		if (isShowSource(inputEditorTaglibAttributes)) {
-			jsonArray.put(toJSONArray("['Source']"));
-		}
-
-		return jsonArray;
 	}
 
 }

@@ -18,7 +18,6 @@ import {PortletBase} from 'frontend-js-web';
 import dom from 'metal-dom';
 import {EventHandler} from 'metal-events';
 import {Config} from 'metal-state';
-import React from 'react';
 import ReactDOM from 'react-dom';
 
 import ItemSelectorPreview from '../../item_selector_preview/js/ItemSelectorPreview.es';
@@ -35,6 +34,7 @@ const statusCode = Liferay.STATUS_CODE;
  * @extends {PortletBase}
  */
 class ItemSelectorRepositoryEntryBrowser extends PortletBase {
+
 	/**
 	 * @inheritDoc
 	 */
@@ -46,7 +46,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 	 * @inheritDoc
 	 */
 	attached() {
-		AUI().use('liferay-item-selector-uploader', A => {
+		AUI().use('liferay-item-selector-uploader', (A) => {
 			this._itemSelectorUploader = new A.LiferayItemSelectorUploader({
 				rootNode: this.rootNode,
 			});
@@ -60,13 +60,13 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 	attachItemSelectorPreviewComponent() {
 		const itemsNodes = Array.from(this.all('.item-preview'));
 
-		const items = itemsNodes.map(node => node.dataset);
+		const items = itemsNodes.map((node) => node.dataset);
 
 		const clicableItems = Array.from(this.all('.icon-view'));
 
 		if (items.length === clicableItems.length) {
 			clicableItems.forEach((clicableItem, index) => {
-				clicableItem.addEventListener('click', e => {
+				clicableItem.addEventListener('click', (e) => {
 					e.preventDefault();
 					e.stopPropagation();
 
@@ -94,7 +94,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 			uploadItemURL: this.uploadItemURL,
 		};
 
-		render(props => <ItemSelectorPreview {...props} />, data, container);
+		render(ItemSelectorPreview, data, container);
 	}
 
 	closeItemSelectorPreview() {
@@ -119,7 +119,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 	 */
 	_bindEvents() {
 		this._eventHandler.add(
-			dom.delegate(this.rootNode, 'click', '.item-preview', event =>
+			dom.delegate(this.rootNode, 'click', '.item-preview', (event) =>
 				this._onItemSelected(event.delegateTarget.dataset)
 			)
 		);
@@ -128,7 +128,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 
 		if (inputFileNode) {
 			this._eventHandler.add(
-				inputFileNode.addEventListener('change', event => {
+				inputFileNode.addEventListener('change', (event) => {
 					this._validateFile(event.target.files[0]);
 				})
 			);
@@ -142,7 +142,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 				itemSelectorUploader.after('itemUploadCancel', () => {
 					this.closeItemSelectorPreview();
 				}),
-				itemSelectorUploader.after('itemUploadComplete', itemData => {
+				itemSelectorUploader.after('itemUploadComplete', (itemData) => {
 					const itemFile = itemData.file;
 					const itemFileUrl = itemFile.url;
 					let itemFileValue = itemFile.resolvedValue;
@@ -167,16 +167,16 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 						});
 					});
 				}),
-				itemSelectorUploader.after('itemUploadError', event => {
+				itemSelectorUploader.after('itemUploadError', (event) => {
 					this._onItemUploadError(event);
 				}),
-				rootNode.addEventListener(STR_DRAG_OVER, event =>
+				rootNode.addEventListener(STR_DRAG_OVER, (event) =>
 					this._ddEventHandler(event)
 				),
-				rootNode.addEventListener(STR_DRAG_LEAVE, event =>
+				rootNode.addEventListener(STR_DRAG_LEAVE, (event) =>
 					this._ddEventHandler(event)
 				),
-				rootNode.addEventListener(STR_DROP, event =>
+				rootNode.addEventListener(STR_DROP, (event) =>
 					this._ddEventHandler(event)
 				)
 			);
@@ -392,7 +392,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 		if (window.FileReader) {
 			const reader = new FileReader();
 
-			reader.addEventListener('loadend', event => {
+			reader.addEventListener('loadend', (event) => {
 				this._showFile(file, event.target.result);
 			});
 
@@ -414,7 +414,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 				message,
 				spritemap:
 					Liferay.ThemeDisplay.getPathThemeImages() +
-					'/lexicon/icons.svg',
+					'/clay/icons.svg',
 				style: 'danger',
 				title: '',
 				visible: true,
@@ -464,10 +464,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 	_validateFile(file) {
 		let errorMessage = '';
 
-		const fileExtension = file.name
-			.split('.')
-			.pop()
-			.toLowerCase();
+		const fileExtension = file.name.split('.').pop().toLowerCase();
 
 		const validExtensions = this.validExtensions;
 
@@ -517,6 +514,7 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
  * @type {!Object}
  */
 ItemSelectorRepositoryEntryBrowser.STATE = {
+
 	/**
 	 * Text to show near the close icon in the Item Viewer
 	 *
@@ -540,9 +538,7 @@ ItemSelectorRepositoryEntryBrowser.STATE = {
 	 *
 	 * @type {Number} milliseconds
 	 */
-	hideAlertDelay: Config.number()
-		.value(5000)
-		.internal(),
+	hideAlertDelay: Config.number().value(5000).internal(),
 
 	/**
 	 * Maximum allowed file size to drop in the item selector.

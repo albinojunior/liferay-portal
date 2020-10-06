@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import java.util.Date;
+
 /**
  * The cache model class for representing DepotEntryGroupRel in entity cache.
  *
@@ -35,17 +37,17 @@ public class DepotEntryGroupRelCacheModel
 	implements CacheModel<DepotEntryGroupRel>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DepotEntryGroupRelCacheModel)) {
+		if (!(object instanceof DepotEntryGroupRelCacheModel)) {
 			return false;
 		}
 
 		DepotEntryGroupRelCacheModel depotEntryGroupRelCacheModel =
-			(DepotEntryGroupRelCacheModel)obj;
+			(DepotEntryGroupRelCacheModel)object;
 
 		if ((depotEntryGroupRelId ==
 				depotEntryGroupRelCacheModel.depotEntryGroupRelId) &&
@@ -76,14 +78,24 @@ public class DepotEntryGroupRelCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(13);
+		StringBundler sb = new StringBundler(23);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", uuid=");
+		sb.append(uuid);
 		sb.append(", depotEntryGroupRelId=");
 		sb.append(depotEntryGroupRelId);
+		sb.append(", groupId=");
+		sb.append(groupId);
 		sb.append(", companyId=");
 		sb.append(companyId);
+		sb.append(", createDate=");
+		sb.append(createDate);
+		sb.append(", modifiedDate=");
+		sb.append(modifiedDate);
+		sb.append(", ddmStructuresAvailable=");
+		sb.append(ddmStructuresAvailable);
 		sb.append(", depotEntryId=");
 		sb.append(depotEntryId);
 		sb.append(", searchable=");
@@ -101,8 +113,34 @@ public class DepotEntryGroupRelCacheModel
 			new DepotEntryGroupRelImpl();
 
 		depotEntryGroupRelImpl.setMvccVersion(mvccVersion);
+
+		if (uuid == null) {
+			depotEntryGroupRelImpl.setUuid("");
+		}
+		else {
+			depotEntryGroupRelImpl.setUuid(uuid);
+		}
+
 		depotEntryGroupRelImpl.setDepotEntryGroupRelId(depotEntryGroupRelId);
+		depotEntryGroupRelImpl.setGroupId(groupId);
 		depotEntryGroupRelImpl.setCompanyId(companyId);
+
+		if (createDate == Long.MIN_VALUE) {
+			depotEntryGroupRelImpl.setCreateDate(null);
+		}
+		else {
+			depotEntryGroupRelImpl.setCreateDate(new Date(createDate));
+		}
+
+		if (modifiedDate == Long.MIN_VALUE) {
+			depotEntryGroupRelImpl.setModifiedDate(null);
+		}
+		else {
+			depotEntryGroupRelImpl.setModifiedDate(new Date(modifiedDate));
+		}
+
+		depotEntryGroupRelImpl.setDdmStructuresAvailable(
+			ddmStructuresAvailable);
 		depotEntryGroupRelImpl.setDepotEntryId(depotEntryId);
 		depotEntryGroupRelImpl.setSearchable(searchable);
 		depotEntryGroupRelImpl.setToGroupId(toGroupId);
@@ -115,10 +153,17 @@ public class DepotEntryGroupRelCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
+		uuid = objectInput.readUTF();
 
 		depotEntryGroupRelId = objectInput.readLong();
 
+		groupId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+		createDate = objectInput.readLong();
+		modifiedDate = objectInput.readLong();
+
+		ddmStructuresAvailable = objectInput.readBoolean();
 
 		depotEntryId = objectInput.readLong();
 
@@ -131,9 +176,22 @@ public class DepotEntryGroupRelCacheModel
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
 
+		if (uuid == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(uuid);
+		}
+
 		objectOutput.writeLong(depotEntryGroupRelId);
 
+		objectOutput.writeLong(groupId);
+
 		objectOutput.writeLong(companyId);
+		objectOutput.writeLong(createDate);
+		objectOutput.writeLong(modifiedDate);
+
+		objectOutput.writeBoolean(ddmStructuresAvailable);
 
 		objectOutput.writeLong(depotEntryId);
 
@@ -143,8 +201,13 @@ public class DepotEntryGroupRelCacheModel
 	}
 
 	public long mvccVersion;
+	public String uuid;
 	public long depotEntryGroupRelId;
+	public long groupId;
 	public long companyId;
+	public long createDate;
+	public long modifiedDate;
+	public boolean ddmStructuresAvailable;
 	public long depotEntryId;
 	public boolean searchable;
 	public long toGroupId;

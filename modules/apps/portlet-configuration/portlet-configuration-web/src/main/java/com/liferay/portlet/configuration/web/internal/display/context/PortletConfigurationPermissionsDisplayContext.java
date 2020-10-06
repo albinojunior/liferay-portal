@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -58,11 +59,16 @@ import com.liferay.portlet.configuration.web.internal.configuration.RoleVisibili
 import com.liferay.portlet.configuration.web.internal.constants.PortletConfigurationPortletKeys;
 import com.liferay.portlet.rolesadmin.search.RoleSearch;
 import com.liferay.portlet.rolesadmin.search.RoleSearchTerms;
+import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
+import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletMode;
@@ -80,11 +86,13 @@ import javax.servlet.http.HttpSession;
 public class PortletConfigurationPermissionsDisplayContext {
 
 	public PortletConfigurationPermissionsDisplayContext(
-			HttpServletRequest httpServletRequest, RenderRequest renderRequest)
+			HttpServletRequest httpServletRequest, RenderRequest renderRequest,
+			RoleTypeContributorProvider roleTypeContributorProvider)
 		throws PortalException {
 
 		_httpServletRequest = httpServletRequest;
 		_renderRequest = renderRequest;
+		_roleTypeContributorProvider = roleTypeContributorProvider;
 
 		long groupId = _getResourceGroupId();
 
@@ -153,11 +161,8 @@ public class PortletConfigurationPermissionsDisplayContext {
 				resourceActions = new ArrayList<>(resourceActions);
 
 				resourceActions.remove(ActionKeys.ASSIGN_MEMBERS);
-				resourceActions.remove(ActionKeys.DEFINE_PERMISSIONS);
 				resourceActions.remove(ActionKeys.DELETE);
-				resourceActions.remove(ActionKeys.PERMISSIONS);
 				resourceActions.remove(ActionKeys.UPDATE);
-				resourceActions.remove(ActionKeys.VIEW);
 			}
 		}
 
@@ -321,7 +326,7 @@ public class PortletConfigurationPermissionsDisplayContext {
 		return _resourcePrimKey;
 	}
 
-	public SearchContainer getRoleSearchContainer() throws Exception {
+	public SearchContainer<Role> getRoleSearchContainer() throws Exception {
 		if (_roleSearchContainer != null) {
 			return _roleSearchContainer;
 		}
@@ -345,9 +350,12 @@ public class PortletConfigurationPermissionsDisplayContext {
 			Role modelResourceRole = RoleLocalServiceUtil.getRole(
 				modelResourceRoleId);
 
-			if ((modelResourceRole.getType() ==
-					RoleConstants.TYPE_ORGANIZATION) ||
-				(modelResourceRole.getType() == RoleConstants.TYPE_SITE)) {
+			RoleTypeContributor roleTypeContributor =
+				_roleTypeContributorProvider.getRoleTypeContributor(
+					modelResourceRole.getType());
+
+			if (ArrayUtil.isNotEmpty(
+					roleTypeContributor.getExcludedRoleNames())) {
 
 				filterGroupRoles = true;
 			}
@@ -403,20 +411,26 @@ public class PortletConfigurationPermissionsDisplayContext {
 			}
 		}
 
-		List<String> excludedRoleNames = new ArrayList<>();
+		Set<String> excludedRoleNamesSet = new HashSet<>();
 
-		excludedRoleNames.add(RoleConstants.ADMINISTRATOR);
+		excludedRoleNamesSet.add(RoleConstants.ADMINISTRATOR);
 
 		if (filterGroupRoles) {
-			excludedRoleNames.add(RoleConstants.ORGANIZATION_ADMINISTRATOR);
-			excludedRoleNames.add(RoleConstants.ORGANIZATION_OWNER);
-			excludedRoleNames.add(RoleConstants.SITE_ADMINISTRATOR);
-			excludedRoleNames.add(RoleConstants.SITE_OWNER);
+			for (RoleTypeContributor roleTypeContributor :
+					_roleTypeContributorProvider.getRoleTypeContributors()) {
+
+				Collections.addAll(
+					excludedRoleNamesSet,
+					roleTypeContributor.getExcludedRoleNames());
+			}
 		}
 
 		if (filterGuestRole) {
-			excludedRoleNames.add(RoleConstants.GUEST);
+			excludedRoleNamesSet.add(RoleConstants.GUEST);
 		}
+
+		List<String> excludedRoleNames = ListUtil.fromCollection(
+			excludedRoleNamesSet);
 
 		long teamGroupId = _group.getGroupId();
 
@@ -523,6 +537,10 @@ public class PortletConfigurationPermissionsDisplayContext {
 		}
 
 		_roleTypes = RoleConstants.TYPES_REGULAR_AND_SITE;
+
+		if (_group.isDepot()) {
+			_roleTypes = _TYPES_DEPOT_AND_REGULAR;
+		}
 
 		if (ResourceActionsUtil.isPortalModelResource(getModelResource())) {
 			if (Objects.equals(
@@ -674,14 +692,14 @@ public class PortletConfigurationPermissionsDisplayContext {
 			return _resourceGroupId;
 		}
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)_httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
 		_resourceGroupId = ParamUtil.getLong(
 			_httpServletRequest, "resourceGroupId");
 
 		if (_resourceGroupId == 0) {
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)_httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
 			_resourceGroupId = themeDisplay.getScopeGroupId();
 		}
 
@@ -709,6 +727,10 @@ public class PortletConfigurationPermissionsDisplayContext {
 		return _roleTypesParam;
 	}
 
+	private static final int[] _TYPES_DEPOT_AND_REGULAR = {
+		RoleConstants.TYPE_DEPOT, RoleConstants.TYPE_REGULAR
+	};
+
 	private List<String> _actions;
 	private Group _group;
 	private final long _groupId;
@@ -722,7 +744,8 @@ public class PortletConfigurationPermissionsDisplayContext {
 	private Long _resourceGroupId;
 	private String _resourcePrimKey;
 	private String _returnToFullPageURL;
-	private SearchContainer _roleSearchContainer;
+	private SearchContainer<Role> _roleSearchContainer;
+	private final RoleTypeContributorProvider _roleTypeContributorProvider;
 	private int[] _roleTypes;
 	private String _roleTypesParam;
 	private final Layout _selLayout;

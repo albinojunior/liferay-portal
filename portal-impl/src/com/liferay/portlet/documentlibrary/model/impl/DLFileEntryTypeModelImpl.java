@@ -81,11 +81,12 @@ public class DLFileEntryTypeModelImpl
 	public static final String TABLE_NAME = "DLFileEntryType";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"uuid_", Types.VARCHAR},
-		{"fileEntryTypeId", Types.BIGINT}, {"groupId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
-		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
-		{"modifiedDate", Types.TIMESTAMP}, {"fileEntryTypeKey", Types.VARCHAR},
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
+		{"uuid_", Types.VARCHAR}, {"fileEntryTypeId", Types.BIGINT},
+		{"groupId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
+		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
+		{"dataDefinitionId", Types.BIGINT}, {"fileEntryTypeKey", Types.VARCHAR},
 		{"name", Types.VARCHAR}, {"description", Types.VARCHAR},
 		{"lastPublishDate", Types.TIMESTAMP}
 	};
@@ -95,6 +96,7 @@ public class DLFileEntryTypeModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("fileEntryTypeId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("groupId", Types.BIGINT);
@@ -103,6 +105,7 @@ public class DLFileEntryTypeModelImpl
 		TABLE_COLUMNS_MAP.put("userName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
+		TABLE_COLUMNS_MAP.put("dataDefinitionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("fileEntryTypeKey", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("description", Types.VARCHAR);
@@ -110,7 +113,7 @@ public class DLFileEntryTypeModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table DLFileEntryType (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,fileEntryTypeId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,fileEntryTypeKey VARCHAR(75) null,name STRING null,description STRING null,lastPublishDate DATE null)";
+		"create table DLFileEntryType (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,fileEntryTypeId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,dataDefinitionId LONG,fileEntryTypeKey VARCHAR(75) null,name STRING null,description STRING null,lastPublishDate DATE null,primary key (fileEntryTypeId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table DLFileEntryType";
 
@@ -126,29 +129,53 @@ public class DLFileEntryTypeModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.entity.cache.enabled.com.liferay.document.library.kernel.model.DLFileEntryType"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean ENTITY_CACHE_ENABLED = true;
 
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.finder.cache.enabled.com.liferay.document.library.kernel.model.DLFileEntryType"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean FINDER_CACHE_ENABLED = true;
 
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.column.bitmask.enabled.com.liferay.document.library.kernel.model.DLFileEntryType"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean COLUMN_BITMASK_ENABLED = true;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long FILEENTRYTYPEKEY_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long GROUPID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long UUID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long FILEENTRYTYPEID_COLUMN_BITMASK = 16L;
 
 	/**
@@ -156,7 +183,9 @@ public class DLFileEntryTypeModelImpl
 	 *
 	 * @param soapModel the soap model instance to convert
 	 * @return the normal model instance
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static DLFileEntryType toModel(DLFileEntryTypeSoap soapModel) {
 		if (soapModel == null) {
 			return null;
@@ -165,6 +194,7 @@ public class DLFileEntryTypeModelImpl
 		DLFileEntryType model = new DLFileEntryTypeImpl();
 
 		model.setMvccVersion(soapModel.getMvccVersion());
+		model.setCtCollectionId(soapModel.getCtCollectionId());
 		model.setUuid(soapModel.getUuid());
 		model.setFileEntryTypeId(soapModel.getFileEntryTypeId());
 		model.setGroupId(soapModel.getGroupId());
@@ -173,6 +203,7 @@ public class DLFileEntryTypeModelImpl
 		model.setUserName(soapModel.getUserName());
 		model.setCreateDate(soapModel.getCreateDate());
 		model.setModifiedDate(soapModel.getModifiedDate());
+		model.setDataDefinitionId(soapModel.getDataDefinitionId());
 		model.setFileEntryTypeKey(soapModel.getFileEntryTypeKey());
 		model.setName(soapModel.getName());
 		model.setDescription(soapModel.getDescription());
@@ -186,7 +217,9 @@ public class DLFileEntryTypeModelImpl
 	 *
 	 * @param soapModels the soap model instances to convert
 	 * @return the normal model instances
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static List<DLFileEntryType> toModels(
 		DLFileEntryTypeSoap[] soapModels) {
 
@@ -215,13 +248,14 @@ public class DLFileEntryTypeModelImpl
 
 	public static final String
 		MAPPING_TABLE_DLFILEENTRYTYPES_DLFOLDERS_SQL_CREATE =
-			"create table DLFileEntryTypes_DLFolders (companyId LONG not null,fileEntryTypeId LONG not null,folderId LONG not null,primary key (fileEntryTypeId, folderId))";
+			"create table DLFileEntryTypes_DLFolders (companyId LONG not null,fileEntryTypeId LONG not null,folderId LONG not null,ctCollectionId LONG default 0 not null,ctChangeType BOOLEAN,primary key (fileEntryTypeId, folderId, ctCollectionId))";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final boolean
-		FINDER_CACHE_ENABLED_DLFILEENTRYTYPES_DLFOLDERS = GetterUtil.getBoolean(
-			com.liferay.portal.util.PropsUtil.get(
-				"value.object.finder.cache.enabled.DLFileEntryTypes_DLFolders"),
-			true);
+		FINDER_CACHE_ENABLED_DLFILEENTRYTYPES_DLFOLDERS = true;
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
 		com.liferay.portal.util.PropsUtil.get(
@@ -278,9 +312,6 @@ public class DLFileEntryTypeModelImpl
 				attributeName,
 				attributeGetterFunction.apply((DLFileEntryType)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -360,6 +391,12 @@ public class DLFileEntryTypeModelImpl
 		attributeSetterBiConsumers.put(
 			"mvccVersion",
 			(BiConsumer<DLFileEntryType, Long>)DLFileEntryType::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", DLFileEntryType::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<DLFileEntryType, Long>)
+				DLFileEntryType::setCtCollectionId);
 		attributeGetterFunctions.put("uuid", DLFileEntryType::getUuid);
 		attributeSetterBiConsumers.put(
 			"uuid",
@@ -399,6 +436,12 @@ public class DLFileEntryTypeModelImpl
 			(BiConsumer<DLFileEntryType, Date>)
 				DLFileEntryType::setModifiedDate);
 		attributeGetterFunctions.put(
+			"dataDefinitionId", DLFileEntryType::getDataDefinitionId);
+		attributeSetterBiConsumers.put(
+			"dataDefinitionId",
+			(BiConsumer<DLFileEntryType, Long>)
+				DLFileEntryType::setDataDefinitionId);
+		attributeGetterFunctions.put(
 			"fileEntryTypeKey", DLFileEntryType::getFileEntryTypeKey);
 		attributeSetterBiConsumers.put(
 			"fileEntryTypeKey",
@@ -435,7 +478,26 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -451,17 +513,20 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setUuid(String uuid) {
-		_columnBitmask |= UUID_COLUMN_BITMASK;
-
-		if (_originalUuid == null) {
-			_originalUuid = _uuid;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_uuid = uuid;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalUuid() {
-		return GetterUtil.getString(_originalUuid);
+		return getColumnOriginalValue("uuid_");
 	}
 
 	@JSON
@@ -472,6 +537,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setFileEntryTypeId(long fileEntryTypeId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_fileEntryTypeId = fileEntryTypeId;
 	}
 
@@ -483,19 +552,20 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setGroupId(long groupId) {
-		_columnBitmask |= GROUPID_COLUMN_BITMASK;
-
-		if (!_setOriginalGroupId) {
-			_setOriginalGroupId = true;
-
-			_originalGroupId = _groupId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_groupId = groupId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalGroupId() {
-		return _originalGroupId;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("groupId"));
 	}
 
 	@JSON
@@ -506,19 +576,21 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
-		_columnBitmask |= COMPANYID_COLUMN_BITMASK;
-
-		if (!_setOriginalCompanyId) {
-			_setOriginalCompanyId = true;
-
-			_originalCompanyId = _companyId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_companyId = companyId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalCompanyId() {
-		return _originalCompanyId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("companyId"));
 	}
 
 	@JSON
@@ -529,6 +601,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setUserId(long userId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userId = userId;
 	}
 
@@ -561,6 +637,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setUserName(String userName) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userName = userName;
 	}
 
@@ -572,6 +652,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setCreateDate(Date createDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_createDate = createDate;
 	}
 
@@ -589,7 +673,26 @@ public class DLFileEntryTypeModelImpl
 	public void setModifiedDate(Date modifiedDate) {
 		_setModifiedDate = true;
 
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_modifiedDate = modifiedDate;
+	}
+
+	@JSON
+	@Override
+	public long getDataDefinitionId() {
+		return _dataDefinitionId;
+	}
+
+	@Override
+	public void setDataDefinitionId(long dataDefinitionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_dataDefinitionId = dataDefinitionId;
 	}
 
 	@JSON
@@ -605,17 +708,20 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setFileEntryTypeKey(String fileEntryTypeKey) {
-		_columnBitmask |= FILEENTRYTYPEKEY_COLUMN_BITMASK;
-
-		if (_originalFileEntryTypeKey == null) {
-			_originalFileEntryTypeKey = _fileEntryTypeKey;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_fileEntryTypeKey = fileEntryTypeKey;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalFileEntryTypeKey() {
-		return GetterUtil.getString(_originalFileEntryTypeKey);
+		return getColumnOriginalValue("fileEntryTypeKey");
 	}
 
 	@JSON
@@ -674,6 +780,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setName(String name) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_name = name;
 	}
 
@@ -777,6 +887,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setDescription(String description) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_description = description;
 	}
 
@@ -837,6 +951,10 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setLastPublishDate(Date lastPublishDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_lastPublishDate = lastPublishDate;
 	}
 
@@ -847,6 +965,24 @@ public class DLFileEntryTypeModelImpl
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -971,6 +1107,7 @@ public class DLFileEntryTypeModelImpl
 		DLFileEntryTypeImpl dlFileEntryTypeImpl = new DLFileEntryTypeImpl();
 
 		dlFileEntryTypeImpl.setMvccVersion(getMvccVersion());
+		dlFileEntryTypeImpl.setCtCollectionId(getCtCollectionId());
 		dlFileEntryTypeImpl.setUuid(getUuid());
 		dlFileEntryTypeImpl.setFileEntryTypeId(getFileEntryTypeId());
 		dlFileEntryTypeImpl.setGroupId(getGroupId());
@@ -979,6 +1116,7 @@ public class DLFileEntryTypeModelImpl
 		dlFileEntryTypeImpl.setUserName(getUserName());
 		dlFileEntryTypeImpl.setCreateDate(getCreateDate());
 		dlFileEntryTypeImpl.setModifiedDate(getModifiedDate());
+		dlFileEntryTypeImpl.setDataDefinitionId(getDataDefinitionId());
 		dlFileEntryTypeImpl.setFileEntryTypeKey(getFileEntryTypeKey());
 		dlFileEntryTypeImpl.setName(getName());
 		dlFileEntryTypeImpl.setDescription(getDescription());
@@ -1005,16 +1143,16 @@ public class DLFileEntryTypeModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DLFileEntryType)) {
+		if (!(object instanceof DLFileEntryType)) {
 			return false;
 		}
 
-		DLFileEntryType dlFileEntryType = (DLFileEntryType)obj;
+		DLFileEntryType dlFileEntryType = (DLFileEntryType)object;
 
 		long primaryKey = dlFileEntryType.getPrimaryKey();
 
@@ -1031,11 +1169,19 @@ public class DLFileEntryTypeModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
 		return ENTITY_CACHE_ENABLED;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
 		return FINDER_CACHE_ENABLED;
@@ -1043,26 +1189,11 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void resetOriginalValues() {
-		DLFileEntryTypeModelImpl dlFileEntryTypeModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		dlFileEntryTypeModelImpl._originalUuid = dlFileEntryTypeModelImpl._uuid;
+		_setModifiedDate = false;
 
-		dlFileEntryTypeModelImpl._originalGroupId =
-			dlFileEntryTypeModelImpl._groupId;
-
-		dlFileEntryTypeModelImpl._setOriginalGroupId = false;
-
-		dlFileEntryTypeModelImpl._originalCompanyId =
-			dlFileEntryTypeModelImpl._companyId;
-
-		dlFileEntryTypeModelImpl._setOriginalCompanyId = false;
-
-		dlFileEntryTypeModelImpl._setModifiedDate = false;
-
-		dlFileEntryTypeModelImpl._originalFileEntryTypeKey =
-			dlFileEntryTypeModelImpl._fileEntryTypeKey;
-
-		dlFileEntryTypeModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -1071,6 +1202,8 @@ public class DLFileEntryTypeModelImpl
 			new DLFileEntryTypeCacheModel();
 
 		dlFileEntryTypeCacheModel.mvccVersion = getMvccVersion();
+
+		dlFileEntryTypeCacheModel.ctCollectionId = getCtCollectionId();
 
 		dlFileEntryTypeCacheModel.uuid = getUuid();
 
@@ -1113,6 +1246,8 @@ public class DLFileEntryTypeModelImpl
 		else {
 			dlFileEntryTypeCacheModel.modifiedDate = Long.MIN_VALUE;
 		}
+
+		dlFileEntryTypeCacheModel.dataDefinitionId = getDataDefinitionId();
 
 		dlFileEntryTypeCacheModel.fileEntryTypeKey = getFileEntryTypeKey();
 
@@ -1157,7 +1292,7 @@ public class DLFileEntryTypeModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1189,7 +1324,7 @@ public class DLFileEntryTypeModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -1222,27 +1357,124 @@ public class DLFileEntryTypeModelImpl
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
-	private String _originalUuid;
 	private long _fileEntryTypeId;
 	private long _groupId;
-	private long _originalGroupId;
-	private boolean _setOriginalGroupId;
 	private long _companyId;
-	private long _originalCompanyId;
-	private boolean _setOriginalCompanyId;
 	private long _userId;
 	private String _userName;
 	private Date _createDate;
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
+	private long _dataDefinitionId;
 	private String _fileEntryTypeKey;
-	private String _originalFileEntryTypeKey;
 	private String _name;
 	private String _nameCurrentLanguageId;
 	private String _description;
 	private String _descriptionCurrentLanguageId;
 	private Date _lastPublishDate;
+
+	public <T> T getColumnValue(String columnName) {
+		columnName = _attributeNames.getOrDefault(columnName, columnName);
+
+		Function<DLFileEntryType, Object> function =
+			_attributeGetterFunctions.get(columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((DLFileEntryType)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
+		_columnOriginalValues.put("uuid_", _uuid);
+		_columnOriginalValues.put("fileEntryTypeId", _fileEntryTypeId);
+		_columnOriginalValues.put("groupId", _groupId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("userId", _userId);
+		_columnOriginalValues.put("userName", _userName);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put("dataDefinitionId", _dataDefinitionId);
+		_columnOriginalValues.put("fileEntryTypeKey", _fileEntryTypeKey);
+		_columnOriginalValues.put("name", _name);
+		_columnOriginalValues.put("description", _description);
+		_columnOriginalValues.put("lastPublishDate", _lastPublishDate);
+	}
+
+	private static final Map<String, String> _attributeNames;
+
+	static {
+		Map<String, String> attributeNames = new HashMap<>();
+
+		attributeNames.put("uuid_", "uuid");
+
+		_attributeNames = Collections.unmodifiableMap(attributeNames);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("ctCollectionId", 2L);
+
+		columnBitmasks.put("uuid_", 4L);
+
+		columnBitmasks.put("fileEntryTypeId", 8L);
+
+		columnBitmasks.put("groupId", 16L);
+
+		columnBitmasks.put("companyId", 32L);
+
+		columnBitmasks.put("userId", 64L);
+
+		columnBitmasks.put("userName", 128L);
+
+		columnBitmasks.put("createDate", 256L);
+
+		columnBitmasks.put("modifiedDate", 512L);
+
+		columnBitmasks.put("dataDefinitionId", 1024L);
+
+		columnBitmasks.put("fileEntryTypeKey", 2048L);
+
+		columnBitmasks.put("name", 4096L);
+
+		columnBitmasks.put("description", 8192L);
+
+		columnBitmasks.put("lastPublishDate", 16384L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private DLFileEntryType _escapedModel;
 

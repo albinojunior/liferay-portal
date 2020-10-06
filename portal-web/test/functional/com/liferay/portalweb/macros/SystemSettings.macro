@@ -1,22 +1,9 @@
 definition {
 
-	macro configureCrossClusterReplication {
-		FormFields.enableCheckbox(fieldName = "ccrEnabled");
-
-		FormFields.editTextMultiline(
-			fieldName = "ccrLocalClusterConnectionId",
-			fieldValue = "${ccrLocalClusterConnectionID}");
-
-		SystemSettings.saveConfiguration();
-	}
-
 	macro configureDisplayStyle {
 		Click(locator1 = "Dropdown#TRIGGER");
 
-		AssertClick(
-			key_option = "${displayStyle}",
-			locator1 = "Dropdown#RESULT",
-			value1 = "${displayStyle}");
+		DropdownMenuItem.click(menuItem = "${displayStyle}");
 
 		AssertTextEquals(
 			locator1 = "Dropdown#SELECTED_VALUE",
@@ -47,6 +34,29 @@ definition {
 			Uncheck.uncheckToggleSwitch(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
 
 			SystemSettings.saveConfiguration();
+
+			AssertNotChecked.assertNotCheckedNotVisible(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
+		}
+	}
+
+	macro configureSystemSettingWithRefresh {
+		var key_settingFieldName = "${settingFieldName}";
+
+		if ("${enableSetting}" == "true") {
+			Check.toggleSwitch(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
+
+			SystemSettings.saveConfiguration();
+
+			Refresh();
+
+			AssertChecked.assertCheckedNotVisible(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
+		}
+		else if ("${enableSetting}" == "false") {
+			Uncheck.uncheckToggleSwitch(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
+
+			SystemSettings.saveConfiguration();
+
+			Refresh();
 
 			AssertNotChecked.assertNotCheckedNotVisible(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
 		}
@@ -83,6 +93,20 @@ definition {
 			value1 = "${settingValue}");
 	}
 
+	macro editTextAreaSettingMultiLines {
+		for (var settingValue : list "${settingValues}") {
+			Type.sendKeys(
+				key_label = "${settingName}",
+				locator1 = "TextArea#ANY_LABELED",
+				value1 = "${settingValue}");
+
+			KeyPress(
+				key_label = "${settingName}",
+				locator1 = "TextArea#ANY_LABELED",
+				value1 = "\RETURN");
+		}
+	}
+
 	macro editTextSetting {
 		Type(
 			key_fieldLabel = "${settingName}",
@@ -94,6 +118,14 @@ definition {
 		Click(locator1 = "Icon#ANGLE_LEFT_BACK");
 	}
 
+	macro exportConfiguration {
+		Click.waitForMenuToggleJSClick(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Export");
+
+		DownloadTempFile();
+	}
+
 	macro gotoConfiguration {
 		Click(
 			key_itemName = "${configurationCategory}",
@@ -102,7 +134,7 @@ definition {
 		var browserType = PropsUtil.get("browser.type");
 
 		if ("${browserType}" == "chrome") {
-			Pause(locator1 = "5000");
+			Pause(locator1 = "3000");
 		}
 
 		Click(
@@ -152,6 +184,13 @@ definition {
 		Click(
 			key_selectOption = "${selectOption}",
 			locator1 = "SystemSettings#DROPDOWN_MENU_OPTION");
+	}
+
+	macro viewTextareaPartialText {
+		AssertTextEquals.assertPartialText(
+			key_label = "${settingName}",
+			locator1 = "TextArea#ANY_LABELED",
+			value1 = "${settingValue}");
 	}
 
 	macro viewTextareaValue {

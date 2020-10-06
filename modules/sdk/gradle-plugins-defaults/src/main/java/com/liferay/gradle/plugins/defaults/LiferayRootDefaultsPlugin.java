@@ -53,22 +53,6 @@ public class LiferayRootDefaultsPlugin implements Plugin<Project> {
 				GradleUtil.applyPlugin(subproject, LiferayDefaultsPlugin.class);
 			}
 		}
-
-		if ((portalRootDir == null) && _hasYarnScriptFile(project)) {
-			GradleUtil.applyPlugin(project, LiferayYarnDefaultsPlugin.class);
-		}
-	}
-
-	private boolean _hasYarnScriptFile(Project project) {
-		File projectDir = project.getProjectDir();
-
-		File[] files = FileUtil.getFiles(projectDir, "yarn-", ".js");
-
-		if ((files != null) && (files.length > 0)) {
-			return true;
-		}
-
-		return false;
 	}
 
 }

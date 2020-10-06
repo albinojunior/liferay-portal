@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
 import com.liferay.portal.search.test.util.IndexerFixture;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -222,7 +223,11 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		String articleId = journalArticle.getArticleId();
 
-		Map<String, String> titleStrings = Collections.emptyMap();
+		Map<String, String> titleStrings = HashMapBuilder.put(
+			"title_en_US", originalTitle
+		).put(
+			"title_pt_BR", translatedTitle
+		).build();
 
 		Map<String, String> contentStrings = Collections.emptyMap();
 
@@ -400,6 +405,9 @@ public class JournalArticleIndexerLocalizedContentTest {
 		);
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
 	protected void assertSearchOneDocumentOneField(
 		String fieldValue, Locale locale, String fieldPrefix,
 		String fieldName) {
@@ -411,9 +419,7 @@ public class JournalArticleIndexerLocalizedContentTest {
 			document, document.toString());
 	}
 
-	private static Map<String, String> _withSortableValues(
-		Map<String, String> map) {
-
+	private Map<String, String> _withSortableValues(Map<String, String> map) {
 		Set<Map.Entry<String, String>> entrySet = map.entrySet();
 
 		Stream<Map.Entry<String, String>> entries = entrySet.stream();

@@ -97,6 +97,15 @@ public class AccountRoleTypeContributor implements RoleTypeContributor {
 		return true;
 	}
 
+	@Override
+	public boolean isAutomaticallyAssigned(Role role) {
+		if (AccountRoleConstants.isImpliedRole(role)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	@Reference
 	private Language _language;
 

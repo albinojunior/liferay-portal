@@ -14,10 +14,20 @@
 
 package com.liferay.portal.kernel.dependency.manager;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Shuyang Zhou
  */
+@ProviderType
 public interface DependencyManagerSync {
+
+	public void registerSyncCallable(Callable<Void> syncCallable);
+
+	public void registerSyncFuture(Future<Void> syncFuture);
 
 	public void sync();
 

@@ -51,6 +51,10 @@ public class SiteFriendlyURLLocalServiceUtil {
 	/**
 	 * Adds the site friendly url to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteFriendlyURLLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteFriendlyURL the site friendly url
 	 * @return the site friendly url that was added
 	 */
@@ -107,6 +111,10 @@ public class SiteFriendlyURLLocalServiceUtil {
 	/**
 	 * Deletes the site friendly url with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteFriendlyURLLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteFriendlyURLId the primary key of the site friendly url
 	 * @return the site friendly url that was removed
 	 * @throws PortalException if a site friendly url with the primary key could not be found
@@ -129,6 +137,10 @@ public class SiteFriendlyURLLocalServiceUtil {
 	/**
 	 * Deletes the site friendly url from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteFriendlyURLLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteFriendlyURL the site friendly url
 	 * @return the site friendly url that was removed
 	 */
@@ -140,6 +152,12 @@ public class SiteFriendlyURLLocalServiceUtil {
 
 	public static void deleteSiteFriendlyURLs(long companyId, long groupId) {
 		getService().deleteSiteFriendlyURLs(companyId, groupId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -408,6 +426,10 @@ public class SiteFriendlyURLLocalServiceUtil {
 
 	/**
 	 * Updates the site friendly url in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteFriendlyURLLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param siteFriendlyURL the site friendly url
 	 * @return the site friendly url that was updated

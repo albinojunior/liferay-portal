@@ -45,10 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {
-		"javax.portlet.name=" + ReportsEngineConsolePortletKeys.DISPLAY_REPORTS,
-		"javax.portlet.name=" + ReportsEngineConsolePortletKeys.REPORTS_ADMIN
-	},
+	property = "javax.portlet.name=" + ReportsEngineConsolePortletKeys.REPORTS_ADMIN,
 	service = PortletDataHandler.class
 )
 public class AdminPortletDataHandler extends BasePortletDataHandler {
@@ -92,10 +89,10 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 			return portletPreferences;
 		}
 
-		_definitionLocalService.deleteDefinitions(
+		definitionLocalService.deleteDefinitions(
 			portletDataContext.getScopeGroupId());
 
-		_sourceLocalService.deleteSources(portletDataContext.getScopeGroupId());
+		sourceLocalService.deleteSources(portletDataContext.getScopeGroupId());
 
 		return portletPreferences;
 	}
@@ -116,7 +113,7 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "sources")) {
 			ActionableDynamicQuery sourceActionableDynamicQuery =
-				_sourceLocalService.getExportActionableDynamicQuery(
+				sourceLocalService.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			sourceActionableDynamicQuery.performActions();
@@ -124,7 +121,7 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "definitions")) {
 			ActionableDynamicQuery definitionActionableDynamicQuery =
-				_definitionLocalService.getExportActionableDynamicQuery(
+				definitionLocalService.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			definitionActionableDynamicQuery.performActions();
@@ -176,22 +173,22 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery sourceActionableDynamicQuery =
-			_sourceLocalService.getExportActionableDynamicQuery(
+			sourceLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		sourceActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery definitionActionableDynamicQuery =
-			_definitionLocalService.getExportActionableDynamicQuery(
+			definitionLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		definitionActionableDynamicQuery.performCount();
 	}
 
 	@Reference
-	private DefinitionLocalService _definitionLocalService;
+	protected DefinitionLocalService definitionLocalService;
 
 	@Reference
-	private SourceLocalService _sourceLocalService;
+	protected SourceLocalService sourceLocalService;
 
 }

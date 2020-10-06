@@ -16,7 +16,7 @@
 
 AUI.add(
 	'liferay-alloy-editor',
-	A => {
+	(A) => {
 		var Do = A.Do;
 		var Lang = A.Lang;
 
@@ -34,6 +34,11 @@ AUI.add(
 				editorConfig: {
 					validator: Lang.isObject,
 					value: {},
+				},
+
+				editorPaths: {
+					validator: Lang.isArray,
+					value: [],
 				},
 
 				onBlurMethod: {
@@ -214,17 +219,10 @@ AUI.add(
 				},
 
 				_onError(event) {
-					new Liferay.Notification({
-						closeable: true,
-						delay: {
-							hide: 5000,
-							show: 0,
-						},
-						duration: 500,
+					Liferay.Util.openToast({
 						message: event.data,
-						title: Liferay.Language.get('error'),
 						type: 'danger',
-					}).render();
+					});
 				},
 
 				_onFocus(event) {
@@ -332,6 +330,21 @@ AUI.add(
 
 						doc.designMode = 'off';
 					}
+
+					// LPS-118801
+
+					instance.get('editorPaths').forEach((editorPath) => {
+						document
+							.querySelectorAll(
+								`link[href*="${editorPath}"],script[src*="${editorPath}"]`
+							)
+							.forEach((tag) => {
+								tag.setAttribute(
+									'data-senna-track',
+									'temporary'
+								);
+							});
+					});
 				},
 
 				_onKey(event) {
@@ -575,11 +588,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: [
-			'aui-component',
-			'liferay-notification',
-			'liferay-portlet-base',
-			'timers',
-		],
+		requires: ['aui-component', 'liferay-portlet-base', 'timers'],
 	}
 );

@@ -38,6 +38,11 @@ import org.osgi.service.component.annotations.Reference;
 public class DepotRoleTypeContributor implements RoleTypeContributor {
 
 	@Override
+	public String[] getExcludedRoleNames() {
+		return _EXCLUDED_ROLE_NAMES;
+	}
+
+	@Override
 	public String getIcon() {
 		return "globe";
 	}
@@ -79,20 +84,6 @@ public class DepotRoleTypeContributor implements RoleTypeContributor {
 	}
 
 	@Override
-	public boolean isAllowDefinePermissions(Role role) {
-		if (Objects.equals(
-				role.getName(),
-				DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR) ||
-			Objects.equals(
-				role.getName(), DepotRolesConstants.ASSET_LIBRARY_OWNER)) {
-
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
 	public boolean isAllowDelete(Role role) {
 		if (role == null) {
 			return false;
@@ -104,6 +95,9 @@ public class DepotRoleTypeContributor implements RoleTypeContributor {
 			Objects.equals(
 				role.getName(), DepotRolesConstants.ASSET_LIBRARY_MEMBER) ||
 			Objects.equals(
+				role.getName(),
+				DepotRolesConstants.ASSET_LIBRARY_CONNECTED_SITE_MEMBER) ||
+			Objects.equals(
 				role.getName(), DepotRolesConstants.ASSET_LIBRARY_OWNER)) {
 
 			return false;
@@ -111,6 +105,24 @@ public class DepotRoleTypeContributor implements RoleTypeContributor {
 
 		return true;
 	}
+
+	@Override
+	public boolean isAutomaticallyAssigned(Role role) {
+		if (Objects.equals(
+				role.getName(), DepotRolesConstants.ASSET_LIBRARY_MEMBER) ||
+			Objects.equals(
+				role.getName(),
+				DepotRolesConstants.ASSET_LIBRARY_CONNECTED_SITE_MEMBER)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private static final String[] _EXCLUDED_ROLE_NAMES = {
+		DepotRolesConstants.ASSET_LIBRARY_OWNER
+	};
 
 	@Reference
 	private Language _language;

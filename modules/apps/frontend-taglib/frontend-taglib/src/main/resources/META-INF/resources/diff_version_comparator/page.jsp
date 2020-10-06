@@ -16,13 +16,9 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-Map<String, Object> data = (Map<String, Object>)request.getAttribute("liferay-frontend:diff-version-comparator:data");
-%>
-
 <div>
 	<react:component
-		data="<%= data %>"
 		module="diff_version_comparator/index"
+		props='<%= (Map<String, Object>)request.getAttribute("liferay-frontend:diff-version-comparator:data") %>'
 	/>
 </div>

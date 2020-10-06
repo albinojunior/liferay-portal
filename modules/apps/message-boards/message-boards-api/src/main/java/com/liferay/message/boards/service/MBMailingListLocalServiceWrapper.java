@@ -14,7 +14,10 @@
 
 package com.liferay.message.boards.service;
 
+import com.liferay.message.boards.model.MBMailingList;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 /**
  * Provides a wrapper for {@link MBMailingListLocalService}.
@@ -34,7 +37,7 @@ public class MBMailingListLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBMailingList addMailingList(
+	public MBMailingList addMailingList(
 			long userId, long groupId, long categoryId, String emailAddress,
 			String inProtocol, String inServerName, int inServerPort,
 			boolean inUseSSL, String inUserName, String inPassword,
@@ -55,13 +58,15 @@ public class MBMailingListLocalServiceWrapper
 	/**
 	 * Adds the message boards mailing list to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMailingListLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbMailingList the message boards mailing list
 	 * @return the message boards mailing list that was added
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList addMBMailingList(
-		com.liferay.message.boards.model.MBMailingList mbMailingList) {
-
+	public MBMailingList addMBMailingList(MBMailingList mbMailingList) {
 		return _mbMailingListLocalService.addMBMailingList(mbMailingList);
 	}
 
@@ -72,9 +77,7 @@ public class MBMailingListLocalServiceWrapper
 	 * @return the new message boards mailing list
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList createMBMailingList(
-		long mailingListId) {
-
+	public MBMailingList createMBMailingList(long mailingListId) {
 		return _mbMailingListLocalService.createMBMailingList(mailingListId);
 	}
 
@@ -105,8 +108,7 @@ public class MBMailingListLocalServiceWrapper
 	}
 
 	@Override
-	public void deleteMailingList(
-			com.liferay.message.boards.model.MBMailingList mailingList)
+	public void deleteMailingList(MBMailingList mailingList)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_mbMailingListLocalService.deleteMailingList(mailingList);
@@ -115,13 +117,16 @@ public class MBMailingListLocalServiceWrapper
 	/**
 	 * Deletes the message boards mailing list with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMailingListLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mailingListId the primary key of the message boards mailing list
 	 * @return the message boards mailing list that was removed
 	 * @throws PortalException if a message boards mailing list with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList deleteMBMailingList(
-			long mailingListId)
+	public MBMailingList deleteMBMailingList(long mailingListId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbMailingListLocalService.deleteMBMailingList(mailingListId);
@@ -130,13 +135,15 @@ public class MBMailingListLocalServiceWrapper
 	/**
 	 * Deletes the message boards mailing list from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMailingListLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbMailingList the message boards mailing list
 	 * @return the message boards mailing list that was removed
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList deleteMBMailingList(
-		com.liferay.message.boards.model.MBMailingList mbMailingList) {
-
+	public MBMailingList deleteMBMailingList(MBMailingList mbMailingList) {
 		return _mbMailingListLocalService.deleteMBMailingList(mbMailingList);
 	}
 
@@ -149,6 +156,11 @@ public class MBMailingListLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbMailingListLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _mbMailingListLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -243,17 +255,15 @@ public class MBMailingListLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBMailingList
-		fetchCategoryMailingList(long groupId, long categoryId) {
+	public MBMailingList fetchCategoryMailingList(
+		long groupId, long categoryId) {
 
 		return _mbMailingListLocalService.fetchCategoryMailingList(
 			groupId, categoryId);
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBMailingList fetchMBMailingList(
-		long mailingListId) {
-
+	public MBMailingList fetchMBMailingList(long mailingListId) {
 		return _mbMailingListLocalService.fetchMBMailingList(mailingListId);
 	}
 
@@ -265,8 +275,8 @@ public class MBMailingListLocalServiceWrapper
 	 * @return the matching message boards mailing list, or <code>null</code> if a matching message boards mailing list could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList
-		fetchMBMailingListByUuidAndGroupId(String uuid, long groupId) {
+	public MBMailingList fetchMBMailingListByUuidAndGroupId(
+		String uuid, long groupId) {
 
 		return _mbMailingListLocalService.fetchMBMailingListByUuidAndGroupId(
 			uuid, groupId);
@@ -280,8 +290,7 @@ public class MBMailingListLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBMailingList
-			getCategoryMailingList(long groupId, long categoryId)
+	public MBMailingList getCategoryMailingList(long groupId, long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbMailingListLocalService.getCategoryMailingList(
@@ -313,8 +322,7 @@ public class MBMailingListLocalServiceWrapper
 	 * @throws PortalException if a message boards mailing list with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList getMBMailingList(
-			long mailingListId)
+	public MBMailingList getMBMailingList(long mailingListId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbMailingListLocalService.getMBMailingList(mailingListId);
@@ -329,8 +337,8 @@ public class MBMailingListLocalServiceWrapper
 	 * @throws PortalException if a matching message boards mailing list could not be found
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList
-			getMBMailingListByUuidAndGroupId(String uuid, long groupId)
+	public MBMailingList getMBMailingListByUuidAndGroupId(
+			String uuid, long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _mbMailingListLocalService.getMBMailingListByUuidAndGroupId(
@@ -349,9 +357,7 @@ public class MBMailingListLocalServiceWrapper
 	 * @return the range of message boards mailing lists
 	 */
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBMailingList>
-		getMBMailingLists(int start, int end) {
-
+	public java.util.List<MBMailingList> getMBMailingLists(int start, int end) {
 		return _mbMailingListLocalService.getMBMailingLists(start, end);
 	}
 
@@ -363,8 +369,8 @@ public class MBMailingListLocalServiceWrapper
 	 * @return the matching message boards mailing lists, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBMailingList>
-		getMBMailingListsByUuidAndCompanyId(String uuid, long companyId) {
+	public java.util.List<MBMailingList> getMBMailingListsByUuidAndCompanyId(
+		String uuid, long companyId) {
 
 		return _mbMailingListLocalService.getMBMailingListsByUuidAndCompanyId(
 			uuid, companyId);
@@ -381,12 +387,10 @@ public class MBMailingListLocalServiceWrapper
 	 * @return the range of matching message boards mailing lists, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List<com.liferay.message.boards.model.MBMailingList>
-		getMBMailingListsByUuidAndCompanyId(
-			String uuid, long companyId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMailingList>
-					orderByComparator) {
+	public java.util.List<MBMailingList> getMBMailingListsByUuidAndCompanyId(
+		String uuid, long companyId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<MBMailingList>
+			orderByComparator) {
 
 		return _mbMailingListLocalService.getMBMailingListsByUuidAndCompanyId(
 			uuid, companyId, start, end, orderByComparator);
@@ -424,7 +428,7 @@ public class MBMailingListLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.message.boards.model.MBMailingList updateMailingList(
+	public MBMailingList updateMailingList(
 			long mailingListId, String emailAddress, String inProtocol,
 			String inServerName, int inServerPort, boolean inUseSSL,
 			String inUserName, String inPassword, int inReadInterval,
@@ -444,14 +448,36 @@ public class MBMailingListLocalServiceWrapper
 	/**
 	 * Updates the message boards mailing list in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMailingListLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbMailingList the message boards mailing list
 	 * @return the message boards mailing list that was updated
 	 */
 	@Override
-	public com.liferay.message.boards.model.MBMailingList updateMBMailingList(
-		com.liferay.message.boards.model.MBMailingList mbMailingList) {
-
+	public MBMailingList updateMBMailingList(MBMailingList mbMailingList) {
 		return _mbMailingListLocalService.updateMBMailingList(mbMailingList);
+	}
+
+	@Override
+	public CTPersistence<MBMailingList> getCTPersistence() {
+		return _mbMailingListLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<MBMailingList> getModelClass() {
+		return _mbMailingListLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<MBMailingList>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _mbMailingListLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

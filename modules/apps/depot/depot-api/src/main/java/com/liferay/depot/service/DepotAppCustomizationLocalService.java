@@ -15,6 +15,7 @@
 package com.liferay.depot.service;
 
 import com.liferay.depot.model.DepotAppCustomization;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -58,11 +59,15 @@ public interface DepotAppCustomizationLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link DepotAppCustomizationLocalServiceUtil} to access the depot app customization local service. Add custom service methods to <code>com.liferay.depot.service.impl.DepotAppCustomizationLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.depot.service.impl.DepotAppCustomizationLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the depot app customization local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link DepotAppCustomizationLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the depot app customization to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param depotAppCustomization the depot app customization
 	 * @return the depot app customization that was added
@@ -90,6 +95,10 @@ public interface DepotAppCustomizationLocalService
 	/**
 	 * Deletes the depot app customization from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param depotAppCustomization the depot app customization
 	 * @return the depot app customization that was removed
 	 */
@@ -99,6 +108,10 @@ public interface DepotAppCustomizationLocalService
 
 	/**
 	 * Deletes the depot app customization with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param depotAppCustomizationId the primary key of the depot app customization
 	 * @return the depot app customization that was removed
@@ -115,6 +128,9 @@ public interface DepotAppCustomizationLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -229,6 +245,10 @@ public interface DepotAppCustomizationLocalService
 	public int getDepotAppCustomizationsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getDepotAppCustomizationsCount(
+		long depotEntryId, boolean enabled);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -248,6 +268,10 @@ public interface DepotAppCustomizationLocalService
 
 	/**
 	 * Updates the depot app customization in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param depotAppCustomization the depot app customization
 	 * @return the depot app customization that was updated

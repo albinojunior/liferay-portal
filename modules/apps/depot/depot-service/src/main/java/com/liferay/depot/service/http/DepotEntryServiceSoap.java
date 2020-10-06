@@ -61,8 +61,10 @@ import java.util.Map;
  *
  * @author Brian Wing Shun Chan
  * @see DepotEntryServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class DepotEntryServiceSoap {
 
 	public static com.liferay.depot.model.DepotEntrySoap addDepotEntry(
@@ -119,6 +121,27 @@ public class DepotEntryServiceSoap {
 				DepotEntryServiceUtil.getDepotEntry(depotEntryId);
 
 			return com.liferay.depot.model.DepotEntrySoap.toSoapModel(
+				returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.depot.model.DepotEntrySoap[]
+			getGroupConnectedDepotEntries(
+				long groupId, boolean ddmStructuresAvailable, int start,
+				int end)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.depot.model.DepotEntry> returnValue =
+				DepotEntryServiceUtil.getGroupConnectedDepotEntries(
+					groupId, ddmStructuresAvailable, start, end);
+
+			return com.liferay.depot.model.DepotEntrySoap.toSoapModels(
 				returnValue);
 		}
 		catch (Exception exception) {

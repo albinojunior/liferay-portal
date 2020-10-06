@@ -37,17 +37,17 @@ public class AccountEntryCacheModel
 	implements CacheModel<AccountEntry>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AccountEntryCacheModel)) {
+		if (!(object instanceof AccountEntryCacheModel)) {
 			return false;
 		}
 
 		AccountEntryCacheModel accountEntryCacheModel =
-			(AccountEntryCacheModel)obj;
+			(AccountEntryCacheModel)object;
 
 		if ((accountEntryId == accountEntryCacheModel.accountEntryId) &&
 			(mvccVersion == accountEntryCacheModel.mvccVersion)) {
@@ -77,10 +77,12 @@ public class AccountEntryCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(33);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", externalReferenceCode=");
+		sb.append(externalReferenceCode);
 		sb.append(", accountEntryId=");
 		sb.append(accountEntryId);
 		sb.append(", companyId=");
@@ -103,6 +105,10 @@ public class AccountEntryCacheModel
 		sb.append(domains);
 		sb.append(", logoId=");
 		sb.append(logoId);
+		sb.append(", taxIdNumber=");
+		sb.append(taxIdNumber);
+		sb.append(", type=");
+		sb.append(type);
 		sb.append(", status=");
 		sb.append(status);
 		sb.append("}");
@@ -115,6 +121,14 @@ public class AccountEntryCacheModel
 		AccountEntryImpl accountEntryImpl = new AccountEntryImpl();
 
 		accountEntryImpl.setMvccVersion(mvccVersion);
+
+		if (externalReferenceCode == null) {
+			accountEntryImpl.setExternalReferenceCode("");
+		}
+		else {
+			accountEntryImpl.setExternalReferenceCode(externalReferenceCode);
+		}
+
 		accountEntryImpl.setAccountEntryId(accountEntryId);
 		accountEntryImpl.setCompanyId(companyId);
 		accountEntryImpl.setUserId(userId);
@@ -164,6 +178,21 @@ public class AccountEntryCacheModel
 		}
 
 		accountEntryImpl.setLogoId(logoId);
+
+		if (taxIdNumber == null) {
+			accountEntryImpl.setTaxIdNumber("");
+		}
+		else {
+			accountEntryImpl.setTaxIdNumber(taxIdNumber);
+		}
+
+		if (type == null) {
+			accountEntryImpl.setType("");
+		}
+		else {
+			accountEntryImpl.setType(type);
+		}
+
 		accountEntryImpl.setStatus(status);
 
 		accountEntryImpl.resetOriginalValues();
@@ -174,6 +203,7 @@ public class AccountEntryCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
+		externalReferenceCode = objectInput.readUTF();
 
 		accountEntryId = objectInput.readLong();
 
@@ -190,6 +220,8 @@ public class AccountEntryCacheModel
 		domains = objectInput.readUTF();
 
 		logoId = objectInput.readLong();
+		taxIdNumber = objectInput.readUTF();
+		type = objectInput.readUTF();
 
 		status = objectInput.readInt();
 	}
@@ -197,6 +229,13 @@ public class AccountEntryCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		if (externalReferenceCode == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(externalReferenceCode);
+		}
 
 		objectOutput.writeLong(accountEntryId);
 
@@ -239,10 +278,25 @@ public class AccountEntryCacheModel
 
 		objectOutput.writeLong(logoId);
 
+		if (taxIdNumber == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(taxIdNumber);
+		}
+
+		if (type == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(type);
+		}
+
 		objectOutput.writeInt(status);
 	}
 
 	public long mvccVersion;
+	public String externalReferenceCode;
 	public long accountEntryId;
 	public long companyId;
 	public long userId;
@@ -254,6 +308,8 @@ public class AccountEntryCacheModel
 	public String description;
 	public String domains;
 	public long logoId;
+	public String taxIdNumber;
+	public String type;
 	public int status;
 
 }

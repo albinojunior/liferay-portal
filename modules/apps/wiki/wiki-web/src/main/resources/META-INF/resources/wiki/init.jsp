@@ -21,6 +21,7 @@ page import="com.liferay.portal.kernel.dao.orm.QueryUtil" %><%@
 page import="com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil" %><%@
 page import="com.liferay.portal.kernel.search.QueryConfig" %><%@
 page import="com.liferay.portal.kernel.servlet.HttpHeaders" %><%@
+page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.TempFileEntryUtil" %><%@
 page import="com.liferay.wiki.configuration.WikiGroupServiceConfiguration" %><%@
 page import="com.liferay.wiki.configuration.WikiGroupServiceOverriddenConfiguration" %><%@
@@ -57,6 +58,8 @@ page import="com.liferay.wiki.web.internal.security.permission.resource.WikiPage
 page import="com.liferay.wiki.web.internal.util.WikiPageAttachmentsUtil" %><%@
 page import="com.liferay.wiki.web.internal.util.WikiUtil" %><%@
 page import="com.liferay.wiki.web.internal.util.WikiWebComponentProvider" %>
+
+<%@ page import="java.util.Objects" %>
 
 <%
 AssetHelper assetHelper = (AssetHelper)request.getAttribute(AssetWebKeys.ASSET_HELPER);

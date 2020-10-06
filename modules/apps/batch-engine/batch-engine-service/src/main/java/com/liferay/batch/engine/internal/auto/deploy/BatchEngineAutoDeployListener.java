@@ -123,14 +123,14 @@ public class BatchEngineAutoDeployListener implements AutoDeployListener {
 			_log.info("Deploying batch engine file " + zipFile.getName());
 		}
 
-		Enumeration<? extends ZipEntry> iterator = zipFile.entries();
+		Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 
 		BatchEngineImportConfiguration batchEngineImportConfiguration = null;
 		byte[] content = null;
 		String contentType = null;
 
-		while (iterator.hasMoreElements()) {
-			ZipEntry zipEntry = iterator.nextElement();
+		while (enumeration.hasMoreElements()) {
+			ZipEntry zipEntry = enumeration.nextElement();
 
 			if (Objects.equals(zipEntry.getName(), "batch-engine.json")) {
 				try (InputStream inputStream = zipFile.getInputStream(
@@ -181,7 +181,8 @@ public class BatchEngineAutoDeployListener implements AutoDeployListener {
 				BatchEngineTaskExecuteStatus.INITIAL.name(),
 				batchEngineImportConfiguration.fieldNameMappingMap,
 				BatchEngineTaskOperation.CREATE.name(),
-				batchEngineImportConfiguration.parameters);
+				batchEngineImportConfiguration.parameters,
+				batchEngineImportConfiguration.taskItemDelegateName);
 
 		executorService.submit(
 			() -> {
@@ -229,6 +230,9 @@ public class BatchEngineAutoDeployListener implements AutoDeployListener {
 
 		@JsonProperty
 		protected Map<String, Serializable> parameters;
+
+		@JsonProperty
+		protected String taskItemDelegateName;
 
 		@JsonProperty
 		protected long userId;

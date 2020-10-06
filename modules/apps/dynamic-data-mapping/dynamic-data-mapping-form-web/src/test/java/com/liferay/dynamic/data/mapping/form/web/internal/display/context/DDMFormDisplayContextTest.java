@@ -23,9 +23,11 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceSettings;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
+import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterTracker;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -43,8 +45,8 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsImpl;
-import com.liferay.spring.mock.web.portlet.MockRenderRequest;
-import com.liferay.spring.mock.web.portlet.MockRenderResponse;
+import com.liferay.portletmvc4spring.test.mock.web.portlet.MockRenderRequest;
+import com.liferay.portletmvc4spring.test.mock.web.portlet.MockRenderResponse;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -326,12 +328,14 @@ public class DDMFormDisplayContextTest extends PowerMockito {
 			renderRequest, new MockRenderResponse(),
 			mock(DDMFormFieldTypeServicesTracker.class),
 			_ddmFormInstanceLocalService,
+			mock(DDMFormInstanceRecordLocalService.class),
 			mock(DDMFormInstanceRecordVersionLocalService.class),
 			_ddmFormInstanceService,
 			mock(DDMFormInstanceVersionLocalService.class),
 			mock(DDMFormRenderer.class), mock(DDMFormValuesFactory.class),
 			mock(DDMFormValuesMerger.class), _ddmFormWebConfiguration,
-			mock(GroupLocalService.class), new JSONFactoryImpl(),
+			mock(DDMStorageAdapterTracker.class), mock(GroupLocalService.class),
+			new JSONFactoryImpl(),
 			mock(WorkflowDefinitionLinkLocalService.class), mock(Portal.class));
 	}
 

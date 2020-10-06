@@ -464,9 +464,14 @@ public class UserAccountSerDes {
 				String.valueOf(userAccount.getAlternateName()));
 		}
 
-		map.put(
-			"birthDate",
-			liferayToJSONDateFormat.format(userAccount.getBirthDate()));
+		if (userAccount.getBirthDate() == null) {
+			map.put("birthDate", null);
+		}
+		else {
+			map.put(
+				"birthDate",
+				liferayToJSONDateFormat.format(userAccount.getBirthDate()));
+		}
 
 		if (userAccount.getCustomFields() == null) {
 			map.put("customFields", null);
@@ -484,13 +489,23 @@ public class UserAccountSerDes {
 				"dashboardURL", String.valueOf(userAccount.getDashboardURL()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(userAccount.getDateCreated()));
+		if (userAccount.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(userAccount.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(userAccount.getDateModified()));
+		if (userAccount.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(userAccount.getDateModified()));
+		}
 
 		if (userAccount.getEmailAddress() == null) {
 			map.put("emailAddress", null);
@@ -786,9 +801,8 @@ public class UserAccountSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -844,10 +858,13 @@ public class UserAccountSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

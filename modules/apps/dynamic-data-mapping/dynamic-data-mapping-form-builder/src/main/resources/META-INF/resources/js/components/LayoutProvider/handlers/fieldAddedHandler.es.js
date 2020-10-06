@@ -14,86 +14,84 @@
 
 import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 
-import {
-	generateInstanceId,
-	getFieldProperties,
-	normalizeSettingsContextPages,
-} from '../../../util/fieldSupport.es';
+import {createField} from '../../../util/fieldSupport.es';
+import {updateField} from '../util/settingsContext.es';
 
-const handleFieldAdded = (props, state, event) => {
-	const {fieldType, indexes, skipFieldNameGeneration = false} = event;
-	const {
-		defaultLanguageId,
-		editingLanguageId,
-		fieldNameGenerator,
-		spritemap,
-	} = props;
-	let newFieldName;
+export const addField = (
+	props,
+	{indexes, newField, pages, parentFieldName}
+) => {
+	const {columnIndex, pageIndex, rowIndex} = indexes;
 
-	if (skipFieldNameGeneration) {
-		const {settingsContext} = fieldType;
-		const visitor = new PagesVisitor(settingsContext.pages);
+	let newPages;
 
-		visitor.mapFields(({fieldName, value}) => {
-			if (fieldName === 'name') {
-				newFieldName = value;
-			}
-		});
+	if (parentFieldName) {
+		const visitor = new PagesVisitor(pages);
+
+		newPages = visitor.mapFields(
+			(field) => {
+				if (field.fieldName === parentFieldName) {
+					const nestedFields = field.nestedFields
+						? [...field.nestedFields, newField]
+						: [newField];
+
+					field = updateField(
+						props,
+						field,
+						'nestedFields',
+						nestedFields
+					);
+
+					const pages = FormSupport.addFieldToColumn(
+						[{rows: field.rows}],
+						0,
+						rowIndex,
+						columnIndex,
+						newField.fieldName
+					);
+
+					return updateField(props, field, 'rows', pages[0].rows);
+				}
+
+				return field;
+			},
+			true,
+			true
+		);
 	}
 	else {
-		newFieldName = fieldNameGenerator(fieldType.label);
-	}
-
-	const focusedField = {
-		...fieldType,
-		fieldName: newFieldName,
-		settingsContext: {
-			...fieldType.settingsContext,
-			pages: normalizeSettingsContextPages(
-				fieldType.settingsContext.pages,
-				editingLanguageId,
-				fieldType,
-				newFieldName
-			),
-			type: fieldType.name,
-		},
-	};
-
-	const {fieldName, name, settingsContext} = focusedField;
-	const {pageIndex, rowIndex} = indexes;
-	const {pages} = state;
-	const {columnIndex} = indexes;
-
-	const fieldProperties = {
-		...getFieldProperties(
-			settingsContext,
-			defaultLanguageId,
-			editingLanguageId
-		),
-		fieldName,
-		instanceId: generateInstanceId(8),
-		name,
-		settingsContext,
-		spritemap,
-		type: fieldType.name,
-	};
-
-	return {
-		focusedField: {
-			...fieldProperties,
-			columnIndex,
-			pageIndex,
-			rowIndex,
-		},
-		pages: FormSupport.addFieldToColumn(
+		newPages = FormSupport.addFieldToColumn(
 			pages,
 			pageIndex,
 			rowIndex,
 			columnIndex,
-			fieldProperties
-		),
-		previousFocusedField: fieldProperties,
+			newField
+		);
+	}
+
+	return {
+		activePage: pageIndex,
+		focusedField: {
+			...newField,
+		},
+		pages: newPages,
+		previousFocusedField: newField,
 	};
+};
+
+const handleFieldAdded = (props, state, event) => {
+	const {data, indexes} = event;
+	const {pages} = state;
+	const {parentFieldName} = data;
+
+	const newField = createField(props, event);
+
+	return addField(props, {
+		indexes,
+		newField,
+		pages,
+		parentFieldName,
+	});
 };
 
 export default handleFieldAdded;

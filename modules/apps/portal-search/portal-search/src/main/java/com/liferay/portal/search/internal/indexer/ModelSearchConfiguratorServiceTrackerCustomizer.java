@@ -23,6 +23,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.search.DocumentContributor;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
@@ -79,12 +80,12 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 public class ModelSearchConfiguratorServiceTrackerCustomizer
 	<T extends BaseModel<?>>
 		implements ServiceTrackerCustomizer
-			<ModelSearchConfigurator, ModelSearchConfigurator> {
+			<ModelSearchConfigurator<T>, ModelSearchConfigurator<T>> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public ModelSearchConfigurator addingService(
-		ServiceReference<ModelSearchConfigurator> serviceReference) {
+	public ModelSearchConfigurator<T> addingService(
+		ServiceReference<ModelSearchConfigurator<T>> serviceReference) {
 
 		int serviceRanking = GetterUtil.getInteger(
 			serviceReference.getProperty(Constants.SERVICE_RANKING));
@@ -125,9 +126,10 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 			modelSearchConfigurator, serviceRegistrationHolder,
 			serviceProperties);
 
-		ServiceRegistration<Indexer> indexerServiceRegistration =
+		ServiceRegistration<Indexer<?>> indexerServiceRegistration =
 			_bundleContext.registerService(
-				Indexer.class, defaultIndexer, serviceProperties);
+				(Class<Indexer<?>>)(Class<?>)Indexer.class, defaultIndexer,
+				serviceProperties);
 
 		serviceRegistrationHolder.setIndexerServiceRegistration(
 			indexerServiceRegistration);
@@ -140,8 +142,8 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 
 	@Override
 	public void modifiedService(
-		ServiceReference<ModelSearchConfigurator> serviceReference,
-		ModelSearchConfigurator modelSearchConfigurator) {
+		ServiceReference<ModelSearchConfigurator<T>> serviceReference,
+		ModelSearchConfigurator<T> modelSearchConfigurator) {
 
 		removedService(serviceReference, modelSearchConfigurator);
 
@@ -150,8 +152,8 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 
 	@Override
 	public void removedService(
-		ServiceReference<ModelSearchConfigurator> serviceReference,
-		ModelSearchConfigurator modelSearchConfigurator) {
+		ServiceReference<ModelSearchConfigurator<T>> serviceReference,
+		ModelSearchConfigurator<T> modelSearchConfigurator) {
 
 		ServiceRegistrationHolder serviceRegistrationHolder =
 			_serviceRegistrationHolders.remove(
@@ -167,12 +169,15 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 		_bundleContext = bundleContext;
 
 		_documentContributors = ServiceTrackerListFactory.open(
-			_bundleContext, DocumentContributor.class,
+			_bundleContext,
+			(Class<DocumentContributor<?>>)(Class<?>)DocumentContributor.class,
 			"(!(indexer.class.name=*))");
 
 		_modelResourcePermissionServiceTrackerMap =
 			ServiceTrackerMapFactory.openSingleValueMap(
-				bundleContext, ModelResourcePermission.class,
+				bundleContext,
+				(Class<ModelResourcePermission<?>>)
+					(Class<?>)ModelResourcePermission.class,
 				"model.class.name");
 
 		_queryConfigContributors = ServiceTrackerListFactory.open(
@@ -184,7 +189,10 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 			"(!(indexer.class.name=*))");
 
 		_serviceTracker = ServiceTrackerFactory.open(
-			bundleContext, ModelSearchConfigurator.class, this);
+			bundleContext,
+			(Class<ModelSearchConfigurator<T>>)
+				(Class<?>)ModelSearchConfigurator.class,
+			this);
 	}
 
 	protected Indexer<?> buildIndexer(
@@ -192,10 +200,10 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 		ServiceRegistrationHolder serviceRegistrationHolder,
 		Dictionary<String, ?> serviceProperties) {
 
-		Iterable<ModelDocumentContributor> modelDocumentContributors =
+		Iterable<ModelDocumentContributor<?>> modelDocumentContributors =
 			modelSearchConfigurator.getModelDocumentContributors();
 
-		Iterable<DocumentContributor> documentContributors =
+		Iterable<DocumentContributor<?>> documentContributors =
 			_documentContributors;
 
 		IndexerPostProcessorsHolder indexerPostProcessorsHolder =
@@ -276,9 +284,10 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 			updateDocumentIndexWriter, indexStatusManager, indexWriterHelper,
 			props);
 
-		ServiceRegistration<IndexerWriter> indexerWriterServiceRegistration =
+		ServiceRegistration<IndexerWriter<?>> indexerWriterServiceRegistration =
 			_bundleContext.registerService(
-				IndexerWriter.class, indexerWriter, serviceProperties);
+				(Class<IndexerWriter<?>>)(Class<?>)IndexerWriter.class,
+				indexerWriter, serviceProperties);
 
 		serviceRegistrationHolder.setIndexerWriterServiceRegistration(
 			indexerWriterServiceRegistration);
@@ -369,10 +378,14 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 		ModelSearchConfiguratorServiceTrackerCustomizer.class);
 
 	private BundleContext _bundleContext;
-	private ServiceTrackerList<DocumentContributor, DocumentContributor>
+	private ServiceTrackerList<DocumentContributor<?>, DocumentContributor<?>>
 		_documentContributors;
-	private ServiceTrackerMap<String, ModelResourcePermission>
+	private ServiceTrackerMap<String, ModelResourcePermission<?>>
 		_modelResourcePermissionServiceTrackerMap;
+
+	@Reference(target = ModuleServiceLifecycle.PORTLETS_INITIALIZED)
+	private ModuleServiceLifecycle _moduleServiceLifecycle;
+
 	private ServiceTrackerList<QueryConfigContributor, QueryConfigContributor>
 		_queryConfigContributors;
 	private ServiceTrackerList
@@ -380,13 +393,14 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 			_searchContextContributors;
 	private final Map<String, ServiceRegistrationHolder>
 		_serviceRegistrationHolders = new Hashtable<>();
-	private ServiceTracker<ModelSearchConfigurator, ModelSearchConfigurator>
-		_serviceTracker;
+	private ServiceTracker
+		<ModelSearchConfigurator<T>, ModelSearchConfigurator<T>>
+			_serviceTracker;
 
 	private class ServiceRegistrationHolder {
 
 		public ServiceRegistrationHolder(
-			ModelSearchConfigurator modelSearchConfigurator,
+			ModelSearchConfigurator<?> modelSearchConfigurator,
 			int serviceRanking) {
 
 			_modelSearchConfigurator = modelSearchConfigurator;
@@ -458,7 +472,7 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 		}
 
 		public void setIndexerServiceRegistration(
-			ServiceRegistration<Indexer> indexerServiceRegistration) {
+			ServiceRegistration<Indexer<?>> indexerServiceRegistration) {
 
 			_indexerServiceRegistration = indexerServiceRegistration;
 		}
@@ -472,7 +486,7 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 		}
 
 		public void setIndexerWriterServiceRegistration(
-			ServiceRegistration<IndexerWriter>
+			ServiceRegistration<IndexerWriter<?>>
 				indexerWriterServiceRegistration) {
 
 			_indexerWriterServiceRegistration =
@@ -487,10 +501,10 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 			_indexerQueryBuilderServiceRegistration;
 		private ServiceRegistration<IndexerSearcher>
 			_indexerSearcherServiceRegistration;
-		private ServiceRegistration<Indexer> _indexerServiceRegistration;
+		private ServiceRegistration<Indexer<?>> _indexerServiceRegistration;
 		private ServiceRegistration<IndexerSummaryBuilder>
 			_indexerSummaryBuilderServiceRegistration;
-		private ServiceRegistration<IndexerWriter>
+		private ServiceRegistration<IndexerWriter<?>>
 			_indexerWriterServiceRegistration;
 		private final ModelSearchConfigurator<?> _modelSearchConfigurator;
 		private final int _serviceRanking;

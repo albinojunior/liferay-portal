@@ -19,7 +19,7 @@
 <aui:input name="layoutIds" type="hidden" value="<%= ExportImportHelperUtil.getSelectedLayoutsJSON(selectPagesGroupId, selectPagesPrivateLayout, selectedLayoutIds) %>" />
 
 <aui:fieldset cssClass="options-group" id="pages-fieldset" markupView="lexicon">
-	<div class="sheet-section">
+	<clay:sheet-section>
 		<h3 class="sheet-subtitle"><liferay-ui:message key="pages" /></h3>
 
 		<ul class="flex-container layout-selector" id="<portlet:namespace />pages">
@@ -80,12 +80,7 @@
 			</c:if>
 
 			<li class="layout-selector-options">
-				<aui:fieldset label='<%= "pages-to-" + action %>'>
-
-					<%
-					long selPlid = ParamUtil.getLong(request, "selPlid", LayoutConstants.DEFAULT_PLID);
-					%>
-
+				<aui:fieldset helpMessage="child-page-publication-warning" label='<%= "pages-to-" + action %>'>
 					<c:choose>
 						<c:when test="<%= disableInputs %>">
 							<liferay-util:buffer
@@ -130,7 +125,7 @@
 									rootNodeName="<%= selectPagesGroup.getLayoutRootNodeName(selectPagesPrivateLayout, locale) %>"
 									selectableTree="<%= true %>"
 									selectedLayoutIds="<%= selectedLayoutIds %>"
-									selPlid="<%= selPlid %>"
+									selPlid='<%= ParamUtil.getLong(request, "selPlid", LayoutConstants.DEFAULT_PLID) %>'
 									treeId="<%= treeId %>"
 								/>
 							</div>
@@ -198,14 +193,12 @@
 						}
 
 						PortletDataContext portletDataContext = PortletDataContextFactoryUtil.createPreparePortletDataContext(company.getCompanyId(), selectPagesGroupId, (range != null) ? range : ExportImportDateUtil.RANGE_FROM_LAST_PUBLISH_DATE, dateRange.getStartDate(), dateRange.getEndDate());
-
-						long layoutModelDeletionCount = ExportImportHelperUtil.getLayoutModelDeletionCount(portletDataContext, selectPagesPrivateLayout);
 						%>
 
 						<span>
 							<liferay-staging:checkbox
 								checked="<%= MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.DELETE_LAYOUTS, false) %>"
-								deletions="<%= layoutModelDeletionCount %>"
+								deletions="<%= ExportImportHelperUtil.getLayoutModelDeletionCount(portletDataContext, selectPagesPrivateLayout) %>"
 								disabled="<%= disableInputs %>"
 								label="publish-page-deletions"
 								name="<%= PortletDataHandlerKeys.DELETE_LAYOUTS %>"
@@ -216,5 +209,5 @@
 				</li>
 			</ul>
 		</c:if>
-	</div>
+	</clay:sheet-section>
 </aui:fieldset>

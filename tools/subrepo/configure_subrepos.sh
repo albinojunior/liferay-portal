@@ -143,7 +143,7 @@ then
 		ALL_GITREPOS=("${ALL_GITREPOS[@]}" "${GITREPO_SEARCH}")
 	done
 
-  ALL_GITREPOS=($(printf '%s\n' "${ALL_GITREPOS[@]}" | sort -u))
+	ALL_GITREPOS=($(printf '%s\n' "${ALL_GITREPOS[@]}" | sort -u))
 
 	if [[ -z "$(echo "${ALL_GITREPOS[@]}" | grep '[a-zA-Z]')" ]]
 	then
@@ -194,18 +194,6 @@ do
 		GITREPOS=("${GITREPOS[@]}" "$(printf '%s\n' "${ALL_GITREPOS[@]}" | grep "^7.1.x-private:[^:]*:${GITREPO}\$" | head -n 1)")
 	else
 		GITREPOS=("${GITREPOS[@]}" "$(printf '%s\n' "${ALL_GITREPOS[@]}" | grep ":${GITREPO}\$" | head -n 1)")
-	fi
-done
-
-for GITREPO in "${GITREPOS[@]}"
-do
-	BRANCH_NAME="${GITREPO%%:*}"
-	GITREPO_PATH="${GITREPO##*:}"
-	REPO_PATH="$(echo "${GITREPO}" | sed 's/:[^:]*$//' | sed 's/.*://')"
-
-	if [[ "${GITREPO_PATH}" == modules/* ]] && [[ -z "$(echo "${GITREPOS[@]}" | grep "modules/private.*/$(echo "${GITREPO_PATH}" | sed 's@.*/\([^/]*/\.gitrepo$\)$@\1@')")" ]]
-	then
-		GITREPOS=("${GITREPOS[@]}" "${GITREPO}-private")
 	fi
 done
 

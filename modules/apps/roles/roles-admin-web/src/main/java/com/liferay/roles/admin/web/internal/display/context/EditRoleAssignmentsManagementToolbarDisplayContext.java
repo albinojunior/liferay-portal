@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
@@ -101,7 +102,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 	}
 
 	public List<DropdownItem> getActionDropdownItems() throws Exception {
-		SearchContainer searchContainer = getSearchContainer();
+		SearchContainer<?> searchContainer = getSearchContainer();
 
 		if (Objects.equals(getTabs2(), "users") &&
 			Objects.equals(_role.getName(), RoleConstants.ADMINISTRATOR) &&
@@ -224,7 +225,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 			});
 	}
 
-	public SearchContainer getGroupSearchContainer() {
+	public SearchContainer<Group> getGroupSearchContainer() {
 		GroupSearch groupSearch = new GroupSearch(
 			_renderRequest, getPortletURL());
 
@@ -292,7 +293,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 		return _orderByType;
 	}
 
-	public SearchContainer getOrganizationSearchContainer()
+	public SearchContainer<Organization> getOrganizationSearchContainer()
 		throws PortalException {
 
 		OrganizationSearch organizationSearch = new OrganizationSearch(
@@ -415,10 +416,15 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 	public String getSearchActionURL() {
 		PortletURL searchActionURL = getPortletURL();
 
+		PortletURL currentURL = PortletURLUtil.getCurrent(
+			_renderRequest, _renderResponse);
+
+		searchActionURL.setParameter("redirect", currentURL.toString());
+
 		return searchActionURL.toString();
 	}
 
-	public SearchContainer getSearchContainer() throws Exception {
+	public SearchContainer<?> getSearchContainer() throws Exception {
 		if (_searchContainer != null) {
 			return _searchContainer;
 		}
@@ -461,7 +467,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 		return _tabs2;
 	}
 
-	public SearchContainer getUserGroupSearchContainer() {
+	public SearchContainer<UserGroup> getUserGroupSearchContainer() {
 		UserGroupSearch userGroupSearch = new UserGroupSearch(
 			_renderRequest, getPortletURL());
 
@@ -509,7 +515,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 		return userGroupSearch;
 	}
 
-	public SearchContainer getUserSearchContainer() {
+	public SearchContainer<User> getUserSearchContainer() {
 		UserSearch userSearch = new UserSearch(_renderRequest, getPortletURL());
 
 		if (_tabs3.equals("available")) {
@@ -571,7 +577,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private final Role _role;
-	private SearchContainer _searchContainer;
+	private SearchContainer<?> _searchContainer;
 	private String _tabs2;
 	private final String _tabs3;
 

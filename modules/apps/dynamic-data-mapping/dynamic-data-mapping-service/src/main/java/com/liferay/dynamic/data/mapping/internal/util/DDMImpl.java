@@ -43,8 +43,8 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Field;
-import com.liferay.dynamic.data.mapping.storage.FieldConstants;
 import com.liferay.dynamic.data.mapping.storage.Fields;
+import com.liferay.dynamic.data.mapping.storage.constants.FieldConstants;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesToFieldsConverter;
 import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
@@ -85,7 +85,6 @@ import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.UnicodeFormatter;
 import com.liferay.portal.kernel.util.Validator;
 
-import java.io.File;
 import java.io.Serializable;
 
 import java.text.DateFormat;
@@ -550,10 +549,10 @@ public class DDMImpl implements DDM {
 		String[] existingFieldsDisplayValues = splitFieldsDisplayValue(
 			existingFields.get(DDMImpl.FIELDS_DISPLAY_NAME));
 
-		Iterator<Field> itr = newFields.iterator(true);
+		Iterator<Field> iterator = newFields.iterator(true);
 
-		while (itr.hasNext()) {
-			Field newField = itr.next();
+		while (iterator.hasNext()) {
+			Field newField = iterator.next();
 
 			Field existingField = existingFields.get(newField.getName());
 
@@ -694,15 +693,17 @@ public class DDMImpl implements DDM {
 				JSONFactoryUtil.createJSONObject();
 
 			for (Locale availableLocale : availableLocales) {
-				JSONObject localeMap = JSONFactoryUtil.createJSONObject();
+				JSONObject localeMapJSONObject =
+					JSONFactoryUtil.createJSONObject();
 
 				addDDMFormFieldLocalizedProperty(
-					localeMap, "label",
+					localeMapJSONObject, "label",
 					ddmFormFieldOptions.getOptionLabels(optionValue),
 					availableLocale, defaultLocale, "option");
 
 				localizationMapJSONObject.put(
-					LocaleUtil.toLanguageId(availableLocale), localeMap);
+					LocaleUtil.toLanguageId(availableLocale),
+					localeMapJSONObject);
 			}
 
 			optionJSONObject.put("localizationMap", localizationMapJSONObject);
@@ -833,13 +834,16 @@ public class DDMImpl implements DDM {
 				JSONFactoryUtil.createJSONObject();
 
 			for (Locale availableLocale : availableLocales) {
-				JSONObject localeMap = JSONFactoryUtil.createJSONObject();
+				JSONObject localeMapJSONObject =
+					JSONFactoryUtil.createJSONObject();
 
 				addDDMFormFieldLocalizedProperties(
-					localeMap, ddmFormField, availableLocale, defaultLocale);
+					localeMapJSONObject, ddmFormField, availableLocale,
+					defaultLocale);
 
 				localizationMapJSONObject.put(
-					LocaleUtil.toLanguageId(availableLocale), localeMap);
+					LocaleUtil.toLanguageId(availableLocale),
+					localeMapJSONObject);
 			}
 
 			jsonObject.put(
@@ -1116,9 +1120,8 @@ public class DDMImpl implements DDM {
 			UploadRequest uploadRequest, String fieldNameValue)
 		throws Exception {
 
-		File file = uploadRequest.getFile(fieldNameValue + "File");
-
-		byte[] bytes = FileUtil.getBytes(file);
+		byte[] bytes = FileUtil.getBytes(
+			uploadRequest.getFile(fieldNameValue + "File"));
 
 		if (ArrayUtil.isNotEmpty(bytes)) {
 			return bytes;

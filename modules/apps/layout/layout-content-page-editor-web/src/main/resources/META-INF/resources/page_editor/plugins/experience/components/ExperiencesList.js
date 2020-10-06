@@ -12,6 +12,7 @@
  * details.
  */
 
+import ClayList from '@clayui/list';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -22,9 +23,9 @@ import ExperienceItem from './ExperienceItem';
 
 const ExperiencesList = ({
 	activeExperienceId,
+	canUpdateExperiences,
 	defaultExperienceId,
 	experiences,
-	hasUpdatePermissions,
 	onDeleteExperience,
 	onEditExperience,
 	onPriorityDecrease,
@@ -32,10 +33,10 @@ const ExperiencesList = ({
 }) => {
 	const dispatch = useDispatch();
 
-	const handleExperienceSelection = id => dispatch(selectExperience(id));
+	const handleExperienceSelection = (id) => dispatch(selectExperience({id}));
 
 	return (
-		<ul className="list-unstyled mt-4" role="list">
+		<ClayList className="mt-3">
 			{experiences.map((experience, i) => {
 				const active =
 					experience.segmentsExperienceId === activeExperienceId;
@@ -43,7 +44,7 @@ const ExperiencesList = ({
 				const lockedIncreasePriority = i === 0;
 
 				const editable =
-					hasUpdatePermissions &&
+					canUpdateExperiences &&
 					experience.segmentsExperienceId !== defaultExperienceId &&
 					!experience.hasLockedSegmentsExperiment;
 
@@ -63,15 +64,15 @@ const ExperiencesList = ({
 					/>
 				);
 			})}
-		</ul>
+		</ClayList>
 	);
 };
 
 ExperiencesList.propTypes = {
 	activeExperienceId: PropTypes.string.isRequired,
+	canUpdateExperiences: PropTypes.bool.isRequired,
 	defaultExperienceId: PropTypes.string.isRequired,
 	experiences: PropTypes.arrayOf(PropTypes.shape(ExperienceType)).isRequired,
-	hasUpdatePermissions: PropTypes.bool.isRequired,
 	onDeleteExperience: PropTypes.func.isRequired,
 	onEditExperience: PropTypes.func.isRequired,
 	onPriorityDecrease: PropTypes.func.isRequired,

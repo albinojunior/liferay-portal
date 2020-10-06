@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-session',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var BUFFER_TIME = [];
@@ -115,7 +115,7 @@ AUI.add(
 					var instance = this;
 
 					Liferay.Util.fetch(URL_BASE + 'expire_session').then(
-						response => {
+						(response) => {
 							if (response.ok) {
 								Liferay.fire('sessionExpired');
 
@@ -233,7 +233,6 @@ AUI.add(
 					var instance = this;
 
 					var sessionLength = instance.get('sessionLength');
-					var sessionState = instance.get('sessionState');
 					var warningTime = instance.get('warningTime');
 
 					var registered = instance._registered;
@@ -241,6 +240,8 @@ AUI.add(
 					var interval = 1000;
 
 					instance._intervalId = A.setInterval(() => {
+						var sessionState = instance.get('sessionState');
+
 						var timeOffset;
 
 						var timestamp = instance.get('timestamp');
@@ -419,6 +420,9 @@ AUI.add(
 
 		var SessionDisplay = A.Component.create({
 			ATTRS: {
+				openToast: {
+					validator: Lang.isFunction,
+				},
 				pageTitle: {
 					value: DOC.title,
 				},
@@ -465,7 +469,9 @@ AUI.add(
 
 					var banner = instance._getBanner();
 
-					var counterTextNode = banner.one('.countdown-timer');
+					var counterTextNode = banner
+						.one('.countdown-timer')
+						.getDOMNode();
 
 					instance._uiSetRemainingTime(
 						remainingTime,
@@ -515,15 +521,11 @@ AUI.add(
 				_destroyBanner() {
 					var instance = this;
 
-					instance._banner = false;
-
-					var notificationContainer = A.one(
-						'.lfr-notification-container'
-					);
-
-					if (notificationContainer) {
-						notificationContainer.remove();
+					if (Lang.isFunction(instance._banner.destroy)) {
+						instance._banner.destroy();
 					}
+
+					instance._banner = false;
 				},
 
 				_formatNumber(value) {
@@ -563,35 +565,57 @@ AUI.add(
 					var banner = instance._banner;
 
 					if (!banner) {
-						banner = new Liferay.Notification({
-							closeable: true,
-							delay: {
-								hide: 0,
-								show: 0,
+						var openToast = instance.get('openToast');
+						var toastId = 'sessionToast';
+
+						var toastDefaultConfig = {
+							onClick({event}) {
+								if (
+									event.target.classList.contains(
+										'alert-link'
+									)
+								) {
+									instance._host.extend();
+								}
 							},
-							duration: 500,
+							onClose({event}) {
+								event.preventDefault();
+
+								A.one(`#${toastId}`).toggleClass('hide', true);
+							},
+							renderData: {
+								componentId: toastId,
+							},
+							toastProps: {
+								autoClose: false,
+								id: toastId,
+								role: 'alert',
+							},
+						};
+
+						openToast({
 							message: instance._warningText,
-							on: {
-								click(event) {
-									if (
-										event.domEvent.target.test(
-											'.alert-link'
-										)
-									) {
-										event.domEvent.preventDefault();
-										instance._host.extend();
-									}
-									else if (
-										event.domEvent.target.test('.close')
-									) {
-										instance._destroyBanner();
-										instance._alertClosed = true;
-									}
-								},
-							},
-							title: Liferay.Language.get('warning'),
 							type: 'warning',
-						}).render('body');
+							...toastDefaultConfig,
+						});
+
+						var toastComponent = Liferay.component(toastId);
+
+						banner = {
+							one: A.one(`#${toastId}`).one,
+							setAttrs(attrs) {
+								toastComponent.destroy();
+
+								openToast({
+									...attrs,
+									...toastDefaultConfig,
+								});
+							},
+							show() {
+								A.one(`#${toastId}`).toggleClass('hide', false);
+							},
+							...toastComponent,
+						};
 
 						instance._banner = banner;
 					}
@@ -635,18 +659,25 @@ AUI.add(
 					DOC.title = instance.get('pageTitle');
 				},
 
-				_uiSetRemainingTime(remainingTime) {
+				_uiSetRemainingTime(remainingTime, counterTextNode) {
 					var instance = this;
 
 					remainingTime = instance._formatTime(remainingTime);
 
 					if (!instance._alertClosed) {
-						var banner = instance._getBanner();
-
-						banner.set(
-							'message',
-							Lang.sub(instance._warningText, [remainingTime])
+						var alert = counterTextNode.closest(
+							'div[role="alert"]'
 						);
+
+						// Prevent screen reader from rereading alert
+
+						if (alert) {
+							alert.removeAttribute('role');
+
+							instance._alert = alert;
+						}
+
+						counterTextNode.innerHTML = remainingTime;
 					}
 
 					DOC.title =
@@ -690,7 +721,7 @@ AUI.add(
 							[
 								'<span class="countdown-timer">{0}</span>',
 								host.get('sessionLength') / 60000,
-								'<a class="alert-link" href="#">' +
+								'<a class="alert-link" href="javascript:;">' +
 									Liferay.Language.get('extend') +
 									'</a>',
 							]
@@ -723,6 +754,12 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-timer', 'cookie', 'liferay-notification'],
+		requires: [
+			'aui-base',
+			'aui-component',
+			'aui-timer',
+			'cookie',
+			'plugin',
+		],
 	}
 );

@@ -18,15 +18,22 @@ import {openImageSelector} from '../../core/openImageSelector';
  * @param {HTMLElement} element HTMLElement where the editor
  *  should be applied to.
  * @param {function} changeCallback Function that should be called whenever the
- *  editor produces a change. It must receive a string with
- *  the new editable value.
+ *  editor produces a change. It must receive two parameters, the editable value
+ *  and the editable config.
  * @param {function} destroyCallback Function that should be called if
  *  the editor is destroyed for any internal reason. This function does NOT need
  *  to be called if the editor is destroyed with destroyEditor function.
  */
 function createEditor(element, changeCallback, destroyCallback) {
 	openImageSelector(
-		image => changeCallback(image && image.url ? image.url : ''),
+		(image) =>
+			changeCallback(
+				{
+					fileEntryId: image ? image.fileEntryId : undefined,
+					url: image && image.url ? image.url : '',
+				},
+				{imageTitle: image && image.title ? image.title : ''}
+			),
 		destroyCallback
 	);
 }
@@ -54,9 +61,7 @@ function render(element, value, config = {}) {
 	}
 
 	if (image) {
-		if (value.alt) {
-			image.alt = value.alt;
-		}
+		image.alt = value.alt || config.alt || image.alt;
 
 		if (config.href) {
 			if (image.parentElement instanceof HTMLAnchorElement) {
@@ -74,7 +79,12 @@ function render(element, value, config = {}) {
 			}
 		}
 
-		image.src = value.url || value;
+		const imageValue =
+			value && typeof value !== 'string' ? value.url : value;
+
+		if (imageValue) {
+			image.src = imageValue;
+		}
 	}
 }
 

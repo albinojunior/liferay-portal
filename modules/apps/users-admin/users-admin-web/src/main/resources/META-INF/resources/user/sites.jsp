@@ -21,7 +21,7 @@ User selUser = userDisplayContext.getSelectedUser();
 List<Group> siteGroups = userDisplayContext.getSiteGroups();
 List<Group> inheritedSiteGroups = userDisplayContext.getInheritedSiteGroups();
 
-currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites");
+currentURLObj.setParameter("historyKey", liferayPortletResponse.getNamespace() + "sites");
 %>
 
 <liferay-ui:error-marker
@@ -31,13 +31,18 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 <liferay-ui:membership-policy-error />
 
-<h3 class="autofit-row sheet-subtitle">
-	<span class="autofit-col autofit-col-expand">
+<clay:content-row
+	containerElement="h3"
+	cssClass="sheet-subtitle"
+>
+	<clay:content-col
+		expand="<%= true %>"
+	>
 		<span class="heading-text"><liferay-ui:message key="sites" /></span>
-	</span>
+	</clay:content-col>
 
 	<c:if test="<%= !portletName.equals(myAccountPortletId) %>">
-		<span class="autofit-col">
+		<clay:content-col>
 			<span class="heading-end">
 				<liferay-ui:icon
 					cssClass="modify-link"
@@ -48,9 +53,9 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 					url="javascript:;"
 				/>
 			</span>
-		</span>
+		</clay:content-col>
 	</c:if>
-</h3>
+</clay:content-row>
 
 <liferay-util:buffer
 	var="removeGroupIcon"
@@ -140,7 +145,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 		var handleOnSelect = A.one('#<portlet:namespace />selectSiteLink').on(
 			'click',
-			function(event) {
+			function (event) {
 				var searchContainerData = searchContainer.getData();
 
 				if (!searchContainerData.length) {
@@ -178,7 +183,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 						uri: '<%= groupSelectorURL.toString() %>',
 					},
-					function(event) {
+					function (event) {
 						var entityId = event.entityid;
 
 						var rowColumns = [];
@@ -212,7 +217,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 		var handleOnModifyLink = searchContainerContentBox.delegate(
 			'click',
-			function(event) {
+			function (event) {
 				var link = event.currentTarget;
 
 				var rowId = link.attr('data-rowId');
@@ -246,8 +251,8 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 		var handleEnableRemoveSite = Liferay.on(
 			'<portlet:namespace />enableRemovedSites',
-			function(event) {
-				event.selectors.each(function(item, index, collection) {
+			function (event) {
+				event.selectors.each(function (item, index, collection) {
 					var groupId = item.attr('data-entityid');
 
 					if (deleteGroupIds.indexOf(groupId) != -1) {
@@ -257,7 +262,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 			}
 		);
 
-		var onDestroyPortlet = function(event) {
+		var onDestroyPortlet = function (event) {
 			if (event.portletId === '<%= portletDisplay.getId() %>') {
 				Liferay.detach(handleOnSelect);
 				Liferay.detach(handleOnModifyLink);

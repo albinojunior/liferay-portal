@@ -15,18 +15,24 @@
 package com.liferay.layout.content.page.editor.web.internal.sidebar.panel;
 
 import com.liferay.layout.content.page.editor.sidebar.panel.ContentPageEditorSidebarPanel;
+import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -57,14 +63,22 @@ public class MappingContentPageEditorSidebarPanel
 	}
 
 	@Override
-	public boolean isVisible(boolean pageIsDisplayPage) {
-		return pageIsDisplayPage;
-	}
-
-	@Override
 	public boolean isVisible(
-		PermissionChecker permissionChecker, long plid,
-		boolean pageIsDisplayPage) {
+		PermissionChecker permissionChecker, long plid, int layoutType) {
+
+		Layout layout = _layoutLocalService.fetchLayout(plid);
+
+		if (layout == null) {
+			return false;
+		}
+
+		if ((layoutType !=
+				LayoutPageTemplateEntryTypeConstants.TYPE_DISPLAY_PAGE) &&
+			!Objects.equals(
+				layout.getType(), LayoutConstants.TYPE_COLLECTION)) {
+
+			return false;
+		}
 
 		try {
 			if (LayoutPermissionUtil.contains(
@@ -84,5 +98,8 @@ public class MappingContentPageEditorSidebarPanel
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		MappingContentPageEditorSidebarPanel.class);
+
+	@Reference
+	private LayoutLocalService _layoutLocalService;
 
 }

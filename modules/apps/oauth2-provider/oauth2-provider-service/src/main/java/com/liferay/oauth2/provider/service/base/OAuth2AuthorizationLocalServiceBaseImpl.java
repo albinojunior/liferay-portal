@@ -20,6 +20,7 @@ import com.liferay.oauth2.provider.service.persistence.OAuth2AuthorizationFinder
 import com.liferay.oauth2.provider.service.persistence.OAuth2AuthorizationPersistence;
 import com.liferay.oauth2.provider.service.persistence.OAuth2ScopeGrantFinder;
 import com.liferay.oauth2.provider.service.persistence.OAuth2ScopeGrantPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -76,6 +78,10 @@ public abstract class OAuth2AuthorizationLocalServiceBaseImpl
 	/**
 	 * Adds the o auth2 authorization to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2AuthorizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuth2Authorization the o auth2 authorization
 	 * @return the o auth2 authorization that was added
 	 */
@@ -106,6 +112,10 @@ public abstract class OAuth2AuthorizationLocalServiceBaseImpl
 	/**
 	 * Deletes the o auth2 authorization with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2AuthorizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuth2AuthorizationId the primary key of the o auth2 authorization
 	 * @return the o auth2 authorization that was removed
 	 * @throws PortalException if a o auth2 authorization with the primary key could not be found
@@ -122,6 +132,10 @@ public abstract class OAuth2AuthorizationLocalServiceBaseImpl
 	/**
 	 * Deletes the o auth2 authorization from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2AuthorizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuth2Authorization the o auth2 authorization
 	 * @return the o auth2 authorization that was removed
 	 */
@@ -131,6 +145,11 @@ public abstract class OAuth2AuthorizationLocalServiceBaseImpl
 		OAuth2Authorization oAuth2Authorization) {
 
 		return oAuth2AuthorizationPersistence.remove(oAuth2Authorization);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return oAuth2AuthorizationPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -314,6 +333,10 @@ public abstract class OAuth2AuthorizationLocalServiceBaseImpl
 			(OAuth2Authorization)persistedModel);
 	}
 
+	public BasePersistence<OAuth2Authorization> getBasePersistence() {
+		return oAuth2AuthorizationPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -354,6 +377,10 @@ public abstract class OAuth2AuthorizationLocalServiceBaseImpl
 
 	/**
 	 * Updates the o auth2 authorization in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuth2AuthorizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuth2Authorization the o auth2 authorization
 	 * @return the o auth2 authorization that was updated

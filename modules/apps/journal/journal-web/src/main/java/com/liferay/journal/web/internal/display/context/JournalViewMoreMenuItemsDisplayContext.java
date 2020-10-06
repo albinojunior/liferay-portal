@@ -19,11 +19,13 @@ import com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateCom
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItemListBuilder;
 import com.liferay.journal.service.JournalFolderServiceUtil;
-import com.liferay.petra.string.StringPool;
+import com.liferay.journal.web.internal.util.SiteConnectedGroupUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -33,6 +35,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
@@ -67,15 +70,17 @@ public class JournalViewMoreMenuItemsDisplayContext {
 
 		if (Validator.isNull(_getKeywords())) {
 			_ddmStructures = JournalFolderServiceUtil.getDDMStructures(
-				PortalUtil.getCurrentAndAncestorSiteGroupIds(
-					themeDisplay.getScopeGroupId()),
+				SiteConnectedGroupUtil.
+					getCurrentAndAncestorSiteAndDepotGroupIds(
+						themeDisplay.getScopeGroupId(), true),
 				_folderId, _restrictionType);
 		}
 		else {
 			_ddmStructures = JournalFolderServiceUtil.searchDDMStructures(
 				themeDisplay.getCompanyId(),
-				PortalUtil.getCurrentAndAncestorSiteGroupIds(
-					themeDisplay.getScopeGroupId()),
+				SiteConnectedGroupUtil.
+					getCurrentAndAncestorSiteAndDepotGroupIds(
+						themeDisplay.getScopeGroupId(), true),
 				_folderId, _restrictionType, _getKeywords(), QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, _getOrderByComparator());
 		}
@@ -83,14 +88,38 @@ public class JournalViewMoreMenuItemsDisplayContext {
 		return _ddmStructures;
 	}
 
-	public SearchContainer getDDMStructuresSearchContainer()
+	public String getDDMStructureScopeName(
+			DDMStructure ddmStructure, Locale locale)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)_renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Group scopeGroup = themeDisplay.getScopeGroup();
+
+		if (ddmStructure.getGroupId() == scopeGroup.getGroupId()) {
+			if (scopeGroup.isDepot()) {
+				return LanguageUtil.get(
+					_httpServletRequest, "current-asset-library");
+			}
+
+			return LanguageUtil.get(_httpServletRequest, "current-site");
+		}
+
+		Group ddmStructureGroup = GroupLocalServiceUtil.getGroup(
+			ddmStructure.getGroupId());
+
+		return ddmStructureGroup.getName(locale);
+	}
+
+	public SearchContainer<DDMStructure> getDDMStructuresSearchContainer()
 		throws PortalException {
 
 		if (_ddmStructuresSearchContainer != null) {
 			return _ddmStructuresSearchContainer;
 		}
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<DDMStructure> searchContainer = new SearchContainer(
 			_renderRequest, getPortletURL(), null, "no-results-were-found");
 
 		searchContainer.setOrderByCol(getOrderByCol());
@@ -128,7 +157,6 @@ public class JournalViewMoreMenuItemsDisplayContext {
 		return NavigationItemListBuilder.add(
 			navigationItem -> {
 				navigationItem.setActive(true);
-				navigationItem.setHref(StringPool.BLANK);
 				navigationItem.setLabel(
 					LanguageUtil.get(_httpServletRequest, "all-menu-items"));
 			}
@@ -187,7 +215,7 @@ public class JournalViewMoreMenuItemsDisplayContext {
 		return _keywords;
 	}
 
-	private OrderByComparator _getOrderByComparator() {
+	private OrderByComparator<DDMStructure> _getOrderByComparator() {
 		boolean orderByAsc = false;
 
 		String orderByType = getOrderByType();
@@ -200,7 +228,7 @@ public class JournalViewMoreMenuItemsDisplayContext {
 	}
 
 	private List<DDMStructure> _ddmStructures;
-	private SearchContainer _ddmStructuresSearchContainer;
+	private SearchContainer<DDMStructure> _ddmStructuresSearchContainer;
 	private String _eventName;
 	private final long _folderId;
 	private final HttpServletRequest _httpServletRequest;

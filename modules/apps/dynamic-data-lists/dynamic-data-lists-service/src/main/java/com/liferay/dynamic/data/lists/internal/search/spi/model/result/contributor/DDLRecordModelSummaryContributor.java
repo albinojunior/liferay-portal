@@ -14,19 +14,20 @@
 
 package com.liferay.dynamic.data.lists.internal.search.spi.model.result.contributor;
 
+import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
-import com.liferay.dynamic.data.lists.model.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.search.spi.model.result.contributor.ModelSummaryContributor;
 
 import java.util.Locale;
@@ -54,11 +55,8 @@ public class DDLRecordModelSummaryContributor
 			getTitle(GetterUtil.getLong(document.get("recordSetId")), locale),
 			document.get(
 				locale,
-				Field.SNIPPET.concat(
-					StringPool.UNDERLINE
-				).concat(
-					Field.DESCRIPTION
-				),
+				StringBundler.concat(
+					Field.SNIPPET, StringPool.UNDERLINE, Field.DESCRIPTION),
 				Field.DESCRIPTION));
 
 		summary.setMaxContentLength(200);

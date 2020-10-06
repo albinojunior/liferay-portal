@@ -64,12 +64,12 @@ import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
-import com.liferay.portal.kernel.test.util.TestDataConstants;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -162,12 +162,10 @@ public class DLFileEntryLocalServiceTest {
 			long fileEntryTypeId = populateServiceContextFileEntryType(
 				serviceContext);
 
-			Map<String, Serializable> expandoBridgeAttributes =
+			serviceContext.setExpandoBridgeAttributes(
 				HashMapBuilder.<String, Serializable>put(
 					"ExpandoAttributeName", "ExpandoAttributeValue"
-				).build();
-
-			serviceContext.setExpandoBridgeAttributes(expandoBridgeAttributes);
+				).build());
 
 			FileEntry fileEntry = DLAppLocalServiceUtil.addFileEntry(
 				TestPropsValues.getUserId(), _group.getGroupId(),
@@ -389,7 +387,7 @@ public class DLFileEntryLocalServiceTest {
 
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 
-		InputStream is = new ByteArrayInputStream(bytes);
+		InputStream inputStream = new ByteArrayInputStream(bytes);
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(dlFolder.getGroupId());
@@ -398,16 +396,16 @@ public class DLFileEntryLocalServiceTest {
 			TestPropsValues.getUserId(), dlFolder.getRepositoryId(),
 			dlFolder.getFolderId(), RandomTestUtil.randomString(),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
-			StringPool.BLANK, StringPool.BLANK, is, bytes.length,
+			StringPool.BLANK, StringPool.BLANK, inputStream, bytes.length,
 			serviceContext);
 
-		is = new ByteArrayInputStream(bytes);
+		inputStream = new ByteArrayInputStream(bytes);
 
 		FileEntry noAssetFileEntry = DLAppLocalServiceUtil.addFileEntry(
 			TestPropsValues.getUserId(), dlFolder.getRepositoryId(),
 			dlFolder.getFolderId(), RandomTestUtil.randomString(),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
-			StringPool.BLANK, StringPool.BLANK, is, bytes.length,
+			StringPool.BLANK, StringPool.BLANK, inputStream, bytes.length,
 			serviceContext);
 
 		AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(

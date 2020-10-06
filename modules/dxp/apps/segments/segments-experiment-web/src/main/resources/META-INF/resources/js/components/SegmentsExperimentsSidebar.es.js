@@ -173,7 +173,7 @@ function SegmentsExperimentsSidebar({
 					dispatch(deleteArchivedExperiment(experimentId));
 				}
 			})
-			.catch(_error => {
+			.catch((_error) => {
 				openErrorToast();
 			});
 	}
@@ -282,7 +282,6 @@ function SegmentsExperimentsSidebar({
 					message: Liferay.Language.get(
 						'an-unexpected-error-occurred'
 					),
-					title: Liferay.Language.get('error'),
 					type: 'danger',
 				});
 			});
@@ -381,7 +380,7 @@ function SegmentsExperimentsSidebar({
 				);
 				dispatch(reviewClickTargetElement());
 			})
-			.catch(_error => {
+			.catch((_error) => {
 				openErrorToast();
 			});
 	}

@@ -104,10 +104,9 @@ public class DefaultLicenseManagerImpl implements LicenseManager {
 
 			jsonObject.put("productVersion", productVersion);
 
-			UUID uuid = new UUID(
-				SecureRandomUtil.nextLong(), SecureRandomUtil.nextLong());
-
-			String randomUuid = uuid.toString();
+			String randomUuid = String.valueOf(
+				new UUID(
+					SecureRandomUtil.nextLong(), SecureRandomUtil.nextLong()));
 
 			jsonObject.put(
 				"randomUuid", randomUuid
@@ -149,11 +148,10 @@ public class DefaultLicenseManagerImpl implements LicenseManager {
 
 	@Override
 	public int getLicenseState(String productId) {
-		Map<String, String> licenseProperties = HashMapBuilder.put(
-			"productId", productId
-		).build();
-
-		return getLicenseState(licenseProperties);
+		return getLicenseState(
+			HashMapBuilder.put(
+				"productId", productId
+			).build());
 	}
 
 	@Override

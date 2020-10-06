@@ -49,7 +49,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, passwordPolicy.getName(), null);
 
 EditPasswordPolicyAssignmentsManagementToolbarDisplayContext editPasswordPolicyAssignmentsManagementToolbarDisplayContext = new EditPasswordPolicyAssignmentsManagementToolbarDisplayContext(request, renderRequest, renderResponse, displayStyle, "/edit_password_policy_assignments.jsp");
 
-SearchContainer searchContainer = editPasswordPolicyAssignmentsManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<?> searchContainer = editPasswordPolicyAssignmentsManagementToolbarDisplayContext.getSearchContainer();
 %>
 
 <liferay-util:include page="/edit_password_policy_tabs.jsp" servletContext="<%= application %>" />
@@ -119,7 +119,7 @@ SearchContainer searchContainer = editPasswordPolicyAssignmentsManagementToolbar
 	</liferay-ui:search-container>
 </aui:form>
 
-<aui:script require="frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
+<aui:script sandbox="<%= true %>">
 	<portlet:renderURL var="selectMembersURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
 		<portlet:param name="mvcPath" value="/select_members.jsp" />
 		<portlet:param name="tabs1" value="<%= tabs1 %>" />
@@ -127,53 +127,49 @@ SearchContainer searchContainer = editPasswordPolicyAssignmentsManagementToolbar
 		<portlet:param name="passwordPolicyId" value="<%= String.valueOf(passwordPolicyId) %>" />
 	</portlet:renderURL>
 
-	var addAssignees = function(event) {
-		var itemSelectorDialog = new ItemSelectorDialog.default({
-			eventName: '<portlet:namespace />selectMember',
+	var addAssignees = function (event) {
+		Liferay.Util.openSelectionModal({
+			multiple: true,
+			onSelect: function (result) {
+				if (result && result.item) {
+					var form = document.getElementById('<portlet:namespace />fm');
+
+					if (form) {
+						if (result.memberType == 'users') {
+							var addUserIdsInput = form.querySelector(
+								'#<portlet:namespace />addUserIds'
+							);
+
+							if (addUserIdsInput) {
+								addUserIdsInput.setAttribute('value', result.item);
+							}
+						}
+						else if (result.memberType == 'organizations') {
+							var addOrganizationIdsInput = form.querySelector(
+								'#<portlet:namespace />addOrganizationIds'
+							);
+
+							if (addOrganizationIdsInput) {
+								addOrganizationIdsInput.setAttribute(
+									'value',
+									result.item
+								);
+							}
+						}
+
+						submitForm(form);
+					}
+				}
+			},
+			selectEventName: '<portlet:namespace />selectMember',
 			title:
 				'<liferay-ui:message arguments="<%= HtmlUtil.escape(passwordPolicy.getName()) %>" key="add-assignees-to-x" />',
 			url: '<%= selectMembersURL %>',
 		});
-
-		itemSelectorDialog.on('selectedItemChange', function(event) {
-			var result = event.selectedItem;
-
-			if (result && result.item) {
-				var form = document.getElementById('<portlet:namespace />fm');
-
-				if (form) {
-					if (result.memberType == 'users') {
-						var addUserIdsInput = form.querySelector(
-							'#<portlet:namespace />addUserIds'
-						);
-
-						if (addUserIdsInput) {
-							addUserIdsInput.setAttribute('value', result.item);
-						}
-					}
-					else if (result.memberType == 'organizations') {
-						var addOrganizationIdsInput = form.querySelector(
-							'#<portlet:namespace />addOrganizationIds'
-						);
-
-						if (addOrganizationIdsInput) {
-							addOrganizationIdsInput.setAttribute(
-								'value',
-								result.item
-							);
-						}
-					}
-
-					submitForm(form);
-				}
-			}
-		});
-
-		itemSelectorDialog.open();
 	};
 
 	Liferay.componentReady('editPasswordPolicyAssignmentsManagementToolbar').then(
-		function(managementToolbar) {
+		function (managementToolbar) {
 			managementToolbar.on('creationButtonClicked', addAssignees);
 		}
 	);

@@ -113,13 +113,13 @@ public class SharepointExtRepository implements ExtRepository {
 			String url = _sharepointURLHelper.getAddFolderURL(
 				extRepositoryParentFolderKey);
 
-			JSONObject bodyJSONObject = JSONUtil.put(
-				"__metadata", JSONUtil.put("type", "SP.Folder")
-			).put(
-				"ServerRelativeUrl", name
-			);
-
-			JSONObject jsonObject = _post(url, bodyJSONObject);
+			JSONObject jsonObject = _post(
+				url,
+				JSONUtil.put(
+					"__metadata", JSONUtil.put("type", "SP.Folder")
+				).put(
+					"ServerRelativeUrl", name
+				));
 
 			return _sharepointServerResponseConverter.getExtRepositoryFolder(
 				jsonObject);
@@ -463,6 +463,16 @@ public class SharepointExtRepository implements ExtRepository {
 			return null;
 		}
 
+		String parentFolderExtRepositoryModelKey =
+			_getParentFolderExtRepositoryModelKey(extRepositoryModelKey);
+
+		if (Validator.isNull(parentFolderExtRepositoryModelKey) ||
+			parentFolderExtRepositoryModelKey.equals(
+				_rootFolder.getExtRepositoryModelKey())) {
+
+			return null;
+		}
+
 		int pos = extRepositoryModelKey.lastIndexOf(CharPool.SLASH);
 
 		String parentFolderPath = extRepositoryModelKey.substring(0, pos);
@@ -526,18 +536,18 @@ public class SharepointExtRepository implements ExtRepository {
 
 	@Override
 	public void initRepository(
-		UnicodeProperties typeSettingsProperties,
+		UnicodeProperties typeSettingsUnicodeProperties,
 		CredentialsProvider credentialsProvider) {
 
 		_libraryPath = _strip(
 			GetterUtil.getString(
-				typeSettingsProperties.getProperty("library-path")));
+				typeSettingsUnicodeProperties.getProperty("library-path")));
 
 		_rootFolder = new SharepointRootFolder(_libraryPath);
 
 		_siteAbsoluteURL = _strip(
 			GetterUtil.getString(
-				typeSettingsProperties.getProperty("site-absolute-url"),
+				typeSettingsUnicodeProperties.getProperty("site-absolute-url"),
 				StringPool.DASH));
 
 		_sharepointURLHelper = new SharepointURLHelper(
@@ -771,6 +781,18 @@ public class SharepointExtRepository implements ExtRepository {
 		_handleHttpResponseError(httpResponse, url);
 
 		return JSONFactoryUtil.createJSONObject(httpResponse.getBody());
+	}
+
+	private String _getParentFolderExtRepositoryModelKey(
+		String extRepositoryModelKey) {
+
+		int pos = extRepositoryModelKey.lastIndexOf(StringPool.SLASH);
+
+		if (pos == -1) {
+			return null;
+		}
+
+		return extRepositoryModelKey.substring(pos + 1);
 	}
 
 	private void _handleHttpResponseError(

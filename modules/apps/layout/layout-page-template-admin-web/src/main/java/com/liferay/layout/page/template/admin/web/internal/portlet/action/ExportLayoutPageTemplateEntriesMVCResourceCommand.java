@@ -15,7 +15,7 @@
 package com.liferay.layout.page.template.admin.web.internal.portlet.action;
 
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
-import com.liferay.layout.page.template.admin.web.internal.portlet.util.ExportUtil;
+import com.liferay.layout.page.template.admin.web.internal.exporter.LayoutPageTemplatesExporter;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
@@ -51,40 +51,22 @@ import org.osgi.service.component.annotations.Reference;
 public class ExportLayoutPageTemplateEntriesMVCResourceCommand
 	implements MVCResourceCommand {
 
-	public File getFile(ResourceRequest resourceRequest)
+	public File getFile(long[] layoutPageTemplateEntryIds)
 		throws PortletException {
-
-		long[] exportLayoutPageTemplateEntryIds = null;
-
-		long layoutPageTemplateEntryEntryId = ParamUtil.getLong(
-			resourceRequest, "layoutPageTemplateEntryId");
-
-		if (layoutPageTemplateEntryEntryId > 0) {
-			exportLayoutPageTemplateEntryIds = new long[] {
-				layoutPageTemplateEntryEntryId
-			};
-		}
-		else {
-			exportLayoutPageTemplateEntryIds = ParamUtil.getLongValues(
-				resourceRequest, "rowIds");
-		}
 
 		try {
 			List<LayoutPageTemplateEntry> layoutPageTemplateEntries =
 				new ArrayList<>();
 
-			for (long exportLayoutPageTemplateEntryId :
-					exportLayoutPageTemplateEntryIds) {
-
+			for (long layoutPageTemplateEntryId : layoutPageTemplateEntryIds) {
 				LayoutPageTemplateEntry layoutPageTemplateEntry =
 					_layoutPageTemplateEntryLocalService.
-						fetchLayoutPageTemplateEntry(
-							exportLayoutPageTemplateEntryId);
+						fetchLayoutPageTemplateEntry(layoutPageTemplateEntryId);
 
 				layoutPageTemplateEntries.add(layoutPageTemplateEntry);
 			}
 
-			return _exportUtil.exportPageTemplateDefinitions(
+			return _layoutPageTemplatesExporter.exportPageTemplates(
 				layoutPageTemplateEntries);
 		}
 		catch (Exception exception) {
@@ -92,16 +74,61 @@ public class ExportLayoutPageTemplateEntriesMVCResourceCommand
 		}
 	}
 
+	public String getFileName(long[] layoutPageTemplateEntryIds) {
+		String fileNamePrefix = "page-templates-";
+
+		if (layoutPageTemplateEntryIds.length == 1) {
+			LayoutPageTemplateEntry layoutPageTemplateEntry =
+				_layoutPageTemplateEntryLocalService.
+					fetchLayoutPageTemplateEntry(layoutPageTemplateEntryIds[0]);
+
+			fileNamePrefix =
+				"page-template-" +
+					layoutPageTemplateEntry.getLayoutPageTemplateEntryKey() +
+						"-";
+		}
+
+		return fileNamePrefix + Time.getShortTimestamp() + ".zip";
+	}
+
+	public long[] getLayoutPageTemplateEntryIds(
+		ResourceRequest resourceRequest) {
+
+		long[] layoutPageTemplateEntryIds = null;
+
+		long layoutPageTemplateEntryEntryId = ParamUtil.getLong(
+			resourceRequest, "layoutPageTemplateEntryId");
+
+		if (layoutPageTemplateEntryEntryId > 0) {
+			layoutPageTemplateEntryIds = new long[] {
+				layoutPageTemplateEntryEntryId
+			};
+		}
+		else {
+			layoutPageTemplateEntryIds = ParamUtil.getLongValues(
+				resourceRequest, "rowIds");
+		}
+
+		return layoutPageTemplateEntryIds;
+	}
+
 	@Override
 	public boolean serveResource(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws PortletException {
 
+		long[] layoutPageTemplateEntryIds = getLayoutPageTemplateEntryIds(
+			resourceRequest);
+
+		if (layoutPageTemplateEntryIds.length == 0) {
+			return false;
+		}
+
 		try {
 			PortletResponseUtil.sendFile(
 				resourceRequest, resourceResponse,
-				"page-templates-" + Time.getTimestamp() + ".zip",
-				new FileInputStream(getFile(resourceRequest)),
+				getFileName(layoutPageTemplateEntryIds),
+				new FileInputStream(getFile(layoutPageTemplateEntryIds)),
 				ContentTypes.APPLICATION_ZIP);
 		}
 		catch (Exception exception) {
@@ -112,10 +139,10 @@ public class ExportLayoutPageTemplateEntriesMVCResourceCommand
 	}
 
 	@Reference
-	private ExportUtil _exportUtil;
-
-	@Reference
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
+
+	@Reference
+	private LayoutPageTemplatesExporter _layoutPageTemplatesExporter;
 
 }

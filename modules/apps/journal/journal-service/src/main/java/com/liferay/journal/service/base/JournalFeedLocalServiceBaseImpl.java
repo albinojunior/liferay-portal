@@ -23,6 +23,8 @@ import com.liferay.journal.model.JournalFeed;
 import com.liferay.journal.service.JournalFeedLocalService;
 import com.liferay.journal.service.persistence.JournalFeedFinder;
 import com.liferay.journal.service.persistence.JournalFeedPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -43,6 +45,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -79,6 +84,10 @@ public abstract class JournalFeedLocalServiceBaseImpl
 	/**
 	 * Adds the journal feed to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFeedLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFeed the journal feed
 	 * @return the journal feed that was added
 	 */
@@ -105,6 +114,10 @@ public abstract class JournalFeedLocalServiceBaseImpl
 	/**
 	 * Deletes the journal feed with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFeedLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param id the primary key of the journal feed
 	 * @return the journal feed that was removed
 	 * @throws PortalException if a journal feed with the primary key could not be found
@@ -118,6 +131,10 @@ public abstract class JournalFeedLocalServiceBaseImpl
 	/**
 	 * Deletes the journal feed from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFeedLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFeed the journal feed
 	 * @return the journal feed that was removed
 	 */
@@ -125,6 +142,11 @@ public abstract class JournalFeedLocalServiceBaseImpl
 	@Override
 	public JournalFeed deleteJournalFeed(JournalFeed journalFeed) {
 		return journalFeedPersistence.remove(journalFeed);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return journalFeedPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -375,6 +397,10 @@ public abstract class JournalFeedLocalServiceBaseImpl
 			(JournalFeed)persistedModel);
 	}
 
+	public BasePersistence<JournalFeed> getBasePersistence() {
+		return journalFeedPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -462,6 +488,10 @@ public abstract class JournalFeedLocalServiceBaseImpl
 	/**
 	 * Updates the journal feed in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFeedLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFeed the journal feed
 	 * @return the journal feed that was updated
 	 */
@@ -475,7 +505,7 @@ public abstract class JournalFeedLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			JournalFeedLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -494,8 +524,23 @@ public abstract class JournalFeedLocalServiceBaseImpl
 		return JournalFeedLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<JournalFeed> getCTPersistence() {
+		return journalFeedPersistence;
+	}
+
+	@Override
+	public Class<JournalFeed> getModelClass() {
 		return JournalFeed.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<JournalFeed>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(journalFeedPersistence);
 	}
 
 	protected String getModelClassName() {

@@ -32,6 +32,10 @@ public interface FragmentEntryProcessor {
 		return null;
 	}
 
+	public default JSONArray getDataAttributesJSONArray() {
+		return null;
+	}
+
 	public default JSONObject getDefaultEditableValuesJSONObject(
 		String html, String configuration) {
 
@@ -51,7 +55,7 @@ public interface FragmentEntryProcessor {
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
-		return fragmentEntryLink.getHtml();
+		return html;
 	}
 
 	public void validateFragmentEntryHTML(String html, String configuration)

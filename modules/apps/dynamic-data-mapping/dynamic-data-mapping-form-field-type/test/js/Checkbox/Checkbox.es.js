@@ -12,169 +12,217 @@
  * details.
  */
 
+import {act, cleanup, render} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {PageProvider} from 'dynamic-data-mapping-form-renderer';
+import React from 'react';
+
 import Checkbox from '../../../src/main/resources/META-INF/resources/Checkbox/Checkbox.es';
 
-let component;
 const spritemap = 'icons.svg';
 
+const CheckboxWithProvider = (props) => (
+	<PageProvider value={{editingLanguageId: 'en_US'}}>
+		<Checkbox {...props} />
+	</PageProvider>
+);
+
 describe('Field Checkbox', () => {
+	// eslint-disable-next-line no-console
+	const originalWarn = console.warn;
+
+	beforeAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = (...args) => {
+			if (/DataProvider: Trying/.test(args[0])) {
+				return;
+			}
+			originalWarn.call(console, ...args);
+		};
+	});
+
+	afterAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = originalWarn;
+	});
+
+	afterEach(cleanup);
+
 	beforeEach(() => {
 		jest.useFakeTimers();
+		fetch.mockResponseOnce(JSON.stringify({}));
 	});
 
-	afterEach(() => {
-		if (component) {
-			component.dispose();
-		}
-	});
+	it('is not editable', () => {
+		const {container} = render(
+			<CheckboxWithProvider readOnly={true} spritemap={spritemap} />
+		);
 
-	it('is not edidable', () => {
-		component = new Checkbox({
-			readOnly: false,
-			spritemap,
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a helptext', () => {
-		component = new Checkbox({
-			spritemap,
-			tip: 'Type something',
+		const {container} = render(
+			<CheckboxWithProvider spritemap={spritemap} tip="Type something" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has an id', () => {
-		component = new Checkbox({
-			id: 'ID',
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider id="ID" spritemap={spritemap} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a label', () => {
-		component = new Checkbox({
-			label: 'label',
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider label="label" spritemap={spritemap} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a predefined Value', () => {
-		component = new Checkbox({
-			placeholder: 'Option 1',
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider
+				placeholder="Option 1"
+				spritemap={spritemap}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is not required', () => {
-		component = new Checkbox({
-			required: false,
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider required={false} spritemap={spritemap} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is shown as a switcher', () => {
-		component = new Checkbox({
-			showAsSwitcher: true,
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider showAsSwitcher spritemap={spritemap} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is shown as checkbox', () => {
-		component = new Checkbox({
-			showAsSwitcher: false,
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider
+				showAsSwitcher={false}
+				spritemap={spritemap}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('renders Label if showLabel is true', () => {
-		component = new Checkbox({
-			label: 'text',
-			showLabel: true,
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider
+				label={true}
+				showLabel={true}
+				spritemap={spritemap}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a spritemap', () => {
-		component = new Checkbox({
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider spritemap={spritemap} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a value', () => {
-		component = new Checkbox({
-			spritemap,
-			value: true,
+		const {container} = render(
+			<CheckboxWithProvider spritemap={spritemap} value={true} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a key', () => {
-		component = new Checkbox({
-			key: 'key',
-			spritemap,
+		const {container} = render(
+			<CheckboxWithProvider key="key" value={true} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
-	it('emits field edit event on field change', done => {
+	it('call the onChange callback on the field change', () => {
 		const handleFieldEdited = jest.fn();
 
-		const events = {fieldEdited: handleFieldEdited};
+		render(
+			<CheckboxWithProvider
+				onChange={handleFieldEdited}
+				spritemap={spritemap}
+			/>
+		);
 
-		component = new Checkbox({
-			events,
-			spritemap,
+		userEvent.click(document.body.querySelector('input'));
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		component.on('fieldEdited', () => {
-			expect(handleFieldEdited).toHaveBeenCalled();
-
-			done();
-		});
-
-		component.handleInputChangeEvent({
-			delegateTarget: {
-				checked: true,
-			},
-		});
-
-		jest.runAllTimers();
-	});
-
-	it('propagates the field edit event on field change', () => {
-		component = new Checkbox({
-			spritemap,
-		});
-
-		const spy = jest.spyOn(component, 'emit');
-
-		component.handleInputChangeEvent({
-			delegateTarget: {
-				checked: true,
-			},
-		});
-
-		expect(spy).toHaveBeenCalled();
-		expect(spy).toHaveBeenCalledWith('fieldEdited', expect.any(Object));
+		expect(handleFieldEdited).toHaveBeenCalled();
 	});
 });

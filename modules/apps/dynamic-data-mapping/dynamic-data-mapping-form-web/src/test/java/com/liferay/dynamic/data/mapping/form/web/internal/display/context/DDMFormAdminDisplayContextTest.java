@@ -32,22 +32,24 @@ import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureService;
+import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterTracker;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsImpl;
@@ -114,9 +116,8 @@ public class DDMFormAdminDisplayContextTest extends PowerMockito {
 		setRenderRequestParamenter(
 			"formInstanceId", String.valueOf(_RESTRICTED_FORM_INSTANCE_ID));
 
-		String formURL = _ddmFormAdminDisplayContext.getFormURL();
-
-		Assert.assertEquals(getRestrictedFormURL(), formURL);
+		Assert.assertEquals(
+			getRestrictedFormURL(), _ddmFormAdminDisplayContext.getFormURL());
 	}
 
 	@Test
@@ -124,24 +125,33 @@ public class DDMFormAdminDisplayContextTest extends PowerMockito {
 		setRenderRequestParamenter(
 			"formInstanceId", String.valueOf(_SHARED_FORM_INSTANCE_ID));
 
-		String formURL = _ddmFormAdminDisplayContext.getFormURL();
+		Assert.assertEquals(
+			getSharedFormURL(), _ddmFormAdminDisplayContext.getFormURL());
+	}
 
-		Assert.assertEquals(getSharedFormURL(), formURL);
+	@Test
+	public void testGetPublishedFormURL() throws Exception {
+		Assert.assertEquals(
+			getSharedFormURL() + _SHARED_FORM_INSTANCE_ID,
+			_ddmFormAdminDisplayContext.getPublishedFormURL(
+				mockDDMFormInstance(_SHARED_FORM_INSTANCE_ID, true, false)));
+		Assert.assertEquals(
+			StringPool.BLANK,
+			_ddmFormAdminDisplayContext.getPublishedFormURL(
+				mockDDMFormInstance(_SHARED_FORM_INSTANCE_ID, false, false)));
 	}
 
 	@Test
 	public void testGetRestrictedFormURL() throws Exception {
-		String restrictedFormURL =
-			_ddmFormAdminDisplayContext.getRestrictedFormURL();
-
-		Assert.assertEquals(getRestrictedFormURL(), restrictedFormURL);
+		Assert.assertEquals(
+			getRestrictedFormURL(),
+			_ddmFormAdminDisplayContext.getRestrictedFormURL());
 	}
 
 	@Test
 	public void testGetSharedFormURL() throws Exception {
-		String sharedFormURL = _ddmFormAdminDisplayContext.getSharedFormURL();
-
-		Assert.assertEquals(getSharedFormURL(), sharedFormURL);
+		Assert.assertEquals(
+			getSharedFormURL(), _ddmFormAdminDisplayContext.getSharedFormURL());
 	}
 
 	protected String getFormURL(
@@ -184,6 +194,26 @@ public class DDMFormAdminDisplayContextTest extends PowerMockito {
 		);
 
 		return formInstance;
+	}
+
+	protected DDMFormInstance mockDDMFormInstance(
+			long formInstanceId, boolean published,
+			boolean requireAuthentication)
+		throws PortalException {
+
+		DDMFormInstance ddmFormInstance = mockDDMFormInstance(
+			formInstanceId, requireAuthentication);
+
+		DDMFormInstanceSettings ddmFormInstanceSettings =
+			ddmFormInstance.getSettingsModel();
+
+		when(
+			ddmFormInstanceSettings.published()
+		).thenReturn(
+			published
+		);
+
+		return ddmFormInstance;
 	}
 
 	protected DDMFormInstanceService mockDDMFormInstanceService()
@@ -310,6 +340,7 @@ public class DDMFormAdminDisplayContextTest extends PowerMockito {
 			mock(DDMFormTemplateContextFactory.class),
 			mock(DDMFormValuesFactory.class), mock(DDMFormValuesMerger.class),
 			mock(DDMFormWebConfiguration.class),
+			mock(DDMStorageAdapterTracker.class),
 			mock(DDMStructureLocalService.class),
 			mock(DDMStructureService.class), mock(JSONFactory.class),
 			mock(NPMResolver.class), mock(Portal.class));

@@ -35,7 +35,6 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,6 +146,28 @@ public class ConfigurationEntryRetrieverImpl
 
 		Locale locale = LocaleUtil.fromLanguageId(languageId);
 
+		List<ConfigurationScreen> configurationScreens =
+			_configurationScreensServiceTrackerMap.getService(
+				configurationCategory);
+
+		if (configurationScreens != null) {
+			for (ConfigurationScreen configurationScreen :
+					configurationScreens) {
+
+				if (!scope.equals(configurationScreen.getScope()) ||
+					!configurationScreen.isVisible()) {
+
+					continue;
+				}
+
+				ConfigurationEntry configurationEntry =
+					new ConfigurationScreenConfigurationEntry(
+						configurationScreen, locale);
+
+				configurationEntries.add(configurationEntry);
+			}
+		}
+
 		Set<ConfigurationModel> configurationModels =
 			_configurationModelRetriever.getConfigurationModels(
 				configurationCategory, languageId, scope, scopePK);
@@ -160,23 +181,6 @@ public class ConfigurationEntryRetrieverImpl
 
 				configurationEntries.add(configurationEntry);
 			}
-		}
-
-		Set<ConfigurationScreen> configurationScreens = getConfigurationScreens(
-			configurationCategory);
-
-		for (ConfigurationScreen configurationScreen : configurationScreens) {
-			if (!scope.equals(configurationScreen.getScope()) ||
-				!configurationScreen.isVisible()) {
-
-				continue;
-			}
-
-			ConfigurationEntry configurationEntry =
-				new ConfigurationScreenConfigurationEntry(
-					configurationScreen, locale);
-
-			configurationEntries.add(configurationEntry);
 		}
 
 		return configurationEntries;
@@ -194,15 +198,6 @@ public class ConfigurationEntryRetrieverImpl
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
 
-		_configurationCategoriesServiceTrackerMap =
-			ServiceTrackerMapFactory.openMultiValueMap(
-				bundleContext, ConfigurationCategory.class, null,
-				(serviceReference, emitter) -> {
-					ConfigurationCategory configurationCategory =
-						bundleContext.getService(serviceReference);
-
-					emitter.emit(configurationCategory.getCategorySection());
-				});
 		_configurationCategoryServiceTrackerMap =
 			ServiceTrackerMapFactory.openSingleValueMap(
 				bundleContext, ConfigurationCategory.class, null,
@@ -235,7 +230,6 @@ public class ConfigurationEntryRetrieverImpl
 
 	@Deactivate
 	protected void deactivate() {
-		_configurationCategoriesServiceTrackerMap.close();
 		_configurationCategoryServiceTrackerMap.close();
 		_configurationScreenServiceTrackerMap.close();
 		_configurationScreensServiceTrackerMap.close();
@@ -247,23 +241,6 @@ public class ConfigurationEntryRetrieverImpl
 
 	protected Comparator<ConfigurationEntry> getConfigurationEntryComparator() {
 		return new ConfigurationEntryComparator();
-	}
-
-	protected Set<ConfigurationScreen> getConfigurationScreens(
-		String configurationCategoryKey) {
-
-		Set<ConfigurationScreen> configurationCategoriesSet =
-			Collections.emptySet();
-
-		List<ConfigurationScreen> configurationCategories =
-			_configurationScreensServiceTrackerMap.getService(
-				configurationCategoryKey);
-
-		if (configurationCategories != null) {
-			configurationCategoriesSet = new HashSet<>(configurationCategories);
-		}
-
-		return configurationCategoriesSet;
 	}
 
 	private void _populateConfigurationCategorySectionDisplay(
@@ -315,14 +292,12 @@ public class ConfigurationEntryRetrieverImpl
 	}
 
 	private BundleContext _bundleContext;
-	private ServiceTrackerMap<String, List<ConfigurationCategory>>
-		_configurationCategoriesServiceTrackerMap;
 	private final Set<ServiceRegistration<ConfigurationCategory>>
 		_configurationCategoryServiceRegistrations = new HashSet<>();
 	private ServiceTrackerMap<String, ConfigurationCategory>
 		_configurationCategoryServiceTrackerMap;
 
-	@Reference
+	@Reference(target = "(filter.visibility=true)")
 	private ConfigurationModelRetriever _configurationModelRetriever;
 
 	private ServiceTrackerMap<String, ConfigurationScreen>

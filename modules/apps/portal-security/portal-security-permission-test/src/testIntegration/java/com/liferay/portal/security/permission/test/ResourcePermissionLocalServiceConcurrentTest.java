@@ -26,10 +26,10 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.SynchronousInvocationHandler;
+import com.liferay.portal.kernel.test.constants.ServiceTestConstants;
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceTestConstants;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.service.impl.ResourcePermissionLocalServiceImpl;
@@ -185,6 +185,11 @@ public class ResourcePermissionLocalServiceConcurrentTest {
 						expectedDBType = ExpectedDBType.POSTGRESQL,
 						expectedLog = "duplicate key",
 						expectedType = ExpectedType.CONTAINS
+					),
+					@ExpectedLog(
+						expectedDBType = ExpectedDBType.SQLSERVER,
+						expectedLog = "Cannot insert duplicate key row",
+						expectedType = ExpectedType.PREFIX
 					),
 					@ExpectedLog(
 						expectedDBType = ExpectedDBType.SYBASE,

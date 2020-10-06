@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.PortletApp;
 import com.liferay.portal.kernel.portlet.LiferayPortlet;
 import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
+import com.liferay.portal.kernel.portlet.bridges.mvc.constants.MVCRenderConstants;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -471,11 +472,9 @@ public class MVCPortlet extends LiferayPortlet {
 	}
 
 	protected String getMVCPathAttributeName(String namespace) {
-		return namespace.concat(
-			StringPool.PERIOD
-		).concat(
-			MVCRenderConstants.MVC_PATH_REQUEST_ATTRIBUTE_NAME
-		);
+		return StringBundler.concat(
+			namespace, StringPool.PERIOD,
+			MVCRenderConstants.MVC_PATH_REQUEST_ATTRIBUTE_NAME);
 	}
 
 	protected String getPath(

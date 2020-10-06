@@ -21,14 +21,23 @@ describe('BasicInformation', () => {
 
 	it('renders author, publish date and title', () => {
 		const testProps = {
-			authorName: 'John Tester',
-			publishDate: '13, July 2019',
+			author: {
+				authorId: '',
+				name: 'John Tester',
+				url: '',
+			},
+			canonicalURL:
+				'http://localhost:8080/en/web/guest/-/basic-web-content',
+			languageTag: 'en-US',
+			publishDate: 'Thu Feb 17 08:17:57 GMT 2020',
 			title: 'A testing page',
 		};
 
 		const {getByText} = render(
 			<BasicInformation
-				authorName={testProps.authorName}
+				author={testProps.author}
+				canonicalURL={testProps.canonicalURL}
+				languageTag={testProps.languageTag}
 				publishDate={testProps.publishDate}
 				title={testProps.title}
 			/>
@@ -36,12 +45,15 @@ describe('BasicInformation', () => {
 
 		expect(getByText(testProps.title)).toBeInTheDocument();
 
+		expect(getByText(testProps.canonicalURL)).toBeInTheDocument();
+
+		const formattedPublishDate = 'February 17, 2020';
 		expect(
-			getByText('authored-by-' + testProps.authorName)
+			getByText('published-on-' + formattedPublishDate)
 		).toBeInTheDocument();
 
 		expect(
-			getByText('published-on-' + testProps.publishDate)
+			getByText('authored-by-' + testProps.author.name)
 		).toBeInTheDocument();
 	});
 });

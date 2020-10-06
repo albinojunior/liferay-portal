@@ -15,11 +15,11 @@
 package com.liferay.change.tracking.web.internal.portlet.action;
 
 import com.liferay.change.tracking.constants.CTConstants;
-import com.liferay.change.tracking.constants.CTPortletKeys;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTPreferences;
-import com.liferay.change.tracking.service.CTCollectionLocalService;
+import com.liferay.change.tracking.service.CTCollectionService;
 import com.liferay.change.tracking.service.CTPreferencesLocalService;
+import com.liferay.change.tracking.web.internal.constants.CTPortletKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -27,7 +27,10 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+
+import java.io.IOException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -41,9 +44,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + CTPortletKeys.CHANGE_LISTS,
-		"mvc.command.name=/change_lists/add_ct_collection",
-		"mvc.command.name=/change_lists/edit_ct_collection"
+		"javax.portlet.name=" + CTPortletKeys.PUBLICATIONS,
+		"mvc.command.name=/publications/edit_ct_collection"
 	},
 	service = MVCActionCommand.class
 )
@@ -51,7 +53,8 @@ public class EditCTCollectionMVCActionCommand extends BaseMVCActionCommand {
 
 	@Override
 	protected void doProcessAction(
-		ActionRequest actionRequest, ActionResponse actionResponse) {
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws IOException {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -64,13 +67,13 @@ public class EditCTCollectionMVCActionCommand extends BaseMVCActionCommand {
 
 		try {
 			if (ctCollectionId > 0) {
-				_ctCollectionLocalService.updateCTCollection(
+				_ctCollectionService.updateCTCollection(
 					themeDisplay.getUserId(), ctCollectionId, name,
 					description);
 			}
 			else {
 				CTCollection ctCollection =
-					_ctCollectionLocalService.addCTCollection(
+					_ctCollectionService.addCTCollection(
 						themeDisplay.getCompanyId(), themeDisplay.getUserId(),
 						name, description);
 
@@ -94,10 +97,16 @@ public class EditCTCollectionMVCActionCommand extends BaseMVCActionCommand {
 			actionResponse.setRenderParameter(
 				"mvcPath", "/edit_ct_collection.jsp");
 		}
+
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		if (Validator.isNotNull(redirect)) {
+			sendRedirect(actionRequest, actionResponse, redirect);
+		}
 	}
 
 	@Reference
-	private CTCollectionLocalService _ctCollectionLocalService;
+	private CTCollectionService _ctCollectionService;
 
 	@Reference
 	private CTPreferencesLocalService _ctPreferencesLocalService;

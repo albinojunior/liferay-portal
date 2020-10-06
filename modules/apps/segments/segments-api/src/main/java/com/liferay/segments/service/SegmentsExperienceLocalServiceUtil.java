@@ -65,6 +65,10 @@ public class SegmentsExperienceLocalServiceUtil {
 	/**
 	 * Adds the segments experience to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsExperience the segments experience
 	 * @return the segments experience that was added
 	 */
@@ -118,6 +122,10 @@ public class SegmentsExperienceLocalServiceUtil {
 	/**
 	 * Deletes the segments experience with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsExperienceId the primary key of the segments experience
 	 * @return the segments experience that was removed
 	 * @throws PortalException if a segments experience with the primary key could not be found
@@ -131,6 +139,10 @@ public class SegmentsExperienceLocalServiceUtil {
 
 	/**
 	 * Deletes the segments experience from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param segmentsExperience the segments experience
 	 * @return the segments experience that was removed
@@ -150,6 +162,12 @@ public class SegmentsExperienceLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().deleteSegmentsExperiences(groupId, classNameId, classPK);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -241,6 +259,14 @@ public class SegmentsExperienceLocalServiceUtil {
 		fetchSegmentsExperience(long segmentsExperienceId) {
 
 		return getService().fetchSegmentsExperience(segmentsExperienceId);
+	}
+
+	public static com.liferay.segments.model.SegmentsExperience
+		fetchSegmentsExperience(
+			long groupId, long classNameId, long classPK, int priority) {
+
+		return getService().fetchSegmentsExperience(
+			groupId, classNameId, classPK, priority);
 	}
 
 	public static com.liferay.segments.model.SegmentsExperience
@@ -480,6 +506,10 @@ public class SegmentsExperienceLocalServiceUtil {
 
 	/**
 	 * Updates the segments experience in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param segmentsExperience the segments experience
 	 * @return the segments experience that was updated

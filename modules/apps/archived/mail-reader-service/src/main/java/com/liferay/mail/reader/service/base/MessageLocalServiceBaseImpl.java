@@ -20,6 +20,7 @@ import com.liferay.mail.reader.service.persistence.AccountPersistence;
 import com.liferay.mail.reader.service.persistence.AttachmentPersistence;
 import com.liferay.mail.reader.service.persistence.FolderPersistence;
 import com.liferay.mail.reader.service.persistence.MessagePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -75,6 +77,10 @@ public abstract class MessageLocalServiceBaseImpl
 	/**
 	 * Adds the message to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param message the message
 	 * @return the message that was added
 	 */
@@ -101,6 +107,10 @@ public abstract class MessageLocalServiceBaseImpl
 	/**
 	 * Deletes the message with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param messageId the primary key of the message
 	 * @return the message that was removed
 	 * @throws PortalException if a message with the primary key could not be found
@@ -114,6 +124,10 @@ public abstract class MessageLocalServiceBaseImpl
 	/**
 	 * Deletes the message from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param message the message
 	 * @return the message that was removed
 	 * @throws PortalException
@@ -122,6 +136,11 @@ public abstract class MessageLocalServiceBaseImpl
 	@Override
 	public Message deleteMessage(Message message) throws PortalException {
 		return messagePersistence.remove(message);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return messagePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -288,6 +307,10 @@ public abstract class MessageLocalServiceBaseImpl
 		return messageLocalService.deleteMessage((Message)persistedModel);
 	}
 
+	public BasePersistence<Message> getBasePersistence() {
+		return messagePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -326,6 +349,10 @@ public abstract class MessageLocalServiceBaseImpl
 
 	/**
 	 * Updates the message in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param message the message
 	 * @return the message that was updated

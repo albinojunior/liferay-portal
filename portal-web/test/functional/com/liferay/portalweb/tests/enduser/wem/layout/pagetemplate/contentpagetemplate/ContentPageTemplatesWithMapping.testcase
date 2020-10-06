@@ -12,13 +12,16 @@ definition {
 
 		JSONGroup.addGroup(groupName = "Test Site Name");
 
-		PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "test-site-name");
+		JSONLayoutpagetemplate.addLayoutPageTemplateCollection(
+			groupName = "Test Site Name",
+			layoutPageTemplateCollectionName = "Page Template Collection");
 
-		PageTemplatesAdmin.addCollection(collectionName = "Page Template Collection");
-
-		Navigator.gotoNavNested(navNested = "Page Template Collection");
-
-		PageTemplatesAdmin.addPageTemplate(pageTemplateName = "Page Template Name");
+		JSONLayoutpagetemplate.addLayoutPageTemplateEntry(
+			groupName = "Test Site Name",
+			layoutPageTemplateCollectionName = "Page Template Collection",
+			layoutPageTemplateEntryName = "Page Template Name",
+			layoutPageTemplateStatus = "Draft",
+			layoutPageTemplateType = "Content Page Template");
 	}
 
 	tearDown {
@@ -35,7 +38,15 @@ definition {
 	@description = "This is a test for LPS-98031."
 	@priority = "5"
 	test MapManualURLToLinkFragment {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
+
+		PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "test-site-name");
+
+		Navigator.gotoNavNested(navNested = "Page Template Collection");
+
+		PageTemplatesAdmin.gotoPageTemplate(pageTemplateName = "Page Template Name");
+
+		PageEditor.assertFragmentSidebarLoaded();
 
 		PageEditor.addFragment(
 			collectionName = "Featured Content",
@@ -56,7 +67,7 @@ definition {
 		PageTemplatesAdmin.gotoPageTemplate(pageTemplateName = "Page Template Name");
 
 		task ("Assert editable has the specified URL mapped correctly") {
-			Click(locator1 = "//a[contains(@class,'btn')][contains(@href,'https://liferay.com')]");
+			AssertVisible(locator1 = "//a[contains(@class,'btn')][contains(@href,'https://liferay.com')]");
 		}
 	}
 

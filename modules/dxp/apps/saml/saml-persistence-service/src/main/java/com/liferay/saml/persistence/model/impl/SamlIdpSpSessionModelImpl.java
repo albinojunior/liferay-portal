@@ -108,20 +108,43 @@ public class SamlIdpSpSessionModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CREATEDATE_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long SAMLIDPSSOSESSIONID_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long SAMLSPENTITYID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long SAMLIDPSPSESSIONID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public SamlIdpSpSessionModelImpl() {
@@ -175,9 +198,6 @@ public class SamlIdpSpSessionModelImpl
 				attributeName,
 				attributeGetterFunction.apply((SamlIdpSpSession)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -323,6 +343,10 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setSamlIdpSpSessionId(long samlIdpSpSessionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_samlIdpSpSessionId = samlIdpSpSessionId;
 	}
 
@@ -333,6 +357,10 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_companyId = companyId;
 	}
 
@@ -343,6 +371,10 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setUserId(long userId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userId = userId;
 	}
 
@@ -374,6 +406,10 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setUserName(String userName) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userName = userName;
 	}
 
@@ -384,17 +420,20 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setCreateDate(Date createDate) {
-		_columnBitmask |= CREATEDATE_COLUMN_BITMASK;
-
-		if (_originalCreateDate == null) {
-			_originalCreateDate = _createDate;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_createDate = createDate;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public Date getOriginalCreateDate() {
-		return _originalCreateDate;
+		return getColumnOriginalValue("createDate");
 	}
 
 	@Override
@@ -410,6 +449,10 @@ public class SamlIdpSpSessionModelImpl
 	public void setModifiedDate(Date modifiedDate) {
 		_setModifiedDate = true;
 
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_modifiedDate = modifiedDate;
 	}
 
@@ -420,19 +463,21 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setSamlIdpSsoSessionId(long samlIdpSsoSessionId) {
-		_columnBitmask |= SAMLIDPSSOSESSIONID_COLUMN_BITMASK;
-
-		if (!_setOriginalSamlIdpSsoSessionId) {
-			_setOriginalSamlIdpSsoSessionId = true;
-
-			_originalSamlIdpSsoSessionId = _samlIdpSsoSessionId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_samlIdpSsoSessionId = samlIdpSsoSessionId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalSamlIdpSsoSessionId() {
-		return _originalSamlIdpSsoSessionId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("samlIdpSsoSessionId"));
 	}
 
 	@Override
@@ -447,17 +492,20 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setSamlSpEntityId(String samlSpEntityId) {
-		_columnBitmask |= SAMLSPENTITYID_COLUMN_BITMASK;
-
-		if (_originalSamlSpEntityId == null) {
-			_originalSamlSpEntityId = _samlSpEntityId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_samlSpEntityId = samlSpEntityId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalSamlSpEntityId() {
-		return GetterUtil.getString(_originalSamlSpEntityId);
+		return getColumnOriginalValue("samlSpEntityId");
 	}
 
 	@Override
@@ -472,6 +520,10 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setNameIdFormat(String nameIdFormat) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_nameIdFormat = nameIdFormat;
 	}
 
@@ -487,10 +539,32 @@ public class SamlIdpSpSessionModelImpl
 
 	@Override
 	public void setNameIdValue(String nameIdValue) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_nameIdValue = nameIdValue;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -558,16 +632,16 @@ public class SamlIdpSpSessionModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SamlIdpSpSession)) {
+		if (!(object instanceof SamlIdpSpSession)) {
 			return false;
 		}
 
-		SamlIdpSpSession samlIdpSpSession = (SamlIdpSpSession)obj;
+		SamlIdpSpSession samlIdpSpSession = (SamlIdpSpSession)object;
 
 		long primaryKey = samlIdpSpSession.getPrimaryKey();
 
@@ -584,34 +658,31 @@ public class SamlIdpSpSessionModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		SamlIdpSpSessionModelImpl samlIdpSpSessionModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		samlIdpSpSessionModelImpl._originalCreateDate =
-			samlIdpSpSessionModelImpl._createDate;
+		_setModifiedDate = false;
 
-		samlIdpSpSessionModelImpl._setModifiedDate = false;
-
-		samlIdpSpSessionModelImpl._originalSamlIdpSsoSessionId =
-			samlIdpSpSessionModelImpl._samlIdpSsoSessionId;
-
-		samlIdpSpSessionModelImpl._setOriginalSamlIdpSsoSessionId = false;
-
-		samlIdpSpSessionModelImpl._originalSamlSpEntityId =
-			samlIdpSpSessionModelImpl._samlSpEntityId;
-
-		samlIdpSpSessionModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -687,7 +758,7 @@ public class SamlIdpSpSessionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -719,7 +790,7 @@ public class SamlIdpSpSessionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -751,24 +822,91 @@ public class SamlIdpSpSessionModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _samlIdpSpSessionId;
 	private long _companyId;
 	private long _userId;
 	private String _userName;
 	private Date _createDate;
-	private Date _originalCreateDate;
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _samlIdpSsoSessionId;
-	private long _originalSamlIdpSsoSessionId;
-	private boolean _setOriginalSamlIdpSsoSessionId;
 	private String _samlSpEntityId;
-	private String _originalSamlSpEntityId;
 	private String _nameIdFormat;
 	private String _nameIdValue;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<SamlIdpSpSession, Object> function =
+			_attributeGetterFunctions.get(columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((SamlIdpSpSession)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("samlIdpSpSessionId", _samlIdpSpSessionId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("userId", _userId);
+		_columnOriginalValues.put("userName", _userName);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put("samlIdpSsoSessionId", _samlIdpSsoSessionId);
+		_columnOriginalValues.put("samlSpEntityId", _samlSpEntityId);
+		_columnOriginalValues.put("nameIdFormat", _nameIdFormat);
+		_columnOriginalValues.put("nameIdValue", _nameIdValue);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("samlIdpSpSessionId", 1L);
+
+		columnBitmasks.put("companyId", 2L);
+
+		columnBitmasks.put("userId", 4L);
+
+		columnBitmasks.put("userName", 8L);
+
+		columnBitmasks.put("createDate", 16L);
+
+		columnBitmasks.put("modifiedDate", 32L);
+
+		columnBitmasks.put("samlIdpSsoSessionId", 64L);
+
+		columnBitmasks.put("samlSpEntityId", 128L);
+
+		columnBitmasks.put("nameIdFormat", 256L);
+
+		columnBitmasks.put("nameIdValue", 512L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private SamlIdpSpSession _escapedModel;
 

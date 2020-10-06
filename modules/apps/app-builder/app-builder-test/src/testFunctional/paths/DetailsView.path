@@ -31,13 +31,13 @@
 
 <tr>
 	<td>EDIT_ENTRY</td>
-	<td>//button[contains(text(),'Edit')]</td>
+	<td>//button[contains(@title,'Edit')] | //div[contains(@class,'show')]//button[contains(text(),'Edit')]</td>
 	<td></td>
 </tr>
 
 <tr>
 	<td>DELETE_ENTRY</td>
-	<td>//button[contains(text(),'Delete')]</td>
+	<td>//button[contains(@title,'Delete')] | //div[contains(@class,'show')]//button[contains(text(),'Delete')]</td>
 	<td></td>
 </tr>
 

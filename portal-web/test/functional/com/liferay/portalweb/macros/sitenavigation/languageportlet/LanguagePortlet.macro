@@ -66,7 +66,14 @@ definition {
 				key_portletName = "${portletName}",
 				locator1 = "Language#DROPDOWN");
 
-			MenuItem.click(menuItem = "${textIcon}");
+			// Workaround for LPS-87409
+
+			if (("${locale}" == "ar_SA") && (IsElementNotPresent(locator1 = "MenuItem#ANY_MENU_ITEM", key_menuItem = "${textIcon}"))) {
+				MenuItem.click(menuItem = "العربية-المملكة العربية السعودية");
+			}
+			else {
+				MenuItem.click(menuItem = "${textIcon}");
+			}
 		}
 	}
 
@@ -85,7 +92,14 @@ definition {
 			locator1 = "Select#DISPLAY_TEMPLATE",
 			value1 = "${displayStyle}");
 
-		Button.clickSave();
+		Pause(locator1 = "1000");
+
+		AssertSelectedLabel(
+			key_fieldLabel = "Display Template",
+			locator1 = "Select#GENERIC_SELECT_FIELD",
+			value1 = "${displayStyle}");
+
+		PortletEntry.save();
 
 		SelectFrame(value1 = "relative=top");
 	}

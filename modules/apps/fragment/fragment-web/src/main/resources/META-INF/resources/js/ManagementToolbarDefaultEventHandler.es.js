@@ -12,7 +12,11 @@
  * details.
  */
 
-import {DefaultEventHandler, openSimpleInputModal} from 'frontend-js-web';
+import {
+	DefaultEventHandler,
+	openSelectionModal,
+	openSimpleInputModal,
+} from 'frontend-js-web';
 import {Config} from 'metal-state';
 
 class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
@@ -50,19 +54,9 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 			this.ns('allRowIds')
 		);
 
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					destroyOnHide: true,
-					modal: true,
-				},
-				eventName: this.ns('selectFragmentCollection'),
-				id: this.ns('selectFragmentCollection'),
-				title: Liferay.Language.get('select-collection'),
-				uri: this.selectFragmentCollectionURL,
-			},
-			selectedItem => {
+		openSelectionModal({
+			id: this.ns('selectFragmentCollection'),
+			onSelect: (selectedItem) => {
 				if (selectedItem) {
 					this.one('#fragmentCollectionId').value = selectedItem.id;
 					this.one('#fragmentEntryKeys').value = fragmentEntryKeys;
@@ -72,68 +66,85 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 						this.copyContributedFragmentEntryURL
 					);
 				}
-			}
-		);
+			},
+			selectEventName: this.ns('selectFragmentCollection'),
+			title: Liferay.Language.get('select-collection'),
+			url: this.selectFragmentCollectionURL,
+		});
 	}
 
-	deleteSelectedFragmentEntries() {
+	deleteFragmentCompositionsAndFragmentEntries() {
 		if (
 			confirm(
 				Liferay.Language.get('are-you-sure-you-want-to-delete-this')
 			)
 		) {
-			submitForm(this.one('#fm'), this.deleteFragmentEntriesURL);
+			submitForm(
+				this.one('#fm'),
+				this.deleteFragmentCompositionsAndFragmentEntriesURL
+			);
 		}
 	}
 
-	exportSelectedFragmentEntries() {
-		submitForm(this.one('#fm'), this.exportFragmentEntriesURL);
+	exportFragmentCompositionsAndFragmentEntries() {
+		submitForm(
+			this.one('#fm'),
+			this.exportFragmentCompositionsAndFragmentEntriesURL
+		);
 	}
 
-	moveSelectedFragmentEntries() {
-		this._selectFragmentCollection(this.moveFragmentEntryURL);
+	moveFragmentCompositionsAndFragmentEntries() {
+		this._selectFragmentCollection(
+			this.moveFragmentCompositionsAndFragmentEntriesURL
+		);
 	}
 
 	_selectFragmentCollection(targetFragmentEntryURL) {
+		const fragmentCompositionIds = Liferay.Util.listCheckedExcept(
+			this.one('#fm'),
+			this.ns('allRowIds'),
+			this.ns('rowIdsFragmentComposition')
+		);
+
 		const fragmentEntryIds = Liferay.Util.listCheckedExcept(
 			this.one('#fm'),
-			this.ns('allRowIds')
+			this.ns('allRowIds'),
+			this.ns('rowIdsFragmentEntry')
 		);
 
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					destroyOnHide: true,
-					modal: true,
-				},
-				eventName: this.ns('selectFragmentCollection'),
-				id: this.ns('selectFragmentCollection'),
-				title: Liferay.Language.get('select-collection'),
-				uri: this.selectFragmentCollectionURL,
-			},
-			selectedItem => {
+		openSelectionModal({
+			id: this.ns('selectFragmentCollection'),
+			onSelect: (selectedItem) => {
 				if (selectedItem) {
-					this.one('#fragmentCollectionId').value = selectedItem.id;
+					const form = this.one('#fragmentEntryFm');
+
+					form.querySelector(
+						`#${this.ns('fragmentCollectionId')}`
+					).value = selectedItem.id;
+
+					this.one(
+						'#fragmentCompositionIds'
+					).value = fragmentCompositionIds;
+
 					this.one('#fragmentEntryIds').value = fragmentEntryIds;
 
-					submitForm(
-						this.one('#fragmentEntryFm'),
-						targetFragmentEntryURL
-					);
+					submitForm(form, targetFragmentEntryURL);
 				}
-			}
-		);
+			},
+			selectEventName: this.ns('selectFragmentCollection'),
+			title: Liferay.Language.get('select-collection'),
+			url: this.selectFragmentCollectionURL,
+		});
 	}
 }
 
 ManagementToolbarDefaultEventHandler.STATE = {
 	copyContributedFragmentEntryURL: Config.string(),
 	copyFragmentEntryURL: Config.string(),
-	deleteFragmentEntriesURL: Config.string(),
-	exportFragmentEntriesURL: Config.string(),
+	deleteFragmentCompositionsAndFragmentEntriesURL: Config.string(),
+	exportFragmentCompositionsAndFragmentEntriesURL: Config.string(),
 	fragmentCollectionId: Config.string(),
-	moveFragmentEntryURL: Config.string(),
+	moveFragmentCompositionsAndFragmentEntriesURL: Config.string(),
 	selectFragmentCollectionURL: Config.string(),
 	spritemap: Config.string(),
 };

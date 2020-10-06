@@ -14,6 +14,8 @@
 
 package com.liferay.trash.service.base;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +35,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -72,6 +77,10 @@ public abstract class TrashVersionLocalServiceBaseImpl
 	/**
 	 * Adds the trash version to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param trashVersion the trash version
 	 * @return the trash version that was added
 	 */
@@ -98,6 +107,10 @@ public abstract class TrashVersionLocalServiceBaseImpl
 	/**
 	 * Deletes the trash version with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param versionId the primary key of the trash version
 	 * @return the trash version that was removed
 	 * @throws PortalException if a trash version with the primary key could not be found
@@ -113,6 +126,10 @@ public abstract class TrashVersionLocalServiceBaseImpl
 	/**
 	 * Deletes the trash version from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param trashVersion the trash version
 	 * @return the trash version that was removed
 	 */
@@ -120,6 +137,11 @@ public abstract class TrashVersionLocalServiceBaseImpl
 	@Override
 	public TrashVersion deleteTrashVersion(TrashVersion trashVersion) {
 		return trashVersionPersistence.remove(trashVersion);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return trashVersionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -288,6 +310,10 @@ public abstract class TrashVersionLocalServiceBaseImpl
 			(TrashVersion)persistedModel);
 	}
 
+	public BasePersistence<TrashVersion> getBasePersistence() {
+		return trashVersionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -327,6 +353,10 @@ public abstract class TrashVersionLocalServiceBaseImpl
 	/**
 	 * Updates the trash version in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TrashVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param trashVersion the trash version
 	 * @return the trash version that was updated
 	 */
@@ -340,7 +370,7 @@ public abstract class TrashVersionLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			TrashVersionLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -359,8 +389,23 @@ public abstract class TrashVersionLocalServiceBaseImpl
 		return TrashVersionLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<TrashVersion> getCTPersistence() {
+		return trashVersionPersistence;
+	}
+
+	@Override
+	public Class<TrashVersion> getModelClass() {
 		return TrashVersion.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<TrashVersion>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(trashVersionPersistence);
 	}
 
 	protected String getModelClassName() {

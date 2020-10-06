@@ -18,7 +18,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionHelper;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.registry.collections.ServiceTrackerCollections;
 import com.liferay.registry.collections.ServiceTrackerMap;
@@ -45,7 +45,7 @@ public class BaseModelPermissionCheckerUtil {
 						permissionChecker, classPK, actionId);
 				}
 
-				return ModelResourcePermissionHelper.contains(
+				return ModelResourcePermissionUtil.contains(
 					modelResourcePermission, permissionChecker, groupId,
 					classPK, actionId);
 			}
@@ -83,8 +83,10 @@ public class BaseModelPermissionCheckerUtil {
 		_baseModelPermissionCheckers =
 			ServiceTrackerCollections.openSingleValueMap(
 				BaseModelPermissionChecker.class, "model.class.name");
-	private static final ServiceTrackerMap<String, ModelResourcePermission>
+	private static final ServiceTrackerMap<String, ModelResourcePermission<?>>
 		_modelPermissions = ServiceTrackerCollections.openSingleValueMap(
-			ModelResourcePermission.class, "model.class.name");
+			(Class<ModelResourcePermission<?>>)
+				(Class<?>)ModelResourcePermission.class,
+			"model.class.name");
 
 }

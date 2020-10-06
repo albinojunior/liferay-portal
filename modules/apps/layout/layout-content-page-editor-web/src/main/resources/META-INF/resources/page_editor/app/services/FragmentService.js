@@ -33,6 +33,7 @@ import serviceFetch from './serviceFetch';
  */
 
 export default {
+
 	/**
 	 * Adds a new Fragment to the current layout
 	 * @param {object} options
@@ -62,7 +63,7 @@ export default {
 	},
 
 	/**
-	 * Adds a new Fragment to the current layout
+	 * Adds a new Fragment Composition to the selected collection
 	 * @param {object} options
 	 * @param {string} options.description Fragment composition description
 	 * @param {string} options.fragmentCollectionId Fragment collection ID
@@ -70,6 +71,8 @@ export default {
 	 * @param {string} options.name Fragment composition name
 	 * @param {function} options.onNetworkStatus
 	 * @param {string} options.previewImageURL Fragment composition preview image url
+	 * @param {boolean} options.saveInlineContent Save inline editable content
+	 * @param {boolean} options.saveMappingConfiguration Save fields mapping configuration
 	 * @param {string} options.segmentsExperienceId Current segmentsExperienceId
 	 * @return {Promise<FragmentComposition>} Created FragmentComposition
 	 */
@@ -80,6 +83,8 @@ export default {
 		name,
 		onNetworkStatus,
 		previewImageURL,
+		saveInlineContent,
+		saveMappingConfiguration,
 		segmentsExperienceId,
 	}) {
 		return serviceFetch(
@@ -91,6 +96,8 @@ export default {
 					itemId,
 					name,
 					previewImageURL,
+					saveInlineContent,
+					saveMappingConfiguration,
 					segmentsExperienceId,
 				},
 			},
@@ -108,7 +115,8 @@ export default {
 	 * @param {string} options.parentItemId
 	 * @param {number} options.position
 	 * @param {string} options.segmentsExperienceId Current segmentsExperienceId
-	 * @return {Promise<FragmentEntryLink>} Created FragmentEntryLink
+	 * @param {string} options.type Type of the Fragment to add
+	 * @return {Promise<{ addedItemId: string, fragmentEntryLink: FragmentEntryLink, layoutData: object }>} Created FragmentEntryLink
 	 */
 	addFragmentEntryLink({
 		fragmentEntryKey,
@@ -120,6 +128,42 @@ export default {
 	}) {
 		return serviceFetch(
 			config.addFragmentEntryLinkURL,
+			{
+				body: {
+					fragmentEntryKey,
+					groupId,
+					parentItemId,
+					position,
+					segmentsExperienceId,
+				},
+			},
+			onNetworkStatus,
+			{requestGenerateDraft: true}
+		);
+	},
+
+	/**
+	 * Adds a new Fragment Composition to the current layout
+	 * @param {object} options
+	 * @param {string} options.fragmentEntryKey Key of the Fragment composition
+	 * @param {string} options.groupId GroupId that wraps the Fragment
+	 * @param {function} options.onNetworkStatus
+	 * @param {string} options.parentItemId
+	 * @param {number} options.position
+	 * @param {string} options.segmentsExperienceId Current segmentsExperienceId
+	 * @param {string} options.type Type of the Fragment to add
+	 * @return {Promise<{ fragmentEntryLinks: FragmentEntryLink[], layoutData: object }>} Created FragmentEntryLinks
+	 */
+	addFragmentEntryLinks({
+		fragmentEntryKey,
+		groupId,
+		onNetworkStatus,
+		parentItemId,
+		position,
+		segmentsExperienceId,
+	}) {
+		return serviceFetch(
+			config.addFragmentEntryLinksURL,
 			{
 				body: {
 					fragmentEntryKey,
@@ -198,11 +242,15 @@ export default {
 	/**
 	 * Render the content of a fragmentEntryLink
 	 * @param {object} options
+	 * @param {string} options.collectionItemClassName Class name id of the collection item
+	 * @param {string} options.collectionItemClassPK Class PK of the collection item
 	 * @param {string} options.fragmentEntryLinkId Id of the fragmentEntryLink
 	 * @param {function} options.onNetworkStatus
 	 * @param {string} options.segmentsExperienceId Experience id
 	 */
 	renderFragmentEntryLinkContent({
+		collectionItemClassName,
+		collectionItemClassPK,
 		fragmentEntryLinkId,
 		onNetworkStatus,
 		segmentsExperienceId,
@@ -211,11 +259,38 @@ export default {
 			config.renderFragmentEntryURL,
 			{
 				body: {
+					collectionItemClassName,
+					collectionItemClassPK,
 					fragmentEntryLinkId,
 					segmentsExperienceId,
 				},
 			},
 			onNetworkStatus
+		);
+	},
+
+	/**
+	 * Update configurationValues of the fragmentEntryLink with the given fragmentEntryLinkId
+	 * @param {object} options
+	 * @param {string} options.configurationValues New configurationValues
+	 * @param {string} options.fragmentEntryLinkId Id of the fragmentEntryLink
+	 * @param {function} options.onNetworkStatus
+	 */
+	updateConfigurationValues({
+		configurationValues,
+		fragmentEntryLinkId,
+		onNetworkStatus,
+	}) {
+		return serviceFetch(
+			config.updateConfigurationValuesURL,
+			{
+				body: {
+					editableValues: JSON.stringify(configurationValues),
+					fragmentEntryLinkId,
+				},
+			},
+			onNetworkStatus,
+			{requestGenerateDraft: true}
 		);
 	},
 
@@ -237,7 +312,6 @@ export default {
 				body: {
 					editableValues: JSON.stringify(editableValues),
 					fragmentEntryLinkId,
-					updateClassedModel: true,
 				},
 			},
 			onNetworkStatus,

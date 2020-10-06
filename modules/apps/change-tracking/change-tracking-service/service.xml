@@ -33,8 +33,13 @@
 		<finder name="CTCollectionId" return-type="Collection">
 			<finder-column name="ctCollectionId" />
 		</finder>
+		<finder name="C_MCNI_SMCPK" return-type="Collection">
+			<finder-column name="ctCollectionId" />
+			<finder-column name="modelClassNameId" />
+			<finder-column arrayable-operator="OR" name="sourceModelClassPK" />
+		</finder>
 	</entity>
-	<entity local-service="true" name="CTCollection" remote-service="false" trash-enabled="false" uuid="false">
+	<entity local-service="true" name="CTCollection" remote-service="true" trash-enabled="false" uuid="false">
 
 		<!-- PK fields -->
 
@@ -129,6 +134,10 @@
 
 		<column name="ctMessageId" primary="true" type="long" />
 
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+
 		<!-- Other fields -->
 
 		<column name="ctCollectionId" type="long" />
@@ -170,7 +179,7 @@
 			<finder-column name="userId" />
 		</finder>
 	</entity>
-	<entity local-service="true" name="CTProcess" remote-service="false" trash-enabled="false" uuid="false">
+	<entity local-service="true" name="CTProcess" remote-service="true" trash-enabled="false" uuid="false">
 
 		<!-- PK fields -->
 
@@ -210,6 +219,7 @@
 	<exceptions>
 		<exception>CTCollectionDescription</exception>
 		<exception>CTCollectionName</exception>
+		<exception>CTEnclosure</exception>
 		<exception>DuplicateCTEntry</exception>
 	</exceptions>
 </service-builder>

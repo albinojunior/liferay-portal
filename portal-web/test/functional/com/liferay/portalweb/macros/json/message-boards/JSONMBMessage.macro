@@ -38,13 +38,31 @@ definition {
 
 		var portalURL = JSONCompany.getPortalURL();
 
+		if (!(isSet(addGuestPermissions))) {
+			var addGuestPermissions = "false";
+		}
+
+		var serviceContext = JSONServiceContextUtil.setServiceContext(
+			addGroupPermissions = "true",
+			addGuestPermissions = "${addGuestPermissions}",
+			assetTagNames = "${assetTagNames}",
+			workflowAction = "${workflowAction}");
+
 		if (!(isSet(categoryId))) {
 			var categoryId = "0";
 		}
 
+		if (!(isSet(userEmailAddress))) {
+			var userEmailAddress = "test@liferay.com";
+		}
+
+		if (!(isSet(userPassword))) {
+			var userPassword = "test";
+		}
+
 		var curl = '''
 			${portalURL}/api/jsonws/mb.mbmessage/add-message \
-			-u test@liferay.com:test \
+			-u ${userEmailAddress}:${userPassword} \
 			-d groupId=${groupId} \
 			-d categoryId=${categoryId} \
 			-d subject=${threadSubject} \
@@ -53,7 +71,8 @@ definition {
 			-d inputStreamOVPs= \
 			-d anonymous=false \
 			-d priority=0 \
-			-d allowPingbacks=true
+			-d allowPingbacks=true \
+			-d serviceContext=${serviceContext}
 		''';
 
 		echo("## Adding a 'Message' with the following info using JSONWS:");
@@ -62,12 +81,17 @@ definition {
 
 		echo("## * Body: ${threadBody}");
 
-		var messageId = JSONCurlUtil.post("${curl}");
+		var messageId = JSONCurlUtil.post("${curl}", "$['messageId']");
 	}
 
 	@summary = "This calls the JSON WS API to add a MB reply"
 	macro addMessageReply {
-		var messageId = JSONMBMessage.getmessageId();
+		if (isSet(messageId)) {
+			var messageId = "${messageId}";
+		}
+		else {
+			var messageId = JSONMBMessage.getmessageId();
+		}
 
 		var portalURL = JSONCompany.getPortalURL();
 

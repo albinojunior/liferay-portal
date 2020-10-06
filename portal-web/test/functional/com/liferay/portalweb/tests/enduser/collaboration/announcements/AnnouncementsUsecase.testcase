@@ -13,18 +13,19 @@ definition {
 
 		User.firstLoginPG();
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Announcements Page");
 
-		SitePages.addPublicPage(
-			pageName = "Announcements Page",
-			sitePageType = "Widget Page");
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Guest",
+			layoutName = "Announcements Page",
+			layoutTemplate = "1 Column");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
-
-		Portlet.addPG(portletName = "Announcements");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Announcements Page",
+			widgetName = "Announcements");
 	}
 
 	tearDown {
@@ -52,11 +53,10 @@ definition {
 
 		Navigator.gotoPage(pageName = "Announcements Page");
 
-		AnnouncementsEntry.addPG(
-			distributionScope = "General",
-			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title",
-			entryURL = "http://www.google.com");
+		JSONAnnouncement.addAnnouncement(
+			announcementContent = "Announcements Entry Content",
+			announcementTitle = "Announcements Entry Title",
+			announcementURL = "http://www.liferay.com");
 
 		Navigator.gotoPage(pageName = "Announcements Page");
 
@@ -65,35 +65,25 @@ definition {
 			entryContent = "Announcements Entry Content",
 			entryTitle = "Announcements Entry Title");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Test Site Name");
 
-		Site.addCP(
-			siteName = "Community Site Name",
-			siteType = "Community");
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page Name",
+			layoutTemplate = "1 Column");
 
-		SitePages.addPublicPage(
-			pageName = "Site Page Name",
-			sitePageType = "Widget Page");
-
-		SitePages.configurePage(
-			columnName = "1 Column",
-			pageName = "Site Page Name",
-			privacy = "Public Pages",
-			sitePageType = "Widget Page");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page Name",
+			widgetName = "Announcements");
 
 		Navigator.gotoSitePage(
 			pageName = "Site Page Name",
-			siteName = "Community Site Name");
-
-		Portlet.addPG(portletName = "Announcements");
+			siteName = "Test Site Name");
 
 		AnnouncementsEntry.viewPG(
 			distributionScope = "General",
@@ -101,13 +91,13 @@ definition {
 			entryTitle = "Announcements Entry Title");
 
 		AnnouncementsEntry.addPG(
-			distributionScope = "Community Site Name",
+			distributionScope = "Test Site Name",
 			entryContent = "Announcements Entry2 Scoped Content",
 			entryTitle = "Announcements Entry2 Scoped Title",
 			entryURL = "http://www.yahoo.com");
 
 		AnnouncementsEntry.viewPG(
-			distributionScope = "Community Site Name",
+			distributionScope = "Test Site Name",
 			entryContent = "Announcements Entry2 Scoped Content",
 			entryTitle = "Announcements Entry2 Scoped Title");
 
@@ -143,7 +133,7 @@ definition {
 
 		Navigator.gotoSitePage(
 			pageName = "Site Page Name",
-			siteName = "Community Site Name");
+			siteName = "Test Site Name");
 
 		AnnouncementsEntry.viewViaEntriesPG(
 			distributionScope = "General",
@@ -151,7 +141,7 @@ definition {
 			entryTitle = "Announcements Entry Title");
 
 		AnnouncementsEntry.viewViaEntriesPG(
-			distributionScope = "Community Site Name",
+			distributionScope = "Test Site Name",
 			entryContent = "Announcements Entry2 Scoped Content",
 			entryTitle = "Announcements Entry2 Scoped Title");
 	}
@@ -159,22 +149,21 @@ definition {
 	@priority = "3"
 	test ViewAnnouncementsPagination {
 		for (var entryCount : list "1,2,3,4,5,6,7") {
-			Navigator.gotoPage(pageName = "Announcements Page");
-
-			AnnouncementsEntry.addPG(
-				distributionScope = "General",
-				entryContent = "Announcements Entry Content ${entryCount}",
-				entryTitle = "Announcements Entry Title ${entryCount}",
-				entryURL = "http://www.liferay.com");
+			JSONAnnouncement.addAnnouncement(
+				announcementContent = "Announcements Entry Content ${entryCount}",
+				announcementTitle = "Announcements Entry Title ${entryCount}",
+				announcementURL = "http://www.liferay.com",
+				userEmailAddress = "test@liferay.com",
+				userPassword = "test");
 		}
 
 		Navigator.gotoPage(pageName = "Announcements Page");
 
-		AnnouncementsPortlet.configureDisplayCountPG(maxDisplayItems = "5");
+		AnnouncementsPortlet.configureDisplayCountPG(maxDisplayItems = "4");
 
 		Navigator.gotoPage(pageName = "Announcements Page");
 
-		for (var viewEntryCount : list "3,4,5,6,7") {
+		for (var viewEntryCount : list "4,5,6,7") {
 			AnnouncementsEntry.viewViaEntriesPG(
 				distributionScope = "General",
 				entryContent = "Announcements Entry Content ${viewEntryCount}",
@@ -182,7 +171,7 @@ definition {
 				entryURL = "http://www.liferay.com");
 		}
 
-		for (var viewEntryCount : list "1,2") {
+		for (var viewEntryCount : list "1,2,3") {
 			AssertElementNotPresent(
 				key_entryTitle = "Announcements Entry Title ${viewEntryCount}",
 				locator1 = "Announcements#CARD_VIEW_ENTRY_TITLE");
@@ -192,7 +181,7 @@ definition {
 			locator1 = "Pagination#NEXT_LINK",
 			value1 = "Next");
 
-		for (var viewEntryCount : list "1,2") {
+		for (var viewEntryCount : list "1,2,3") {
 			AnnouncementsEntry.viewViaEntriesPG(
 				distributionScope = "General",
 				entryContent = "Announcements Entry Content ${viewEntryCount}",
@@ -200,7 +189,7 @@ definition {
 				entryURL = "http://www.liferay.com");
 		}
 
-		for (var viewEntryCount : list "3,4,5,6,7") {
+		for (var viewEntryCount : list "4,5,6,7") {
 			AssertElementNotPresent(
 				key_entryTitle = "Announcements Entry Title ${viewEntryCount}",
 				locator1 = "Announcements#CARD_VIEW_ENTRY_TITLE");
@@ -210,7 +199,7 @@ definition {
 			locator1 = "Pagination#PREVIOUS_LINK",
 			value1 = "Previous");
 
-		for (var viewEntryCount : list "3,4,5,6,7") {
+		for (var viewEntryCount : list "4,5,6,7") {
 			AnnouncementsEntry.viewViaEntriesPG(
 				distributionScope = "General",
 				entryContent = "Announcements Entry Content ${viewEntryCount}",
@@ -218,26 +207,26 @@ definition {
 				entryURL = "http://www.liferay.com");
 		}
 
-		for (var viewEntryCount : list "1,2") {
+		for (var viewEntryCount : list "1,2,3") {
 			AssertElementNotPresent(
 				key_entryTitle = "Announcements Entry Title ${viewEntryCount}",
 				locator1 = "Announcements#CARD_VIEW_ENTRY_TITLE");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
+		ApplicationsMenu.gotoPortlet(
+			category = "Communication",
+			panel = "Applications",
 			portlet = "Announcements and Alerts");
 
-		AnnouncementsPortlet.configurePaginationCP(itemsPerPage = "5");
+		AnnouncementsPortlet.configurePaginationCP(itemsPerPage = "4");
 
-		for (var viewEntryCount : list "1,2,3,4,5") {
+		for (var viewEntryCount : list "1,2,3,4") {
 			AnnouncementsEntry.viewList(
 				distributionScope = "General",
 				entryTitle = "Announcements Entry Title ${viewEntryCount}");
 		}
 
-		for (var viewEntryCount : list "6,7") {
+		for (var viewEntryCount : list "5,6,7") {
 			AssertElementNotPresent(
 				key_entryTitle = "Announcements Entry Title ${viewEntryCount}",
 				locator1 = "Blogs#ENTRY_TABLE_TITLE");
@@ -245,13 +234,13 @@ definition {
 
 		Click(locator1 = "Pagination#NEXT_LINK");
 
-		for (var viewEntryCount : list "6,7") {
+		for (var viewEntryCount : list "5,6,7") {
 			AnnouncementsEntry.viewList(
 				distributionScope = "General",
 				entryTitle = "Announcements Entry Title ${viewEntryCount}");
 		}
 
-		for (var viewEntryCount : list "1,2,3,4,5") {
+		for (var viewEntryCount : list "1,2,3,4") {
 			AssertElementNotPresent(
 				key_entryTitle = "Announcements Entry Title ${viewEntryCount}",
 				locator1 = "Blogs#ENTRY_TABLE_TITLE");
@@ -259,13 +248,13 @@ definition {
 
 		Click(locator1 = "Pagination#PREVIOUS_LINK");
 
-		for (var viewEntryCount : list "1,2,3,4,5") {
+		for (var viewEntryCount : list "1,2,3,4") {
 			AnnouncementsEntry.viewList(
 				distributionScope = "General",
 				entryTitle = "Announcements Entry Title ${viewEntryCount}");
 		}
 
-		for (var viewEntryCount : list "6,7") {
+		for (var viewEntryCount : list "5,6,7") {
 			AssertElementNotPresent(
 				key_entryTitle = "Announcements Entry Title ${viewEntryCount}",
 				locator1 = "Blogs#ENTRY_TABLE_TITLE");

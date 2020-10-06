@@ -20,6 +20,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -79,6 +80,25 @@ import javax.ws.rs.core.UriInfo;
 public abstract class BaseDataListViewResourceImpl
 	implements DataListViewResource, EntityModelResource,
 			   VulcanBatchEngineTaskItemDelegate<DataListView> {
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/data-engine/v2.0/data-definitions/{dataDefinitionId}/data-list-views'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@DELETE
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId")}
+	)
+	@Path("/data-definitions/{dataDefinitionId}/data-list-views")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataListView")})
+	public void deleteDataListViewsDataDefinition(
+			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
+				Long dataDefinitionId)
+		throws Exception {
+	}
 
 	/**
 	 * Invoke this method with the command line:
@@ -427,6 +447,14 @@ public abstract class BaseDataListViewResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -436,12 +464,21 @@ public abstract class BaseDataListViewResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -449,11 +486,7 @@ public abstract class BaseDataListViewResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(
-		DataListView dataListView, DataListView existingDataListView) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

@@ -18,6 +18,7 @@ import com.liferay.headless.delivery.client.function.UnsafeSupplier;
 import com.liferay.headless.delivery.client.serdes.v1_0.NavigationMenuSerDes;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Generated;
@@ -28,6 +29,32 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class NavigationMenu implements Cloneable {
+
+	public static NavigationMenu toDTO(String json) {
+		return NavigationMenuSerDes.toDTO(json);
+	}
+
+	public Map<String, Map<String, String>> getActions() {
+		return actions;
+	}
+
+	public void setActions(Map<String, Map<String, String>> actions) {
+		this.actions = actions;
+	}
+
+	public void setActions(
+		UnsafeSupplier<Map<String, Map<String, String>>, Exception>
+			actionsUnsafeSupplier) {
+
+		try {
+			actions = actionsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Map<String, Map<String, String>> actions;
 
 	public Creator getCreator() {
 		return creator;
@@ -154,6 +181,36 @@ public class NavigationMenu implements Cloneable {
 
 	protected NavigationMenuItem[] navigationMenuItems;
 
+	public NavigationType getNavigationType() {
+		return navigationType;
+	}
+
+	public String getNavigationTypeAsString() {
+		if (navigationType == null) {
+			return null;
+		}
+
+		return navigationType.toString();
+	}
+
+	public void setNavigationType(NavigationType navigationType) {
+		this.navigationType = navigationType;
+	}
+
+	public void setNavigationType(
+		UnsafeSupplier<NavigationType, Exception>
+			navigationTypeUnsafeSupplier) {
+
+		try {
+			navigationType = navigationTypeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected NavigationType navigationType;
+
 	public Long getSiteId() {
 		return siteId;
 	}
@@ -204,6 +261,37 @@ public class NavigationMenu implements Cloneable {
 
 	public String toString() {
 		return NavigationMenuSerDes.toJSON(this);
+	}
+
+	public static enum NavigationType {
+
+		PRIMARY("Primary"), SECONDARY("Secondary"), SOCIAL("Social");
+
+		public static NavigationType create(String value) {
+			for (NavigationType navigationType : values()) {
+				if (Objects.equals(navigationType.getValue(), value)) {
+					return navigationType;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private NavigationType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

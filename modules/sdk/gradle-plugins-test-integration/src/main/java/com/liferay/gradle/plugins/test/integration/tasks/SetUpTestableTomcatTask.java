@@ -50,8 +50,11 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.VersionNumber;
 
@@ -63,6 +66,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author Andrea Di Giorgi
  */
+@CacheableTask
 public class SetUpTestableTomcatTask
 	extends DefaultTask implements ManagerSpec, ModuleFrameworkBaseDirSpec {
 
@@ -121,6 +125,7 @@ public class SetUpTestableTomcatTask
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getDir() {
 		return GradleUtil.toFile(getProject(), _dir);
 	}
@@ -133,6 +138,7 @@ public class SetUpTestableTomcatTask
 
 	@Input
 	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getJaCoCoAgentFile() {
 		return GradleUtil.toFile(getProject(), _jaCoCoAgentFile);
 	}
@@ -151,6 +157,7 @@ public class SetUpTestableTomcatTask
 
 	@Input
 	@Override
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getModuleFrameworkBaseDir() {
 		return GradleUtil.toFile(getProject(), _moduleFrameworkBaseDir);
 	}
@@ -226,7 +233,7 @@ public class SetUpTestableTomcatTask
 		_zipUrl = zipUrl;
 	}
 
-	private boolean _contains(String fileName, String s) throws IOException {
+	private boolean _contains(String fileName, String s) throws Exception {
 		File file = new File(getDir(), fileName);
 
 		String fileContent = new String(Files.readAllBytes(file.toPath()));
@@ -249,7 +256,7 @@ public class SetUpTestableTomcatTask
 				StandardOpenOption.APPEND, StandardOpenOption.WRITE));
 	}
 
-	private void _setUpAspectJ() throws IOException {
+	private void _setUpAspectJ() throws Exception {
 		String aspectJAgent = getAspectJAgent();
 
 		if (Validator.isNotNull(aspectJAgent) &&
@@ -296,7 +303,7 @@ public class SetUpTestableTomcatTask
 		}
 	}
 
-	private void _setUpJaCoCo() throws IOException {
+	private void _setUpJaCoCo() throws Exception {
 		File jaCoCoAgentFile = getJaCoCoAgentFile();
 		File targetJaCoCoAgentFile = new File(getDir(), "bin/jacocoagent.jar");
 
@@ -331,7 +338,7 @@ public class SetUpTestableTomcatTask
 		}
 	}
 
-	private void _setUpJpda() throws IOException {
+	private void _setUpJpda() throws Exception {
 		if (!_contains("bin/setenv.sh", "JPDA_ADDRESS")) {
 			try (PrintWriter printWriter = _getAppendPrintWriter(
 					"bin/setenv.sh")) {
@@ -343,7 +350,7 @@ public class SetUpTestableTomcatTask
 		}
 	}
 
-	private void _setUpLogging() throws IOException {
+	private void _setUpLogging() throws Exception {
 		if (!isDebugLogging() ||
 			_contains("conf/Logging.properties", "org.apache.catalina.level")) {
 
@@ -502,7 +509,7 @@ public class SetUpTestableTomcatTask
 			});
 	}
 
-	private void _setUpSetEnv() throws IOException {
+	private void _setUpSetEnv() throws Exception {
 		_setUpJaCoCo();
 
 		_setUpAspectJ();

@@ -17,6 +17,7 @@ package com.liferay.multi.factor.authentication.email.otp.service.base;
 import com.liferay.multi.factor.authentication.email.otp.model.MFAEmailOTPEntry;
 import com.liferay.multi.factor.authentication.email.otp.service.MFAEmailOTPEntryLocalService;
 import com.liferay.multi.factor.authentication.email.otp.service.persistence.MFAEmailOTPEntryPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +75,10 @@ public abstract class MFAEmailOTPEntryLocalServiceBaseImpl
 	/**
 	 * Adds the mfa email otp entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mfaEmailOTPEntry the mfa email otp entry
 	 * @return the mfa email otp entry that was added
 	 */
@@ -101,6 +107,10 @@ public abstract class MFAEmailOTPEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the mfa email otp entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mfaEmailOTPEntryId the primary key of the mfa email otp entry
 	 * @return the mfa email otp entry that was removed
 	 * @throws PortalException if a mfa email otp entry with the primary key could not be found
@@ -116,6 +126,10 @@ public abstract class MFAEmailOTPEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the mfa email otp entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mfaEmailOTPEntry the mfa email otp entry
 	 * @return the mfa email otp entry that was removed
 	 */
@@ -125,6 +139,11 @@ public abstract class MFAEmailOTPEntryLocalServiceBaseImpl
 		MFAEmailOTPEntry mfaEmailOTPEntry) {
 
 		return mfaEmailOTPEntryPersistence.remove(mfaEmailOTPEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return mfaEmailOTPEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -299,6 +318,10 @@ public abstract class MFAEmailOTPEntryLocalServiceBaseImpl
 			(MFAEmailOTPEntry)persistedModel);
 	}
 
+	public BasePersistence<MFAEmailOTPEntry> getBasePersistence() {
+		return mfaEmailOTPEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -337,6 +360,10 @@ public abstract class MFAEmailOTPEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the mfa email otp entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mfaEmailOTPEntry the mfa email otp entry
 	 * @return the mfa email otp entry that was updated

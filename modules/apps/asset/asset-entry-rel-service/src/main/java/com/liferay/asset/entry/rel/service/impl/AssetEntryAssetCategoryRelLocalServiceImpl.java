@@ -210,14 +210,14 @@ public class AssetEntryAssetCategoryRelLocalServiceImpl
 		}
 
 		try {
-			Indexer indexer = IndexerRegistryUtil.getIndexer(
+			Indexer<Object> indexer = IndexerRegistryUtil.getIndexer(
 				assetEntry.getClassName());
 
 			if (indexer == null) {
 				return;
 			}
 
-			AssetRenderer assetRenderer = assetEntry.getAssetRenderer();
+			AssetRenderer<?> assetRenderer = assetEntry.getAssetRenderer();
 
 			if (assetRenderer == null) {
 				return;

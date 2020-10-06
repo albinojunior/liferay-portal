@@ -4,7 +4,8 @@
 			"children": [
 				"896232e5-04a2-4bd1-a687-f1e0983f16bb"
 			],
-			"config": {},
+			"config": {
+			},
 			"itemId": "7b620b26-53f8-4fd2-a459-2c5aa85b90c1",
 			"parentId": "",
 			"type": "root"
@@ -16,14 +17,46 @@
 			],
 			"config": {
 				"gutters": false,
-				"numberOfColumns": 2
+				"numberOfColumns": 2,
+				"styles": {
+					"backgroundImage": {
+					},
+					"borderRadius": "",
+					"borderWidth": 0,
+					"fontFamily": "",
+					"fontSize": "",
+					"fontWeight": "",
+					"height": "h-auto",
+					"marginBottom": "",
+					"marginLeft": "",
+					"marginRight": "",
+					"marginTop": "",
+					"maxHeight": "none",
+					"maxWidth": "none",
+					"minHeight": "auto",
+					"minWidth": "auto",
+					"opacity": 1,
+					"overflow": "",
+					"paddingBottom": "",
+					"paddingLeft": "",
+					"paddingRight": "",
+					"paddingTop": "",
+					"shadow": "",
+					"textAlign": "",
+					"width": "w-auto"
+				}
 			},
 			"itemId": "896232e5-04a2-4bd1-a687-f1e0983f16bb",
+			"landscapeMobile": {
+				"styles": {
+				}
+			},
 			"parentId": "7b620b26-53f8-4fd2-a459-2c5aa85b90c1",
 			"type": "row"
 		},
 		"955c2cf9-5506-4786-af78-ed0892c49b90": {
-			"children": [],
+			"children": [
+			],
 			"config": {
 				"size": 5
 			},
@@ -32,7 +65,8 @@
 			"type": "column"
 		},
 		"d5b689ac-fcdd-44ba-aed6-cf1f7dc2e933": {
-			"children": [],
+			"children": [
+			],
 			"config": {
 				"size": 7
 			},

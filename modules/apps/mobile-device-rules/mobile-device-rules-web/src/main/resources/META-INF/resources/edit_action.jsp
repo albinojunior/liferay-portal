@@ -47,7 +47,7 @@ MDRRuleGroupInstance ruleGroupInstance = (MDRRuleGroupInstance)renderRequest.get
 	<aui:model-context bean="<%= action %>" model="<%= MDRAction.class %>" />
 
 	<div class="portlet-configuration-body-content">
-		<div class="container-fluid-1280">
+		<clay:container-fluid>
 			<aui:fieldset-group markupView="lexicon">
 				<aui:fieldset>
 					<c:if test="<%= action == null %>">
@@ -60,7 +60,7 @@ MDRRuleGroupInstance ruleGroupInstance = (MDRRuleGroupInstance)renderRequest.get
 
 					<aui:input name="description" placeholder="description" />
 
-					<aui:select changesContext="<%= true %>" name="type" onChange='<%= renderResponse.getNamespace() + "changeType();" %>' required="<%= true %>" showEmptyOption="<%= true %>">
+					<aui:select changesContext="<%= true %>" name="type" onChange='<%= liferayPortletResponse.getNamespace() + "changeType();" %>' required="<%= true %>" showEmptyOption="<%= true %>">
 
 						<%
 						for (ActionHandler actionHandler : ActionHandlerManagerUtil.getActionHandlers()) {
@@ -74,14 +74,14 @@ MDRRuleGroupInstance ruleGroupInstance = (MDRRuleGroupInstance)renderRequest.get
 
 					</aui:select>
 
-					<div id="<%= renderResponse.getNamespace() %>typeSettings">
+					<div id="<%= liferayPortletResponse.getNamespace() %>typeSettings">
 						<c:if test="<%= Validator.isNotNull(editorJSP) %>">
 							<liferay-util:include page="<%= editorJSP %>" servletContext="<%= application %>" />
 						</c:if>
 					</div>
 				</aui:fieldset>
 			</aui:fieldset-group>
-		</div>
+		</clay:container-fluid>
 	</div>
 
 	<aui:button-row>
@@ -117,10 +117,10 @@ MDRRuleGroupInstance ruleGroupInstance = (MDRRuleGroupInstance)renderRequest.get
 				method: 'POST',
 			}
 		)
-			.then(function(response) {
+			.then(function (response) {
 				return response.text();
 			})
-			.then(function(response) {
+			.then(function (response) {
 				var layouts = document.getElementById(
 					'<portlet:namespace />layouts'
 				);
@@ -152,10 +152,10 @@ MDRRuleGroupInstance ruleGroupInstance = (MDRRuleGroupInstance)renderRequest.get
 			body: formData,
 			method: 'POST',
 		})
-			.then(function(response) {
+			.then(function (response) {
 				return response.text();
 			})
-			.then(function(response) {
+			.then(function (response) {
 				var typeSettings = document.getElementById(
 					'<portlet:namespace />typeSettings'
 				);

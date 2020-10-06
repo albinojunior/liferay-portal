@@ -12,21 +12,24 @@
  * details.
  */
 
-import updateLayoutData from '../actions/updateLayoutData';
+import moveItemAction from '../actions/moveItem';
 import LayoutService from '../services/LayoutService';
 
-export default function moveItem({itemId, parentItemId, position, store}) {
-	return dispatch => {
-		const {segmentsExperienceId} = store;
-
-		LayoutService.moveItem({
+export default function moveItem({
+	itemId,
+	parentItemId,
+	position,
+	segmentsExperienceId,
+}) {
+	return (dispatch) => {
+		return LayoutService.moveItem({
 			itemId,
 			onNetworkStatus: dispatch,
 			parentItemId,
 			position,
 			segmentsExperienceId,
-		}).then(layoutData => {
-			dispatch(updateLayoutData({layoutData}));
+		}).then((layoutData) => {
+			dispatch(moveItemAction({itemId, layoutData}));
 		});
 	};
 }

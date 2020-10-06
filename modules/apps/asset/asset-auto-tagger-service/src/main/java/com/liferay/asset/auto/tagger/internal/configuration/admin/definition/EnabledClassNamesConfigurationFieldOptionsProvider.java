@@ -43,6 +43,7 @@ import org.osgi.service.component.annotations.Reference;
 public class EnabledClassNamesConfigurationFieldOptionsProvider
 	implements ConfigurationFieldOptionsProvider {
 
+	@Override
 	public List<Option> getOptions() {
 		List<AssetRendererFactory<?>> assetRendererFactories =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactories(
@@ -53,7 +54,7 @@ public class EnabledClassNamesConfigurationFieldOptionsProvider
 
 		return stream.filter(
 			assetRendererFactory -> {
-				TextExtractor textExtractor =
+				TextExtractor<?> textExtractor =
 					_textExtractorTracker.getTextExtractor(
 						assetRendererFactory.getClassName());
 

@@ -12,17 +12,15 @@
  * details.
  */
 
-import './EditablePageHeader.soy';
-
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
+import dom from 'metal-dom';
 import {EventHandler} from 'metal-events';
 import Component from 'metal-jsx';
-import {Config} from 'metal-state';
 
-import {focusedFieldStructure, pageStructure} from '../../util/config.es';
 import {sub} from '../../util/strings.es';
+import formBuilderProps from './props.es';
 
-const withEditablePageHeader = ChildComponent => {
+const withEditablePageHeader = (ChildComponent) => {
 	class EditablePageHeader extends Component {
 		attached() {
 			this._eventHandler = new EventHandler();
@@ -49,16 +47,22 @@ const withEditablePageHeader = ChildComponent => {
 			const {pages} = this.props;
 			const total = pages.length;
 			const visitor = new PagesVisitor(pages);
+			let lastPageIndex = total;
+
+			if (pages[pages.length - 1].contentRenderer == 'success') {
+				lastPageIndex = total - 1;
+			}
 
 			return visitor.mapPages((page, pageIndex) => {
 				return {
 					...page,
 					headerRenderer: 'editable',
 					pageIndex,
-					placeholder: sub(
-						Liferay.Language.get('untitled-page-x-of-x'),
-						[pageIndex + 1, total]
-					),
+					pagination: sub(Liferay.Language.get('page-x-of-x'), [
+						pageIndex + 1,
+						lastPageIndex,
+					]),
+					placeholder: Liferay.Language.get('page-title'),
 					total,
 				};
 			});
@@ -72,17 +76,30 @@ const withEditablePageHeader = ChildComponent => {
 			);
 		}
 
+		_getPageNumber(node) {
+			let pageNumber;
+
+			const element = dom.closest(node, '[data-ddm-page]');
+
+			if (element) {
+				pageNumber = parseInt(element.dataset.ddmPage, 10);
+			}
+
+			return pageNumber;
+		}
+
 		_handlePageDescriptionChanged(event) {
-			const {activePage, editingLanguageId, pages} = this.props;
-			const {delegateTarget} = event;
+			const {editingLanguageId, pages} = this.props;
+			const {delegateTarget, target} = event;
 			const {dispatch} = this.context;
+			const currentPage = this._getPageNumber(target);
 			const value = delegateTarget.value;
 			const visitor = new PagesVisitor(pages);
 
 			dispatch(
 				'pagesUpdated',
 				visitor.mapPages((page, pageIndex) => {
-					if (pageIndex === activePage) {
+					if (pageIndex === currentPage) {
 						page = {
 							...page,
 							description: value,
@@ -99,16 +116,17 @@ const withEditablePageHeader = ChildComponent => {
 		}
 
 		_handlePageTitleChanged(event) {
-			const {activePage, editingLanguageId, pages} = this.props;
-			const {delegateTarget} = event;
+			const {editingLanguageId, pages} = this.props;
+			const {delegateTarget, target} = event;
 			const {dispatch} = this.context;
+			const currentPage = this._getPageNumber(target);
 			const value = delegateTarget.value;
 			const visitor = new PagesVisitor(pages);
 
 			dispatch(
 				'pagesUpdated',
 				visitor.mapPages((page, pageIndex) => {
-					if (pageIndex === activePage) {
+					if (pageIndex === currentPage) {
 						page = {
 							...page,
 							localizedTitle: {
@@ -126,123 +144,7 @@ const withEditablePageHeader = ChildComponent => {
 	}
 
 	EditablePageHeader.PROPS = {
-		/**
-		 * @default
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?number}
-		 */
-
-		activePage: Config.number().value(0),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		defaultLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		editingLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		fieldSetDefinitionURL: Config.string(),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldSets: Config.array().value([]),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldTypes: Config.array().value([]),
-
-		/**
-		 * @default {}
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?object}
-		 */
-
-		focusedField: focusedFieldStructure.value({}),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?array<object>}
-		 */
-
-		pages: Config.arrayOf(pageStructure).value([]),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		paginationMode: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		portletNamespace: Config.string().required(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {!string}
-		 */
-
-		spritemap: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {object}
-		 */
-
-		successPageSettings: Config.shapeOf({
-			body: Config.object(),
-			enabled: Config.bool(),
-			title: Config.object(),
-		}).value({}),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		view: Config.string(),
+		...formBuilderProps,
 	};
 
 	return EditablePageHeader;

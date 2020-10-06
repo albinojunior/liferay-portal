@@ -33,7 +33,9 @@ public class JSONValidatorTest {
 
 	@Before
 	public void setUp() {
-		new FileUtil().setFile(new FileImpl());
+		FileUtil fileUtil = new FileUtil();
+
+		fileUtil.setFile(new FileImpl());
 	}
 
 	@Test
@@ -69,14 +71,14 @@ public class JSONValidatorTest {
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
-	private static InputStream _readJSONSchemaAsStream() {
-		return JSONValidatorTest.class.getResourceAsStream(
-			"dependencies/example_json_schema.json");
-	}
-
 	private String _read(String fileName) throws Exception {
 		return new String(
 			FileUtil.getBytes(getClass(), "dependencies/" + fileName));
+	}
+
+	private InputStream _readJSONSchemaAsStream() {
+		return JSONValidatorTest.class.getResourceAsStream(
+			"dependencies/example_json_schema.json");
 	}
 
 }

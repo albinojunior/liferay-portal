@@ -93,6 +93,9 @@ public interface Company extends CompanyModel, PersistedModel {
 	public String getPortalURL(long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException;
 
+	public String getPortalURL(long groupId, boolean privateLayout)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
 	public String getShortName()
 		throws com.liferay.portal.kernel.exception.PortalException;
 

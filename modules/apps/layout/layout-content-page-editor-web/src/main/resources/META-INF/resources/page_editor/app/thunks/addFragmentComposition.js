@@ -21,11 +21,11 @@ export default function addFragment({
 	itemId,
 	name,
 	previewImageURL,
-	store,
+	saveInlineContent,
+	saveMappingConfiguration,
+	segmentsExperienceId,
 }) {
-	return dispatch => {
-		const {segmentsExperienceId} = store;
-
+	return (dispatch) => {
 		return FragmentService.addFragmentComposition({
 			description,
 			fragmentCollectionId,
@@ -33,12 +33,14 @@ export default function addFragment({
 			name,
 			onNetworkStatus: dispatch,
 			previewImageURL,
+			saveInlineContent,
+			saveMappingConfiguration,
 			segmentsExperienceId,
-		}).then(({fragmentComposition, layoutData}) => {
+		}).then((fragmentComposition) => {
 			dispatch(
 				addFragmentComposition({
+					fragmentCollectionId,
 					fragmentComposition,
-					layoutData,
 				})
 			);
 		});

@@ -17,7 +17,9 @@ package com.liferay.asset.kernel.service;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -25,6 +27,8 @@ import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.increment.BufferedIncrement;
+import com.liferay.portal.kernel.increment.NumberIncrement;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.PersistedModel;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -59,6 +63,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see AssetTagLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
@@ -70,7 +75,7 @@ public interface AssetTagLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AssetTagLocalServiceUtil} to access the asset tag local service. Add custom service methods to <code>com.liferay.portlet.asset.service.impl.AssetTagLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portlet.asset.service.impl.AssetTagLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the asset tag local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AssetTagLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public void addAssetEntryAssetTag(long entryId, AssetTag assetTag);
 
@@ -82,6 +87,10 @@ public interface AssetTagLocalService
 
 	/**
 	 * Adds the asset tag to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetTag the asset tag
 	 * @return the asset tag that was added
@@ -178,6 +187,10 @@ public interface AssetTagLocalService
 	/**
 	 * Deletes the asset tag from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetTag the asset tag
 	 * @return the asset tag that was removed
 	 */
@@ -186,6 +199,10 @@ public interface AssetTagLocalService
 
 	/**
 	 * Deletes the asset tag with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tagId the primary key of the asset tag
 	 * @return the asset tag that was removed
@@ -223,6 +240,9 @@ public interface AssetTagLocalService
 	 * @param tagId the primary key of the asset tag
 	 */
 	public void deleteTag(long tagId) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -644,6 +664,7 @@ public interface AssetTagLocalService
 	 tag is being applied
 	 * @return the asset tag
 	 */
+	@BufferedIncrement(incrementClass = NumberIncrement.class)
 	@Indexable(type = IndexableType.REINDEX)
 	public AssetTag incrementAssetCount(long tagId, long classNameId)
 		throws PortalException;
@@ -692,6 +713,10 @@ public interface AssetTagLocalService
 
 	/**
 	 * Updates the asset tag in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetTag the asset tag
 	 * @return the asset tag that was updated

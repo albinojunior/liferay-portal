@@ -4,8 +4,6 @@ definition {
 		var key_navItem = "${navItem}";
 		var key_index = "${count}";
 
-		AssertElementPresent(locator1 = "NavBar#ACTIVE_NAV_ITEM_LINK");
-
 		AssertElementPresent(locator1 = "LexiconTable#TABLE_SESSION_ID");
 	}
 
@@ -20,11 +18,9 @@ definition {
 		var leadingPortNumber = StringUtil.replace("${nodePort}", "080", "");
 		var bundleIndex = ${leadingPortNumber} - 8;
 
-		AntCommand(
-			locator1 = "build-test.xml",
-			value1 = "deploy-dependency-jars -Dliferay.dependency.jars=${liferayDependencyJars} -Dapp.server.bundle.index=${bundleIndex}");
-
-		Pause(locator1 = "10000");
+		FileInstall.deployFileOnServer(
+			bundleIndex = "${bundleIndex}",
+			liferayDependencyJars = "${liferayDependencyJars}");
 	}
 
 	macro enableDebugging {
@@ -37,8 +33,8 @@ definition {
 				userEmailAddress = "test@liferay.com");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
@@ -126,8 +122,8 @@ definition {
 				userEmailAddress = "test@liferay.com");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Server Administration");
 

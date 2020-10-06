@@ -4,7 +4,6 @@ definition {
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property custom.properties = "default.layout.template.id=1_column";
-	property test.assert.warning.exceptions = "true";
 	property testray.main.component.name = "Documents Management";
 
 	setUp {
@@ -60,6 +59,12 @@ definition {
 			dmDocumentTypeName = "DM Document Type Name",
 			metadataSetName = "DM Metadata Set Name");
 
+		DMNavigator.gotoMetadataSets();
+
+		DMMetadataSet.delete(
+			metadataSetHasReference = "true",
+			metadataSetName = "DM Metadata Set Name");
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		DMNavigator.gotoDocumentType();
@@ -68,37 +73,34 @@ definition {
 			dmDocumentTypeName = "DM Document Type Name",
 			metadataSetName = "DM Metadata Set Name",
 			removeMetadataSet = "true");
+
+		DMNavigator.gotoMetadataSets();
+
+		DMMetadataSet.delete(metadataSetName = "DM Metadata Set Name");
 	}
 
 	@description = "This test covers LPS-94657. It ensures that auto complete for edit categories."
 	@priority = "5"
 	test AddAutoAssertionCategoryViaDMDocument {
-
 		property test.name.skip.portal.instance = "DocumentsadministrationUsecase#AddAutoAssertionCategoryViaDMDocument";
 
-		ProductMenu.gotoPortlet(
-			category = "Categorization",
-			panel = "Site Administration",
-			portlet = "Categories");
+		JSONCategory.addVocabulary(
+			groupName = "Guest",
+			title = "Topic");
 
-		Category.addCP(
-			categoryName = "category",
+		JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "category",
 			vocabularyName = "Topic");
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Documents and Media");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.txt",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "text/plain",
+			sourceFileName = "Document_1.txt");
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
@@ -134,7 +136,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		LexiconEntry.gotoEntryMenuItem(
@@ -146,6 +147,7 @@ definition {
 
 	@priority = "5"
 	test AddDocumentTypeAndMetadata {
+		property portal.acceptance = "true";
 		property testray.component.names = "Training";
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
@@ -228,7 +230,7 @@ definition {
 		DMPortlet.configureDisplaySettingsPG(
 			enableDisplaySettingsRelatedAssets = "false",
 			enableDisplaySettingsShowSearch = "false",
-			entriesToDisplayCount = "75");
+			entriesToDisplayCount = "60");
 
 		Navigator.gotoSitePage(
 			pageName = "Site Page 2",
@@ -242,12 +244,14 @@ definition {
 	test AssertFileSizeValidation {
 		property test.name.skip.portal.instance = "DocumentsadministrationUsecase#AssertFileSizeValidation";
 
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "audio/x-mpeg",
+			sourceFileName = "Document_1.mp3");
 
-		DMDocument.addCP(
-			dmDocumentDescription = "DM Document Description1",
-			dmDocumentFile = "Document_1.mp3",
-			dmDocumentTitle = "DM Document Title");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Title");
 
@@ -277,7 +281,7 @@ definition {
 			locator1 = "Button#SAVE",
 			value1 = "Save");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
@@ -301,7 +305,7 @@ definition {
 
 		LAR._gotoExportImport();
 
-		AssertElementPresent(locator1 = "IFrame#DIALOG");
+		AssertElementPresent(locator1 = "IFrame#MODAL_BODY");
 
 		LAR._export(
 			exportPermissions = "${exportPermissions}",
@@ -338,7 +342,7 @@ definition {
 			layoutName = "Documents and Media Page",
 			widgetName = "Documents and Media");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -356,6 +360,16 @@ definition {
 		DMFolder.addPG(
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Documents and Media");
+
+		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+
+		PermissionsInline.addOrRemoveAccessPermissionFromAllRoles(
+			addOrRemoveViewPermission = "Add",
+			roleList = "guest");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -481,20 +495,19 @@ definition {
 			requireReset = "false",
 			userEmailAddress = "userea@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Administrator",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
 			portlet = "Memberships");
 
 		Site.assignUserAsMemberCP(
@@ -516,12 +529,14 @@ definition {
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMDocument.enableActionsMenuOnPortlet();
 
@@ -582,7 +597,6 @@ definition {
 		for (var dmDocumentTitle : list "Document_1.docx,Document_1.jpeg,Document_1.jpg,Document_1.mp4,Document_1.pdf,Document_1.png,Document_1.ppt,Document_1.pptx,Document_1.txt,Document_1.xls,Document_1.xlsx") {
 			ProductMenu.gotoPortlet(
 				category = "Content &amp; Data",
-				panel = "Site Administration",
 				portlet = "Documents and Media");
 
 			DMDocument.addCP(
@@ -715,16 +729,16 @@ definition {
 			layoutName = "Documents and Media Page",
 			widgetName = "Documents and Media");
 
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "Document_1.mp4",
+			groupName = "Guest",
+			mimeType = "video/mp4",
+			sourceFileName = "Document_1.mp4");
+
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.addPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.mp4",
-			dmDocumentTitle = "Document_1.mp4");
 
 		Pause(locator1 = "180000");
 
@@ -781,14 +795,14 @@ definition {
 			groupName = "Moon Rocks 101",
 			layoutName = "Moon Rocks Page");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
 
 		Role.add(roleTitle = "Regular Role Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Roles");
@@ -812,7 +826,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
 			portlet = "Memberships");
 
 		Site.assignUserAsMemberCP(
@@ -820,7 +833,7 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -891,7 +904,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		LAR.importPortlet(
@@ -906,12 +918,12 @@ definition {
 
 		JSONGroup.addGroup(groupName = "Site Name");
 
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.jpg",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
@@ -965,10 +977,12 @@ definition {
 		DMDocument.enableActionsMenuOnPortlet();
 
 		for (var entryCount : list "1,2,3") {
-			DMDocument.addPG(
+			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
-				dmDocumentFile = "Document_${entryCount}.doc",
-				dmDocumentTitle = "Document_${entryCount}.doc");
+				dmDocumentTitle = "Document_${entryCount}.doc",
+				groupName = "Guest",
+				mimeType = "application/msword",
+				sourceFileName = "Document_${entryCount}.doc");
 		}
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
@@ -981,7 +995,7 @@ definition {
 
 		Click(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		DMDocument.viewDefaultCP();
 	}
@@ -996,7 +1010,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMNavigator.gotoDocumentType();
@@ -1006,8 +1019,8 @@ definition {
 			dmDocumentTypeFieldNames = "Text Box,Date",
 			dmDocumentTypeName = "Photos");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
@@ -1080,7 +1093,7 @@ definition {
 			requireReset = "false",
 			userEmailAddress = "userea@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1089,7 +1102,7 @@ definition {
 			siteName = "${siteName}",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1109,7 +1122,7 @@ definition {
 			requireReset = "false",
 			userEmailAddress = "userea2@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1120,8 +1133,8 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+			portlet = "Pages",
+			site = "${siteName}");
 
 		SitePages.addPublicPage(
 			pageName = "Documents and Media Page",
@@ -1151,7 +1164,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		AssertVisible(
@@ -1176,10 +1188,65 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMDocumentType.viewNoAvailableActionsViaDocumentTypesPG();
+	}
+
+	@description = "This test covers LPS-118268. It ensures that the user without document view permission can not view the document via the display page."
+	@priority = "4"
+	test ViewDocumentViaDisplayPage {
+		JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+			contentType = "Document",
+			displayPageTemplateEntryName = "Display Page Name",
+			groupName = "Guest",
+			subType = "Basic Document");
+
+		DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "guest");
+
+		DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+		PageEditor.addWidget(portletName = "Documents and Media");
+
+		PageEditor.clickPublish();
+
+		DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMDocument.addCP(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentFile = "Document_1.jpg",
+			dmDocumentTitle = "DM Document Title");
+
+		var dmFileEntryID = DMDocument.getFileEntryID(dmDocumentTitle = "DM Document Title");
+
+		User.logoutPG();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/guest/d/${dmFileEntryID}");
+
+		AssertTextEquals(
+			key_dmDocumentTitle = "DM Document Title",
+			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
+			value1 = "DM Document Title");
+
+		User.loginUserPG(
+			password = "test",
+			userEmailAddress = "test@liferay.com");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Document Title");
+
+		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
+			addOrRemoveViewPermission = "Remove",
+			roleList = "guest");
+
+		User.logoutPG();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/guest/d/${dmFileEntryID}");
+
+		Alert.viewErrorMessage(errorMessage = "You do not have the required permissions to view the content of this page.");
 	}
 
 	@priority = "5"
@@ -1206,11 +1273,10 @@ definition {
 			layoutName = "Documents and Media Page - Global",
 			widgetName = "Documents and Media");
 
-		SitePages.openPagesAdmin(siteURLKey = "global");
+		PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "global");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMFolder.addCP(
@@ -1223,11 +1289,10 @@ definition {
 			dmFolderDescription = "DM SubFolder Description",
 			dmFolderName = "DM SubFolder Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "global");
+		PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "global");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMFolder.viewCP(dmFolderName = "DM Folder Name");
@@ -1269,14 +1334,9 @@ definition {
 
 		DMPortlet.viewDefaultPG(portletName = "Documents and Media");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
-
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Site Templates");
@@ -1285,11 +1345,15 @@ definition {
 			menuItem = "Manage",
 			rowEntry = "Site Template Name");
 
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
 		SitePages.addPrivatePage(
 			pageName = "DM Site Page Name - Global",
 			siteTemplate = "true");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -1335,6 +1399,10 @@ definition {
 	test ViewFileCategoryAndTags {
 		property testray.component.names = "Training";
 
+		JSONCategory.addVocabulary(
+			groupName = "Guest",
+			title = "Vocabulary Name");
+
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Documents and Media Page");
@@ -1347,17 +1415,17 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Categories");
 
 		Category.addCP(
 			categoryDescription = "Category Description",
 			categoryName = "Category Name",
-			vocabularyName = "Topic");
+			vocabularyName = "Vocabulary Name");
+
+		Navigator.openSiteURL(siteName = "Guest");
 
 		ProductMenu.gotoPortlet(
 			category = "Categorization",
-			panel = "Site Administration",
 			portlet = "Tags");
 
 		var tagNameList = "tag1,tag2";
@@ -1384,7 +1452,7 @@ definition {
 			dmDocumentFile = "Document_1.doc",
 			dmDocumentTitle = "Document Title",
 			tagNameList = "tag1,tag2",
-			vocabularyName = "Topic");
+			vocabularyName = "Vocabulary Name");
 
 		Click(
 			key_dmDocumentTitle = "Document Title",
@@ -1432,7 +1500,7 @@ definition {
 			requireReset = "false",
 			userEmailAddress = "userea@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1441,7 +1509,7 @@ definition {
 			orgName = "Organization Name",
 			orgType = "Organization");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1454,7 +1522,7 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1463,7 +1531,7 @@ definition {
 
 		Organization.addSiteCP(orgName = "Organization Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1484,7 +1552,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(
@@ -1509,7 +1576,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
@@ -1546,7 +1612,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
@@ -1576,6 +1641,42 @@ definition {
 			dmDocumentTitle = "Document_1.doc");
 	}
 
+	@description = "This test covers LPS-107966. It ensures that the image description can be propagated after creating a new image via image editor in web content."
+	@priority = "3"
+	test ViewImageDescriptionAfterImageEditedViaWebContent {
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "Document_2.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_2.jpg");
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
+
+		WebContentNavigator.gotoAddCP();
+
+		ImageEditor.gotoImageEditorViaItemSelector(
+			ckEditor = "true",
+			imageFileName = "Document_2.jpg",
+			navTab = "Documents and Media");
+
+		ImageEditor.rotateImage(rotateDirection = "right");
+
+		Pause(locator1 = "3000");
+
+		ImageEditor.applyChangesAndSaveFile();
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Edit",
+			rowEntry = "Document_2 (1).jpg");
+
+		AssertTextEquals(
+			locator1 = "TextArea#DESCRIPTION",
+			value1 = "DM Document Description");
+	}
+
 	@description = "This test covers LPS-93601 and LPS-91661. It ensures that the user can check all files in the current pagination using the DM toolbar and can move documents not on the current pagination to another folder."
 	@priority = "4"
 	test ViewPaginationToolbarCheckboxAndMoveMultiplePaginationDocuments {
@@ -1589,19 +1690,47 @@ definition {
 			layoutName = "Documents and Media Page",
 			widgetName = "Documents and Media");
 
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
-
-		DMFolder.addCP(
+		JSONDocument.addFolder(
 			dmFolderDescription = "DM Folder Description",
-			dmFolderName = "DM Folder Name");
+			dmFolderName = "DM Folder Name",
+			groupName = "Guest");
+
+		for (var documentName : list "Document_2.doc,Document_1.xls,Document_4.jpg,Document_3.jpg,Document_2.xls,Document_1.txt,Document_4.txt,Document_3.xls,Document_2.jpg,Document_1.doc") {
+
+			var extension = StringUtil.extractLast("${documentName}", ".");
+
+			if ("${extension}" == "doc") {
+				var mimeType = "application/msword";
+			}
+			else if ("${extension}" == "jpg") {
+				var mimeType = "image/jpg";
+			}
+			else if ("${extension}" == "png") {
+				var mimeType = "image/png";
+			}
+			else if ("${extension}" == "xls") {
+				var mimeType = "application/vnd.ms-excel";
+			}
+			else if ("${extension}" == "txt") {
+				var mimeType = "text/plain";
+			}
+
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentTitle = "${documentName}",
+				folderName = "DM Folder Name",
+				groupName = "Guest",
+				mimeType = "${mimeType}",
+				sourceFileName = "${documentName}");
+		}
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		DMFolder.gotoEntry(dmFolderName = "DM Folder Name");
 
-		DMDocument.addMultipleCP(dmDocumentFileList = "Document_1.doc,Document_2.jpg,Document_3.xls,Document_4.txt,Document_1.txt,Document_2.xls,Document_3.jpg,Document_4.jpg,Document_1.xls,Document_2.doc");
+		Pagination.changePagination(itemsPerPage = "4");
 
-		Pagination.changePagination(itemsPerPage = "5");
-
-		Pagination.viewResults(results = "Showing 1 to 5 of 10 entries.");
+		Pagination.viewResults(results = "Showing 1 to 4 of 10 entries.");
 
 		DMDocument.moveToFolderCP(
 			dmFolderName = "Home",
@@ -1609,15 +1738,17 @@ definition {
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
+		Pagination.changePagination(itemsPerPage = "20");
+
 		Pagination.viewResults(results = "Showing 1 to 11 of 11 entries.");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "List");
 
-		Pagination.changePagination(itemsPerPage = "5");
+		Pagination.changePagination(itemsPerPage = "4");
 
-		Pagination.viewResults(results = "Showing 1 to 5 of 11 entries.");
+		Pagination.viewResults(results = "Showing 1 to 4 of 11 entries.");
 
 		DMDocument.checkDocumentCheckboxPG(dmDocumentTitle = "Document_2.jpg");
 
@@ -1631,7 +1762,7 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "ManagementBar#NAVBAR_TEXT",
-			value1 = "6 of 11 Selected");
+			value1 = "5 of 11 Selected");
 	}
 
 	@priority = "4"
@@ -1682,21 +1813,19 @@ definition {
 
 	@priority = "4"
 	test ViewSingleDocumentSelectionDoesNotCheckAllFileSelectionCP {
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document1 Title",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
 
-		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
-		DMDocument.addCP(
-			dmDocumentDescription = "DM Document1 Description",
-			dmDocumentFile = "Document_1.jpg",
-			dmDocumentTitle = "DM Document1 Title");
-
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document2 Description",
-			dmDocumentFile = "Document_1.jpg",
-			dmDocumentTitle = "DM Document2 Title");
+			dmDocumentTitle = "DM Document2 Title",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 

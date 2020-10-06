@@ -452,14 +452,12 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		PermissionChecker permissionChecker = getPermissionChecker();
 
 		if (permissionChecker.isCompanyAdmin()) {
-			LinkedHashMap<String, Object> params =
-				LinkedHashMapBuilder.<String, Object>put(
-					"site", Boolean.TRUE
-				).build();
-
 			return ListUtil.unique(
 				groupLocalService.search(
-					permissionChecker.getCompanyId(), null, null, null, params,
+					permissionChecker.getCompanyId(), null, null, null,
+					LinkedHashMapBuilder.<String, Object>put(
+						"site", Boolean.TRUE
+					).build(),
 					true, 0, max));
 		}
 
@@ -467,10 +465,10 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 
 		List<Group> userSitesGroups = getUserSitesGroups(null, max);
 
-		Iterator<Group> itr = userSitesGroups.iterator();
+		Iterator<Group> iterator = userSitesGroups.iterator();
 
-		while (itr.hasNext()) {
-			Group group = itr.next();
+		while (iterator.hasNext()) {
+			Group group = iterator.next();
 
 			if (group.isSite() &&
 				PortletPermissionUtil.hasControlPanelAccessPermission(
@@ -572,6 +570,16 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	@Override
 	public List<Group> getUserSitesGroups() throws PortalException {
 		return getUserSitesGroups(null, QueryUtil.ALL_POS);
+	}
+
+	@Override
+	public List<Group> getUserSitesGroups(long userId, int start, int end)
+		throws PortalException {
+
+		List<Group> groups = groupLocalService.getUserSitesGroups(
+			userId, start, end);
+
+		return filterGroups(groups);
 	}
 
 	/**
@@ -808,11 +816,12 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	public List<Group> search(
 			long companyId, long[] classNameIds, String keywords,
 			LinkedHashMap<String, Object> params, int start, int end,
-			OrderByComparator<Group> obc)
+			OrderByComparator<Group> orderByComparator)
 		throws PortalException {
 
 		List<Group> groups = groupLocalService.search(
-			companyId, classNameIds, keywords, params, start, end, obc);
+			companyId, classNameIds, keywords, params, start, end,
+			orderByComparator);
 
 		return filterGroups(groups);
 	}
@@ -822,12 +831,12 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			long companyId, long[] classNameIds, String name,
 			String description, LinkedHashMap<String, Object> params,
 			boolean andOperator, int start, int end,
-			OrderByComparator<Group> obc)
+			OrderByComparator<Group> orderByComparator)
 		throws PortalException {
 
 		List<Group> groups = groupLocalService.search(
 			companyId, classNameIds, name, description, params, andOperator,
-			start, end, obc);
+			start, end, orderByComparator);
 
 		return filterGroups(groups);
 	}
@@ -1057,17 +1066,18 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		if (group.isSite()) {
 			Group oldGroup = group;
 
-			UnicodeProperties oldTypeSettingsProperties =
+			UnicodeProperties oldTypeSettingsUnicodeProperties =
 				oldGroup.getTypeSettingsProperties();
 
 			group = groupLocalService.updateGroup(groupId, typeSettings);
 
 			RatingsDataTransformerUtil.transformGroupRatingsData(
-				groupId, oldTypeSettingsProperties,
+				groupId, oldTypeSettingsUnicodeProperties,
 				group.getTypeSettingsProperties());
 
 			SiteMembershipPolicyUtil.verifyPolicy(
-				group, oldGroup, null, null, null, oldTypeSettingsProperties);
+				group, oldGroup, null, null, null,
+				oldTypeSettingsUnicodeProperties);
 
 			return group;
 		}
@@ -1085,11 +1095,11 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		GroupPermissionUtil.check(
 			getPermissionChecker(), group, ActionKeys.UPDATE);
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			group.getTypeSettingsProperties();
 
 		for (Map.Entry<String, String> entry : stagedPortletIds.entrySet()) {
-			typeSettingsProperties.setProperty(
+			typeSettingsUnicodeProperties.setProperty(
 				StagingUtil.getStagedPortletId(entry.getKey()),
 				entry.getValue());
 		}

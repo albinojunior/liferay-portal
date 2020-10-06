@@ -1,6 +1,5 @@
 import com.liferay.gradle.util.FileUtil
 import com.liferay.gradle.util.StringUtil
-import com.liferay.project.templates.ProjectTemplates
 
 import groovy.io.FileType
 import groovy.io.FileVisitResult
@@ -20,7 +19,6 @@ buildscript {
 	apply from: file("build-buildscript.gradle"), to: buildscript
 
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.project.templates", version: "4.5.6"
 		classpath group: "org.apache.maven", name: "maven-model", version: "3.6.1"
 	}
 
@@ -50,10 +48,6 @@ configurations {
 	pomProjectTemplates
 }
 
-dependencies {
-	pomProjectTemplates group: "com.liferay", name: "com.liferay.project.templates", version: "5.0.18"
-}
-
 generatePom {
 	dependsOn generatePomCompileOnly
 	dependsOn generatePomRelease
@@ -62,67 +56,7 @@ generatePom {
 
 generatePomCompileOnly {
 	doFirst {
-		File projectTemplatesDir = new File(buildDir, "releng/projectTemplates")
-
-		delete projectTemplatesDir
-
-		mkdir projectTemplatesDir
-
-		ProjectTemplates.getTemplates().keySet().each {
-			def mainArgs = ["--template", it, "--name", "sample-${it}"]
-
-			if (it.equals("fragment")) {
-				mainArgs += ["--host-bundle-symbolic-name", "com.liferay.login.web", "--host-bundle-version", "1.0.0"]
-			}
-			else if (it.equals("modules-ext")) {
-				if (project.property("gradle.releng.pom.project.templates.version").startsWith("7.0")) {
-					return
-				}
-				else {
-					mainArgs += ["--original-module-name", "com.liferay.login.web", "--original-module-version", "2.0.4"]
-				}
-			}
-			else if (it.equals("service")) {
-				mainArgs += ["--class-name", "FooAction", "--service", "com.liferay.portal.kernel.events.LifecycleAction"]
-			}
-			else if (it.equals("service-builder")) {
-				mainArgs += ["--package-name", "com.liferay.docs.guestbook"]
-			}
-			else if (it.equals("service-wrapper")) {
-				mainArgs += ["--service", "com.liferay.portal.kernel.service.UserLocalServiceWrapper"]
-			}
-			else if (it.equals("theme-contributor")) {
-				mainArgs += ["--contributor-type", "sample"]
-			}
-			else if (it.equals("social-bookmark") && project.property("gradle.releng.pom.project.templates.version").startsWith("7.0")) {
-				return
-			}
-			else if (it.equals("spring-mvc-portlet")) {
-				return
-			}
-			else if (project.property("gradle.releng.pom.project.templates.version").startsWith("7.2") &&
-					 (it.equals("content-targeting-report") ||
-					  it.equals("content-targeting-rule") ||
-					  it.equals("content-targeting-tracking-action") ||
-					  it.equals("form-field") ||
-					  it.equals("npm-angular-portlet") ||
-					  it.equals("npm-react-portlet") ||
-					  it.equals("npm-vuejs-portlet") ||
-					  it.equals("social-bookmark") ||
-					  it.equals("spring-mvc-portlet"))) {
-
-				return
-			}
-
-			mainArgs += ["--liferay-version", project.property("gradle.releng.pom.project.templates.version")]
-
-			javaexec {
-				args mainArgs
-				classpath = configurations.pomProjectTemplates
-				main = "com.liferay.project.templates.ProjectTemplates"
-				workingDir = projectTemplatesDir
-			}
-		}
+		assert project.properties["portalArtifactsJarVersion"] : "Provide a value for the project property 'portalArtifactsJarVersion'"
 	}
 
 	doLast {
@@ -130,37 +64,41 @@ generatePomCompileOnly {
 
 		DependencyManagement dependencyManagement = new DependencyManagement()
 
-		File projectTemplatesDir = new File(buildDir, "releng/projectTemplates")
+		Properties dependenciesProperties = new Properties()
 
-		Set<String> gradleDependencyLines = []
+		File dependenciesPropertiesFile = new File("releng-pom-compile-only-dependencies.properties")
 
-		projectTemplatesDir.eachFile {
-			File buildGradleFile = new File(it, "build.gradle")
-
-			if (buildGradleFile.exists()) {
-				buildGradleFile.eachLine {
-					if (it ==~ /\s*compileOnly group: (?!"com\.liferay).*/) {
-						gradleDependencyLines.add(it)
-					}
-				}
-			}
+		dependenciesPropertiesFile.withInputStream {
+			dependenciesProperties.load(it)
 		}
 
-		Closure getTextInQuotes = {
-			it.replaceFirst(/.*"(.+)".*/, /$1/)
-		}
+		dependenciesProperties.each {
+			String[] dependencyInfo = it.value.split(":")
 
-		gradleDependencyLines.each {
+			String identifier = dependencyInfo[0] + ":" + dependencyInfo[1]
+
 			Dependency dependency = new Dependency()
 
-			String[] gradleDependencyLinesSplit = it.split(",")
+			dependency.setArtifactId(dependencyInfo[1])
+			dependency.setGroupId(dependencyInfo[0])
+			dependency.setVersion(dependencyInfo[2])
 
-			dependency.setArtifactId(getTextInQuotes(gradleDependencyLinesSplit[1]))
-			dependency.setGroupId(getTextInQuotes(gradleDependencyLinesSplit[0]))
-			dependency.setVersion(getTextInQuotes(gradleDependencyLinesSplit[2]))
+			if (dependencyInfo.length == 4) {
+				dependency.setClassifier(dependencyInfo[3])
+			}
 
 			dependencyManagement.addDependency(dependency)
 		}
+
+		String portalArtifactsJarArtifactId = "release." + (_isDigitalExperiencePlatform() ? "dxp" : "portal") + ".api"
+
+		Dependency portalArtifactsJarDependency = new Dependency()
+
+		portalArtifactsJarDependency.setArtifactId(portalArtifactsJarArtifactId)
+		portalArtifactsJarDependency.setGroupId("com.liferay.portal")
+		portalArtifactsJarDependency.setVersion(project.properties["portalArtifactsJarVersion"])
+
+		dependencyManagement.addDependency(portalArtifactsJarDependency)
 
 		model.setDependencyManagement(dependencyManagement)
 
@@ -235,7 +173,7 @@ generatePomRelease {
 				String[] artifactURLSplit = artifactProperties["artifact.url"].split("/")
 
 				dependency.setArtifactId(artifactURLSplit[artifactURLSplit.length - 3])
-				dependency.setGroupId(artifactURLSplit.last().endsWith(".war") ? "com.liferay.plugins" : "com.liferay")
+				dependency.setGroupId((artifactProperties["artifact.url"] =~ /(com\/liferay(?:\/[a-z]+)*)\//).findAll()[0][1].replaceAll("/", "."))
 				dependency.setVersion(artifactURLSplit[artifactURLSplit.length - 2])
 
 				dependencyManagement.addDependency(dependency)

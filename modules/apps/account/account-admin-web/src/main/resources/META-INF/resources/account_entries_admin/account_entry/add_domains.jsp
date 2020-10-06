@@ -21,13 +21,12 @@ String eventName = ParamUtil.getString(request, "eventName", liferayPortletRespo
 %>
 
 <div class="modal-body">
-	<clay:alert
-		elementClasses="hide"
-		id='<%= renderResponse.getNamespace() + "domainAlert" %>'
-		message='<%= LanguageUtil.get(request, "please-enter-valid-mail-domains-separated-by-commas") %>'
-		style="danger"
-		title='<%= LanguageUtil.get(request, "error") %>'
-	/>
+	<div class="hide" id="<portlet:namespace />domainAlert">
+		<clay:alert
+			displayType="danger"
+			message="please-enter-valid-mail-domains-separated-by-commas"
+		/>
+	</div>
 
 	<aui:field-wrapper cssClass="form-group">
 		<aui:input label="domain" name="domain" />
@@ -38,7 +37,7 @@ String eventName = ParamUtil.getString(request, "eventName", liferayPortletRespo
 	</aui:field-wrapper>
 
 	<aui:button-row>
-		<aui:button onClick='<%= renderResponse.getNamespace() + "addDomains();" %>' primary="<%= true %>" value="save" />
+		<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "addDomains();" %>' primary="<%= true %>" value="save" />
 
 		<aui:button type="cancel" />
 	</aui:button-row>
@@ -73,18 +72,12 @@ String eventName = ParamUtil.getString(request, "eventName", liferayPortletRespo
 			}
 		}
 
-		<portlet:namespace/>closePopup();
-	}
-
-	function <portlet:namespace/>closePopup() {
-		var Util = Liferay.Util;
-
-		var openingLiferay = Util.getOpener().Liferay;
+		var openingLiferay = Liferay.Util.getOpener().Liferay;
 
 		openingLiferay.fire('<%= HtmlUtil.escapeJS(eventName) %>', {
 			data: document.getElementById('<portlet:namespace />domain').value,
 		});
 
-		Util.getWindow().hide();
+		openingLiferay.fire('closeModal');
 	}
 </aui:script>

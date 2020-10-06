@@ -12,7 +12,7 @@
  * details.
  */
 
-(function() {
+(function () {
 	AUI().applyConfig({
 		groups: {
 			calendar: {
@@ -50,11 +50,7 @@
 					},
 					'liferay-calendar-message-util': {
 						path: 'message_util.js',
-						requires: [
-							'aui-alert',
-							'liferay-alert',
-							'liferay-util-window',
-						],
+						requires: ['liferay-util-window'],
 					},
 					'liferay-calendar-recurrence-converter': {
 						path: 'recurrence_converter.js',

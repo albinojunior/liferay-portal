@@ -39,6 +39,10 @@ public class LayoutSetPrototypeLocalServiceUtil {
 	/**
 	 * Adds the layout set prototype to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetPrototype the layout set prototype
 	 * @return the layout set prototype that was added
 	 */
@@ -89,6 +93,10 @@ public class LayoutSetPrototypeLocalServiceUtil {
 	/**
 	 * Deletes the layout set prototype from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutSetPrototype the layout set prototype
 	 * @return the layout set prototype that was removed
 	 * @throws PortalException
@@ -104,6 +112,10 @@ public class LayoutSetPrototypeLocalServiceUtil {
 
 	/**
 	 * Deletes the layout set prototype with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSetPrototypeId the primary key of the layout set prototype
 	 * @return the layout set prototype that was removed
@@ -137,6 +149,12 @@ public class LayoutSetPrototypeLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -352,9 +370,11 @@ public class LayoutSetPrototypeLocalServiceUtil {
 		<com.liferay.portal.kernel.model.LayoutSetPrototype> search(
 			long companyId, Boolean active, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.LayoutSetPrototype> obc) {
+				<com.liferay.portal.kernel.model.LayoutSetPrototype>
+					orderByComparator) {
 
-		return getService().search(companyId, active, start, end, obc);
+		return getService().search(
+			companyId, active, start, end, orderByComparator);
 	}
 
 	public static int searchCount(long companyId, Boolean active) {
@@ -363,6 +383,10 @@ public class LayoutSetPrototypeLocalServiceUtil {
 
 	/**
 	 * Updates the layout set prototype in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutSetPrototypeLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutSetPrototype the layout set prototype
 	 * @return the layout set prototype that was updated

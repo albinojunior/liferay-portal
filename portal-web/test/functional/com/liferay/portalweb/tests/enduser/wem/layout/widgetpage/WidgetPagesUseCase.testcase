@@ -44,24 +44,33 @@ definition {
 
 		var sitePage3Name = '''<script>alert(123);</script>''';
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Site Page 1");
 
-		SitePages.addPublicPage(pageName = "Site Page 1");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Site Page 2");
 
-		SitePages.addPublicPage(pageName = "Site Page 2");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Site Page 2",
+			widgetName = "Web Content Display");
+
+		JSONWebcontent.addWebContent(
+			content = "WC WebContent Content",
+			groupName = "Guest",
+			title = "WC WebContent Title");
+
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		SitePages.addPublicPage(pageName = "${sitePage3Name}");
 
 		Navigator.gotoPage(pageName = "Site Page 2");
 
-		Portlet.addPG(portletName = "Web Content Display");
+		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
 
-		WebContent.addPGViaWCD(
-			webContentContent = "WC WebContent Content",
-			webContentTitle = "WC WebContent Title");
+		IFrame.closeFrame();
 
 		WebContent.viewPGViaWCD(webContentContent = "WC WebContent Content");
 
@@ -88,10 +97,7 @@ definition {
 	test CannotDeleteLastPublicPageOnLiferay {
 		property testray.component.names = "Site Pages Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		SitePages.deletePage(pageName = "Search");
 
@@ -102,21 +108,17 @@ definition {
 	test ChangingPageTypeLayoutToLinkToAPageOfThisSiteHidesChildPages {
 		property testray.component.names = "Site Pages Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Site Name");
 
-		Site.addBlankCP(siteName = "Site Name");
+		JSONLayout.addPublicLayout(
+			groupName = "Site Name",
+			layoutName = "Site Page1 Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addPublicLayout(
+			groupName = "Site Name",
+			layoutName = "Site Page2 Name");
 
-		SitePages.addPublicPage(pageName = "Site Page1 Name");
-
-		SitePages.addPublicPage(pageName = "Site Page2 Name");
+		SitePages.openPagesAdmin(siteURLKey = "site-name");
 
 		SitePages.addPublicChildPage(
 			childPageName = "Child Page Name",
@@ -132,10 +134,7 @@ definition {
 			pageName = "Site Page1 Name",
 			siteName = "Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "site-name");
 
 		SitePages.togglePrivacy(privacy = "Public Pages");
 
@@ -152,12 +151,11 @@ definition {
 	test DefaultLanguageWithEmptyFriendlyURLThrowsErrorExceptions {
 		property testray.component.names = "Site Pages Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Page Name");
 
-		SitePages.addPublicPage(pageName = "Page Name");
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
@@ -173,10 +171,7 @@ definition {
 
 		AssertConsoleTextNotPresent(value1 = "java.lang.StringIndexOutOfBoundsException: String index out of range: -1");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
@@ -188,14 +183,12 @@ definition {
 	@description = "This is a use case for LPS-71160"
 	@priority = "5"
 	test EditPageViaControlMenu {
+		property portal.acceptance = "true";
 		property testray.component.names = "Training";
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
-
-		SitePages.addPublicPage(pageName = "Site Page");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Site Page");
 
 		Navigator.gotoPage(pageName = "Site Page");
 
@@ -234,50 +227,32 @@ definition {
 
 	@priority = "3"
 	test SitesPanelLayout {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property testray.component.names = "Site Pages Administration";
 		var portalURL = PropsUtil.get("portal.url");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Power User",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		User.firstLoginPG(
 			password = "test",
 			userEmailAddress = "userea@liferay.com");
 
-		UserBar.gotoDropdownItem(dropdownItem = "My Profile");
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
-
-		SitePages.addPublicPage(pageName = "Page Name");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Page Name");
 
 		Navigator.openSpecificURL(url = "${portalURL}/web/usersn/page-name?p_p_id=com_liferay_configuration_admin_web_portlet_InstanceSettingsPortlet&amp;p_p_state=maximized");
 
@@ -292,77 +267,54 @@ definition {
 
 	@priority = "5"
 	test SitesPrivatePagesPermissions {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "WidgetPagesUseCase#SitesPrivatePagesPermissions";
 		property testray.component.names = "Permissions,Roles,Site Pages Administration,Training";
 
-		ProductMenu.gotoPortlet(
+		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
 
-		Site.addCommunityCP(
+		Site.addCP(
 			membershipType = "Private",
-			siteName = "Site Name");
+			siteName = "Site Name",
+			siteTemplateName = "Site Template Name",
+			siteType = "Site Template");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addPrivateLayout(
+			groupName = "Site Name",
+			layoutName = "Site Page");
 
-		SitePages.addPrivatePage(pageName = "Site Page");
+		JSONRole.addRegularRole(
+			roleKey = "Roles Regrole Name",
+			roleTitle = "Roles Regrole Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.add(roleTitle = "Roles Regrole Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.addUserToSite(
+			groupName = "Site Name",
+			userEmailAddress = "userea@liferay.com");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editUserSiteCP(
-			siteName = "Site Name",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.assignRegularRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Roles Regrole Name",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		Navigator.openSiteURL(siteName = "Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "site-name");
 
 		PermissionsInline.gotoSitepageCP(
 			pageName = "Site Page",
@@ -397,12 +349,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.openSiteURL(siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "site-name");
 
 		PermissionsInline.gotoSitepageCP(
 			pageName = "Site Page",
@@ -435,79 +382,54 @@ definition {
 			userEmailAddress = "test@liferay.com");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test ViewSecureContentAndPageAsGuest {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property test.name.skip.portal.instance = "WidgetPagesUseCase#ViewSecureContentAndPageAsGuest";
+		property test.smtp.server.enabled = "true";
 		property testray.component.names = "Message Boards,Site Pages Administration";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Server Administration");
-
-		ServerAdministration.configureMailServerSettings(
-			userName = PropsUtil.get("email.address.1"),
-			userPassword = PropsUtil.get("email.password.1"));
-
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "Search");
 
 		SearchAdministration.executeSearchActions(actionsDescription = "Reindex all search indexes.");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = PropsUtil.get("email.address.2"),
 			userFirstName = "userfn1",
 			userLastName = "userln1",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Administrator",
-			userScreenName = "usersn1");
+			userEmailAddress = PropsUtil.get("email.address.2"));
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = PropsUtil.get("email.address.2"));
 
-		User.editPasswordCP(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userScreenName = "usersn1");
+		JSONLayout.addPrivateLayout(
+			groupName = "Guest",
+			layoutName = "Test Private Page");
 
-		Navigator.openSiteURL(siteName = "${siteName}");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page",
+			widgetName = "Blogs");
 
-		SitePages.addPrivatePage(pageName = "Test Private Page");
-
-		SitePages.addPublicPage(pageName = "Blog and Message Board Page");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Portlet.addPG(portletName = "Blogs");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Portlet.addPG(portletName = "Message Boards");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page",
+			widgetName = "Message Boards");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = PropsUtil.get("email.address.2"),
@@ -539,58 +461,35 @@ definition {
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
 
-		Pause(locator1 = "30000");
+		MockMock.viewMail(
+			asset = "Blogs Entry",
+			content = "Blogs Entry Title GMB1",
+			recipient = "userfn1 userln1",
+			sender = "Joe Bloggs",
+			subject = "Test Test Published &quot;Blogs Entry Title GMB1&quot; on ${siteName} Blogs");
 
-		Gmail.login(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userPassword = PropsUtil.get("email.password.2"));
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.viewMail(
-			emailFromUserName = "Joe Bloggs",
-			gmailAssetType = "GMB1",
-			gmailMessageBody = "Blogs Entry Title GMB1",
-			gmailMessageTitle = "Test Test Published &quot;Blogs Entry Title GMB1&quot; on ${siteName} Blogs");
-
-		Gmail.openMessageContinueReadingButton(
-			contentTitle = "Blogs Entry Title GMB1",
-			pageName = "Blog and Message Board Page",
-			siteName = "${siteName}");
+		MockMock.clickBodyLink(
+			asset = "Blogs Entry Title GMB1",
+			bodyLink = "CONTINUE READING");
 
 		var blogEntryURL = selenium.getLocation();
 
-		Close();
+		var messageBoardsThreadURL = MockMock.getBodySpecificText(
+			asset = "MB",
+			content = "MB Thread Message Body",
+			extractFirstText = "<br />",
+			recipient = "userfn1 userln1",
+			sender = "Joe Bloggs",
+			specificText = "${siteName} Message Boards<br />",
+			subject = "Home - ${siteName} New Message: MB Thread Message Subject GMMB2");
 
-		SelectWindow(locator1 = "null");
+		MockMock._backtoInbox();
 
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.viewMail(
-			emailFromUserName = "Test Test",
-			gmailAssetType = "GMMB2",
-			gmailMessageBody = "MB Thread Message Body",
-			gmailMessageTitle = "Message Boards Home - ${siteName} New Message: MB Thread Message Subject GMMB2");
-
-		Gmail.openMessageLink(
-			contentTitle = "MB Thread Message Subject GMMB2",
-			gmailAssetType = "Message Boards",
-			pageName = "Blog and Message Board Page",
-			siteName = "${siteName}");
-
-		var messageBoardsThreadURL = selenium.getLocation();
-
-		Close();
-
-		SelectWindow(locator1 = "null");
+		Click(
+			key_text = "Delete all",
+			locator1 = "Link#ANY");
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.deleteSpecificMail(gmailMessageTitleList = "Test Test Published &quot;Blogs Entry Title GMB1&quot; on ${siteName} Blogs,Message Boards Home - ${siteName} New Message: MB Thread Message Subject GMMB2,Your New Account,Your New Password,GMB1,GMMB2");
 
 		User.logoutPG();
 
@@ -607,7 +506,7 @@ definition {
 		Alert.viewRequestFailedToComplete();
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "Message#ERROR_2",
+			locator1 = "Message#ERROR",
 			value1 = "You do not have the required permissions.");
 
 		Navigator.openSpecificURL(url = "${messageBoardsThreadURL}");
@@ -615,105 +514,66 @@ definition {
 		Alert.viewRequestFailedToComplete();
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "Message#ERROR_2",
+			locator1 = "Message#ERROR",
 			value1 = "You do not have the required permissions.");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test ViewSecureContentAndPageAsSiteMember {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property test.name.skip.portal.instance = "WidgetPagesUseCase#ViewSecureContentAndPageAsSiteMember";
+		property test.smtp.server.enabled = "true";
 		property testray.component.names = "Message Boards,Site Pages Administration";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Server Administration");
-
-		ServerAdministration.configureMailServerSettings(
-			userName = PropsUtil.get("email.address.1"),
-			userPassword = PropsUtil.get("email.password.1"));
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = PropsUtil.get("email.address.2"),
 			userFirstName = "userfn1",
 			userLastName = "userln1",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea2@liferay.com",
 			userFirstName = "userfn2",
 			userLastName = "userln2",
 			userScreenName = "usersn2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Administrator",
-			userScreenName = "usersn1");
+			userEmailAddress = PropsUtil.get("email.address.2"));
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.addUserToSite(
+			groupName = "Guest",
+			userEmailAddress = "userea2@liferay.com");
 
-		Site.assignUserSitesCP(
-			siteName = "${siteName}",
-			userScreenName = "usersn2");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = PropsUtil.get("email.address.2"));
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea2@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userScreenName = "usersn1");
+		JSONLayout.addPrivateLayout(
+			groupName = "Guest",
+			layoutName = "Test Private Page");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea2@liferay.com",
-			userScreenName = "usersn2");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page",
+			widgetName = "Blogs");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
-
-		SitePages.addPrivatePage(pageName = "Test Private Page");
-
-		SitePages.addPublicPage(pageName = "Blog and Message Board Page");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Portlet.addPG(portletName = "Blogs");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Portlet.addPG(portletName = "Message Boards");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page",
+			widgetName = "Message Boards");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = PropsUtil.get("email.address.2"),
@@ -745,58 +605,35 @@ definition {
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
 
-		Pause(locator1 = "30000");
+		MockMock.viewMail(
+			asset = "Blogs Entry",
+			content = "Blogs Entry Title GMB2",
+			recipient = "userfn1 userln1",
+			sender = "Joe Bloggs",
+			subject = "Test Test Published &quot;Blogs Entry Title GMB2&quot; on ${siteName} Blogs");
 
-		Gmail.login(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userPassword = PropsUtil.get("email.password.2"));
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.viewMail(
-			emailFromUserName = "Joe Bloggs",
-			gmailAssetType = "GMB2",
-			gmailMessageBody = "Blogs Entry Title GMB2",
-			gmailMessageTitle = "Test Test Published &quot;Blogs Entry Title GMB2&quot; on ${siteName} Blogs");
-
-		Gmail.openMessageContinueReadingButton(
-			contentTitle = "Blogs Entry Title GMB2",
-			pageName = "Blog and Message Board Page",
-			siteName = "${siteName}");
+		MockMock.clickBodyLink(
+			asset = "Blogs Entry Title GMB2",
+			bodyLink = "CONTINUE READING");
 
 		var blogEntryURL = selenium.getLocation();
 
-		Close();
+		var messageBoardsThreadURL = MockMock.getBodySpecificText(
+			asset = "MB",
+			content = "MB Thread Message Body",
+			extractFirstText = "<br />",
+			recipient = "userfn1 userln1",
+			sender = "Test Test",
+			specificText = "${siteName} Message Boards<br />",
+			subject = "Home - ${siteName} New Message: MB Thread Message Subject GMMB3");
 
-		SelectWindow(locator1 = "null");
+		MockMock._backtoInbox();
 
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.viewMail(
-			emailFromUserName = "Test Test",
-			gmailAssetType = "GMMB3",
-			gmailMessageBody = "MB Thread Message Body",
-			gmailMessageTitle = "Message Boards Home - ${siteName} New Message: MB Thread Message Subject GMMB3");
-
-		Gmail.openMessageLink(
-			contentTitle = "MB Thread Message Subject GMMB3",
-			gmailAssetType = "Message Boards",
-			pageName = "Blog and Message Board Page",
-			siteName = "${siteName}");
-
-		var messageBoardsThreadURL = selenium.getLocation();
-
-		Close();
-
-		SelectWindow(locator1 = "null");
+		Click(
+			key_text = "Delete all",
+			locator1 = "Link#ANY");
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.deleteSpecificMail(gmailMessageTitleList = "Test Test Published &quot;Blogs Entry Title GMB2&quot; on ${siteName} Blogs,Message Boards Home - ${siteName} New Message: MB Thread Message Subject GMMB3,Your New Account,Your New Password,GMB2,GMMB3");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea2@liferay.com",
@@ -833,92 +670,58 @@ definition {
 			threadSubject = "MB Thread Message Subject GMMB3");
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewSecureContentAndPageAsUser {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property test.name.skip.portal.instance = "WidgetPagesUseCase#ViewSecureContentAndPageAsUser";
+		property test.smtp.server.enabled = "true";
 		property testray.component.names = "Message Boards,Site Pages Administration,Training";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Server Administration");
-
-		ServerAdministration.configureMailServerSettings(
-			userName = PropsUtil.get("email.address.1"),
-			userPassword = PropsUtil.get("email.password.1"));
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = PropsUtil.get("email.address.2"),
 			userFirstName = "userfn1",
 			userLastName = "userln1",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea2@liferay.com",
 			userFirstName = "userfn2",
 			userLastName = "userln2",
 			userScreenName = "usersn2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Administrator",
-			userScreenName = "usersn1");
+			userEmailAddress = PropsUtil.get("email.address.2"));
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = PropsUtil.get("email.address.2"));
 
-		User.editPasswordCP(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userScreenName = "usersn1");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea2@liferay.com");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONLayout.addPrivateLayout(
+			groupName = "Guest",
+			layoutName = "Test Private Page");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea2@liferay.com",
-			userScreenName = "usersn2");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page");
 
-		Navigator.openURL();
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page",
+			widgetName = "Blogs");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
-
-		SitePages.addPrivatePage(pageName = "Test Private Page");
-
-		SitePages.addPublicPage(pageName = "Blog and Message Board Page");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Portlet.addPG(portletName = "Blogs");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Portlet.addPG(portletName = "Message Boards");
-
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blog and Message Board Page",
+			widgetName = "Message Boards");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = PropsUtil.get("email.address.2"),
@@ -950,58 +753,35 @@ definition {
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
 
-		Pause(locator1 = "30000");
+		MockMock.viewMail(
+			asset = "Blogs Entry",
+			content = "Blogs Entry Title GMB3",
+			recipient = "userfn1 userln1",
+			sender = "Joe Bloggs",
+			subject = "Test Test Published &quot;Blogs Entry Title GMB3&quot; on ${siteName} Blogs");
 
-		Gmail.login(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userPassword = PropsUtil.get("email.password.2"));
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.viewMail(
-			emailFromUserName = "Joe Bloggs",
-			gmailAssetType = "GMB3",
-			gmailMessageBody = "Blogs Entry Title GMB3",
-			gmailMessageTitle = "Test Test Published &quot;Blogs Entry Title GMB3&quot; on ${siteName} Blogs");
-
-		Gmail.openMessageContinueReadingButton(
-			contentTitle = "Blogs Entry Title GMB3",
-			pageName = "Blog and Message Board Page",
-			siteName = "${siteName}");
+		MockMock.clickBodyLink(
+			asset = "Blogs Entry Title GMB3",
+			bodyLink = "CONTINUE READING");
 
 		var blogEntryURL = selenium.getLocation();
 
-		Close();
+		var messageBoardsThreadURL = MockMock.getBodySpecificText(
+			asset = "MB",
+			content = "MB Thread Message Body",
+			extractFirstText = "<br />",
+			recipient = "userfn1 userln1",
+			sender = "Test Test",
+			specificText = "${siteName} Message Boards<br />",
+			subject = "Home - ${siteName} New Message: MB Thread Message Subject GMMB4");
 
-		SelectWindow(locator1 = "null");
+		MockMock._backtoInbox();
 
-		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.viewMail(
-			emailFromUserName = "Test Test",
-			gmailAssetType = "GMMB4",
-			gmailMessageBody = "MB Thread Message Body",
-			gmailMessageTitle = "Message Boards Home - ${siteName} New Message: MB Thread Message Subject GMMB4");
-
-		Gmail.openMessageLink(
-			contentTitle = "MB Thread Message Subject GMMB4",
-			gmailAssetType = "Message Boards",
-			pageName = "Blog and Message Board Page",
-			siteName = "${siteName}");
-
-		var messageBoardsThreadURL = selenium.getLocation();
-
-		Close();
-
-		SelectWindow(locator1 = "null");
+		Click(
+			key_text = "Delete all",
+			locator1 = "Link#ANY");
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
-
-		Gmail.gotoHtmlMode();
-
-		Gmail.deleteSpecificMail(gmailMessageTitleList = "Test Test Published &quot;Blogs Entry Title GMB3&quot; on ${siteName} Blogs,Message Boards Home - ${siteName} New Message: MB Thread Message Subject GMMB4,Your New Account,Your New Password,GMB3,GMMB4");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea2@liferay.com",
@@ -1018,7 +798,7 @@ definition {
 		Alert.viewRequestFailedToComplete();
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "Message#ERROR_2",
+			locator1 = "Message#ERROR",
 			value1 = "You do not have the required permissions.");
 
 		Navigator.gotoPage(pageName = "Blog and Message Board Page");
@@ -1028,7 +808,7 @@ definition {
 		Alert.viewRequestFailedToComplete();
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "Message#ERROR_2",
+			locator1 = "Message#ERROR",
 			value1 = "You do not have the required permissions.");
 	}
 
@@ -1036,10 +816,7 @@ definition {
 	test WebContentAdministrationSitesPagesPanel {
 		property testray.component.names = "Site Pages Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		SitePages.addPublicPage(
 			componentName = "Collaboration",
@@ -1059,9 +836,7 @@ definition {
 			pageName = "Panel Test Page",
 			portletNameList = "Blogs,Message Boards");
 
-		Page.gotoPagePanelPortlet(portletName = "Blogs");
-
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "This is Blog Post 1 Content",
 			entryTitle = "Blog Post 1");
 
@@ -1102,17 +877,9 @@ definition {
 		property testray.component.names = "Site Pages Administration,Training";
 		var portalURL = PropsUtil.get("portal.url");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Page Type Test Site Name");
 
-		Site.addBlankCP(siteName = "Page Type Test Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "page-type-test-site-name");
 
 		SitePages.addPublicPage(pageName = "Blank Page");
 
@@ -1120,10 +887,7 @@ definition {
 			pageName = "Blank Page",
 			siteName = "Page Type Test Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "page-type-test-site-name");
 
 		SitePages.addPublicPage(
 			pageName = "Embedded Page",
@@ -1136,10 +900,7 @@ definition {
 			privacy = "Public Pages",
 			sitePageType = "Embedded");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "page-type-test-site-name");
 
 		SitePages.addPublicPage(
 			pageName = "Panel Page",
@@ -1154,7 +915,7 @@ definition {
 		Page.viewPanelPortletListCP(
 			componentName = "Community",
 			pageName = "Panel Page",
-			portletNameList = "Bookmarks,Friends Directory,My Sites,My Sites Directory,Page Comments,Page Flags,Page Ratings,Portal Directory,Site Members Directory");
+			portletNameList = "Bookmarks,My Sites,Page Comments,Page Flags,Page Ratings");
 
 		Navigator.gotoSitePage(
 			pageName = "Embedded Page",
@@ -1181,7 +942,7 @@ definition {
 		Page.viewPanelPortletListPG(
 			componentName = "Community",
 			pageName = "Panel Page",
-			portletNameList = "Bookmarks,Friends Directory,My Sites,My Sites Directory,Page Comments,Page Flags,Page Ratings,Portal Directory,Site Members Directory");
+			portletNameList = "Bookmarks,My Sites,Page Comments,Page Flags,Page Ratings");
 	}
 
 }

@@ -211,10 +211,10 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 	@Override
 	public String getPortalURL(long groupId) throws PortalException {
-		int portalPort = PortalUtil.getPortalServerPort(false);
+		int portalServerPort = PortalUtil.getPortalServerPort(false);
 
 		String portalURL = PortalUtil.getPortalURL(
-			getVirtualHostname(), portalPort, false);
+			getVirtualHostname(), portalServerPort, false);
 
 		if (groupId <= 0) {
 			return portalURL;
@@ -231,7 +231,7 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 			if (!virtualHostnames.isEmpty()) {
 				portalURL = PortalUtil.getPortalURL(
-					virtualHostnames.firstKey(), portalPort, false);
+					virtualHostnames.firstKey(), portalServerPort, false);
 			}
 		}
 		else if (group.hasPrivateLayouts()) {
@@ -243,8 +243,35 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 			if (!virtualHostnames.isEmpty()) {
 				portalURL = PortalUtil.getPortalURL(
-					virtualHostnames.firstKey(), portalPort, false);
+					virtualHostnames.firstKey(), portalServerPort, false);
 			}
+		}
+
+		return portalURL;
+	}
+
+	@Override
+	public String getPortalURL(long groupId, boolean privateLayout)
+		throws PortalException {
+
+		int portalServerPort = PortalUtil.getPortalServerPort(false);
+
+		String portalURL = PortalUtil.getPortalURL(
+			getVirtualHostname(), portalServerPort, false);
+
+		if (groupId <= 0) {
+			return portalURL;
+		}
+
+		LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
+			groupId, privateLayout);
+
+		TreeMap<String, String> virtualHostnames =
+			layoutSet.getVirtualHostnames();
+
+		if (!virtualHostnames.isEmpty()) {
+			portalURL = PortalUtil.getPortalURL(
+				virtualHostnames.firstKey(), portalServerPort, false);
 		}
 
 		return portalURL;
@@ -453,14 +480,11 @@ public class CompanyImpl extends CompanyBaseImpl {
 	}
 
 	private Account _account;
-
-	@CacheField(propagateToInterface = true)
 	private CompanyInfo _companyInfo;
 
 	@CacheField
 	private CompanySecurityBag _companySecurityBag;
 
-	@CacheField(propagateToInterface = true)
 	private Key _keyObj;
 
 	@CacheField(propagateToInterface = true)

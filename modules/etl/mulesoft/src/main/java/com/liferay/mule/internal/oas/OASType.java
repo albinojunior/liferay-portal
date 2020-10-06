@@ -14,6 +14,8 @@
 
 package com.liferay.mule.internal.oas;
 
+import com.liferay.mule.internal.error.exception.OASException;
+
 /**
  * @author Matija Petanjek
  */
@@ -24,7 +26,7 @@ public enum OASType {
 
 	public static OASType fromDefinition(String oasTypeDefinition) {
 		for (OASType oasType : values()) {
-			if (oasTypeDefinition.equals(oasType._oasTypeDefinition)) {
+			if (oasTypeDefinition.equals(oasType.oasTypeDefinition)) {
 				return oasType;
 			}
 		}
@@ -34,9 +36,9 @@ public enum OASType {
 	}
 
 	private OASType(String oasTypeDefinition) {
-		_oasTypeDefinition = oasTypeDefinition;
+		this.oasTypeDefinition = oasTypeDefinition;
 	}
 
-	private final String _oasTypeDefinition;
+	private final String oasTypeDefinition;
 
 }

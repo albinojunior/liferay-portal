@@ -23,14 +23,14 @@ import com.liferay.document.library.kernel.model.DLFileShortcutConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.versioning.VersioningStrategy;
 import com.liferay.document.library.util.DLURLHelper;
-import com.liferay.document.library.web.internal.util.DLTrashUtil;
+import com.liferay.document.library.web.internal.helper.DLTrashHelper;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.language.UnicodeLanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -93,34 +93,34 @@ public class UIItemsBuilder {
 	public UIItemsBuilder(
 		HttpServletRequest httpServletRequest, FileEntry fileEntry,
 		FileVersion fileVersion, ResourceBundle resourceBundle,
-		DLTrashUtil dlTrashUtil, VersioningStrategy versioningStrategy,
+		DLTrashHelper dlTrashHelper, VersioningStrategy versioningStrategy,
 		DLURLHelper dlURLHelper) {
 
 		this(
 			httpServletRequest, fileEntry, null, fileVersion, resourceBundle,
-			dlTrashUtil, versioningStrategy, dlURLHelper);
+			dlTrashHelper, versioningStrategy, dlURLHelper);
 	}
 
 	public UIItemsBuilder(
 			HttpServletRequest httpServletRequest, FileShortcut fileShortcut,
-			ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
+			ResourceBundle resourceBundle, DLTrashHelper dlTrashHelper,
 			VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper)
 		throws PortalException {
 
 		this(
 			httpServletRequest, null, fileShortcut,
-			fileShortcut.getFileVersion(), resourceBundle, dlTrashUtil,
+			fileShortcut.getFileVersion(), resourceBundle, dlTrashHelper,
 			versioningStrategy, dlURLHelper);
 	}
 
 	public UIItemsBuilder(
 		HttpServletRequest httpServletRequest, FileVersion fileVersion,
-		ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
+		ResourceBundle resourceBundle, DLTrashHelper dlTrashHelper,
 		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
 
 		this(
 			httpServletRequest, null, null, fileVersion, resourceBundle,
-			dlTrashUtil, versioningStrategy, dlURLHelper);
+			dlTrashHelper, versioningStrategy, dlURLHelper);
 	}
 
 	public void addCancelCheckoutMenuItem(List<MenuItem> menuItems)
@@ -483,13 +483,12 @@ public class UIItemsBuilder {
 		URLMenuItem urlMenuItem = _addURLUIItem(
 			new URLMenuItem(), menuItems, DLUIItemKeys.DOWNLOAD, label, url);
 
-		Map<String, Object> data = HashMapBuilder.<String, Object>put(
-			"analytics-file-entry-id", _fileEntry.getFileEntryId()
-		).put(
-			"senna-off", "true"
-		).build();
-
-		urlMenuItem.setData(data);
+		urlMenuItem.setData(
+			HashMapBuilder.<String, Object>put(
+				"analytics-file-entry-id", _fileEntry.getFileEntryId()
+			).put(
+				"senna-off", "true"
+			).build());
 
 		urlMenuItem.setMethod("get");
 	}
@@ -770,12 +769,11 @@ public class UIItemsBuilder {
 				"Unable to create permissions URL", exception);
 		}
 
-		StringBundler sb = new StringBundler(6);
+		StringBundler sb = new StringBundler(5);
 
-		sb.append("Liferay.Util.openWindow({dialogIframe: {bodyCssClass: ");
-		sb.append("'dialog-with-footer'}, title: '");
+		sb.append("Liferay.Util.openModal({title: '");
 		sb.append(UnicodeLanguageUtil.get(_resourceBundle, "permissions"));
-		sb.append("', uri: '");
+		sb.append("', url: '");
 		sb.append(HtmlUtil.escapeJS(permissionsURL));
 		sb.append("'});");
 
@@ -1050,7 +1048,7 @@ public class UIItemsBuilder {
 	private UIItemsBuilder(
 		HttpServletRequest httpServletRequest, FileEntry fileEntry,
 		FileShortcut fileShortcut, FileVersion fileVersion,
-		ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
+		ResourceBundle resourceBundle, DLTrashHelper dlTrashHelper,
 		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
 
 		try {
@@ -1065,7 +1063,7 @@ public class UIItemsBuilder {
 			_fileShortcut = fileShortcut;
 			_fileVersion = fileVersion;
 			_resourceBundle = resourceBundle;
-			_dlTrashUtil = dlTrashUtil;
+			_dlTrashHelper = dlTrashHelper;
 			_versioningStrategy = versioningStrategy;
 			_dlURLHelper = dlURLHelper;
 
@@ -1218,10 +1216,8 @@ public class UIItemsBuilder {
 				LiferayPortletResponse liferayPortletResponse =
 					_getLiferayPortletResponse();
 
-				PortletURL portletURL =
-					liferayPortletResponse.createRenderURL();
-
-				redirect = portletURL.toString();
+				redirect = String.valueOf(
+					liferayPortletResponse.createRenderURL());
 			}
 
 			return _getActionURL(mvcActionCommandName, cmd, redirect);
@@ -1341,9 +1337,10 @@ public class UIItemsBuilder {
 				return false;
 			}
 
-			StagedModelDataHandler stagedModelDataHandler =
-				StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
-					FileEntry.class.getName());
+			StagedModelDataHandler<FileEntry> stagedModelDataHandler =
+				(StagedModelDataHandler<FileEntry>)
+					StagedModelDataHandlerRegistryUtil.
+						getStagedModelDataHandler(FileEntry.class.getName());
 
 			if (ArrayUtil.contains(
 					stagedModelDataHandler.getExportableStatuses(),
@@ -1374,11 +1371,11 @@ public class UIItemsBuilder {
 
 		_trashEnabled = false;
 
-		if (_dlTrashUtil == null) {
+		if (_dlTrashHelper == null) {
 			return _trashEnabled;
 		}
 
-		_trashEnabled = _dlTrashUtil.isTrashEnabled(
+		_trashEnabled = _dlTrashHelper.isTrashEnabled(
 			_themeDisplay.getScopeGroupId(), _fileEntry.getRepositoryId());
 
 		return _trashEnabled;
@@ -1391,7 +1388,7 @@ public class UIItemsBuilder {
 	}
 
 	private String _currentURL;
-	private final DLTrashUtil _dlTrashUtil;
+	private final DLTrashHelper _dlTrashHelper;
 	private final DLURLHelper _dlURLHelper;
 	private final FileEntry _fileEntry;
 	private final FileEntryDisplayContextHelper _fileEntryDisplayContextHelper;

@@ -15,7 +15,6 @@
 package com.liferay.portal.search.elasticsearch.cross.cluster.replication.internal.configuration;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.search.configuration.CrossClusterReplicationConfigurationWrapper;
 
 import java.util.Map;
 
@@ -35,9 +34,24 @@ public class CrossClusterReplicationConfigurationWrapperImpl
 	implements CrossClusterReplicationConfigurationWrapper {
 
 	@Override
-	public String getCCRLocalClusterConnectionId() {
+	public String[] getCCRLocalClusterConnectionConfigurations() {
 		return crossClusterReplicationConfiguration.
-			ccrLocalClusterConnectionId();
+			ccrLocalClusterConnectionConfigurations();
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getCCRLocalClusterConnectionConfigurations()}
+	 */
+	@Deprecated
+	@Override
+	public String getCCRLocalClusterConnectionId() {
+		return null;
+	}
+
+	@Override
+	public String getRemoteClusterAlias() {
+		return crossClusterReplicationConfiguration.remoteClusterAlias();
 	}
 
 	@Override

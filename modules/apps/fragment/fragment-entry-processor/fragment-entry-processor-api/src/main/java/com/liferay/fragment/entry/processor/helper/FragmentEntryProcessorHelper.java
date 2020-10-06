@@ -29,8 +29,24 @@ import java.util.Map;
 @ProviderType
 public interface FragmentEntryProcessorHelper {
 
+	public default String formatMappedValue(Object value, Locale locale) {
+		return value.toString();
+	}
+
+	public String getEditableValue(JSONObject jsonObject, Locale locale);
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getEditableValue(JSONObject, Locale)}
+	 */
+	@Deprecated
 	public String getEditableValue(
 		JSONObject jsonObject, Locale locale, long[] segmentsExperienceIds);
+
+	public Object getMappedCollectionValue(
+			JSONObject jsonObject,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException;
 
 	public Object getMappedValue(
 			JSONObject jsonObject,
@@ -59,6 +75,8 @@ public interface FragmentEntryProcessorHelper {
 	public boolean isAssetDisplayPage(String mode);
 
 	public boolean isMapped(JSONObject jsonObject);
+
+	public boolean isMappedCollection(JSONObject jsonObject);
 
 	public String processTemplate(
 			String html,

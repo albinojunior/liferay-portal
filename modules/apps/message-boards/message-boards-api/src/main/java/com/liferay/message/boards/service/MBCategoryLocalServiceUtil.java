@@ -105,6 +105,10 @@ public class MBCategoryLocalServiceUtil {
 	/**
 	 * Adds the message boards category to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was added
 	 */
@@ -166,6 +170,10 @@ public class MBCategoryLocalServiceUtil {
 	/**
 	 * Deletes the message boards category with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param categoryId the primary key of the message boards category
 	 * @return the message boards category that was removed
 	 * @throws PortalException if a message boards category with the primary key could not be found
@@ -179,6 +187,10 @@ public class MBCategoryLocalServiceUtil {
 
 	/**
 	 * Deletes the message boards category from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was removed
@@ -198,6 +210,12 @@ public class MBCategoryLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -687,6 +705,10 @@ public class MBCategoryLocalServiceUtil {
 	/**
 	 * Updates the message boards category in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBCategoryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was updated
 	 */
@@ -696,29 +718,11 @@ public class MBCategoryLocalServiceUtil {
 		return getService().updateMBCategory(mbCategory);
 	}
 
-	public static com.liferay.message.boards.model.MBCategory
-		updateMessageCount(long categoryId) {
-
-		return getService().updateMessageCount(categoryId);
-	}
-
-	public static com.liferay.message.boards.model.MBCategory updateStatistics(
-		long categoryId) {
-
-		return getService().updateStatistics(categoryId);
-	}
-
 	public static com.liferay.message.boards.model.MBCategory updateStatus(
 			long userId, long categoryId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().updateStatus(userId, categoryId, status);
-	}
-
-	public static com.liferay.message.boards.model.MBCategory updateThreadCount(
-		long categoryId) {
-
-		return getService().updateThreadCount(categoryId);
 	}
 
 	public static MBCategoryLocalService getService() {

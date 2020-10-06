@@ -35,7 +35,7 @@ portletURL.setParameter("orderByType", orderByType);
 
 request.setAttribute("view_images.jsp-portletURL", portletURL);
 
-SearchContainer blogImagesSearchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, "no-images-were-found");
+SearchContainer<FileEntry> blogImagesSearchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, "no-images-were-found");
 
 blogImagesSearchContainer.setOrderByComparator(DLUtil.getRepositoryModelOrderByComparator(orderByCol, orderByType));
 
@@ -67,7 +67,9 @@ String displayStyle = blogImagesManagementToolbarDisplayContext.getDisplayStyle(
 	viewTypeItems="<%= blogImagesManagementToolbarDisplayContext.getViewTypes() %>"
 />
 
-<div class="container-fluid-1280 main-content-body">
+<clay:container-fluid
+	cssClass="main-content-body"
+>
 	<portlet:actionURL name="/blogs/edit_image" var="editImageURL" />
 
 	<aui:form action="<%= editImageURL %>" name="fm">
@@ -106,10 +108,10 @@ String displayStyle = blogImagesManagementToolbarDisplayContext.getDisplayStyle(
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
-	var deleteImages = function() {
+	var deleteImages = function () {
 		if (
 			confirm(
 				'<liferay-ui:message key="are-you-sure-you-want-to-delete-the-selected-images" />'
@@ -149,10 +151,10 @@ String displayStyle = blogImagesManagementToolbarDisplayContext.getDisplayStyle(
 		deleteImages: deleteImages,
 	};
 
-	Liferay.componentReady('blogImagesManagementToolbar').then(function(
+	Liferay.componentReady('blogImagesManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

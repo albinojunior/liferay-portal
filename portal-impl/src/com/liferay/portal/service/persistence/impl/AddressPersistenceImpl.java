@@ -15,6 +15,7 @@
 package com.liferay.portal.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
@@ -27,11 +28,14 @@ import com.liferay.portal.kernel.exception.NoSuchAddressException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Address;
+import com.liferay.portal.kernel.model.AddressTable;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.AddressPersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -39,6 +43,9 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.impl.AddressImpl;
 import com.liferay.portal.model.impl.AddressModelImpl;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceRegistration;
 
 import java.io.Serializable;
 
@@ -46,10 +53,12 @@ import java.lang.reflect.InvocationHandler;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The persistence implementation for the address service.
@@ -245,10 +254,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -598,8 +603,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -795,10 +798,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1178,8 +1177,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1353,10 +1350,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1682,8 +1675,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1848,10 +1839,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -2176,8 +2163,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -2358,10 +2343,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -2717,8 +2698,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -2915,10 +2894,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -3297,8 +3272,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -3513,10 +3486,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -3922,8 +3891,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -4141,10 +4108,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -4550,8 +4513,6 @@ public class AddressPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -4575,18 +4536,19 @@ public class AddressPersistenceImpl
 		"address.primary = ?";
 
 	public AddressPersistenceImpl() {
-		setModelClass(Address.class);
-
-		setModelImplClass(AddressImpl.class);
-		setModelPKClass(long.class);
-		setEntityCacheEnabled(AddressModelImpl.ENTITY_CACHE_ENABLED);
-
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("uuid", "uuid_");
 		dbColumnNames.put("primary", "primary_");
 
 		setDBColumnNames(dbColumnNames);
+
+		setModelClass(Address.class);
+
+		setModelImplClass(AddressImpl.class);
+		setModelPKClass(long.class);
+
+		setTable(AddressTable.INSTANCE);
 	}
 
 	/**
@@ -4597,10 +4559,7 @@ public class AddressPersistenceImpl
 	@Override
 	public void cacheResult(Address address) {
 		EntityCacheUtil.putResult(
-			AddressModelImpl.ENTITY_CACHE_ENABLED, AddressImpl.class,
-			address.getPrimaryKey(), address);
-
-		address.resetOriginalValues();
+			AddressImpl.class, address.getPrimaryKey(), address);
 	}
 
 	/**
@@ -4612,13 +4571,9 @@ public class AddressPersistenceImpl
 	public void cacheResult(List<Address> addresses) {
 		for (Address address : addresses) {
 			if (EntityCacheUtil.getResult(
-					AddressModelImpl.ENTITY_CACHE_ENABLED, AddressImpl.class,
-					address.getPrimaryKey()) == null) {
+					AddressImpl.class, address.getPrimaryKey()) == null) {
 
 				cacheResult(address);
-			}
-			else {
-				address.resetOriginalValues();
 			}
 		}
 	}
@@ -4648,23 +4603,13 @@ public class AddressPersistenceImpl
 	 */
 	@Override
 	public void clearCache(Address address) {
-		EntityCacheUtil.removeResult(
-			AddressModelImpl.ENTITY_CACHE_ENABLED, AddressImpl.class,
-			address.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		EntityCacheUtil.removeResult(AddressImpl.class, address);
 	}
 
 	@Override
 	public void clearCache(List<Address> addresses) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (Address address : addresses) {
-			EntityCacheUtil.removeResult(
-				AddressModelImpl.ENTITY_CACHE_ENABLED, AddressImpl.class,
-				address.getPrimaryKey());
+			EntityCacheUtil.removeResult(AddressImpl.class, address);
 		}
 	}
 
@@ -4675,9 +4620,7 @@ public class AddressPersistenceImpl
 		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Serializable primaryKey : primaryKeys) {
-			EntityCacheUtil.removeResult(
-				AddressModelImpl.ENTITY_CACHE_ENABLED, AddressImpl.class,
-				primaryKey);
+			EntityCacheUtil.removeResult(AddressImpl.class, primaryKey);
 		}
 	}
 
@@ -4842,10 +4785,8 @@ public class AddressPersistenceImpl
 		try {
 			session = openSession();
 
-			if (address.isNew()) {
+			if (isNew) {
 				session.save(address);
-
-				address.setNew(false);
 			}
 			else {
 				address = (Address)session.merge(address);
@@ -4858,266 +4799,12 @@ public class AddressPersistenceImpl
 			closeSession(session);
 		}
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (!AddressModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(
-				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-		else if (isNew) {
-			Object[] args = new Object[] {addressModelImpl.getUuid()};
-
-			FinderCacheUtil.removeResult(_finderPathCountByUuid, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByUuid, args);
-
-			args = new Object[] {
-				addressModelImpl.getUuid(), addressModelImpl.getCompanyId()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByUuid_C, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByUuid_C, args);
-
-			args = new Object[] {addressModelImpl.getCompanyId()};
-
-			FinderCacheUtil.removeResult(_finderPathCountByCompanyId, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByCompanyId, args);
-
-			args = new Object[] {addressModelImpl.getUserId()};
-
-			FinderCacheUtil.removeResult(_finderPathCountByUserId, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByUserId, args);
-
-			args = new Object[] {
-				addressModelImpl.getCompanyId(),
-				addressModelImpl.getClassNameId()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByC_C, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByC_C, args);
-
-			args = new Object[] {
-				addressModelImpl.getCompanyId(),
-				addressModelImpl.getClassNameId(), addressModelImpl.getClassPK()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByC_C_C, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByC_C_C, args);
-
-			args = new Object[] {
-				addressModelImpl.getCompanyId(),
-				addressModelImpl.getClassNameId(),
-				addressModelImpl.getClassPK(), addressModelImpl.isMailing()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByC_C_C_M, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByC_C_C_M, args);
-
-			args = new Object[] {
-				addressModelImpl.getCompanyId(),
-				addressModelImpl.getClassNameId(),
-				addressModelImpl.getClassPK(), addressModelImpl.isPrimary()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByC_C_C_P, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByC_C_C_P, args);
-
-			FinderCacheUtil.removeResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
-		}
-		else {
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByUuid.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalUuid()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByUuid, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByUuid, args);
-
-				args = new Object[] {addressModelImpl.getUuid()};
-
-				FinderCacheUtil.removeResult(_finderPathCountByUuid, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByUuid, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByUuid_C.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalUuid(),
-					addressModelImpl.getOriginalCompanyId()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByUuid_C, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByUuid_C, args);
-
-				args = new Object[] {
-					addressModelImpl.getUuid(), addressModelImpl.getCompanyId()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByUuid_C, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByUuid_C, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByCompanyId.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalCompanyId()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByCompanyId, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByCompanyId, args);
-
-				args = new Object[] {addressModelImpl.getCompanyId()};
-
-				FinderCacheUtil.removeResult(_finderPathCountByCompanyId, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByCompanyId, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByUserId.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalUserId()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByUserId, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByUserId, args);
-
-				args = new Object[] {addressModelImpl.getUserId()};
-
-				FinderCacheUtil.removeResult(_finderPathCountByUserId, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByUserId, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByC_C.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalCompanyId(),
-					addressModelImpl.getOriginalClassNameId()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C, args);
-
-				args = new Object[] {
-					addressModelImpl.getCompanyId(),
-					addressModelImpl.getClassNameId()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByC_C_C.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalCompanyId(),
-					addressModelImpl.getOriginalClassNameId(),
-					addressModelImpl.getOriginalClassPK()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C_C, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C_C, args);
-
-				args = new Object[] {
-					addressModelImpl.getCompanyId(),
-					addressModelImpl.getClassNameId(),
-					addressModelImpl.getClassPK()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C_C, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C_C, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByC_C_C_M.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalCompanyId(),
-					addressModelImpl.getOriginalClassNameId(),
-					addressModelImpl.getOriginalClassPK(),
-					addressModelImpl.getOriginalMailing()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C_C_M, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C_C_M, args);
-
-				args = new Object[] {
-					addressModelImpl.getCompanyId(),
-					addressModelImpl.getClassNameId(),
-					addressModelImpl.getClassPK(), addressModelImpl.isMailing()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C_C_M, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C_C_M, args);
-			}
-
-			if ((addressModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByC_C_C_P.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					addressModelImpl.getOriginalCompanyId(),
-					addressModelImpl.getOriginalClassNameId(),
-					addressModelImpl.getOriginalClassPK(),
-					addressModelImpl.getOriginalPrimary()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C_C_P, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C_C_P, args);
-
-				args = new Object[] {
-					addressModelImpl.getCompanyId(),
-					addressModelImpl.getClassNameId(),
-					addressModelImpl.getClassPK(), addressModelImpl.isPrimary()
-				};
-
-				FinderCacheUtil.removeResult(_finderPathCountByC_C_C_P, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByC_C_C_P, args);
-			}
-		}
-
 		EntityCacheUtil.putResult(
-			AddressModelImpl.ENTITY_CACHE_ENABLED, AddressImpl.class,
-			address.getPrimaryKey(), address, false);
+			AddressImpl.class, addressModelImpl, false, true);
+
+		if (isNew) {
+			address.setNew(false);
+		}
 
 		address.resetOriginalValues();
 
@@ -5298,10 +4985,6 @@ public class AddressPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -5347,9 +5030,6 @@ public class AddressPersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -5389,246 +5069,209 @@ public class AddressPersistenceImpl
 	 * Initializes the address persistence.
 	 */
 	public void afterPropertiesSet() {
-		_finderPathWithPaginationFindAll = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+		Registry registry = RegistryUtil.getRegistry();
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_argumentsResolverServiceRegistration = registry.registerService(
+			ArgumentsResolver.class, new AddressModelArgumentsResolver(),
+			HashMapBuilder.<String, Object>put(
+				"model.class.name", Address.class.getName()
+			).build());
 
-		_finderPathCountAll = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 
-		_finderPathWithPaginationFindByUuid = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByUuid = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid",
 			new String[] {
 				String.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"uuid_"}, true);
 
-		_finderPathWithoutPaginationFindByUuid = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByUuid = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid",
-			new String[] {String.class.getName()},
-			AddressModelImpl.UUID_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {String.class.getName()}, new String[] {"uuid_"},
+			true);
 
-		_finderPathCountByUuid = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByUuid = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid",
-			new String[] {String.class.getName()});
+			new String[] {String.class.getName()}, new String[] {"uuid_"},
+			false);
 
-		_finderPathWithPaginationFindByUuid_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByUuid_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
 			new String[] {
 				String.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"uuid_", "companyId"}, true);
 
-		_finderPathWithoutPaginationFindByUuid_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByUuid_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid_C",
 			new String[] {String.class.getName(), Long.class.getName()},
-			AddressModelImpl.UUID_COLUMN_BITMASK |
-			AddressModelImpl.COMPANYID_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {"uuid_", "companyId"}, true);
 
-		_finderPathCountByUuid_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByUuid_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid_C",
-			new String[] {String.class.getName(), Long.class.getName()});
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"uuid_", "companyId"}, false);
 
-		_finderPathWithPaginationFindByCompanyId = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByCompanyId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCompanyId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"companyId"}, true);
 
-		_finderPathWithoutPaginationFindByCompanyId = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByCompanyId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCompanyId",
-			new String[] {Long.class.getName()},
-			AddressModelImpl.COMPANYID_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {Long.class.getName()}, new String[] {"companyId"},
+			true);
 
-		_finderPathCountByCompanyId = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByCompanyId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
-			new String[] {Long.class.getName()});
+			new String[] {Long.class.getName()}, new String[] {"companyId"},
+			false);
 
-		_finderPathWithPaginationFindByUserId = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByUserId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"userId"}, true);
 
-		_finderPathWithoutPaginationFindByUserId = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByUserId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUserId",
-			new String[] {Long.class.getName()},
-			AddressModelImpl.USERID_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {Long.class.getName()}, new String[] {"userId"}, true);
 
-		_finderPathCountByUserId = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByUserId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
-			new String[] {Long.class.getName()});
+			new String[] {Long.class.getName()}, new String[] {"userId"},
+			false);
 
-		_finderPathWithPaginationFindByC_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByC_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId"}, true);
 
-		_finderPathWithoutPaginationFindByC_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByC_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_C",
 			new String[] {Long.class.getName(), Long.class.getName()},
-			AddressModelImpl.COMPANYID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSNAMEID_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {"companyId", "classNameId"}, true);
 
-		_finderPathCountByC_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByC_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C",
-			new String[] {Long.class.getName(), Long.class.getName()});
+			new String[] {Long.class.getName(), Long.class.getName()},
+			new String[] {"companyId", "classNameId"}, false);
 
-		_finderPathWithPaginationFindByC_C_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByC_C_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId", "classPK"}, true);
 
-		_finderPathWithoutPaginationFindByC_C_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByC_C_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
 			},
-			AddressModelImpl.COMPANYID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSNAMEID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSPK_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {"companyId", "classNameId", "classPK"}, true);
 
-		_finderPathCountByC_C_C = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByC_C_C = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId", "classPK"}, false);
 
-		_finderPathWithPaginationFindByC_C_C_M = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByC_C_C_M = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C_C_M",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Boolean.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId", "classPK", "mailing"},
+			true);
 
-		_finderPathWithoutPaginationFindByC_C_C_M = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByC_C_C_M = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_C_C_M",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Boolean.class.getName()
 			},
-			AddressModelImpl.COMPANYID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSNAMEID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSPK_COLUMN_BITMASK |
-			AddressModelImpl.MAILING_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {"companyId", "classNameId", "classPK", "mailing"},
+			true);
 
-		_finderPathCountByC_C_C_M = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByC_C_C_M = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C_C_M",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Boolean.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId", "classPK", "mailing"},
+			false);
 
-		_finderPathWithPaginationFindByC_C_C_P = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithPaginationFindByC_C_C_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C_C_P",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Boolean.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
 				OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId", "classPK", "primary_"},
+			true);
 
-		_finderPathWithoutPaginationFindByC_C_C_P = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, AddressImpl.class,
+		_finderPathWithoutPaginationFindByC_C_C_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_C_C_P",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Boolean.class.getName()
 			},
-			AddressModelImpl.COMPANYID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSNAMEID_COLUMN_BITMASK |
-			AddressModelImpl.CLASSPK_COLUMN_BITMASK |
-			AddressModelImpl.PRIMARY_COLUMN_BITMASK |
-			AddressModelImpl.CREATEDATE_COLUMN_BITMASK);
+			new String[] {"companyId", "classNameId", "classPK", "primary_"},
+			true);
 
-		_finderPathCountByC_C_C_P = new FinderPath(
-			AddressModelImpl.ENTITY_CACHE_ENABLED,
-			AddressModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByC_C_C_P = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C_C_P",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Boolean.class.getName()
-			});
+			},
+			new String[] {"companyId", "classNameId", "classPK", "primary_"},
+			false);
 	}
 
 	public void destroy() {
 		EntityCacheUtil.removeCache(AddressImpl.class.getName());
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 	}
 
 	private static final String _SQL_SELECT_ADDRESS =
@@ -5656,5 +5299,105 @@ public class AddressPersistenceImpl
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
 		new String[] {"uuid", "primary"});
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			Registry registry = RegistryUtil.getRegistry();
+
+			_serviceRegistrations.add(
+				registry.registerService(
+					FinderPath.class, finderPath,
+					HashMapBuilder.<String, Object>put(
+						"cache.name", cacheName
+					).build()));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class AddressModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			AddressModelImpl addressModelImpl = (AddressModelImpl)baseModel;
+
+			long columnBitmask = addressModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(addressModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						addressModelImpl.getColumnBitmask(columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(addressModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			AddressModelImpl addressModelImpl, String[] columnNames,
+			boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] = addressModelImpl.getColumnOriginalValue(
+						columnName);
+				}
+				else {
+					arguments[i] = addressModelImpl.getColumnValue(columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
+	}
 
 }

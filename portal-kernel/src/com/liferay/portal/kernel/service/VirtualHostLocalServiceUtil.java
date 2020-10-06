@@ -39,6 +39,10 @@ public class VirtualHostLocalServiceUtil {
 	/**
 	 * Adds the virtual host to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect VirtualHostLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param virtualHost the virtual host
 	 * @return the virtual host that was added
 	 */
@@ -84,6 +88,10 @@ public class VirtualHostLocalServiceUtil {
 	/**
 	 * Deletes the virtual host with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect VirtualHostLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param virtualHostId the primary key of the virtual host
 	 * @return the virtual host that was removed
 	 * @throws PortalException if a virtual host with the primary key could not be found
@@ -98,6 +106,10 @@ public class VirtualHostLocalServiceUtil {
 	/**
 	 * Deletes the virtual host from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect VirtualHostLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param virtualHost the virtual host
 	 * @return the virtual host that was removed
 	 */
@@ -105,6 +117,12 @@ public class VirtualHostLocalServiceUtil {
 		com.liferay.portal.kernel.model.VirtualHost virtualHost) {
 
 		return getService().deleteVirtualHost(virtualHost);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -326,6 +344,10 @@ public class VirtualHostLocalServiceUtil {
 
 	/**
 	 * Updates the virtual host in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect VirtualHostLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param virtualHost the virtual host
 	 * @return the virtual host that was updated

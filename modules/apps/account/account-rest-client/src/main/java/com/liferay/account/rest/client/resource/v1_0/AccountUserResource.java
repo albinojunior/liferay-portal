@@ -40,6 +40,26 @@ public interface AccountUserResource {
 		return new Builder();
 	}
 
+	public Page<AccountUser> getAccountUsersByExternalReferenceCodePage(
+			String externalReferenceCode, String search, String filterString,
+			Pagination pagination, String sortString)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getAccountUsersByExternalReferenceCodePageHttpResponse(
+				String externalReferenceCode, String search,
+				String filterString, Pagination pagination, String sortString)
+		throws Exception;
+
+	public AccountUser postAccountUserByExternalReferenceCode(
+			String externalReferenceCode, AccountUser accountUser)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			postAccountUserByExternalReferenceCodeHttpResponse(
+				String externalReferenceCode, AccountUser accountUser)
+		throws Exception;
+
 	public Page<AccountUser> getAccountUsersPage(
 			Long accountId, String search, String filterString,
 			Pagination pagination, String sortString)
@@ -102,8 +122,8 @@ public interface AccountUserResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -111,6 +131,163 @@ public interface AccountUserResource {
 	}
 
 	public static class AccountUserResourceImpl implements AccountUserResource {
+
+		public Page<AccountUser> getAccountUsersByExternalReferenceCodePage(
+				String externalReferenceCode, String search,
+				String filterString, Pagination pagination, String sortString)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getAccountUsersByExternalReferenceCodePageHttpResponse(
+					externalReferenceCode, search, filterString, pagination,
+					sortString);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return Page.of(content, AccountUserSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				getAccountUsersByExternalReferenceCodePageHttpResponse(
+					String externalReferenceCode, String search,
+					String filterString, Pagination pagination,
+					String sortString)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (search != null) {
+				httpInvoker.parameter("search", String.valueOf(search));
+			}
+
+			if (filterString != null) {
+				httpInvoker.parameter("filter", filterString);
+			}
+
+			if (pagination != null) {
+				httpInvoker.parameter(
+					"page", String.valueOf(pagination.getPage()));
+				httpInvoker.parameter(
+					"pageSize", String.valueOf(pagination.getPageSize()));
+			}
+
+			if (sortString != null) {
+				httpInvoker.parameter("sort", sortString);
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}/account-users",
+				externalReferenceCode);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public AccountUser postAccountUserByExternalReferenceCode(
+				String externalReferenceCode, AccountUser accountUser)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postAccountUserByExternalReferenceCodeHttpResponse(
+					externalReferenceCode, accountUser);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return AccountUserSerDes.toDTO(content);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				postAccountUserByExternalReferenceCodeHttpResponse(
+					String externalReferenceCode, AccountUser accountUser)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(accountUser.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}/account-users",
+				externalReferenceCode);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
 
 		public Page<AccountUser> getAccountUsersPage(
 				Long accountId, String search, String filterString,
@@ -189,7 +366,7 @@ public interface AccountUserResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port +
-						"/o/account-rest/v1.0/accounts/{accountId}/users",
+						"/o/account-rest/v1.0/accounts/{accountId}/account-users",
 				accountId);
 
 			httpInvoker.userNameAndPassword(
@@ -255,7 +432,7 @@ public interface AccountUserResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port +
-						"/o/account-rest/v1.0/accounts/{accountId}/users",
+						"/o/account-rest/v1.0/accounts/{accountId}/account-users",
 				accountId);
 
 			httpInvoker.userNameAndPassword(

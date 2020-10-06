@@ -26,13 +26,14 @@ import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -87,11 +88,8 @@ public class ModelPermissionsFactoryTest extends PowerMockito {
 
 	@Test
 	public void testCreateWithEmptyPermissions() throws Exception {
-		String[] groupPermissions = {};
-		String[] guestPermissions = {};
-
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
-			groupPermissions, guestPermissions);
+			new String[0], new String[0]);
 
 		Collection<String> roleNames = modelPermissions.getRoleNames();
 
@@ -101,10 +99,9 @@ public class ModelPermissionsFactoryTest extends PowerMockito {
 	@Test
 	public void testCreateWithGroupPermissions() throws Exception {
 		String[] groupPermissions = {ActionKeys.VIEW};
-		String[] guestPermissions = {};
 
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
-			groupPermissions, guestPermissions);
+			groupPermissions, new String[0]);
 
 		Collection<String> roleNames = modelPermissions.getRoleNames();
 
@@ -116,37 +113,29 @@ public class ModelPermissionsFactoryTest extends PowerMockito {
 
 		Assert.assertEquals(
 			RoleConstants.PLACEHOLDER_DEFAULT_GROUP_ROLE, roleName);
-		Assert.assertEquals(
-			ListUtil.fromArray(groupPermissions),
-			modelPermissions.getActionIdsList(roleName));
+		Assert.assertArrayEquals(
+			groupPermissions, modelPermissions.getActionIds(roleName));
 	}
 
 	@Test
-	public void testCreateWithGuestAndGroupPermissions() throws Exception {
-		String[] groupPermissions = {ActionKeys.VIEW};
-		String[] guestPermissions = {ActionKeys.VIEW};
-
+	public void testCreateWithGuestAndGroupPermissions() {
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
-			groupPermissions, guestPermissions);
+			new String[] {ActionKeys.VIEW}, new String[] {ActionKeys.VIEW});
 
-		Collection<String> roleNames = modelPermissions.getRoleNames();
+		Set<String> expectedRoleNames = new HashSet<>(
+			Arrays.asList(
+				RoleConstants.PLACEHOLDER_DEFAULT_GROUP_ROLE,
+				RoleConstants.GUEST));
 
-		Assert.assertEquals(roleNames.toString(), 2, roleNames.size());
-
-		Collection<String> viewActionIdRoleNames =
-			modelPermissions.getRoleNames(ActionKeys.VIEW);
-
-		Assert.assertEquals(
-			viewActionIdRoleNames.toString(), 2, viewActionIdRoleNames.size());
+		Assert.assertEquals(expectedRoleNames, modelPermissions.getRoleNames());
 	}
 
 	@Test
 	public void testCreateWithGuestPermissions() throws Exception {
-		String[] groupPermissions = {};
 		String[] guestPermissions = {ActionKeys.VIEW};
 
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
-			groupPermissions, guestPermissions);
+			new String[0], guestPermissions);
 
 		Collection<String> roleNames = modelPermissions.getRoleNames();
 

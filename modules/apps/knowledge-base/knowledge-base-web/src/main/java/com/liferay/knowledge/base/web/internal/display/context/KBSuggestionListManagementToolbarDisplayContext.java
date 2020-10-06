@@ -18,7 +18,7 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.knowledge.base.model.KBComment;
 import com.liferay.knowledge.base.web.internal.security.permission.resource.KBCommentPermission;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
@@ -52,7 +52,7 @@ public class KBSuggestionListManagementToolbarDisplayContext {
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		SearchContainer searchContainer) {
+		SearchContainer<KBComment> searchContainer) {
 
 		_httpServletRequest = httpServletRequest;
 		_liferayPortletRequest = liferayPortletRequest;
@@ -120,37 +120,30 @@ public class KBSuggestionListManagementToolbarDisplayContext {
 	}
 
 	public List<LabelItem> getFilterLabelItems() {
-		return new LabelItemList() {
-			{
-				String navigation = _getNavigation();
+		String navigation = _getNavigation();
 
-				if (!navigation.equals("all")) {
-					add(
-						labelItem -> {
-							PortletURL removeLabelURL = PortletURLUtil.clone(
-								_currentURLObj, _liferayPortletResponse);
+		return LabelItemListBuilder.add(
+			() -> !navigation.equals("all"),
+			labelItem -> {
+				PortletURL removeLabelURL = PortletURLUtil.clone(
+					_currentURLObj, _liferayPortletResponse);
 
-							removeLabelURL.setParameter(
-								"navigation", (String)null);
+				removeLabelURL.setParameter("navigation", (String)null);
 
-							labelItem.putData(
-								"removeLabelURL", removeLabelURL.toString());
+				labelItem.putData("removeLabelURL", removeLabelURL.toString());
 
-							labelItem.setCloseable(true);
-							labelItem.setLabel(
-								LanguageUtil.get(
-									_httpServletRequest, navigation));
-						});
-				}
+				labelItem.setCloseable(true);
+				labelItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, navigation));
 			}
-		};
+		).build();
 	}
 
 	public String getOrderByType() {
 		return _searchContainer.getOrderByType();
 	}
 
-	public SearchContainer getSearchContainer() {
+	public SearchContainer<KBComment> getSearchContainer() {
 		return _searchContainer;
 	}
 
@@ -268,7 +261,7 @@ public class KBSuggestionListManagementToolbarDisplayContext {
 	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
-	private final SearchContainer _searchContainer;
+	private final SearchContainer<KBComment> _searchContainer;
 	private final ThemeDisplay _themeDisplay;
 
 }

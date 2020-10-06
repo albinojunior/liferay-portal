@@ -15,7 +15,7 @@ import React from 'react';
 
 import Chart from '../../../src/main/resources/META-INF/resources/js/components/Chart';
 
-const readsDataProvider = jest.fn(() =>
+const mockReadsDataProvider = jest.fn(() =>
 	Promise.resolve({
 		analyticsReportsHistoricalReads: {
 			histogram: [
@@ -68,7 +68,7 @@ const readsDataProvider = jest.fn(() =>
 	})
 );
 
-const viewsDataProvider = jest.fn(() =>
+const mockViewsDataProvider = jest.fn(() =>
 	Promise.resolve({
 		analyticsReportsHistoricalViews: {
 			histogram: [
@@ -121,30 +121,95 @@ const viewsDataProvider = jest.fn(() =>
 	})
 );
 
-describe('Chart', () => {
-	afterEach(cleanup);
+const mockPublishDate = 'Thu Aug 10 08:17:57 GMT 2020';
 
-	it('displays total views and date range title', async () => {
+const mockTimeSpanOptions = [
+	{
+		key: 'last-30-days',
+		label: 'Last 30 Days',
+	},
+	{
+		key: 'last-7-days',
+		label: 'Last 7 Days',
+	},
+	{
+		key: 'last-24-hours',
+		label: 'Last 24 Hours',
+	},
+];
+
+describe('Chart', () => {
+	afterEach(() => {
+		jest.clearAllMocks();
+		cleanup();
+	});
+
+	it('displays total views and date range title for default time span', async () => {
+		const testProps = {
+			languageTag: 'en-US',
+			timeRange: {endDate: '2020-01-27', startDate: '2020-02-02'},
+			timeSpanKey: 'last-7-days',
+		};
+
 		const {getByText} = render(
-			<Chart dataProviders={[viewsDataProvider]} languageTag={'en-EN'} />
+			<Chart
+				dataProviders={[mockViewsDataProvider]}
+				languageTag={testProps.languageTag}
+				publishDate={mockPublishDate}
+				timeRange={testProps.timeRange}
+				timeSpanKey={testProps.timeSpanKey}
+				timeSpanOptions={mockTimeSpanOptions}
+			/>
 		);
 
-		await wait(() => expect(viewsDataProvider).toHaveBeenCalledTimes(1));
+		await wait(() =>
+			expect(mockViewsDataProvider).toHaveBeenCalledTimes(1)
+		);
+
+		expect(mockViewsDataProvider).toHaveBeenCalledWith({
+			timeSpanKey: 'last-7-days',
+			timeSpanOffset: 0,
+		});
 
 		expect(getByText('225')).toBeInTheDocument();
 
 		expect(getByText('Jan 27 - Feb 2, 2020')).toBeInTheDocument();
 	});
 
-	it('displays total views and reads and date range title', async () => {
+	it('displays total views and reads and date range title for default time span', async () => {
+		const testProps = {
+			languageTag: 'en-US',
+			timeRange: {endDate: '2020-01-27', startDate: '2020-02-02'},
+			timeSpanKey: 'last-7-days',
+		};
+
 		const {getByText} = render(
 			<Chart
-				dataProviders={[viewsDataProvider, readsDataProvider]}
-				languageTag={'en-EN'}
+				dataProviders={[mockViewsDataProvider, mockReadsDataProvider]}
+				languageTag={testProps.languageTag}
+				publishDate={mockPublishDate}
+				timeRange={testProps.timeRange}
+				timeSpanKey={testProps.timeSpanKey}
+				timeSpanOptions={mockTimeSpanOptions}
 			/>
 		);
 
-		await wait(() => expect(viewsDataProvider).toHaveBeenCalledTimes(2));
+		await wait(() =>
+			expect(mockViewsDataProvider).toHaveBeenCalledTimes(1)
+		);
+		await wait(() =>
+			expect(mockReadsDataProvider).toHaveBeenCalledTimes(1)
+		);
+
+		expect(mockViewsDataProvider).toHaveBeenCalledWith({
+			timeSpanKey: 'last-7-days',
+			timeSpanOffset: 0,
+		});
+
+		expect(mockReadsDataProvider).toHaveBeenCalledWith({
+			timeSpanKey: 'last-7-days',
+			timeSpanOffset: 0,
+		});
 
 		expect(getByText('225')).toBeInTheDocument();
 		expect(getByText('226')).toBeInTheDocument();

@@ -22,6 +22,7 @@ import com.liferay.headless.delivery.client.problem.Problem;
 import com.liferay.headless.delivery.client.serdes.v1_0.WikiPageSerDes;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -41,13 +42,13 @@ public interface WikiPageResource {
 	}
 
 	public Page<WikiPage> getWikiNodeWikiPagesPage(
-			Long wikiNodeId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long wikiNodeId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getWikiNodeWikiPagesPageHttpResponse(
-			Long wikiNodeId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long wikiNodeId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public WikiPage postWikiNodeWikiPage(Long wikiNodeId, WikiPage wikiPage)
@@ -168,8 +169,8 @@ public interface WikiPageResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -179,13 +180,14 @@ public interface WikiPageResource {
 	public static class WikiPageResourceImpl implements WikiPageResource {
 
 		public Page<WikiPage> getWikiNodeWikiPagesPage(
-				Long wikiNodeId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long wikiNodeId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getWikiNodeWikiPagesPageHttpResponse(
-					wikiNodeId, search, filterString, pagination, sortString);
+					wikiNodeId, search, aggregations, filterString, pagination,
+					sortString);
 
 			String content = httpResponse.getContent();
 
@@ -208,8 +210,8 @@ public interface WikiPageResource {
 		}
 
 		public HttpInvoker.HttpResponse getWikiNodeWikiPagesPageHttpResponse(
-				Long wikiNodeId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long wikiNodeId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();

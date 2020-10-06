@@ -82,7 +82,7 @@ public class BatchEngineImportTaskModelImpl
 		{"endTime", Types.TIMESTAMP}, {"errorMessage", Types.VARCHAR},
 		{"executeStatus", Types.VARCHAR}, {"fieldNameMapping", Types.CLOB},
 		{"operation", Types.VARCHAR}, {"parameters", Types.CLOB},
-		{"startTime", Types.TIMESTAMP}
+		{"startTime", Types.TIMESTAMP}, {"taskItemDelegateName", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -108,10 +108,11 @@ public class BatchEngineImportTaskModelImpl
 		TABLE_COLUMNS_MAP.put("operation", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("parameters", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("startTime", Types.TIMESTAMP);
+		TABLE_COLUMNS_MAP.put("taskItemDelegateName", Types.VARCHAR);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table BatchEngineImportTask (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,batchEngineImportTaskId LONG not null primary key,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,batchSize LONG,callbackURL VARCHAR(75) null,className VARCHAR(255) null,content BLOB,contentType VARCHAR(75) null,endTime DATE null,errorMessage VARCHAR(1000) null,executeStatus VARCHAR(75) null,fieldNameMapping TEXT null,operation VARCHAR(75) null,parameters TEXT null,startTime DATE null)";
+		"create table BatchEngineImportTask (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,batchEngineImportTaskId LONG not null primary key,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,batchSize LONG,callbackURL VARCHAR(75) null,className VARCHAR(255) null,content BLOB,contentType VARCHAR(75) null,endTime DATE null,errorMessage VARCHAR(1000) null,executeStatus VARCHAR(75) null,fieldNameMapping TEXT null,operation VARCHAR(75) null,parameters TEXT null,startTime DATE null,taskItemDelegateName VARCHAR(75) null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table BatchEngineImportTask";
@@ -128,20 +129,43 @@ public class BatchEngineImportTaskModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long EXECUTESTATUS_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long UUID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long BATCHENGINEIMPORTTASKID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public BatchEngineImportTaskModelImpl() {
@@ -195,9 +219,6 @@ public class BatchEngineImportTaskModelImpl
 				attributeName,
 				attributeGetterFunction.apply((BatchEngineImportTask)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -390,6 +411,13 @@ public class BatchEngineImportTaskModelImpl
 			"startTime",
 			(BiConsumer<BatchEngineImportTask, Date>)
 				BatchEngineImportTask::setStartTime);
+		attributeGetterFunctions.put(
+			"taskItemDelegateName",
+			BatchEngineImportTask::getTaskItemDelegateName);
+		attributeSetterBiConsumers.put(
+			"taskItemDelegateName",
+			(BiConsumer<BatchEngineImportTask, String>)
+				BatchEngineImportTask::setTaskItemDelegateName);
 
 		_attributeGetterFunctions = Collections.unmodifiableMap(
 			attributeGetterFunctions);
@@ -404,6 +432,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
 	}
 
@@ -419,17 +451,20 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setUuid(String uuid) {
-		_columnBitmask |= UUID_COLUMN_BITMASK;
-
-		if (_originalUuid == null) {
-			_originalUuid = _uuid;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_uuid = uuid;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalUuid() {
-		return GetterUtil.getString(_originalUuid);
+		return getColumnOriginalValue("uuid_");
 	}
 
 	@Override
@@ -439,6 +474,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setBatchEngineImportTaskId(long batchEngineImportTaskId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_batchEngineImportTaskId = batchEngineImportTaskId;
 	}
 
@@ -449,19 +488,21 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
-		_columnBitmask |= COMPANYID_COLUMN_BITMASK;
-
-		if (!_setOriginalCompanyId) {
-			_setOriginalCompanyId = true;
-
-			_originalCompanyId = _companyId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_companyId = companyId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalCompanyId() {
-		return _originalCompanyId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("companyId"));
 	}
 
 	@Override
@@ -471,6 +512,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setUserId(long userId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userId = userId;
 	}
 
@@ -497,6 +542,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setCreateDate(Date createDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_createDate = createDate;
 	}
 
@@ -513,6 +562,10 @@ public class BatchEngineImportTaskModelImpl
 	public void setModifiedDate(Date modifiedDate) {
 		_setModifiedDate = true;
 
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_modifiedDate = modifiedDate;
 	}
 
@@ -523,6 +576,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setBatchSize(long batchSize) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_batchSize = batchSize;
 	}
 
@@ -538,6 +595,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setCallbackURL(String callbackURL) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_callbackURL = callbackURL;
 	}
 
@@ -553,6 +614,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setClassName(String className) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_className = className;
 	}
 
@@ -579,6 +644,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setContent(Blob content) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		if (_contentBlobModel == null) {
 			_contentBlobModel = new BatchEngineImportTaskContentBlobModel(
 				getPrimaryKey(), content);
@@ -600,6 +669,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setContentType(String contentType) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_contentType = contentType;
 	}
 
@@ -610,6 +683,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setEndTime(Date endTime) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_endTime = endTime;
 	}
 
@@ -625,6 +702,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setErrorMessage(String errorMessage) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_errorMessage = errorMessage;
 	}
 
@@ -640,17 +721,20 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setExecuteStatus(String executeStatus) {
-		_columnBitmask |= EXECUTESTATUS_COLUMN_BITMASK;
-
-		if (_originalExecuteStatus == null) {
-			_originalExecuteStatus = _executeStatus;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_executeStatus = executeStatus;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalExecuteStatus() {
-		return GetterUtil.getString(_originalExecuteStatus);
+		return getColumnOriginalValue("executeStatus");
 	}
 
 	@Override
@@ -661,6 +745,10 @@ public class BatchEngineImportTaskModelImpl
 	@Override
 	public void setFieldNameMapping(
 		Map<String, Serializable> fieldNameMapping) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
 
 		_fieldNameMapping = fieldNameMapping;
 	}
@@ -677,6 +765,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setOperation(String operation) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_operation = operation;
 	}
 
@@ -687,6 +779,10 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setParameters(Map<String, Serializable> parameters) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_parameters = parameters;
 	}
 
@@ -697,7 +793,30 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public void setStartTime(Date startTime) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_startTime = startTime;
+	}
+
+	@Override
+	public String getTaskItemDelegateName() {
+		if (_taskItemDelegateName == null) {
+			return "";
+		}
+		else {
+			return _taskItemDelegateName;
+		}
+	}
+
+	@Override
+	public void setTaskItemDelegateName(String taskItemDelegateName) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_taskItemDelegateName = taskItemDelegateName;
 	}
 
 	@Override
@@ -707,6 +826,24 @@ public class BatchEngineImportTaskModelImpl
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -763,6 +900,8 @@ public class BatchEngineImportTaskModelImpl
 		batchEngineImportTaskImpl.setOperation(getOperation());
 		batchEngineImportTaskImpl.setParameters(getParameters());
 		batchEngineImportTaskImpl.setStartTime(getStartTime());
+		batchEngineImportTaskImpl.setTaskItemDelegateName(
+			getTaskItemDelegateName());
 
 		batchEngineImportTaskImpl.resetOriginalValues();
 
@@ -785,17 +924,17 @@ public class BatchEngineImportTaskModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof BatchEngineImportTask)) {
+		if (!(object instanceof BatchEngineImportTask)) {
 			return false;
 		}
 
 		BatchEngineImportTask batchEngineImportTask =
-			(BatchEngineImportTask)obj;
+			(BatchEngineImportTask)object;
 
 		long primaryKey = batchEngineImportTask.getPrimaryKey();
 
@@ -812,36 +951,33 @@ public class BatchEngineImportTaskModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		BatchEngineImportTaskModelImpl batchEngineImportTaskModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		batchEngineImportTaskModelImpl._originalUuid =
-			batchEngineImportTaskModelImpl._uuid;
+		_setModifiedDate = false;
 
-		batchEngineImportTaskModelImpl._originalCompanyId =
-			batchEngineImportTaskModelImpl._companyId;
+		_contentBlobModel = null;
 
-		batchEngineImportTaskModelImpl._setOriginalCompanyId = false;
-
-		batchEngineImportTaskModelImpl._setModifiedDate = false;
-
-		batchEngineImportTaskModelImpl._contentBlobModel = null;
-
-		batchEngineImportTaskModelImpl._originalExecuteStatus =
-			batchEngineImportTaskModelImpl._executeStatus;
-
-		batchEngineImportTaskModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -958,12 +1094,24 @@ public class BatchEngineImportTaskModelImpl
 			batchEngineImportTaskCacheModel.startTime = Long.MIN_VALUE;
 		}
 
+		batchEngineImportTaskCacheModel.taskItemDelegateName =
+			getTaskItemDelegateName();
+
+		String taskItemDelegateName =
+			batchEngineImportTaskCacheModel.taskItemDelegateName;
+
+		if ((taskItemDelegateName != null) &&
+			(taskItemDelegateName.length() == 0)) {
+
+			batchEngineImportTaskCacheModel.taskItemDelegateName = null;
+		}
+
 		return batchEngineImportTaskCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(39);
+		StringBundler sb = new StringBundler(41);
 
 		sb.append("{mvccVersion=");
 		sb.append(getMvccVersion());
@@ -1001,6 +1149,8 @@ public class BatchEngineImportTaskModelImpl
 		sb.append(getParameters());
 		sb.append(", startTime=");
 		sb.append(getStartTime());
+		sb.append(", taskItemDelegateName=");
+		sb.append(getTaskItemDelegateName());
 		sb.append("}");
 
 		return sb.toString();
@@ -1008,7 +1158,7 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(61);
+		StringBundler sb = new StringBundler(64);
 
 		sb.append("<model><model-name>");
 		sb.append("com.liferay.batch.engine.model.BatchEngineImportTask");
@@ -1086,6 +1236,10 @@ public class BatchEngineImportTaskModelImpl
 			"<column><column-name>startTime</column-name><column-value><![CDATA[");
 		sb.append(getStartTime());
 		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>taskItemDelegateName</column-name><column-value><![CDATA[");
+		sb.append(getTaskItemDelegateName());
+		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
 
@@ -1099,16 +1253,10 @@ public class BatchEngineImportTaskModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _mvccVersion;
 	private String _uuid;
-	private String _originalUuid;
 	private long _batchEngineImportTaskId;
 	private long _companyId;
-	private long _originalCompanyId;
-	private boolean _setOriginalCompanyId;
 	private long _userId;
 	private Date _createDate;
 	private Date _modifiedDate;
@@ -1121,11 +1269,128 @@ public class BatchEngineImportTaskModelImpl
 	private Date _endTime;
 	private String _errorMessage;
 	private String _executeStatus;
-	private String _originalExecuteStatus;
 	private Map<String, Serializable> _fieldNameMapping;
 	private String _operation;
 	private Map<String, Serializable> _parameters;
 	private Date _startTime;
+	private String _taskItemDelegateName;
+
+	public <T> T getColumnValue(String columnName) {
+		columnName = _attributeNames.getOrDefault(columnName, columnName);
+
+		Function<BatchEngineImportTask, Object> function =
+			_attributeGetterFunctions.get(columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((BatchEngineImportTask)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("uuid_", _uuid);
+		_columnOriginalValues.put(
+			"batchEngineImportTaskId", _batchEngineImportTaskId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("userId", _userId);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put("batchSize", _batchSize);
+		_columnOriginalValues.put("callbackURL", _callbackURL);
+		_columnOriginalValues.put("className", _className);
+		_columnOriginalValues.put("contentType", _contentType);
+		_columnOriginalValues.put("endTime", _endTime);
+		_columnOriginalValues.put("errorMessage", _errorMessage);
+		_columnOriginalValues.put("executeStatus", _executeStatus);
+		_columnOriginalValues.put("fieldNameMapping", _fieldNameMapping);
+		_columnOriginalValues.put("operation", _operation);
+		_columnOriginalValues.put("parameters", _parameters);
+		_columnOriginalValues.put("startTime", _startTime);
+		_columnOriginalValues.put(
+			"taskItemDelegateName", _taskItemDelegateName);
+	}
+
+	private static final Map<String, String> _attributeNames;
+
+	static {
+		Map<String, String> attributeNames = new HashMap<>();
+
+		attributeNames.put("uuid_", "uuid");
+
+		_attributeNames = Collections.unmodifiableMap(attributeNames);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("uuid_", 2L);
+
+		columnBitmasks.put("batchEngineImportTaskId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("userId", 16L);
+
+		columnBitmasks.put("createDate", 32L);
+
+		columnBitmasks.put("modifiedDate", 64L);
+
+		columnBitmasks.put("batchSize", 128L);
+
+		columnBitmasks.put("callbackURL", 256L);
+
+		columnBitmasks.put("className", 512L);
+
+		columnBitmasks.put("content", 1024L);
+
+		columnBitmasks.put("contentType", 2048L);
+
+		columnBitmasks.put("endTime", 4096L);
+
+		columnBitmasks.put("errorMessage", 8192L);
+
+		columnBitmasks.put("executeStatus", 16384L);
+
+		columnBitmasks.put("fieldNameMapping", 32768L);
+
+		columnBitmasks.put("operation", 65536L);
+
+		columnBitmasks.put("parameters", 131072L);
+
+		columnBitmasks.put("startTime", 262144L);
+
+		columnBitmasks.put("taskItemDelegateName", 524288L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private BatchEngineImportTask _escapedModel;
 

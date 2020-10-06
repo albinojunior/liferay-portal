@@ -139,7 +139,7 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(user
 						Date exportDate = manifestSummary.getExportDate();
 						%>
 
-						<span onmouseover="Liferay.Portal.ToolTip.show(this, '<%= HtmlUtil.escapeJS(dateFormatDateTime.format(exportDate)) %>')">
+						<span class="lfr-portal-tooltip" title="<%= HtmlUtil.escape(dateFormatDateTime.format(exportDate)) %>">
 							<liferay-ui:message arguments="<%= LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - exportDate.getTime(), true) %>" key="x-ago" translateArguments="<%= false %>" />
 						</span>
 					</dd>
@@ -159,7 +159,7 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(user
 			</aui:fieldset>
 
 			<c:choose>
-				<c:when test="<%= !group.isLayoutPrototype() && !group.isLayoutSetPrototype() && !group.isCompany() %>">
+				<c:when test="<%= !group.isDepot() && !group.isCompany() && !group.isLayoutPrototype() && !group.isLayoutSetPrototype() %>">
 					<aui:fieldset collapsible="<%= true %>" cssClass="options-group" label="pages">
 						<aui:input id="publicPages" label="public-pages" name="privateLayout" type="radio" value="<%= false %>" />
 
@@ -314,14 +314,20 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(user
 															<li>
 																<span class="selected-labels" id="<portlet:namespace />selectedContent_<%= portlet.getRootPortletId() %>"></span>
 
-																<%
-																Map<String, Object> data = new HashMap<String, Object>();
-
-																data.put("portletid", portlet.getRootPortletId());
-																data.put("portlettitle", portletTitle);
-																%>
-
-																<aui:a cssClass="content-link modify-link" data="<%= data %>" href="javascript:;" id='<%= "contentLink_" + portlet.getRootPortletId() %>' label="change" method="get" />
+																<aui:a
+																	cssClass="content-link modify-link"
+																	data='<%=
+																		HashMapBuilder.<String, Object>put(
+																			"portletid", portlet.getRootPortletId()
+																		).put(
+																			"portlettitle", portletTitle
+																		).build()
+																	%>'
+																	href="javascript:;"
+																	id='<%= "contentLink_" + portlet.getRootPortletId() %>'
+																	label="change"
+																	method="get"
+																/>
 															</li>
 														</ul>
 

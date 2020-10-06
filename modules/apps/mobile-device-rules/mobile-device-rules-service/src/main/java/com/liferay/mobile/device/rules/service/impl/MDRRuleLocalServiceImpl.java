@@ -81,13 +81,13 @@ public class MDRRuleLocalServiceImpl extends MDRRuleLocalServiceBaseImpl {
 	public MDRRule addRule(
 			long ruleGroupId, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap, String type,
-			UnicodeProperties typeSettingsProperties,
+			UnicodeProperties typeSettingsUnicodeProperties,
 			ServiceContext serviceContext)
 		throws PortalException {
 
 		return addRule(
 			ruleGroupId, nameMap, descriptionMap, type,
-			typeSettingsProperties.toString(), serviceContext);
+			typeSettingsUnicodeProperties.toString(), serviceContext);
 	}
 
 	@Override
@@ -169,10 +169,11 @@ public class MDRRuleLocalServiceImpl extends MDRRuleLocalServiceBaseImpl {
 
 	@Override
 	public List<MDRRule> getRules(
-		long ruleGroupId, int start, int end, OrderByComparator<MDRRule> obc) {
+		long ruleGroupId, int start, int end,
+		OrderByComparator<MDRRule> orderByComparator) {
 
 		return mdrRulePersistence.findByRuleGroupId(
-			ruleGroupId, start, end, obc);
+			ruleGroupId, start, end, orderByComparator);
 	}
 
 	@Override
@@ -210,13 +211,13 @@ public class MDRRuleLocalServiceImpl extends MDRRuleLocalServiceBaseImpl {
 	public MDRRule updateRule(
 			long ruleId, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap, String type,
-			UnicodeProperties typeSettingsProperties,
+			UnicodeProperties typeSettingsUnicodeProperties,
 			ServiceContext serviceContext)
 		throws PortalException {
 
 		return updateRule(
 			ruleId, nameMap, descriptionMap, type,
-			typeSettingsProperties.toString(), serviceContext);
+			typeSettingsUnicodeProperties.toString(), serviceContext);
 	}
 
 }

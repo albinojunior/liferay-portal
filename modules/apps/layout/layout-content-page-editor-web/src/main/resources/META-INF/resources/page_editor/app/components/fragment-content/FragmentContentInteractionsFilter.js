@@ -13,105 +13,276 @@
  */
 
 import PropTypes from 'prop-types';
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo} from 'react';
 
+import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../config/constants/editableFragmentEntryProcessor';
+import {ITEM_ACTIVATION_ORIGINS} from '../../config/constants/itemActivationOrigins';
 import {ITEM_TYPES} from '../../config/constants/itemTypes';
-import {useHoverItem, useIsActive, useSelectItem} from '../Controls';
+import {config} from '../../config/index';
+import selectCanUpdateEditables from '../../selectors/selectCanUpdateEditables';
+import selectCanUpdatePageStructure from '../../selectors/selectCanUpdatePageStructure';
+import {useSelector, useSelectorCallback} from '../../store/index';
+import {deepEqual} from '../../utils/checkDeepEqual';
+import isMapped from '../../utils/isMapped';
+import {useToControlsId} from '../CollectionItemContext';
+import {
+	useActivationOrigin,
+	useActiveItemType,
+	useHoverItem,
+	useHoveredItemId,
+	useHoveredItemType,
+	useIsActive,
+	useIsHovered,
+	useSelectItem,
+} from '../Controls';
 import {useSetEditableProcessorUniqueId} from './EditableProcessorContext';
 import {getEditableElement} from './getEditableElement';
-import getEditableElementId from './getEditableElementId';
-import getEditableUniqueId from './getEditableUniqueId';
 
-export default function FragmentContentInteractionsFilter({
+const EDITABLE_CLASS_NAMES = {
+	active: 'page-editor__editable--active',
+	hovered: 'page-editor__editable--hovered',
+	mapped: 'page-editor__editable--mapped',
+	translated: 'page-editor__editable--translated',
+};
+
+const isTranslated = (defaultLanguageId, languageId, editableValue) =>
+	defaultLanguageId !== languageId && editableValue?.[languageId];
+
+function FragmentContentInteractionsFilter({
 	children,
-	editableElements,
 	fragmentEntryLinkId,
 	itemId,
 }) {
+	const activationOrigin = useActivationOrigin();
+	const activeItemType = useActiveItemType();
+	const canUpdateEditables = useSelector(selectCanUpdateEditables);
+	const canUpdatePageStructure = useSelector(selectCanUpdatePageStructure);
 	const hoverItem = useHoverItem();
+	const hoveredItemId = useHoveredItemId();
+	const hoveredItemType = useHoveredItemType();
 	const isActive = useIsActive();
+	const isHovered = useIsHovered();
+	const languageId = useSelector((state) => state.languageId);
 	const selectItem = useSelectItem();
 	const setEditableProcessorUniqueId = useSetEditableProcessorUniqueId();
+	const toControlsId = useToControlsId();
 
-	const siblingIds = useMemo(
-		() => [
-			itemId,
-			...editableElements.map(editableElement =>
-				getEditableUniqueId(
-					fragmentEntryLinkId,
-					getEditableElementId(editableElement)
-				)
-			),
-		],
-		[fragmentEntryLinkId, itemId, editableElements]
+	const editables = useSelectorCallback(
+		(state) => Object.values(state.editables?.[toControlsId(itemId)] || {}),
+		[itemId, toControlsId]
 	);
 
-	const hoverEditable = event => {
+	const editableValues = useSelectorCallback(
+		(state) =>
+			state.fragmentEntryLinks[fragmentEntryLinkId]
+				? state.fragmentEntryLinks[fragmentEntryLinkId].editableValues[
+						EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+				  ]
+				: {},
+		[fragmentEntryLinkId],
+		deepEqual
+	);
+
+	const siblingIds = useMemo(
+		() => [itemId, ...editables.map((editable) => editable.itemId)],
+		[itemId, editables]
+	);
+
+	useEffect(() => {
+		editables.forEach((editable) => {
+			if (editableValues) {
+				const editableValue = editableValues[editable.editableId];
+				const {element} = editable;
+
+				if (isMapped(editableValue)) {
+					element.classList.add(EDITABLE_CLASS_NAMES.mapped);
+				}
+				else if (
+					isTranslated(
+						config.defaultLanguageId,
+						languageId,
+						editableValue
+					)
+				) {
+					element.classList.add(EDITABLE_CLASS_NAMES.translated);
+				}
+				else {
+					element.classList.remove(EDITABLE_CLASS_NAMES.mapped);
+					element.classList.remove(EDITABLE_CLASS_NAMES.translated);
+				}
+			}
+		});
+	}, [editables, editableValues, languageId]);
+
+	useEffect(() => {
+		editables.forEach((editable) => {
+			if (isActive(editable.itemId)) {
+				editable.element.classList.add(EDITABLE_CLASS_NAMES.active);
+			}
+			else {
+				editable.element.classList.remove(EDITABLE_CLASS_NAMES.active);
+			}
+		});
+	}, [editables, isActive]);
+
+	useEffect(() => {
+		editables.forEach((editable) => {
+			if (editableValues) {
+				const editableValue = editableValues[editable.editableId] || {};
+
+				const hovered =
+					(hoveredItemType === ITEM_TYPES.mappedContent &&
+						`${editableValue.classNameId}-${editableValue.classPK}` ===
+							hoveredItemId) ||
+					((siblingIds.some(isActive) || !canUpdatePageStructure) &&
+						isHovered(editable.itemId));
+
+				if (hovered) {
+					editable.element.classList.add(
+						EDITABLE_CLASS_NAMES.hovered
+					);
+				}
+				else {
+					editable.element.classList.remove(
+						EDITABLE_CLASS_NAMES.hovered
+					);
+				}
+			}
+		});
+	}, [
+		canUpdatePageStructure,
+		editables,
+		editableValues,
+		fragmentEntryLinkId,
+		hoveredItemId,
+		hoveredItemType,
+		isActive,
+		isHovered,
+		itemId,
+		siblingIds,
+	]);
+
+	useEffect(() => {
+		let activeEditable;
+
+		const enableProcessor = (event) => {
+			const editableElement = getEditableElement(event.target);
+
+			const editable = editables.find(
+				(editable) => editable.element === editableElement
+			);
+
+			if (editable) {
+				const editableValue = editableValues[editable.editableId] || {};
+
+				if (isMapped(editableValue)) {
+					return;
+				}
+
+				const editableClickPosition = {
+					clientX: event.clientX,
+					clientY: event.clientY,
+				};
+
+				if (isActive(editable.itemId)) {
+					setEditableProcessorUniqueId(
+						editable.itemId,
+						editableClickPosition
+					);
+				}
+			}
+		};
+
+		if (activeItemType === ITEM_TYPES.editable) {
+			activeEditable = editables.find((editable) =>
+				isActive(editable.itemId)
+			);
+
+			if (activeEditable) {
+				if (canUpdateEditables) {
+					requestAnimationFrame(() => {
+						activeEditable.element.addEventListener(
+							'dblclick',
+							enableProcessor
+						);
+					});
+				}
+
+				if (
+					activationOrigin === ITEM_ACTIVATION_ORIGINS.structureTree
+				) {
+					activeEditable.element.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+						inline: 'nearest',
+					});
+				}
+			}
+		}
+
+		return () => {
+			if (activeEditable) {
+				activeEditable.element.removeEventListener(
+					'dblclick',
+					enableProcessor
+				);
+			}
+		};
+	}, [
+		activationOrigin,
+		activeItemType,
+		canUpdateEditables,
+		editables,
+		editableValues,
+		fragmentEntryLinkId,
+		isActive,
+		itemId,
+		setEditableProcessorUniqueId,
+	]);
+
+	const hoverEditable = (event) => {
 		const editableElement = getEditableElement(event.target);
 
-		if (editableElement) {
+		const editable = editables.find(
+			(editable) => editable.element === editableElement
+		);
+
+		if (editable) {
 			event.stopPropagation();
 
-			hoverItem(
-				getEditableUniqueId(
-					fragmentEntryLinkId,
-					getEditableElementId(editableElement)
-				),
-				{itemType: ITEM_TYPES.editable}
-			);
+			hoverItem(editable.itemId, {itemType: ITEM_TYPES.editable});
 		}
 	};
 
-	const selectEditable = event => {
+	const selectEditable = (event) => {
 		const editableElement = getEditableElement(event.target);
 
-		if (editableElement) {
+		const editable = editables.find(
+			(editable) => editable.element === editableElement
+		);
+
+		if (editable) {
 			event.stopPropagation();
 
-			const editableUniqueId = getEditableUniqueId(
-				fragmentEntryLinkId,
-				getEditableElementId(editableElement)
-			);
-
-			if (isActive(editableUniqueId)) {
+			if (isActive(editable.itemId)) {
 				event.stopPropagation();
 			}
 			else {
-				selectItem(editableUniqueId, {
+				selectItem(editable.itemId, {
 					itemType: ITEM_TYPES.editable,
-					multiSelect: event.shiftKey,
 				});
-			}
-		}
-	};
-
-	const enableProcessor = event => {
-		const editableElement = getEditableElement(event.target);
-
-		if (editableElement) {
-			const editableClickPosition = {
-				clientX: event.clientX,
-				clientY: event.clientY,
-			};
-			const editableUniqueId = getEditableUniqueId(
-				fragmentEntryLinkId,
-				getEditableElementId(editableElement)
-			);
-
-			if (isActive(editableUniqueId)) {
-				setEditableProcessorUniqueId(
-					editableUniqueId,
-					editableClickPosition
-				);
 			}
 		}
 	};
 
 	const props = {};
 
-	if (siblingIds.some(isActive)) {
+	if (
+		canUpdateEditables &&
+		(siblingIds.some(isActive) || !canUpdatePageStructure)
+	) {
 		props.onClickCapture = selectEditable;
-		props.onDoubleClickCapture = enableProcessor;
+		props.onMouseLeave = () => hoverItem(null);
 		props.onMouseOverCapture = hoverEditable;
 	}
 
@@ -119,7 +290,9 @@ export default function FragmentContentInteractionsFilter({
 }
 
 FragmentContentInteractionsFilter.propTypes = {
-	element: PropTypes.instanceOf(HTMLElement),
+	element: PropTypes.object,
 	fragmentEntryLinkId: PropTypes.string.isRequired,
 	itemId: PropTypes.string.isRequired,
 };
+
+export default React.memo(FragmentContentInteractionsFilter);

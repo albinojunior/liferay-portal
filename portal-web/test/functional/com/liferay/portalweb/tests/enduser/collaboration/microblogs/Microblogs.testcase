@@ -13,7 +13,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(
@@ -52,8 +51,6 @@ definition {
 
 	@priority = "5"
 	test DeleteEntry {
-		property portal.acceptance = "true";
-
 		Microblogs.updateStatus(entryContent = "Microblog Entry Content");
 
 		Microblogs.gotoTimelineTab();
@@ -69,8 +66,6 @@ definition {
 
 	@priority = "5"
 	test EditEntry {
-		property portal.acceptance = "true";
-
 		Microblogs.updateStatus(entryContent = "Microblog Entry Content");
 
 		Microblogs.gotoTimelineTab();

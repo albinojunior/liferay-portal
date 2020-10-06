@@ -14,8 +14,8 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
+import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
@@ -52,6 +52,7 @@ import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -958,6 +959,33 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 	}
 
 	@Override
+	public List<Layout> getLayouts(
+			long groupId, boolean privateLayout, String type, int start,
+			int end)
+		throws PortalException {
+
+		return layoutPersistence.filterFindByG_P_T(
+			groupId, privateLayout, type, start, end);
+	}
+
+	@Override
+	public List<Layout> getLayouts(
+			long groupId, boolean privateLayout, String keywords,
+			String[] types, int start, int end,
+			OrderByComparator<Layout> orderByComparator)
+		throws PortalException {
+
+		if (Validator.isNull(keywords)) {
+			return layoutPersistence.filterFindByG_P(
+				groupId, privateLayout, start, end, orderByComparator);
+		}
+
+		return layoutLocalService.getLayouts(
+			groupId, getUserId(), privateLayout, keywords, types, start, end,
+			orderByComparator);
+	}
+
+	@Override
 	public List<Layout> getLayouts(long groupId, String type) {
 		return layoutPersistence.filterFindByG_T(groupId, type);
 	}
@@ -989,6 +1017,28 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 
 		return layoutPersistence.filterCountByG_P_P_LtP(
 			groupId, privateLayout, parentLayoutId, priority);
+	}
+
+	@Override
+	public int getLayoutsCount(
+		long groupId, boolean privateLayout, String type) {
+
+		return layoutPersistence.filterCountByG_P_T(
+			groupId, privateLayout, type);
+	}
+
+	@Override
+	public int getLayoutsCount(
+			long groupId, boolean privateLayout, String keywords,
+			String[] types)
+		throws PortalException {
+
+		if (Validator.isNull(keywords)) {
+			return layoutPersistence.filterCountByG_P(groupId, privateLayout);
+		}
+
+		return layoutLocalService.getLayoutsCount(
+			groupId, getUserId(), privateLayout, keywords, types);
 	}
 
 	@Override
@@ -1290,6 +1340,7 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 	 * @param  hasIconImage if the layout has a custom icon image
 	 * @param  iconBytes the byte array of the layout's new icon image
 	 * @param  masterLayoutPlid the primary key of the master layout
+	 * @param  styleBookEntryId the primary key of the style book entry
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         modification date and expando bridge attributes for the layout.
 	 * @return the updated layout
@@ -1303,7 +1354,7 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 			Map<Locale, String> descriptionMap, Map<Locale, String> keywordsMap,
 			Map<Locale, String> robotsMap, String type, boolean hidden,
 			Map<Locale, String> friendlyURLMap, boolean hasIconImage,
-			byte[] iconBytes, long masterLayoutPlid,
+			byte[] iconBytes, long masterLayoutPlid, long styleBookEntryId,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -1317,7 +1368,7 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 			groupId, privateLayout, layoutId, parentLayoutId, localeNamesMap,
 			localeTitlesMap, descriptionMap, keywordsMap, robotsMap, type,
 			hidden, friendlyURLMap, hasIconImage, iconBytes, masterLayoutPlid,
-			serviceContext);
+			styleBookEntryId, serviceContext);
 
 		if (!(layout.getLayoutType() instanceof LayoutTypePortlet)) {
 			checkLayoutTypeSettings(
@@ -1325,6 +1376,63 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 		}
 
 		return updatedLayout;
+	}
+
+	/**
+	 * Updates the layout with additional parameters.
+	 *
+	 * @param      groupId the primary key of the group
+	 * @param      privateLayout whether the layout is private to the group
+	 * @param      layoutId the layout ID of the layout
+	 * @param      parentLayoutId the layout ID of the layout's new parent
+	 *             layout
+	 * @param      localeNamesMap the layout's locales and localized names
+	 * @param      localeTitlesMap the layout's locales and localized titles
+	 * @param      descriptionMap the locales and localized descriptions to
+	 *             merge (optionally <code>null</code>)
+	 * @param      keywordsMap the locales and localized keywords to merge
+	 *             (optionally <code>null</code>)
+	 * @param      robotsMap the locales and localized robots to merge
+	 *             (optionally <code>null</code>)
+	 * @param      type the layout's new type (optionally {@link
+	 *             LayoutConstants#TYPE_PORTLET})
+	 * @param      hidden whether the layout is hidden
+	 * @param      friendlyURLMap the layout's locales and localized friendly
+	 *             URLs. To see how the URL is normalized when accessed see
+	 *             {@link
+	 *             com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil#normalize(
+	 *             String)}.
+	 * @param      hasIconImage if the layout has a custom icon image
+	 * @param      iconBytes the byte array of the layout's new icon image
+	 * @param      masterLayoutPlid the primary key of the master layout
+	 * @param      serviceContext the service context to be applied. Can set the
+	 *             modification date and expando bridge attributes for the
+	 *             layout.
+	 * @return     the updated layout
+	 * @throws     PortalException if a portal exception occurred
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #updateLayout(long, boolean, long, long, Map, Map, Map, Map,
+	 *             Map, String, boolean, Map, boolean, byte[], long, long,
+	 *             ServiceContext)}
+	 */
+	@Deprecated
+	@Override
+	public Layout updateLayout(
+			long groupId, boolean privateLayout, long layoutId,
+			long parentLayoutId, Map<Locale, String> localeNamesMap,
+			Map<Locale, String> localeTitlesMap,
+			Map<Locale, String> descriptionMap, Map<Locale, String> keywordsMap,
+			Map<Locale, String> robotsMap, String type, boolean hidden,
+			Map<Locale, String> friendlyURLMap, boolean hasIconImage,
+			byte[] iconBytes, long masterLayoutPlid,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		return updateLayout(
+			groupId, privateLayout, layoutId, parentLayoutId, localeNamesMap,
+			localeTitlesMap, descriptionMap, keywordsMap, robotsMap, type,
+			hidden, friendlyURLMap, hasIconImage, iconBytes, masterLayoutPlid,
+			0, serviceContext);
 	}
 
 	/**

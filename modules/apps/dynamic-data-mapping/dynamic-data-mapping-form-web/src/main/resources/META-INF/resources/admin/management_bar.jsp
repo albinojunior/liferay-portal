@@ -16,10 +16,6 @@
 
 <%@ include file="/admin/init.jsp" %>
 
-<%
-String currentTab = ParamUtil.getString(request, "currentTab", "forms");
-%>
-
 <clay:management-toolbar
 	actionDropdownItems="<%= ddmFormAdminDisplayContext.getActionItemsDropdownItems() %>"
 	clearResultsURL="<%= ddmFormAdminDisplayContext.getClearResultsURL() %>"
@@ -28,7 +24,7 @@ String currentTab = ParamUtil.getString(request, "currentTab", "forms");
 	disabled="<%= ddmFormAdminDisplayContext.isDisabledManagementBar() %>"
 	filterDropdownItems="<%= ddmFormAdminDisplayContext.getFilterItemsDropdownItems() %>"
 	itemsTotal="<%= ddmFormAdminDisplayContext.getTotalItems() %>"
-	namespace="<%= renderResponse.getNamespace() %>"
+	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	searchActionURL="<%= ddmFormAdminDisplayContext.getSearchActionURL() %>"
 	searchContainerId="<%= ddmFormAdminDisplayContext.getSearchContainerId() %>"
 	searchFormName="fm1"
@@ -38,7 +34,7 @@ String currentTab = ParamUtil.getString(request, "currentTab", "forms");
 />
 
 <aui:script sandbox="<%= true %>">
-	var deleteFormInstances = function() {
+	var deleteFormInstances = function () {
 		if (
 			confirm(
 				'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
@@ -71,7 +67,7 @@ String currentTab = ParamUtil.getString(request, "currentTab", "forms");
 		}
 	};
 
-	var deleteStructures = function() {
+	var deleteStructures = function () {
 		if (
 			confirm(
 				'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
@@ -110,10 +106,10 @@ String currentTab = ParamUtil.getString(request, "currentTab", "forms");
 		deleteStructures: deleteStructures,
 	};
 
-	Liferay.componentReady('ddmFormManagementToolbar').then(function(
+	Liferay.componentReady('ddmFormManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on(['actionItemClicked'], function(event) {
+		managementToolbar.on(['actionItemClicked'], function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

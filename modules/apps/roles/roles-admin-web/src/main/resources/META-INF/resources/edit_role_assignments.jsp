@@ -21,6 +21,8 @@ String tabs2 = ParamUtil.getString(request, "tabs2", "users");
 
 String redirect = ParamUtil.getString(request, "redirect");
 
+String backURL = ParamUtil.getString(request, "backURL", redirect);
+
 long roleId = ParamUtil.getLong(request, "roleId");
 
 Role role = RoleServiceUtil.fetchRole(roleId);
@@ -38,12 +40,12 @@ else {
 
 EditRoleAssignmentsManagementToolbarDisplayContext editRoleAssignmentsManagementToolbarDisplayContext = new EditRoleAssignmentsManagementToolbarDisplayContext(request, renderRequest, renderResponse, displayStyle, "current");
 
-SearchContainer searchContainer = editRoleAssignmentsManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<?> searchContainer = editRoleAssignmentsManagementToolbarDisplayContext.getSearchContainer();
 
 PortletURL portletURL = editRoleAssignmentsManagementToolbarDisplayContext.getPortletURL();
 
 portletDisplay.setShowBackIcon(true);
-portletDisplay.setURLBack(redirect);
+portletDisplay.setURLBack(backURL);
 
 renderResponse.setTitle(role.getTitle(locale));
 %>
@@ -112,12 +114,42 @@ renderResponse.setTitle(role.getTitle(locale));
 	<portlet:param name="tabs1" value="assignees" />
 </portlet:actionURL>
 
-<aui:script require="frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
+<aui:script sandbox="<%= true %>">
 	var form = document.<portlet:namespace />fm;
 
-	var addAssignees = function(event) {
-		var itemSelectorDialog = new ItemSelectorDialog.default({
-			eventName: '<portlet:namespace />selectAssignees',
+	var addAssignees = function (event) {
+		Liferay.Util.openSelectionModal({
+			multiple: true,
+			onSelect: function (selectedItem) {
+				if (selectedItem) {
+					var assignmentsRedirect = Liferay.Util.PortletURL.createPortletURL(
+						'<%= portletURL.toString() %>',
+						{
+							tabs2: selectedItem.type,
+						}
+					);
+
+					var data = {
+						redirect: assignmentsRedirect.toString(),
+					};
+
+					if (selectedItem.type == 'segments') {
+						data.addSegmentsEntryIds = selectedItem.value;
+					}
+					else if (selectedItem.type === 'users') {
+						data.addUserIds = selectedItem.value;
+					}
+					else {
+						data.addGroupIds = selectedItem.value;
+					}
+
+					Liferay.Util.postForm(form, {
+						data: data,
+						url: '<%= editRoleAssignmentsURL %>',
+					});
+				}
+			},
+			selectEventName: '<portlet:namespace />selectAssignees',
 			title:
 				'<liferay-ui:message arguments="<%= HtmlUtil.escape(role.getName()) %>" key="add-assignees-to-x" />',
 
@@ -132,43 +164,9 @@ renderResponse.setTitle(role.getTitle(locale));
 
 			url: '<%= selectAssigneesURL %>',
 		});
-
-		itemSelectorDialog.on('selectedItemChange', function(event) {
-			var selectedItem = event.selectedItem;
-
-			if (selectedItem) {
-				var assignmentsRedirect = Liferay.Util.PortletURL.createPortletURL(
-					'<%= portletURL.toString() %>',
-					{
-						tabs2: selectedItem.type,
-					}
-				);
-
-				var data = {
-					redirect: assignmentsRedirect.toString(),
-				};
-
-				if (selectedItem.type == 'segments') {
-					data.addSegmentsEntryIds = selectedItem.value;
-				}
-				else if (selectedItem.type === 'users') {
-					data.addUserIds = selectedItem.value;
-				}
-				else {
-					data.addGroupIds = selectedItem.value;
-				}
-
-				Liferay.Util.postForm(form, {
-					data: data,
-					url: '<%= editRoleAssignmentsURL %>',
-				});
-			}
-		});
-
-		itemSelectorDialog.open();
 	};
 
-	<portlet:namespace />unsetRoleAssignments = function() {
+	<portlet:namespace />unsetRoleAssignments = function () {
 		var assigneeType = '<%= HtmlUtil.escapeJS(tabs2) %>';
 		var ids = Liferay.Util.listCheckedExcept(
 			form,
@@ -195,7 +193,7 @@ renderResponse.setTitle(role.getTitle(locale));
 		});
 	};
 
-	Liferay.componentReady('editRoleAssignmentsManagementToolbar').then(function(
+	Liferay.componentReady('editRoleAssignmentsManagementToolbar').then(function (
 		managementToolbar
 	) {
 		managementToolbar.on('creationButtonClicked', addAssignees);

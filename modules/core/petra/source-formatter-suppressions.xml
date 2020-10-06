@@ -3,7 +3,6 @@
 <suppressions>
 	<checkstyle>
 		<suppress checks="AppendCheck" files="petra-string/src/test/java/com/liferay/petra/string/StringBundlerTest\.java" />
-		<suppress checks="ChainingCheck" files="petra-sql-dsl-spi/src/test/java/com/liferay/petra/sql/dsl/spi/SQLDSLTest\.java" />
 		<suppress checks="ConcatCheck" files="petra-string/src/test/java/com/liferay/petra/string/StringBundlerTest\.java" />
 		<suppress checks="EnumConstantOrderCheck" files="petra-process/src/main/java/com/liferay/petra/process/ProcessLog\.java" />
 		<suppress checks="MethodNameCheck" files="petra-reflect/src/test/java/com/liferay/petra/reflect/AnnotationLocatorTest\.java" />
@@ -18,6 +17,7 @@
 		<suppress checks="MissingModifierCheck" files="petra-reflect/src/test/java/com/liferay/petra/reflect/AnnotationLocatorTest\.java" />
 		<suppress checks="StringBundlerNamingCheck" files="petra-io/src/main/java/com/liferay/petra/io/unsync/UnsyncStringWriter\.java" />
 		<suppress checks="StringBundlerNamingCheck" files="petra-io/src/test/java/com/liferay/petra/io/unsync/UnsyncStringWriterTest\.java" />
+		<suppress checks="TryWithResourcesCheck" files="petra-io/src/main/java/com/liferay/petra/io/ByteArrayFileInputStream\.java" />
 	</checkstyle>
 	<source-check>
 		<suppress checks="JavaAnnotationDefaultAttributeCheck" files="petra-reflect/src/test/java/com/liferay/petra/reflect/AnnotationLocatorTest\.java" />

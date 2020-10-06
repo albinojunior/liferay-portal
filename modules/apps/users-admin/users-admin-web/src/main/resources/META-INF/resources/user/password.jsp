@@ -128,15 +128,15 @@ else {
 <liferay-ui:error exception="<%= UserPasswordException.MustNotBeTrivial.class %>" message="that-password-uses-common-words-please-enter-a-password-that-is-harder-to-guess-i-e-contains-a-mix-of-numbers-and-letters" />
 <liferay-ui:error exception="<%= UserPasswordException.MustNotContainDictionaryWords.class %>" message="that-password-uses-common-dictionary-words" />
 
-<div class="sheet-section">
+<clay:sheet-section>
 	<h3 class="sheet-subtitle"><liferay-ui:message key="password" /></h3>
 
-	<!-- Begin LPS-38289 and LPS-55993 and LPS-61876 -->
+	<!-- Begin LPS-38289, LPS-55993, and LPS-61876 -->
 
 	<input class="hide" type="password" />
 	<input class="hide" type="password" />
 
-	<!-- End LPS-38289 and LPS-55993 and LPS-61876 -->
+	<!-- End LPS-38289, LPS-55993, and LPS-61876 -->
 
 	<c:if test="<%= portletName.equals(myAccountPortletId) %>">
 		<aui:input autocomplete="off" label="current-password" name="password0" required="<%= true %>" size="30" type="password" />
@@ -153,10 +153,10 @@ else {
 	<c:if test="<%= (selUser == null) || (user.getUserId() != selUser.getUserId()) %>">
 		<aui:input disabled="<%= passwordResetDisabled %>" label="require-password-reset" name="passwordReset" type="checkbox" value="<%= passwordReset %>" />
 	</c:if>
-</div>
+</clay:sheet-section>
 
 <c:if test="<%= PropsValues.USERS_REMINDER_QUERIES_ENABLED && portletName.equals(myAccountPortletId) %>">
-	<div class="sheet-section">
+	<clay:sheet-section>
 		<h3 class="sheet-subtitle"><liferay-ui:message key="reminder" /></h3>
 
 		<%
@@ -172,7 +172,7 @@ else {
 		</c:if>
 
 		<aui:input autocomplete='<%= PropsValues.COMPANY_SECURITY_PASSWORD_REMINDER_QUERY_FORM_AUTOCOMPLETE ? "on" : "off" %>' label="answer" maxlength="<%= ModelHintsConstants.TEXT_MAX_LENGTH %>" name="reminderQueryAnswer" size="50" value="<%= selUser.getReminderQueryAnswer() %>" />
-	</div>
+	</clay:sheet-section>
 
 	<aui:script sandbox="<%= true %>">
 		var reminderQueryQuestionSelect = document.getElementById(
@@ -180,7 +180,7 @@ else {
 		);
 
 		if (reminderQueryQuestionSelect) {
-			reminderQueryQuestionSelect.addEventListener('change', function(event) {
+			reminderQueryQuestionSelect.addEventListener('change', function (event) {
 				var customQuestion =
 					event.currentTarget.value === '<%= UsersAdmin.CUSTOM_QUESTION %>';
 

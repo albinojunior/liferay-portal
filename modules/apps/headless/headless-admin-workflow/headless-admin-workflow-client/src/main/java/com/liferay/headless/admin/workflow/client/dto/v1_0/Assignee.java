@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Assignee implements Cloneable {
 
+	public static Assignee toDTO(String json) {
+		return AssigneeSerDes.toDTO(json);
+	}
+
 	public Long getId() {
 		return id;
 	}

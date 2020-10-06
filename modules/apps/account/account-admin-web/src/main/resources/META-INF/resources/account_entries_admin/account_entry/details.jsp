@@ -24,7 +24,7 @@ String backURL = ParamUtil.getString(request, "backURL", String.valueOf(renderRe
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(backURL);
 
-renderResponse.setTitle((accountEntryDisplay == null) ? LanguageUtil.get(request, "add-account") : LanguageUtil.format(request, "edit-x", accountEntryDisplay.getName(), false));
+renderResponse.setTitle((accountEntryDisplay.getAccountEntryId() == 0) ? LanguageUtil.get(request, "add-account") : LanguageUtil.format(request, "edit-x", accountEntryDisplay.getName(), false));
 %>
 
 <portlet:actionURL name="/account_admin/edit_account_entry" var="editAccountURL" />
@@ -32,9 +32,8 @@ renderResponse.setTitle((accountEntryDisplay == null) ? LanguageUtil.get(request
 <liferay-frontend:edit-form
 	action="<%= editAccountURL %>"
 >
-	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= (accountEntryDisplay == null) ? Constants.ADD : Constants.UPDATE %>" />
+	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= (accountEntryDisplay.getAccountEntryId() == 0) ? Constants.ADD : Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-	<aui:input name="accountEntryId" type="hidden" value='<%= (accountEntryDisplay == null) ? "0" : String.valueOf(accountEntryDisplay.getAccountEntryId()) %>' />
 
 	<liferay-frontend:edit-form-body>
 		<h2 class="sheet-title">
@@ -44,7 +43,20 @@ renderResponse.setTitle((accountEntryDisplay == null) ? LanguageUtil.get(request
 		<liferay-frontend:fieldset-group>
 			<liferay-util:include page="/account_entries_admin/account_entry/display_data.jsp" servletContext="<%= application %>" />
 
-			<liferay-util:include page="/account_entries_admin/account_entry/domains.jsp" servletContext="<%= application %>" />
+			<c:choose>
+				<c:when test="<%= Objects.equals(AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS, accountEntryDisplay.getType()) && accountEntryDisplay.isEmailDomainValidationEnabled(themeDisplay) %>">
+					<div class="business-account-only">
+						<liferay-util:include page="/account_entries_admin/account_entry/domains.jsp" servletContext="<%= application %>" />
+					</div>
+				</c:when>
+				<c:when test="<%= Objects.equals(AccountConstants.ACCOUNT_ENTRY_TYPE_PERSON, accountEntryDisplay.getType()) %>">
+					<div class="person-account-only">
+						<liferay-util:include page="/account_entries_admin/account_entry/person_account_entry_user.jsp" servletContext="<%= application %>" />
+					</div>
+				</c:when>
+			</c:choose>
+
+			<liferay-util:include page="/account_entries_admin/account_entry/categorization.jsp" servletContext="<%= application %>" />
 		</liferay-frontend:fieldset-group>
 	</liferay-frontend:edit-form-body>
 
@@ -54,3 +66,10 @@ renderResponse.setTitle((accountEntryDisplay == null) ? LanguageUtil.get(request
 		<aui:button href="<%= backURL %>" type="cancel" />
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
+
+<c:if test="<%= accountEntryDisplay.getAccountEntryId() == 0 %>">
+	<liferay-frontend:component
+		componentId="AccountEntriesAdminPortlet"
+		module="account_entries_admin/js/AccountEntriesAdminPortlet.es"
+	/>
+</c:if>

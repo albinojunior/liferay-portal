@@ -14,16 +14,21 @@
 
 package com.liferay.dynamic.data.mapping.service.impl;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.dynamic.data.mapping.constants.DDMStructureConstants;
+import com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.exception.InvalidParentStructureException;
 import com.liferay.dynamic.data.mapping.exception.InvalidStructureVersionException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
+import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
 import com.liferay.dynamic.data.mapping.exception.RequiredStructureException;
 import com.liferay.dynamic.data.mapping.exception.StructureDefinitionException;
 import com.liferay.dynamic.data.mapping.exception.StructureDuplicateElementException;
 import com.liferay.dynamic.data.mapping.exception.StructureDuplicateStructureKeyException;
 import com.liferay.dynamic.data.mapping.exception.StructureNameException;
-import com.liferay.dynamic.data.mapping.internal.background.task.DDMStructureIndexerBackgroundTaskExecutor;
 import com.liferay.dynamic.data.mapping.internal.background.task.DDMStructureIndexerTracker;
+import com.liferay.dynamic.data.mapping.internal.constants.DDMDestinationNames;
 import com.liferay.dynamic.data.mapping.internal.search.util.DDMSearchHelper;
 import com.liferay.dynamic.data.mapping.internal.util.DDMFormTemplateSynchonizer;
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
@@ -39,10 +44,8 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
-import com.liferay.dynamic.data.mapping.model.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.security.permission.DDMPermissionSupport;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLocalService;
@@ -58,13 +61,16 @@ import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
@@ -78,10 +84,10 @@ import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -90,8 +96,6 @@ import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-
-import java.io.Serializable;
 
 import java.util.Collections;
 import java.util.Date;
@@ -106,6 +110,8 @@ import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * Provides the local service for accessing, adding, deleting, and updating
@@ -209,9 +215,11 @@ public class DDMStructureLocalServiceImpl
 
 		// Structure layout
 
-		_ddmStructureLayoutLocalService.addStructureLayout(
-			userId, groupId, structureVersion.getStructureVersionId(),
-			ddmFormLayout, serviceContext);
+		if (ddmFormLayout != null) {
+			_ddmStructureLayoutLocalService.addStructureLayout(
+				userId, groupId, structureVersion.getStructureVersionId(),
+				ddmFormLayout, serviceContext);
+		}
 
 		// Data provider instance links
 
@@ -466,8 +474,15 @@ public class DDMStructureLocalServiceImpl
 				structure.getStructureId());
 
 		for (DDMStructureVersion structureVersion : structureVersions) {
-			ddmStructureLayoutPersistence.removeByStructureVersionId(
-				structureVersion.getStructureVersionId());
+			try {
+				ddmStructureLayoutPersistence.removeByStructureVersionId(
+					structureVersion.getStructureVersionId());
+			}
+			catch (NoSuchStructureLayoutException
+						noSuchStructureLayoutException) {
+
+				continue;
+			}
 
 			ddmStructureVersionPersistence.remove(structureVersion);
 		}
@@ -481,16 +496,6 @@ public class DDMStructureLocalServiceImpl
 		resourceLocalService.deleteResource(
 			structure.getCompanyId(), resourceName,
 			ResourceConstants.SCOPE_INDIVIDUAL, structure.getStructureId());
-
-		// Background tasks
-
-		String backgroundTaskName =
-			DDMStructureIndexerBackgroundTaskExecutor.getBackgroundTaskName(
-				structure.getStructureId());
-
-		_backgroundTaskManager.deleteGroupBackgroundTasks(
-			structure.getGroupId(), backgroundTaskName,
-			DDMStructureIndexerBackgroundTaskExecutor.class.getName());
 
 		return structure;
 	}
@@ -642,7 +647,7 @@ public class DDMStructureLocalServiceImpl
 		}
 
 		for (long ancestorSiteGroupId :
-				_portal.getAncestorSiteGroupIds(groupId)) {
+				_getAncestorSiteAndDepotGroupIds(groupId)) {
 
 			structure = ddmStructurePersistence.fetchByG_C_S(
 				ancestorSiteGroupId, classNameId, structureKey);
@@ -671,7 +676,7 @@ public class DDMStructureLocalServiceImpl
 		}
 
 		for (long ancestorSiteGroupId :
-				_portal.getAncestorSiteGroupIds(groupId)) {
+				_getAncestorSiteAndDepotGroupIds(groupId)) {
 
 			structure = ddmStructurePersistence.fetchByUUID_G(
 				uuid, ancestorSiteGroupId);
@@ -828,7 +833,7 @@ public class DDMStructureLocalServiceImpl
 					structureKey);
 		}
 
-		for (long curGroupId : _portal.getAncestorSiteGroupIds(groupId)) {
+		for (long curGroupId : _getAncestorSiteAndDepotGroupIds(groupId)) {
 			structure = ddmStructurePersistence.fetchByG_C_S(
 				curGroupId, classNameId, structureKey);
 
@@ -1827,19 +1832,17 @@ public class DDMStructureLocalServiceImpl
 			return;
 		}
 
-		String backgroundTaskName =
-			DDMStructureIndexerBackgroundTaskExecutor.getBackgroundTaskName(
-				structure.getStructureId());
+		TransactionCommitCallbackUtil.registerCallback(
+			() -> {
+				Message message = new Message();
 
-		Map<String, Serializable> taskContextMap =
-			HashMapBuilder.<String, Serializable>put(
-				"structureId", structure.getStructureId()
-			).build();
+				message.put("structureId", structure.getStructureId());
 
-		_backgroundTaskManager.addBackgroundTask(
-			structure.getUserId(), structure.getGroupId(), backgroundTaskName,
-			DDMStructureIndexerBackgroundTaskExecutor.class.getName(),
-			taskContextMap, serviceContext);
+				_messageBus.sendMessage(
+					DDMDestinationNames.DDM_STRUCTURE_REINDEX, message);
+
+				return null;
+			});
 	}
 
 	protected String serializeJSONDDMForm(DDMForm ddmForm) {
@@ -2030,12 +2033,32 @@ public class DDMStructureLocalServiceImpl
 		}
 	}
 
+	private long[] _getAncestorSiteAndDepotGroupIds(long groupId) {
+		try {
+			if (_depotEntryLocalService == null) {
+				return _portal.getAncestorSiteGroupIds(groupId);
+			}
+
+			return ArrayUtil.append(
+				_portal.getAncestorSiteGroupIds(groupId),
+				ListUtil.toLongArray(
+					_depotEntryLocalService.getGroupConnectedDepotEntries(
+						groupId, true, QueryUtil.ALL_POS, QueryUtil.ALL_POS),
+					DepotEntry::getGroupId));
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException, portalException);
+
+			return new long[0];
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DDMStructureLocalServiceImpl.class);
+
 	private static final Pattern _callFunctionPattern = Pattern.compile(
 		"call\\(\\s*\'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-" +
 			"[0-9a-f]{12})\'\\s*,\\s*\'(.*)\'\\s*,\\s*\'(.*)\'\\s*\\)");
-
-	@Reference
-	private BackgroundTaskManager _backgroundTaskManager;
 
 	@Reference
 	private DDM _ddm;
@@ -2072,6 +2095,12 @@ public class DDMStructureLocalServiceImpl
 	@Reference
 	private DDMXML _ddmXML;
 
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private DepotEntryLocalService _depotEntryLocalService;
+
 	@Reference(target = "(ddm.form.deserializer.type=json)")
 	private DDMFormDeserializer _jsonDDMFormDeserializer;
 
@@ -2080,6 +2109,9 @@ public class DDMStructureLocalServiceImpl
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	@Reference
+	private MessageBus _messageBus;
 
 	@Reference
 	private Portal _portal;

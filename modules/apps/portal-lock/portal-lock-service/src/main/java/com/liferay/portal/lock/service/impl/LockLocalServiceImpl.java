@@ -19,6 +19,7 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.jdbc.aop.MasterDataSource;
 import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -55,6 +56,7 @@ import org.osgi.service.component.annotations.Deactivate;
 	property = "model.class.name=com.liferay.portal.lock.model.Lock",
 	service = AopService.class
 )
+@CTAware
 public class LockLocalServiceImpl extends LockLocalServiceBaseImpl {
 
 	@Override
@@ -311,20 +313,20 @@ public class LockLocalServiceImpl extends LockLocalServiceBaseImpl {
 
 					});
 			}
-			catch (Throwable t) {
-				Throwable cause = t;
+			catch (Throwable throwable) {
+				Throwable causeThrowable = throwable;
 
-				if (t instanceof ORMException) {
-					cause = t.getCause();
+				if (throwable instanceof ORMException) {
+					causeThrowable = throwable.getCause();
 				}
 
-				if (cause instanceof ConstraintViolationException ||
-					cause instanceof LockAcquisitionException) {
+				if (causeThrowable instanceof ConstraintViolationException ||
+					causeThrowable instanceof LockAcquisitionException) {
 
 					continue;
 				}
 
-				ReflectionUtil.throwException(t);
+				ReflectionUtil.throwException(throwable);
 			}
 		}
 	}
@@ -424,20 +426,20 @@ public class LockLocalServiceImpl extends LockLocalServiceBaseImpl {
 
 				return;
 			}
-			catch (Throwable t) {
-				Throwable cause = t;
+			catch (Throwable throwable) {
+				Throwable causeThrowable = throwable;
 
-				if (t instanceof ORMException) {
-					cause = t.getCause();
+				if (throwable instanceof ORMException) {
+					causeThrowable = throwable.getCause();
 				}
 
-				if (cause instanceof ConstraintViolationException ||
-					cause instanceof LockAcquisitionException) {
+				if (causeThrowable instanceof ConstraintViolationException ||
+					causeThrowable instanceof LockAcquisitionException) {
 
 					continue;
 				}
 
-				ReflectionUtil.throwException(t);
+				ReflectionUtil.throwException(throwable);
 			}
 		}
 	}

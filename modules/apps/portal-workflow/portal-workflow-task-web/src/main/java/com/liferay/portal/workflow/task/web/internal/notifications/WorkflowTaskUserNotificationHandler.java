@@ -26,7 +26,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
-import com.liferay.portal.kernel.workflow.WorkflowException;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
@@ -100,6 +100,16 @@ public class WorkflowTaskUserNotificationHandler
 			return StringPool.BLANK;
 		}
 
+		serviceContext.setAttribute(
+			WorkflowConstants.CONTEXT_ENTRY_CLASS_PK,
+			jsonObject.getString(WorkflowConstants.CONTEXT_ENTRY_CLASS_PK));
+		serviceContext.setAttribute(
+			WorkflowConstants.CONTEXT_URL,
+			jsonObject.getString(WorkflowConstants.CONTEXT_URL));
+		serviceContext.setAttribute("plid", jsonObject.getLong("plid"));
+		serviceContext.setAttribute(
+			"portletId", jsonObject.getString("portletId"));
+
 		return workflowHandler.getURLEditWorkflowTask(
 			workflowTaskId, serviceContext);
 	}
@@ -113,7 +123,7 @@ public class WorkflowTaskUserNotificationHandler
 
 	private WorkflowTask _fetchWorkflowTask(
 			long workflowTaskId, ServiceContext serviceContext)
-		throws WorkflowException {
+		throws Exception {
 
 		if (workflowTaskId <= 0) {
 			return null;
@@ -125,7 +135,7 @@ public class WorkflowTaskUserNotificationHandler
 
 	private boolean _hasPermission(
 			long workflowTaskId, ServiceContext serviceContext)
-		throws WorkflowException {
+		throws Exception {
 
 		WorkflowTask workflowTask = _fetchWorkflowTask(
 			workflowTaskId, serviceContext);

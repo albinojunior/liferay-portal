@@ -21,6 +21,8 @@ import com.liferay.dynamic.data.mapping.service.base.DDMFormInstanceRecordServic
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.search.BaseModelSearchResult;
+import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -138,17 +140,33 @@ public class DDMFormInstanceRecordServiceImpl
 	}
 
 	@Override
+	public BaseModelSearchResult<DDMFormInstanceRecord>
+			searchFormInstanceRecords(
+				long ddmFormInstanceId, String[] notEmptyFields, int status,
+				int start, int end, Sort sort)
+		throws PortalException {
+
+		_ddmFormInstanceModelResourcePermission.check(
+			getPermissionChecker(), ddmFormInstanceId, ActionKeys.VIEW);
+
+		return ddmFormInstanceRecordLocalService.searchFormInstanceRecords(
+			ddmFormInstanceId, notEmptyFields, status, start, end, sort);
+	}
+
+	@Override
 	public DDMFormInstanceRecord updateFormInstanceRecord(
 			long ddmFormInstanceRecordId, boolean majorVersion,
 			DDMFormValues ddmFormValues, ServiceContext serviceContext)
 		throws PortalException {
 
-		DDMFormInstanceRecord ddmFormInstanceRecord =
-			ddmFormInstanceRecordLocalService.getFormInstanceRecord(
-				ddmFormInstanceRecordId);
+		if (!_ddmFormInstanceRecordModelResourcePermission.contains(
+				getPermissionChecker(), ddmFormInstanceRecordId,
+				DDMActionKeys.ADD_FORM_INSTANCE_RECORD)) {
 
-		_ddmFormInstanceRecordModelResourcePermission.check(
-			getPermissionChecker(), ddmFormInstanceRecord, ActionKeys.UPDATE);
+			_ddmFormInstanceRecordModelResourcePermission.check(
+				getPermissionChecker(), ddmFormInstanceRecordId,
+				ActionKeys.UPDATE);
+		}
 
 		return ddmFormInstanceRecordLocalService.updateFormInstanceRecord(
 			getUserId(), ddmFormInstanceRecordId, majorVersion, ddmFormValues,

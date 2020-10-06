@@ -26,16 +26,14 @@ import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
+import com.liferay.wiki.constants.WikiPageConstants;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
-import com.liferay.wiki.model.WikiPageConstants;
 import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
 
 import java.io.File;
 import java.io.Serializable;
-
-import java.util.Map;
 
 /**
  * @author Julio Camarero
@@ -513,16 +511,12 @@ public class WikiTestUtil {
 			WikiPage page, ServiceContext serviceContext)
 		throws Exception {
 
-		Map<String, Serializable> workflowContext =
+		return WikiPageLocalServiceUtil.updateStatus(
+			page.getUserId(), page, WorkflowConstants.STATUS_APPROVED,
+			serviceContext,
 			HashMapBuilder.<String, Serializable>put(
 				WorkflowConstants.CONTEXT_URL, "http://localhost"
-			).build();
-
-		page = WikiPageLocalServiceUtil.updateStatus(
-			page.getUserId(), page, WorkflowConstants.STATUS_APPROVED,
-			serviceContext, workflowContext);
-
-		return page;
+			).build());
 	}
 
 }

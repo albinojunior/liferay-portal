@@ -16,10 +16,12 @@ package com.liferay.external.data.source.test.service.persistence.impl;
 
 import com.liferay.external.data.source.test.exception.NoSuchTestEntityException;
 import com.liferay.external.data.source.test.model.TestEntity;
+import com.liferay.external.data.source.test.model.TestEntityTable;
 import com.liferay.external.data.source.test.model.impl.TestEntityImpl;
 import com.liferay.external.data.source.test.model.impl.TestEntityModelImpl;
 import com.liferay.external.data.source.test.service.persistence.TestEntityPersistence;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -28,7 +30,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
@@ -36,9 +40,16 @@ import com.liferay.portal.spring.extender.service.ServiceReference;
 import java.io.Serializable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * The persistence implementation for the test entity service.
@@ -72,18 +83,19 @@ public class TestEntityPersistenceImpl
 	private FinderPath _finderPathCountAll;
 
 	public TestEntityPersistenceImpl() {
-		setModelClass(TestEntity.class);
-
-		setModelImplClass(TestEntityImpl.class);
-		setModelPKClass(long.class);
-		setEntityCacheEnabled(TestEntityModelImpl.ENTITY_CACHE_ENABLED);
-
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("id", "id_");
 		dbColumnNames.put("data", "data_");
 
 		setDBColumnNames(dbColumnNames);
+
+		setModelClass(TestEntity.class);
+
+		setModelImplClass(TestEntityImpl.class);
+		setModelPKClass(long.class);
+
+		setTable(TestEntityTable.INSTANCE);
 	}
 
 	/**
@@ -94,10 +106,7 @@ public class TestEntityPersistenceImpl
 	@Override
 	public void cacheResult(TestEntity testEntity) {
 		entityCache.putResult(
-			TestEntityModelImpl.ENTITY_CACHE_ENABLED, TestEntityImpl.class,
-			testEntity.getPrimaryKey(), testEntity);
-
-		testEntity.resetOriginalValues();
+			TestEntityImpl.class, testEntity.getPrimaryKey(), testEntity);
 	}
 
 	/**
@@ -109,13 +118,9 @@ public class TestEntityPersistenceImpl
 	public void cacheResult(List<TestEntity> testEntities) {
 		for (TestEntity testEntity : testEntities) {
 			if (entityCache.getResult(
-					TestEntityModelImpl.ENTITY_CACHE_ENABLED,
 					TestEntityImpl.class, testEntity.getPrimaryKey()) == null) {
 
 				cacheResult(testEntity);
-			}
-			else {
-				testEntity.resetOriginalValues();
 			}
 		}
 	}
@@ -145,23 +150,13 @@ public class TestEntityPersistenceImpl
 	 */
 	@Override
 	public void clearCache(TestEntity testEntity) {
-		entityCache.removeResult(
-			TestEntityModelImpl.ENTITY_CACHE_ENABLED, TestEntityImpl.class,
-			testEntity.getPrimaryKey());
-
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		entityCache.removeResult(TestEntityImpl.class, testEntity);
 	}
 
 	@Override
 	public void clearCache(List<TestEntity> testEntities) {
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (TestEntity testEntity : testEntities) {
-			entityCache.removeResult(
-				TestEntityModelImpl.ENTITY_CACHE_ENABLED, TestEntityImpl.class,
-				testEntity.getPrimaryKey());
+			entityCache.removeResult(TestEntityImpl.class, testEntity);
 		}
 	}
 
@@ -172,9 +167,7 @@ public class TestEntityPersistenceImpl
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Serializable primaryKey : primaryKeys) {
-			entityCache.removeResult(
-				TestEntityModelImpl.ENTITY_CACHE_ENABLED, TestEntityImpl.class,
-				primaryKey);
+			entityCache.removeResult(TestEntityImpl.class, primaryKey);
 		}
 	}
 
@@ -286,10 +279,8 @@ public class TestEntityPersistenceImpl
 		try {
 			session = openSession();
 
-			if (testEntity.isNew()) {
+			if (isNew) {
 				session.save(testEntity);
-
-				testEntity.setNew(false);
 			}
 			else {
 				testEntity = (TestEntity)session.merge(testEntity);
@@ -302,17 +293,11 @@ public class TestEntityPersistenceImpl
 			closeSession(session);
 		}
 
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		entityCache.putResult(TestEntityImpl.class, testEntity, false, true);
 
 		if (isNew) {
-			finderCache.removeResult(_finderPathCountAll, FINDER_ARGS_EMPTY);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
+			testEntity.setNew(false);
 		}
-
-		entityCache.putResult(
-			TestEntityModelImpl.ENTITY_CACHE_ENABLED, TestEntityImpl.class,
-			testEntity.getPrimaryKey(), testEntity, false);
 
 		testEntity.resetOriginalValues();
 
@@ -493,10 +478,6 @@ public class TestEntityPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -542,9 +523,6 @@ public class TestEntityPersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -584,30 +562,42 @@ public class TestEntityPersistenceImpl
 	 * Initializes the test entity persistence.
 	 */
 	public void afterPropertiesSet() {
-		_finderPathWithPaginationFindAll = new FinderPath(
-			TestEntityModelImpl.ENTITY_CACHE_ENABLED,
-			TestEntityModelImpl.FINDER_CACHE_ENABLED, TestEntityImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+		Bundle bundle = FrameworkUtil.getBundle(
+			TestEntityPersistenceImpl.class);
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			TestEntityModelImpl.ENTITY_CACHE_ENABLED,
-			TestEntityModelImpl.FINDER_CACHE_ENABLED, TestEntityImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_bundleContext = bundle.getBundleContext();
 
-		_finderPathCountAll = new FinderPath(
-			TestEntityModelImpl.ENTITY_CACHE_ENABLED,
-			TestEntityModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_argumentsResolverServiceRegistration = _bundleContext.registerService(
+			ArgumentsResolver.class, new TestEntityModelArgumentsResolver(),
+			MapUtil.singletonDictionary(
+				"model.class.name", TestEntity.class.getName()));
+
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 	}
 
 	public void destroy() {
 		entityCache.removeCache(TestEntityImpl.class.getName());
-		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 	}
+
+	private BundleContext _bundleContext;
 
 	@ServiceReference(type = EntityCache.class)
 	protected EntityCache entityCache;
@@ -631,5 +621,103 @@ public class TestEntityPersistenceImpl
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
 		new String[] {"id", "data"});
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			_serviceRegistrations.add(
+				_bundleContext.registerService(
+					FinderPath.class, finderPath,
+					MapUtil.singletonDictionary("cache.name", cacheName)));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class TestEntityModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			TestEntityModelImpl testEntityModelImpl =
+				(TestEntityModelImpl)baseModel;
+
+			long columnBitmask = testEntityModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(testEntityModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						testEntityModelImpl.getColumnBitmask(columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(testEntityModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			TestEntityModelImpl testEntityModelImpl, String[] columnNames,
+			boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] = testEntityModelImpl.getColumnOriginalValue(
+						columnName);
+				}
+				else {
+					arguments[i] = testEntityModelImpl.getColumnValue(
+						columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
+	}
 
 }

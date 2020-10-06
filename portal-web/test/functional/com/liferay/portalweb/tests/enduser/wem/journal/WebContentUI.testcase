@@ -27,6 +27,7 @@ definition {
 	@description = "Test that the UI for adding a WC folder works."
 	@priority = "5"
 	test AddFolder {
+		property portal.acceptance = "true";
 		property testray.component.names = "Training,Web Content Administration";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");

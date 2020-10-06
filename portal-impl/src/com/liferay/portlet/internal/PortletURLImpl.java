@@ -1569,9 +1569,6 @@ public class PortletURLImpl
 				plid = _layout.getPlid();
 			}
 
-			Map<String, String[]> publicRenderParametersMap =
-				PublicRenderParametersPool.get(_httpServletRequest, plid);
-
 			publicRenderParameterNames = new HashSet<>();
 
 			if (MimeResponse.Copy.ALL.equals(_copy) ||
@@ -1589,6 +1586,9 @@ public class PortletURLImpl
 					mutableRenderParameterMap = new LinkedHashMap<>(
 						privateRenderParameterMap);
 				}
+
+				Map<String, String[]> publicRenderParametersMap =
+					PublicRenderParametersPool.get(_httpServletRequest, plid);
 
 				Set<PublicRenderParameter> publicRenderParameters =
 					_portlet.getPublicRenderParameters();
@@ -1680,7 +1680,7 @@ public class PortletURLImpl
 		for (Map.Entry<String, String[]> entry : renderParameters.entrySet()) {
 			String name = entry.getKey();
 
-			if (name.contains(namespace)) {
+			if (name.startsWith(namespace)) {
 				name = name.substring(namespace.length());
 			}
 

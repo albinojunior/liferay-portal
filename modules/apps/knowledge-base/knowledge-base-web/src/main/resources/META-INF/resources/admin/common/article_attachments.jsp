@@ -30,17 +30,18 @@ if (kbArticle != null) {
 	<div class="kb-attachments">
 		<h5><liferay-ui:message key="attachments" /></h5>
 
-		<div class="row">
+		<clay:row>
 
 			<%
 			for (FileEntry fileEntry : attachmentsFileEntries) {
-				String rowURL = PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, "status=" + WorkflowConstants.STATUS_APPROVED);
 			%>
 
-				<div class="col-md-4">
+				<clay:col
+					md="4"
+				>
 					<liferay-frontend:horizontal-card
 						text="<%= fileEntry.getTitle() %>"
-						url="<%= rowURL %>"
+						url='<%= PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, "status=" + WorkflowConstants.STATUS_APPROVED) %>'
 					>
 						<liferay-frontend:horizontal-card-col>
 							<liferay-document-library:mime-type-sticker
@@ -48,12 +49,12 @@ if (kbArticle != null) {
 							/>
 						</liferay-frontend:horizontal-card-col>
 					</liferay-frontend:horizontal-card>
-				</div>
+				</clay:col>
 
 			<%
 			}
 			%>
 
-		</div>
+		</clay:row>
 	</div>
 </c:if>

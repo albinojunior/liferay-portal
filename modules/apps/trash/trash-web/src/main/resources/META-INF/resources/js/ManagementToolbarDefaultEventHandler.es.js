@@ -13,6 +13,7 @@
  */
 
 import {DefaultEventHandler} from 'frontend-js-web';
+import {Config} from 'metal-state';
 
 class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 	deleteSelectedEntries() {
@@ -24,6 +25,14 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 			submitForm(this.one('#fm'));
 		}
 	}
+
+	restoreSelectedEntries() {
+		submitForm(this.one('#fm'), this.restoreEntriesURL);
+	}
 }
+
+ManagementToolbarDefaultEventHandler.STATE = {
+	restoreEntriesURL: Config.string(),
+};
 
 export default ManagementToolbarDefaultEventHandler;

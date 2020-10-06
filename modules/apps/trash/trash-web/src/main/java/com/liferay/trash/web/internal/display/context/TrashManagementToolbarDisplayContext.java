@@ -19,7 +19,7 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -30,13 +30,17 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.trash.constants.TrashPortletKeys;
 import com.liferay.trash.model.TrashEntry;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import javax.portlet.ActionRequest;
 import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +72,13 @@ public class TrashManagementToolbarDisplayContext
 				dropdownItem.setLabel(LanguageUtil.get(request, "delete"));
 				dropdownItem.setQuickAction(true);
 			}
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "restoreSelectedEntries");
+				dropdownItem.setIcon("restore");
+				dropdownItem.setLabel(LanguageUtil.get(request, "restore"));
+				dropdownItem.setQuickAction(true);
+			}
 		).build();
 	}
 
@@ -75,7 +86,7 @@ public class TrashManagementToolbarDisplayContext
 		throws PortalException {
 
 		if (_isDeletable(trashEntry)) {
-			return "deleteSelectedEntries";
+			return "deleteSelectedEntries,restoreSelectedEntries";
 		}
 
 		return StringPool.BLANK;
@@ -89,6 +100,23 @@ public class TrashManagementToolbarDisplayContext
 		clearResultsURL.setParameter("keywords", StringPool.BLANK);
 
 		return clearResultsURL.toString();
+	}
+
+	public Map<String, Object> getComponentContext() {
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		PortletURL restoreEntriesURL = liferayPortletResponse.createActionURL(
+			TrashPortletKeys.TRASH);
+
+		restoreEntriesURL.setParameter(
+			ActionRequest.ACTION_NAME, "restoreEntries");
+		restoreEntriesURL.setParameter(
+			"redirect", themeDisplay.getURLCurrent());
+
+		return HashMapBuilder.<String, Object>put(
+			"restoreEntriesURL", restoreEntriesURL.toString()
+		).build();
 	}
 
 	@Override
@@ -106,31 +134,25 @@ public class TrashManagementToolbarDisplayContext
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		return new LabelItemList() {
-			{
-				if (Validator.isNotNull(getNavigation()) &&
-					!Objects.equals(getNavigation(), "all")) {
+		return LabelItemListBuilder.add(
+			() ->
+				Validator.isNotNull(getNavigation()) &&
+				!Objects.equals(getNavigation(), "all"),
+			labelItem -> {
+				PortletURL removeLabelURL = PortletURLUtil.clone(
+					currentURLObj, liferayPortletResponse);
 
-					add(
-						labelItem -> {
-							PortletURL removeLabelURL = PortletURLUtil.clone(
-								currentURLObj, liferayPortletResponse);
+				removeLabelURL.setParameter("navigation", (String)null);
 
-							removeLabelURL.setParameter(
-								"navigation", (String)null);
+				labelItem.putData("removeLabelURL", removeLabelURL.toString());
 
-							labelItem.putData(
-								"removeLabelURL", removeLabelURL.toString());
+				labelItem.setCloseable(true);
 
-							labelItem.setCloseable(true);
-
-							labelItem.setLabel(
-								ResourceActionsUtil.getModelResource(
-									themeDisplay.getLocale(), getNavigation()));
-						});
-				}
+				labelItem.setLabel(
+					ResourceActionsUtil.getModelResource(
+						themeDisplay.getLocale(), getNavigation()));
 			}
-		};
+		).build();
 	}
 
 	@Override

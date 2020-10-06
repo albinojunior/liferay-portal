@@ -36,6 +36,8 @@ definition {
 
 	@priority = "5"
 	test AssertPageTemplatesAreOnlyEditableInStagingView {
+		property portal.acceptance = "true";
+
 		task ("Assert content page templates admin is accessible in the staging site") {
 			PageTemplatesAdmin.openPageTemplatesMenuAdmin(siteURLKey = "test-site-name-staging");
 

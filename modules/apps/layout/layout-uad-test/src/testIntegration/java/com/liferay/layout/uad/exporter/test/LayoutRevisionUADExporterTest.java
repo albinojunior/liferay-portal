@@ -33,12 +33,14 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 /**
  * @author Brian Wing Shun Chan
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class LayoutRevisionUADExporterTest
 	extends BaseUADExporterTestCase<LayoutRevision>
@@ -88,7 +90,7 @@ public class LayoutRevisionUADExporterTest
 	}
 
 	@Override
-	protected UADExporter getUADExporter() {
+	protected UADExporter<LayoutRevision> getUADExporter() {
 		return _uadExporter;
 	}
 
@@ -102,7 +104,7 @@ public class LayoutRevisionUADExporterTest
 	private LayoutSetBranchLocalService _layoutSetBranchLocalService;
 
 	@Inject(filter = "component.name=*.LayoutRevisionUADExporter")
-	private UADExporter _uadExporter;
+	private UADExporter<LayoutRevision> _uadExporter;
 
 	@Inject
 	private UserLocalService _userLocalService;

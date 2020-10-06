@@ -18,6 +18,7 @@ import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowDefinition;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -193,34 +194,6 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 		return new WorkflowDefinition();
 	}
 
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/update-title'  -u 'test@liferay.com:test'
-	 */
-	@Override
-	@POST
-	@Parameters(
-		value = {
-			@Parameter(in = ParameterIn.QUERY, name = "name"),
-			@Parameter(in = ParameterIn.QUERY, name = "title"),
-			@Parameter(in = ParameterIn.QUERY, name = "version")
-		}
-	)
-	@Path("/workflow-definitions/update-title")
-	@Produces({"application/json", "application/xml"})
-	@Tags(value = {@Tag(name = "WorkflowDefinition")})
-	public WorkflowDefinition postWorkflowDefinitionUpdateTitle(
-			@NotNull @Parameter(hidden = true) @QueryParam("name") String name,
-			@NotNull @Parameter(hidden = true) @QueryParam("title") String
-				title,
-			@NotNull @Parameter(hidden = true) @QueryParam("version") String
-				version)
-		throws Exception {
-
-		return new WorkflowDefinition();
-	}
-
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
 		this.contextAcceptLanguage = contextAcceptLanguage;
 	}
@@ -253,6 +226,14 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -262,12 +243,21 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -275,12 +265,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(
-		WorkflowDefinition workflowDefinition,
-		WorkflowDefinition existingWorkflowDefinition) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

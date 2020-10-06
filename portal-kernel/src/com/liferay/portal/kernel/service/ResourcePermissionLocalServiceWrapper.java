@@ -132,6 +132,10 @@ public class ResourcePermissionLocalServiceWrapper
 	/**
 	 * Adds the resource permission to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourcePermissionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param resourcePermission the resource permission
 	 * @return the resource permission that was added
 	 */
@@ -249,6 +253,10 @@ public class ResourcePermissionLocalServiceWrapper
 	/**
 	 * Deletes the resource permission with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourcePermissionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param resourcePermissionId the primary key of the resource permission
 	 * @return the resource permission that was removed
 	 * @throws PortalException if a resource permission with the primary key could not be found
@@ -264,6 +272,10 @@ public class ResourcePermissionLocalServiceWrapper
 
 	/**
 	 * Deletes the resource permission from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourcePermissionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param resourcePermission the resource permission
 	 * @return the resource permission that was removed
@@ -334,6 +346,11 @@ public class ResourcePermissionLocalServiceWrapper
 
 		_resourcePermissionLocalService.deleteResourcePermissions(
 			companyId, name, scope, primKey);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _resourcePermissionLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -492,6 +509,14 @@ public class ResourcePermissionLocalServiceWrapper
 
 		return _resourcePermissionLocalService.
 			getIndexableActionableDynamicQuery();
+	}
+
+	@Override
+	public java.util.Map<String, java.util.List<ResourcePermission>>
+		getIndividualPortletResourcePermissions(long companyId) {
+
+		return _resourcePermissionLocalService.
+			getIndividualPortletResourcePermissions(companyId);
 	}
 
 	/**
@@ -1062,6 +1087,10 @@ public class ResourcePermissionLocalServiceWrapper
 
 	/**
 	 * Updates the resource permission in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourcePermissionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param resourcePermission the resource permission
 	 * @return the resource permission that was updated

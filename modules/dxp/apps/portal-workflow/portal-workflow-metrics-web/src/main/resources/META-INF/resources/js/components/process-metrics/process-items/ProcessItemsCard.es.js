@@ -10,69 +10,42 @@
  * distribution rights of the Software.
  */
 
+import ClayIcon from '@clayui/icon';
+import ClayLayout from '@clayui/layout';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import React, {useContext, useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 
-import Icon from '../../../shared/components/Icon.es';
 import Panel from '../../../shared/components/Panel.es';
-import EmptyState from '../../../shared/components/empty-state/EmptyState.es';
+import ContentView from '../../../shared/components/content-view/ContentView.es';
 import ReloadButton from '../../../shared/components/list/ReloadButton.es';
-import LoadingState from '../../../shared/components/loading/LoadingState.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../shared/hooks/useFetch.es';
-import {AppContext} from '../../AppContext.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
 import PANELS from './Panels.es';
 import SummaryCard from './SummaryCard.es';
 
-function ProcessItemsCard({
+const ProcessItemsCard = ({
 	children,
 	completed,
 	description,
-	filtersError,
 	processId,
-	timeRange,
+	timeRange = {},
 	title,
-}) {
-	const {setTitle} = useContext(AppContext);
-
-	const {dateEnd, dateStart} = timeRange || {};
-
-	let timeRangeParams = {};
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
-
+}) => {
 	const {data, fetchData} = useFetch({
 		params: {
 			completed,
-			...timeRangeParams,
+			...timeRange,
 		},
-		url: `/processes/${processId}`,
+		url: `/processes/${processId}/metrics`,
 	});
 
-	useEffect(() => {
-		setTitle(data.title);
-	}, [data.title]);
-
 	const promises = useMemo(() => {
-		if (
-			!timeRange ||
-			(timeRangeParams.dateEnd && timeRangeParams.dateStart)
-		) {
+		if (!completed || (timeRange.dateEnd && timeRange.dateStart)) {
 			return [fetchData()];
 		}
 
-		return [new Promise((_, reject) => reject(filtersError))];
-	}, [
-		fetchData,
-		filtersError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-	]);
+		return [new Promise((_, reject) => reject())];
+	}, [fetchData, timeRange.dateEnd, timeRange.dateStart]);
 
 	return (
 		<PromisesResolver promises={promises}>
@@ -94,14 +67,27 @@ function ProcessItemsCard({
 			</Panel>
 		</PromisesResolver>
 	);
-}
+};
 
 const Body = ({completed = false, data, processId, timeRange}) => {
+	const statesProps = {
+		errorProps: {
+			actionButton: <ReloadButton />,
+			className: 'mt-2 pb-5 pt-4',
+			hideAnimation: true,
+			message: Liferay.Language.get(
+				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
+			),
+			messageClassName: 'small',
+		},
+		loadingProps: {className: 'mt-2 pb-5 pt-4'},
+	};
+
 	return (
 		<Panel.Body>
-			<PromisesResolver.Resolved>
+			<ContentView {...statesProps}>
 				{data ? (
-					<div className={'d-flex pb-4 pt-1'}>
+					<div className="d-flex pb-3">
 						{PANELS.map((panel, index) => (
 							<SummaryCard
 								{...panel}
@@ -117,23 +103,10 @@ const Body = ({completed = false, data, processId, timeRange}) => {
 							/>
 						))}
 					</div>
-				) : null}
-			</PromisesResolver.Resolved>
-
-			<PromisesResolver.Rejected>
-				<EmptyState
-					actionButton={<ReloadButton />}
-					className="border-0"
-					hideAnimation={true}
-					message={Liferay.Language.get(
-						'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-					)}
-				/>
-			</PromisesResolver.Rejected>
-
-			<PromisesResolver.Pending>
-				<LoadingState className="pb-6 pt-5" />
-			</PromisesResolver.Pending>
+				) : (
+					<></>
+				)}
+			</ContentView>
 		</Panel.Body>
 	);
 };
@@ -142,8 +115,8 @@ const Header = ({children, data, description, title}) => (
 	<Panel.Header
 		elementClasses={['dashboard-panel-header', children && 'pb-0']}
 	>
-		<div className="autofit-row">
-			<div className="autofit-col autofit-col-expand flex-row">
+		<ClayLayout.ContentRow>
+			<ClayLayout.ContentCol className="flex-row" expand>
 				<span className="mr-2">{title}</span>
 
 				<ClayTooltipProvider>
@@ -153,18 +126,18 @@ const Header = ({children, data, description, title}) => (
 							data-tooltip-align={'right'}
 							title={description}
 						>
-							<Icon iconName={'question-circle-full'} />
+							<ClayIcon symbol="question-circle-full" />
 						</span>
 					</span>
 				</ClayTooltipProvider>
-			</div>
+			</ClayLayout.ContentCol>
 
 			{children && data && (
-				<div className="autofit-col m-0 management-bar management-bar-light navbar">
+				<ClayLayout.ContentCol className="m-0 management-bar management-bar-light navbar">
 					<ul className="navbar-nav">{children}</ul>
-				</div>
+				</ClayLayout.ContentCol>
 			)}
-		</div>
+		</ClayLayout.ContentRow>
 	</Panel.Header>
 );
 

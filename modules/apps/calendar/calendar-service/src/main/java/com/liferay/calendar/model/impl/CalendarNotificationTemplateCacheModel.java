@@ -38,18 +38,18 @@ public class CalendarNotificationTemplateCacheModel
 			   MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof CalendarNotificationTemplateCacheModel)) {
+		if (!(object instanceof CalendarNotificationTemplateCacheModel)) {
 			return false;
 		}
 
 		CalendarNotificationTemplateCacheModel
 			calendarNotificationTemplateCacheModel =
-				(CalendarNotificationTemplateCacheModel)obj;
+				(CalendarNotificationTemplateCacheModel)object;
 
 		if ((calendarNotificationTemplateId ==
 				calendarNotificationTemplateCacheModel.
@@ -218,7 +218,9 @@ public class CalendarNotificationTemplateCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
@@ -238,7 +240,7 @@ public class CalendarNotificationTemplateCacheModel
 		notificationTypeSettings = objectInput.readUTF();
 		notificationTemplateType = objectInput.readUTF();
 		subject = objectInput.readUTF();
-		body = objectInput.readUTF();
+		body = (String)objectInput.readObject();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -302,10 +304,10 @@ public class CalendarNotificationTemplateCacheModel
 		}
 
 		if (body == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(body);
+			objectOutput.writeObject(body);
 		}
 
 		objectOutput.writeLong(lastPublishDate);

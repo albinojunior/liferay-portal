@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.OrgLaborLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ListTypePersistence;
 import com.liferay.portal.kernel.service.persistence.OrgLaborPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -71,6 +73,10 @@ public abstract class OrgLaborLocalServiceBaseImpl
 	/**
 	 * Adds the org labor to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param orgLabor the org labor
 	 * @return the org labor that was added
 	 */
@@ -97,6 +103,10 @@ public abstract class OrgLaborLocalServiceBaseImpl
 	/**
 	 * Deletes the org labor with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param orgLaborId the primary key of the org labor
 	 * @return the org labor that was removed
 	 * @throws PortalException if a org labor with the primary key could not be found
@@ -110,6 +120,10 @@ public abstract class OrgLaborLocalServiceBaseImpl
 	/**
 	 * Deletes the org labor from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param orgLabor the org labor
 	 * @return the org labor that was removed
 	 */
@@ -117,6 +131,11 @@ public abstract class OrgLaborLocalServiceBaseImpl
 	@Override
 	public OrgLabor deleteOrgLabor(OrgLabor orgLabor) {
 		return orgLaborPersistence.remove(orgLabor);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return orgLaborPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -283,6 +302,10 @@ public abstract class OrgLaborLocalServiceBaseImpl
 		return orgLaborLocalService.deleteOrgLabor((OrgLabor)persistedModel);
 	}
 
+	public BasePersistence<OrgLabor> getBasePersistence() {
+		return orgLaborPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -321,6 +344,10 @@ public abstract class OrgLaborLocalServiceBaseImpl
 
 	/**
 	 * Updates the org labor in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param orgLabor the org labor
 	 * @return the org labor that was updated

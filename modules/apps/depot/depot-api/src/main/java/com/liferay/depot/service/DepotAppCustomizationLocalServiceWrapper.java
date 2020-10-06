@@ -36,6 +36,10 @@ public class DepotAppCustomizationLocalServiceWrapper
 	/**
 	 * Adds the depot app customization to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param depotAppCustomization the depot app customization
 	 * @return the depot app customization that was added
 	 */
@@ -78,6 +82,10 @@ public class DepotAppCustomizationLocalServiceWrapper
 	/**
 	 * Deletes the depot app customization from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param depotAppCustomization the depot app customization
 	 * @return the depot app customization that was removed
 	 */
@@ -93,6 +101,10 @@ public class DepotAppCustomizationLocalServiceWrapper
 
 	/**
 	 * Deletes the depot app customization with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param depotAppCustomizationId the primary key of the depot app customization
 	 * @return the depot app customization that was removed
@@ -117,6 +129,11 @@ public class DepotAppCustomizationLocalServiceWrapper
 
 		return _depotAppCustomizationLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _depotAppCustomizationLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -281,6 +298,14 @@ public class DepotAppCustomizationLocalServiceWrapper
 	}
 
 	@Override
+	public int getDepotAppCustomizationsCount(
+		long depotEntryId, boolean enabled) {
+
+		return _depotAppCustomizationLocalService.
+			getDepotAppCustomizationsCount(depotEntryId, enabled);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 		getIndexableActionableDynamicQuery() {
 
@@ -312,6 +337,10 @@ public class DepotAppCustomizationLocalServiceWrapper
 
 	/**
 	 * Updates the depot app customization in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DepotAppCustomizationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param depotAppCustomization the depot app customization
 	 * @return the depot app customization that was updated

@@ -21,19 +21,13 @@ public class MFAEmailOTPWebKeys {
 
 	public static final String MFA_EMAIL_OTP = "MFA_EMAIL_OTP";
 
-	public static final String MFA_EMAIL_OTP_CHECKER = "MFA_EMAIL_OTP_CHECKER";
-
-	public static final String MFA_EMAIL_OTP_CONFIGURATION =
-		"MFA_EMAIL_OTP_CONFIGURATION";
-
-	public static final String MFA_EMAIL_OTP_DIGEST = "MFA_EMAIL_OTP_DIGEST";
-
-	public static final String MFA_EMAIL_OTP_KEY = "MFA_EMAIL_OTP_KEY";
+	public static final String MFA_EMAIL_OTP_FAILED_ATTEMPTS_RETRY_TIMEOUT =
+		"MFA_EMAIL_OTP_FAILED_ATTEMPTS_RETRY_TIMEOUT";
 
 	public static final String MFA_EMAIL_OTP_PHASE = "MFA_EMAIL_OTP_PHASE";
 
-	public static final String MFA_EMAIL_OTP_SEND_TO_ADDRESS =
-		"MFA_EMAIL_OTP_SEND_TO_ADDRESS";
+	public static final String MFA_EMAIL_OTP_SEND_TO_ADDRESS_OBFUSCATED =
+		"MFA_EMAIL_OTP_SEND_TO_ADDRESS_OBFUSCATED";
 
 	public static final String MFA_EMAIL_OTP_SET_AT_TIME =
 		"MFA_EMAIL_OTP_SET_AT_TIME";

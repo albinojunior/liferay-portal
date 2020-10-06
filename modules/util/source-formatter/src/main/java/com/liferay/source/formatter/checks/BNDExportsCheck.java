@@ -67,17 +67,28 @@ public class BNDExportsCheck extends BaseFileCheck {
 			_checkExports(fileName, content, _exportsPattern, "Export-Package");
 		}
 
-		if (absolutePath.contains("/modules/apps/")) {
-			_checkAllowedExportPackages(fileName, absolutePath, content);
+		List<String> exportPackages = _getExportPackages(content);
+
+		if (exportPackages.isEmpty()) {
+			return content;
 		}
 
-		_checkExportPackages(fileName, content, isModulesFile(absolutePath));
+		if (absolutePath.contains("/modules/apps/")) {
+			_checkAllowedExportPackages(fileName, absolutePath, exportPackages);
+		}
+
+		_checkExportPackages(
+			fileName, exportPackages, isModulesFile(absolutePath));
 
 		return content;
 	}
 
 	private void _checkAllowedExportPackages(
-		String fileName, String absolutePath, String content) {
+		String fileName, String absolutePath, List<String> exportPackages) {
+
+		if (fileName.endsWith("/test-bnd.bnd")) {
+			return;
+		}
 
 		List<String> allowedExportPackageDirNames = getAttributeValues(
 			_ALLOWED_EXPORT_PACKAGE_DIR_NAMES_KEY, absolutePath);
@@ -90,25 +101,39 @@ public class BNDExportsCheck extends BaseFileCheck {
 			}
 		}
 
-		if (fileName.endsWith("/test-bnd.bnd") ||
-			absolutePath.contains("-api/") ||
-			absolutePath.contains("-client/") ||
-			absolutePath.contains("-spi/") ||
-			absolutePath.contains("-taglib/") ||
-			absolutePath.contains("-test-util/") ||
-			!content.contains("Export-Package")) {
-
-			return;
-		}
-
 		int x = absolutePath.lastIndexOf(StringPool.SLASH);
 
 		int y = absolutePath.lastIndexOf(StringPool.SLASH, x - 1);
 
-		addMessage(
-			fileName,
-			"Exporting packages not allowed in module '" +
-				absolutePath.substring(y + 1, x) + "'");
+		String moduleName = absolutePath.substring(y + 1, x);
+
+		if (moduleName.endsWith("-api") || moduleName.endsWith("-client") ||
+			moduleName.endsWith("-spi") || moduleName.endsWith("-taglib") ||
+			moduleName.contains("-taglib-") ||
+			moduleName.endsWith("-test-util")) {
+
+			return;
+		}
+
+		if (!moduleName.endsWith("-service")) {
+			addMessage(
+				fileName,
+				"Exporting packages not allowed in module '" + moduleName +
+					"'");
+
+			return;
+		}
+
+		for (String exportPackage : exportPackages) {
+			if (!exportPackage.endsWith(".http")) {
+				addMessage(
+					fileName,
+					"Only allowed to export package '*.http' in module '" +
+						moduleName + "'");
+
+				return;
+			}
+		}
 	}
 
 	private void _checkExportPackage(
@@ -162,14 +187,8 @@ public class BNDExportsCheck extends BaseFileCheck {
 	}
 
 	private void _checkExportPackages(
-			String fileName, String content, boolean modulesFile)
+			String fileName, List<String> exportPackages, boolean modulesFile)
 		throws IOException {
-
-		List<String> exportPackages = _getExportPackages(content);
-
-		if (exportPackages.isEmpty()) {
-			return;
-		}
 
 		String srcDirLocation = _getSrcDirLocation(fileName, modulesFile);
 
@@ -292,12 +311,12 @@ public class BNDExportsCheck extends BaseFileCheck {
 						new FileFilter() {
 
 							@Override
-							public boolean accept(File pathname) {
-								if (!pathname.isFile()) {
+							public boolean accept(File file) {
+								if (!file.isFile()) {
 									return false;
 								}
 
-								String fileName = pathname.getName();
+								String fileName = file.getName();
 
 								if (fileName.endsWith(".java")) {
 									return true;
@@ -354,8 +373,8 @@ public class BNDExportsCheck extends BaseFileCheck {
 			new FileFilter() {
 
 				@Override
-				public boolean accept(File pathname) {
-					String fileName = pathname.getName();
+				public boolean accept(File file) {
+					String fileName = file.getName();
 
 					if (fileName.startsWith(".lfrbuild-") ||
 						fileName.equals("packageinfo")) {
@@ -363,7 +382,7 @@ public class BNDExportsCheck extends BaseFileCheck {
 						return false;
 					}
 
-					return pathname.isFile();
+					return file.isFile();
 				}
 
 			});
@@ -410,8 +429,8 @@ public class BNDExportsCheck extends BaseFileCheck {
 			new FileFilter() {
 
 				@Override
-				public boolean accept(File pathname) {
-					return pathname.isFile();
+				public boolean accept(File file) {
+					return file.isFile();
 				}
 
 			});

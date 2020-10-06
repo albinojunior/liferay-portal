@@ -1,19 +1,25 @@
 task runGradleTest
+task untarOverrideTestScript(type: Copy)
 
 runGradleTest {
-	dependsOn createDockerContainer
+	dependsOn createDockerContainer, untarOverrideTestScript
 
 	doLast {
+		File overrideTestScript = new File(buildDir, "override_test.sh");
+
+		assert overrideTestScript.text.contains("local");
+
 		File inputDir = new File(buildDir, "docker")
 
 		String[] inputDirFileNames = inputDir.list()
 
-		assert inputDirFileNames.length == 6
+		assert inputDirFileNames.length == 7
 
 		assert inputDirFileNames.contains("100_liferay_image_setup.sh")
 		assert inputDirFileNames.contains("Dockerfile")
 		assert inputDirFileNames.contains("configs")
 		assert inputDirFileNames.contains("deploy")
+		assert inputDirFileNames.contains("patching")
 		assert inputDirFileNames.contains("scripts")
 		assert inputDirFileNames.contains("work")
 
@@ -29,10 +35,11 @@ runGradleTest {
 
 		String[] localDirFileNames = localDir.list()
 
-		assert localDirFileNames.length == 2
+		assert localDirFileNames.length == 3
 
 		assert localDirFileNames.contains("local_file")
 		assert localDirFileNames.contains("portal-ext.properties")
+		assert localDirFileNames.contains("scripts")
 
 		File deployDir = new File(inputDir, "deploy")
 
@@ -42,4 +49,10 @@ runGradleTest {
 	}
 
 	finalizedBy removeDockerContainer
+}
+
+untarOverrideTestScript {
+	dependsOn "copyOverrideTestScript"
+	from tarTree(rootProject.buildDir.path + "/override_test.sh.tar")
+	into buildDir
 }

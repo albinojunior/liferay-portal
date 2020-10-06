@@ -14,6 +14,8 @@
 
 package com.liferay.petra.json.web.service.client.server.simulator;
 
+import com.liferay.petra.json.web.service.client.server.simulator.constants.SimulatorConstants;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -22,8 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-
-import java.net.URI;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -197,9 +197,7 @@ public class BaseHttpHandlerImpl implements HttpHandler {
 	}
 
 	protected String getQuery(HttpExchange httpExchange) throws IOException {
-		URI requestURI = httpExchange.getRequestURI();
-
-		String requestURIString = requestURI.toString();
+		String requestURIString = String.valueOf(httpExchange.getRequestURI());
 
 		if (!requestURIString.contains("?")) {
 			return null;

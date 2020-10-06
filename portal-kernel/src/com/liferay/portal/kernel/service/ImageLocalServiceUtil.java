@@ -39,6 +39,10 @@ public class ImageLocalServiceUtil {
 	/**
 	 * Adds the image to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ImageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param image the image
 	 * @return the image that was added
 	 */
@@ -73,6 +77,10 @@ public class ImageLocalServiceUtil {
 	/**
 	 * Deletes the image from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ImageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param image the image
 	 * @return the image that was removed
 	 */
@@ -84,6 +92,10 @@ public class ImageLocalServiceUtil {
 
 	/**
 	 * Deletes the image with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ImageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param imageId the primary key of the image
 	 * @return the image that was removed
@@ -105,6 +117,12 @@ public class ImageLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -303,6 +321,10 @@ public class ImageLocalServiceUtil {
 	/**
 	 * Updates the image in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ImageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param image the image
 	 * @return the image that was updated
 	 */
@@ -336,17 +358,18 @@ public class ImageLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.model.Image updateImage(
-			long imageId, java.io.InputStream is)
+			long imageId, java.io.InputStream inputStream)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return getService().updateImage(imageId, is);
+		return getService().updateImage(imageId, inputStream);
 	}
 
 	public static com.liferay.portal.kernel.model.Image updateImage(
-			long imageId, java.io.InputStream is, boolean cleanUpStream)
+			long imageId, java.io.InputStream inputStream,
+			boolean cleanUpStream)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return getService().updateImage(imageId, is, cleanUpStream);
+		return getService().updateImage(imageId, inputStream, cleanUpStream);
 	}
 
 	public static ImageLocalService getService() {

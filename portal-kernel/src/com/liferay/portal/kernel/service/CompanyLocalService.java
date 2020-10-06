@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -61,11 +62,15 @@ public interface CompanyLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link CompanyLocalServiceUtil} to access the company local service. Add custom service methods to <code>com.liferay.portal.service.impl.CompanyLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.CompanyLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the company local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link CompanyLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the company to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param company the company
 	 * @return the company that was added
@@ -74,8 +79,10 @@ public interface CompanyLocalService
 	public Company addCompany(Company company);
 
 	/**
-	 * Adds a company.
+	 * Adds a company with the primary key.
 	 *
+	 * @param companyId the primary key of the company (optionally <code>null</code> or
+	 <code>0</code> to generate a key automatically)
 	 * @param webId the the company's web domain
 	 * @param virtualHostname the company's virtual host name
 	 * @param mx the company's mail domain
@@ -86,6 +93,28 @@ public interface CompanyLocalService
 	 * @param active whether the company is active
 	 * @return the company
 	 */
+	public Company addCompany(
+			Long companyId, String webId, String virtualHostname, String mx,
+			boolean system, int maxUsers, boolean active)
+		throws PortalException;
+
+	/**
+	 * Adds a company.
+	 *
+	 * @param webId the the company's web domain
+	 * @param virtualHostname the company's virtual host name
+	 * @param mx the company's mail domain
+	 * @param system whether the company is the very first company (i.e.,
+	 the super company)
+	 * @param maxUsers the max number of company users (optionally
+	 <code>0</code>)
+	 * @param active whether the company is active
+	 * @return the company
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #addCompany(Long, String, String, String, boolean, int,
+	 boolean)}
+	 */
+	@Deprecated
 	public Company addCompany(
 			String webId, String virtualHostname, String mx, boolean system,
 			int maxUsers, boolean active)
@@ -103,8 +132,7 @@ public interface CompanyLocalService
 	public Company checkCompany(String webId) throws PortalException;
 
 	/**
-	 * Returns the company with the web domain and mail domain. If no such
-	 * company exits, the method will create a new company.
+	 * Returns the company with the web domain and mail domain.
 	 *
 	 * The method goes through a series of checks to ensure that the company
 	 * contains default users, groups, etc.
@@ -145,6 +173,10 @@ public interface CompanyLocalService
 	/**
 	 * Deletes the company from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param company the company
 	 * @return the company that was removed
 	 * @throws PortalException
@@ -154,6 +186,10 @@ public interface CompanyLocalService
 
 	/**
 	 * Deletes the company with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyId the primary key of the company
 	 * @return the company that was removed
@@ -176,6 +212,9 @@ public interface CompanyLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -467,6 +506,10 @@ public interface CompanyLocalService
 	/**
 	 * Updates the company in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param company the company
 	 * @return the company that was updated
 	 */
@@ -559,10 +602,10 @@ public interface CompanyLocalService
 	 * Update the company's logo.
 	 *
 	 * @param companyId the primary key of the company
-	 * @param is the input stream of the company's logo image
+	 * @param inputStream the input stream of the company's logo image
 	 * @return the company with the primary key
 	 */
-	public Company updateLogo(long companyId, InputStream is)
+	public Company updateLogo(long companyId, InputStream inputStream)
 		throws PortalException;
 
 	/**
@@ -570,9 +613,11 @@ public interface CompanyLocalService
 	 * found in portal.properties.
 	 *
 	 * @param companyId the primary key of the company
-	 * @param properties the company's properties. See {@link UnicodeProperties}
+	 * @param unicodeProperties the company's properties. See {@link
+	 UnicodeProperties}
 	 */
-	public void updatePreferences(long companyId, UnicodeProperties properties)
+	public void updatePreferences(
+			long companyId, UnicodeProperties unicodeProperties)
 		throws PortalException;
 
 	/**

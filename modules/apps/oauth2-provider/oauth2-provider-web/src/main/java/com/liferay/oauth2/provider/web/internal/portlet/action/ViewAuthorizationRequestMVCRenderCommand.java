@@ -83,9 +83,6 @@ public class ViewAuthorizationRequestMVCRenderCommand
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		HttpServletRequest httpServletRequest =
 			_portal.getOriginalServletRequest(
 				_portal.getHttpServletRequest(renderRequest));
@@ -109,6 +106,9 @@ public class ViewAuthorizationRequestMVCRenderCommand
 			return "/authorize/error.jsp";
 		}
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		String clientId = oAuth2Parameters.get("client_id");
 
 		try {
@@ -118,7 +118,8 @@ public class ViewAuthorizationRequestMVCRenderCommand
 			OAuth2AuthorizePortletDisplayContext
 				oAuth2AuthorizePortletDisplayContext =
 					new OAuth2AuthorizePortletDisplayContext(
-						themeDisplay, _dlURLHelper);
+						_dlURLHelper, _oAuth2ApplicationService, renderRequest,
+						themeDisplay);
 
 			oAuth2AuthorizePortletDisplayContext.setOAuth2Application(
 				oAuth2Application);
@@ -185,10 +186,11 @@ public class ViewAuthorizationRequestMVCRenderCommand
 
 		Map<String, String> oAuth2Parameters = new HashMap<>();
 
-		Enumeration<String> names = httpServletRequest.getParameterNames();
+		Enumeration<String> enumeration =
+			httpServletRequest.getParameterNames();
 
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.startsWith("oauth2_")) {
 				oAuth2Parameters.put(

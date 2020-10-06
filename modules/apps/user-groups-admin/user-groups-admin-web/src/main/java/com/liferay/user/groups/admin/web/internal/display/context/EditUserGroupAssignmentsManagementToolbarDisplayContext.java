@@ -15,7 +15,6 @@
 package com.liferay.user.groups.admin.web.internal.display.context;
 
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItemList;
@@ -31,6 +30,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.usergroupsadmin.search.SetUserUserGroupChecker;
@@ -70,21 +70,16 @@ public class EditUserGroupAssignmentsManagementToolbarDisplayContext {
 	}
 
 	public List<DropdownItem> getActionDropdownItems() {
-		return new DropdownItemList() {
-			{
-				if (_hasAddUserGroupPermission()) {
-					add(
-						dropdownItem -> {
-							dropdownItem.setHref("javascript:;");
-							dropdownItem.setIcon("minus-circle");
-							dropdownItem.setLabel(
-								LanguageUtil.get(
-									_httpServletRequest, "remove"));
-							dropdownItem.setQuickAction(true);
-						});
-				}
+		return DropdownItemListBuilder.add(
+			() -> _hasAddUserGroupPermission(),
+			dropdownItem -> {
+				dropdownItem.setHref("javascript:;");
+				dropdownItem.setIcon("minus-circle");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "remove"));
+				dropdownItem.setQuickAction(true);
 			}
-		};
+		).build();
 	}
 
 	public String getClearResultsURL() {
@@ -174,10 +169,13 @@ public class EditUserGroupAssignmentsManagementToolbarDisplayContext {
 	public String getSearchActionURL() {
 		PortletURL searchActionURL = getPortletURL();
 
+		searchActionURL.setParameter(
+			"redirect", PortalUtil.getCurrentURL(_httpServletRequest));
+
 		return searchActionURL.toString();
 	}
 
-	public SearchContainer getSearchContainer(
+	public SearchContainer<User> getSearchContainer(
 			LinkedHashMap<String, Object> userParams)
 		throws Exception {
 

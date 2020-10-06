@@ -62,6 +62,13 @@ public class GridDDMFormFieldValueAccessor
 	}
 
 	@Override
+	public JSONObject getValueForEvaluation(
+		DDMFormFieldValue ddmFormFieldValue, Locale locale) {
+
+		return getValue(ddmFormFieldValue, locale);
+	}
+
+	@Override
 	public boolean isEmpty(DDMFormFieldValue ddmFormFieldValue, Locale locale) {
 		JSONObject jsonObject = getValue(ddmFormFieldValue, locale);
 
@@ -98,10 +105,10 @@ public class GridDDMFormFieldValueAccessor
 	protected Set<String> getUniqueKeys(JSONObject jsonObject) {
 		Set<String> uniqueKeys = new HashSet<>();
 
-		Iterator<String> keys = jsonObject.keys();
+		Iterator<String> iterator = jsonObject.keys();
 
-		while (keys.hasNext()) {
-			uniqueKeys.add(keys.next());
+		while (iterator.hasNext()) {
+			uniqueKeys.add(iterator.next());
 		}
 
 		return uniqueKeys;

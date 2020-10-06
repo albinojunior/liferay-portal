@@ -12,176 +12,123 @@
  * details.
  */
 
-/* eslint-disable no-unused-vars */
-import {FieldBase} from 'dynamic-data-mapping-form-field-type';
+import ClayButton from '@clayui/button';
+import ClayForm, {ClayInput} from '@clayui/form';
+import {ReactFieldBase} from 'dynamic-data-mapping-form-field-type';
+import {openSelectionModal} from 'frontend-js-web';
+import React, {useEffect, useState} from 'react';
 
-/* eslint-enable no-unused-vars */
-import Component from 'metal-component';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+const JournalArticleSelector = ({
+	disabled,
+	inputValue,
+	itemSelectorURL,
+	name,
+	onChange,
+	portletNamespace,
+}) => {
+	const [article, setArticle] = useState(() =>
+		JSON.parse(inputValue || '{}')
+	);
 
-import './JournalArticleSelectorAdapter.soy';
+	useEffect(() => {
+		setArticle(JSON.parse(inputValue || '{}'));
+	}, [inputValue]);
 
-import './JournalArticleSelectorRegister.soy';
+	const handleClearClick = () => {
+		setArticle({});
+		onChange('');
+	};
 
-import './ReactJournalArticleSelectorAdapter';
-import templates from './JournalArticleSelector.soy';
+	const handleFieldChanged = (event) => {
+		const selectedItem = event.selectedItem;
 
-class JournalArticleSelector extends Component {
-	dispatchEvent(event, name, value) {
-		this.emit(name, {
-			fieldInstance: this,
-			originalEvent: event,
-			value,
-		});
-	}
-
-	_handleOnDispatch(event) {
-		switch (event.type) {
-			case 'value':
-				this.dispatchEvent(event, 'fieldEdited', event.payload);
-				break;
-			case 'blur':
-				this.dispatchEvent(
-					event.payload,
-					'fieldBlurred',
-					event.payload.target.value
-				);
-				break;
-			case 'focus':
-				this.dispatchEvent(
-					event.payload,
-					'fieldFocused',
-					event.payload.target.value
-				);
-				break;
-			default:
-				console.error(new TypeError(`There is no type ${event.type}`));
-				break;
+		if (selectedItem && selectedItem.value) {
+			setArticle(JSON.parse(selectedItem.value));
+			onChange(selectedItem.value);
 		}
-	}
-}
+	};
 
-JournalArticleSelector.STATE = {
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
+	const handleItemSelectorTriggerClick = (event) => {
+		event.preventDefault();
 
-	errorMessage: Config.string(),
+		openSelectionModal({
+			onSelect: handleFieldChanged,
+			selectEventName: `${portletNamespace}selectJournalArticle`,
+			title: Liferay.Language.get('journal-article'),
+			url: itemSelectorURL,
+		});
+	};
 
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?bool}
-	 */
+	return (
+		<ClayForm.Group style={{marginBottom: '0.5rem'}}>
+			<ClayInput.Group>
+				<ClayInput.GroupItem className="d-none d-sm-block" prepend>
+					<input
+						name={name}
+						type="hidden"
+						value={JSON.stringify(article)}
+					/>
 
-	evaluable: Config.bool().value(false),
+					<ClayInput
+						className="bg-light"
+						disabled={disabled}
+						onClick={handleItemSelectorTriggerClick}
+						readOnly
+						type="text"
+						value={article.title || ''}
+					/>
+				</ClayInput.GroupItem>
 
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
+				<ClayInput.GroupItem append shrink>
+					<ClayButton
+						disabled={disabled}
+						displayType="secondary"
+						onClick={handleItemSelectorTriggerClick}
+						type="button"
+					>
+						{Liferay.Language.get('select')}
+					</ClayButton>
+				</ClayInput.GroupItem>
 
-	fieldName: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
-
-	name: Config.string().required(),
-
-	/**
-	 * @default '000000'
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
-
-	predefinedValue: Config.string().value('000000'),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool().value(false),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(bool|undefined)}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(bool|undefined)}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof JournalArticleSelector
-	 * @type {?(string|undefined)}
-	 */
-
-	value: Config.string(),
+				{article.classPK && (
+					<ClayInput.GroupItem shrink>
+						<ClayButton
+							disabled={disabled}
+							displayType="secondary"
+							onClick={handleClearClick}
+							type="button"
+						>
+							{Liferay.Language.get('clear')}
+						</ClayButton>
+					</ClayInput.GroupItem>
+				)}
+			</ClayInput.Group>
+		</ClayForm.Group>
+	);
 };
 
-Soy.register(JournalArticleSelector, templates);
+const Main = ({
+	itemSelectorURL,
+	name,
+	onChange,
+	portletNamespace,
+	predefinedValue,
+	readOnly,
+	value,
+	...otherProps
+}) => (
+	<ReactFieldBase {...otherProps} name={name} readOnly={readOnly}>
+		<JournalArticleSelector
+			disabled={readOnly}
+			inputValue={value && value !== '' ? value : predefinedValue}
+			itemSelectorURL={itemSelectorURL}
+			name={name}
+			onChange={(value) => onChange({}, value)}
+			portletNamespace={portletNamespace}
+		/>
+	</ReactFieldBase>
+);
 
-export {JournalArticleSelector};
-export default JournalArticleSelector;
+Main.displayName = 'JournalArticleSelector';
+
+export default Main;

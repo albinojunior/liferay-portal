@@ -14,7 +14,10 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
+import com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 /**
  * Provides a wrapper for {@link DDMFormInstanceVersionLocalService}.
@@ -37,14 +40,16 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	/**
 	 * Adds the ddm form instance version to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceVersion the ddm form instance version
 	 * @return the ddm form instance version that was added
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-		addDDMFormInstanceVersion(
-			com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-				ddmFormInstanceVersion) {
+	public DDMFormInstanceVersion addDDMFormInstanceVersion(
+		DDMFormInstanceVersion ddmFormInstanceVersion) {
 
 		return _ddmFormInstanceVersionLocalService.addDDMFormInstanceVersion(
 			ddmFormInstanceVersion);
@@ -57,8 +62,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	 * @return the new ddm form instance version
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-		createDDMFormInstanceVersion(long formInstanceVersionId) {
+	public DDMFormInstanceVersion createDDMFormInstanceVersion(
+		long formInstanceVersionId) {
 
 		return _ddmFormInstanceVersionLocalService.createDDMFormInstanceVersion(
 			formInstanceVersionId);
@@ -85,14 +90,16 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	/**
 	 * Deletes the ddm form instance version from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceVersion the ddm form instance version
 	 * @return the ddm form instance version that was removed
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-		deleteDDMFormInstanceVersion(
-			com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-				ddmFormInstanceVersion) {
+	public DDMFormInstanceVersion deleteDDMFormInstanceVersion(
+		DDMFormInstanceVersion ddmFormInstanceVersion) {
 
 		return _ddmFormInstanceVersionLocalService.deleteDDMFormInstanceVersion(
 			ddmFormInstanceVersion);
@@ -101,13 +108,17 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	/**
 	 * Deletes the ddm form instance version with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param formInstanceVersionId the primary key of the ddm form instance version
 	 * @return the ddm form instance version that was removed
 	 * @throws PortalException if a ddm form instance version with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-			deleteDDMFormInstanceVersion(long formInstanceVersionId)
+	public DDMFormInstanceVersion deleteDDMFormInstanceVersion(
+			long formInstanceVersionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceVersionLocalService.deleteDDMFormInstanceVersion(
@@ -124,6 +135,11 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 
 		return _ddmFormInstanceVersionLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ddmFormInstanceVersionLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -219,8 +235,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-		fetchDDMFormInstanceVersion(long formInstanceVersionId) {
+	public DDMFormInstanceVersion fetchDDMFormInstanceVersion(
+		long formInstanceVersionId) {
 
 		return _ddmFormInstanceVersionLocalService.fetchDDMFormInstanceVersion(
 			formInstanceVersionId);
@@ -241,8 +257,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	 * @throws PortalException if a ddm form instance version with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-			getDDMFormInstanceVersion(long formInstanceVersionId)
+	public DDMFormInstanceVersion getDDMFormInstanceVersion(
+			long formInstanceVersionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceVersionLocalService.getDDMFormInstanceVersion(
@@ -261,9 +277,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	 * @return the range of ddm form instance versions
 	 */
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion>
-			getDDMFormInstanceVersions(int start, int end) {
+	public java.util.List<DDMFormInstanceVersion> getDDMFormInstanceVersions(
+		int start, int end) {
 
 		return _ddmFormInstanceVersionLocalService.getDDMFormInstanceVersions(
 			start, end);
@@ -281,8 +296,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-			getFormInstanceVersion(long ddmFormInstanceVersionId)
+	public DDMFormInstanceVersion getFormInstanceVersion(
+			long ddmFormInstanceVersionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceVersionLocalService.getFormInstanceVersion(
@@ -290,8 +305,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-			getFormInstanceVersion(long ddmFormInstanceId, String version)
+	public DDMFormInstanceVersion getFormInstanceVersion(
+			long ddmFormInstanceId, String version)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceVersionLocalService.getFormInstanceVersion(
@@ -299,22 +314,18 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion>
-			getFormInstanceVersions(long ddmFormInstanceId) {
+	public java.util.List<DDMFormInstanceVersion> getFormInstanceVersions(
+		long ddmFormInstanceId) {
 
 		return _ddmFormInstanceVersionLocalService.getFormInstanceVersions(
 			ddmFormInstanceId);
 	}
 
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion>
-			getFormInstanceVersions(
-				long ddmFormInstanceId, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.
-						DDMFormInstanceVersion> orderByComparator) {
+	public java.util.List<DDMFormInstanceVersion> getFormInstanceVersions(
+		long ddmFormInstanceId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<DDMFormInstanceVersion>
+			orderByComparator) {
 
 		return _ddmFormInstanceVersionLocalService.getFormInstanceVersions(
 			ddmFormInstanceId, start, end, orderByComparator);
@@ -335,8 +346,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-			getLatestFormInstanceVersion(long ddmFormInstanceId)
+	public DDMFormInstanceVersion getLatestFormInstanceVersion(
+			long ddmFormInstanceId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceVersionLocalService.getLatestFormInstanceVersion(
@@ -344,8 +355,8 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-			getLatestFormInstanceVersion(long formInstanceId, int status)
+	public DDMFormInstanceVersion getLatestFormInstanceVersion(
+			long formInstanceId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceVersionLocalService.getLatestFormInstanceVersion(
@@ -377,17 +388,39 @@ public class DDMFormInstanceVersionLocalServiceWrapper
 	/**
 	 * Updates the ddm form instance version in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceVersion the ddm form instance version
 	 * @return the ddm form instance version that was updated
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-		updateDDMFormInstanceVersion(
-			com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion
-				ddmFormInstanceVersion) {
+	public DDMFormInstanceVersion updateDDMFormInstanceVersion(
+		DDMFormInstanceVersion ddmFormInstanceVersion) {
 
 		return _ddmFormInstanceVersionLocalService.updateDDMFormInstanceVersion(
 			ddmFormInstanceVersion);
+	}
+
+	@Override
+	public CTPersistence<DDMFormInstanceVersion> getCTPersistence() {
+		return _ddmFormInstanceVersionLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<DDMFormInstanceVersion> getModelClass() {
+		return _ddmFormInstanceVersionLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DDMFormInstanceVersion>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _ddmFormInstanceVersionLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

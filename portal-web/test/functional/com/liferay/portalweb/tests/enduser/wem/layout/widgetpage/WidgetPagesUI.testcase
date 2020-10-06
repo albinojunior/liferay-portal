@@ -63,6 +63,7 @@ definition {
 
 	@priority = "5"
 	test AddSitePublicChildPage {
+		property portal.acceptance = "true";
 		property testray.component.names = "Site Pages Administration";
 
 		SitePages.addPublicPage(pageName = "Site Page");

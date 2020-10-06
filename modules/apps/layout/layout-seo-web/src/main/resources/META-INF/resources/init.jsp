@@ -38,7 +38,6 @@ page import="com.liferay.petra.string.StringPool" %><%@
 page import="com.liferay.portal.kernel.exception.SitemapChangeFrequencyException" %><%@
 page import="com.liferay.portal.kernel.exception.SitemapIncludeException" %><%@
 page import="com.liferay.portal.kernel.exception.SitemapPagePriorityException" %><%@
-page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.model.Layout" %><%@
 page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
 page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
@@ -50,8 +49,7 @@ page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.util.PropsValues" %>
 
-<%@ page import="java.util.Collections" %><%@
-page import="java.util.Map" %>
+<%@ page import="java.util.Collections" %>
 
 <liferay-frontend:defineObjects />
 

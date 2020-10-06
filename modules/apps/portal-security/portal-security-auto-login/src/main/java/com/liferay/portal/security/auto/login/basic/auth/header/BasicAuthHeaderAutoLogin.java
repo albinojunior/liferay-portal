@@ -115,7 +115,8 @@ public class BasicAuthHeaderAutoLogin extends BaseAutoLogin {
 			return _configurationProvider.getConfiguration(
 				BasicAuthHeaderAutoLoginConfiguration.class,
 				new CompanyServiceSettingsLocator(
-					companyId, BasicAuthHeaderAutoLoginConstants.SERVICE_NAME));
+					companyId, BasicAuthHeaderAutoLoginConstants.SERVICE_NAME,
+					BasicAuthHeaderAutoLoginConfiguration.class.getName()));
 		}
 		catch (ConfigurationException configurationException) {
 			_log.error(

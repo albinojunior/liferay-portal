@@ -37,17 +37,17 @@ public class DLFileVersionCacheModel
 	implements CacheModel<DLFileVersion>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DLFileVersionCacheModel)) {
+		if (!(object instanceof DLFileVersionCacheModel)) {
 			return false;
 		}
 
 		DLFileVersionCacheModel dlFileVersionCacheModel =
-			(DLFileVersionCacheModel)obj;
+			(DLFileVersionCacheModel)object;
 
 		if ((fileVersionId == dlFileVersionCacheModel.fileVersionId) &&
 			(mvccVersion == dlFileVersionCacheModel.mvccVersion)) {
@@ -77,10 +77,12 @@ public class DLFileVersionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(59);
+		StringBundler sb = new StringBundler(61);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", fileVersionId=");
@@ -147,6 +149,7 @@ public class DLFileVersionCacheModel
 		DLFileVersionImpl dlFileVersionImpl = new DLFileVersionImpl();
 
 		dlFileVersionImpl.setMvccVersion(mvccVersion);
+		dlFileVersionImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			dlFileVersionImpl.setUuid("");
@@ -289,8 +292,12 @@ public class DLFileVersionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		fileVersionId = objectInput.readLong();
@@ -316,7 +323,7 @@ public class DLFileVersionCacheModel
 		title = objectInput.readUTF();
 		description = objectInput.readUTF();
 		changeLog = objectInput.readUTF();
-		extraSettings = objectInput.readUTF();
+		extraSettings = (String)objectInput.readObject();
 
 		fileEntryTypeId = objectInput.readLong();
 		version = objectInput.readUTF();
@@ -335,6 +342,8 @@ public class DLFileVersionCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -417,10 +426,10 @@ public class DLFileVersionCacheModel
 		}
 
 		if (extraSettings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(extraSettings);
+			objectOutput.writeObject(extraSettings);
 		}
 
 		objectOutput.writeLong(fileEntryTypeId);
@@ -458,6 +467,7 @@ public class DLFileVersionCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long fileVersionId;
 	public long groupId;

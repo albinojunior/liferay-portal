@@ -116,7 +116,7 @@ public class GroupSelectorTag extends IncludeTag {
 
 		_groups = groupItemSelectorProviderOptional.map(
 			groupItemSelectorProvider -> groupItemSelectorProvider.getGroups(
-				themeDisplay.getCompanyId(), group.getGroupId(), keywords,
+				group.getCompanyId(), group.getGroupId(), keywords,
 				startAndEnd[0], startAndEnd[1])
 		).orElse(
 			Collections.emptyList()
@@ -134,12 +134,13 @@ public class GroupSelectorTag extends IncludeTag {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
+		Group group = _getGroup(themeDisplay);
+
 		String keywords = ParamUtil.getString(httpServletRequest, "keywords");
 
 		_groupsCount = groupSelectorProviderOptional.map(
 			groupSelectorProvider -> groupSelectorProvider.getGroupsCount(
-				themeDisplay.getCompanyId(), themeDisplay.getScopeGroupId(),
-				keywords)
+				group.getCompanyId(), group.getGroupId(), keywords)
 		).orElse(
 			0
 		);

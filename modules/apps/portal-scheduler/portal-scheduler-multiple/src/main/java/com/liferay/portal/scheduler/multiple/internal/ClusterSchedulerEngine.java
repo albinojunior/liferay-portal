@@ -568,11 +568,7 @@ public class ClusterSchedulerEngine
 	}
 
 	protected String getFullName(String jobName, String groupName) {
-		return groupName.concat(
-			StringPool.PERIOD
-		).concat(
-			jobName
-		);
+		return StringBundler.concat(groupName, StringPool.PERIOD, jobName);
 	}
 
 	protected void initMemoryClusteredJobs() {
@@ -662,11 +658,11 @@ public class ClusterSchedulerEngine
 		Iterator
 			<Map.Entry
 				<String, ObjectValuePair<SchedulerResponse, TriggerState>>>
-					itr = memoryClusteredJobs.iterator();
+					iterator = memoryClusteredJobs.iterator();
 
-		while (itr.hasNext()) {
+		while (iterator.hasNext()) {
 			Map.Entry<String, ObjectValuePair<SchedulerResponse, TriggerState>>
-				entry = itr.next();
+				entry = iterator.next();
 
 			ObjectValuePair<SchedulerResponse, TriggerState>
 				memoryClusteredJob = entry.getValue();
@@ -674,7 +670,7 @@ public class ClusterSchedulerEngine
 			SchedulerResponse schedulerResponse = memoryClusteredJob.getKey();
 
 			if (groupName.equals(schedulerResponse.getGroupName())) {
-				itr.remove();
+				iterator.remove();
 			}
 		}
 	}
@@ -833,8 +829,8 @@ public class ClusterSchedulerEngine
 
 			_clusterExecutor.execute(clusterRequest);
 		}
-		catch (Throwable t) {
-			_log.error("Unable to notify slave", t);
+		catch (Throwable throwable) {
+			_log.error("Unable to notify slave", throwable);
 		}
 	}
 

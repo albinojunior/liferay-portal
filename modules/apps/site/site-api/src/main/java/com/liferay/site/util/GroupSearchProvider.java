@@ -68,7 +68,7 @@ public class GroupSearchProvider {
 
 		Company company = themeDisplay.getCompany();
 
-		List results = null;
+		List<Group> results = null;
 
 		if (!searchTerms.hasSearchTerms() &&
 			isFilterManageableGroups(portletRequest) && (parentGroupId <= 0)) {
@@ -125,14 +125,12 @@ public class GroupSearchProvider {
 	protected List<Group> getAllGroups(PortletRequest portletRequest)
 		throws PortalException {
 
-		List<Group> groups = new ArrayList<>();
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		User user = themeDisplay.getUser();
 
-		groups = user.getMySiteGroups(
+		List<Group> groups = user.getMySiteGroups(
 			new String[] {
 				Company.class.getName(), Group.class.getName(),
 				Organization.class.getName()

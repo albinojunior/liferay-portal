@@ -88,15 +88,16 @@ public class AssetTagsDisplayContext {
 	}
 
 	public long getFullTagsCount(AssetTag tag) {
-		int[] statuses = {
-			WorkflowConstants.STATUS_APPROVED, WorkflowConstants.STATUS_PENDING,
-			WorkflowConstants.STATUS_SCHEDULED
-		};
-
 		Hits hits = AssetEntryLocalServiceUtil.search(
 			tag.getCompanyId(), new long[] {_themeDisplay.getScopeGroupId()},
 			_themeDisplay.getUserId(), null, 0, null, null, null, null,
-			tag.getName(), true, statuses, false, 0, 1);
+			tag.getName(), true,
+			new int[] {
+				WorkflowConstants.STATUS_APPROVED,
+				WorkflowConstants.STATUS_PENDING,
+				WorkflowConstants.STATUS_SCHEDULED
+			},
+			false, 0, 1);
 
 		return hits.getLength();
 	}
@@ -186,12 +187,14 @@ public class AssetTagsDisplayContext {
 		return _tagId;
 	}
 
-	public SearchContainer getTagsSearchContainer() throws PortalException {
+	public SearchContainer<AssetTag> getTagsSearchContainer()
+		throws PortalException {
+
 		if (_tagsSearchContainer != null) {
 			return _tagsSearchContainer;
 		}
 
-		SearchContainer tagsSearchContainer = new SearchContainer(
+		SearchContainer<AssetTag> tagsSearchContainer = new SearchContainer(
 			_renderRequest, _renderResponse.createRenderURL(), null,
 			"there-are-no-tags");
 
@@ -307,7 +310,7 @@ public class AssetTagsDisplayContext {
 	private Boolean _showTagsActions;
 	private AssetTag _tag;
 	private Long _tagId;
-	private SearchContainer _tagsSearchContainer;
+	private SearchContainer<AssetTag> _tagsSearchContainer;
 	private final ThemeDisplay _themeDisplay;
 
 }

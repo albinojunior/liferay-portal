@@ -80,6 +80,30 @@ public class DepotAdminSitesDisplayContext {
 			}
 		).add(
 			dropdownItem -> {
+				ActionURL updateDDMStructuresAvailableActionURL =
+					DepotEntryURLUtil.getUpdateDDMStructuresAvailableActionURL(
+						depotEntryGroupRel.getDepotEntryGroupRelId(),
+						!depotEntryGroupRel.isDdmStructuresAvailable(),
+						_currentURL.toString(), _liferayPortletResponse);
+
+				dropdownItem.setData(
+					HashMapBuilder.<String, Object>put(
+						"action", "shareWebContentStructures"
+					).put(
+						"shared", depotEntryGroupRel.isDdmStructuresAvailable()
+					).put(
+						"url", updateDDMStructuresAvailableActionURL.toString()
+					).build());
+
+				dropdownItem.setLabel(
+					LanguageUtil.get(
+						PortalUtil.getHttpServletRequest(
+							_liferayPortletRequest),
+						_getUpdateDDMStructuresAvailableKey(
+							depotEntryGroupRel)));
+			}
+		).add(
+			dropdownItem -> {
 				ActionURL disconnectSiteActionURL =
 					DepotEntryURLUtil.getDisconnectSiteActionURL(
 						depotEntryGroupRel.getDepotEntryGroupRelId(),
@@ -89,10 +113,11 @@ public class DepotAdminSitesDisplayContext {
 					HashMapBuilder.<String, Object>put(
 						"action", "disconnect"
 					).put(
-						"disconnectSiteActionURL",
-						disconnectSiteActionURL.toString()
+						"url", disconnectSiteActionURL.toString()
 					).build());
 
+				dropdownItem.setDisabled(
+					depotEntryGroupRel.isDdmStructuresAvailable());
 				dropdownItem.setLabel(
 					LanguageUtil.get(
 						PortalUtil.getHttpServletRequest(
@@ -137,6 +162,16 @@ public class DepotAdminSitesDisplayContext {
 			depotEntryGroupRel.getToGroupId());
 
 		return group.getDescriptiveName(locale);
+	}
+
+	private String _getUpdateDDMStructuresAvailableKey(
+		DepotEntryGroupRel depotEntryGroupRel) {
+
+		if (!depotEntryGroupRel.isDdmStructuresAvailable()) {
+			return "make-web-content-structures-available";
+		}
+
+		return "make-web-content-structures-unavailable";
 	}
 
 	private String _getUpdateSearchableKey(

@@ -24,14 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.fragment.service.http.FragmentEntryLinkServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class FragmentEntryLinkSoap implements Serializable {
 
 	public static FragmentEntryLinkSoap toSoapModel(FragmentEntryLink model) {
 		FragmentEntryLinkSoap soapModel = new FragmentEntryLinkSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUuid(model.getUuid());
 		soapModel.setFragmentEntryLinkId(model.getFragmentEntryLinkId());
 		soapModel.setGroupId(model.getGroupId());
@@ -43,8 +46,10 @@ public class FragmentEntryLinkSoap implements Serializable {
 		soapModel.setOriginalFragmentEntryLinkId(
 			model.getOriginalFragmentEntryLinkId());
 		soapModel.setFragmentEntryId(model.getFragmentEntryId());
+		soapModel.setSegmentsExperienceId(model.getSegmentsExperienceId());
 		soapModel.setClassNameId(model.getClassNameId());
 		soapModel.setClassPK(model.getClassPK());
+		soapModel.setPlid(model.getPlid());
 		soapModel.setCss(model.getCss());
 		soapModel.setHtml(model.getHtml());
 		soapModel.setJs(model.getJs());
@@ -122,6 +127,14 @@ public class FragmentEntryLinkSoap implements Serializable {
 
 	public void setMvccVersion(long mvccVersion) {
 		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getUuid() {
@@ -206,6 +219,14 @@ public class FragmentEntryLinkSoap implements Serializable {
 		_fragmentEntryId = fragmentEntryId;
 	}
 
+	public long getSegmentsExperienceId() {
+		return _segmentsExperienceId;
+	}
+
+	public void setSegmentsExperienceId(long segmentsExperienceId) {
+		_segmentsExperienceId = segmentsExperienceId;
+	}
+
 	public long getClassNameId() {
 		return _classNameId;
 	}
@@ -220,6 +241,14 @@ public class FragmentEntryLinkSoap implements Serializable {
 
 	public void setClassPK(long classPK) {
 		_classPK = classPK;
+	}
+
+	public long getPlid() {
+		return _plid;
+	}
+
+	public void setPlid(long plid) {
+		_plid = plid;
 	}
 
 	public String getCss() {
@@ -303,6 +332,7 @@ public class FragmentEntryLinkSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private long _fragmentEntryLinkId;
 	private long _groupId;
@@ -313,8 +343,10 @@ public class FragmentEntryLinkSoap implements Serializable {
 	private Date _modifiedDate;
 	private long _originalFragmentEntryLinkId;
 	private long _fragmentEntryId;
+	private long _segmentsExperienceId;
 	private long _classNameId;
 	private long _classPK;
+	private long _plid;
 	private String _css;
 	private String _html;
 	private String _js;

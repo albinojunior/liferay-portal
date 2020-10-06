@@ -60,7 +60,6 @@ else {
 
 <c:if test="<%= !portletName.equals(UsersAdminPortletKeys.MY_ORGANIZATIONS) && !usersListView.equals(UserConstants.LIST_VIEW_TREE) %>">
 	<clay:navigation-bar
-		inverted="<%= true %>"
 		navigationItems="<%= userDisplayContext.getViewNavigationItems() %>"
 	/>
 </c:if>
@@ -121,15 +120,15 @@ else {
 
 	function <portlet:namespace />deleteUsers(cmd) {
 		if (
-			(cmd == '<%= Constants.DEACTIVATE %>' &&
+			(cmd === '<%= Constants.DEACTIVATE %>' &&
 				confirm(
 					'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-deactivate-the-selected-users") %>'
 				)) ||
-			(cmd == '<%= Constants.DELETE %>' &&
+			(cmd === '<%= Constants.DELETE %>' &&
 				confirm(
 					'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-permanently-delete-the-selected-users") %>'
 				)) ||
-			cmd == '<%= Constants.RESTORE %>'
+			cmd === '<%= Constants.RESTORE %>'
 		) {
 			var form = document.<portlet:namespace />fm;
 
@@ -155,7 +154,7 @@ else {
 	) {
 		var status = <%= WorkflowConstants.STATUS_INACTIVE %>;
 
-		<portlet:namespace />getUsersCount(className, ids, status, function(
+		<portlet:namespace />getUsersCount(className, ids, status, function (
 			responseData
 		) {
 			var count = parseInt(responseData, 10);
@@ -163,43 +162,46 @@ else {
 			if (count > 0) {
 				status = <%= WorkflowConstants.STATUS_APPROVED %>;
 
-				<portlet:namespace />getUsersCount(className, ids, status, function(
-					responseData
-				) {
-					count = parseInt(responseData, 10);
+				<portlet:namespace />getUsersCount(
+					className,
+					ids,
+					status,
+					function (responseData) {
+						count = parseInt(responseData, 10);
 
-					if (count > 0) {
-						if (
-							confirm(
-								'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
-							)
-						) {
-							<portlet:namespace />doDeleteOrganizations(
-								ids,
-								organizationsRedirect
-							);
-						}
-					}
-					else {
-						var message;
-
-						if (ids && ids.toString().split(',').length > 1) {
-							message =
-								'<%= UnicodeLanguageUtil.get(request, "one-or-more-organizations-are-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-organizations-by-automatically-unassociating-the-deactivated-users") %>';
+						if (count > 0) {
+							if (
+								confirm(
+									'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
+								)
+							) {
+								<portlet:namespace />doDeleteOrganizations(
+									ids,
+									organizationsRedirect
+								);
+							}
 						}
 						else {
-							message =
-								'<%= UnicodeLanguageUtil.get(request, "the-selected-organization-is-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-organization-by-automatically-unassociating-the-deactivated-users") %>';
-						}
+							var message;
 
-						if (confirm(message)) {
-							<portlet:namespace />doDeleteOrganizations(
-								ids,
-								organizationsRedirect
-							);
+							if (ids && ids.toString().split(',').length > 1) {
+								message =
+									'<%= UnicodeLanguageUtil.get(request, "one-or-more-organizations-are-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-organizations-by-automatically-unassociating-the-deactivated-users") %>';
+							}
+							else {
+								message =
+									'<%= UnicodeLanguageUtil.get(request, "the-selected-organization-is-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-organization-by-automatically-unassociating-the-deactivated-users") %>';
+							}
+
+							if (confirm(message)) {
+								<portlet:namespace />doDeleteOrganizations(
+									ids,
+									organizationsRedirect
+								);
+							}
 						}
 					}
-				});
+				);
 			}
 			else if (
 				confirm(
@@ -249,11 +251,19 @@ else {
 				method: 'POST',
 			}
 		)
-			.then(function(response) {
+			.then(function (response) {
 				return response.text();
 			})
-			.then(function(response) {
+			.then(function (response) {
 				callback(response);
+			})
+			.catch(function (error) {
+				Liferay.Util.openToast({
+					message: Liferay.Language.get(
+						'an-unexpected-system-error-occurred'
+					),
+					type: 'danger',
+				});
 			});
 	}
 
@@ -283,7 +293,7 @@ else {
 		);
 	}
 
-	Liferay.provide(window, '<portlet:namespace />openSelectUsersDialog', function(
+	window['<portlet:namespace />openSelectUsersDialog'] = function (
 		organizationId
 	) {
 		<portlet:renderURL var="selectUsersURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
@@ -297,53 +307,44 @@ else {
 			}
 		);
 
-		Liferay.Loader.require(
-			'frontend-js-web/liferay/ItemSelectorDialog.es',
-			function(ItemSelectorDialog) {
-				var itemSelectorDialog = new ItemSelectorDialog.default({
-					buttonAddLabel: '<liferay-ui:message key="done" />',
-					eventName: '<portlet:namespace />selectUsers',
-					title: '<liferay-ui:message key="assign-users" />',
-					url: selectUsersURL.toString(),
-				});
+		Liferay.Util.openSelectionModal({
+			buttonAddLabel: '<liferay-ui:message key="done" />',
+			multiple: true,
+			onSelect: function (data) {
+				if (data) {
+					<portlet:renderURL var="assignmentsURL">
+						<portlet:param name="mvcRenderCommandName" value="/users_admin/view" />
+						<portlet:param name="toolbarItem" value="view-all-organizations" />
+						<portlet:param name="usersListView" value="<%= UserConstants.LIST_VIEW_TREE %>" />
+					</portlet:renderURL>
 
-				itemSelectorDialog.on('selectedItemChange', function(event) {
-					var data = event.selectedItem;
-
-					if (data) {
-						<portlet:renderURL var="assignmentsURL">
-							<portlet:param name="mvcRenderCommandName" value="/users_admin/view" />
-							<portlet:param name="toolbarItem" value="view-all-organizations" />
-							<portlet:param name="usersListView" value="<%= UserConstants.LIST_VIEW_TREE %>" />
-						</portlet:renderURL>
-
-						var assignmentsRedirectURL = Liferay.Util.PortletURL.createPortletURL(
-							'<%= assignmentsURL.toString() %>',
-							{
-								organizationId: organizationId,
-							}
-						);
-
-						var editAssignmentParameters = {
-							addUserIds: data.value,
-							assignmentsRedirect: assignmentsRedirectURL.toString(),
+					var assignmentsRedirectURL = Liferay.Util.PortletURL.createPortletURL(
+						'<%= assignmentsURL.toString() %>',
+						{
 							organizationId: organizationId,
-						};
+						}
+					);
 
-						var editAssignmentURL = Liferay.Util.PortletURL.createPortletURL(
-							'<portlet:actionURL name="/users_admin/edit_organization_assignments" />',
-							editAssignmentParameters
-						);
+					var editAssignmentParameters = {
+						addUserIds: data.value,
+						assignmentsRedirect: assignmentsRedirectURL.toString(),
+						organizationId: organizationId,
+					};
 
-						submitForm(
-							document.<portlet:namespace />fm,
-							editAssignmentURL.toString()
-						);
-					}
-				});
+					var editAssignmentURL = Liferay.Util.PortletURL.createPortletURL(
+						'<portlet:actionURL name="/users_admin/edit_organization_assignments" />',
+						editAssignmentParameters
+					);
 
-				itemSelectorDialog.open();
-			}
-		);
-	});
+					submitForm(
+						document.<portlet:namespace />fm,
+						editAssignmentURL.toString()
+					);
+				}
+			},
+			selectEventName: '<portlet:namespace />selectUsers',
+			title: '<liferay-ui:message key="assign-users" />',
+			url: selectUsersURL.toString(),
+		});
+	};
 </aui:script>

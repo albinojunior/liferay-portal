@@ -41,9 +41,7 @@ public class FileSystemHook extends BaseHook {
 
 	@Override
 	public void deleteImage(Image image) {
-		File file = getFile(image.getImageId(), image.getType());
-
-		FileUtil.delete(file);
+		FileUtil.delete(getFile(image.getImageId(), image.getType()));
 	}
 
 	@Override
@@ -81,9 +79,7 @@ public class FileSystemHook extends BaseHook {
 	@Override
 	public void updateImage(Image image, String type, byte[] bytes) {
 		try {
-			File file = getFile(image.getImageId(), type);
-
-			FileUtil.write(file, bytes);
+			FileUtil.write(getFile(image.getImageId(), type), bytes);
 		}
 		catch (IOException ioException) {
 			throw new SystemException(ioException);
@@ -98,7 +94,7 @@ public class FileSystemHook extends BaseHook {
 		}
 
 		StringBundler sb = new StringBundler(
-			fileNameFragmentLength / 2 + fileNameFragmentLength);
+			(fileNameFragmentLength / 2) + fileNameFragmentLength);
 
 		for (int i = 0; i < fileNameFragmentLength; i += 2) {
 			if ((i + 2) < fileNameFragmentLength) {

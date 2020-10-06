@@ -31,16 +31,20 @@ import java.util.List;
 import java.util.Set;
 
 import org.gradle.api.Project;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.util.CollectionUtils;
 import org.gradle.util.GUtil;
 
 /**
  * @author Andrea Di Giorgi
  */
+@CacheableTask
 public class BuildServiceTask extends JavaExec {
 
 	public BuildServiceTask() {
@@ -61,6 +65,7 @@ public class BuildServiceTask extends JavaExec {
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getApiDir() {
 		return GradleUtil.toFile(getProject(), _apiDir);
 	}
@@ -81,16 +86,25 @@ public class BuildServiceTask extends JavaExec {
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getHbmFile() {
 		return GradleUtil.toFile(getProject(), _hbmFile);
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getImplDir() {
 		return GradleUtil.toFile(getProject(), _implDir);
 	}
 
+	@Input
+	@Optional
+	public Set<String> getIncubationFeatures() {
+		return _incubationFeatures;
+	}
+
 	@InputFile
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getInputFile() {
 		return GradleUtil.toFile(getProject(), _inputFile);
 	}
@@ -101,6 +115,7 @@ public class BuildServiceTask extends JavaExec {
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getModelHintsFile() {
 		return GradleUtil.toFile(getProject(), _modelHintsFile);
 	}
@@ -126,11 +141,13 @@ public class BuildServiceTask extends JavaExec {
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getResourcesDir() {
 		return GradleUtil.toFile(getProject(), _resourcesDir);
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getSpringFile() {
 		return GradleUtil.toFile(getProject(), _springFile);
 	}
@@ -141,6 +158,7 @@ public class BuildServiceTask extends JavaExec {
 	}
 
 	@Input
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getSqlDir() {
 		return GradleUtil.toFile(getProject(), _sqlDir);
 	}
@@ -168,26 +186,35 @@ public class BuildServiceTask extends JavaExec {
 
 	@Input
 	@Optional
-	public String getTargetKernelVersion() {
-		return GradleUtil.toString(_targetKernelVersion);
-	}
-
-	@Input
-	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getTestDir() {
 		return GradleUtil.toFile(getProject(), _testDir);
 	}
 
 	@Input
 	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getUADDir() {
 		return GradleUtil.toFile(getProject(), _uadDir);
 	}
 
 	@Input
 	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getUADTestIntegrationDir() {
 		return GradleUtil.toFile(getProject(), _uadTestIntegrationDir);
+	}
+
+	public BuildServiceTask incubationFeatures(
+		Iterable<String> incubationFeatures) {
+
+		GUtil.addToCollection(_incubationFeatures, incubationFeatures);
+
+		return this;
+	}
+
+	public BuildServiceTask incubationFeatures(String... incubationFeatures) {
+		return incubationFeatures(Arrays.asList(incubationFeatures));
 	}
 
 	@Input
@@ -286,6 +313,16 @@ public class BuildServiceTask extends JavaExec {
 		_implDir = implDir;
 	}
 
+	public void setIncubationFeatures(Iterable<String> incubationFeatures) {
+		_incubationFeatures.clear();
+
+		incubationFeatures(incubationFeatures);
+	}
+
+	public void setIncubationFeatures(String... incubationFeatures) {
+		setIncubationFeatures(Arrays.asList(incubationFeatures));
+	}
+
 	public void setInputFile(Object inputFile) {
 		_inputFile = inputFile;
 	}
@@ -376,10 +413,6 @@ public class BuildServiceTask extends JavaExec {
 		_targetEntityName = targetEntityName;
 	}
 
-	public void setTargetKernelVersion(Object targetKernelVersion) {
-		_targetKernelVersion = targetKernelVersion;
-	}
-
 	public void setTestDir(Object testDir) {
 		_testDir = testDir;
 	}
@@ -419,6 +452,9 @@ public class BuildServiceTask extends JavaExec {
 			"service.database.name.max.length=" + getDatabaseNameMaxLength());
 		args.add("service.hbm.file=" + _relativize(getHbmFile()));
 		args.add("service.impl.dir=" + _relativize(getImplDir()));
+		args.add(
+			"service.incubation.features=" +
+				CollectionUtils.join(",", getIncubationFeatures()));
 		args.add("service.input.file=" + _relativize(getInputFile()));
 		args.add(
 			"service.model.hints.configs=" +
@@ -451,12 +487,6 @@ public class BuildServiceTask extends JavaExec {
 		}
 
 		args.add("service.target.entity.name=" + targetEntityName);
-
-		String targetKernelVersion = getTargetKernelVersion();
-
-		if (Validator.isNotNull(targetKernelVersion)) {
-			args.add("service.target.kernel.version=" + targetKernelVersion);
-		}
 
 		File testDir = getTestDir();
 
@@ -526,6 +556,7 @@ public class BuildServiceTask extends JavaExec {
 	private int _databaseNameMaxLength = 30;
 	private Object _hbmFile;
 	private Object _implDir;
+	private final Set<String> _incubationFeatures = new HashSet<>();
 	private Object _inputFile;
 	private final Set<Object> _modelHintsConfigs = new LinkedHashSet<>();
 	private Object _modelHintsFile;
@@ -542,7 +573,6 @@ public class BuildServiceTask extends JavaExec {
 	private Object _sqlIndexesFileName = "indexes.sql";
 	private Object _sqlSequencesFileName = "sequences.sql";
 	private Object _targetEntityName;
-	private Object _targetKernelVersion;
 	private Object _testDir;
 	private Object _uadDir;
 	private Object _uadTestIntegrationDir;

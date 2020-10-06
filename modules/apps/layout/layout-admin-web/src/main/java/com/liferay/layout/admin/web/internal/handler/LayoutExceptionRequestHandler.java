@@ -23,10 +23,13 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -51,6 +54,10 @@ public class LayoutExceptionRequestHandler {
 			ActionRequest actionRequest, ActionResponse actionResponse,
 			PortalException portalException)
 		throws Exception {
+
+		if (_log.isDebugEnabled()) {
+			_log.debug(portalException, portalException);
+		}
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -118,10 +125,17 @@ public class LayoutExceptionRequestHandler {
 					actionRequest, layoutTypeException.getType());
 			}
 		}
+		else if (portalException instanceof PrincipalException) {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getRequest(),
+				"you-do-not-have-the-required-permissions");
+		}
 
 		if (Validator.isNull(errorMessage)) {
 			errorMessage = LanguageUtil.get(
 				themeDisplay.getRequest(), "an-unexpected-error-occurred");
+
+			_log.error(portalException.getMessage());
 		}
 
 		JSONObject jsonObject = JSONUtil.put("errorMessage", errorMessage);
@@ -157,5 +171,8 @@ public class LayoutExceptionRequestHandler {
 		return LanguageUtil.format(
 			themeDisplay.getRequest(), errorMessage, layoutTypeName);
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		LayoutExceptionRequestHandler.class);
 
 }

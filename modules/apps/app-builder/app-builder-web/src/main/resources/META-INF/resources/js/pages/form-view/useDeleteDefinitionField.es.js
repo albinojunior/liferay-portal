@@ -12,7 +12,6 @@
  * details.
  */
 
-import {DataLayoutVisitor} from 'data-engine-taglib';
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import {useContext} from 'react';
 
@@ -20,22 +19,17 @@ import FormViewContext from './FormViewContext.es';
 import {deleteDefinitionField} from './actions.es';
 
 export default ({dataLayoutBuilder}) => {
-	const [{dataLayout}, dispatch] = useContext(FormViewContext);
+	const [, dispatch] = useContext(FormViewContext);
 
-	return fieldName => {
+	return (event) => {
 		const {pages} = dataLayoutBuilder.getStore();
 		const visitor = new PagesVisitor(pages);
 
-		if (visitor.containsField(fieldName)) {
-			const indexes = DataLayoutVisitor.getIndexesFromFieldName(
-				dataLayout,
-				fieldName
-			);
-
-			dataLayoutBuilder.dispatch('fieldDeleted', {indexes});
+		if (visitor.containsField(event.fieldName, true)) {
+			dataLayoutBuilder.dispatch('fieldDeleted', event);
 		}
 		else {
-			dispatch(deleteDefinitionField(fieldName));
+			dispatch(deleteDefinitionField(event.fieldName));
 		}
 	};
 };

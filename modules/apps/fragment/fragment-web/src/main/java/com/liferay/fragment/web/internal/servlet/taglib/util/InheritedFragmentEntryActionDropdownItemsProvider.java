@@ -18,7 +18,7 @@ import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.web.internal.security.permission.resource.FragmentPermission;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
@@ -55,19 +55,15 @@ public class InheritedFragmentEntryActionDropdownItemsProvider {
 	}
 
 	public List<DropdownItem> getActionDropdownItems() throws Exception {
-		return new DropdownItemList() {
-			{
-				if (FragmentPermission.contains(
-						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getScopeGroupId(),
-						FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES)) {
-
-					add(_getCopyToFragmentEntryActionUnsafeConsumer());
-				}
-
-				add(_getExportFragmentEntryActionUnsafeConsumer());
-			}
-		};
+		return DropdownItemListBuilder.add(
+			() -> FragmentPermission.contains(
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getScopeGroupId(),
+				FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES),
+			_getCopyToFragmentEntryActionUnsafeConsumer()
+		).add(
+			_getExportFragmentEntryActionUnsafeConsumer()
+		).build();
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
@@ -92,10 +88,10 @@ public class InheritedFragmentEntryActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.putData("action", "copyToFragmentEntry");
 			dropdownItem.putData(
+				"copyFragmentEntryURL", copyFragmentEntryURL.toString());
+			dropdownItem.putData(
 				"fragmentEntryId",
 				String.valueOf(_fragmentEntry.getFragmentEntryId()));
-			dropdownItem.putData(
-				"copyFragmentEntryURL", copyFragmentEntryURL.toString());
 			dropdownItem.putData(
 				"selectFragmentCollectionURL",
 				selectFragmentCollectionURL.toString());
@@ -114,7 +110,7 @@ public class InheritedFragmentEntryActionDropdownItemsProvider {
 			"fragmentEntryId",
 			String.valueOf(_fragmentEntry.getFragmentEntryId()));
 		exportFragmentEntryURL.setResourceID(
-			"/fragment/export_fragment_entries");
+			"/fragment/export_fragment_compositions_and_fragment_entries");
 
 		return dropdownItem -> {
 			dropdownItem.setHref(exportFragmentEntryURL);

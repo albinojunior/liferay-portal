@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
@@ -100,18 +101,37 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long ASSETCATEGORYID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long ASSETENTRYID_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long ASSETENTRYASSETCATEGORYRELID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public AssetEntryAssetCategoryRelModelImpl() {
@@ -166,9 +186,6 @@ public class AssetEntryAssetCategoryRelModelImpl
 				attributeGetterFunction.apply(
 					(AssetEntryAssetCategoryRel)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -306,6 +323,10 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
 	}
 
@@ -316,6 +337,10 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	@Override
 	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_ctCollectionId = ctCollectionId;
 	}
 
@@ -328,6 +353,10 @@ public class AssetEntryAssetCategoryRelModelImpl
 	public void setAssetEntryAssetCategoryRelId(
 		long assetEntryAssetCategoryRelId) {
 
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_assetEntryAssetCategoryRelId = assetEntryAssetCategoryRelId;
 	}
 
@@ -338,6 +367,10 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_companyId = companyId;
 	}
 
@@ -348,19 +381,21 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	@Override
 	public void setAssetEntryId(long assetEntryId) {
-		_columnBitmask |= ASSETENTRYID_COLUMN_BITMASK;
-
-		if (!_setOriginalAssetEntryId) {
-			_setOriginalAssetEntryId = true;
-
-			_originalAssetEntryId = _assetEntryId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_assetEntryId = assetEntryId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalAssetEntryId() {
-		return _originalAssetEntryId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("assetEntryId"));
 	}
 
 	@Override
@@ -370,19 +405,21 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	@Override
 	public void setAssetCategoryId(long assetCategoryId) {
-		_columnBitmask |= ASSETCATEGORYID_COLUMN_BITMASK;
-
-		if (!_setOriginalAssetCategoryId) {
-			_setOriginalAssetCategoryId = true;
-
-			_originalAssetCategoryId = _assetCategoryId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_assetCategoryId = assetCategoryId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalAssetCategoryId() {
-		return _originalAssetCategoryId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("assetCategoryId"));
 	}
 
 	@Override
@@ -392,10 +429,32 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	@Override
 	public void setPriority(int priority) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_priority = priority;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -465,17 +524,17 @@ public class AssetEntryAssetCategoryRelModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AssetEntryAssetCategoryRel)) {
+		if (!(object instanceof AssetEntryAssetCategoryRel)) {
 			return false;
 		}
 
 		AssetEntryAssetCategoryRel assetEntryAssetCategoryRel =
-			(AssetEntryAssetCategoryRel)obj;
+			(AssetEntryAssetCategoryRel)object;
 
 		long primaryKey = assetEntryAssetCategoryRel.getPrimaryKey();
 
@@ -492,32 +551,29 @@ public class AssetEntryAssetCategoryRelModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		AssetEntryAssetCategoryRelModelImpl
-			assetEntryAssetCategoryRelModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		assetEntryAssetCategoryRelModelImpl._originalAssetEntryId =
-			assetEntryAssetCategoryRelModelImpl._assetEntryId;
-
-		assetEntryAssetCategoryRelModelImpl._setOriginalAssetEntryId = false;
-
-		assetEntryAssetCategoryRelModelImpl._originalAssetCategoryId =
-			assetEntryAssetCategoryRelModelImpl._assetCategoryId;
-
-		assetEntryAssetCategoryRelModelImpl._setOriginalAssetCategoryId = false;
-
-		assetEntryAssetCategoryRelModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -552,7 +608,7 @@ public class AssetEntryAssetCategoryRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -586,7 +642,7 @@ public class AssetEntryAssetCategoryRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -622,20 +678,79 @@ public class AssetEntryAssetCategoryRelModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _mvccVersion;
 	private long _ctCollectionId;
 	private long _assetEntryAssetCategoryRelId;
 	private long _companyId;
 	private long _assetEntryId;
-	private long _originalAssetEntryId;
-	private boolean _setOriginalAssetEntryId;
 	private long _assetCategoryId;
-	private long _originalAssetCategoryId;
-	private boolean _setOriginalAssetCategoryId;
 	private int _priority;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<AssetEntryAssetCategoryRel, Object> function =
+			_attributeGetterFunctions.get(columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((AssetEntryAssetCategoryRel)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
+		_columnOriginalValues.put(
+			"assetEntryAssetCategoryRelId", _assetEntryAssetCategoryRelId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("assetEntryId", _assetEntryId);
+		_columnOriginalValues.put("assetCategoryId", _assetCategoryId);
+		_columnOriginalValues.put("priority", _priority);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("ctCollectionId", 2L);
+
+		columnBitmasks.put("assetEntryAssetCategoryRelId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("assetEntryId", 16L);
+
+		columnBitmasks.put("assetCategoryId", 32L);
+
+		columnBitmasks.put("priority", 64L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private AssetEntryAssetCategoryRel _escapedModel;
 

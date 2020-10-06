@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-alloy-editor-source',
-	A => {
+	(A) => {
 		var CSS_SHOW_SOURCE = 'show-source';
 
 		var MAP_TOGGLE_STATE = {
@@ -87,11 +87,14 @@ AUI.add(
 				_getEditorStateLexiconIcon() {
 					var instance = this;
 
+					var icon;
+
 					var currentState = MAP_TOGGLE_STATE[instance._isVisible];
 
-					var icon = currentState.icon;
-
-					if (!icon) {
+					if (currentState.icon) {
+						icon = currentState.icon.cloneNode(true);
+					}
+					else {
 						icon = Liferay.Util.getLexiconIcon(
 							currentState.iconCssClass
 						);
@@ -172,14 +175,14 @@ AUI.add(
 								},
 								title: strings.editContent,
 							},
-							dialog => {
+							(dialog) => {
 								fullScreenDialog = dialog;
 
 								Liferay.Util.getTop()
 									.AUI()
 									.use(
 										'liferay-fullscreen-source-editor',
-										A => {
+										(A) => {
 											fullScreenEditor = new A.LiferayFullScreenSourceEditor(
 												{
 													boundingBox: dialog

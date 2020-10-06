@@ -34,7 +34,7 @@
 		ddmFormFieldRenderingContext.setLocale(requestedLocale);
 		ddmFormFieldRenderingContext.setMode(mode);
 		ddmFormFieldRenderingContext.setNamespace(fieldsNamespace);
-		ddmFormFieldRenderingContext.setPortletNamespace(portletResponse.getNamespace());
+		ddmFormFieldRenderingContext.setPortletNamespace(liferayPortletResponse.getNamespace());
 		ddmFormFieldRenderingContext.setReadOnly(readOnly);
 		ddmFormFieldRenderingContext.setShowEmptyFieldLabel(showEmptyFieldLabel);
 		%>
@@ -46,7 +46,7 @@
 		<aui:script use="liferay-ddm-form">
 			Liferay.component(
 				'<portlet:namespace /><%= HtmlUtil.escapeJS(fieldsNamespace) %>ddmForm',
-				function() {
+				function () {
 					return new Liferay.DDM.Form({
 						container: '#<%= randomNamespace %>',
 						ddmFormValuesInput:

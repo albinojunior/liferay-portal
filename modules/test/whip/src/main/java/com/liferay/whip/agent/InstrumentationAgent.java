@@ -91,9 +91,9 @@ public class InstrumentationAgent {
 			for (Method method : methods) {
 				Class<?> clazz = method.getDeclaringClass();
 
-				ClassData classData = projectData.getClassData(clazz.getName());
-
-				_assertMethodCoverage(assertionErrors, classData, method);
+				_assertMethodCoverage(
+					assertionErrors, projectData.getClassData(clazz.getName()),
+					method);
 			}
 
 			if (!assertionErrors.isEmpty()) {
@@ -424,7 +424,7 @@ public class InstrumentationAgent {
 
 				return new ClassDefinition(clazz, _bytes);
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				return null;
 			}
 		}

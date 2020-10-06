@@ -14,19 +14,34 @@
 
 package com.liferay.app.builder.web.internal.portlet;
 
+import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.portlet.tab.AppBuilderAppPortletTab;
 import com.liferay.app.builder.web.internal.constants.AppBuilderWebKeys;
+import com.liferay.app.builder.web.internal.deploy.AppDeployUtil;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizerFactory.ServiceWrapper;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 
 import java.io.IOException;
 
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 /**
  * @author Gabriel Albuquerque
@@ -95,12 +110,93 @@ public class AppPortlet extends MVCPortlet {
 		renderRequest.setAttribute(AppBuilderWebKeys.APP, _appBuilderApp);
 		renderRequest.setAttribute(
 			AppBuilderWebKeys.APP_DEPLOYMENT_TYPE, _appDeploymentType);
+
+		AppBuilderAppPortletTab appBuilderAppPortletTab =
+			AppDeployUtil.getAppBuilderAppPortletTab(_appBuilderApp.getScope());
+
+		renderRequest.setAttribute(
+			AppBuilderWebKeys.APP_TAB,
+			HashMapBuilder.<String, Object>put(
+				"editEntryPoint", appBuilderAppPortletTab.getEditEntryPoint()
+			).put(
+				"listEntryPoint", appBuilderAppPortletTab.getListEntryPoint()
+			).put(
+				"viewEntryPoint", appBuilderAppPortletTab.getViewEntryPoint()
+			).build());
+
+		renderRequest.setAttribute(
+			AppBuilderWebKeys.APP_TAB_CONTEXT,
+			appBuilderAppPortletTab.getAppBuilderAppPortletTabContext(
+				_appBuilderApp,
+				ParamUtil.getLong(renderRequest, "dataRecordId")));
+
 		renderRequest.setAttribute(
 			AppBuilderWebKeys.SHOW_FORM_VIEW, _showFormView);
 		renderRequest.setAttribute(
 			AppBuilderWebKeys.SHOW_TABLE_VIEW, _showTableView);
 
 		super.render(renderRequest, renderResponse);
+	}
+
+	@Override
+	protected boolean callResourceMethod(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws PortletException {
+
+		try {
+			checkPermissions(resourceRequest);
+		}
+		catch (Exception exception) {
+			throw new PortletException(exception);
+		}
+
+		Map<String, MVCResourceCommand> mvcResourceCommandMap =
+			_getMVCResourceCommands(_appBuilderApp);
+
+		MVCResourceCommand mvcResourceCommand = mvcResourceCommandMap.get(
+			GetterUtil.getString(resourceRequest.getResourceID()));
+
+		if (!Objects.isNull(mvcResourceCommand)) {
+			mvcResourceCommand.serveResource(resourceRequest, resourceResponse);
+
+			return true;
+		}
+
+		return super.callResourceMethod(resourceRequest, resourceResponse);
+	}
+
+	private Map<String, MVCResourceCommand> _getMVCResourceCommands(
+		AppBuilderApp appBuilderApp) {
+
+		Map<String, MVCResourceCommand> mvcResourceCommandMap =
+			_getMVCResourceCommands(AppBuilderAppConstants.SCOPE_STANDARD);
+
+		if (!Objects.equals(
+				appBuilderApp.getScope(),
+				AppBuilderAppConstants.SCOPE_STANDARD)) {
+
+			mvcResourceCommandMap.putAll(
+				_getMVCResourceCommands(appBuilderApp.getScope()));
+		}
+
+		return mvcResourceCommandMap;
+	}
+
+	private Map<String, MVCResourceCommand> _getMVCResourceCommands(
+		String scope) {
+
+		return Stream.of(
+			AppDeployUtil.getServices(scope)
+		).filter(
+			Objects::nonNull
+		).flatMap(
+			List::stream
+		).collect(
+			Collectors.toMap(
+				serviceWrapper -> MapUtil.getString(
+					serviceWrapper.getProperties(), "mvc.command.name"),
+				ServiceWrapper::getService)
+		);
 	}
 
 	private final AppBuilderApp _appBuilderApp;

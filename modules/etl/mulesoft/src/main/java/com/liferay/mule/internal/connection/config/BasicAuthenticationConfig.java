@@ -14,8 +14,6 @@
 
 package com.liferay.mule.internal.connection.config;
 
-import org.mule.runtime.api.meta.ExpressionSupport;
-import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
@@ -26,32 +24,32 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
  */
 public class BasicAuthenticationConfig {
 
+	public String getOpenApiSpecPath() {
+		return openApiSpecPath;
+	}
+
 	public String getPassword() {
-		return _password;
+		return password;
 	}
 
 	public String getUsername() {
-		return _username;
+		return username;
 	}
 
-	public void setPassword(String password) {
-		_password = password;
-	}
-
-	public void setUsername(String username) {
-		_username = username;
-	}
+	@DisplayName("OpenAPI Spec URL")
+	@Parameter
+	@Placement(order = 1)
+	private String openApiSpecPath;
 
 	@DisplayName("Password")
 	@Parameter
 	@Password
-	@Placement(order = 2)
-	private String _password;
+	@Placement(order = 3)
+	private String password;
 
 	@DisplayName("Username")
-	@Expression(ExpressionSupport.NOT_SUPPORTED)
 	@Parameter
-	@Placement(order = 1)
-	private String _username;
+	@Placement(order = 2)
+	private String username;
 
 }

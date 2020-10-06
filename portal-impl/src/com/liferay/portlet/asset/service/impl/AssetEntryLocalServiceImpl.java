@@ -48,10 +48,9 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.view.count.ViewCountManager;
+import com.liferay.portal.kernel.view.count.ViewCountManagerUtil;
 import com.liferay.portlet.asset.service.base.AssetEntryLocalServiceBaseImpl;
 import com.liferay.portlet.asset.service.permission.AssetCategoryPermission;
 import com.liferay.portlet.asset.util.AssetSearcher;
@@ -98,7 +97,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 
 		// View count
 
-		_viewCountManager.deleteViewCount(
+		ViewCountManagerUtil.deleteViewCount(
 			entry.getCompanyId(),
 			classNameLocalService.getClassNameId(AssetEntry.class),
 			entry.getEntryId());
@@ -301,12 +300,19 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 
 	@Override
 	public double getEntryPriority(long classNameId, long classPK) {
-		return assetEntryFinder.findPriorityByC_C(classNameId, classPK);
+		AssetEntry assetEntry = assetEntryPersistence.fetchByC_C(
+			classNameId, classPK);
+
+		if (assetEntry == null) {
+			return 0;
+		}
+
+		return assetEntry.getPriority();
 	}
 
 	@Override
 	public double getEntryPriority(String className, long classPK) {
-		return assetEntryFinder.findPriorityByC_C(
+		return getEntryPriority(
 			classNameLocalService.getClassNameId(className), classPK);
 	}
 
@@ -474,7 +480,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		_viewCountManager.incrementViewCount(
+		ViewCountManagerUtil.incrementViewCount(
 			companyId, classNameLocalService.getClassNameId(AssetEntry.class),
 			entry.getEntryId(), increment);
 	}
@@ -765,8 +771,6 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			List<AssetTag> tags = assetTagLocalService.checkTags(
 				userId, siteGroup, tagNames);
 
-			assetEntryPersistence.setAssetTags(entryId, tags);
-
 			if (visible) {
 				if (entry == null) {
 					for (AssetTag tag : tags) {
@@ -802,6 +806,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 						oldTag.getTagId(), classNameId);
 				}
 			}
+
+			assetEntryPersistence.setAssetTags(entryId, tags);
 		}
 
 		// Update entry after tags so that entry listeners have access to the
@@ -985,15 +991,17 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		List<AssetEntryValidatorExclusionRule> exclusionRules =
-			_assetEntryValidatorExclusionRuleServiceTrackerMap.getService(
-				className);
+		List<AssetEntryValidatorExclusionRule>
+			assetEntryValidatorExclusionRules =
+				_assetEntryValidatorExclusionRuleServiceTrackerMap.getService(
+					className);
 
-		if (exclusionRules != null) {
-			for (AssetEntryValidatorExclusionRule exclusionRule :
-					exclusionRules) {
+		if (assetEntryValidatorExclusionRules != null) {
+			for (AssetEntryValidatorExclusionRule
+					assetEntryValidatorExclusionRule :
+						assetEntryValidatorExclusionRules) {
 
-				if (exclusionRule.isValidationExcluded(
+				if (assetEntryValidatorExclusionRule.isValidationExcluded(
 						groupId, className, classPK, classTypePK, categoryIds,
 						tagNames)) {
 
@@ -1057,8 +1065,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		searchContext.setCompanyId(companyId);
 		searchContext.setEnd(end);
 		searchContext.setGroupIds(groupIds);
-		searchContext.setStart(start);
 		searchContext.setSorts(sort);
+		searchContext.setStart(start);
 		searchContext.setUserId(userId);
 
 		return searchContext;
@@ -1143,9 +1151,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long companyId, String className, SearchContext searchContext)
 		throws Exception {
 
-		long[] classNameIds = getClassNameIds(companyId, className);
-
-		return doSearch(classNameIds, searchContext);
+		return doSearch(getClassNameIds(companyId, className), searchContext);
 	}
 
 	protected Hits doSearch(long[] classNameIds, SearchContext searchContext)
@@ -1180,9 +1186,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long companyId, String className, SearchContext searchContext)
 		throws Exception {
 
-		long[] classNameIds = getClassNameIds(companyId, className);
-
-		return doSearchCount(classNameIds, searchContext);
+		return doSearchCount(
+			getClassNameIds(companyId, className), searchContext);
 	}
 
 	protected long doSearchCount(
@@ -1361,11 +1366,6 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			}
 		}
 	}
-
-	private static volatile ViewCountManager _viewCountManager =
-		ServiceProxyFactory.newServiceTrackedInstance(
-			ViewCountManager.class, AssetEntryLocalServiceImpl.class,
-			"_viewCountManager", false, true);
 
 	private final ServiceTrackerMap
 		<String, List<AssetEntryValidatorExclusionRule>>

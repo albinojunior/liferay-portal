@@ -27,6 +27,8 @@ import com.liferay.wiki.escape.WikiEscapeUtil;
 import com.liferay.wiki.item.selector.WikiPageURLItemSelectorReturnType;
 import com.liferay.wiki.model.WikiPage;
 
+import java.net.URL;
+
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
@@ -69,10 +71,17 @@ public class WikiPageURLItemSelectorReturnTypeResolver
 			page.getGroupId(), WikiPortletKeys.WIKI);
 
 		if (Validator.isNotNull(layoutFullURL)) {
-			return StringBundler.concat(
-				layoutFullURL, Portal.FRIENDLY_URL_SEPARATOR, "wiki/",
-				page.getNodeId(), StringPool.SLASH,
-				URLCodec.encodeURL(WikiEscapeUtil.escapeName(page.getTitle())));
+			URL urlObject = new URL(layoutFullURL);
+
+			String path = urlObject.getPath();
+
+			if (Validator.isNotNull(path)) {
+				return StringBundler.concat(
+					path, Portal.FRIENDLY_URL_SEPARATOR, "wiki/",
+					page.getNodeId(), StringPool.SLASH,
+					URLCodec.encodeURL(
+						WikiEscapeUtil.escapeName(page.getTitle())));
+			}
 		}
 
 		PortletURL portletURL = _portal.getControlPanelPortletURL(

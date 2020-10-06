@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.service;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -62,7 +63,7 @@ public interface PasswordPolicyLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link PasswordPolicyLocalServiceUtil} to access the password policy local service. Add custom service methods to <code>com.liferay.portal.service.impl.PasswordPolicyLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.PasswordPolicyLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the password policy local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link PasswordPolicyLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public PasswordPolicy addPasswordPolicy(
 			long userId, boolean defaultPolicy, String name, String description,
@@ -78,6 +79,10 @@ public interface PasswordPolicyLocalService
 
 	/**
 	 * Adds the password policy to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordPolicyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordPolicy the password policy
 	 * @return the password policy that was added
@@ -109,6 +114,10 @@ public interface PasswordPolicyLocalService
 	/**
 	 * Deletes the password policy with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordPolicyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param passwordPolicyId the primary key of the password policy
 	 * @return the password policy that was removed
 	 * @throws PortalException if a password policy with the primary key could not be found
@@ -119,6 +128,10 @@ public interface PasswordPolicyLocalService
 
 	/**
 	 * Deletes the password policy from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordPolicyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordPolicy the password policy
 	 * @return the password policy that was removed
@@ -138,6 +151,9 @@ public interface PasswordPolicyLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -319,7 +335,7 @@ public interface PasswordPolicyLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PasswordPolicy> search(
 		long companyId, String name, int start, int end,
-		OrderByComparator<PasswordPolicy> obc);
+		OrderByComparator<PasswordPolicy> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int searchCount(long companyId, String name);
@@ -338,6 +354,10 @@ public interface PasswordPolicyLocalService
 
 	/**
 	 * Updates the password policy in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordPolicyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordPolicy the password policy
 	 * @return the password policy that was updated

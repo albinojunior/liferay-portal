@@ -18,4 +18,6 @@
 
 <liferay-ui:error-header />
 
+<liferay-ui:error exception="<%= PortalException.class %>" message="unable-to-delete-site-page-variation-from-current-layout" />
+
 <liferay-ui:error-principal />

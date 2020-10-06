@@ -109,6 +109,10 @@ public class SharingEntryLocalServiceWrapper
 	/**
 	 * Adds the sharing entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sharingEntry the sharing entry
 	 * @return the sharing entry that was added
 	 */
@@ -188,6 +192,10 @@ public class SharingEntryLocalServiceWrapper
 	/**
 	 * Deletes the sharing entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sharingEntryId the primary key of the sharing entry
 	 * @return the sharing entry that was removed
 	 * @throws PortalException if a sharing entry with the primary key could not be found
@@ -222,6 +230,10 @@ public class SharingEntryLocalServiceWrapper
 	/**
 	 * Deletes the sharing entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sharingEntry the sharing entry
 	 * @return the sharing entry that was removed
 	 */
@@ -240,6 +252,11 @@ public class SharingEntryLocalServiceWrapper
 	@Override
 	public void deleteToUserSharingEntries(long toUserId) {
 		_sharingEntryLocalService.deleteToUserSharingEntries(toUserId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _sharingEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -857,6 +874,10 @@ public class SharingEntryLocalServiceWrapper
 
 	/**
 	 * Updates the sharing entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param sharingEntry the sharing entry
 	 * @return the sharing entry that was updated

@@ -47,21 +47,22 @@ public class CMISRepositoryUtil {
 
 	public static void checkRepository(
 			long repositoryId, Map<String, String> parameters,
-			UnicodeProperties typeSettingsProperties, String typeSettingsKey)
+			UnicodeProperties typeSettingsUnicodeProperties,
+			String typeSettingsKey)
 		throws PortalException, RepositoryException {
 
-		if (!typeSettingsProperties.containsKey(typeSettingsKey) ||
+		if (!typeSettingsUnicodeProperties.containsKey(typeSettingsKey) ||
 			Validator.isNull(
-				typeSettingsProperties.getProperty(typeSettingsKey))) {
+				typeSettingsUnicodeProperties.getProperty(typeSettingsKey))) {
 
 			Repository cmisRepository = getCMISRepository(parameters);
 
-			typeSettingsProperties.setProperty(
+			typeSettingsUnicodeProperties.setProperty(
 				typeSettingsKey, cmisRepository.getId());
 
 			try {
 				RepositoryLocalServiceUtil.updateRepository(
-					repositoryId, typeSettingsProperties);
+					repositoryId, typeSettingsUnicodeProperties);
 			}
 			catch (PortalException | SystemException exception) {
 				throw new RepositoryException(exception);
@@ -70,17 +71,22 @@ public class CMISRepositoryUtil {
 
 		parameters.put(
 			SessionParameter.REPOSITORY_ID,
-			getTypeSettingsValue(typeSettingsProperties, typeSettingsKey));
+			getTypeSettingsValue(
+				typeSettingsUnicodeProperties, typeSettingsKey));
 	}
 
 	public static com.liferay.document.library.repository.cmis.Session
 			createSession(Map<String, String> parameters)
 		throws PrincipalException, RepositoryException {
 
-		try (ContextClassLoaderSetter contextClassLoaderSetter =
-				new ContextClassLoaderSetter(
-					CMISRepositoryUtil.class.getClassLoader())) {
+		Thread currentThread = Thread.currentThread();
 
+		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
+
+		currentThread.setContextClassLoader(
+			CMISRepositoryUtil.class.getClassLoader());
+
+		try {
 			Session session = _sessionFactory.createSession(parameters);
 
 			session.setDefaultContext(_operationContext);
@@ -100,13 +106,18 @@ public class CMISRepositoryUtil {
 		catch (Exception exception) {
 			throw new RepositoryException(exception);
 		}
+		finally {
+			currentThread.setContextClassLoader(contextClassLoader);
+		}
 	}
 
 	public static String getTypeSettingsValue(
-			UnicodeProperties typeSettingsProperties, String typeSettingsKey)
+			UnicodeProperties typeSettingsUnicodeProperties,
+			String typeSettingsKey)
 		throws InvalidRepositoryException {
 
-		String value = typeSettingsProperties.getProperty(typeSettingsKey);
+		String value = typeSettingsUnicodeProperties.getProperty(
+			typeSettingsKey);
 
 		if (Validator.isNull(value)) {
 			throw new InvalidRepositoryException(
@@ -119,14 +130,21 @@ public class CMISRepositoryUtil {
 	protected static Repository getCMISRepository(
 		Map<String, String> parameters) {
 
-		try (ContextClassLoaderSetter contextClassLoaderSetter =
-				new ContextClassLoaderSetter(
-					CMISRepositoryUtil.class.getClassLoader())) {
+		Thread currentThread = Thread.currentThread();
 
+		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
+
+		currentThread.setContextClassLoader(
+			CMISRepositoryUtil.class.getClassLoader());
+
+		try {
 			List<Repository> repositories = _sessionFactory.getRepositories(
 				parameters);
 
 			return repositories.get(0);
+		}
+		finally {
+			currentThread.setContextClassLoader(contextClassLoader);
 		}
 	}
 

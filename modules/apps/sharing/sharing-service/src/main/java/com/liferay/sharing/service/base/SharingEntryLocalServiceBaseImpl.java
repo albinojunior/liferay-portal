@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -41,6 +42,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -81,6 +83,10 @@ public abstract class SharingEntryLocalServiceBaseImpl
 	/**
 	 * Adds the sharing entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sharingEntry the sharing entry
 	 * @return the sharing entry that was added
 	 */
@@ -107,6 +113,10 @@ public abstract class SharingEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the sharing entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sharingEntryId the primary key of the sharing entry
 	 * @return the sharing entry that was removed
 	 * @throws PortalException if a sharing entry with the primary key could not be found
@@ -122,6 +132,10 @@ public abstract class SharingEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the sharing entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sharingEntry the sharing entry
 	 * @return the sharing entry that was removed
 	 */
@@ -129,6 +143,11 @@ public abstract class SharingEntryLocalServiceBaseImpl
 	@Override
 	public SharingEntry deleteSharingEntry(SharingEntry sharingEntry) {
 		return sharingEntryPersistence.remove(sharingEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return sharingEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -405,6 +424,10 @@ public abstract class SharingEntryLocalServiceBaseImpl
 			(SharingEntry)persistedModel);
 	}
 
+	public BasePersistence<SharingEntry> getBasePersistence() {
+		return sharingEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -492,6 +515,10 @@ public abstract class SharingEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the sharing entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SharingEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param sharingEntry the sharing entry
 	 * @return the sharing entry that was updated

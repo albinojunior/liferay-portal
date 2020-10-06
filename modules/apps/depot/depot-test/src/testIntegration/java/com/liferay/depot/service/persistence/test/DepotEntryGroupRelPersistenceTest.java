@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
@@ -125,7 +127,18 @@ public class DepotEntryGroupRelPersistenceTest {
 
 		newDepotEntryGroupRel.setMvccVersion(RandomTestUtil.nextLong());
 
+		newDepotEntryGroupRel.setUuid(RandomTestUtil.randomString());
+
+		newDepotEntryGroupRel.setGroupId(RandomTestUtil.nextLong());
+
 		newDepotEntryGroupRel.setCompanyId(RandomTestUtil.nextLong());
+
+		newDepotEntryGroupRel.setCreateDate(RandomTestUtil.nextDate());
+
+		newDepotEntryGroupRel.setModifiedDate(RandomTestUtil.nextDate());
+
+		newDepotEntryGroupRel.setDdmStructuresAvailable(
+			RandomTestUtil.randomBoolean());
 
 		newDepotEntryGroupRel.setDepotEntryId(RandomTestUtil.nextLong());
 
@@ -143,11 +156,27 @@ public class DepotEntryGroupRelPersistenceTest {
 			existingDepotEntryGroupRel.getMvccVersion(),
 			newDepotEntryGroupRel.getMvccVersion());
 		Assert.assertEquals(
+			existingDepotEntryGroupRel.getUuid(),
+			newDepotEntryGroupRel.getUuid());
+		Assert.assertEquals(
 			existingDepotEntryGroupRel.getDepotEntryGroupRelId(),
 			newDepotEntryGroupRel.getDepotEntryGroupRelId());
 		Assert.assertEquals(
+			existingDepotEntryGroupRel.getGroupId(),
+			newDepotEntryGroupRel.getGroupId());
+		Assert.assertEquals(
 			existingDepotEntryGroupRel.getCompanyId(),
 			newDepotEntryGroupRel.getCompanyId());
+		Assert.assertEquals(
+			Time.getShortTimestamp(existingDepotEntryGroupRel.getCreateDate()),
+			Time.getShortTimestamp(newDepotEntryGroupRel.getCreateDate()));
+		Assert.assertEquals(
+			Time.getShortTimestamp(
+				existingDepotEntryGroupRel.getModifiedDate()),
+			Time.getShortTimestamp(newDepotEntryGroupRel.getModifiedDate()));
+		Assert.assertEquals(
+			existingDepotEntryGroupRel.isDdmStructuresAvailable(),
+			newDepotEntryGroupRel.isDdmStructuresAvailable());
 		Assert.assertEquals(
 			existingDepotEntryGroupRel.getDepotEntryId(),
 			newDepotEntryGroupRel.getDepotEntryId());
@@ -157,6 +186,33 @@ public class DepotEntryGroupRelPersistenceTest {
 		Assert.assertEquals(
 			existingDepotEntryGroupRel.getToGroupId(),
 			newDepotEntryGroupRel.getToGroupId());
+	}
+
+	@Test
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid("");
+
+		_persistence.countByUuid("null");
+
+		_persistence.countByUuid((String)null);
+	}
+
+	@Test
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G("", RandomTestUtil.nextLong());
+
+		_persistence.countByUUID_G("null", 0L);
+
+		_persistence.countByUUID_G((String)null, 0L);
+	}
+
+	@Test
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C("", RandomTestUtil.nextLong());
+
+		_persistence.countByUuid_C("null", 0L);
+
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
@@ -171,6 +227,14 @@ public class DepotEntryGroupRelPersistenceTest {
 		_persistence.countByToGroupId(RandomTestUtil.nextLong());
 
 		_persistence.countByToGroupId(0L);
+	}
+
+	@Test
+	public void testCountByDDMSA_TGI() throws Exception {
+		_persistence.countByDDMSA_TGI(
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong());
+
+		_persistence.countByDDMSA_TGI(RandomTestUtil.randomBoolean(), 0L);
 	}
 
 	@Test
@@ -215,9 +279,10 @@ public class DepotEntryGroupRelPersistenceTest {
 
 	protected OrderByComparator<DepotEntryGroupRel> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"DepotEntryGroupRel", "mvccVersion", true, "depotEntryGroupRelId",
-			true, "companyId", true, "depotEntryId", true, "searchable", true,
-			"toGroupId", true);
+			"DepotEntryGroupRel", "mvccVersion", true, "uuid", true,
+			"depotEntryGroupRelId", true, "groupId", true, "companyId", true,
+			"createDate", true, "modifiedDate", true, "ddmStructuresAvailable",
+			true, "depotEntryId", true, "searchable", true, "toGroupId", true);
 	}
 
 	@Test
@@ -449,20 +514,74 @@ public class DepotEntryGroupRelPersistenceTest {
 
 		_persistence.clearCache();
 
-		DepotEntryGroupRel existingDepotEntryGroupRel =
+		_assertOriginalValues(
 			_persistence.findByPrimaryKey(
-				newDepotEntryGroupRel.getPrimaryKey());
+				newDepotEntryGroupRel.getPrimaryKey()));
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		DepotEntryGroupRel newDepotEntryGroupRel = addDepotEntryGroupRel();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			DepotEntryGroupRel.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"depotEntryGroupRelId",
+				newDepotEntryGroupRel.getDepotEntryGroupRelId()));
+
+		List<DepotEntryGroupRel> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(DepotEntryGroupRel depotEntryGroupRel) {
+		Assert.assertEquals(
+			depotEntryGroupRel.getUuid(),
+			ReflectionTestUtil.invoke(
+				depotEntryGroupRel, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "uuid_"));
+		Assert.assertEquals(
+			Long.valueOf(depotEntryGroupRel.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(
+				depotEntryGroupRel, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingDepotEntryGroupRel.getDepotEntryId()),
+			Long.valueOf(depotEntryGroupRel.getDepotEntryId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingDepotEntryGroupRel, "getOriginalDepotEntryId",
-				new Class<?>[0]));
+				depotEntryGroupRel, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "depotEntryId"));
 		Assert.assertEquals(
-			Long.valueOf(existingDepotEntryGroupRel.getToGroupId()),
+			Long.valueOf(depotEntryGroupRel.getToGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingDepotEntryGroupRel, "getOriginalToGroupId",
-				new Class<?>[0]));
+				depotEntryGroupRel, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "toGroupId"));
 	}
 
 	protected DepotEntryGroupRel addDepotEntryGroupRel() throws Exception {
@@ -472,7 +591,18 @@ public class DepotEntryGroupRelPersistenceTest {
 
 		depotEntryGroupRel.setMvccVersion(RandomTestUtil.nextLong());
 
+		depotEntryGroupRel.setUuid(RandomTestUtil.randomString());
+
+		depotEntryGroupRel.setGroupId(RandomTestUtil.nextLong());
+
 		depotEntryGroupRel.setCompanyId(RandomTestUtil.nextLong());
+
+		depotEntryGroupRel.setCreateDate(RandomTestUtil.nextDate());
+
+		depotEntryGroupRel.setModifiedDate(RandomTestUtil.nextDate());
+
+		depotEntryGroupRel.setDdmStructuresAvailable(
+			RandomTestUtil.randomBoolean());
 
 		depotEntryGroupRel.setDepotEntryId(RandomTestUtil.nextLong());
 

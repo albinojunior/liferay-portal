@@ -106,17 +106,7 @@ const ItemSelectorPreview = ({
 			'edit'
 		)} ${itemTitle} (${Liferay.Language.get('copy')})`;
 
-		let editEntityBaseZIndex = Liferay.zIndex.WINDOW;
-
-		const iframeModalEl = window.parent.document.getElementsByClassName(
-			'dialog-iframe-modal'
-		);
-
-		if (iframeModalEl) {
-			editEntityBaseZIndex = window
-				.getComputedStyle(iframeModalEl[0])
-				.getPropertyValue('z-index');
-		}
+		const editEntityBaseZIndex = Liferay.zIndex.WINDOW;
 
 		Liferay.Util.editEntity(
 			{
@@ -130,7 +120,7 @@ const ItemSelectorPreview = ({
 				uri: editItemURL,
 				urlParams: {
 					entityURL: currentItem.url,
-					saveFileDescription: currentItem.description,
+					saveFileEntryId: currentItem.fileentryid,
 					saveFileName: itemTitle,
 					saveParamName: 'imageSelectorFileName',
 					saveURL: uploadItemURL,
@@ -142,7 +132,7 @@ const ItemSelectorPreview = ({
 
 	const handleClickNext = useCallback(() => {
 		if (itemList.length > 1) {
-			setCurrentItemIndex(index => {
+			setCurrentItemIndex((index) => {
 				const lastIndex = itemList.length - 1;
 				const shouldResetIndex = index === lastIndex;
 
@@ -153,7 +143,7 @@ const ItemSelectorPreview = ({
 
 	const handleClickPrevious = useCallback(() => {
 		if (itemList.length > 1) {
-			setCurrentItemIndex(index => {
+			setCurrentItemIndex((index) => {
 				const lastIndex = itemList.length - 1;
 				const shouldResetIndex = index === 0;
 
@@ -163,7 +153,7 @@ const ItemSelectorPreview = ({
 	}, [itemList.length]);
 
 	const handleOnKeyDown = useCallback(
-		e => {
+		(e) => {
 			if (!isMounted()) {
 				return;
 			}
@@ -187,12 +177,12 @@ const ItemSelectorPreview = ({
 		[close, handleClickNext, handleClickPrevious, isMounted]
 	);
 
-	const updateItemList = newItemList => {
+	const updateItemList = (newItemList) => {
 		setItemList(newItemList);
 		setReloadOnHide(true);
 	};
 
-	const handleSaveEdit = e => {
+	const handleSaveEdit = (e) => {
 		const itemData = e.data.file;
 
 		const editedItemMetadata = {
@@ -214,6 +204,7 @@ const ItemSelectorPreview = ({
 		};
 
 		const editedItem = {
+			fileentryid: currentItem.fileentryid,
 			metadata: JSON.stringify(editedItemMetadata),
 			returntype: uploadItemReturnType,
 			title: itemData.title,

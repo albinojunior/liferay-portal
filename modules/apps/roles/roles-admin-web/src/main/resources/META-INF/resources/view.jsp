@@ -30,13 +30,12 @@ else {
 
 ViewRolesManagementToolbarDisplayContext viewRolesManagementToolbarDisplayContext = new ViewRolesManagementToolbarDisplayContext(request, renderRequest, renderResponse, displayStyle);
 
-SearchContainer searchContainer = viewRolesManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<Role> searchContainer = viewRolesManagementToolbarDisplayContext.getSearchContainer();
 
 PortletURL portletURL = viewRolesManagementToolbarDisplayContext.getPortletURL();
 %>
 
 <clay:navigation-bar
-	inverted="<%= true %>"
 	navigationItems="<%= roleDisplayContext.getViewRoleNavigationItems(liferayPortletResponse, portletURL) %>"
 />
 
@@ -84,7 +83,10 @@ PortletURL portletURL = viewRolesManagementToolbarDisplayContext.getPortletURL()
 
 				rowURL.setParameter("mvcPath", "/edit_role.jsp");
 				rowURL.setParameter("tabs1", "details");
-				rowURL.setParameter("backURL", roleSearchContainer.getIteratorURL().toString());
+
+				PortletURL searchContainerPortletURL = roleSearchContainer.getIteratorURL();
+
+				rowURL.setParameter("backURL", searchContainerPortletURL.toString());
 				rowURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 			}
 			%>
@@ -100,7 +102,7 @@ PortletURL portletURL = viewRolesManagementToolbarDisplayContext.getPortletURL()
 </aui:form>
 
 <aui:script sandbox="<%= true %>">
-	var deleteRoles = function(deleteRoleIds) {
+	var deleteRoles = function (deleteRoleIds) {
 		var form = document.<portlet:namespace />fm;
 
 		var p_p_lifecycle = form.p_p_lifecycle;
@@ -132,10 +134,10 @@ PortletURL portletURL = viewRolesManagementToolbarDisplayContext.getPortletURL()
 		deleteRoles: deleteRoles,
 	};
 
-	Liferay.componentReady('viewRolesManagementToolbar').then(function(
+	Liferay.componentReady('viewRolesManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

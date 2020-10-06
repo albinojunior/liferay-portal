@@ -64,6 +64,8 @@ definition {
 	@description = "This makes sure that the user can change the default image for OpenGraph at the site level."
 	@priority = "5"
 	test ChangeSiteImage {
+		property portal.acceptance = "true";
+
 		var portalURL = PropsUtil.get("portal.url");
 
 		for (var imageNumber : list "1,2") {
@@ -109,7 +111,6 @@ definition {
 	@description = "This makes sure that the previously added image can be cleared at the page level."
 	@priority = "5"
 	test ClearImageAtPageLevel {
-		property portal.acceptance = "true";
 		var portalURL = PropsUtil.get("portal.url");
 
 		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
@@ -183,6 +184,8 @@ definition {
 		OpenGraph.configureOpenGraph(
 			customImage = "true",
 			uploadFileName = "Document_1.jpg");
+
+		Pause(locator1 = "1000");
 
 		AssertVisible(
 			key_imageName = "Document_1.jpg",
@@ -368,7 +371,7 @@ definition {
 			pageName = "Test Page Name",
 			uploadFileName = "Document_1.jpg");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -392,6 +395,8 @@ definition {
 	@description = "This ensures that users can introduce an alternative text for the image."
 	@priority = "5"
 	test EditAltDescription {
+		property portal.acceptance = "true";
+
 		var portalURL = PropsUtil.get("portal.url");
 
 		SitePages.openPagesAdmin(siteURLKey = "test-site-name");

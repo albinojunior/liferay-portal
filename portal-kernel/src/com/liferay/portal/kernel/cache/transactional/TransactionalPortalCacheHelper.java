@@ -41,8 +41,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Shuyang Zhou
+ * @author     Shuyang Zhou
+ * @deprecated As of Athanasius (7.3.x), replaced by {@link
+ *             TransactionalPortalCacheUtil}
  */
+@Deprecated
 public class TransactionalPortalCacheHelper {
 
 	public static final TransactionLifecycleListener
@@ -273,12 +276,12 @@ public class TransactionalPortalCacheHelper {
 
 	private static final ThreadLocal<List<List<PortalCacheMap>>>
 		_backupPortalCacheMapsThreadLocal = new CentralizedThreadLocal<>(
-			TransactionalPortalCacheHelper.class.getName() +
+			TransactionalPortalCacheUtil.class.getName() +
 				"._backupPortalCacheMapsThreadLocal",
 			ArrayList::new, false);
 	private static final ThreadLocal<List<PortalCacheMap>>
 		_portalCacheMapsThreadLocal = new CentralizedThreadLocal<>(
-			TransactionalPortalCacheHelper.class.getName() +
+			TransactionalPortalCacheUtil.class.getName() +
 				"._portalCacheMapsThreadLocal",
 			ArrayList::new, false);
 	private static volatile Boolean _transactionalCacheEnabled;

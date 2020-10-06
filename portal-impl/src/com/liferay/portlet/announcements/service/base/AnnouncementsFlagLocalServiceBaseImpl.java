@@ -17,6 +17,7 @@ package com.liferay.portlet.announcements.service.base;
 import com.liferay.announcements.kernel.model.AnnouncementsFlag;
 import com.liferay.announcements.kernel.service.AnnouncementsFlagLocalService;
 import com.liferay.announcements.kernel.service.persistence.AnnouncementsFlagPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -70,6 +72,10 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 	/**
 	 * Adds the announcements flag to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param announcementsFlag the announcements flag
 	 * @return the announcements flag that was added
 	 */
@@ -98,6 +104,10 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 	/**
 	 * Deletes the announcements flag with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param flagId the primary key of the announcements flag
 	 * @return the announcements flag that was removed
 	 * @throws PortalException if a announcements flag with the primary key could not be found
@@ -113,6 +123,10 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 	/**
 	 * Deletes the announcements flag from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param announcementsFlag the announcements flag
 	 * @return the announcements flag that was removed
 	 */
@@ -122,6 +136,11 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 		AnnouncementsFlag announcementsFlag) {
 
 		return announcementsFlagPersistence.remove(announcementsFlag);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return announcementsFlagPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -294,6 +313,10 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 			(AnnouncementsFlag)persistedModel);
 	}
 
+	public BasePersistence<AnnouncementsFlag> getBasePersistence() {
+		return announcementsFlagPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -332,6 +355,10 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 
 	/**
 	 * Updates the announcements flag in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AnnouncementsFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param announcementsFlag the announcements flag
 	 * @return the announcements flag that was updated

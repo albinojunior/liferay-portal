@@ -39,6 +39,10 @@ public class DDMTemplateLinkLocalServiceWrapper
 	/**
 	 * Adds the ddm template link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmTemplateLink the ddm template link
 	 * @return the ddm template link that was added
 	 */
@@ -81,6 +85,10 @@ public class DDMTemplateLinkLocalServiceWrapper
 	/**
 	 * Deletes the ddm template link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmTemplateLink the ddm template link
 	 * @return the ddm template link that was removed
 	 */
@@ -94,6 +102,10 @@ public class DDMTemplateLinkLocalServiceWrapper
 
 	/**
 	 * Deletes the ddm template link with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param templateLinkId the primary key of the ddm template link
 	 * @return the ddm template link that was removed
@@ -140,6 +152,11 @@ public class DDMTemplateLinkLocalServiceWrapper
 	@Override
 	public void deleteTemplateLinks(long templateId) {
 		_ddmTemplateLinkLocalService.deleteTemplateLinks(templateId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ddmTemplateLinkLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -332,6 +349,10 @@ public class DDMTemplateLinkLocalServiceWrapper
 			classNameId, classPK);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public java.util.List<DDMTemplateLink> getTemplateLinks(long classNameId) {
 		return _ddmTemplateLinkLocalService.getTemplateLinks(classNameId);
@@ -347,6 +368,10 @@ public class DDMTemplateLinkLocalServiceWrapper
 
 	/**
 	 * Updates the ddm template link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMTemplateLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmTemplateLink the ddm template link
 	 * @return the ddm template link that was updated

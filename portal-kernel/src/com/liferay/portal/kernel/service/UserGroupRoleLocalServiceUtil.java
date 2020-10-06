@@ -44,6 +44,10 @@ public class UserGroupRoleLocalServiceUtil {
 	/**
 	 * Adds the user group role to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UserGroupRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param userGroupRole the user group role
 	 * @return the user group role that was added
 	 */
@@ -102,6 +106,10 @@ public class UserGroupRoleLocalServiceUtil {
 	/**
 	 * Deletes the user group role with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UserGroupRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param userGroupRoleId the primary key of the user group role
 	 * @return the user group role that was removed
 	 * @throws PortalException if a user group role with the primary key could not be found
@@ -115,6 +123,10 @@ public class UserGroupRoleLocalServiceUtil {
 
 	/**
 	 * Deletes the user group role from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UserGroupRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param userGroupRole the user group role
 	 * @return the user group role that was removed
@@ -166,6 +178,12 @@ public class UserGroupRoleLocalServiceUtil {
 
 	public static void deleteUserGroupRolesByUserId(long userId) {
 		getService().deleteUserGroupRolesByUserId(userId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -407,6 +425,10 @@ public class UserGroupRoleLocalServiceUtil {
 
 	/**
 	 * Updates the user group role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UserGroupRoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param userGroupRole the user group role
 	 * @return the user group role that was updated

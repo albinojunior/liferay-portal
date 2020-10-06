@@ -27,9 +27,13 @@ boolean showOnlyIcons = ParamUtil.getBoolean(request, "showOnlyIcons");
 BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortletInstanceConfigurationUtil.getBlogsPortletInstanceConfiguration(themeDisplay);
 %>
 
-<div class="autofit-float autofit-row autofit-row-center widget-toolbar">
+<clay:content-row
+	cssClass="widget-toolbar"
+	floatElements="end"
+	verticalAlign="center"
+>
 	<c:if test="<%= blogsPortletInstanceConfiguration.enableComments() %>">
-		<div class="autofit-col">
+		<clay:content-col>
 
 			<%
 			int messagesCount = CommentManagerUtil.getCommentsCount(BlogsEntry.class.getName(), entry.getEntryId());
@@ -37,7 +41,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 
 			<portlet:renderURL var="viewEntryCommentsURL">
 				<portlet:param name="mvcRenderCommandName" value="/blogs/view_entry" />
-				<portlet:param name="scroll" value='<%= renderResponse.getNamespace() + "discussionContainer" %>' />
+				<portlet:param name="scroll" value='<%= liferayPortletResponse.getNamespace() + "discussionContainer" %>' />
 
 				<c:choose>
 					<c:when test="<%= Validator.isNotNull(entry.getUrlTitle()) %>">
@@ -67,25 +71,23 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 					</c:choose>
 				</a>
 			</liferay-util:whitespace-remover>
-		</div>
+		</clay:content-col>
 	</c:if>
 
 	<c:if test="<%= blogsPortletInstanceConfiguration.enableRatings() %>">
-		<div class="autofit-col">
-			<div class="ratings">
-				<liferay-ui:ratings
-					className="<%= BlogsEntry.class.getName() %>"
-					classPK="<%= entry.getEntryId() %>"
-					inTrash="<%= entry.isInTrash() %>"
-					ratingsEntry="<%= ratingsEntry %>"
-					ratingsStats="<%= ratingsStats %>"
-				/>
-			</div>
-		</div>
+		<clay:content-col>
+			<liferay-ratings:ratings
+				className="<%= BlogsEntry.class.getName() %>"
+				classPK="<%= entry.getEntryId() %>"
+				inTrash="<%= entry.isInTrash() %>"
+				ratingsEntry="<%= ratingsEntry %>"
+				ratingsStats="<%= ratingsStats %>"
+			/>
+		</clay:content-col>
 	</c:if>
 
 	<c:if test="<%= blogsPortletInstanceConfiguration.enableFlags() && showFlags %>">
-		<div class="autofit-col">
+		<clay:content-col>
 			<div class="flags">
 				<liferay-flags:flags
 					className="<%= BlogsEntry.class.getName() %>"
@@ -96,10 +98,12 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 					reportedUserId="<%= entry.getUserId() %>"
 				/>
 			</div>
-		</div>
+		</clay:content-col>
 	</c:if>
 
-	<div class="autofit-col autofit-col-end">
+	<clay:content-col
+		cssClass="autofit-col-end"
+	>
 		<liferay-portlet:renderURL varImpl="bookmarkURL" windowState="<%= WindowState.NORMAL.toString() %>">
 			<portlet:param name="mvcRenderCommandName" value="/blogs/view_entry" />
 
@@ -123,5 +127,5 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 			types="<%= SocialBookmarksUtil.getSocialBookmarksTypes(blogsPortletInstanceConfiguration) %>"
 			urlImpl="<%= bookmarkURL %>"
 		/>
-	</div>
-</div>
+	</clay:content-col>
+</clay:content-row>

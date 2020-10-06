@@ -1687,8 +1687,13 @@ public class VerifyProperties extends VerifyProcess {
 			"jsp",
 		"editor.wysiwyg.portal-web.docroot.html.portlet.message_boards." +
 			"configuration.jsp",
+		"editor.wysiwyg.portal-web.docroot.html.portlet.message_boards." +
+			"edit_message.bb_code.jsp",
+		"editor.wysiwyg.portal-web.docroot.html.portlet.message_boards." +
+			"edit_message.html.jsp",
 		"editor.wysiwyg.portal-web.docroot.html.portlet.portal_settings." +
 			"email_notifications.jsp",
+		"ehcache.blocking.cache.allowed",
 		"ehcache.bootstrap.cache.loader.enabled",
 		"ehcache.bootstrap.cache.loader.factory",
 		"ehcache.bootstrap.cache.loader.properties",
@@ -1708,7 +1713,7 @@ public class VerifyProperties extends VerifyProcess {
 		"hibernate.cache.use_minimal_puts", "hibernate.cache.use_query_cache",
 		"hibernate.cache.use_second_level_cache",
 		"hibernate.cache.use_structured_entries", "icq.jar", "icq.login",
-		"icq.password", "index.filter.search.limit",
+		"icq.password", "index.filter.search.limit", "index.on.upgrade",
 		"index.portal.field.analyzer.enabled", "index.search.highlight.enabled",
 		"index.read.only", "invitation.email.max.recipients",
 		"invitation.email.message.body", "invitation.email.message.subject",
@@ -1747,14 +1752,20 @@ public class VerifyProperties extends VerifyProcess {
 		"layout.first.pageable[embedded]",
 		"layout.first.pageable[link_to_layout]", "layout.first.pageable[panel]",
 		"layout.first.pageable[url]", "layout.form.add", "layout.form.update",
+		"layout.parallel.render.enable",
 		"layout.parallel.render.thread.pool.allow.core.thread.timeout",
-		"layout.parentable[control_panel]", "layout.parentable[embedded]",
-		"layout.parentable[link_to_layout]", "layout.parentable[panel]",
-		"layout.parentable[url]", "layout.reset.portlet.ids",
-		"layout.set.form.update", "layout.sitemapable[embedded]",
-		"layout.sitemapable[link_to_layout]", "layout.sitemapable[url]",
-		"layout.types", "layout.url[control_panel]", "layout.url[embedded]",
-		"layout.url[link_to_layout]", "layout.url[panel]", "layout.url[url]",
+		"layout.parallel.render.thread.pool.core.thread.count",
+		"layout.parallel.render.thread.pool.keep.alive.time",
+		"layout.parallel.render.thread.pool.max.queue.size",
+		"layout.parallel.render.thread.pool.max.thread.count",
+		"layout.parallel.render.timeout", "layout.parentable[control_panel]",
+		"layout.parentable[embedded]", "layout.parentable[link_to_layout]",
+		"layout.parentable[panel]", "layout.parentable[url]",
+		"layout.reset.portlet.ids", "layout.set.form.update",
+		"layout.sitemapable[embedded]", "layout.sitemapable[link_to_layout]",
+		"layout.sitemapable[url]", "layout.types", "layout.url[control_panel]",
+		"layout.url[embedded]", "layout.url[link_to_layout]",
+		"layout.url[panel]", "layout.url[url]",
 		"layout.url.friendliable[control_panel]",
 		"layout.url.friendliable[embedded]",
 		"layout.url.friendliable[link_to_layout]",
@@ -1802,8 +1813,11 @@ public class VerifyProperties extends VerifyProcess {
 		"organizations.form.update.main",
 		"organizations.form.update.miscellaneous",
 		"organizations.indexer.enabled", "organizations.rootable",
-		"organizations.types", "portal.cache.manager.type.multi.vm",
+		"organizations.types", "permissions.object.blocking.cache",
+		"portal.cache.manager.type.multi.vm",
 		"portal.cache.manager.type.single.vm", "portal.ctx",
+		"portal.resiliency.enabled", "portal.resiliency.portlet.show.footer",
+		"portal.resiliency.spi.agent.client.pool.max.size",
 		"portal.security.manager.enable",
 		"permissions.inline.sql.resource.block.query.threshold",
 		"permissions.list.filter", "permissions.thread.local.cache.max.size",
@@ -1843,7 +1857,9 @@ public class VerifyProperties extends VerifyProcess {
 		"users.image.default.use.initials", "users.image.max.height",
 		"users.image.max.size", "users.image.max.width",
 		"vaadin.resources.path", "vaadin.theme", "vaadin.widgetset",
-		"value.object.finder.blocking.cache", "webdav.storage.class",
+		"value.object.entity.blocking.cache",
+		"value.object.finder.blocking.cache", "verify.database.transactions",
+		"verify.frequency", "verify.processes", "webdav.storage.class",
 		"webdav.storage.show.edit.url", "webdav.storage.show.view.url",
 		"webdav.storage.tokens", "wiki.email.page.added.signature",
 		"wiki.email.page.updated.signature", "xss.allow", "ym.login",
@@ -1863,6 +1879,7 @@ public class VerifyProperties extends VerifyProcess {
 		{"amazon.license.1", "amazon.access.key.id"},
 		{"amazon.license.2", "amazon.access.key.id"},
 		{"amazon.license.3", "amazon.access.key.id"},
+		{"buffered.increment.enabled", "view.count.enabled"},
 		{"cdn.host", "cdn.host.http"},
 		{"cluster.executor.debug.enabled", "cluster.link.debug.enabled"},
 		{
@@ -1938,6 +1955,43 @@ public class VerifyProperties extends VerifyProcess {
 		{
 			"journal.template.velocity.restricted.variables",
 			"velocity.engine.restricted.variables"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.bundles.new.start",
+			"module.framework.properties.file.install.bundles.new.start"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.bundles." +
+				"startActivationPolicy",
+			"module.framework.properties.file.install.bundles." +
+				"startActivationPolicy"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.bundles." +
+				"startTransient",
+			"module.framework.properties.file.install.bundles.startTransient"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.disableNio2",
+			"module.framework.properties.file.install.disableNio2"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.log.level",
+			"module.framework.properties.file.install.log.level"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.noInitialDelay",
+			"module.framework.properties.file.install.noInitialDelay"
+		},
+		{
+			"module.framework.properties.felix.fileinstall." +
+				"optionalImportRefreshScope",
+			"module.framework.properties.file.install." +
+				"optionalImportRefreshScope"
+		},
+		{
+			"module.framework.properties.felix.fileinstall.subdir.mode",
+			"module.framework.properties.file.install.subdir.mode"
 		},
 		{
 			"passwords.passwordpolicytoolkit.charset.lowercase",

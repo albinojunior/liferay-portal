@@ -18,6 +18,8 @@ import com.liferay.analytics.settings.web.internal.util.AnalyticsSettingsUtil;
 import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -26,9 +28,9 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.service.CompanyService;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
@@ -41,18 +43,19 @@ import com.liferay.portal.kernel.util.WebKeys;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.portlet.ActionRequest;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.util.EntityUtils;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -63,7 +66,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	property = {
 		"javax.portlet.name=" + ConfigurationAdminPortletKeys.INSTANCE_SETTINGS,
-		"mvc.command.name=/analytics/add_channel"
+		"mvc.command.name=/analytics_settings/add_channel"
 	},
 	service = MVCActionCommand.class
 )
@@ -88,12 +91,14 @@ public class AddChannelMVCActionCommand extends BaseAnalyticsMVCActionCommand {
 		_updateCompanyPreferences(actionRequest, liferayAnalyticsGroupIds);
 
 		configurationProperties.put(
-			"selectedGroupIds",
-			liferayAnalyticsGroupIds.toArray(new String[0]));
+			"syncedGroupIds", liferayAnalyticsGroupIds.toArray(new String[0]));
 
-		_notifyAnalyticsCloud(
+		_notifyAnalyticsCloudCreateChannels(
 			actionRequest, ParamUtil.getString(actionRequest, "channelType"),
-			liferayAnalyticsGroupIds, selectedGroupIds);
+			selectedGroupIds);
+
+		_notifyAnalyticsCloudSitesSelected(
+			actionRequest, liferayAnalyticsGroupIds);
 	}
 
 	private JSONObject _buildGroupJSONObject(
@@ -133,9 +138,9 @@ public class AddChannelMVCActionCommand extends BaseAnalyticsMVCActionCommand {
 		return liferayAnalyticsGroupIds;
 	}
 
-	private void _notifyAnalyticsCloud(
+	private void _notifyAnalyticsCloudCreateChannels(
 			ActionRequest actionRequest, String channelType,
-			Set<String> liferayAnalyticsGroupIds, String[] selectedGroupIds)
+			String[] selectedGroupIds)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -147,7 +152,61 @@ public class AddChannelMVCActionCommand extends BaseAnalyticsMVCActionCommand {
 			return;
 		}
 
-		// Update sitesSelected flag
+		Stream<String> stream = Arrays.stream(selectedGroupIds);
+
+		HttpResponse httpResponse = AnalyticsSettingsUtil.doPost(
+			JSONUtil.put(
+				"channelType", channelType
+			).put(
+				"dataSourceId",
+				AnalyticsSettingsUtil.getAsahFaroBackendDataSourceId(
+					themeDisplay.getCompanyId())
+			).put(
+				"groups",
+				JSONUtil.toJSONArray(
+					stream.map(
+						Long::valueOf
+					).map(
+						groupLocalService::fetchGroup
+					).filter(
+						Objects::nonNull
+					).collect(
+						Collectors.toList()
+					),
+					group -> _buildGroupJSONObject(group, themeDisplay))
+			),
+			themeDisplay.getCompanyId(), "api/1.0/channels");
+
+		StatusLine statusLine = httpResponse.getStatusLine();
+
+		if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+			checkResponse(themeDisplay.getCompanyId(), httpResponse);
+
+			return;
+		}
+
+		if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+			throw new PortalException(
+				"Unable to create channels: " +
+					EntityUtils.toString(httpResponse.getEntity()));
+		}
+
+		_updateTypeSettingsProperties(
+			EntityUtils.toString(httpResponse.getEntity()));
+	}
+
+	private void _notifyAnalyticsCloudSitesSelected(
+			ActionRequest actionRequest, Set<String> liferayAnalyticsGroupIds)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		if (!AnalyticsSettingsUtil.isAnalyticsEnabled(
+				themeDisplay.getCompanyId())) {
+
+			return;
+		}
 
 		boolean sitesSelected = true;
 
@@ -166,53 +225,15 @@ public class AddChannelMVCActionCommand extends BaseAnalyticsMVCActionCommand {
 		StatusLine statusLine = httpResponse.getStatusLine();
 
 		if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-			disconnectDataSource(themeDisplay.getCompanyId(), httpResponse);
+			checkResponse(themeDisplay.getCompanyId(), httpResponse);
 
 			return;
 		}
 
 		if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-			throw new PortalException("Invalid token");
-		}
-
-		// Create channels
-
-		Stream<String> stream = Arrays.stream(selectedGroupIds);
-
-		List<Group> groups = stream.map(
-			Long::valueOf
-		).map(
-			_groupLocalService::fetchGroup
-		).filter(
-			Objects::nonNull
-		).collect(
-			Collectors.toList()
-		);
-
-		httpResponse = AnalyticsSettingsUtil.doPost(
-			JSONUtil.put(
-				"channelType", channelType
-			).put(
-				"dataSourceId",
-				AnalyticsSettingsUtil.getAsahFaroBackendDataSourceId(
-					themeDisplay.getCompanyId())
-			).put(
-				"groups",
-				JSONUtil.toJSONArray(
-					groups, group -> _buildGroupJSONObject(group, themeDisplay))
-			),
-			themeDisplay.getCompanyId(), "api/1.0/channels");
-
-		statusLine = httpResponse.getStatusLine();
-
-		if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-			disconnectDataSource(themeDisplay.getCompanyId(), httpResponse);
-
-			return;
-		}
-
-		if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-			throw new PortalException("Invalid token");
+			throw new PortalException(
+				"Unable to update data source details: " +
+					EntityUtils.toString(httpResponse.getEntity()));
 		}
 	}
 
@@ -235,14 +256,55 @@ public class AddChannelMVCActionCommand extends BaseAnalyticsMVCActionCommand {
 		return liferayAnalyticsGroupIds;
 	}
 
+	private void _updateTypeSettingsProperties(String json) throws Exception {
+		JSONArray channelsJSONArray = JSONFactoryUtil.createJSONArray(json);
+
+		for (int i = 0; i < channelsJSONArray.length(); i++) {
+			JSONObject channelJSONObject = channelsJSONArray.getJSONObject(i);
+
+			String channelId = channelJSONObject.getString("id");
+
+			JSONArray dataSourcesJSONArray = channelJSONObject.getJSONArray(
+				"dataSources");
+
+			Stream<JSONObject> dataSourcesStream = StreamSupport.stream(
+				dataSourcesJSONArray.spliterator(), false);
+
+			dataSourcesStream.flatMap(
+				dataSourceJSONObject -> {
+					JSONArray groupIdsJSONArray =
+						dataSourceJSONObject.getJSONArray("groupIds");
+
+					return StreamSupport.stream(
+						groupIdsJSONArray.spliterator(), false);
+				}
+			).map(
+				String::valueOf
+			).forEach(
+				groupId -> {
+					Group group = groupLocalService.fetchGroup(
+						GetterUtil.getLong(groupId));
+
+					UnicodeProperties typeSettingsUnicodeProperties =
+						group.getTypeSettingsProperties();
+
+					typeSettingsUnicodeProperties.put(
+						"analyticsChannelId", channelId);
+
+					group.setTypeSettingsProperties(
+						typeSettingsUnicodeProperties);
+
+					groupLocalService.updateGroup(group);
+				}
+			);
+		}
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		AddChannelMVCActionCommand.class);
 
 	@Reference
 	private CompanyService _companyService;
-
-	@Reference
-	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private Portal _portal;

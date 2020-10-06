@@ -19,23 +19,21 @@ import static org.mule.runtime.http.api.HttpConstants.Method;
 import com.liferay.mule.internal.connection.LiferayConnection;
 import com.liferay.mule.internal.error.LiferayResponseValidator;
 import com.liferay.mule.internal.error.provider.LiferayResponseErrorProvider;
-import com.liferay.mule.internal.metadata.input.PATCHEndpointInputTypeResolver;
-import com.liferay.mule.internal.metadata.input.POSTEndpointInputTypeResolver;
-import com.liferay.mule.internal.metadata.key.DELETEEndpointTypeKeysResolver;
-import com.liferay.mule.internal.metadata.key.GETEndpointTypeKeysResolver;
-import com.liferay.mule.internal.metadata.key.PATCHEndpointTypeKeysResolver;
-import com.liferay.mule.internal.metadata.key.POSTEndpointTypeKeysResolver;
-import com.liferay.mule.internal.metadata.output.DELETEEndpointOutputTypeResolver;
-import com.liferay.mule.internal.metadata.output.GETEndpointOutputTypeResolver;
-import com.liferay.mule.internal.metadata.output.PATCHEndpointOutputTypeResolver;
-import com.liferay.mule.internal.metadata.output.POSTEndpointOutputTypeResolver;
+import com.liferay.mule.internal.metadata.input.PatchEndpointInputTypeResolver;
+import com.liferay.mule.internal.metadata.input.PostEndpointInputTypeResolver;
+import com.liferay.mule.internal.metadata.key.DeleteEndpointTypeKeysResolver;
+import com.liferay.mule.internal.metadata.key.GetEndpointTypeKeysResolver;
+import com.liferay.mule.internal.metadata.key.PatchEndpointTypeKeysResolver;
+import com.liferay.mule.internal.metadata.key.PostEndpointTypeKeysResolver;
+import com.liferay.mule.internal.metadata.output.DeleteEndpointOutputTypeResolver;
+import com.liferay.mule.internal.metadata.output.GetEndpointOutputTypeResolver;
+import com.liferay.mule.internal.metadata.output.PatchEndpointOutputTypeResolver;
+import com.liferay.mule.internal.metadata.output.PostEndpointOutputTypeResolver;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.mule.runtime.api.util.MultiMap;
 import org.mule.runtime.core.api.util.IOUtils;
@@ -49,10 +47,10 @@ import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.http.api.domain.entity.HttpEntity;
 import org.mule.runtime.http.api.domain.message.response.HttpResponse;
@@ -68,157 +66,168 @@ public class LiferayOperations {
 
 	@DisplayName("Delete Record")
 	@MediaType(MediaType.APPLICATION_JSON)
-	@OutputResolver(output = DELETEEndpointOutputTypeResolver.class)
+	@OutputResolver(output = DeleteEndpointOutputTypeResolver.class)
 	public Result<String, Void> delete(
 			@Connection LiferayConnection connection,
-			@MetadataKeyId(DELETEEndpointTypeKeysResolver.class)
+			@MetadataKeyId(DeleteEndpointTypeKeysResolver.class)
 				String endpoint,
 			@DisplayName("Path Parameters") @NullSafe @Optional
 				Map<String, String> pathParams,
 			@DisplayName("Query Parameters") @NullSafe @Optional
-				MultiMap<String, String> queryParams)
-		throws IOException, TimeoutException {
+				MultiMap<String, String> queryParams,
+			@ConfigOverride @DisplayName("Connection Timeout") @Optional
+			@Placement(order = 1, tab = Placement.ADVANCED_TAB)
+			@Summary("Socket connection timeout value")
+				int connectionTimeout,
+			@ConfigOverride @DisplayName("Connection Timeout Unit") @Optional
+			@Placement(order = 2, tab = Placement.ADVANCED_TAB)
+			@Summary("Time unit to be used in the timeout configurations")
+				TimeUnit connectionTimeoutTimeUnit)
+		throws ModuleException {
 
-		_logEndpointParams(Method.DELETE, endpoint, pathParams, queryParams);
+		logEndpointParams(Method.DELETE, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.delete(
 			pathParams, queryParams, endpoint,
-			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
+			connectionTimeoutTimeUnit.toMillis(connectionTimeout));
 
-		_liferayResponseValidator.validate(httpResponse);
+		liferayResponseValidator.validate(httpResponse);
 
-		HttpEntity httpEntity = httpResponse.getEntity();
-
-		InputStream inputStream = httpEntity.getContent();
-
-		return Result.<String, Void>builder(
-		).output(
-			IOUtils.toString(inputStream)
-		).build();
+		return geResult(httpResponse);
 	}
 
 	@DisplayName("Get Records")
 	@MediaType(MediaType.APPLICATION_JSON)
-	@OutputResolver(output = GETEndpointOutputTypeResolver.class)
+	@OutputResolver(output = GetEndpointOutputTypeResolver.class)
 	public Result<String, Void> get(
 			@Connection LiferayConnection connection,
-			@MetadataKeyId(GETEndpointTypeKeysResolver.class) String endpoint,
+			@MetadataKeyId(GetEndpointTypeKeysResolver.class) String endpoint,
 			@DisplayName("Path Parameters") @NullSafe @Optional
 				Map<String, String> pathParams,
 			@DisplayName("Query Parameters") @NullSafe @Optional
-				MultiMap<String, String> queryParams)
-		throws Exception {
+				MultiMap<String, String> queryParams,
+			@ConfigOverride @DisplayName("Connection Timeout") @Optional
+			@Placement(order = 1, tab = Placement.ADVANCED_TAB)
+			@Summary("Socket connection timeout value")
+				int connectionTimeout,
+			@ConfigOverride @DisplayName("Connection Timeout Unit") @Optional
+			@Placement(order = 2, tab = Placement.ADVANCED_TAB)
+			@Summary("Time unit to be used in the timeout configurations")
+				TimeUnit connectionTimeoutTimeUnit)
+		throws ModuleException {
 
-		_logEndpointParams(Method.GET, endpoint, pathParams, queryParams);
+		logEndpointParams(Method.GET, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.get(
 			pathParams, queryParams, endpoint,
-			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
+			connectionTimeoutTimeUnit.toMillis(connectionTimeout));
 
-		_liferayResponseValidator.validate(httpResponse);
+		liferayResponseValidator.validate(httpResponse);
 
-		HttpEntity httpEntity = httpResponse.getEntity();
-
-		InputStream inputStream = httpEntity.getContent();
-
-		return Result.<String, Void>builder(
-		).output(
-			IOUtils.toString(inputStream)
-		).build();
+		return geResult(httpResponse);
 	}
 
 	@DisplayName("Update Record")
 	@MediaType(MediaType.APPLICATION_JSON)
-	@OutputResolver(output = PATCHEndpointOutputTypeResolver.class)
+	@OutputResolver(output = PatchEndpointOutputTypeResolver.class)
 	public Result<String, Void> patch(
 			@Connection LiferayConnection connection,
-			@MetadataKeyId(PATCHEndpointTypeKeysResolver.class) String endpoint,
+			@MetadataKeyId(PatchEndpointTypeKeysResolver.class) String endpoint,
 			@Content @DisplayName("Record")
-			@TypeResolver(value = PATCHEndpointInputTypeResolver.class)
+			@TypeResolver(value = PatchEndpointInputTypeResolver.class)
 				InputStream inputStream,
 			@DisplayName("Path Parameters") @NullSafe @Optional
 				Map<String, String> pathParams,
 			@DisplayName("Query Parameters") @NullSafe @Optional
-				MultiMap<String, String> queryParams)
-		throws IOException, TimeoutException {
+				MultiMap<String, String> queryParams,
+			@ConfigOverride @DisplayName("Connection Timeout") @Optional
+			@Placement(order = 1, tab = Placement.ADVANCED_TAB)
+			@Summary("Socket connection timeout value")
+				int connectionTimeout,
+			@ConfigOverride @DisplayName("Connection Timeout Unit") @Optional
+			@Placement(order = 2, tab = Placement.ADVANCED_TAB)
+			@Summary("Time unit to be used in the timeout configurations")
+				TimeUnit connectionTimeoutTimeUnit)
+		throws ModuleException {
 
-		_logEndpointParams(Method.PATCH, endpoint, pathParams, queryParams);
+		logEndpointParams(Method.PATCH, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.patch(
 			inputStream, pathParams, queryParams, endpoint,
-			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
+			connectionTimeoutTimeUnit.toMillis(connectionTimeout));
 
-		_liferayResponseValidator.validate(httpResponse);
+		liferayResponseValidator.validate(httpResponse);
 
-		HttpEntity httpEntity = httpResponse.getEntity();
-
-		return Result.<String, Void>builder(
-		).output(
-			IOUtils.toString(httpEntity.getContent())
-		).build();
+		return geResult(httpResponse);
 	}
 
 	@DisplayName("Create Record")
 	@MediaType(MediaType.APPLICATION_JSON)
-	@OutputResolver(output = POSTEndpointOutputTypeResolver.class)
+	@OutputResolver(output = PostEndpointOutputTypeResolver.class)
 	public Result<String, Void> post(
 			@Connection LiferayConnection connection,
-			@MetadataKeyId(POSTEndpointTypeKeysResolver.class) String endpoint,
+			@MetadataKeyId(PostEndpointTypeKeysResolver.class) String endpoint,
 			@Content @DisplayName("Record")
-			@TypeResolver(value = POSTEndpointInputTypeResolver.class)
+			@TypeResolver(value = PostEndpointInputTypeResolver.class)
 				InputStream inputStream,
 			@DisplayName("Path Parameters") @NullSafe @Optional
 				Map<String, String> pathParams,
 			@DisplayName("Query Parameters") @NullSafe @Optional
-				MultiMap<String, String> queryParams)
-		throws IOException, TimeoutException {
+				MultiMap<String, String> queryParams,
+			@ConfigOverride @DisplayName("Connection Timeout") @Optional
+			@Placement(order = 1, tab = Placement.ADVANCED_TAB)
+			@Summary("Socket connection timeout value")
+				int connectionTimeout,
+			@ConfigOverride @DisplayName("Connection Timeout Unit") @Optional
+			@Placement(order = 2, tab = Placement.ADVANCED_TAB)
+			@Summary("Time unit to be used in the timeout configurations")
+				TimeUnit connectionTimeoutTimeUnit)
+		throws ModuleException {
 
-		_logEndpointParams(Method.POST, endpoint, pathParams, queryParams);
+		logEndpointParams(Method.POST, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.post(
 			inputStream, pathParams, queryParams, endpoint,
-			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
+			connectionTimeoutTimeUnit.toMillis(connectionTimeout));
 
-		_liferayResponseValidator.validate(httpResponse);
+		liferayResponseValidator.validate(httpResponse);
 
-		HttpEntity httpEntity = httpResponse.getEntity();
+		return geResult(httpResponse);
+	}
+
+	private Result<String, Void> geResult(HttpResponse httpResponse) {
+		String responseBody = getResponseBody(httpResponse);
+
+		logger.debug(
+			"Received response with status {} and message {}",
+			httpResponse.getStatusCode(), responseBody);
 
 		return Result.<String, Void>builder(
 		).output(
-			IOUtils.toString(httpEntity.getContent())
+			responseBody
 		).build();
 	}
 
-	private void _logEndpointParams(
+	private String getResponseBody(HttpResponse httpResponse) {
+		HttpEntity httpEntity = httpResponse.getEntity();
+
+		return IOUtils.toString(httpEntity.getContent());
+	}
+
+	private void logEndpointParams(
 		Method method, String endpoint, Map<String, String> pathParams,
 		Map<String, String> queryParams) {
 
-		_logger.debug(
+		logger.debug(
 			"Send {} request to endpoint {}, with path parameters {} and " +
 				"query parameters {}",
 			method, endpoint, pathParams, queryParams);
 	}
 
-	private static final Logger _logger = LoggerFactory.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 		LiferayOperations.class);
 
-	@ConfigOverride
-	@DisplayName("Connection Timeout")
-	@Optional
-	@Parameter
-	@Placement(order = 1, tab = Placement.ADVANCED_TAB)
-	@Summary("Socket connection timeout value")
-	private int _connectionTimeout;
-
-	@ConfigOverride
-	@DisplayName("Connection Timeout Unit")
-	@Optional
-	@Parameter
-	@Placement(order = 2, tab = Placement.ADVANCED_TAB)
-	@Summary("Time unit to be used in the timeout configurations")
-	private TimeUnit _connectionTimeoutTimeUnit;
-
-	private final LiferayResponseValidator _liferayResponseValidator =
+	private final LiferayResponseValidator liferayResponseValidator =
 		new LiferayResponseValidator();
 
 }

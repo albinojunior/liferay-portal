@@ -152,19 +152,17 @@ public class Version implements Comparable<Version>, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Version)) {
+		if (!(object instanceof Version)) {
 			return false;
 		}
 
-		Version version = (Version)obj;
-
 		String versionString1 = toString();
-		String versionString2 = version.toString();
+		String versionString2 = String.valueOf((Version)object);
 
 		if (versionString1.equals(UNKNOWN) || versionString2.equals(UNKNOWN)) {
 			return false;
@@ -318,32 +316,6 @@ public class Version implements Comparable<Version>, Serializable {
 		}
 	}
 
-	private static boolean _contains(
-		String containerString, String numberString) {
-
-		if (containerString.endsWith(StringPool.PLUS)) {
-			String containerNumberString = containerString.substring(
-				0, containerString.length() - 1);
-
-			try {
-				int containerNumber = GetterUtil.getInteger(
-					containerNumberString);
-				int number = GetterUtil.getInteger(numberString);
-
-				if (containerNumber <= number) {
-					return true;
-				}
-
-				return false;
-			}
-			catch (NumberFormatException numberFormatException) {
-				return false;
-			}
-		}
-
-		return false;
-	}
-
 	private static String _toString(
 		String major, String minor, String bugFix, String buildNumber,
 		String qualifier) {
@@ -405,6 +377,30 @@ public class Version implements Comparable<Version>, Serializable {
 		}
 
 		return 0;
+	}
+
+	private boolean _contains(String containerString, String numberString) {
+		if (containerString.endsWith(StringPool.PLUS)) {
+			String containerNumberString = containerString.substring(
+				0, containerString.length() - 1);
+
+			try {
+				int containerNumber = GetterUtil.getInteger(
+					containerNumberString);
+				int number = GetterUtil.getInteger(numberString);
+
+				if (containerNumber <= number) {
+					return true;
+				}
+
+				return false;
+			}
+			catch (NumberFormatException numberFormatException) {
+				return false;
+			}
+		}
+
+		return false;
 	}
 
 	private static final String _SEPARATOR = StringPool.PERIOD;

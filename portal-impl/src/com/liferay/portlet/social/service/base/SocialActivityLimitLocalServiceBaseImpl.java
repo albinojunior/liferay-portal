@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.social.service.base;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,8 +35,10 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.UserFinder;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -72,6 +76,10 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 	/**
 	 * Adds the social activity limit to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was added
 	 */
@@ -100,6 +108,10 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 	/**
 	 * Deletes the social activity limit with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param activityLimitId the primary key of the social activity limit
 	 * @return the social activity limit that was removed
 	 * @throws PortalException if a social activity limit with the primary key could not be found
@@ -115,6 +127,10 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 	/**
 	 * Deletes the social activity limit from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was removed
 	 */
@@ -124,6 +140,11 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 		SocialActivityLimit socialActivityLimit) {
 
 		return socialActivityLimitPersistence.remove(socialActivityLimit);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return socialActivityLimitPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -301,6 +322,10 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 			(SocialActivityLimit)persistedModel);
 	}
 
+	public BasePersistence<SocialActivityLimit> getBasePersistence() {
+		return socialActivityLimitPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -341,6 +366,10 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 
 	/**
 	 * Updates the social activity limit in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was updated
@@ -497,8 +526,23 @@ public abstract class SocialActivityLimitLocalServiceBaseImpl
 		return SocialActivityLimitLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<SocialActivityLimit> getCTPersistence() {
+		return socialActivityLimitPersistence;
+	}
+
+	@Override
+	public Class<SocialActivityLimit> getModelClass() {
 		return SocialActivityLimit.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SocialActivityLimit>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(socialActivityLimitPersistence);
 	}
 
 	protected String getModelClassName() {

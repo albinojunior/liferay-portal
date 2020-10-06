@@ -82,6 +82,10 @@ public class XMLCustomSQLStylingCheck extends BaseFileCheck {
 	private void _checkIncorrectLineBreakAfterComma(
 		String fileName, String content) {
 
+		if (true) {
+			return;
+		}
+
 		Matcher matcher = _incorrectLineBreakAfterCommaPattern.matcher(content);
 
 		while (matcher.find()) {

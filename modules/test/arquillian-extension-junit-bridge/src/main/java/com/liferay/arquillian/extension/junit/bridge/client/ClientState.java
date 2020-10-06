@@ -84,10 +84,10 @@ public class ClientState {
 
 				_socketState.connect(passCode);
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				_frameworkState.uninstallBundle(_bundleId);
 
-				throw t;
+				throw throwable;
 			}
 		}
 
@@ -103,10 +103,10 @@ public class ClientState {
 					try {
 						_frameworkState.uninstallBundle(_bundleId);
 					}
-					catch (Throwable t) {
+					catch (Throwable throwable) {
 						throw new IOException(
 							"Unable to uninstall bundle " + _bundleId + ": " +
-								t);
+								throwable);
 					}
 					finally {
 						_frameworkState.close();
@@ -150,7 +150,7 @@ public class ClientState {
 
 	}
 
-	private static Set<Class<?>> _getTestClasses(Class<?> testClass) {
+	private Set<Class<?>> _getTestClasses(Class<?> testClass) {
 		if (_testClasses == null) {
 			Set<Class<?>> testClasses = new HashSet<>();
 
@@ -174,9 +174,8 @@ public class ClientState {
 							Path filePath,
 							BasicFileAttributes basicFileAttributes) {
 
-							Path relativePath = startPath.relativize(filePath);
-
-							String relativePathString = relativePath.toString();
+							String relativePathString = String.valueOf(
+								startPath.relativize(filePath));
 
 							if (!relativePathString.endsWith("Test.class")) {
 								return FileVisitResult.CONTINUE;
@@ -236,7 +235,7 @@ public class ClientState {
 		return _testClasses;
 	}
 
-	private static long _installBundle(
+	private long _installBundle(
 			Map<String, List<String>> filteredMethodNamesMap,
 			InetAddress inetAddress, int port, long passCode)
 		throws Throwable {

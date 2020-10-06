@@ -15,17 +15,23 @@
 package com.liferay.layout.type.controller.asset.display.internal.portlet;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
-import com.liferay.asset.display.page.util.AssetDisplayPageHelper;
+import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
-import com.liferay.info.display.contributor.InfoDisplayContributor;
-import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
+import com.liferay.info.item.InfoItemReference;
+import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
+import com.liferay.layout.display.page.LayoutDisplayPageProvider;
+import com.liferay.layout.display.page.LayoutDisplayPageProviderTracker;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
+
+import java.util.Locale;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,46 +45,100 @@ public class AssetDisplayPageFriendlyURLProviderImpl
 
 	@Override
 	public String getFriendlyURL(
-			String className, long classPK, ThemeDisplay themeDisplay)
+			String className, long classPK, Locale locale,
+			ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		InfoDisplayContributor infoDisplayContributor =
-			_infoDisplayContributorTracker.getInfoDisplayContributor(className);
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			_layoutDisplayPageProviderTracker.
+				getLayoutDisplayPageProviderByClassName(className);
 
-		if (infoDisplayContributor == null) {
+		if (layoutDisplayPageProvider == null) {
 			return null;
 		}
 
-		InfoDisplayObjectProvider infoDisplayObjectProvider =
-			infoDisplayContributor.getInfoDisplayObjectProvider(classPK);
+		InfoItemReference infoItemReference = new InfoItemReference(
+			className, classPK);
 
-		if (infoDisplayObjectProvider == null) {
+		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider =
+			layoutDisplayPageProvider.getLayoutDisplayPageObjectProvider(
+				infoItemReference);
+
+		if (layoutDisplayPageObjectProvider == null) {
 			return null;
 		}
 
-		if (!AssetDisplayPageHelper.hasAssetDisplayPage(
-				themeDisplay.getScopeGroupId(),
-				infoDisplayObjectProvider.getClassNameId(),
-				infoDisplayObjectProvider.getClassPK(),
-				infoDisplayObjectProvider.getClassTypeId())) {
+		if (!AssetDisplayPageUtil.hasAssetDisplayPage(
+				layoutDisplayPageObjectProvider.getGroupId(),
+				layoutDisplayPageObjectProvider.getClassNameId(),
+				layoutDisplayPageObjectProvider.getClassPK(),
+				layoutDisplayPageObjectProvider.getClassTypeId())) {
 
 			return null;
 		}
 
 		StringBundler sb = new StringBundler(3);
 
-		Group group = _groupLocalService.getGroup(
-			infoDisplayObjectProvider.getGroupId());
-
 		sb.append(
-			_portal.getGroupFriendlyURL(
-				group.getPublicLayoutSet(), themeDisplay));
+			_getGroupFriendlyURL(
+				layoutDisplayPageObjectProvider.getGroupId(), locale,
+				themeDisplay));
 
-		sb.append(infoDisplayContributor.getInfoURLSeparator());
-		sb.append(
-			infoDisplayObjectProvider.getURLTitle(themeDisplay.getLocale()));
+		sb.append(layoutDisplayPageProvider.getURLSeparator());
+		sb.append(layoutDisplayPageObjectProvider.getURLTitle(locale));
 
 		return sb.toString();
+	}
+
+	@Override
+	public String getFriendlyURL(
+			String className, long classPK, ThemeDisplay themeDisplay)
+		throws PortalException {
+
+		return getFriendlyURL(
+			className, classPK, themeDisplay.getLocale(), themeDisplay);
+	}
+
+	private String _getGroupFriendlyURL(
+			long groupId, Locale locale, ThemeDisplay themeDisplay)
+		throws PortalException {
+
+		Group group = _groupLocalService.getGroup(groupId);
+
+		if (locale != null) {
+			try {
+				ThemeDisplay clonedThemeDisplay =
+					(ThemeDisplay)themeDisplay.clone();
+
+				String languageId = LocaleUtil.toLanguageId(locale);
+
+				clonedThemeDisplay.setI18nLanguageId(languageId);
+
+				clonedThemeDisplay.setI18nPath(_getI18nPath(locale));
+
+				clonedThemeDisplay.setLanguageId(languageId);
+				clonedThemeDisplay.setLocale(locale);
+
+				return _portal.getGroupFriendlyURL(
+					group.getPublicLayoutSet(), clonedThemeDisplay);
+			}
+			catch (CloneNotSupportedException cloneNotSupportedException) {
+				throw new PortalException(cloneNotSupportedException);
+			}
+		}
+
+		return _portal.getGroupFriendlyURL(
+			group.getPublicLayoutSet(), themeDisplay);
+	}
+
+	private String _getI18nPath(Locale locale) {
+		Locale defaultLocale = _language.getLocale(locale.getLanguage());
+
+		if (LocaleUtil.equals(defaultLocale, locale)) {
+			return StringPool.SLASH + defaultLocale.getLanguage();
+		}
+
+		return StringPool.SLASH + locale.toLanguageTag();
 	}
 
 	@Reference
@@ -88,7 +148,10 @@ public class AssetDisplayPageFriendlyURLProviderImpl
 	private GroupLocalService _groupLocalService;
 
 	@Reference
-	private InfoDisplayContributorTracker _infoDisplayContributorTracker;
+	private Language _language;
+
+	@Reference
+	private LayoutDisplayPageProviderTracker _layoutDisplayPageProviderTracker;
 
 	@Reference
 	private Portal _portal;

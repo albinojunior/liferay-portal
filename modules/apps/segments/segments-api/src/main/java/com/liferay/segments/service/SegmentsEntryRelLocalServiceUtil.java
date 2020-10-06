@@ -50,6 +50,10 @@ public class SegmentsEntryRelLocalServiceUtil {
 	/**
 	 * Adds the segments entry rel to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRel the segments entry rel
 	 * @return the segments entry rel that was added
 	 */
@@ -105,6 +109,10 @@ public class SegmentsEntryRelLocalServiceUtil {
 	/**
 	 * Deletes the segments entry rel with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsEntryRelId the primary key of the segments entry rel
 	 * @return the segments entry rel that was removed
 	 * @throws PortalException if a segments entry rel with the primary key could not be found
@@ -126,6 +134,10 @@ public class SegmentsEntryRelLocalServiceUtil {
 
 	/**
 	 * Deletes the segments entry rel from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param segmentsEntryRel the segments entry rel
 	 * @return the segments entry rel that was removed
@@ -151,6 +163,12 @@ public class SegmentsEntryRelLocalServiceUtil {
 
 		getService().deleteSegmentsEntryRels(
 			segmentsEntryId, classNameId, classPKs);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -371,6 +389,10 @@ public class SegmentsEntryRelLocalServiceUtil {
 
 	/**
 	 * Updates the segments entry rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsEntryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param segmentsEntryRel the segments entry rel
 	 * @return the segments entry rel that was updated

@@ -14,6 +14,7 @@
 
 package com.liferay.saml.persistence.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -59,11 +60,15 @@ public interface SamlSpAuthRequestLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link SamlSpAuthRequestLocalServiceUtil} to access the saml sp auth request local service. Add custom service methods to <code>com.liferay.saml.persistence.service.impl.SamlSpAuthRequestLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.saml.persistence.service.impl.SamlSpAuthRequestLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the saml sp auth request local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link SamlSpAuthRequestLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the saml sp auth request to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpAuthRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param samlSpAuthRequest the saml sp auth request
 	 * @return the saml sp auth request that was added
@@ -103,6 +108,10 @@ public interface SamlSpAuthRequestLocalService
 	/**
 	 * Deletes the saml sp auth request with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpAuthRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpAuthnRequestId the primary key of the saml sp auth request
 	 * @return the saml sp auth request that was removed
 	 * @throws PortalException if a saml sp auth request with the primary key could not be found
@@ -114,12 +123,19 @@ public interface SamlSpAuthRequestLocalService
 	/**
 	 * Deletes the saml sp auth request from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpAuthRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpAuthRequest the saml sp auth request
 	 * @return the saml sp auth request that was removed
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public SamlSpAuthRequest deleteSamlSpAuthRequest(
 		SamlSpAuthRequest samlSpAuthRequest);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -255,6 +271,10 @@ public interface SamlSpAuthRequestLocalService
 
 	/**
 	 * Updates the saml sp auth request in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpAuthRequestLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param samlSpAuthRequest the saml sp auth request
 	 * @return the saml sp auth request that was updated

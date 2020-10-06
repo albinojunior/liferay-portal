@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -56,7 +57,7 @@ public interface RecentLayoutSetBranchLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link RecentLayoutSetBranchLocalServiceUtil} to access the recent layout set branch local service. Add custom service methods to <code>com.liferay.portal.service.impl.RecentLayoutSetBranchLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.RecentLayoutSetBranchLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the recent layout set branch local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link RecentLayoutSetBranchLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public RecentLayoutSetBranch addRecentLayoutSetBranch(
 			long userId, long layoutSetBranchId, long layoutSetId)
@@ -64,6 +65,10 @@ public interface RecentLayoutSetBranchLocalService
 
 	/**
 	 * Adds the recent layout set branch to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutSetBranch the recent layout set branch
 	 * @return the recent layout set branch that was added
@@ -98,6 +103,10 @@ public interface RecentLayoutSetBranchLocalService
 	/**
 	 * Deletes the recent layout set branch with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutSetBranchId the primary key of the recent layout set branch
 	 * @return the recent layout set branch that was removed
 	 * @throws PortalException if a recent layout set branch with the primary key could not be found
@@ -110,6 +119,10 @@ public interface RecentLayoutSetBranchLocalService
 	/**
 	 * Deletes the recent layout set branch from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutSetBranch the recent layout set branch
 	 * @return the recent layout set branch that was removed
 	 */
@@ -120,6 +133,9 @@ public interface RecentLayoutSetBranchLocalService
 	public void deleteRecentLayoutSetBranches(long layoutSetBranchId);
 
 	public void deleteUserRecentLayoutSetBranches(long userId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -229,30 +245,34 @@ public interface RecentLayoutSetBranchLocalService
 		throws PortalException;
 
 	/**
-	 * Returns a range of all the recent layout set branchs.
+	 * Returns a range of all the recent layout set branches.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portal.model.impl.RecentLayoutSetBranchModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of recent layout set branchs
-	 * @param end the upper bound of the range of recent layout set branchs (not inclusive)
-	 * @return the range of recent layout set branchs
+	 * @param start the lower bound of the range of recent layout set branches
+	 * @param end the upper bound of the range of recent layout set branches (not inclusive)
+	 * @return the range of recent layout set branches
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<RecentLayoutSetBranch> getRecentLayoutSetBranchs(
 		int start, int end);
 
 	/**
-	 * Returns the number of recent layout set branchs.
+	 * Returns the number of recent layout set branches.
 	 *
-	 * @return the number of recent layout set branchs
+	 * @return the number of recent layout set branches
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getRecentLayoutSetBranchsCount();
 
 	/**
 	 * Updates the recent layout set branch in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutSetBranch the recent layout set branch
 	 * @return the recent layout set branch that was updated

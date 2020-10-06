@@ -14,12 +14,12 @@
 
 package com.liferay.portal.test.rule;
 
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncPrintWriter;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.test.rule.AbstractTestRule;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
@@ -63,6 +63,9 @@ public class LogAssertionTestRule
 	public static void endAssert(
 		List<ExpectedLogs> expectedLogsList,
 		List<CaptureAppender> captureAppenders) {
+
+		uninstallLog4jAppender();
+		uninstallJdk14Handler();
 
 		StringBundler sb = new StringBundler();
 
@@ -276,6 +279,19 @@ public class LogAssertionTestRule
 		}
 
 		return false;
+	}
+
+	protected static void uninstallJdk14Handler() {
+		Logger logger = Logger.getLogger(StringPool.BLANK);
+
+		logger.removeHandler(LogAssertionHandler.INSTANCE);
+	}
+
+	protected static void uninstallLog4jAppender() {
+		org.apache.log4j.Logger logger =
+			org.apache.log4j.Logger.getRootLogger();
+
+		logger.removeAppender(LogAssertionAppender.INSTANCE);
 	}
 
 	private LogAssertionTestRule() {

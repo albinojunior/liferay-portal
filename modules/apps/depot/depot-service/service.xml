@@ -24,6 +24,10 @@
 		<finder name="DepotEntryId" return-type="Collection">
 			<finder-column name="depotEntryId" />
 		</finder>
+		<finder name="D_E" return-type="DepotAppCustomization">
+			<finder-column name="depotEntryId" />
+			<finder-column name="enabled" />
+		</finder>
 		<finder name="D_P" return-type="DepotAppCustomization" unique="true">
 			<finder-column name="depotEntryId" />
 			<finder-column name="portletId" />
@@ -57,18 +61,25 @@
 
 		<reference entity="Resource" package-path="com.liferay.portal" />
 	</entity>
-	<entity local-service="true" name="DepotEntryGroupRel" remote-service="true">
+	<entity local-service="true" name="DepotEntryGroupRel" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
 		<column name="depotEntryGroupRelId" primary="true" type="long" />
 
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
+		<column name="ddmStructuresAvailable" type="boolean" />
 		<column name="depotEntryId" type="long" />
 		<column name="searchable" type="boolean" />
 		<column name="toGroupId" type="long" />
@@ -81,6 +92,10 @@
 		<finder name="ToGroupId" return-type="Collection">
 			<finder-column name="toGroupId" />
 		</finder>
+		<finder name="DDMSA_TGI" return-type="Collection">
+			<finder-column name="ddmStructuresAvailable" />
+			<finder-column name="toGroupId" />
+		</finder>
 		<finder name="D_TGI" return-type="DepotEntryGroupRel" unique="true">
 			<finder-column name="depotEntryId" />
 			<finder-column name="toGroupId" />
@@ -91,6 +106,7 @@
 		</finder>
 	</entity>
 	<exceptions>
+		<exception>DepotEntryGroupRelStagedGroup</exception>
 		<exception>DepotEntryName</exception>
 	</exceptions>
 </service-builder>

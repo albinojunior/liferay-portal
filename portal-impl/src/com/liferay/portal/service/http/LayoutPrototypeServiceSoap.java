@@ -61,8 +61,10 @@ import java.util.Map;
  *
  * @author Brian Wing Shun Chan
  * @see LayoutPrototypeServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class LayoutPrototypeServiceSoap {
 
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap
@@ -148,13 +150,14 @@ public class LayoutPrototypeServiceSoap {
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap[] search(
 			long companyId, Boolean active,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.LayoutPrototype> obc)
+				<com.liferay.portal.kernel.model.LayoutPrototype>
+					orderByComparator)
 		throws RemoteException {
 
 		try {
 			java.util.List<com.liferay.portal.kernel.model.LayoutPrototype>
 				returnValue = LayoutPrototypeServiceUtil.search(
-					companyId, active, obc);
+					companyId, active, orderByComparator);
 
 			return com.liferay.portal.kernel.model.LayoutPrototypeSoap.
 				toSoapModels(returnValue);

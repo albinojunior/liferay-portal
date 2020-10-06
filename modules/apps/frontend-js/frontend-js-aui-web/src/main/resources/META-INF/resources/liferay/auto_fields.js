@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-auto-fields',
-	A => {
+	(A) => {
 		var AObject = A.Object;
 		var Lang = A.Lang;
 
@@ -92,7 +92,7 @@ AUI.add(
 				},
 
 				_clearForm(node) {
-					node.all('input, select, textarea').each(item => {
+					node.all('input, select, textarea').each((item) => {
 						var tag = item.get('nodeName').toLowerCase();
 
 						var type = item.getAttribute('type');
@@ -118,7 +118,7 @@ AUI.add(
 						}
 					});
 
-					CSS_VALIDATION_HELPER_CLASSES.forEach(item => {
+					CSS_VALIDATION_HELPER_CLASSES.forEach((item) => {
 						node.all('.' + item).removeClass(item);
 					});
 				},
@@ -133,15 +133,7 @@ AUI.add(
 
 				_clearInputsLocalized(node) {
 					node.all('.language-value').attr('placeholder', '');
-					node.all('.lfr-input-localized-state').removeClass(
-						'lfr-input-localized-state-error'
-					);
-					node.all('.palette-item')
-						.removeClass('palette-item-selected')
-						.removeClass('lfr-input-localized');
-					node.all('.lfr-input-localized-default').addClass(
-						'palette-item-selected'
-					);
+					node.all('.form-text').setHTML('');
 				},
 
 				_createClone(node) {
@@ -155,9 +147,28 @@ AUI.add(
 
 					var formValidator = instance._getFormValidator(node);
 
+					var paletteIsCloned =
+						clone.one("[id$='PaletteBoundingBox']") != null;
+
 					var inputsLocalized = node.all('.language-value');
 
 					var clonedRow;
+
+					if (inputsLocalized && !paletteIsCloned) {
+						var palette = document.querySelector(
+							"[id$='PaletteBoundingBox']"
+						);
+
+						var trigger = clone.one('button');
+
+						var list = A.Node.create(
+							'<ul class="dropdown-menu dropdown-menu-left-side"></ul>'
+						);
+
+						trigger.placeAfter(list);
+
+						list.append(palette);
+					}
 
 					if (instance.url) {
 						clonedRow = instance._createCloneFromURL(clone, guid);
@@ -192,8 +203,8 @@ AUI.add(
 						rules = formValidator.get('rules');
 					}
 
-					node.all('input, select, textarea, span, div').each(
-						item => {
+					node.all('button, input, select, textarea, span, div').each(
+						(item) => {
 							var inputNodeName = item.attr('nodeName');
 							var inputType = item.attr('type');
 
@@ -249,24 +260,15 @@ AUI.add(
 
 					instance._clearInputsLocalized(node);
 
-					inputsLocalized.each(item => {
-						var inputId = item.attr('id');
+					instance.once('clone', () => {
+						inputsLocalized.each((item) => {
+							var inputId = item.attr('id');
 
-						var inputLocalized;
-
-						if (inputId) {
-							inputLocalized =
-								Liferay.InputLocalized._registered[inputId];
-
-							if (inputLocalized) {
-								Liferay.component(inputId).render();
-							}
-
-							inputLocalized =
-								Liferay.InputLocalized._instances[inputId];
-						}
-
-						instance._registerInputLocalized(inputLocalized, guid);
+							instance._registerInputLocalized(
+								Liferay.InputLocalized._instances[inputId],
+								guid
+							);
+						});
 					});
 
 					node.all('.form-validator-stack').remove();
@@ -302,8 +304,8 @@ AUI.add(
 						body: Liferay.Util.objectToFormData(namespacedData),
 						method: 'POST',
 					})
-						.then(response => response.text())
-						.then(response => contentBox.setContent(response));
+						.then((response) => response.text())
+						.then((response) => contentBox.setContent(response));
 
 					return node;
 				},
@@ -343,7 +345,7 @@ AUI.add(
 					});
 
 					instance._undoManager.on('clearList', () => {
-						rows.all('.lfr-form-row').each(item => {
+						rows.all('.lfr-form-row').each((item) => {
 							if (instance._isHiddenRow(item)) {
 								A.DD.DDM.getDrag(item).destroy();
 							}
@@ -356,15 +358,16 @@ AUI.add(
 						.get('id')
 						.replace(/([0-9]+)$/, guid);
 
-					var inputLocalizedNamespaceId =
-						inputLocalized.get('namespace') + inputLocalizedId;
+					var inputLocalizedNamespace = inputLocalized.get(
+						'namespace'
+					);
+
+					var inputLocalizedNamespaceId = `${inputLocalizedNamespace}${inputLocalizedId}`;
 
 					Liferay.InputLocalized.register(inputLocalizedNamespaceId, {
-						boundingBox:
-							'#' + inputLocalizedNamespaceId + 'BoundingBox',
+						boundingBox: `#${inputLocalizedNamespaceId}PaletteBoundingBox`,
 						columns: inputLocalized.get('columns'),
-						contentBox:
-							'#' + inputLocalizedNamespaceId + 'ContentBox',
+						contentBox: `#${inputLocalizedNamespaceId}PaletteContentBox`,
 						defaultLanguageId: inputLocalized.get(
 							'defaultLanguageId'
 						),
@@ -372,18 +375,26 @@ AUI.add(
 						fieldPrefixSeparator: inputLocalized.get(
 							'fieldPrefixSeparator'
 						),
+						helpMessage: inputLocalized.get('helpMessage'),
 						id: inputLocalizedId,
+						inputBox: `#${inputLocalizedNamespaceId}BoundingBox`,
 						inputPlaceholder: '#' + inputLocalizedNamespaceId,
 						items: inputLocalized.get('items'),
 						itemsError: inputLocalized.get('itemsError'),
-						lazy: true,
 						name: inputLocalizedId,
 						namespace: inputLocalized.get('namespace'),
+						selected: inputLocalized
+							.get('items')
+							.indexOf(inputLocalized.getSelectedLanguageId()),
 						toggleSelection: inputLocalized.get('toggleSelection'),
 						translatedLanguages: inputLocalized.get(
 							'translatedLanguages'
 						),
 					});
+
+					var inputLocalizedMenuId = `${inputLocalizedNamespace}${inputLocalizedNamespaceId}Menu`;
+
+					Liferay.Menu.register(inputLocalizedMenuId);
 				},
 
 				_updateContentButtons() {
@@ -455,7 +466,7 @@ AUI.add(
 
 						node.hide();
 
-						CSS_VALIDATION_HELPER_CLASSES.forEach(item => {
+						CSS_VALIDATION_HELPER_CLASSES.forEach((item) => {
 							var disabledClass = item + '-disabled';
 
 							node.all('.' + item).replaceClass(
@@ -475,7 +486,7 @@ AUI.add(
 
 							rules = formValidator.get('rules');
 
-							node.all('input, select, textarea').each(item => {
+							node.all('input, select, textarea').each((item) => {
 								var name = item.attr('name') || item.attr('id');
 
 								if (rules && rules[name]) {
@@ -497,7 +508,7 @@ AUI.add(
 								});
 							}
 
-							CSS_VALIDATION_HELPER_CLASSES.forEach(item => {
+							CSS_VALIDATION_HELPER_CLASSES.forEach((item) => {
 								var disabledClass = item + '-disabled';
 
 								node.all('.' + disabledClass).replaceClass(
@@ -581,7 +592,7 @@ AUI.add(
 
 					contentBox.delegate(
 						'click',
-						event => {
+						(event) => {
 							var link = event.currentTarget;
 
 							var currentRow = link.ancestor('.lfr-form-row');
@@ -629,7 +640,7 @@ AUI.add(
 						instance._makeSortable(config.sortableHandle);
 					}
 
-					Liferay.on('saveAutoFields', event => {
+					Liferay.on('saveAutoFields', (event) => {
 						instance.save(event.form);
 					});
 
@@ -649,7 +660,7 @@ AUI.add(
 
 					var contentBox = instance._contentBox;
 
-					contentBox.all('.lfr-form-row').each(item => {
+					contentBox.all('.lfr-form-row').each((item) => {
 						instance.deleteRow(item);
 					});
 
@@ -684,7 +695,7 @@ AUI.add(
 							filter.call(instance, visibleRows) || [];
 					}
 					else {
-						visibleRows.each(item => {
+						visibleRows.each((item) => {
 							var formField = item.one('input, textarea, select');
 
 							var fieldId = formField.attr('id');
@@ -716,6 +727,7 @@ AUI.add(
 			'aui-parse-content',
 			'base',
 			'liferay-form',
+			'liferay-menu',
 			'liferay-portlet-base',
 			'liferay-undo-manager',
 			'sortable',

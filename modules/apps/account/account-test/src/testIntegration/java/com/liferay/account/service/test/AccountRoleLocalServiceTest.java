@@ -22,6 +22,7 @@ import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.account.service.AccountRoleLocalService;
 import com.liferay.account.service.AccountRoleLocalServiceUtil;
+import com.liferay.account.service.test.util.AccountEntryTestUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.string.StringPool;
@@ -204,9 +205,9 @@ public class AccountRoleLocalServiceTest {
 
 		_accountEntryUserRels.remove(accountEntryUserRel);
 
-		_assertHasPermission(user, ActionKeys.DELETE, true);
-		_assertHasPermission(user, ActionKeys.MANAGE_USERS, true);
-		_assertHasPermission(user, ActionKeys.UPDATE, true);
+		_assertHasPermission(user, ActionKeys.DELETE, false);
+		_assertHasPermission(user, ActionKeys.MANAGE_USERS, false);
+		_assertHasPermission(user, ActionKeys.UPDATE, false);
 
 		_accountRoleLocalService.deleteAccountRole(defaultAccountRole);
 	}
@@ -218,24 +219,26 @@ public class AccountRoleLocalServiceTest {
 
 		BundleContext bundleContext = bundle.getBundleContext();
 
-		ServiceRegistration serviceRegistration = bundleContext.registerService(
-			ModelListener.class,
-			new BaseModelListener<UserGroupRole>() {
+		ServiceRegistration<ModelListener<UserGroupRole>> serviceRegistration =
+			bundleContext.registerService(
+				(Class<ModelListener<UserGroupRole>>)
+					(Class<?>)ModelListener.class,
+				new BaseModelListener<UserGroupRole>() {
 
-				@Override
-				public void onBeforeRemove(UserGroupRole userGroupRole)
-					throws ModelListenerException {
+					@Override
+					public void onBeforeRemove(UserGroupRole userGroupRole)
+						throws ModelListenerException {
 
-					try {
-						userGroupRole.getRole();
+						try {
+							userGroupRole.getRole();
+						}
+						catch (PortalException portalException) {
+							throw new ModelListenerException(portalException);
+						}
 					}
-					catch (PortalException portalException) {
-						throw new ModelListenerException(portalException);
-					}
-				}
 
-			},
-			new HashMapDictionary<>());
+				},
+				new HashMapDictionary<>());
 
 		try {
 			_testDeleteAccountRole(_accountRoleLocalService::deleteAccountRole);

@@ -130,30 +130,32 @@ public class DocumentImpl implements Document {
 
 	@Override
 	public void addFile(String name, byte[] bytes, String fileExt) {
-		InputStream is = new UnsyncByteArrayInputStream(bytes);
+		InputStream inputStream = new UnsyncByteArrayInputStream(bytes);
 
-		addFile(name, is, fileExt);
+		addFile(name, inputStream, fileExt);
 	}
 
 	@Override
 	public void addFile(String name, File file, String fileExt)
 		throws IOException {
 
-		InputStream is = new FileInputStream(file);
+		InputStream inputStream = new FileInputStream(file);
 
-		addFile(name, is, fileExt);
+		addFile(name, inputStream, fileExt);
 	}
 
 	@Override
-	public void addFile(String name, InputStream is, String fileExt) {
-		addText(name, FileUtil.extractText(is, fileExt));
+	public void addFile(String name, InputStream inputStream, String fileExt) {
+		addText(name, FileUtil.extractText(inputStream, fileExt));
 	}
 
 	@Override
 	public void addFile(
-		String name, InputStream is, String fileExt, int maxStringLength) {
+		String name, InputStream inputStream, String fileExt,
+		int maxStringLength) {
 
-		addText(name, FileUtil.extractText(is, fileExt, maxStringLength));
+		addText(
+			name, FileUtil.extractText(inputStream, fileExt, maxStringLength));
 	}
 
 	@Override
@@ -730,9 +732,8 @@ public class DocumentImpl implements Document {
 		String portletId, String field1, String field2, String field3,
 		String field4) {
 
-		String uid = Field.getUID(portletId, field1, field2, field3, field4);
-
-		addKeyword(Field.UID, uid);
+		addKeyword(
+			Field.UID, Field.getUID(portletId, field1, field2, field3, field4));
 	}
 
 	@Override
@@ -750,9 +751,7 @@ public class DocumentImpl implements Document {
 			return get(name);
 		}
 
-		String localizedName = Field.getLocalizedName(locale, name);
-
-		Field field = getField(localizedName);
+		Field field = getField(Field.getLocalizedName(locale, name));
 
 		if (field == null) {
 			field = getField(name);
@@ -1007,11 +1006,7 @@ public class DocumentImpl implements Document {
 		Class<? extends Number> clazz) {
 
 		if (typify) {
-			name = name.concat(
-				StringPool.UNDERLINE
-			).concat(
-				"Number"
-			);
+			name = StringBundler.concat(name, StringPool.UNDERLINE, "Number");
 		}
 
 		Field field = createField(Field.getSortableFieldName(name), value);
@@ -1059,7 +1054,7 @@ public class DocumentImpl implements Document {
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *			 #toString(StringBundler, Collection)}
+	 *             #toString(StringBundler, Collection)}
 	 */
 	@Deprecated
 	protected void toString(
@@ -1107,11 +1102,7 @@ public class DocumentImpl implements Document {
 		String name, boolean typify, String value) {
 
 		if (typify) {
-			name = name.concat(
-				StringPool.UNDERLINE
-			).concat(
-				"String"
-			);
+			name = StringBundler.concat(name, StringPool.UNDERLINE, "String");
 		}
 
 		String truncatedValue = value;

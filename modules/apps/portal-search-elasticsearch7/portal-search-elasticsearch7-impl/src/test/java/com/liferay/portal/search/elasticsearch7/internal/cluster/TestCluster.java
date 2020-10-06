@@ -16,14 +16,10 @@ package com.liferay.portal.search.elasticsearch7.internal.cluster;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchFixture;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
+import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchConnectionFixture;
+import com.liferay.portal.search.elasticsearch7.internal.connection.HttpPortRange;
 
 import java.util.HashMap;
-
-import org.mockito.Mockito;
 
 /**
  * @author André de Oliveira
@@ -33,80 +29,95 @@ public class TestCluster {
 	public TestCluster(int size, Object object) {
 		String prefix = getPrefix(object);
 
-		_elasticsearchConfigurationProperties =
-			createElasticsearchConfigurationProperties(prefix, size);
-
-		_elasticsearchFixtures = new ElasticsearchFixture[size];
+		_elasticsearchFixtures = new ElasticsearchConnectionFixture[size];
 
 		_prefix = prefix;
 	}
 
-	public ElasticsearchFixture createNode(int index) throws Exception {
-		ElasticsearchFixture elasticsearchFixture = new ElasticsearchFixture(
-			_prefix + "-" + index, _elasticsearchConfigurationProperties);
+	public ElasticsearchConnectionFixture createNode(int number) {
+		ElasticsearchConnectionFixture elasticsearchConnectionFixture =
+			ElasticsearchConnectionFixture.builder(
+			).clusterName(
+				_prefix + "-" + number
+			).discoveryTypeZen(
+				true
+			).elasticsearchConfigurationProperties(
+				createElasticsearchConfigurationProperties(
+					getClusterName(), getNodeName(number),
+					getPortRange(9310, _elasticsearchFixtures.length))
+			).build();
 
-		elasticsearchFixture.setClusterSettingsContext(
-			new TestClusterSettingsContext());
+		elasticsearchConnectionFixture.createNode();
 
-		elasticsearchFixture.createNode();
+		_elasticsearchFixtures[number - 1] = elasticsearchConnectionFixture;
 
-		_elasticsearchFixtures[index] = elasticsearchFixture;
-
-		return elasticsearchFixture;
+		return elasticsearchConnectionFixture;
 	}
 
-	public void createNodes() throws Exception {
-		for (int i = 0; i < _elasticsearchFixtures.length; i++) {
+	public void createNodes() {
+		for (int i = 1; i <= _elasticsearchFixtures.length; i++) {
 			createNode(i);
 		}
 	}
 
-	public void destroyNode(int index) throws Exception {
-		if (_elasticsearchFixtures[index] != null) {
-			_elasticsearchFixtures[index].destroyNode();
+	public void destroyNode(int number) {
+		if (_elasticsearchFixtures[number - 1] != null) {
+			_elasticsearchFixtures[number - 1].destroyNode();
 
-			_elasticsearchFixtures[index] = null;
+			_elasticsearchFixtures[number - 1] = null;
 		}
 	}
 
-	public void destroyNodes() throws Exception {
-		for (int i = 0; i < _elasticsearchFixtures.length; i++) {
+	public void destroyNodes() {
+		for (int i = 1; i <= _elasticsearchFixtures.length; i++) {
 			destroyNode(i);
 		}
 	}
 
-	public ElasticsearchFixture getNode(int index) {
-		return _elasticsearchFixtures[index];
+	public ElasticsearchConnectionFixture getNode(int index) {
+		return _elasticsearchFixtures[index - 1];
 	}
 
-	public void setUp() throws Exception {
+	public void setUp() {
 		createNodes();
 	}
 
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		destroyNodes();
 	}
 
 	protected HashMap<String, Object>
-		createElasticsearchConfigurationProperties(String prefix, int size) {
-
-		int startingPort = 9310;
-
-		String range = String.valueOf(startingPort);
-
-		if (size > 1) {
-			int endingPort = startingPort + size - 1;
-
-			range = range + StringPool.MINUS + endingPort;
-		}
+		createElasticsearchConfigurationProperties(
+			String clusterName, String nodeName, String transportRange) {
 
 		return HashMapBuilder.<String, Object>put(
-			"clusterName", prefix + "-Cluster"
+			"clusterName", clusterName
 		).put(
-			"discoveryZenPingUnicastHostsPort", range
+			"discoveryZenPingUnicastHostsPort", transportRange
 		).put(
-			"transportTcpPort", range
+			"nodeName", nodeName
+		).put(
+			"sidecarHttpPort", HttpPortRange.AUTO
+		).put(
+			"transportTcpPort", transportRange
 		).build();
+	}
+
+	protected String getClusterName() {
+		return _prefix + "-Cluster";
+	}
+
+	protected String getNodeName(int number) {
+		return _prefix + "-Node-" + number;
+	}
+
+	protected String getPortRange(int startingPort, int size) {
+		if (size > 1) {
+			return String.valueOf(startingPort) + StringPool.MINUS +
+				String.valueOf(startingPort + size - 1);
+		}
+
+		return String.valueOf(startingPort);
 	}
 
 	protected String getPrefix(Object object) {
@@ -115,33 +126,7 @@ public class TestCluster {
 		return clazz.getSimpleName();
 	}
 
-	private final HashMap<String, Object> _elasticsearchConfigurationProperties;
-	private final ElasticsearchFixture[] _elasticsearchFixtures;
+	private final ElasticsearchConnectionFixture[] _elasticsearchFixtures;
 	private final String _prefix;
-
-	private static class TestClusterSettingsContext
-		implements ClusterSettingsContext {
-
-		@Override
-		public String[] getHosts() {
-			return new String[] {"127.0.0.1"};
-		}
-
-		@Override
-		public InetAddress getLocalBindInetAddress() {
-			return InetAddress.getLoopbackAddress();
-		}
-
-		@Override
-		public NetworkInterface getLocalBindNetworkInterface() {
-			return Mockito.mock(NetworkInterface.class);
-		}
-
-		@Override
-		public boolean isClusterEnabled() {
-			return true;
-		}
-
-	}
 
 }

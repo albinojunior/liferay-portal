@@ -18,6 +18,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -55,7 +56,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.validation.constraints.NotNull;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -63,6 +68,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -85,12 +91,13 @@ public abstract class BaseInstanceResourceImpl
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "processId"),
-			@Parameter(in = ParameterIn.QUERY, name = "assigneeUserIds"),
+			@Parameter(in = ParameterIn.QUERY, name = "assigneeIds"),
+			@Parameter(in = ParameterIn.QUERY, name = "classPKs"),
+			@Parameter(in = ParameterIn.QUERY, name = "completed"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateEnd"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateStart"),
 			@Parameter(in = ParameterIn.QUERY, name = "slaStatuses"),
-			@Parameter(in = ParameterIn.QUERY, name = "statuses"),
-			@Parameter(in = ParameterIn.QUERY, name = "taskKeys"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskNames"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize")
 		}
@@ -101,20 +108,109 @@ public abstract class BaseInstanceResourceImpl
 	public Page<Instance> getProcessInstancesPage(
 			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
 				processId,
-			@Parameter(hidden = true) @QueryParam("assigneeUserIds") Long[]
-				assigneeUserIds,
+			@Parameter(hidden = true) @QueryParam("assigneeIds") Long[]
+				assigneeIds,
+			@Parameter(hidden = true) @QueryParam("classPKs") Long[] classPKs,
+			@Parameter(hidden = true) @QueryParam("completed") Boolean
+				completed,
 			@Parameter(hidden = true) @QueryParam("dateEnd") java.util.Date
 				dateEnd,
 			@Parameter(hidden = true) @QueryParam("dateStart") java.util.Date
 				dateStart,
 			@Parameter(hidden = true) @QueryParam("slaStatuses") String[]
 				slaStatuses,
-			@Parameter(hidden = true) @QueryParam("statuses") String[] statuses,
-			@Parameter(hidden = true) @QueryParam("taskKeys") String[] taskKeys,
+			@Parameter(hidden = true) @QueryParam("taskNames") String[]
+				taskNames,
 			@Context Pagination pagination)
 		throws Exception {
 
 		return Page.of(Collections.emptyList());
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/instances' -d $'{"assetTitle_i18n": ___, "assetType_i18n": ___, "className": ___, "classPK": ___, "completed": ___, "creator": ___, "dateCompletion": ___, "dateCreated": ___, "dateModified": ___, "duration": ___, "id": ___, "processId": ___, "processVersion": ___, "transitions": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@POST
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "processId")})
+	@Path("/processes/{processId}/instances")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Instance")})
+	public Instance postProcessInstance(
+			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
+				processId,
+			Instance instance)
+		throws Exception {
+
+		return new Instance();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@POST
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "processId"),
+			@Parameter(in = ParameterIn.QUERY, name = "callbackURL")
+		}
+	)
+	@Path("/processes/{processId}/instances/batch")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "Instance")})
+	public Response postProcessInstanceBatch(
+			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
+				processId,
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.postImportTask(
+				Instance.class.getName(), callbackURL, null, object)
+		).build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@DELETE
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "processId"),
+			@Parameter(in = ParameterIn.PATH, name = "instanceId")
+		}
+	)
+	@Path("/processes/{processId}/instances/{instanceId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Instance")})
+	public void deleteProcessInstance(
+			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
+				processId,
+			@NotNull @Parameter(hidden = true) @PathParam("instanceId") Long
+				instanceId)
+		throws Exception {
 	}
 
 	/**
@@ -143,12 +239,69 @@ public abstract class BaseInstanceResourceImpl
 		return new Instance();
 	}
 
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PATCH' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}' -d $'{"assetTitle_i18n": ___, "assetType_i18n": ___, "className": ___, "classPK": ___, "completed": ___, "creator": ___, "dateCompletion": ___, "dateCreated": ___, "dateModified": ___, "duration": ___, "id": ___, "processId": ___, "processVersion": ___, "transitions": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PATCH
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "processId"),
+			@Parameter(in = ParameterIn.PATH, name = "instanceId")
+		}
+	)
+	@Path("/processes/{processId}/instances/{instanceId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Instance")})
+	public void patchProcessInstance(
+			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
+				processId,
+			@NotNull @Parameter(hidden = true) @PathParam("instanceId") Long
+				instanceId,
+			Instance instance)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PATCH' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/instances/{instanceId}/complete' -d $'{"assetTitle_i18n": ___, "assetType_i18n": ___, "className": ___, "classPK": ___, "completed": ___, "creator": ___, "dateCompletion": ___, "dateCreated": ___, "dateModified": ___, "duration": ___, "id": ___, "processId": ___, "processVersion": ___, "transitions": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PATCH
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "processId"),
+			@Parameter(in = ParameterIn.PATH, name = "instanceId")
+		}
+	)
+	@Path("/processes/{processId}/instances/{instanceId}/complete")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Instance")})
+	public void patchProcessInstanceComplete(
+			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
+				processId,
+			@NotNull @Parameter(hidden = true) @PathParam("instanceId") Long
+				instanceId,
+			Instance instance)
+		throws Exception {
+	}
+
 	@Override
 	@SuppressWarnings("PMD.UnusedLocalVariable")
 	public void create(
 			java.util.Collection<Instance> instances,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (Instance instance : instances) {
+			postProcessInstance(
+				Long.valueOf((String)parameters.get("processId")), instance);
+		}
 	}
 
 	@Override
@@ -181,12 +334,13 @@ public abstract class BaseInstanceResourceImpl
 
 		return getProcessInstancesPage(
 			(Long)parameters.get("processId"),
-			(Long[])parameters.get("assigneeUserIds"),
+			(Long[])parameters.get("assigneeIds"),
+			(Long[])parameters.get("classPKs"),
+			(Boolean)parameters.get("completed"),
 			(java.util.Date)parameters.get("dateEnd"),
 			(java.util.Date)parameters.get("dateStart"),
 			(String[])parameters.get("slaStatuses"),
-			(String[])parameters.get("statuses"),
-			(String[])parameters.get("taskKeys"), pagination);
+			(String[])parameters.get("taskNames"), pagination);
 	}
 
 	@Override
@@ -250,6 +404,14 @@ public abstract class BaseInstanceResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -259,12 +421,21 @@ public abstract class BaseInstanceResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -272,10 +443,7 @@ public abstract class BaseInstanceResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(Instance instance, Instance existingInstance) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

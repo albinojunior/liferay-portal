@@ -39,6 +39,22 @@ definition {
 		selenium.assertLiferayErrors();
 	}
 
+	function checkNotVisible {
+		WaitForSPARefresh();
+
+		selenium.waitForElementPresent();
+
+		selenium.mouseOver();
+
+		selenium.clickAt();
+
+		selenium.assertChecked();
+
+		selenium.assertJavaScriptErrors();
+
+		selenium.assertLiferayErrors();
+	}
+
 	function checkToggleSwitch {
 		WaitForSPARefresh();
 
@@ -49,6 +65,26 @@ definition {
 		if (selenium.isNotChecked()) {
 			selenium.clickAt();
 		}
+
+		AssertChecked.assertCheckedNotVisible();
+
+		selenium.assertJavaScriptErrors();
+
+		selenium.assertLiferayErrors();
+	}
+
+	function checkToggleSwitchAndPause {
+		WaitForSPARefresh();
+
+		selenium.waitForElementPresent();
+
+		selenium.mouseOver();
+
+		if (selenium.isNotChecked()) {
+			selenium.clickAt();
+		}
+
+		selenium.pause("1000");
 
 		AssertChecked.assertCheckedNotVisible();
 

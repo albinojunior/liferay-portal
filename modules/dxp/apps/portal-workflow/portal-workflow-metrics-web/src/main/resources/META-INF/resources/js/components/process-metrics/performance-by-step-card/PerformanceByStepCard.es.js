@@ -9,6 +9,7 @@
  * distribution rights of the Software.
  */
 
+import ClayLayout from '@clayui/layout';
 import React, {useMemo} from 'react';
 
 import Panel from '../../../shared/components/Panel.es';
@@ -16,7 +17,7 @@ import PromisesResolver from '../../../shared/components/promises-resolver/Promi
 import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
-import {isValidDate} from '../../filter/util/timeRangeUtil.es';
+import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByStepCardBody.es';
 
 const Header = ({disableFilters, prefixKey, totalCount}) => (
@@ -25,7 +26,7 @@ const Header = ({disableFilters, prefixKey, totalCount}) => (
 		elementClasses="dashboard-panel-header"
 		title={Liferay.Language.get('performance-by-step')}
 	>
-		<div className="autofit-col m-0 management-bar management-bar-light navbar">
+		<ClayLayout.ContentCol className="m-0 management-bar management-bar-light navbar">
 			<ul className="navbar-nav">
 				<TimeRangeFilter
 					disabled={!totalCount || disableFilters}
@@ -33,34 +34,28 @@ const Header = ({disableFilters, prefixKey, totalCount}) => (
 					prefixKey={prefixKey}
 				/>
 			</ul>
-		</div>
+		</ClayLayout.ContentCol>
 	</Panel.HeaderWithOptions>
 );
 
 const PerformanceByStepCard = ({routeParams}) => {
 	const {processId} = routeParams;
-
 	const filterKeys = ['timeRange'];
 	const prefixKey = 'step';
 	const prefixKeys = [prefixKey];
 
-	const {filterState = {}, filtersError} = useFilter({
+	const {
+		filterValues: {stepDateEnd, stepDateStart, stepTimeRange: [key] = []},
+		filtersError,
+	} = useFilter({
 		filterKeys,
 		prefixKeys,
 	});
 
-	const timeRange = filterState.stepTimeRange || [];
-	const timeRangeValues = timeRange && timeRange.length ? timeRange[0] : {};
-	const {dateEnd, dateStart} = timeRangeValues;
-
-	let timeRangeParams = {};
-
-	if (isValidDate(dateEnd) && isValidDate(dateStart)) {
-		timeRangeParams = {
-			dateEnd: dateEnd.toISOString(),
-			dateStart: dateStart.toISOString(),
-		};
-	}
+	const timeRange = useMemo(
+		() => getTimeRangeParams(stepDateStart, stepDateEnd),
+		[stepDateEnd, stepDateStart]
+	);
 
 	const {data, fetchData} = useFetch({
 		params: {
@@ -68,23 +63,18 @@ const PerformanceByStepCard = ({routeParams}) => {
 			page: 1,
 			pageSize: 10,
 			sort: 'durationAvg:desc',
-			...timeRangeParams,
+			...timeRange,
 		},
-		url: `/processes/${processId}/tasks`,
+		url: `/processes/${processId}/nodes/metrics`,
 	});
 
 	const promises = useMemo(() => {
-		if (timeRangeParams.dateEnd && timeRangeParams.dateStart) {
+		if (timeRange.dateEnd && timeRange.dateStart) {
 			return [fetchData()];
 		}
 
 		return [new Promise((_, reject) => reject(filtersError))];
-	}, [
-		fetchData,
-		filtersError,
-		timeRangeParams.dateEnd,
-		timeRangeParams.dateStart,
-	]);
+	}, [fetchData, filtersError, timeRange.dateEnd, timeRange.dateStart]);
 
 	return (
 		<Panel elementClasses="dashboard-card">
@@ -95,12 +85,12 @@ const PerformanceByStepCard = ({routeParams}) => {
 					totalCount={data.totalCount}
 				/>
 
-				<PerformanceByStepCard.Body data={data} />
+				<PerformanceByStepCard.Body {...data} />
 
 				{data.totalCount > 0 && (
 					<PerformanceByStepCard.Footer
 						processId={processId}
-						timeRange={timeRangeValues}
+						timeRange={{key, ...timeRange}}
 						totalCount={data.totalCount}
 					/>
 				)}

@@ -30,7 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true,
 	property = {
 		"panel.app.order:Integer=100",
-		"panel.category.key=" + AppBuilderPanelCategoryKeys.CONTROL_PANEL_APP_BUILDER
+		"panel.category.key=" + AppBuilderPanelCategoryKeys.APPLICATIONS_MENU_APPLICATIONS_APP_BUILDER
 	},
 	service = PanelApp.class
 )
@@ -38,12 +38,12 @@ public class AppBuilderPanelApp extends BasePanelApp {
 
 	@Override
 	public String getPortletId() {
-		return AppBuilderPortletKeys.CUSTOM_OBJECTS;
+		return AppBuilderPortletKeys.OBJECTS;
 	}
 
 	@Override
 	@Reference(
-		target = "(javax.portlet.name=" + AppBuilderPortletKeys.CUSTOM_OBJECTS + ")",
+		target = "(javax.portlet.name=" + AppBuilderPortletKeys.OBJECTS + ")",
 		unbind = "-"
 	)
 	public void setPortlet(Portlet portlet) {

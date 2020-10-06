@@ -52,6 +52,7 @@ import com.liferay.portal.workflow.metrics.internal.search.index.SLAInstanceResu
 import com.liferay.portal.workflow.metrics.internal.search.index.SLATaskResultWorkflowMetricsIndexer;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinitionVersion;
+import com.liferay.portal.workflow.metrics.search.index.name.WorkflowMetricsIndexNameBuilder;
 import com.liferay.portal.workflow.metrics.service.base.WorkflowMetricsSLADefinitionLocalServiceBaseImpl;
 
 import java.util.ArrayList;
@@ -148,15 +149,16 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 				workflowMetricsSLADefinitionId);
 
 		workflowMetricsSLADefinition.setActive(false);
+		workflowMetricsSLADefinition.setVersion(
+			getNextVersion(workflowMetricsSLADefinition.getVersion()));
 
 		workflowMetricsSLADefinition =
 			workflowMetricsSLADefinitionPersistence.update(
 				workflowMetricsSLADefinition);
 
-		User user = userLocalService.getUser(serviceContext.getGuestOrUserId());
-
 		addWorkflowMetricsSLADefinitionVersion(
-			user, workflowMetricsSLADefinition);
+			userLocalService.getUser(serviceContext.getGuestOrUserId()),
+			workflowMetricsSLADefinition);
 
 		long companyId = workflowMetricsSLADefinition.getCompanyId();
 		long processId = workflowMetricsSLADefinition.getProcessId();
@@ -182,10 +184,12 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 	@Override
 	public List<WorkflowMetricsSLADefinition> getWorkflowMetricsSLADefinitions(
 		long companyId, boolean active, long processId, int status, int start,
-		int end, OrderByComparator<WorkflowMetricsSLADefinition> obc) {
+		int end,
+		OrderByComparator<WorkflowMetricsSLADefinition> orderByComparator) {
 
 		return workflowMetricsSLADefinitionPersistence.findByC_A_P_S(
-			companyId, active, processId, status, start, end, obc);
+			companyId, active, processId, status, start, end,
+			orderByComparator);
 	}
 
 	@Override
@@ -203,6 +207,14 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 
 		return workflowMetricsSLADefinitionPersistence.findByC_S(
 			companyId, status);
+	}
+
+	@Override
+	public List<WorkflowMetricsSLADefinition> getWorkflowMetricsSLADefinitions(
+		long companyId, String name, long processId) {
+
+		return workflowMetricsSLADefinitionPersistence.findByC_A_N_P(
+			companyId, true, name, processId);
 	}
 
 	@Override
@@ -323,7 +335,7 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 		workflowMetricsSLADefinitionVersion.setModifiedDate(now);
 
 		workflowMetricsSLADefinitionVersion.setActive(
-			workflowMetricsSLADefinition.getActive());
+			workflowMetricsSLADefinition.isActive());
 		workflowMetricsSLADefinitionVersion.setCalendarKey(
 			workflowMetricsSLADefinition.getCalendarKey());
 		workflowMetricsSLADefinitionVersion.setDescription(
@@ -440,7 +452,8 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 		searchSearchRequest.addAggregation(
 			_createNodeIdAggregation("stop", stopNodeIds));
 
-		searchSearchRequest.setIndexNames("workflow-metrics-nodes");
+		searchSearchRequest.setIndexNames(
+			_nodeWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
@@ -504,7 +517,8 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 	private String _getLatestProcessVersion(long companyId, long processId) {
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		searchSearchRequest.setIndexNames("workflow-metrics-processes");
+		searchSearchRequest.setIndexNames(
+			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
@@ -566,6 +580,14 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 
 	@Reference
 	private Aggregations _aggregations;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=node)")
+	private WorkflowMetricsIndexNameBuilder
+		_nodeWorkflowMetricsIndexNameBuilder;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=process)")
+	private WorkflowMetricsIndexNameBuilder
+		_processWorkflowMetricsIndexNameBuilder;
 
 	@Reference
 	private Queries _queries;

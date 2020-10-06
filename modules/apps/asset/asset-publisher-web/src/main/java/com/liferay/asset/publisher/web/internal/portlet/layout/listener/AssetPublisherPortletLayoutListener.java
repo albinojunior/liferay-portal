@@ -19,7 +19,7 @@ import com.liferay.asset.list.model.AssetListEntryUsage;
 import com.liferay.asset.list.service.AssetListEntryUsageLocalService;
 import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.util.AssetPublisherHelper;
-import com.liferay.asset.publisher.web.internal.util.AssetPublisherWebUtil;
+import com.liferay.asset.publisher.web.internal.helper.AssetPublisherWebHelper;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalService;
 import com.liferay.petra.string.StringPool;
@@ -83,7 +83,7 @@ public class AssetPublisherPortletLayoutListener
 		try {
 			Layout layout = _layoutLocalService.getLayout(plid);
 
-			if (_assetPublisherWebUtil.isDefaultAssetPublisher(
+			if (_assetPublisherWebHelper.isDefaultAssetPublisher(
 					layout, portletId, StringPool.BLANK)) {
 
 				_journalArticleLocalService.deleteLayoutArticleReferences(
@@ -100,7 +100,7 @@ public class AssetPublisherPortletLayoutListener
 
 			_subscriptionLocalService.deleteSubscriptions(
 				layout.getCompanyId(), PortletPreferences.class.getName(),
-				_assetPublisherWebUtil.getSubscriptionClassPK(
+				_assetPublisherWebHelper.getSubscriptionClassPK(
 					ownerId, ownerType, plid, portletId));
 
 			_deleteLayoutClassedModelUsages(layout, portletId);
@@ -151,15 +151,15 @@ public class AssetPublisherPortletLayoutListener
 
 	@Override
 	public void updatePropertiesOnRemoveFromLayout(
-			String portletId, UnicodeProperties typeSettingsProperties)
+			String portletId, UnicodeProperties typeSettingsUnicodeProperties)
 		throws PortletLayoutListenerException {
 
 		String defaultAssetPublisherPortletId =
-			typeSettingsProperties.getProperty(
+			typeSettingsUnicodeProperties.getProperty(
 				LayoutTypePortletConstants.DEFAULT_ASSET_PUBLISHER_PORTLET_ID);
 
 		if (portletId.equals(defaultAssetPublisherPortletId)) {
-			typeSettingsProperties.setProperty(
+			typeSettingsUnicodeProperties.setProperty(
 				LayoutTypePortletConstants.DEFAULT_ASSET_PUBLISHER_PORTLET_ID,
 				StringPool.BLANK);
 		}
@@ -259,7 +259,7 @@ public class AssetPublisherPortletLayoutListener
 	private AssetPublisherHelper _assetPublisherHelper;
 
 	@Reference
-	private AssetPublisherWebUtil _assetPublisherWebUtil;
+	private AssetPublisherWebHelper _assetPublisherWebHelper;
 
 	@Reference
 	private JournalArticleLocalService _journalArticleLocalService;

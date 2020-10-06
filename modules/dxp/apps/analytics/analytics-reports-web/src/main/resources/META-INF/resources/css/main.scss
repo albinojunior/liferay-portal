@@ -1,79 +1,51 @@
-@import 'atlas-variables';
-@import 'mixins';
-
 .lfr-analytics-reports-panel {
 	&.open-admin-panel.sidenav-menu-slider {
 		visibility: visible;
-		width: 320px;
+		width: 330px;
 	}
 
-	.sidebar-body {
-		background-color: #fff;
-		border-left-color: #e7e7ed;
-		border-left-style: solid;
-		border-left-width: 1px;
+	.sidebar-header,
+	.sidebar-header .sidenav-close {
+		color: #d5d6e1;
 	}
-}
 
-.lfr-analytics-reports-panel {
-	.sidebar .sidebar-header {
-		padding-bottom: 0.75rem;
-		padding-top: 0.75rem;
-	}
-	@media only screen and (min-width: 768px) {
-		.sidebar-header {
-			padding-bottom: 12px;
-			padding-left: 24px;
-			padding-top: 12px;
-		}
-	}
 	.sidebar-header {
 		background-color: #272833;
-		color: #d5d6e1;
-		display: flex;
-		justify-content: space-between;
 		line-height: 32px;
 		padding-bottom: 8px;
 		padding-right: 9px;
 		padding-top: 8px;
 	}
-	.sidebar-body {
-		bottom: 0;
-		left: 0;
-		padding: 0;
-		position: absolute;
-		right: 0;
-		top: 56px;
-	}
-	@media only screen and (min-width: 768px) {
+
+	@media only screen and (min-width: 576px) {
 		.sidebar-header {
 			padding-bottom: 12px;
-			padding-left: 24px;
 			padding-top: 12px;
 		}
 	}
 
-	.recharts-tooltip-label {
-		font-weight: bold;
-	}
+	.sidebar-body {
+		bottom: 0;
+		left: 0;
+		position: absolute;
+		right: 0;
+		top: 56px;
 
-	.recharts-legend-item {
-		padding-bottom: 0.5rem;
-	}
-
-	.custom-tooltip {
-		background-color: rgb(255, 255, 255);
-		border: 1px solid rgb(204, 204, 204);
-		margin: 0;
-		opacity: 0.9;
-		padding: 0.25rem;
-		white-space: nowrap;
-		.custom-tooltip-dot {
-			border-radius: 50%;
-			display: inline-block;
-			height: 0.7rem;
-			margin-right: 0.2rem;
-			width: 0.7rem;
+		.chart-loading-indicator {
+			position: absolute;
+			transform: translate(80%, 100%);
+			z-index: 1;
 		}
+
+		.loading-animation {
+			left: 0;
+			position: absolute;
+			right: 0;
+			top: 40%;
+		}
+	}
+
+	.text-truncate-reverse {
+		direction: rtl;
 	}
 }

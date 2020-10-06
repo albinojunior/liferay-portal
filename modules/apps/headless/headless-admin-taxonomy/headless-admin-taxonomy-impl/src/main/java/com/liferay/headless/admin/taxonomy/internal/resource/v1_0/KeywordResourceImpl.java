@@ -22,12 +22,14 @@ import com.liferay.headless.admin.taxonomy.dto.v1_0.Keyword;
 import com.liferay.headless.admin.taxonomy.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.admin.taxonomy.internal.odata.entity.v1_0.KeywordEntityModel;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.KeywordResource;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionList;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Type;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Sort;
@@ -35,18 +37,21 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
+import com.liferay.portal.vulcan.util.GroupUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portlet.asset.model.impl.AssetTagImpl;
 
 import java.sql.Timestamp;
 
-import java.util.Collections;
 import java.util.Date;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -71,6 +76,16 @@ public class KeywordResourceImpl
 	}
 
 	@Override
+	public Page<Keyword> getAssetLibraryKeywordsPage(
+			Long assetLibraryId, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
+		throws Exception {
+
+		return getSiteKeywordsPage(
+			assetLibraryId, search, filter, pagination, sorts);
+	}
+
+	@Override
 	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
 		return _entityModel;
 	}
@@ -82,25 +97,36 @@ public class KeywordResourceImpl
 
 	@Override
 	public Page<Keyword> getKeywordsRankedPage(
-		Long siteId, Pagination pagination) {
+		Long siteId, String search, Pagination pagination) {
 
 		DynamicQuery dynamicQuery = _assetTagLocalService.dynamicQuery();
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"companyId", contextCompany.getCompanyId()));
 
 		if (siteId != null) {
 			dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", siteId));
 		}
 
-		dynamicQuery.addOrder(OrderFactoryUtil.desc("count"));
-		dynamicQuery.setLimit(
-			pagination.getStartPosition(), pagination.getEndPosition());
+		if (!Validator.isBlank(search)) {
+			dynamicQuery.add(
+				RestrictionsFactoryUtil.ilike(
+					"name", StringUtil.quote(search, StringPool.PERCENT)));
+		}
+
+		dynamicQuery.addOrder(OrderFactoryUtil.desc("assetCount"));
 		dynamicQuery.setProjection(_getProjectionList(), true);
 
 		return Page.of(
 			transform(
 				transform(
-					_assetTagLocalService.dynamicQuery(dynamicQuery),
+					_assetTagLocalService.dynamicQuery(
+						dynamicQuery, pagination.getStartPosition(),
+						pagination.getEndPosition()),
 					this::_toAssetTag),
-				this::_toKeyword));
+				this::_toKeyword),
+			pagination, _getTotalCount(search, siteId));
 	}
 
 	@Override
@@ -110,13 +136,24 @@ public class KeywordResourceImpl
 		throws Exception {
 
 		return SearchUtil.search(
-			Collections.emptyMap(),
+			HashMapBuilder.put(
+				"create",
+				addAction(
+					"MANAGE_TAG", "postSiteKeyword", "com.liferay.asset.tags",
+					siteId)
+			).put(
+				"get",
+				addAction(
+					"MANAGE_TAG", "getSiteKeywordsPage",
+					"com.liferay.asset.tags", siteId)
+			).build(),
 			booleanQuery -> {
 			},
 			filter, AssetTag.class, search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
+				searchContext.setAttribute(Field.NAME, search);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 				searchContext.setGroupIds(new long[] {siteId});
 			},
@@ -124,6 +161,13 @@ public class KeywordResourceImpl
 			document -> _toKeyword(
 				_assetTagService.getTag(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
+	}
+
+	@Override
+	public Keyword postAssetLibraryKeyword(Long assetLibraryId, Keyword keyword)
+		throws Exception {
+
+		return postSiteKeyword(assetLibraryId, keyword);
 	}
 
 	@Override
@@ -149,11 +193,11 @@ public class KeywordResourceImpl
 		projectionList.add(
 			ProjectionFactoryUtil.alias(
 				ProjectionFactoryUtil.sqlProjection(
-					"(select count(entryId) AS count from " +
+					"COALESCE((select count(entryId) assetCount from " +
 						"AssetEntries_AssetTags where tagId = this_.tagId " +
-							"group by tagId) AS count",
-					new String[] {"count"}, new Type[] {Type.INTEGER}),
-				"count"));
+							"group by tagId), 0) AS assetCount",
+					new String[] {"assetCount"}, new Type[] {Type.INTEGER}),
+				"assetCount"));
 		projectionList.add(ProjectionFactoryUtil.property("companyId"));
 		projectionList.add(ProjectionFactoryUtil.property("createDate"));
 		projectionList.add(ProjectionFactoryUtil.property("groupId"));
@@ -165,10 +209,33 @@ public class KeywordResourceImpl
 		return projectionList;
 	}
 
+	private long _getTotalCount(String search, Long siteId) {
+		DynamicQuery dynamicQuery = _assetTagLocalService.dynamicQuery();
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"companyId", contextCompany.getCompanyId()));
+
+		if (!Validator.isBlank(search)) {
+			dynamicQuery.add(
+				RestrictionsFactoryUtil.ilike(
+					"name", StringUtil.quote(search, StringPool.PERCENT)));
+		}
+
+		if (siteId != null) {
+			dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", siteId));
+		}
+
+		return _assetTagLocalService.dynamicQueryCount(dynamicQuery);
+	}
+
 	private AssetTag _toAssetTag(Object[] assetTags) {
 		return new AssetTagImpl() {
 			{
-				setAssetCount((int)assetTags[0]);
+				if (assetTags[0] != null) {
+					setAssetCount((int)assetTags[0]);
+				}
+
 				setCompanyId((long)assetTags[1]);
 				setCreateDate(_toDate((Timestamp)assetTags[2]));
 				setGroupId((long)assetTags[3]);
@@ -185,20 +252,42 @@ public class KeywordResourceImpl
 	}
 
 	private Keyword _toKeyword(AssetTag assetTag) {
+		Group group = groupLocalService.fetchGroup(assetTag.getGroupId());
+
 		return new Keyword() {
 			{
+				actions = HashMapBuilder.put(
+					"delete",
+					addAction(
+						"MANAGE_TAG", assetTag.getTagId(), "deleteKeyword",
+						assetTag.getUserId(), "com.liferay.asset.tags",
+						assetTag.getGroupId())
+				).put(
+					"get",
+					addAction(
+						"MANAGE_TAG", assetTag.getTagId(), "getKeyword",
+						assetTag.getUserId(), "com.liferay.asset.tags",
+						assetTag.getGroupId())
+				).put(
+					"replace",
+					addAction(
+						"MANAGE_TAG", assetTag.getTagId(), "putKeyword",
+						assetTag.getUserId(), "com.liferay.asset.tags",
+						assetTag.getGroupId())
+				).build();
+				assetLibraryKey = GroupUtil.getAssetLibraryKey(group);
 				dateCreated = assetTag.getCreateDate();
 				dateModified = assetTag.getModifiedDate();
 				id = assetTag.getTagId();
 				name = assetTag.getName();
-				siteId = assetTag.getGroupId();
+				siteId = GroupUtil.getSiteId(group);
 
 				setCreator(
 					() -> {
 						if (assetTag.getUserId() != 0) {
 							return CreatorUtil.toCreator(
 								_portal,
-								_userLocalService.getUserById(
+								_userLocalService.fetchUser(
 									assetTag.getUserId()));
 						}
 

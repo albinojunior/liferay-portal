@@ -24,10 +24,13 @@ public class HealthClusterRequest
 	implements ClusterRequest<HealthClusterResponse> {
 
 	public HealthClusterRequest() {
+		setPreferLocalCluster(true);
 	}
 
 	public HealthClusterRequest(String... indexNames) {
 		_indexNames = indexNames;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

@@ -276,9 +276,9 @@ public class ConstantsBeanFactoryImplTest {
 			Arrays.toString(parameterTypes), 1, parameterTypes.length);
 		Assert.assertSame(Object.class, parameterTypes[0]);
 
-		Object obj = new Object();
+		Object object = new Object();
 
-		Assert.assertSame(obj, method.invoke(null, obj));
+		Assert.assertSame(object, method.invoke(null, object));
 
 		// public void get_Void()
 
@@ -445,16 +445,16 @@ public class ConstantsBeanFactoryImplTest {
 			return i;
 		}
 
-		public static Object get_Object(Object obj) {
-			return obj;
+		public static Object get_Object(Object object) {
+			return object;
 		}
 
 		public static void get_Void() {
 		}
 
-		public Object NON_STATIC_VALUE = new Object();
+		public Object NONSTATIC_VALUE = new Object();
 
-		protected static Object NON_PUBLIC_VALUE = new Object();
+		protected static Object NONPUBLIC_VALUE = new Object();
 
 	}
 

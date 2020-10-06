@@ -14,7 +14,6 @@
 
 package com.liferay.product.navigation.product.menu.web.internal.portlet.action;
 
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -106,15 +105,14 @@ public class FindLayoutsMVCResourceCommand extends BaseMVCResourceCommand {
 			JSONArray layoutPathJSONArray = _getLayoutPathJSONArray(
 				layout, themeDisplay.getLocale());
 
-			JSONObject layoutJSONObject = JSONUtil.put(
-				"name", layout.getName(themeDisplay.getLocale())
-			).put(
-				"path", layoutPathJSONArray
-			).put(
-				"url", _portal.getLayoutFullURL(layout, themeDisplay)
-			);
-
-			jsonArray.put(layoutJSONObject);
+			jsonArray.put(
+				JSONUtil.put(
+					"name", layout.getName(themeDisplay.getLocale())
+				).put(
+					"path", layoutPathJSONArray
+				).put(
+					"url", _portal.getLayoutFullURL(layout, themeDisplay)
+				));
 		}
 
 		jsonObject.put("layouts", jsonArray);
@@ -135,7 +133,7 @@ public class FindLayoutsMVCResourceCommand extends BaseMVCResourceCommand {
 	}
 
 	private JSONArray _getLayoutPathJSONArray(Layout layout, Locale locale)
-		throws PortalException {
+		throws Exception {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 

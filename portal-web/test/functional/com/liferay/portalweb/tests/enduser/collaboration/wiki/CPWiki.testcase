@@ -97,12 +97,12 @@ definition {
 	test AddPageWithDMImageViaURL {
 		property test.name.skip.portal.instance = "CPWiki#AddPageWithDMImageViaURL";
 
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_2.jpg",
-			dmDocumentTitle = "Document_2.jpg");
+			dmDocumentTitle = "Document_2.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_2.jpg");
 
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
@@ -112,15 +112,14 @@ definition {
 
 		WikiEntry.addPageTitle(wikiPageTitle = "New Wiki Page Title");
 
-		ItemSelector.gotoItemSelectorViaAlloyEditor();
+		ItemSelector.gotoItemSelectorViaCKEditor();
 
 		ItemSelector.addFromURL(
 			imageSourceURL = "http://localhost:8080/webdav/guest/document_library/Document_2.jpg",
-			navTab = "URL");
+			navTab = "URL",
+			wikiAdmin = "true");
 
-		AssertElementPresent(
-			key_contentImageName = "Document_2.jpg",
-			locator1 = "Wiki#CONTENT_IMAGE_NAME");
+		CKEditor.viewEntryContentImage(contentImageName = "Document_2.jpg");
 
 		PortletEntry.publish();
 
@@ -133,9 +132,10 @@ definition {
 
 	@priority = "5"
 	test CKEditorSmoke {
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "CPWiki#CKEditorSmoke";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -247,7 +247,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.deleteCP(
@@ -258,7 +257,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.viewDefaultCP(assetName = "FrontPage");
@@ -286,7 +284,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.viewCP(
@@ -331,17 +328,16 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Wiki");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		LAR.importPortlet(
+			initializeLiferayEvent = "true",
 			larFileName = "space-history-wiki.lar",
 			uploadFrom = "dependencies");
 
@@ -443,7 +439,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.viewCP(
@@ -485,7 +480,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -498,7 +492,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -508,6 +501,7 @@ definition {
 		WikiEntry.viewPageContentBody(wikiPageContent = "Wiki Page Content");
 
 		WikiPage.viewRSS(
+			site = "Guest",
 			version = "1.0",
 			wikiNodeName = "Main",
 			wikiPageContent = "Wiki Page Content",

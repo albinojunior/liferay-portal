@@ -209,11 +209,11 @@ public class SelectorIntraband extends BaseIntraband {
 	}
 
 	protected void registerChannels() {
-		FutureTask<RegistrationReference> registerFuturetask = null;
+		FutureTask<RegistrationReference> registerFutureTask = null;
 
 		synchronized (selector) {
-			while ((registerFuturetask = registerQueue.poll()) != null) {
-				registerFuturetask.run();
+			while ((registerFutureTask = registerQueue.poll()) != null) {
+				registerFutureTask.run();
 			}
 		}
 	}
@@ -422,11 +422,12 @@ public class SelectorIntraband extends BaseIntraband {
 							" exiting gracefully on selector closure");
 				}
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				Thread currentThread = Thread.currentThread();
 
 				_log.error(
-					currentThread.getName() + " exiting exceptionally", t);
+					currentThread.getName() + " exiting exceptionally",
+					throwable);
 			}
 
 			// Flush out pending register requests to unblock their invokers,

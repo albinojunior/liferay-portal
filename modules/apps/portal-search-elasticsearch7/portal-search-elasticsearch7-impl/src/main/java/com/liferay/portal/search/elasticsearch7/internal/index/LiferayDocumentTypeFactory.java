@@ -21,9 +21,11 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.search.elasticsearch7.internal.index.constants.IndexSettingsConstants;
+import com.liferay.portal.search.elasticsearch7.internal.index.constants.LiferayTypeMappingsConstants;
 import com.liferay.portal.search.elasticsearch7.internal.settings.SettingsBuilder;
-import com.liferay.portal.search.elasticsearch7.internal.util.LogUtil;
 import com.liferay.portal.search.elasticsearch7.internal.util.ResourceUtil;
+import com.liferay.portal.search.elasticsearch7.internal.util.SearchLogHelperUtil;
 import com.liferay.portal.search.elasticsearch7.settings.TypeMappingsHelper;
 
 import java.io.IOException;
@@ -33,13 +35,12 @@ import java.util.Map;
 
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.client.IndicesClient;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.client.indices.GetMappingsRequest;
+import org.elasticsearch.client.indices.GetMappingsResponse;
+import org.elasticsearch.client.indices.PutMappingRequest;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.compress.CompressedXContent;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -47,7 +48,9 @@ import org.elasticsearch.common.xcontent.XContentType;
 /**
  * @author André de Oliveira
  */
-public class LiferayDocumentTypeFactory implements TypeMappingsHelper {
+public class LiferayDocumentTypeFactory
+	implements com.liferay.portal.search.spi.settings.TypeMappingsHelper,
+			   TypeMappingsHelper {
 
 	public LiferayDocumentTypeFactory(
 		IndicesClient indicesClient, JSONFactory jsonFactory) {
@@ -65,14 +68,12 @@ public class LiferayDocumentTypeFactory implements TypeMappingsHelper {
 				source, indexName,
 				LiferayTypeMappingsConstants.LIFERAY_DOCUMENT_TYPE),
 			XContentType.JSON);
-		putMappingRequest.type(
-			LiferayTypeMappingsConstants.LIFERAY_DOCUMENT_TYPE);
 
 		try {
 			ActionResponse actionResponse = _indicesClient.putMapping(
 				putMappingRequest, RequestOptions.DEFAULT);
 
-			LogUtil.logActionResponse(_log, actionResponse);
+			SearchLogHelperUtil.logActionResponse(_log, actionResponse);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
@@ -133,7 +134,6 @@ public class LiferayDocumentTypeFactory implements TypeMappingsHelper {
 		GetMappingsRequest getMappingsRequest = new GetMappingsRequest();
 
 		getMappingsRequest.indices(indexName);
-		getMappingsRequest.types(typeName);
 
 		GetMappingsResponse getMappingsResponse = null;
 
@@ -145,14 +145,11 @@ public class LiferayDocumentTypeFactory implements TypeMappingsHelper {
 			throw new RuntimeException(ioException);
 		}
 
-		ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>>
-			map = getMappingsResponse.mappings();
+		Map<String, MappingMetadata> mappings = getMappingsResponse.mappings();
 
-		ImmutableOpenMap<String, MappingMetaData> mappings = map.get(indexName);
+		MappingMetadata mappingMetadata = mappings.get(indexName);
 
-		MappingMetaData mappingMetaData = mappings.get(typeName);
-
-		CompressedXContent compressedXContent = mappingMetaData.source();
+		CompressedXContent compressedXContent = mappingMetadata.source();
 
 		return compressedXContent.toString();
 	}
@@ -189,9 +186,8 @@ public class LiferayDocumentTypeFactory implements TypeMappingsHelper {
 			return sourceJSONObject.toString();
 		}
 
-		String mappings = getMappings(indexName, typeName);
-
-		JSONObject mappingsJSONObject = createJSONObject(mappings);
+		JSONObject mappingsJSONObject = createJSONObject(
+			getMappings(indexName, typeName));
 
 		JSONObject mappingsTypeJSONObject = mappingsJSONObject;
 

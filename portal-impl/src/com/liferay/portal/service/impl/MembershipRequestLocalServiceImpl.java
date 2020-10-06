@@ -164,10 +164,10 @@ public class MembershipRequestLocalServiceImpl
 	@Override
 	public List<MembershipRequest> search(
 		long groupId, int status, int start, int end,
-		OrderByComparator<MembershipRequest> obc) {
+		OrderByComparator<MembershipRequest> orderByComparator) {
 
 		return membershipRequestPersistence.findByG_S(
-			groupId, status, start, end, obc);
+			groupId, status, start, end, orderByComparator);
 	}
 
 	@Override
@@ -208,10 +208,9 @@ public class MembershipRequestLocalServiceImpl
 		if ((statusId == MembershipRequestConstants.STATUS_APPROVED) &&
 			addUserToGroup) {
 
-			long[] addUserIds = {membershipRequest.getUserId()};
-
 			userLocalService.addGroupUsers(
-				membershipRequest.getGroupId(), addUserIds);
+				membershipRequest.getGroupId(),
+				new long[] {membershipRequest.getUserId()});
 		}
 
 		if (replierUserId != 0) {
@@ -392,12 +391,9 @@ public class MembershipRequestLocalServiceImpl
 		mailTemplateContextBuilder.put(
 			"[$USER_NAME$]", HtmlUtil.escape(user.getFullName()));
 
-		MailTemplateContext mailTemplateContext =
-			mailTemplateContextBuilder.build();
-
 		_sendNotificationEmail(
 			fromAddress, fromName, toAddress, user, subject, body,
-			membershipRequest, mailTemplateContext);
+			membershipRequest, mailTemplateContextBuilder.build());
 	}
 
 	protected void notifyGroupAdministrators(

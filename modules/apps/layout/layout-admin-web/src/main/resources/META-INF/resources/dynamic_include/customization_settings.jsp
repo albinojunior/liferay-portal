@@ -20,15 +20,11 @@
 String portletNamespace = PortalUtil.getPortletNamespace(LayoutAdminPortletKeys.GROUP_PAGES);
 
 boolean hasUpdateLayoutPermission = GetterUtil.getBoolean(request.getAttribute(CustomizationSettingsControlMenuJSPDynamicInclude.CUSTOMIZATION_SETTINGS_LAYOUT_UPDATE_PERMISSION));
-
-Map<String, Object> data = new HashMap<>();
-
-data.put("qa-id", "customizations");
 %>
 
 <div id="<%= portletNamespace %>customizationBar">
 	<div class="control-menu-level-2">
-		<div class="container-fluid container-fluid-max-xl">
+		<clay:container-fluid>
 			<div class="control-menu-level-2-heading d-block d-md-none">
 				<liferay-ui:message key="customization-options" />
 
@@ -41,7 +37,11 @@ data.put("qa-id", "customizations");
 				<li class="control-menu-nav-item mb-0">
 					<span class="text-info">
 						<liferay-ui:icon
-							data="<%= data %>"
+							data='<%=
+								HashMapBuilder.<String, Object>put(
+									"qa-id", "customizations"
+								).build()
+							%>'
 							icon="info-circle"
 							label="<%= false %>"
 							markupView="lexicon"
@@ -84,7 +84,7 @@ data.put("qa-id", "customizations");
 							namespace: '<%= portletNamespace %>',
 						});
 
-						Liferay.once('screenLoad', function() {
+						Liferay.once('screenLoad', function () {
 							layoutCustomizationSettings.destroy();
 						});
 					</aui:script>
@@ -165,7 +165,7 @@ data.put("qa-id", "customizations");
 					);
 
 					if (closeCustomizationOptions && controlMenu) {
-						closeCustomizationOptions.addEventListener('click', function(event) {
+						closeCustomizationOptions.addEventListener('click', function (event) {
 							dom.toggleClasses(controlMenu, 'open');
 						});
 					}
@@ -175,12 +175,12 @@ data.put("qa-id", "customizations");
 					);
 
 					if (customizationButton && controlMenu) {
-						customizationButton.addEventListener('click', function(event) {
+						customizationButton.addEventListener('click', function (event) {
 							dom.toggleClasses(controlMenu, 'open');
 						});
 					}
 				</aui:script>
 			</ul>
-		</div>
+		</clay:container-fluid>
 	</div>
 </div>

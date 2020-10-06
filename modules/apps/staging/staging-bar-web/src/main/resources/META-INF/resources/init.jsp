@@ -19,6 +19,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
+taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
@@ -36,6 +37,7 @@ page import="com.liferay.portal.kernel.dao.orm.QueryUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.ResultRow" %><%@
 page import="com.liferay.portal.kernel.exception.LayoutBranchNameException" %><%@
 page import="com.liferay.portal.kernel.exception.LayoutSetBranchNameException" %><%@
+page import="com.liferay.portal.kernel.exception.PortalException" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.model.Group" %><%@
 page import="com.liferay.portal.kernel.model.Layout" %><%@
@@ -49,6 +51,7 @@ page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.security.auth.AuthException" %><%@
 page import="com.liferay.portal.kernel.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.kernel.service.LayoutBranchLocalServiceUtil" %><%@
+page import="com.liferay.portal.kernel.service.LayoutLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.LayoutRevisionLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.LayoutSetBranchLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.UserLocalServiceUtil" %><%@
@@ -70,7 +73,6 @@ page import="com.liferay.portal.kernel.util.UnicodeProperties" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.kernel.util.comparator.LayoutRevisionCreateDateComparator" %><%@
-page import="com.liferay.portal.kernel.util.comparator.LayoutRevisionIdComparator" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowConstants" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowTask" %><%@
 page import="com.liferay.portal.util.PropsValues" %><%@
@@ -101,6 +103,49 @@ privateLayout = (boolean)renderRequest.getAttribute(WebKeys.PRIVATE_LAYOUT);
 
 LayoutBranchDisplayContext layoutBranchDisplayContext = new LayoutBranchDisplayContext(request);
 LayoutSetBranchDisplayContext layoutSetBranchDisplayContext = new LayoutSetBranchDisplayContext(request);
+%>
+
+<%!
+private long _getLastImportLayoutRevisionId(Group group, Layout layout, User user) {
+	long lastImportLayoutRevisionId = 0;
+
+	try {
+		Layout liveLayout = null;
+
+		if (group.isStagedRemotely() &&
+			StagingUtil.hasRemoteLayout(user.getUserId(), group.getGroupId(), layout.getPlid())) {
+
+			liveLayout = StagingUtil.getRemoteLayout(user.getUserId(), group.getGroupId(), layout.getPlid());
+		}
+		else if (group.isStagingGroup()) {
+			liveLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(layout.getUuid(), group.getLiveGroupId(), layout.isPrivateLayout());
+		}
+
+		if (liveLayout != null) {
+			UnicodeProperties typeSettingsProperties = liveLayout.getTypeSettingsProperties();
+
+			lastImportLayoutRevisionId = GetterUtil.getLong(typeSettingsProperties.getProperty("last-import-layout-revision-id"));
+		}
+	}
+	catch (Exception exception) {
+	}
+
+	return lastImportLayoutRevisionId;
+}
+
+private String _getStatusMessage(LayoutRevision layoutRevision, long liveLayoutRevisionId) {
+	String statusMessage = null;
+
+	if (layoutRevision.isHead()) {
+		statusMessage = "ready-for-publication";
+	}
+
+	if (layoutRevision.getLayoutRevisionId() == liveLayoutRevisionId) {
+		statusMessage = "in-live";
+	}
+
+	return statusMessage;
+}
 %>
 
 <%@ include file="/init-ext.jsp" %>

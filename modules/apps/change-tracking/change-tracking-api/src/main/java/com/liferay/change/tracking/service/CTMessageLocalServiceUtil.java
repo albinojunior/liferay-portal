@@ -41,6 +41,10 @@ public class CTMessageLocalServiceUtil {
 	/**
 	 * Adds the ct message to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctMessage the ct message
 	 * @return the ct message that was added
 	 */
@@ -82,6 +86,10 @@ public class CTMessageLocalServiceUtil {
 	/**
 	 * Deletes the ct message from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctMessage the ct message
 	 * @return the ct message that was removed
 	 */
@@ -93,6 +101,10 @@ public class CTMessageLocalServiceUtil {
 
 	/**
 	 * Deletes the ct message with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctMessageId the primary key of the ct message
 	 * @return the ct message that was removed
@@ -114,6 +126,12 @@ public class CTMessageLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -287,6 +305,10 @@ public class CTMessageLocalServiceUtil {
 
 	/**
 	 * Updates the ct message in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctMessage the ct message
 	 * @return the ct message that was updated

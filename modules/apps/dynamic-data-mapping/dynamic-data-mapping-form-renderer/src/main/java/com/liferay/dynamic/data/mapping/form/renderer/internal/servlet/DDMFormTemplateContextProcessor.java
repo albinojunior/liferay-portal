@@ -39,6 +39,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -101,6 +102,8 @@ public class DDMFormTemplateContextProcessor {
 
 		DDMFormField ddmFormField = new DDMFormField(name, type);
 
+		setDDMFormFieldCollapsible(
+			jsonObject.getBoolean("collapsible"), ddmFormField);
 		setDDMFormFieldDataProviderSettings(
 			jsonObject.getLong("ddmDataProviderInstanceId"),
 			jsonObject.getString("ddmDataProviderInstanceOutput"),
@@ -116,10 +119,13 @@ public class DDMFormTemplateContextProcessor {
 			jsonObject.getBoolean("multiple"), ddmFormField);
 		setDDMFormFieldOptions(
 			jsonObject.getJSONArray("options"), ddmFormField);
-		setDDMFormFieldOptionsProperty(jsonObject, ddmFormField, "columns");
-		setDDMFormFieldOptionsProperty(jsonObject, ddmFormField, "rows");
 		setDDMFormFieldPlaceholder(
 			jsonObject.getString("placeholder"), ddmFormField);
+		setDDMFormFieldPropertyDDMStructureId(jsonObject, ddmFormField);
+		setDDMFormFieldPropertyDDMStructureLayoutId(jsonObject, ddmFormField);
+		setDDMFormFieldPropertyOptions(jsonObject, ddmFormField, "columns");
+		setDDMFormFieldPropertyRows(jsonObject, ddmFormField);
+		setDDMFormFieldPropertyUpgradedStructure(jsonObject, ddmFormField);
 		setDDMFormFieldReadOnly(
 			jsonObject.getBoolean("readOnly", false), ddmFormField);
 		setDDMFormFieldRepeatable(
@@ -178,7 +184,7 @@ public class DDMFormTemplateContextProcessor {
 		List<String> actions = getDDMFormRuleActions(
 			jsonObject.getJSONArray("actions"));
 
-		return new DDMFormRule(jsonObject.getString("condition"), actions);
+		return new DDMFormRule(actions, jsonObject.getString("condition"));
 	}
 
 	protected List<String> getDDMFormRuleActions(JSONArray jsonArray) {
@@ -228,6 +234,12 @@ public class DDMFormTemplateContextProcessor {
 
 	protected void setDDMFormDefaultLocale() {
 		_ddmForm.setDefaultLocale(_locale);
+	}
+
+	protected void setDDMFormFieldCollapsible(
+		boolean collapsible, DDMFormField ddmFormField) {
+
+		ddmFormField.setProperty("collapsible", collapsible);
 	}
 
 	protected void setDDMFormFieldDataProviderSettings(
@@ -301,7 +313,49 @@ public class DDMFormTemplateContextProcessor {
 		ddmFormField.setDDMFormFieldOptions(getDDMFormFieldOptions(jsonArray));
 	}
 
-	protected void setDDMFormFieldOptionsProperty(
+	protected void setDDMFormFieldPlaceholder(
+		String placeholder, DDMFormField ddmFormField) {
+
+		ddmFormField.setProperty(
+			"placeholder",
+			getLocalizedValue(GetterUtil.getString(placeholder)));
+	}
+
+	protected void setDDMFormFieldPropertyDDMStructureId(
+		JSONObject jsonObject, DDMFormField ddmFormField) {
+
+		if (!Objects.equals(ddmFormField.getType(), "fieldset")) {
+			return;
+		}
+
+		ddmFormField.setProperty(
+			"ddmStructureId", jsonObject.getLong("ddmStructureId"));
+	}
+
+	protected void setDDMFormFieldPropertyDDMStructureLayoutId(
+		JSONObject jsonObject, DDMFormField ddmFormField) {
+
+		if (!Objects.equals(ddmFormField.getType(), "fieldset")) {
+			return;
+		}
+
+		ddmFormField.setProperty(
+			"ddmStructureLayoutId", jsonObject.getLong("ddmStructureLayoutId"));
+	}
+
+	protected void setDDMFormFieldPropertyFieldSetRows(
+		JSONObject jsonObject, DDMFormField ddmFormField) {
+
+		JSONArray jsonArray = jsonObject.getJSONArray("rows");
+
+		if (jsonArray == null) {
+			return;
+		}
+
+		ddmFormField.setProperty("rows", jsonArray.toString());
+	}
+
+	protected void setDDMFormFieldPropertyOptions(
 		JSONObject jsonObject, DDMFormField ddmFormField, String property) {
 
 		JSONArray jsonArray = jsonObject.getJSONArray(property);
@@ -313,12 +367,28 @@ public class DDMFormTemplateContextProcessor {
 		ddmFormField.setProperty(property, getDDMFormFieldOptions(jsonArray));
 	}
 
-	protected void setDDMFormFieldPlaceholder(
-		String placeholder, DDMFormField ddmFormField) {
+	protected void setDDMFormFieldPropertyRows(
+		JSONObject jsonObject, DDMFormField ddmFormField) {
+
+		String type = jsonObject.getString("type");
+
+		if (type.equals("grid")) {
+			setDDMFormFieldPropertyOptions(jsonObject, ddmFormField, "rows");
+		}
+		else if (type.equals("fieldset")) {
+			setDDMFormFieldPropertyFieldSetRows(jsonObject, ddmFormField);
+		}
+	}
+
+	protected void setDDMFormFieldPropertyUpgradedStructure(
+		JSONObject jsonObject, DDMFormField ddmFormField) {
+
+		if (!Objects.equals(ddmFormField.getType(), "fieldset")) {
+			return;
+		}
 
 		ddmFormField.setProperty(
-			"placeholder",
-			getLocalizedValue(GetterUtil.getString(placeholder)));
+			"upgradedStructure", jsonObject.getBoolean("upgradedStructure"));
 	}
 
 	protected void setDDMFormFieldReadOnly(

@@ -4,27 +4,38 @@ definition {
 		For searches that do not use the search portlet (e.g. searches within the product menu), use the macros within Search.macro instead.'Embedded' refers to the search bar in the page header whereas 'Widget' refers to the search bar within the page.
 	 */
 
+	macro _clickAddPortlet {
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" == "internetexplorer") {
+			Click.javaScriptClick(
+				key_portletName = "${portletName}",
+				locator1 = "Search#ADD_PORTLET_LINK");
+		}
+		else {
+			Click.clickNoWaitForVisible(
+				key_portletName = "${portletName}",
+				locator1 = "Search#ADD_PORTLET_LINK");
+		}
+	}
+
 	macro addWidgets {
 		if (IsNotVisible(locator1 = "ControlMenuAddPanel#CLOSE_ADD_PANEL")) {
 			Click.clickAt(locator1 = "ControlMenu#ADD");
 		}
 
-		AssertElementPresent(locator1 = "ControlMenuAddPanel#APPLICATIONS_ACCORDION_PANEL_TITLE");
+		AssertElementPresent(locator1 = "ControlMenuAddPanel#SIDEBAR_HEADER");
 
-		AssertVisible(
-			locator1 = "ControlMenuAddPanel#APPLICATIONS_ACCORDION_PANEL_TITLE",
-			value1 = "Widgets");
+		Navigator.gotoNavTab(navTab = "Widgets");
 
 		Pause(locator1 = "5000");
-
-		Panel.expandSidebarApplicationsPanel();
 
 		Type.sendKeysApplicationSearch(
 			locator1 = "NavBar#APPLICATION_SEARCH_FIELD",
 			value1 = "search");
 
 		for (var portletName : list "${searchPortletList}") {
-			Portlet._clickAddPortlet(portletName = "${portletName}");
+			SearchPortlets._clickAddPortlet(portletName = "${portletName}");
 
 			var key_portletName = "${portletName}";
 
@@ -34,12 +45,34 @@ definition {
 		}
 	}
 
+	macro chooseEmbeddedScope {
+		if (("${searchScope}" == "Everything") || ("${searchScope}" == "This Site")) {
+			Select(
+				locator1 = "Search#EMBEDDED_SEARCH_BAR_SCOPE_SELECT",
+				value1 = "${searchScope}");
+		}
+		else {
+			fail("Invalid search scope. Must be (Everything|This Site).");
+		}
+	}
+
 	macro chooseSortOption {
 		Click(locator1 = "Search#SORT_PORTLET_DROPDOWN");
 
 		Click(
 			locator1 = "Search#SORT_PORTLET_SORT_OPTION",
 			sortOption = "${sortOption}");
+	}
+
+	macro chooseWidgetScope {
+		if (("${searchScope}" == "Everything") || ("${searchScope}" == "This Site")) {
+			Select(
+				locator1 = "Search#SEARCH_BAR_WIDGET_SCOPE_SELECT",
+				value1 = "${searchScope}");
+		}
+		else {
+			fail("Invalid search scope. Must be (Everything|This Site).");
+		}
 	}
 
 	macro configureCustomFilter {
@@ -77,15 +110,40 @@ definition {
 				value1 = "${filterQueryType}");
 		}
 
+		if (isSet(filterValue)) {
+			Type(
+				key_fieldLabel = "Filter Value",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${filterValue}");
+		}
+
+		if (isSet(occur)) {
+			Select(
+				key_fieldLabel = "Occur",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "${occur}");
+		}
+
 		PortletEntry.save();
 
 		IFrame.closeFrame();
 	}
 
-	macro configureDestination {
+	macro configureEmbeddedSearchBar {
 		SearchPortlets.gotoEmbeddedOptions(portletOption = "Configuration");
 
 		SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+		if (isSet(searchScope)) {
+			if (("${searchScope}" == "Everything") || ("${searchScope}" == "Let the User Choose") || ("${searchScope}" == "This Site")) {
+				Select(
+					locator1 = "Select#SCOPE_CONFIGURATION",
+					value1 = "${searchScope}");
+			}
+			else {
+				fail("Invalid search scope. Must be (Everything|Let the User Choose|This Site).");
+			}
+		}
 
 		if (isSet(destinationPage)) {
 			if (contains("${destinationPage}", " ")) {
@@ -104,31 +162,19 @@ definition {
 		IFrame.closeFrame();
 	}
 
-	macro configureEmbeddedScope {
-		SearchPortlets.gotoEmbeddedOptions(portletOption = "Configuration");
-
-		if (("${searchScope}" == "Everything") || ("${searchScope}" == "Let the User Choose") || ("${searchScope}" == "This Site")) {
-			SelectFrame(locator1 = "IFrame#CONFIGURATION");
-
-			Select(
-				locator1 = "Select#SCOPE_CONFIGURATION",
-				value1 = "${searchScope}");
-		}
-		else {
-			fail("Invalid search scope. Must be (Everything|Let the User Choose|This Site).");
-		}
-
-		PortletEntry.save();
-
-		IFrame.closeFrame();
-	}
-
 	macro configureLowLevelSearchOptions {
 		Portlet.gotoPortletOptions(
 			portletName = "Low Level Search Options",
 			portletOption = "Configuration");
 
 		SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+		if (isSet(connectionId)) {
+			Select(
+				key_fieldLabel = "Connection ID",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "${connectionId}");
+		}
 
 		if (isSet(federatedSearchKey)) {
 			Type(
@@ -149,10 +195,54 @@ definition {
 		IFrame.closeFrame();
 	}
 
+	macro configureSearchBarWidget {
+		SearchPortlets.gotoWidgetOptions(portletOption = "Configuration");
+
+		SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+		if (isSet(keywordsParameterName)) {
+			Type(
+				locator1 = "SearchConfiguration#KEYWORDS_PARAMETER_NAME",
+				value1 = "${keywordsParameterName}");
+		}
+
+		if (isSet(searchScope)) {
+			if (("${searchScope}" == "Everything") || ("${searchScope}" == "Let the User Choose") || ("${searchScope}" == "This Site")) {
+				Select(
+					locator1 = "Select#SCOPE_CONFIGURATION",
+					value1 = "${searchScope}");
+			}
+			else {
+				fail("Invalid search scope. Must be (Everything|Let the User Choose|This Site).");
+			}
+		}
+
+		if (isSet(scopeParameterName)) {
+			Type(
+				locator1 = "SearchConfiguration#SCOPE_PARAMETER_NAME",
+				value1 = "${scopeParameterName}");
+		}
+
+		if (isSet(federatedSearchKey)) {
+			Type(
+				key_fieldLabel = "Federated Search Key",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${federatedSearchKey}");
+		}
+
+		PortletEntry.save();
+
+		IFrame.closeFrame();
+	}
+
 	macro configureSearchOptions {
 		Portlet.gotoPortletOptions(
 			portletName = "Search Options",
 			portletOption = "Configuration");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		SelectFrameTop();
 
 		SelectFrame(locator1 = "IFrame#CONFIGURATION");
 
@@ -166,6 +256,13 @@ definition {
 			Check(
 				checkboxName = "Basic Facet Selection",
 				locator1 = "Checkbox#ANY_CHECKBOX");
+		}
+
+		if (isSet(federatedSearchKey)) {
+			Type(
+				key_fieldLabel = "Federated Search Key",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${federatedSearchKey}");
 		}
 
 		PortletEntry.save();
@@ -268,28 +365,6 @@ definition {
 		IFrame.closeFrame();
 	}
 
-	macro configureWidgetParameterNames {
-		SearchPortlets.gotoWidgetOptions(portletOption = "Configuration");
-
-		SelectFrame(locator1 = "IFrame#CONFIGURATION");
-
-		if (isSet(keywordsParameterName)) {
-			Type(
-				locator1 = "SearchConfiguration#KEYWORDS_PARAMETER_NAME",
-				value1 = "${keywordsParameterName}");
-		}
-
-		if (isSet(scopeParameterName)) {
-			Type(
-				locator1 = "SearchConfiguration#SCOPE_PARAMETER_NAME",
-				value1 = "${scopeParameterName}");
-		}
-
-		PortletEntry.save();
-
-		IFrame.closeFrame();
-	}
-
 	macro configureWidgetScope {
 		SearchPortlets.gotoWidgetOptions(portletOption = "Configuration");
 
@@ -320,6 +395,14 @@ definition {
 		var searchURL = "${searchURL}${searchTerm}";
 
 		return "${searchURL}";
+	}
+
+	macro gotoConfigureSuggestionsOptions {
+		MouseOver.mouseOverNotVisible(locator1 = "Search#SUGGESTION_WIDGET_ELLIPSIS_ICON");
+
+		Click.waitForMenuToggleJSClick(locator1 = "Search#SUGGESTION_WIDGET_ELLIPSIS_ICON");
+
+		MenuItem.click(menuItem = "Configuration");
 	}
 
 	macro gotoEmbeddedOptions {
@@ -361,9 +444,18 @@ definition {
 			locator1 = "Search#EMBEDDED_SEARCH_BAR",
 			value1 = "${searchTerm}");
 
-		KeyPress(
-			locator1 = "Search#EMBEDDED_SEARCH_BAR",
-			value1 = "\RETURN");
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" == "safari") {
+			Click(locator1 = "Icon#BASIC_SEARCH");
+		}
+		else {
+			KeyPress(
+				locator1 = "Search#EMBEDDED_SEARCH_BAR",
+				value1 = "\RETURN");
+		}
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
 	}
 
 	macro searchWidget {
@@ -374,28 +466,8 @@ definition {
 		KeyPress(
 			locator1 = "Search#SEARCH_BAR_WIDGET",
 			value1 = "\RETURN");
-	}
 
-	macro selectEmbeddedScopeInput {
-		if (("${searchScope}" == "Everything") || ("${searchScope}" == "This Site")) {
-			Select(
-				locator1 = "Search#EMBEDDED_SEARCH_BAR_SCOPE_SELECT",
-				value1 = "${searchScope}");
-		}
-		else {
-			fail("Invalid search scope. Must be (Everything|This Site).");
-		}
-	}
-
-	macro selectWidgetScopeInput {
-		if (("${searchScope}" == "Everything") || ("${searchScope}" == "This Site")) {
-			Select(
-				locator1 = "Search#SEARCH_BAR_WIDGET_SCOPE_SELECT",
-				value1 = "${searchScope}");
-		}
-		else {
-			fail("Invalid search scope. Must be (Everything|This Site).");
-		}
+		WaitForLiferayEvent.initializeLiferayEventLog();
 	}
 
 	macro setupSimilarResultsPage {
@@ -409,25 +481,19 @@ definition {
 			layoutName = "Similar Results Page",
 			widgetName = "Asset Publisher");
 
-		Navigator.gotoPage(pageName = "Similar Results Page");
+		JSONLayout.addWidgetToPublicLayout(
+			column = "2",
+			groupName = "Guest",
+			layoutName = "Similar Results Page",
+			widgetName = "Similar Results");
 
-		Portlet.addPG(portletName = "Similar Results");
+		Navigator.gotoPage(pageName = "Similar Results Page");
 	}
 
 	macro viewResultDetails {
 		AssertTextEquals(
-			locator1 = "Portlet#H3_HEADER",
+			locator1 = "SearchResults#ASSET_DETAILS_TITLE",
 			value1 = "${searchAssetTitle}");
-	}
-
-	macro viewSearchHidden {
-		AssertElementNotPresent(locator1 = "Search#EMBEDDED_SEARCH_BAR");
-	}
-
-	macro viewSearchResultWithNoPermissions {
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "No results were found that matched the keywords: ${searchTerm}.");
 	}
 
 	macro viewUserResultDetails {

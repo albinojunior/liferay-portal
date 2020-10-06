@@ -15,9 +15,13 @@
 package com.liferay.headless.admin.user.resource.v1_0;
 
 import com.liferay.headless.admin.user.dto.v1_0.SegmentUser;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.Locale;
 
 import javax.annotation.Generated;
 
@@ -39,6 +43,10 @@ import org.osgi.annotation.versioning.ProviderType;
 @Generated("")
 @ProviderType
 public interface SegmentUserResource {
+
+	public static Builder builder() {
+		return FactoryHolder.factory.create();
+	}
 
 	public Page<SegmentUser> getSegmentUserAccountsPage(
 			Long segmentId, Pagination pagination)
@@ -64,5 +72,38 @@ public interface SegmentUserResource {
 
 	public void setContextUser(
 		com.liferay.portal.kernel.model.User contextUser);
+
+	public void setGroupLocalService(GroupLocalService groupLocalService);
+
+	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public static class FactoryHolder {
+
+		public static volatile Factory factory;
+
+	}
+
+	@ProviderType
+	public interface Builder {
+
+		public SegmentUserResource build();
+
+		public Builder checkPermissions(boolean checkPermissions);
+
+		public Builder httpServletRequest(
+			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
+
+		public Builder user(com.liferay.portal.kernel.model.User user);
+
+	}
+
+	@ProviderType
+	public interface Factory {
+
+		public Builder create();
+
+	}
 
 }

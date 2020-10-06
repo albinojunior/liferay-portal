@@ -40,9 +40,9 @@ SiteNavigationAdminManagementToolbarDisplayContext siteNavigationAdminManagement
 		>
 
 			<%
-			Map<String, Object> rowData = new HashMap<>();
-
-			rowData.put("actions", siteNavigationAdminManagementToolbarDisplayContext.getAvailableActions(siteNavigationMenu));
+			Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+				"actions", siteNavigationAdminManagementToolbarDisplayContext.getAvailableActions(siteNavigationMenu)
+			).build();
 
 			row.setData(rowData);
 			%>
@@ -153,7 +153,7 @@ SiteNavigationAdminManagementToolbarDisplayContext siteNavigationAdminManagement
 		document.body,
 		'click',
 		'.<portlet:namespace />update-site-navigation-menu-action-option > a',
-		function(event) {
+		function (event) {
 			var data = event.delegateTarget.dataset;
 
 			event.preventDefault();
@@ -170,7 +170,7 @@ SiteNavigationAdminManagementToolbarDisplayContext siteNavigationAdminManagement
 				mainFieldValue: data.mainFieldValue,
 				namespace: '<portlet:namespace />',
 				spritemap:
-					'<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg',
+					'<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg',
 			});
 		}
 	);

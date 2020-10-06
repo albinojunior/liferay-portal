@@ -186,6 +186,8 @@ public class FlagsTag extends IncludeTag {
 				Map<String, Object> props = HashMapBuilder.<String, Object>put(
 					"baseData", _getDataJSONObject(themeDisplay)
 				).put(
+					"captchaURI", FlagsTagUtil.getCaptchaURI(httpServletRequest)
+				).put(
 					"companyName",
 					() -> {
 						Company company = themeDisplay.getCompany();

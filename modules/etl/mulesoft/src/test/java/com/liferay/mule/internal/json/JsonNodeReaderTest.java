@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 
+import com.liferay.mule.internal.util.JsonNodeReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,7 +43,7 @@ public class JsonNodeReaderTest {
 		InputStream inputStream = classLoader.getResourceAsStream(
 			"com/liferay/mule/internal/json/example.json");
 
-		_jsonNode = objectMapper.readTree(inputStream);
+		jsonNode = objectMapper.readTree(inputStream);
 	}
 
 	@Test
@@ -49,7 +51,7 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		JsonNode jsonNode = jsonNodeReader.fetchDescendantJsonNode(
-			_jsonNode, "fieldName2>nestedFieldName1>nestedFieldNameWith/");
+			this.jsonNode, "fieldName2>nestedFieldName1>nestedFieldNameWith/");
 
 		Assert.assertEquals("nestedValue1", jsonNode.textValue());
 	}
@@ -59,7 +61,7 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		JsonNode jsonNode = jsonNodeReader.fetchDescendantJsonNode(
-			_jsonNode, "fieldName3>nestedFieldName1>nestedFieldNameWith/");
+			this.jsonNode, "fieldName3>nestedFieldName1>nestedFieldNameWith/");
 
 		Assert.assertTrue(jsonNode instanceof NullNode);
 	}
@@ -69,7 +71,7 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		JsonNode jsonNode = jsonNodeReader.fetchDescendantJsonNode(
-			_jsonNode, "fieldName3");
+			this.jsonNode, "fieldName3");
 
 		Assert.assertTrue(jsonNode instanceof NullNode);
 	}
@@ -79,7 +81,7 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		JsonNode jsonNode = jsonNodeReader.fetchDescendantJsonNode(
-			_jsonNode, "fieldName1");
+			this.jsonNode, "fieldName1");
 
 		Assert.assertEquals("value1", jsonNode.textValue());
 	}
@@ -89,7 +91,7 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		JsonNode jsonNode = jsonNodeReader.getDescendantJsonNode(
-			_jsonNode, "fieldName2>nestedFieldName1>nestedFieldNameWith/");
+			this.jsonNode, "fieldName2>nestedFieldName1>nestedFieldNameWith/");
 
 		Assert.assertEquals("nestedValue1", jsonNode.textValue());
 	}
@@ -99,14 +101,14 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		jsonNodeReader.getDescendantJsonNode(
-			_jsonNode, "fieldName3>nestedFieldName1");
+			jsonNode, "fieldName3>nestedFieldName1");
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testGetDescendantJsonNodeWithNonexistentTopLevelField() {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
-		jsonNodeReader.getDescendantJsonNode(_jsonNode, "fieldName3");
+		jsonNodeReader.getDescendantJsonNode(jsonNode, "fieldName3");
 	}
 
 	@Test
@@ -114,7 +116,7 @@ public class JsonNodeReaderTest {
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 		JsonNode jsonNode = jsonNodeReader.getDescendantJsonNode(
-			_jsonNode, "fieldName1");
+			this.jsonNode, "fieldName1");
 
 		Assert.assertEquals("value1", jsonNode.textValue());
 	}
@@ -125,12 +127,12 @@ public class JsonNodeReaderTest {
 
 		Assert.assertTrue(
 			jsonNodeReader.hasPath(
-				_jsonNode, "fieldName2>nestedFieldName1>nestedFieldNameWith/"));
+				jsonNode, "fieldName2>nestedFieldName1>nestedFieldNameWith/"));
 		Assert.assertFalse(
 			jsonNodeReader.hasPath(
-				_jsonNode, "fieldName1>nestedFieldName1>nestedFieldNameWith/"));
+				jsonNode, "fieldName1>nestedFieldName1>nestedFieldNameWith/"));
 	}
 
-	private JsonNode _jsonNode;
+	private JsonNode jsonNode;
 
 }

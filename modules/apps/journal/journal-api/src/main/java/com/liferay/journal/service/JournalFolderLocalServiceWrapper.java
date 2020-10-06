@@ -50,6 +50,10 @@ public class JournalFolderLocalServiceWrapper
 	/**
 	 * Adds the journal folder to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFolder the journal folder
 	 * @return the journal folder that was added
 	 */
@@ -122,6 +126,10 @@ public class JournalFolderLocalServiceWrapper
 	/**
 	 * Deletes the journal folder from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalFolder the journal folder
 	 * @return the journal folder that was removed
 	 */
@@ -132,6 +140,10 @@ public class JournalFolderLocalServiceWrapper
 
 	/**
 	 * Deletes the journal folder with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param folderId the primary key of the journal folder
 	 * @return the journal folder that was removed
@@ -153,6 +165,11 @@ public class JournalFolderLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _journalFolderLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _journalFolderLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -386,19 +403,19 @@ public class JournalFolderLocalServiceWrapper
 	@Override
 	public java.util.List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int status, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
+		com.liferay.portal.kernel.util.OrderByComparator<?> orderByComparator) {
 
 		return _journalFolderLocalService.getFoldersAndArticles(
-			groupId, folderId, status, start, end, obc);
+			groupId, folderId, status, start, end, orderByComparator);
 	}
 
 	@Override
 	public java.util.List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
+		com.liferay.portal.kernel.util.OrderByComparator<?> orderByComparator) {
 
 		return _journalFolderLocalService.getFoldersAndArticles(
-			groupId, folderId, start, end, obc);
+			groupId, folderId, start, end, orderByComparator);
 	}
 
 	@Override
@@ -650,12 +667,13 @@ public class JournalFolderLocalServiceWrapper
 				long companyId, long[] groupIds, long folderId,
 				int restrictionType, String keywords, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.DDMStructure> obc)
+					<com.liferay.dynamic.data.mapping.model.DDMStructure>
+						orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _journalFolderLocalService.searchDDMStructures(
 			companyId, groupIds, folderId, restrictionType, keywords, start,
-			end, obc);
+			end, orderByComparator);
 	}
 
 	@Override
@@ -720,6 +738,10 @@ public class JournalFolderLocalServiceWrapper
 
 	/**
 	 * Updates the journal folder in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param journalFolder the journal folder
 	 * @return the journal folder that was updated

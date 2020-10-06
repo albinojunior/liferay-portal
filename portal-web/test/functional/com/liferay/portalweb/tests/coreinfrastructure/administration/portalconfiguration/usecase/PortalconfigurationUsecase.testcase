@@ -28,8 +28,8 @@ definition {
 	test AddPortalInstance {
 		property test.name.skip.portal.instance = "PortalconfigurationUsecase#AddPortalInstance";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -45,8 +45,8 @@ definition {
 	test DeletePortalInstance {
 		property test.name.skip.portal.instance = "PortalconfigurationUsecase#DeletePortalInstance";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -62,8 +62,8 @@ definition {
 	test PermissionCheckPortalInstances {
 		property test.name.skip.portal.instance = "PortalconfigurationUsecase#PermissionCheckPortalInstances";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -86,7 +86,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Documents and Media");
 
 		DMDocument.addCP(
@@ -119,7 +118,7 @@ definition {
 	test ViewDeactivatedPortalInstance {
 		property test.name.skip.portal.instance = "PortalconfigurationUsecase#ViewDeactivatedPortalInstance";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -133,8 +132,8 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -147,7 +146,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Blogs Page");
@@ -158,7 +156,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Wiki Page");
@@ -169,7 +166,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Language Page");
@@ -193,9 +189,12 @@ definition {
 
 		Navigator.openSpecificURL(url = "http://www.able.com:8080");
 
+		// Assert the Home page is a content page in the new virtual instance
+
+		AssertVisible(locator1 = "Icon#EDIT_PENCIL");
+
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Web Content Page");
@@ -216,8 +215,8 @@ definition {
 
 		User.loginPG();
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -228,6 +227,7 @@ definition {
 		Page.viewInactiveRequestMessage(resource = "instance");
 	}
 
+	@ignore = "true"
 	@priority = "4"
 	test ViewVirtualHostPrivateSitePage {
 		property custom.properties = "virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com,www.baker.com,www.charlie.com";
@@ -244,7 +244,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Settings");
 
 		Site.addVirtualHostsURLCP(
@@ -255,7 +254,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
-			panel = "Site Administration",
 			portlet = "Settings");
 
 		Site.addVirtualHostsURLCP(
@@ -264,7 +262,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Public Page");
@@ -298,24 +295,29 @@ definition {
 	test ViewVirtualInstanceInheritsSystemSettings {
 		property test.name.skip.portal.instance = "PortalconfigurationUsecase#ViewVirtualInstanceInheritsSystemSettings";
 
-		ProductMenu.gotoPortlet(
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Users",
+			configurationName = "Personal Menu",
+			configurationScope = "Virtual Instance Scope");
+
+		PortalSettings.viewToggleSwitchNotChecked(portalSetting = "Show in Control Menu");
+
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
 
 		SystemSettings.gotoConfiguration(
-			configurationCategory = "LDAP",
-			configurationName = "Authentication",
+			configurationCategory = "Users",
+			configurationName = "Personal Menu",
 			configurationScope = "Virtual Instance Scope");
 
-		FormFields.enableCheckbox(fieldName = "enabled");
-
-		SystemSettings.saveConfiguration();
+		PortalSettings.editConfigurationUsersPersonalMenuShowInControlMenu(toggleSwitchLabel = "Show in Control Menu");
 
 		Navigator.openURL();
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -330,11 +332,11 @@ definition {
 			virtualHostsURL = "http://www.able.com:8080");
 
 		PortalSettings.gotoConfiguration(
-			configurationCategory = "LDAP",
-			configurationName = "General",
+			configurationCategory = "Users",
+			configurationName = "Personal Menu",
 			configurationScope = "Virtual Instance Scope");
 
-		FormFields.viewCheckboxChecked(fieldName = "InstanceSettingsPortlet_enabled");
+		PortalSettings.viewToggleSwitchChecked(portalSetting = "Show in Control Menu");
 	}
 
 }

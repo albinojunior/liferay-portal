@@ -5,15 +5,7 @@ import org.apache.tools.ant.filters.FixCrLfFilter
 apply plugin: "antlr"
 
 String parserDirName = "com/liferay/portal/security/ldap/internal/validator/parser"
-
-cleanGenerateGrammarSource {
-	delete "src/main/java/" + parserDirName
-	delete "src/main/resources/" + parserDirName
-}
-
-compileJava {
-	dependsOn.remove "generateGrammarSource"
-}
+List<String> startParameterTaskNames = gradle.startParameter.taskNames
 
 dependencies {
 	antlr group: "org.antlr", name: "antlr", version: "3.0.1"
@@ -33,6 +25,7 @@ dependencies {
 	compileOnly project(":apps:portal-security:portal-security-export-import-api")
 	compileOnly project(":apps:portal-security:portal-security-ldap-api")
 	compileOnly project(":apps:portal:portal-instance-lifecycle-api")
+	compileOnly project(":apps:portal:portal-upgrade-api")
 	compileOnly project(":apps:static:portal-configuration:portal-configuration-metatype-api")
 	compileOnly project(":apps:static:portal-configuration:portal-configuration-persistence-api")
 	compileOnly project(":core:petra:petra-lang")
@@ -47,6 +40,14 @@ generateGrammarSource {
 	dependsOn cleanGenerateGrammarSource
 
 	doFirst {
+		delete fileTree("src/main/java/" + parserDirName) {
+			exclude "**/source_formatter.ignore"
+		}
+
+		delete fileTree("src/main/resources/" + parserDirName) {
+			exclude "**/source_formatter.ignore"
+		}
+
 		javaexec {
 			args "-o", FileUtil.relativize(generateGrammarSource.outputDirectory, grammarFile.parentFile)
 			args grammarFile.name
@@ -92,6 +93,7 @@ public class ${javaClass}"""
 		autoClean = false
 	}
 
+	enabled = startParameterTaskNames.contains("generateGrammarSource")
 	maxHeapSize = "1512m"
 	outputDirectory = new File(temporaryDir, "generated")
 }

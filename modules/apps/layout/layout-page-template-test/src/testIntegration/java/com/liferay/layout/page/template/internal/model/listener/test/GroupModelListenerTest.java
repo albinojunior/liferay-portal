@@ -28,9 +28,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -38,7 +36,6 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -155,7 +152,7 @@ public class GroupModelListenerTest {
 			actualLayoutPageTemplateEntries.size());
 	}
 
-	private FragmentCollection _addFragmentCollection() throws PortalException {
+	private FragmentCollection _addFragmentCollection() throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), TestPropsValues.getUserId());
@@ -165,7 +162,7 @@ public class GroupModelListenerTest {
 			RandomTestUtil.randomString(), StringPool.BLANK, serviceContext);
 	}
 
-	private FragmentEntryLink _addFragmentEntryLink() throws PortalException {
+	private FragmentEntryLink _addFragmentEntryLink() throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), TestPropsValues.getUserId());
@@ -183,16 +180,14 @@ public class GroupModelListenerTest {
 
 		return _fragmentEntryLinkLocalService.addFragmentEntryLink(
 			TestPropsValues.getUserId(), _group.getGroupId(), 0,
-			fragmentEntry.getFragmentEntryId(),
-			PortalUtil.getClassNameId(Layout.class),
-			RandomTestUtil.randomLong(), fragmentEntry.getCss(),
-			fragmentEntry.getHtml(), fragmentEntry.getJs(),
-			fragmentEntry.getConfiguration(), StringPool.BLANK,
-			StringPool.BLANK, 0, null, serviceContext);
+			fragmentEntry.getFragmentEntryId(), 0, RandomTestUtil.randomLong(),
+			fragmentEntry.getCss(), fragmentEntry.getHtml(),
+			fragmentEntry.getJs(), fragmentEntry.getConfiguration(),
+			StringPool.BLANK, StringPool.BLANK, 0, null, serviceContext);
 	}
 
 	private LayoutPageTemplateCollection _addLayoutPageTemplateCollection()
-		throws PortalException {
+		throws Exception {
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -207,7 +202,7 @@ public class GroupModelListenerTest {
 
 	private LayoutPageTemplateEntry _addLayoutPageTemplateEntry(
 			long layoutPageTemplateCollectionId)
-		throws PortalException {
+		throws Exception {
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(

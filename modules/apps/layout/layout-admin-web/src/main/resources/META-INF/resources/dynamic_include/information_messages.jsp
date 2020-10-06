@@ -18,15 +18,15 @@
 
 <%
 String portletNamespace = PortalUtil.getPortletNamespace(LayoutAdminPortletKeys.GROUP_PAGES);
-
-Map<String, Object> data = new HashMap<>();
-
-data.put("qa-id", "info");
 %>
 
 <li class="control-menu-nav-item">
 	<liferay-ui:icon
-		data="<%= data %>"
+		data='<%=
+			HashMapBuilder.<String, Object>put(
+				"qa-id", "info"
+			).build()
+		%>'
 		icon="information-live"
 		id='<%= portletNamespace + "infoButton" %>'
 		label="<%= false %>"
@@ -38,12 +38,7 @@ data.put("qa-id", "info");
 
 	<div class="hide">
 		<div id="<%= portletNamespace %>infoContainer">
-
-			<%
-			boolean modifiedLayout = GetterUtil.getBoolean(request.getAttribute(InformationMessagesProductNavigationControlMenuEntry.INFORMATION_MESSAGES_MODIFIED_LAYOUT));
-			%>
-
-			<c:if test="<%= modifiedLayout %>">
+			<c:if test="<%= GetterUtil.getBoolean(request.getAttribute(InformationMessagesProductNavigationControlMenuEntry.INFORMATION_MESSAGES_MODIFIED_LAYOUT)) %>">
 				<div class="modified-layout">
 					<aui:icon image="information-live" markupView="lexicon" />
 
@@ -69,11 +64,7 @@ data.put("qa-id", "info");
 				</div>
 			</c:if>
 
-			<%
-			boolean linkedLayout = GetterUtil.getBoolean(request.getAttribute(InformationMessagesProductNavigationControlMenuEntry.INFORMATION_MESSAGES_LINKED_LAYOUT));
-			%>
-
-			<c:if test="<%= linkedLayout %>">
+			<c:if test="<%= GetterUtil.getBoolean(request.getAttribute(InformationMessagesProductNavigationControlMenuEntry.INFORMATION_MESSAGES_LINKED_LAYOUT)) %>">
 				<div class="linked-layout">
 					<aui:icon image="information-live" markupView="lexicon" />
 

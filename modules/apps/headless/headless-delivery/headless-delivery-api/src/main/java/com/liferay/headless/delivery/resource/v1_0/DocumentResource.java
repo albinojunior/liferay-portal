@@ -18,10 +18,14 @@ import com.liferay.headless.delivery.dto.v1_0.Document;
 import com.liferay.headless.delivery.dto.v1_0.Rating;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.Locale;
 
 import javax.annotation.Generated;
 
@@ -45,8 +49,28 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface DocumentResource {
 
+	public static Builder builder() {
+		return FactoryHolder.factory.create();
+	}
+
+	public Page<Document> getAssetLibraryDocumentsPage(
+			Long assetLibraryId, Boolean flatten, String search,
+			com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
+			Filter filter, Pagination pagination, Sort[] sorts)
+		throws Exception;
+
+	public Document postAssetLibraryDocument(
+			Long assetLibraryId, MultipartBody multipartBody)
+		throws Exception;
+
+	public Response postAssetLibraryDocumentBatch(
+			Long assetLibraryId, MultipartBody multipartBody,
+			String callbackURL, Object object)
+		throws Exception;
+
 	public Page<Document> getDocumentFolderDocumentsPage(
 			Long documentFolderId, Boolean flatten, String search,
+			com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
 			Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception;
 
@@ -87,8 +111,9 @@ public interface DocumentResource {
 		throws Exception;
 
 	public Page<Document> getSiteDocumentsPage(
-			Long siteId, Boolean flatten, String search, Filter filter,
-			Pagination pagination, Sort[] sorts)
+			Long siteId, Boolean flatten, String search,
+			com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
+			Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception;
 
 	public Document postSiteDocument(Long siteId, MultipartBody multipartBody)
@@ -119,5 +144,38 @@ public interface DocumentResource {
 
 	public void setContextUser(
 		com.liferay.portal.kernel.model.User contextUser);
+
+	public void setGroupLocalService(GroupLocalService groupLocalService);
+
+	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public static class FactoryHolder {
+
+		public static volatile Factory factory;
+
+	}
+
+	@ProviderType
+	public interface Builder {
+
+		public DocumentResource build();
+
+		public Builder checkPermissions(boolean checkPermissions);
+
+		public Builder httpServletRequest(
+			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
+
+		public Builder user(com.liferay.portal.kernel.model.User user);
+
+	}
+
+	@ProviderType
+	public interface Factory {
+
+		public Builder create();
+
+	}
 
 }

@@ -16,10 +16,21 @@ package com.liferay.portal.kernel.dependency.manager;
 
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
 /**
  * @author Shuyang Zhou
  */
 public class DependencyManagerSyncUtil {
+
+	public static void registerSyncCallable(Callable<Void> syncCallable) {
+		_dependencyManagerSync.registerSyncCallable(syncCallable);
+	}
+
+	public static void registerSyncFuture(Future<Void> syncFuture) {
+		_dependencyManagerSync.registerSyncFuture(syncFuture);
+	}
 
 	public static void sync() {
 		_dependencyManagerSync.sync();

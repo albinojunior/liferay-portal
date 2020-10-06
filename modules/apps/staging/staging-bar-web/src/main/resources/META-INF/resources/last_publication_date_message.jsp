@@ -53,7 +53,9 @@ if (lastImportLayoutRevisionId > 0) {
 	try {
 		LayoutRevision lastImportLayoutRevision = LayoutRevisionLocalServiceUtil.getLayoutRevision(lastImportLayoutRevisionId);
 
-		lastImportLayoutBranchName = lastImportLayoutRevision.getLayoutBranch().getName();
+		LayoutBranch layoutBranch = lastImportLayoutRevision.getLayoutBranch();
+
+		lastImportLayoutBranchName = layoutBranch.getName();
 
 		layoutRevisions = LayoutRevisionLocalServiceUtil.getChildLayoutRevisions(lastImportLayoutRevision.getLayoutSetBranchId(), LayoutRevisionConstants.DEFAULT_PARENT_LAYOUT_REVISION_ID, lastImportLayoutRevision.getPlid());
 	}
@@ -90,13 +92,13 @@ if (Validator.isNull(publisherName)) {
 			<div class="alert alert-info" role="alert">
 				<span class="alert-indicator">
 					<svg aria-hidden="true" class="lexicon-icon lexicon-icon-info-circle">
-						<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#info-circle" />
+						<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#info-circle" />
 					</svg>
 				</span>
 				<span class="last-publication-branch">
 					<liferay-ui:message arguments='<%= new String[] {"<strong>" + HtmlUtil.escape(layout.getName(locale)) + "</strong>", "<em>" + HtmlUtil.escape(layoutSetBranchDisplayContext.getLayoutSetBranchDisplayName(lastImportLayoutSetBranchName)) + "</em>"} %>' key='<%= (group.isStagingGroup() || group.isStagedRemotely()) ? "page-x-was-last-published-to-live" : "page-x-was-last-published-from-x" %>' translateArguments="<%= false %>" />
 
-					<c:if test="<%= (Validator.isNotNull(lastImportLayoutBranchName) && (layoutRevisions.size() > 1)) || Validator.isNotNull(lastImportLayoutRevisionId) %>">
+					<c:if test="<%= (Validator.isNotNull(lastImportLayoutBranchName) && (layoutRevisions.size() > 1)) || (lastImportLayoutRevisionId != 0) %>">
 						<span class="last-publication-variation-details">(
 							<c:if test="<%= Validator.isNotNull(lastImportLayoutBranchName) && (layoutRevisions.size() > 1) %>">
 								<span class="variation-name">
@@ -104,7 +106,7 @@ if (Validator.isNull(publisherName)) {
 								</span>
 							</c:if>
 
-							<c:if test="<%= Validator.isNotNull(lastImportLayoutRevisionId) %>">
+							<c:if test="<%= lastImportLayoutRevisionId != 0 %>">
 								<span class="layout-version">
 									<liferay-ui:message key="version" />: <strong><%= lastImportLayoutRevisionId %></strong>
 								</span>
@@ -122,7 +124,7 @@ if (Validator.isNull(publisherName)) {
 		<div class="alert alert-info" role="alert">
 			<span class="alert-indicator">
 				<svg aria-hidden="true" class="lexicon-icon lexicon-icon-info-circle">
-					<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#info-circle" />
+					<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#info-circle" />
 				</svg>
 			</span>
 

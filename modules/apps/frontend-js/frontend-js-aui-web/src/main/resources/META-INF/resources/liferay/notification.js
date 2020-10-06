@@ -12,9 +12,13 @@
  * details.
  */
 
+/**
+ * @deprecated As of Athanasius (7.3.x), replaced by `Liferay.Util.openToast`.
+ */
+
 AUI.add(
 	'liferay-notification',
-	A => {
+	(A) => {
 		var Notification = A.Component.create({
 			EXTENDS: Liferay.Alert,
 

@@ -14,6 +14,7 @@
 
 package com.liferay.journal.web.internal.display.context;
 
+import com.liferay.dynamic.data.mapping.configuration.DDMWebConfiguration;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchContainerManagementToolbarDisplayContext;
@@ -62,6 +63,10 @@ public class JournalDDMTemplateManagementToolbarDisplayContext
 		super(
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
 			journalDDMTemplateDisplayContext.getDDMTemplateSearch());
+
+		_ddmWebConfiguration =
+			(DDMWebConfiguration)httpServletRequest.getAttribute(
+				DDMWebConfiguration.class.getName());
 
 		_journalDDMTemplateDisplayContext = journalDDMTemplateDisplayContext;
 	}
@@ -200,7 +205,8 @@ public class JournalDDMTemplateManagementToolbarDisplayContext
 		}
 
 		try {
-			if (DDMTemplatePermission.containsAddTemplatePermission(
+			if (_ddmWebConfiguration.enableTemplateCreation() &&
+				DDMTemplatePermission.containsAddTemplatePermission(
 					themeDisplay.getPermissionChecker(),
 					themeDisplay.getScopeGroupId(),
 					PortalUtil.getClassNameId(DDMStructure.class),
@@ -247,6 +253,7 @@ public class JournalDDMTemplateManagementToolbarDisplayContext
 				allowedTemplateLanguageTypes, templateLanguageType));
 	}
 
+	private final DDMWebConfiguration _ddmWebConfiguration;
 	private final JournalDDMTemplateDisplayContext
 		_journalDDMTemplateDisplayContext;
 

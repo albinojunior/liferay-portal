@@ -16,10 +16,10 @@ package com.liferay.bookmarks.service.impl;
 
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetLinkConstants;
+import com.liferay.bookmarks.constants.BookmarksFolderConstants;
 import com.liferay.bookmarks.exception.FolderNameException;
 import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.model.BookmarksFolder;
-import com.liferay.bookmarks.model.BookmarksFolderConstants;
 import com.liferay.bookmarks.service.BookmarksEntryLocalService;
 import com.liferay.bookmarks.service.base.BookmarksFolderLocalServiceBaseImpl;
 import com.liferay.bookmarks.util.comparator.FolderIdComparator;
@@ -174,7 +174,11 @@ public class BookmarksFolderLocalServiceImpl
 
 		// Expando
 
-		expandoRowLocalService.deleteRows(folder.getFolderId());
+		expandoRowLocalService.deleteRows(
+			folder.getCompanyId(),
+			classNameLocalService.getClassNameId(
+				BookmarksFolder.class.getName()),
+			folder.getFolderId());
 
 		// Ratings
 
@@ -305,10 +309,10 @@ public class BookmarksFolderLocalServiceImpl
 	@Override
 	public List<Object> getFoldersAndEntries(
 		long groupId, long folderId, int status, int start, int end,
-		OrderByComparator obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, start, end, obc);
+			status, start, end, orderByComparator);
 
 		return bookmarksFolderFinder.findF_E_ByG_F(
 			groupId, folderId, queryDefinition);

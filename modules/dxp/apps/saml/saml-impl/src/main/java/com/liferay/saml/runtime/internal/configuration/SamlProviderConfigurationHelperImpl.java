@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.saml.constants.SamlProviderConfigurationKeys;
 import com.liferay.saml.runtime.configuration.SamlProviderConfiguration;
 import com.liferay.saml.runtime.configuration.SamlProviderConfigurationHelper;
 
@@ -122,7 +123,9 @@ public class SamlProviderConfigurationHelperImpl
 
 		String role = samlProviderConfiguration.role();
 
-		if (Validator.isNotNull(role) && role.equals("idp")) {
+		if (Validator.isNotNull(role) &&
+			role.equals(SamlProviderConfigurationKeys.SAML_ROLE_IDP)) {
+
 			return true;
 		}
 
@@ -136,7 +139,9 @@ public class SamlProviderConfigurationHelperImpl
 
 		String role = samlProviderConfiguration.role();
 
-		if (Validator.isNotNull(role) && role.equals("sp")) {
+		if (Validator.isNotNull(role) &&
+			role.equals(SamlProviderConfigurationKeys.SAML_ROLE_SP)) {
+
 			return true;
 		}
 
@@ -161,7 +166,7 @@ public class SamlProviderConfigurationHelperImpl
 	}
 
 	@Override
-	public void updateProperties(UnicodeProperties properties)
+	public void updateProperties(UnicodeProperties unicodeProperties)
 		throws Exception {
 
 		long companyId = CompanyThreadLocal.getCompanyId();
@@ -181,10 +186,10 @@ public class SamlProviderConfigurationHelperImpl
 			Dictionary<String, ?> systemProperties = getSystemProperties();
 
 			if (systemProperties != null) {
-				Enumeration<String> keys = systemProperties.keys();
+				Enumeration<String> enumeration = systemProperties.keys();
 
-				while (keys.hasMoreElements()) {
-					String key = keys.nextElement();
+				while (enumeration.hasMoreElements()) {
+					String key = enumeration.nextElement();
 
 					configurationProperties.put(key, systemProperties.get(key));
 				}
@@ -197,7 +202,9 @@ public class SamlProviderConfigurationHelperImpl
 			configurationProperties = configuration.getProperties();
 		}
 
-		for (Map.Entry<String, String> mapEntry : properties.entrySet()) {
+		for (Map.Entry<String, String> mapEntry :
+				unicodeProperties.entrySet()) {
+
 			configurationProperties.put(mapEntry.getKey(), mapEntry.getValue());
 		}
 

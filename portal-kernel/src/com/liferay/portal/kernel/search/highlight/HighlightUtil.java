@@ -55,11 +55,8 @@ public class HighlightUtil {
 		}
 
 		document.addText(
-			Field.SNIPPET.concat(
-				StringPool.UNDERLINE
-			).concat(
-				snippetFieldName
-			),
+			StringBundler.concat(
+				Field.SNIPPET, StringPool.UNDERLINE, snippetFieldName),
 			snippet);
 	}
 
@@ -74,7 +71,7 @@ public class HighlightUtil {
 			return s;
 		}
 
-		StringBundler sb = new StringBundler(3 * queryTerms.length - 1);
+		StringBundler sb = new StringBundler((3 * queryTerms.length) - 1);
 
 		for (int i = 0; i < queryTerms.length; i++) {
 			if (i != 0) {

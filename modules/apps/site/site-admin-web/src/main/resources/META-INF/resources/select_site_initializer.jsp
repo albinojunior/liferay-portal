@@ -40,9 +40,12 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-site-template"));
 			%>
 
 			<liferay-ui:search-container-column-text>
-				<clay:vertical-card
-					verticalCard="<%= new SelectSiteInitializerVerticalCard(siteInitializerItem, renderRequest, renderResponse) %>"
-				/>
+				<button class="add-site-action-button btn btn-unstyled mb-4 w-100" type="button">
+					<clay:vertical-card
+						elementClasses="add-site-action-card mb-0"
+						verticalCard="<%= new SelectSiteInitializerVerticalCard(siteInitializerItem, renderRequest, renderResponse) %>"
+					/>
+				</button>
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
@@ -61,9 +64,10 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-site-template"));
 		var addSiteActionOptionQueryClickHandler = dom.delegate(
 			document.body,
 			'click',
-			'.add-site-action-option',
-			function(event) {
-				var data = event.delegateTarget.dataset;
+			'.add-site-action-button',
+			function (event) {
+				var data = event.delegateTarget.querySelector('.add-site-action-card')
+					.dataset;
 
 				openSimpleInputModal.default({
 					checkboxFieldLabel:
@@ -78,7 +82,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-site-template"));
 					mainFieldLabel: '<liferay-ui:message key="name" />',
 					namespace: '<portlet:namespace />',
 					spritemap:
-						'<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg',
+						'<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg',
 				});
 			}
 		);

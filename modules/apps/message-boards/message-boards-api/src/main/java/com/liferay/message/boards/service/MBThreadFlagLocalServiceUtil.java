@@ -41,6 +41,10 @@ public class MBThreadFlagLocalServiceUtil {
 	/**
 	 * Adds the message boards thread flag to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBThreadFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbThreadFlag the message boards thread flag
 	 * @return the message boards thread flag that was added
 	 */
@@ -83,6 +87,10 @@ public class MBThreadFlagLocalServiceUtil {
 	/**
 	 * Deletes the message boards thread flag with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBThreadFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param threadFlagId the primary key of the message boards thread flag
 	 * @return the message boards thread flag that was removed
 	 * @throws PortalException if a message boards thread flag with the primary key could not be found
@@ -96,6 +104,10 @@ public class MBThreadFlagLocalServiceUtil {
 
 	/**
 	 * Deletes the message boards thread flag from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBThreadFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbThreadFlag the message boards thread flag
 	 * @return the message boards thread flag that was removed
@@ -136,6 +148,12 @@ public class MBThreadFlagLocalServiceUtil {
 
 	public static void deleteThreadFlagsByUserId(long userId) {
 		getService().deleteThreadFlagsByUserId(userId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -387,6 +405,10 @@ public class MBThreadFlagLocalServiceUtil {
 
 	/**
 	 * Updates the message boards thread flag in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBThreadFlagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbThreadFlag the message boards thread flag
 	 * @return the message boards thread flag that was updated

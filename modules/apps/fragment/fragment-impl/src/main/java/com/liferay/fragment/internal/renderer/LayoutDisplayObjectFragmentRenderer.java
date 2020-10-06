@@ -14,10 +14,10 @@
 
 package com.liferay.fragment.internal.renderer;
 
-import com.liferay.asset.display.page.constants.AssetDisplayPageWebKeys;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
+import com.liferay.info.constants.InfoDisplayWebKeys;
+import com.liferay.info.item.InfoItemDetails;
 import com.liferay.info.item.renderer.InfoItemRenderer;
 import com.liferay.info.item.renderer.InfoItemRendererTracker;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -47,6 +47,11 @@ public class LayoutDisplayObjectFragmentRenderer implements FragmentRenderer {
 	}
 
 	@Override
+	public String getIcon() {
+		return "web-content";
+	}
+
+	@Override
 	public String getLabel(Locale locale) {
 		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
 			"content.Language", locale, getClass());
@@ -71,9 +76,10 @@ public class LayoutDisplayObjectFragmentRenderer implements FragmentRenderer {
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse) {
 
-		Object displayObject = _getDisplayObject(httpServletRequest);
+		Object infoItem = httpServletRequest.getAttribute(
+			InfoDisplayWebKeys.INFO_ITEM);
 
-		if (displayObject == null) {
+		if (infoItem == null) {
 			if (FragmentRendererUtil.isEditMode(httpServletRequest)) {
 				FragmentRendererUtil.printPortletMessageInfo(
 					httpServletRequest, httpServletResponse,
@@ -83,8 +89,12 @@ public class LayoutDisplayObjectFragmentRenderer implements FragmentRenderer {
 			return;
 		}
 
-		InfoItemRenderer infoItemRenderer = _getInfoItemRenderer(
-			displayObject.getClass());
+		InfoItemDetails infoItemDetails =
+			(InfoItemDetails)httpServletRequest.getAttribute(
+				InfoDisplayWebKeys.INFO_ITEM_DETAILS);
+
+		InfoItemRenderer<Object> infoItemRenderer = _getInfoItemRenderer(
+			infoItemDetails.getClassName());
 
 		if (infoItemRenderer == null) {
 			if (FragmentRendererUtil.isEditMode(httpServletRequest)) {
@@ -98,31 +108,21 @@ public class LayoutDisplayObjectFragmentRenderer implements FragmentRenderer {
 		}
 
 		infoItemRenderer.render(
-			displayObject, httpServletRequest, httpServletResponse);
+			infoItem, httpServletRequest, httpServletResponse);
 	}
 
-	private Object _getDisplayObject(HttpServletRequest httpServletRequest) {
-		InfoDisplayObjectProvider infoDisplayObjectProvider =
-			(InfoDisplayObjectProvider)httpServletRequest.getAttribute(
-				AssetDisplayPageWebKeys.INFO_DISPLAY_OBJECT_PROVIDER);
+	private InfoItemRenderer<Object> _getInfoItemRenderer(
+		String displayObjectClassName) {
 
-		if (infoDisplayObjectProvider == null) {
-			return null;
-		}
-
-		return infoDisplayObjectProvider.getDisplayObject();
-	}
-
-	private InfoItemRenderer _getInfoItemRenderer(Class<?> displayObjectClass) {
-		List<InfoItemRenderer> infoItemRenderers =
-			FragmentRendererUtil.getInfoItemRenderers(
-				displayObjectClass, _infoItemRendererTracker);
+		List<InfoItemRenderer<?>> infoItemRenderers =
+			_infoItemRendererTracker.getInfoItemRenderers(
+				displayObjectClassName);
 
 		if (infoItemRenderers == null) {
 			return null;
 		}
 
-		return infoItemRenderers.get(0);
+		return (InfoItemRenderer<Object>)infoItemRenderers.get(0);
 	}
 
 	@Reference

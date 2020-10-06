@@ -26,6 +26,8 @@ definition {
 
 	@priority = "5"
 	test AddAndViewStructureAndTemplateWithPermissions {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
 		property testray.component.names = "Permissions,Roles,Training,Web Content Administration";
 
 		JSONLayout.addPublicLayout(
@@ -108,7 +110,7 @@ definition {
 			addRoleViewPermissions = "Regular Role Name",
 			structureName = "WC Structure Name");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Remove",
@@ -130,7 +132,7 @@ definition {
 			item = "Permissions",
 			templateName = "WC Template Name");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Add",
@@ -145,33 +147,25 @@ definition {
 		Refresh();
 
 		for (var number : list "1,2") {
-			User.openUsersAdmin();
-
-			User.addCP(
+			JSONUser.addUser(
 				userEmailAddress = "user${number}@liferay.com",
 				userFirstName = "userfn${number}",
 				userLastName = "userln${number}",
 				userScreenName = "usersn${number}");
 
-			User.openUsersAdmin();
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "user${number}@liferay.com");
 
-			User.editPasswordCP(
-				userEmailAddress = "user${number}@liferay.com",
-				userScreenName = "usersn${number}");
-
-			Site.openSiteMembershipsAdmin(siteURLKey = "test-site-name");
-
-			Site.assignUserAsMemberCP(
-				userFirstName = "userfn${number}",
-				userLastName = "userln${number}",
-				userScreenName = "usersn${number}");
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "user${number}@liferay.com");
 		}
 
-		User.openUsersAdmin();
-
-		User.assignRegularRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Regular Role Name",
-			userScreenName = "usersn1");
+			userEmailAddress = "user1@liferay.com");
 
 		User.logoutPG();
 
@@ -285,15 +279,12 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
+		JSONWebcontent.addWebContent(
+			content = "WC WebContent Content",
+			groupName = "Test Site Name",
+			title = "WC WebContent Title");
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContentNavigator.gotoAddCP();
-
-		WebContent.addCP(
-			webContentContent = "WC WebContent Content",
-			webContentTitle = "WC WebContent Title");
-
-		PortletEntry.publish();
 
 		WebContent.viewTitle(webContentTitle = "WC WebContent Title");
 
@@ -307,11 +298,14 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "WCD Page");
 
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "WCD Page",
+			widgetName = "Web Content Display");
+
 		Navigator.gotoSitePage(
 			pageName = "WCD Page",
 			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
 
 		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
 

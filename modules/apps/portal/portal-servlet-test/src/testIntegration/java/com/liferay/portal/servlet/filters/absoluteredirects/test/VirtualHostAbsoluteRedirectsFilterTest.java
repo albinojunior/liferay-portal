@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.service.VirtualHostLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.servlet.filters.absoluteredirects.AbsoluteRedirectsFilter;
@@ -187,8 +188,16 @@ public class VirtualHostAbsoluteRedirectsFilterTest {
 		Assert.assertEquals(_layoutSetId, layoutSet.getLayoutSetId());
 	}
 
+	@Test
+	public void testSingleVirtualHostWithoutUSLocale() throws Exception {
+		_availableLocales = SetUtil.fromArray(
+			new Locale[] {LocaleUtil.GERMANY});
+
+		testSingleVirtualHostWithoutLocale();
+	}
+
 	private void _setupRequest(String hostname, String languageId)
-		throws AvailableLocaleException {
+		throws Exception {
 
 		_mockHttpServletRequest = new MockHttpServletRequest();
 

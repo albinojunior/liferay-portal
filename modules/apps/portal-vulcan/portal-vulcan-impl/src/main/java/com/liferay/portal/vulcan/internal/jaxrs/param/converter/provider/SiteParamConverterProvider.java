@@ -14,6 +14,11 @@
 
 package com.liferay.portal.vulcan.internal.jaxrs.param.converter.provider;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -21,8 +26,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-
-import java.util.Optional;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
@@ -39,7 +42,11 @@ import javax.ws.rs.ext.Provider;
 public class SiteParamConverterProvider
 	implements ParamConverter<Long>, ParamConverterProvider {
 
-	public SiteParamConverterProvider(GroupLocalService groupLocalService) {
+	public SiteParamConverterProvider(
+		DepotEntryLocalService depotEntryLocalService,
+		GroupLocalService groupLocalService) {
+
+		_depotEntryLocalService = depotEntryLocalService;
 		_groupLocalService = groupLocalService;
 	}
 
@@ -48,8 +55,17 @@ public class SiteParamConverterProvider
 		MultivaluedMap<String, String> multivaluedMap =
 			_uriInfo.getPathParameters();
 
-		Long siteId = getGroupId(
-			_company.getCompanyId(), multivaluedMap.getFirst("siteId"));
+		Long siteId = null;
+
+		if (multivaluedMap.containsKey("assetLibraryId")) {
+			siteId = getDepotGroupId(
+				multivaluedMap.getFirst("assetLibraryId"),
+				_company.getCompanyId());
+		}
+		else {
+			siteId = getGroupId(
+				_company.getCompanyId(), multivaluedMap.getFirst("siteId"));
+		}
 
 		if (siteId != null) {
 			return siteId;
@@ -70,31 +86,20 @@ public class SiteParamConverterProvider
 		return null;
 	}
 
-	public Long getGroupId(long companyId, String siteId) {
-		if (siteId != null) {
-			Group group = _groupLocalService.fetchGroup(companyId, siteId);
-
-			if (group == null) {
-				group = _groupLocalService.fetchGroup(
-					GetterUtil.getLong(siteId));
-			}
-
-			Group liveGroup = Optional.ofNullable(
-				group
-			).map(
-				Group::getLiveGroup
-			).orElse(
-				null
-			);
-
-			if (((group != null) && group.isSite()) ||
-				((liveGroup != null) && liveGroup.isSite())) {
-
-				return group.getGroupId();
-			}
+	public Long getDepotGroupId(String assetLibraryId, long companyId) {
+		if (assetLibraryId == null) {
+			return null;
 		}
 
-		return null;
+		return _getDepotGroupId(assetLibraryId, companyId);
+	}
+
+	public Long getGroupId(long companyId, String siteId) {
+		if (siteId == null) {
+			return null;
+		}
+
+		return _getGroupId(companyId, siteId);
 	}
 
 	@Override
@@ -102,11 +107,67 @@ public class SiteParamConverterProvider
 		return String.valueOf(parameter);
 	}
 
+	private boolean _checkGroup(Group group) {
+		if (_isDepotOrSite(group) ||
+			((group != null) && _isDepotOrSite(group.getLiveGroup()))) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private Long _getDepotGroupId(String assetLibraryId, long companyId) {
+		Group group = _groupLocalService.fetchGroup(companyId, assetLibraryId);
+
+		if (group == null) {
+			try {
+				DepotEntry depotEntry = _depotEntryLocalService.fetchDepotEntry(
+					GetterUtil.getLong(assetLibraryId));
+
+				if (depotEntry == null) {
+					return null;
+				}
+
+				group = depotEntry.getGroup();
+			}
+			catch (PortalException portalException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(portalException, portalException);
+				}
+
+				return null;
+			}
+		}
+
+		if (_checkGroup(group)) {
+			return group.getGroupId();
+		}
+
+		return null;
+	}
+
+	private Long _getGroupId(long companyId, String groupKey) {
+		Group group = _groupLocalService.fetchGroup(companyId, groupKey);
+
+		if (group == null) {
+			group = _groupLocalService.fetchGroup(GetterUtil.getLong(groupKey));
+		}
+
+		if (_checkGroup(group)) {
+			return group.getGroupId();
+		}
+
+		return null;
+	}
+
 	private boolean _hasSiteIdAnnotation(Annotation[] annotations) {
 		for (Annotation annotation : annotations) {
 			String annotationString = annotation.toString();
 
 			if (annotationString.equals(
+					"@javax.ws.rs.PathParam(value=assetLibraryId)") ||
+				annotationString.equals(
 					"@javax.ws.rs.PathParam(value=siteId)")) {
 
 				return true;
@@ -116,9 +177,21 @@ public class SiteParamConverterProvider
 		return false;
 	}
 
+	private boolean _isDepotOrSite(Group group) {
+		if ((group != null) && (group.isDepot() || group.isSite())) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SiteParamConverterProvider.class);
+
 	@Context
 	private Company _company;
 
+	private final DepotEntryLocalService _depotEntryLocalService;
 	private final GroupLocalService _groupLocalService;
 
 	@Context

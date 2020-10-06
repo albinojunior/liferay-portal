@@ -20,7 +20,7 @@
 User selUser = userDisplayContext.getSelectedUser();
 List<UserGroup> userGroups = userDisplayContext.getUserGroups();
 
-currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "userGroups");
+currentURLObj.setParameter("historyKey", liferayPortletResponse.getNamespace() + "userGroups");
 %>
 
 <liferay-ui:error-marker
@@ -30,13 +30,18 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "userGr
 
 <liferay-ui:membership-policy-error />
 
-<h3 class="autofit-row sheet-subtitle">
-	<span class="autofit-col autofit-col-expand">
+<clay:content-row
+	containerElement="h3"
+	cssClass="sheet-subtitle"
+>
+	<clay:content-col
+		expand="<%= true %>"
+	>
 		<span class="heading-text"><liferay-ui:message key="user-groups" /></span>
-	</span>
+	</clay:content-col>
 
 	<c:if test="<%= !portletName.equals(myAccountPortletId) %>">
-		<span class="autofit-col">
+		<clay:content-col>
 			<span class="heading-end">
 				<liferay-ui:icon
 					cssClass="modify-link"
@@ -47,9 +52,9 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "userGr
 					url="javascript:;"
 				/>
 			</span>
-		</span>
+		</clay:content-col>
 	</c:if>
-</h3>
+</clay:content-row>
 
 <liferay-util:buffer
 	var="removeUserGroupIcon"
@@ -116,7 +121,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "userGr
 
 		searchContainerContentBox.delegate(
 			'click',
-			function(event) {
+			function (event) {
 				var link = event.currentTarget;
 
 				var rowId = link.attr('data-rowId');
@@ -151,61 +156,16 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "userGr
 			'.modify-link'
 		);
 
-		Liferay.on('<portlet:namespace />enableRemovedUserGroups', function(event) {
-			event.selectors.each(function(item, index, collection) {
-				var userGroupId = item.attr('data-usergroupid');
-
-				if (deleteUserGroupIds.indexOf(userGroupId) != -1) {
-					Util.toggleDisabled(item, false);
-				}
-			});
-		});
-
-		A.one('#<portlet:namespace />openUserGroupsLink').on('click', function(event) {
-			var searchContainerData = searchContainer.getData();
-
-			if (!searchContainerData.length) {
-				searchContainerData = [];
-			}
-			else {
-				searchContainerData = searchContainerData.split(',');
-			}
-
-			Util.selectEntity(
-				{
-					dialog: {
-						constrain: true,
-						modal: true,
-					},
-
-					<%
-					String eventName = liferayPortletResponse.getNamespace() + "selectUserGroup";
-					%>
-
-					id: '<%= eventName %>',
-
-					selectedData: searchContainerData,
-					title:
-						'<liferay-ui:message arguments="user-group" key="select-x" />',
-
-					<%
-					PortletURL selectUserGroupURL = PortletProviderUtil.getPortletURL(request, UserGroup.class.getName(), PortletProvider.Action.BROWSE);
-
-					selectUserGroupURL.setParameter("p_u_i_d", (selUser == null) ? "0" : String.valueOf(selUser.getUserId()));
-					selectUserGroupURL.setParameter("eventName", eventName);
-					selectUserGroupURL.setWindowState(LiferayWindowState.POP_UP);
-					%>
-
-					uri: '<%= selectUserGroupURL.toString() %>',
-				},
-				function(event) {
+		A.one('#<portlet:namespace />openUserGroupsLink').on('click', function (event) {
+			Liferay.Util.openSelectionModal({
+				onSelect: function (selectedItem) {
 					var A = AUI();
 
-					var entityId = event.entityid;
+					var entityId = selectedItem.entityid;
 
 					var rowColumns = [];
 
-					rowColumns.push(A.Escape.html(event.entityname));
+					rowColumns.push(A.Escape.html(selectedItem.entityname));
 					rowColumns.push(
 						'<a class="modify-link" data-rowId="' +
 							entityId +
@@ -226,8 +186,20 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "userGr
 					document.<portlet:namespace />fm.<portlet:namespace />deleteUserGroupIds.value = deleteUserGroupIds.join(
 						','
 					);
-				}
-			);
+				},
+				selectedData: searchContainer.getData(true),
+				selectEventName: '<portlet:namespace />selectUserGroup',
+				title: '<liferay-ui:message arguments="user-group" key="select-x" />',
+
+				<%
+				PortletURL selectUserGroupURL = PortletProviderUtil.getPortletURL(request, UserGroup.class.getName(), PortletProvider.Action.BROWSE);
+
+				selectUserGroupURL.setParameter("p_u_i_d", (selUser == null) ? "0" : String.valueOf(selUser.getUserId()));
+				selectUserGroupURL.setWindowState(LiferayWindowState.POP_UP);
+				%>
+
+				url: '<%= selectUserGroupURL.toString() %>',
+			});
 		});
 	</aui:script>
 </c:if>

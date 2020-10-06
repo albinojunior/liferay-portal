@@ -19,15 +19,21 @@
 <%
 JournalEditDDMTemplateDisplayContext journalEditDDMTemplateDisplayContext = new JournalEditDDMTemplateDisplayContext(request);
 
-JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.getAttribute(JournalDDMTemplateUtil.class.getName());
+JournalDDMTemplateHelper journalDDMTemplateHelper = (JournalDDMTemplateHelper)request.getAttribute(JournalDDMTemplateHelper.class.getName());
 %>
 
 <aui:input name="scriptContent" type="hidden" value="<%= journalEditDDMTemplateDisplayContext.getScript() %>" />
 
 <div id="templateScriptContainer">
-	<div class="form-group lfr-template-editor-container row">
+	<clay:row
+		cssClass="form-group lfr-template-editor-container"
+	>
 		<c:if test="<%= journalEditDDMTemplateDisplayContext.isAutocompleteEnabled() %>">
-			<div class="col-md-3 lfr-template-palette-container" id="<portlet:namespace />templatePaletteContainer">
+			<clay:col
+				cssClass="lfr-template-palette-container"
+				id='<%= liferayPortletResponse.getNamespace() + "templatePaletteContainer" %>'
+				md="3"
+			>
 				<div class="search" id="<portlet:namespace />paletteSearchContainer">
 					<input class="form-control mb-3" id="<portlet:namespace />paletteSearch" placeholder="<liferay-ui:message key="search" />" type="text" />
 				</div>
@@ -56,7 +62,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 										%>
 
 											<li class="palette-item-container">
-												<span class="palette-item" data-content="<%= HtmlUtil.escapeAttribute(journalDDMTemplateUtil.getDataContent(templateVariableDefinition, journalEditDDMTemplateDisplayContext.getLanguage())) %>" data-title="<%= HtmlUtil.escapeAttribute(journalDDMTemplateUtil.getPaletteItemTitle(request, journalEditDDMTemplateDisplayContext.getTemplateHandlerResourceBundle(), templateVariableDefinition)) %>">
+												<span class="palette-item" data-content="<%= HtmlUtil.escapeAttribute(journalDDMTemplateHelper.getDataContent(templateVariableDefinition, journalEditDDMTemplateDisplayContext.getLanguage())) %>" data-title="<%= HtmlUtil.escapeAttribute(journalDDMTemplateHelper.getPaletteItemTitle(request, journalEditDDMTemplateDisplayContext.getTemplateHandlerResourceBundle(), templateVariableDefinition)) %>">
 													<%= HtmlUtil.escape(LanguageUtil.get(request, journalEditDDMTemplateDisplayContext.getTemplateHandlerResourceBundle(), templateVariableDefinition.getLabel())) %>
 
 													<c:if test="<%= templateVariableDefinition.isCollection() || templateVariableDefinition.isRepeatable() %>">*</c:if>
@@ -77,7 +83,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 						</liferay-frontend:fieldset-group>
 					</div>
 				</div>
-			</div>
+			</clay:col>
 		</c:if>
 
 		<%
@@ -96,30 +102,26 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 			%>
 
 			<clay:alert
-				closeable="true"
-				componentId="languageMessageContainer"
-				destroyOnHide="true"
-				elementClasses='<%= ((ddmTemplate == null) && (templateLanguageTypes.length > 1)) || ((ddmTemplate != null) && !Objects.equals(ddmTemplate.getLanguage(), journalEditDDMTemplateDisplayContext.getLanguage())) ? "mb-3" : "hide mb-3" %>'
-				message='<%= LanguageUtil.get(request, "changing-the-language-does-not-automatically-translate-the-existing-template-script") %>'
-				style="warning"
-				title='<%= LanguageUtil.get(request, "warning") %>'
+				cssClass='<%= ((ddmTemplate == null) && (templateLanguageTypes.length > 1)) || ((ddmTemplate != null) && !Objects.equals(ddmTemplate.getLanguage(), journalEditDDMTemplateDisplayContext.getLanguage())) ? "mb-3" : "hide mb-3" %>'
+				dismissible="<%= true %>"
+				displayType="warning"
+				id="languageMessageContainer"
+				message="changing-the-language-does-not-automatically-translate-the-existing-template-script"
 			/>
 
 			<clay:alert
-				closeable="true"
-				componentId="cacheableMessageContainer"
-				destroyOnHide="true"
-				elementClasses='<%= journalEditDDMTemplateDisplayContext.isCacheable() ? "mb-3" : "hide mb-3" %>'
-				message='<%= LanguageUtil.get(request, "this-template-is-marked-as-cacheable.-avoid-using-code-that-uses-request-handling,-the-cms-query-api,-taglibs,-or-other-dynamic-features.-uncheck-the-cacheable-property-if-dynamic-behavior-is-needed") %>'
-				style="warning"
-				title='<%= LanguageUtil.get(request, "warning") %>'
+				cssClass='<%= journalEditDDMTemplateDisplayContext.isCacheable() ? "mb-3" : "hide mb-3" %>'
+				dismissible="<%= true %>"
+				displayType="warning"
+				id="cacheableMessageContainer"
+				message="this-template-is-marked-as-cacheable.-avoid-using-code-that-uses-request-handling,-the-cms-query-api,-taglibs,-or-other-dynamic-features.-uncheck-the-cacheable-property-if-dynamic-behavior-is-needed"
 			/>
 
 			<div class="lfr-rich-editor" id="<portlet:namespace />richEditor"></div>
 
 			<aui:input label="script-file" name="script" type="file" wrapperCssClass="mt-4" />
 		</div>
-	</div>
+	</clay:row>
 </div>
 
 <aui:script use="aui-ace-autocomplete-freemarker,aui-ace-autocomplete-plugin,aui-ace-autocomplete-velocity,aui-toggler,aui-tooltip,autocomplete-base,autocomplete-filters,event-mouseenter,event-outside,liferay-util-window,resize,transition">
@@ -163,7 +165,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 				NAME: 'searchpalette',
 
 				prototype: {
-					initializer: function() {
+					initializer: function () {
 						var instance = this;
 
 						instance._bindUIACBase();
@@ -172,10 +174,10 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 				},
 			});
 
-			var getItems = function() {
+			var getItems = function () {
 				var results = [];
 
-				paletteItems.each(function(item, index) {
+				paletteItems.each(function (item, index) {
 					results.push({
 						data: item.text().trim(),
 						node: item.ancestor(),
@@ -185,7 +187,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 				return results;
 			};
 
-			var getNoResultsNode = function() {
+			var getNoResultsNode = function () {
 				if (!noResultsNode) {
 					noResultsNode = A.Node.create(
 						'<div class="alert"><%= UnicodeLanguageUtil.get(request, "there-are-no-results") %></div>'
@@ -209,18 +211,18 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 				source: getItems(),
 			});
 
-			paletteSearch.on('results', function(event) {
-				paletteItems.each(function(item, index) {
+			paletteSearch.on('results', function (event) {
+				paletteItems.each(function (item, index) {
 					item.ancestor().addClass('hide');
 				});
 
-				event.results.forEach(function(item, index) {
+				event.results.forEach(function (item, index) {
 					item.raw.node.removeClass('hide');
 				});
 
 				var foundVisibleSection;
 
-				paletteSectionsNode.each(function(item, index) {
+				paletteSectionsNode.each(function (item, index) {
 					var visibleItem = item.one('.palette-item-container:not(.hide)');
 
 					if (visibleItem) {
@@ -257,7 +259,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 			var cursorPos;
 			var processed;
 
-			A.Object.each(fragments, function(item, index) {
+			A.Object.each(fragments, function (item, index) {
 				if (processed) {
 					cursorPos = editor.getCursorPosition();
 				}
@@ -344,7 +346,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 
 	A.on(
 		'domready',
-		function(event) {
+		function (event) {
 			richEditor = new A.AceEditor({
 				boundingBox: editorNode,
 				height: 400,
@@ -364,11 +366,11 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 				setEditorContent(editorContentElement.val());
 			}
 
-			Liferay.on('<portlet:namespace />saveTemplate', function(event) {
+			Liferay.on('<portlet:namespace />saveTemplate', function (event) {
 				editorContentElement.val(getEditorContent());
 			});
 
-			selectLanguageNode.on('change', function(event) {
+			selectLanguageNode.on('change', function (event) {
 				Liferay.fire('<portlet:namespace />refreshEditor');
 			});
 
@@ -407,7 +409,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 		'#<portlet:namespace />richEditor'
 	);
 
-	Liferay.on('<portlet:namespace />refreshEditor', function(event) {
+	Liferay.on('<portlet:namespace />refreshEditor', function (event) {
 		var form = A.one('#<portlet:namespace />fm');
 
 		<portlet:renderURL var="refreshDDMTemplateURL">
@@ -416,13 +418,7 @@ JournalDDMTemplateUtil journalDDMTemplateUtil = (JournalDDMTemplateUtil)request.
 
 		form.attr('action', '<%= refreshDDMTemplateURL %>');
 
-		if (
-			richEditor
-				.getEditor()
-				.getSession()
-				.getUndoManager()
-				.hasUndo()
-		) {
+		if (richEditor.getEditor().getSession().getUndoManager().hasUndo()) {
 			Liferay.fire('<portlet:namespace />saveTemplate');
 		}
 		<c:if test="<%= journalEditDDMTemplateDisplayContext.getDDMTemplate() == null %>">

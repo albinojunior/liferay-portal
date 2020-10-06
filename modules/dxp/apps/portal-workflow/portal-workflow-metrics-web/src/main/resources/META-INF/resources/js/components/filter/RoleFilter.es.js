@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import React, {useMemo} from 'react';
+import React from 'react';
 
 import Filter from '../../shared/components/filter/Filter.es';
 import {useFilterFetch} from '../../shared/components/filter/hooks/useFilterFetch.es';
@@ -24,21 +24,22 @@ const RoleFilter = ({
 	prefixKey = '',
 	processId,
 }) => {
-	const defaultOptions = {
+	options = {
 		hideControl: false,
 		multiple: true,
 		position: 'left',
 		withSelectionTitle: false,
 		withoutRouteParams: false,
+		...options,
 	};
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	options = useMemo(() => ({...defaultOptions, ...options}), [options]);
 
 	const {items, selectedItems} = useFilterFetch({
 		filterKey,
+		labelPropertyName: 'name',
 		prefixKey,
+		propertyKey: 'id',
 		requestUrl: `/processes/${processId}/roles?completed=${completed}`,
-		withoutRouteParams: options.withoutRouteParams,
+		...options,
 	});
 
 	const filterName = useFilterName(
@@ -50,7 +51,6 @@ const RoleFilter = ({
 
 	return (
 		<Filter
-			dataTestId="RoleFilter"
 			elementClasses={className}
 			filterKey={filterKey}
 			items={items}

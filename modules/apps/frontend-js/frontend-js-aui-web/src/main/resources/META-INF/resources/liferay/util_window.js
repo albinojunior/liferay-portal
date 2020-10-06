@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-util-window',
-	A => {
+	(A) => {
 		var DOM = A.DOM;
 		var Lang = A.Lang;
 		var UA = A.UA;
@@ -28,7 +28,7 @@ AUI.add(
 
 		var IE11 = IE == 11;
 
-		var setWidth = function(modal, width) {
+		var setWidth = function (modal, width) {
 			if (IE9) {
 				modal.set('width', width + 1);
 				modal.set('width', width);
@@ -67,9 +67,9 @@ AUI.add(
 									cssClass: 'close',
 									discardDefaultButtonCssClasses: true,
 									labelHTML:
-										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
+										'<svg class="lexicon-icon" focusable="false"><use href="' +
 										Liferay.ThemeDisplay.getPathThemeImages() +
-										'/lexicon/icons.svg#times" /><title>' +
+										'/clay/icons.svg#times" /><title>' +
 										Liferay.Language.get('close') +
 										'</title></svg>',
 									on: {
@@ -141,30 +141,34 @@ AUI.add(
 				var liferayHandles = modal._liferayHandles;
 
 				liferayHandles.push(
-					Liferay.after('hashChange', event => {
+					Liferay.after('hashChange', (event) => {
 						modal.iframe.set('uri', event.uri);
 					})
 				);
 
 				liferayHandles.push(
-					Liferay.after('popupReady', event => {
+					Liferay.after('popupReady', (event) => {
 						var iframeId = id + instance.IFRAME_SUFFIX;
 
 						if (event.windowName === iframeId) {
 							event.dialog = modal;
 							event.details[0].dialog = modal;
 
-							if (event.doc) {
-								Util.afterIframeLoaded(event);
+							var iframeNode = modal.iframe.node;
 
+							var iframeElement = iframeNode.getDOM();
+
+							if (event.doc) {
 								var modalUtil = event.win.Liferay.Util;
 
 								modalUtil.Window._opener = modal._opener;
 
 								modalUtil.Window._name = id;
-							}
 
-							var iframeNode = modal.iframe.node;
+								iframeElement.onload = function () {
+									Util.afterIframeLoaded(event);
+								};
+							}
 
 							iframeNode.focus();
 
@@ -241,7 +245,7 @@ AUI.add(
 								var liferayHandles = modal._liferayHandles;
 
 								liferayHandles.push(
-									Liferay.on('popupReady', event => {
+									Liferay.on('popupReady', (event) => {
 										instance.fire('load', event);
 
 										popupReady = true;
@@ -337,7 +341,7 @@ AUI.add(
 
 					var originalFn = modal.iframe._onLoadIframe;
 
-					modal.iframe._onLoadIframe = function() {
+					modal.iframe._onLoadIframe = function () {
 						try {
 							originalFn.call(this);
 						}
@@ -351,7 +355,7 @@ AUI.add(
 					config.title = '&nbsp;';
 				}
 
-				modal.titleNode.html(config.title);
+				modal.titleNode.html(Lang.String.escapeHTML(config.title));
 
 				modal.fillHeight(modal.bodyNode);
 
@@ -466,7 +470,7 @@ AUI.add(
 
 				var modals = instance._map;
 
-				A.each(modals, modal => {
+				A.each(modals, (modal) => {
 					if (modal.get('visible')) {
 						instance._setWindowDefaultSizeIfNeeded(modal);
 
@@ -518,12 +522,16 @@ AUI.add(
 
 				instance._setWindowDefaultSizeIfNeeded(modal);
 
-				// LPS-106470 resize modal mask
+				// LPS-106470, LPS-109906 resize modal mask
 
 				var mask = modal.get('maskNode');
 
 				if (mask.getStyle('position') == 'absolute') {
 					mask.setStyle('height', '100%');
+					mask.setStyle(
+						'top',
+						document.documentElement.scrollTop + 'px'
+					);
 					mask.setStyle('width', '100%');
 				}
 

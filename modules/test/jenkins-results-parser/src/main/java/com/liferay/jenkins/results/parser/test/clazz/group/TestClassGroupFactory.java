@@ -75,6 +75,11 @@ public class TestClassGroupFactory {
 					batchName, buildProfile, portalTestClassJob);
 			}
 
+			if (batchName.startsWith("rest-builder-")) {
+				return new RESTBuilderBatchTestClassGroup(
+					batchName, buildProfile, portalTestClassJob);
+			}
+
 			if (batchName.startsWith("service-builder-")) {
 				return new ServiceBuilderBatchTestClassGroup(
 					batchName, buildProfile, portalTestClassJob);

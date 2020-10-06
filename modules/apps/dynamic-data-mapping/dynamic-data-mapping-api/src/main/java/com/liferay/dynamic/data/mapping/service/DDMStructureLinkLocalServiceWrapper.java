@@ -39,6 +39,10 @@ public class DDMStructureLinkLocalServiceWrapper
 	/**
 	 * Adds the ddm structure link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was added
 	 */
@@ -85,6 +89,10 @@ public class DDMStructureLinkLocalServiceWrapper
 	/**
 	 * Deletes the ddm structure link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was removed
 	 */
@@ -98,6 +106,10 @@ public class DDMStructureLinkLocalServiceWrapper
 
 	/**
 	 * Deletes the ddm structure link with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param structureLinkId the primary key of the ddm structure link
 	 * @return the ddm structure link that was removed
@@ -154,6 +166,11 @@ public class DDMStructureLinkLocalServiceWrapper
 	public void deleteStructureStructureLinks(long structureId) {
 		_ddmStructureLinkLocalService.deleteStructureStructureLinks(
 			structureId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ddmStructureLinkLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -260,6 +277,10 @@ public class DDMStructureLinkLocalServiceWrapper
 		return _ddmStructureLinkLocalService.getActionableDynamicQuery();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public java.util.List<DDMStructureLink> getClassNameStructureLinks(
 		long classNameId) {
@@ -456,6 +477,10 @@ public class DDMStructureLinkLocalServiceWrapper
 
 	/**
 	 * Updates the ddm structure link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was updated

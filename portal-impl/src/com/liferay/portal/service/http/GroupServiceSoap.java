@@ -61,8 +61,10 @@ import java.util.Map;
  *
  * @author Brian Wing Shun Chan
  * @see GroupServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class GroupServiceSoap {
 
 	public static com.liferay.portal.kernel.model.GroupSoap addGroup(
@@ -650,6 +652,24 @@ public class GroupServiceSoap {
 		try {
 			java.util.List<com.liferay.portal.kernel.model.Group> returnValue =
 				GroupServiceUtil.getUserSitesGroups();
+
+			return com.liferay.portal.kernel.model.GroupSoap.toSoapModels(
+				returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.kernel.model.GroupSoap[]
+			getUserSitesGroups(long userId, int start, int end)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.portal.kernel.model.Group> returnValue =
+				GroupServiceUtil.getUserSitesGroups(userId, start, end);
 
 			return com.liferay.portal.kernel.model.GroupSoap.toSoapModels(
 				returnValue);

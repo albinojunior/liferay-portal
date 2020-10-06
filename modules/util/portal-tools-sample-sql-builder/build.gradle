@@ -29,6 +29,10 @@ dependencies {
 	compile project(":apps:asset:asset-entry-rel-service")
 	compile project(":apps:blogs:blogs-api")
 	compile project(":apps:blogs:blogs-service")
+	compile project(":apps:commerce:commerce-currency-api")
+	compile project(":apps:commerce:commerce-currency-service")
+	compile project(":apps:commerce:commerce-product-api")
+	compile project(":apps:commerce:commerce-product-service")
 	compile project(":apps:document-library:document-library-api")
 	compile project(":apps:dynamic-data-lists:dynamic-data-lists-api")
 	compile project(":apps:dynamic-data-lists:dynamic-data-lists-service")
@@ -55,15 +59,11 @@ dependencies {
 	compile project(":apps:wiki:wiki-api")
 	compile project(":apps:wiki:wiki-service")
 
-	compileInclude group: "com.liferay.commerce", name: "com.liferay.commerce.currency.api", version: "2.0.0"
-	compileInclude group: "com.liferay.commerce", name: "com.liferay.commerce.currency.service", version: "1.0.13"
-	compileInclude group: "com.liferay.commerce", name: "com.liferay.commerce.product.api", version: "10.0.0"
-	compileInclude group: "com.liferay.commerce", name: "com.liferay.commerce.product.service", version: "2.0.0"
-
-	compileOnly group: "com.liferay", name: "org.freemarker", version: "2.3.23.LIFERAY-PATCHED-4"
+	compileOnly group: "com.liferay", name: "org.freemarker", version: "2.3.29.LIFERAY-PATCHED-1"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
 	compileOnly project(":core:petra:petra-function")
+	compileOnly project(":core:petra:petra-io")
 	compileOnly project(":core:petra:petra-reflect")
 	compileOnly project(":core:petra:petra-string")
 
@@ -71,10 +71,9 @@ dependencies {
 	testCompile group: "com.liferay", name: "com.ibm.icu4j", version: "54.1.1.LIFERAY-PATCHED-2"
 	testCompile group: "com.liferay", name: "com.sun.syndication", version: "1.0.LIFERAY-PATCHED-1"
 	testCompile group: "com.liferay", name: "org.jabsorb", version: "1.3.2.LIFERAY-PATCHED-1"
-	testCompile group: "com.mchange", name: "c3p0", version: "0.9.5"
 	testCompile group: "commons-io", name: "commons-io", version: "2.5"
-	testCompile group: "log4j", name: "apache-log4j-extras", version: "1.1"
-	testCompile group: "org.apache.tika", name: "tika-core", version: "1.14"
+	testCompile group: "log4j", name: "apache-log4j-extras", version: "1.2.17"
+	testCompile group: "org.apache.tika", name: "tika-core", version: "1.24.1"
 	testCompile group: "org.apache.tomcat", name: "tomcat-jdbc", version: "8.0.32"
 	testCompile group: "org.jodd", name: "jodd-json", version: "3.6.4"
 	testCompile group: "org.json", name: "json", version: "20180813"

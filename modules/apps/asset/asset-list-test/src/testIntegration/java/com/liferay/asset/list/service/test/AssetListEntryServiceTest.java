@@ -15,12 +15,17 @@
 package com.liferay.asset.list.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.list.constants.AssetListEntryTypeConstants;
 import com.liferay.asset.list.exception.AssetListEntryTitleException;
 import com.liferay.asset.list.exception.DuplicateAssetListEntryTitleException;
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryService;
 import com.liferay.asset.list.util.comparator.AssetListEntryCreateDateComparator;
 import com.liferay.asset.list.util.comparator.AssetListEntryTitleComparator;
+import com.liferay.asset.test.util.AssetTestUtil;
+import com.liferay.asset.test.util.asset.renderer.factory.TestAssetRendererFactory;
+import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -114,12 +119,11 @@ public class AssetListEntryServiceTest {
 		AssetListEntry assetListEntry2 = _addAssetListEntry(
 			"Asset List Title 2");
 
-		long[] assetListEntries = {
-			assetListEntry1.getAssetListEntryId(),
-			assetListEntry2.getAssetListEntryId()
-		};
-
-		_assetListEntryService.deleteAssetListEntries(assetListEntries);
+		_assetListEntryService.deleteAssetListEntries(
+			new long[] {
+				assetListEntry1.getAssetListEntryId(),
+				assetListEntry2.getAssetListEntryId()
+			});
 
 		Assert.assertNull(
 			_assetListEntryService.fetchAssetListEntry(
@@ -187,7 +191,7 @@ public class AssetListEntryServiceTest {
 		_assetListEntryService.addAssetListEntry(
 			_group.getGroupId(), "B Test name", 0, serviceContext);
 
-		OrderByComparator orderByComparator =
+		OrderByComparator<AssetListEntry> orderByComparator =
 			new AssetListEntryCreateDateComparator(true);
 
 		List<AssetListEntry> assetListEntries =
@@ -229,8 +233,8 @@ public class AssetListEntryServiceTest {
 		_assetListEntryService.addAssetListEntry(
 			_group.getGroupId(), "AC Asset List Entry", 0, serviceContext);
 
-		OrderByComparator orderByComparator = new AssetListEntryTitleComparator(
-			true);
+		OrderByComparator<AssetListEntry> orderByComparator =
+			new AssetListEntryTitleComparator(true);
 
 		List<AssetListEntry> assetListEntries =
 			_assetListEntryService.getAssetListEntries(
@@ -267,6 +271,59 @@ public class AssetListEntryServiceTest {
 
 		Assert.assertEquals(
 			actualAssetListEntriesCount, originalAssetListEntriesCount + 1);
+	}
+
+	@Test
+	public void testManualAssetEntryTypeAssetListEntry()
+		throws PortalException {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		AssetListEntry assetListEntry =
+			_assetListEntryService.addAssetListEntry(
+				_group.getGroupId(), "Manual Asset List Entry",
+				AssetListEntryTypeConstants.TYPE_MANUAL, serviceContext);
+
+		AssetEntry assetEntry1 = AssetTestUtil.addAssetEntry(
+			_group.getGroupId(), null,
+			TestAssetRendererFactory.class.getName());
+
+		_assetListEntryService.addAssetEntrySelection(
+			assetListEntry.getAssetListEntryId(), assetEntry1.getEntryId(), 0,
+			serviceContext);
+
+		assetListEntry = _assetListEntryService.fetchAssetListEntry(
+			assetListEntry.getAssetListEntryId());
+
+		Assert.assertEquals(
+			assetListEntry.getAssetEntryType(),
+			TestAssetRendererFactory.class.getName());
+
+		AssetEntry assetEntry2 = AssetTestUtil.addAssetEntry(
+			_group.getGroupId(), null, DLFileEntry.class.getName());
+
+		_assetListEntryService.addAssetEntrySelection(
+			assetListEntry.getAssetListEntryId(), assetEntry2.getEntryId(), 0,
+			serviceContext);
+
+		assetListEntry = _assetListEntryService.fetchAssetListEntry(
+			assetListEntry.getAssetListEntryId());
+
+		Assert.assertEquals(
+			assetListEntry.getAssetEntryType(),
+			TestAssetRendererFactory.class.getName());
+
+		_assetListEntryService.deleteAssetEntrySelection(
+			assetListEntry.getAssetListEntryId(), 0, 1);
+
+		assetListEntry = _assetListEntryService.fetchAssetListEntry(
+			assetListEntry.getAssetListEntryId());
+
+		Assert.assertEquals(
+			assetListEntry.getAssetEntryType(),
+			TestAssetRendererFactory.class.getName());
 	}
 
 	@Test

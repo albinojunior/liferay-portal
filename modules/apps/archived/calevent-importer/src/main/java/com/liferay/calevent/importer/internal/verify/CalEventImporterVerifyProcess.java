@@ -98,7 +98,6 @@ import com.liferay.view.count.service.persistence.ViewCountEntryPK;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import java.util.ArrayList;
@@ -379,8 +378,8 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 		String uuid, long threadId, long groupId, long companyId, long userId,
 		String userName, Date createDate, Date modifiedDate, long categoryId,
 		long rootMessageId, long rootMessageUserId, String title,
-		int messageCount, long lastPostByUserId, Date lastPostDate,
-		double priority, boolean question, int status, long statusByUserId,
+		long lastPostByUserId, Date lastPostDate, double priority,
+		boolean question, int status, long statusByUserId,
 		String statusByUserName, Date statusDate, long viewCount) {
 
 		MBThread mbThread = _mbThreadLocalService.createMBThread(threadId);
@@ -396,7 +395,6 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 		mbThread.setRootMessageId(rootMessageId);
 		mbThread.setRootMessageUserId(rootMessageUserId);
 		mbThread.setTitle(title);
-		mbThread.setMessageCount(messageCount);
 		mbThread.setLastPostByUserId(lastPostByUserId);
 		mbThread.setLastPostDate(lastPostDate);
 		mbThread.setPriority(priority);
@@ -616,7 +614,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 
 	private AssetCategory _getAssetCategory(
 			long userId, long companyId, long groupId, String name)
-		throws PortalException {
+		throws Exception {
 
 		ServiceContext serviceContext = new ServiceContext();
 
@@ -678,7 +676,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	}
 
 	private CalendarResource _getCalendarResource(long companyId, long groupId)
-		throws PortalException {
+		throws Exception {
 
 		ServiceContext serviceContext = new ServiceContext();
 
@@ -912,7 +910,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	private void _importCalendarBookingResourcePermission(
 			ResourcePermission resourcePermission, long calendarBookingId,
 			List<String> modelResourceActions)
-		throws PortalException {
+		throws Exception {
 
 		CalendarBooking calendarBooking =
 			_calendarBookingLocalService.getCalendarBooking(calendarBookingId);
@@ -929,7 +927,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 
 	private void _importCalendarBookingResourcePermissions(
 			long companyId, long eventId, long calendarBookingId)
-		throws PortalException {
+		throws Exception {
 
 		List<String> modelResourceActions =
 			ResourceActionsUtil.getModelResourceActions(
@@ -1025,7 +1023,8 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 		long startTime = startDate.getTime();
 
 		long endTime =
-			startTime + durationHour * Time.HOUR + durationMinute * Time.MINUTE;
+			startTime + (durationHour * Time.HOUR) +
+				(durationMinute * Time.MINUTE);
 
 		if (allDay) {
 			endTime = endTime - 1;
@@ -1074,14 +1073,14 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 
 		// Social
 
-		_importSocialActivities(eventId, calendarBookingId);
+		_importSocialActivities(companyId, eventId, calendarBookingId);
 
 		return calendarBooking;
 	}
 
 	private void _importExpando(
 			long companyId, long eventId, long calendarBookingId)
-		throws PortalException {
+		throws Exception {
 
 		long oldClassNameId = _classNameLocalService.getClassNameId(
 			_CLASS_NAME);
@@ -1120,7 +1119,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	}
 
 	private void _importMBDiscussion(long eventId, long calendarBookingId)
-		throws PortalException {
+		throws Exception {
 
 		MBDiscussion mbDiscussion = _mbDiscussionLocalService.fetchDiscussion(
 			_CLASS_NAME, eventId);
@@ -1191,7 +1190,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	}
 
 	private long _importMBThread(long threadId, long calendarBookingId)
-		throws PortalException {
+		throws Exception {
 
 		MBThread mbThread = _mbThreadLocalService.fetchMBThread(threadId);
 
@@ -1199,7 +1198,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	}
 
 	private long _importMBThread(MBThread mbThread, long calendarBookingId)
-		throws PortalException {
+		throws Exception {
 
 		long threadId = _counterLocalService.increment();
 
@@ -1209,9 +1208,8 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 			mbThread.getUserName(), mbThread.getCreateDate(),
 			mbThread.getModifiedDate(), mbThread.getCategoryId(), 0,
 			mbThread.getRootMessageUserId(), mbThread.getTitle(),
-			mbThread.getMessageCount(), mbThread.getLastPostByUserId(),
-			mbThread.getLastPostDate(), mbThread.getPriority(),
-			mbThread.isQuestion(), mbThread.getStatus(),
+			mbThread.getLastPostByUserId(), mbThread.getLastPostDate(),
+			mbThread.getPriority(), mbThread.isQuestion(), mbThread.getStatus(),
 			mbThread.getStatusByUserId(), mbThread.getStatusByUserName(),
 			mbThread.getStatusDate(),
 			_viewCountEntryLocalService.getViewCount(
@@ -1262,10 +1260,12 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 			ratingsStats.getAverageScore());
 	}
 
-	private void _importSocialActivities(long eventId, long calendarBookingId) {
+	private void _importSocialActivities(
+		long companyId, long eventId, long calendarBookingId) {
+
 		List<SocialActivity> socialActivities =
 			_socialActivityLocalService.getActivities(
-				_CLASS_NAME, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+				companyId, _CLASS_NAME, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		for (SocialActivity socialActivity : socialActivities) {
 			if (socialActivity.getClassPK() == eventId) {
@@ -1311,7 +1311,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	}
 
 	private boolean _isAssetLinkImported(long entryId1, long entryId2, int type)
-		throws SQLException {
+		throws Exception {
 
 		StringBundler sb = new StringBundler(3);
 
@@ -1343,7 +1343,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	}
 
 	private void _updateMBThreadRootMessageId(long threadId, long rootMessageId)
-		throws PortalException {
+		throws Exception {
 
 		MBThread mbThread = _mbThreadLocalService.getMBThread(threadId);
 

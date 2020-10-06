@@ -45,17 +45,20 @@ String coverImageCaption = BeanParamUtil.getString(entry, request, "coverImageCa
 long coverImageFileEntryId = BeanParamUtil.getLong(entry, request, "coverImageFileEntryId");
 long smallImageFileEntryId = BeanParamUtil.getLong(entry, request, "smallImageFileEntryId");
 
+BlogsFileUploadsConfiguration blogsFileUploadsConfiguration = ConfigurationProviderUtil.getSystemConfiguration(BlogsFileUploadsConfiguration.class);
+BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.getInstance(scopeGroupId);
+
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
 renderResponse.setTitle((entry != null) ? BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) : LanguageUtil.get(request, "new-blog-entry"));
-
-BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.getInstance(scopeGroupId);
 %>
 
 <portlet:actionURL name="/blogs/edit_entry" var="editEntryURL" />
 
-<div class="container-fluid-1280 entry-body">
+<clay:container-fluid
+	cssClass="entry-body"
+>
 	<aui:form action="<%= editEntryURL %>" cssClass="edit-entry" enctype="multipart/form-data" method="post" name="fm" onSubmit="event.preventDefault();">
 		<aui:input name="<%= Constants.CMD %>" type="hidden" />
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
@@ -68,6 +71,11 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 			<liferay-ui:error exception="<%= DuplicateFriendlyURLEntryException.class %>" message="the-url-title-is-already-in-use-please-enter-a-unique-url-title" />
 			<liferay-ui:error exception="<%= EntryContentException.class %>" message="please-enter-valid-content" />
 			<liferay-ui:error exception="<%= EntryCoverImageCropException.class %>" message="an-error-occurred-while-cropping-the-cover-image" />
+
+			<liferay-ui:error exception="<%= EntrySmallImageNameException.class %>">
+				<liferay-ui:message key="image-names-must-end-with-one-of-the-following-extensions" /> <%= StringUtil.merge(blogsFileUploadsConfiguration.imageExtensions()) %>.
+			</liferay-ui:error>
+
 			<liferay-ui:error exception="<%= EntryDescriptionException.class %>" message="please-enter-a-valid-abstract" />
 			<liferay-ui:error exception="<%= EntryTitleException.class %>" message="please-enter-a-valid-title" />
 			<liferay-ui:error exception="<%= EntryUrlTitleException.class %>" message="please-enter-a-valid-url-title" />
@@ -95,7 +103,6 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 			<aui:model-context bean="<%= entry %>" model="<%= BlogsEntry.class %>" />
 
 			<%
-			BlogsFileUploadsConfiguration blogsFileUploadsConfiguration = ConfigurationProviderUtil.getSystemConfiguration(BlogsFileUploadsConfiguration.class);
 			BlogsItemSelectorHelper blogsItemSelectorHelper = (BlogsItemSelectorHelper)request.getAttribute(BlogsWebKeys.BLOGS_ITEM_SELECTOR_HELPER);
 			RequestBackedPortletURLFactory requestBackedPortletURLFactory = RequestBackedPortletURLFactoryUtil.create(liferayPortletRequest);
 			%>
@@ -124,10 +131,13 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 
 					<aui:input name="coverImageCaption" type="hidden" />
 
-					<div class="col-md-8 col-md-offset-2">
+					<clay:col
+						cssClass="col-md-offset-2"
+						md="8"
+					>
 						<div class="cover-image-caption <%= (coverImageFileEntryId == 0) ? "invisible" : "" %>">
 							<small>
-								<liferay-ui:input-editor
+								<liferay-editor:editor
 									contents="<%= coverImageCaption %>"
 									editorName="alloyeditor"
 									name="coverImageCaptionEditor"
@@ -136,39 +146,27 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 								/>
 							</small>
 						</div>
-					</div>
+					</clay:col>
 
-					<div class="col-md-8 col-md-offset-2">
+					<clay:col
+						cssClass="col-md-offset-2"
+						md="8"
+					>
 						<div class="entry-title form-group">
-							<liferay-ui:input-editor
-								contents="<%= HtmlUtil.escape(title) %>"
-								editorName="alloyeditor"
-								name="titleEditor"
-								onChangeMethod="onChangeTitle"
-								placeholder="title"
-								required="<%= true %>"
-								showSource="<%= false %>"
-							>
-								<aui:validator name="required" />
-							</liferay-ui:input-editor>
-						</div>
 
-						<aui:input name="title" type="hidden" />
+							<%
+							int titleMaxLength = ModelHintsUtil.getMaxLength(BlogsEntry.class.getName(), "title");
+							%>
+
+							<aui:input autoSize="<%= true %>" cssClass="form-control-edit form-control-edit-title form-control-unstyled" label="" maxlength="<%= String.valueOf(titleMaxLength) %>" name="title" onChange='<%= liferayPortletResponse.getNamespace() + "onChangeTitle(event.target.value)" %>' placeholder='<%= LanguageUtil.get(request, "title") + StringPool.BLANK + " *" %>' required="<%= true %>" showRequiredLabel="<%= true %>" type="textarea" value="<%= HtmlUtil.escape(title) %>" />
+						</div>
 
 						<div class="entry-subtitle">
-							<liferay-ui:input-editor
-								contents="<%= HtmlUtil.escape(subtitle) %>"
-								editorName="alloyeditor"
-								name="subtitleEditor"
-								placeholder="subtitle"
-								showSource="<%= false %>"
-							/>
+							<aui:input autoSize="<%= true %>" cssClass="form-control-edit form-control-edit-subtitle form-control-unstyled" label="" name="subtitle" placeholder='<%= LanguageUtil.get(request, "subtitle") %>' type="textarea" />
 						</div>
 
-						<aui:input name="subtitle" type="hidden" />
-
 						<div class="entry-content form-group">
-							<liferay-ui:input-editor
+							<liferay-editor:editor
 								contents="<%= content %>"
 								editorName='<%= PropsUtil.get("editor.wysiwyg.portal-web.docroot.html.portlet.blogs.edit_entry.jsp") %>'
 								name="contentEditor"
@@ -177,17 +175,18 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 								required="<%= true %>"
 							>
 								<aui:validator name="required" />
-							</liferay-ui:input-editor>
+							</liferay-editor:editor>
 						</div>
 
 						<aui:input name="content" type="hidden" />
-					</div>
+					</clay:col>
 				</aui:fieldset>
 
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="categorization">
 					<liferay-asset:asset-categories-selector
 						className="<%= BlogsEntry.class.getName() %>"
 						classPK="<%= entryId %>"
+						visibilityTypes="<%= AssetVocabularyConstants.VISIBILITY_TYPES %>"
 					/>
 
 					<liferay-asset:asset-tags-selector
@@ -259,7 +258,7 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 						</div>
 
 						<div class="entry-description form-group">
-							<aui:input disabled="<%= !customAbstract %>" label="description" name="description" onChange='<%= renderResponse.getNamespace() + "setCustomDescription(this.value);" %>' type="text" value="<%= description %>">
+							<aui:input disabled="<%= !customAbstract %>" label="description" name="description" onChange='<%= liferayPortletResponse.getNamespace() + "setCustomDescription(this.value);" %>' type="text" value="<%= description %>">
 								<aui:validator name="required" />
 							</aui:input>
 						</div>
@@ -291,12 +290,7 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 					<aui:input label="display-date" name="displayDate" />
 
 					<c:if test="<%= (entry != null) && blogsGroupServiceSettings.isEmailEntryUpdatedEnabled() %>">
-
-						<%
-						boolean sendEmailEntryUpdated = ParamUtil.getBoolean(request, "sendEmailEntryUpdated");
-						%>
-
-						<aui:input helpMessage="comments-regarding-the-blog-entry-update" label="send-email-entry-updated" name="sendEmailEntryUpdated" type="toggle-switch" value="<%= sendEmailEntryUpdated %>" />
+						<aui:input helpMessage="comments-regarding-the-blog-entry-update" label="send-email-entry-updated" name="sendEmailEntryUpdated" type="toggle-switch" value='<%= ParamUtil.getBoolean(request, "sendEmailEntryUpdated") %>' />
 
 						<%
 						String emailEntryUpdatedComment = ParamUtil.getString(request, "emailEntryUpdatedComment");
@@ -416,7 +410,7 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 			<aui:button href="<%= redirect %>" name="cancelButton" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <portlet:actionURL name="/blogs/edit_entry" var="editEntryURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
 	<portlet:param name="ajax" value="<%= Boolean.TRUE.toString() %>" />
@@ -487,7 +481,7 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 		})
 	);
 
-	var clearSaveDraftHandle = function(event) {
+	var clearSaveDraftHandle = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			blogs.destroy();
 

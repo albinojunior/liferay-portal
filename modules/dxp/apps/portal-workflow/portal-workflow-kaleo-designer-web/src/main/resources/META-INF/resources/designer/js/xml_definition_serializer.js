@@ -11,12 +11,11 @@
 
 AUI.add(
 	'liferay-kaleo-designer-xml-definition-serializer',
-	A => {
+	(A) => {
 		var AArray = A.Array;
 		var AObject = A.Object;
 		var Lang = A.Lang;
 
-		var XMLFormatter = new Liferay.XMLFormatter();
 		var XMLUtil = Liferay.XMLUtil;
 
 		var isArray = Lang.isArray;
@@ -28,23 +27,13 @@ AUI.add(
 
 		var STR_BLANK = '';
 
-		var isNotEmptyValue = function(item) {
+		var STR_CHAR_CRLF = '\r\n';
+
+		var isNotEmptyValue = function (item) {
 			return isValue(item) && item !== STR_BLANK;
 		};
 
-		var serializeDefinition = function(xmlNamespace, metadata, json) {
-			var xml = toXML(xmlNamespace, metadata, json);
-
-			xml = XMLUtil.format(xml);
-
-			xml = XMLFormatter.format(xml);
-
-			xml = xml.trim();
-
-			return xml;
-		};
-
-		var toXML = function(xmlNamespace, metadata, json) {
+		var serializeDefinition = function (xmlNamespace, metadata, json) {
 			var description = metadata.description;
 			var name = metadata.name;
 			var version = metadata.version;
@@ -56,7 +45,11 @@ AUI.add(
 				xmlNamespace
 			);
 
-			buffer.push('<?xml version="1.0"?>', xmlWorkflowDefinition.open);
+			buffer.push(
+				'<?xml version="1.0"?>',
+				STR_CHAR_CRLF,
+				xmlWorkflowDefinition.open
+			);
 
 			if (name) {
 				buffer.push(XMLUtil.create('name', A.Escape.html(name)));
@@ -70,7 +63,7 @@ AUI.add(
 				buffer.push(XMLUtil.create('version', version));
 			}
 
-			json.nodes.forEach(item => {
+			json.nodes.forEach((item) => {
 				var description = item.description;
 				var initial = item.initial;
 				var metadata = item.metadata;
@@ -120,10 +113,10 @@ AUI.add(
 
 			buffer.push(xmlWorkflowDefinition.close);
 
-			return buffer.join(STR_BLANK);
+			return XMLUtil.format(buffer);
 		};
 
-		var appendXMLActions = function(
+		var appendXMLActions = function (
 			buffer,
 			actions,
 			notifications,
@@ -205,7 +198,7 @@ AUI.add(
 			}
 		};
 
-		var appendXMLAssignments = function(
+		var appendXMLAssignments = function (
 			buffer,
 			dataAssignments,
 			wrapperNodeName,
@@ -222,8 +215,8 @@ AUI.add(
 				buffer.push(xmlAssignments.open);
 
 				if (dataAssignments.address) {
-					dataAssignments.address.forEach(item => {
-						if (isValue(item)) {
+					dataAssignments.address.forEach((item) => {
+						if (isNotEmptyValue(item)) {
 							buffer.push(XMLUtil.create('address', item));
 						}
 					});
@@ -319,62 +312,81 @@ AUI.add(
 				}
 				else if (assignmentType === 'user') {
 					if (
-						isArray(dataAssignments.userId) &&
-						dataAssignments.userId.filter(isValue).length !== 0
+						isArray(dataAssignments.emailAddress) &&
+						dataAssignments.emailAddress.filter(isNotEmptyValue)
+							.length !== 0
 					) {
-						var xmlUser = XMLUtil.createObj('user');
+						const xmlUser = XMLUtil.createObj('user');
 
-						dataAssignments.userId.forEach((item, index) => {
+						dataAssignments.emailAddress.forEach((item) => {
 							buffer.push(xmlUser.open);
 
-							var userContent = null;
-
-							if (isValue(item)) {
-								userContent = XMLUtil.create('userId', item);
-							}
-							else if (
-								isValue(dataAssignments.emailAddress[index])
-							) {
-								userContent = XMLUtil.create(
-									'emailAddress',
-									dataAssignments.emailAddress[index]
-								);
-							}
-							else if (
-								isValue(dataAssignments.screenName[index])
-							) {
-								userContent = XMLUtil.create(
-									'screenName',
-									dataAssignments.screenName[index]
+							if (isNotEmptyValue(item)) {
+								buffer.push(
+									XMLUtil.create('emailAddress', item)
 								);
 							}
 
-							if (userContent) {
-								buffer.push(userContent);
+							buffer.push(xmlUser.close);
+						});
+					}
+					else if (
+						isArray(dataAssignments.screenName) &&
+						dataAssignments.screenName.filter(isNotEmptyValue)
+							.length !== 0
+					) {
+						const xmlUser = XMLUtil.createObj('user');
+
+						dataAssignments.screenName.forEach((item) => {
+							buffer.push(xmlUser.open);
+
+							if (isNotEmptyValue(item)) {
+								buffer.push(XMLUtil.create('screenName', item));
+							}
+
+							buffer.push(xmlUser.close);
+						});
+					}
+					else if (
+						isArray(dataAssignments.userId) &&
+						dataAssignments.userId.filter(isNotEmptyValue)
+							.length !== 0
+					) {
+						const xmlUser = XMLUtil.createObj('user');
+
+						dataAssignments.userId.forEach((item) => {
+							buffer.push(xmlUser.open);
+
+							if (isNotEmptyValue(item)) {
+								buffer.push(XMLUtil.create('userId', item));
 							}
 
 							buffer.push(xmlUser.close);
 						});
 					}
 					else {
-						buffer.push('<user/>');
+						buffer.push('<user />');
 					}
 				}
 				else if (assignmentType === 'taskAssignees') {
-					buffer.push('<assignees/>');
+					buffer.push('<assignees />');
 				}
 				else if (
 					!dataAssignments.address ||
-					dataAssignments.address.filter(isValue).length === 0
+					dataAssignments.address.filter(isNotEmptyValue).length === 0
 				) {
-					buffer.push('<user/>');
+					buffer.push('<user />');
 				}
 
 				buffer.push(xmlAssignments.close);
 			}
 		};
 
-		var appendXMLNotifications = function(buffer, notifications, nodeName) {
+		var appendXMLNotifications = function (
+			buffer,
+			notifications,
+			nodeName
+		) {
 			if (
 				notifications &&
 				notifications.name &&
@@ -422,7 +434,7 @@ AUI.add(
 					}
 
 					if (isValidValue(notificationTypes, index)) {
-						notificationTypes[index].forEach(item => {
+						notificationTypes[index].forEach((item) => {
 							buffer.push(
 								XMLUtil.create(
 									'notificationType',
@@ -471,7 +483,7 @@ AUI.add(
 			}
 		};
 
-		var appendXMLTaskTimers = function(buffer, taskTimers) {
+		var appendXMLTaskTimers = function (buffer, taskTimers) {
 			if (taskTimers && taskTimers.name && taskTimers.name.length > 0) {
 				var xmlTaskTimers = XMLUtil.createObj('task-timers');
 
@@ -527,7 +539,7 @@ AUI.add(
 						buffer.push(xmlRecurrence.close);
 					}
 
-					if (blocking && isValue(blocking[index])) {
+					if (blocking && isNotEmptyValue(blocking[index])) {
 						buffer.push(
 							XMLUtil.create('blocking', blocking[index])
 						);
@@ -554,14 +566,14 @@ AUI.add(
 			}
 		};
 
-		var appendXMLTransitions = function(buffer, transitions) {
+		var appendXMLTransitions = function (buffer, transitions) {
 			if (transitions && transitions.length > 0) {
 				var xmlTransition = XMLUtil.createObj('transition');
 				var xmlTransitions = XMLUtil.createObj('transitions');
 
 				buffer.push(xmlTransitions.open);
 
-				var pickDefault = transitions.some(item => {
+				var pickDefault = transitions.some((item) => {
 					return item.connector.default === true;
 				});
 
@@ -587,7 +599,7 @@ AUI.add(
 			}
 		};
 
-		var isValidValue = function(array, index) {
+		var isValidValue = function (array, index) {
 			return array && array[index] !== undefined;
 		};
 
@@ -599,7 +611,6 @@ AUI.add(
 			'escape',
 			'liferay-kaleo-designer-utils',
 			'liferay-kaleo-designer-xml-util',
-			'liferay-xml-formatter',
 		],
 	}
 );

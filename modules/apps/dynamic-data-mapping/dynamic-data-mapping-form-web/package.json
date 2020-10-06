@@ -1,12 +1,13 @@
 {
 	"dependencies": {
 		"classnames": "2.2.6",
-		"clay-alert": "2.20.2",
-		"clay-checkbox": "2.20.2",
-		"clay-icon": "2.20.2",
-		"clay-management-toolbar": "2.20.2",
-		"clay-modal": "2.20.2",
-		"clay-radio": "2.20.2",
+		"clay-alert": "2.21.4",
+		"clay-checkbox": "2.21.4",
+		"clay-icon": "2.21.4",
+		"clay-management-toolbar": "2.21.4",
+		"clay-modal": "2.21.4",
+		"clay-multi-select": "2.21.4",
+		"clay-radio": "2.21.4",
 		"clipboard": "2.0.4",
 		"metal-dom": "2.16.8",
 		"metal-drag-drop": "3.3.1",
@@ -17,6 +18,9 @@
 		"object-hash": "^1.3.0"
 	},
 	"jest": {
+		"moduleNameMapper": {
+			"^./liferay/modal/Modal$": "<rootDir>/test/js/__mock__/Modal.js"
+		},
 		"modulePathIgnorePatterns": [
 			"/__mock__/"
 		],
@@ -25,9 +29,6 @@
 		],
 		"snapshotSerializers": [
 			"metal-jest-serializer"
-		],
-		"testPathIgnorePatterns": [
-			"ShareFormPopover"
 		]
 	},
 	"main": "admin/js/main.es.js",
@@ -39,5 +40,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "3.0.6"
+	"version": "3.0.43"
 }

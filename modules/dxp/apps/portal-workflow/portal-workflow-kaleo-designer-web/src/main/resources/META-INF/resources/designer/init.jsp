@@ -56,7 +56,6 @@ page import="com.liferay.portal.workflow.constants.WorkflowWebKeys" %><%@
 page import="com.liferay.portal.workflow.exception.IncompleteWorkflowInstancesException" %><%@
 page import="com.liferay.portal.workflow.kaleo.definition.exception.KaleoDefinitionValidationException" %><%@
 page import="com.liferay.portal.workflow.kaleo.designer.web.constants.KaleoDesignerPortletKeys" %><%@
-page import="com.liferay.portal.workflow.kaleo.designer.web.internal.constants.KaleoDefinitionVersionConstants" %><%@
 page import="com.liferay.portal.workflow.kaleo.designer.web.internal.constants.KaleoDesignerWebKeys" %><%@
 page import="com.liferay.portal.workflow.kaleo.designer.web.internal.dao.search.KaleoDefinitionVersionResultRowSplitter" %><%@
 page import="com.liferay.portal.workflow.kaleo.designer.web.internal.permission.KaleoDefinitionVersionPermission" %><%@
@@ -68,6 +67,8 @@ page import="com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLoc
 page import="com.liferay.taglib.search.ResultRow" %>
 
 <%@ page import="java.text.Format" %>
+
+<%@ page import="java.util.Objects" %>
 
 <%@ page import="javax.portlet.PortletRequest" %><%@
 page import="javax.portlet.PortletURL" %>
@@ -83,6 +84,17 @@ KaleoDesignerDisplayContext kaleoDesignerDisplayContext = (KaleoDesignerDisplayC
 
 kaleoDesignerDisplayContext.setKaleoDesignerRequestHelper(renderRequest);
 
+String navigation = ParamUtil.getString(request, "navigation");
+
+int displayedStatus = WorkflowConstants.STATUS_ANY;
+
+if (StringUtil.equals(navigation, "published")) {
+	displayedStatus = WorkflowConstants.STATUS_APPROVED;
+}
+else if (StringUtil.equals(navigation, "not-published")) {
+	displayedStatus = WorkflowConstants.STATUS_DRAFT;
+}
+
 Format dateFormatTime = null;
 
 if (DateUtil.isFormatAmPm(locale)) {
@@ -94,7 +106,7 @@ else {
 %>
 
 <aui:script use="liferay-kaleo-designer-dialogs">
-	window.<portlet:namespace/>confirmDeleteDefinition = function(deleteURL) {
+	window.<portlet:namespace />confirmDeleteDefinition = function (deleteURL) {
 		var message =
 			'<%= LanguageUtil.get(request, "a-deleted-workflow-cannot-be-recovered") %>';
 		var title = '<%= LanguageUtil.get(request, "delete-workflow-question") %>';

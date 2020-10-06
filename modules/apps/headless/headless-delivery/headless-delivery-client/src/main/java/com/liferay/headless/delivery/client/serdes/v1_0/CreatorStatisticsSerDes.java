@@ -141,14 +141,25 @@ public class CreatorStatisticsSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-		map.put(
-			"joinDate",
-			liferayToJSONDateFormat.format(creatorStatistics.getJoinDate()));
+		if (creatorStatistics.getJoinDate() == null) {
+			map.put("joinDate", null);
+		}
+		else {
+			map.put(
+				"joinDate",
+				liferayToJSONDateFormat.format(
+					creatorStatistics.getJoinDate()));
+		}
 
-		map.put(
-			"lastPostDate",
-			liferayToJSONDateFormat.format(
-				creatorStatistics.getLastPostDate()));
+		if (creatorStatistics.getLastPostDate() == null) {
+			map.put("lastPostDate", null);
+		}
+		else {
+			map.put(
+				"lastPostDate",
+				liferayToJSONDateFormat.format(
+					creatorStatistics.getLastPostDate()));
+		}
 
 		if (creatorStatistics.getPostsNumber() == null) {
 			map.put("postsNumber", null);
@@ -210,9 +221,8 @@ public class CreatorStatisticsSerDes {
 					creatorStatistics.setRank((String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -268,10 +278,13 @@ public class CreatorStatisticsSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

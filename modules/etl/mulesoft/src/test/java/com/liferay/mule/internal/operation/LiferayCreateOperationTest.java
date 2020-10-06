@@ -15,7 +15,6 @@
 package com.liferay.mule.internal.operation;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,9 +26,8 @@ public class LiferayCreateOperationTest extends BaseLiferayOperationTestCase {
 
 	@Test
 	public void testCreateOperation() throws Exception {
-		String payload = getPayload("test-create-product-flow");
-
-		Matcher matcher = _productPattern.matcher(payload);
+		Matcher matcher = productPattern.matcher(
+			getPayload("test-create-product-flow"));
 
 		Assert.assertTrue(matcher.matches());
 	}
@@ -38,9 +36,5 @@ public class LiferayCreateOperationTest extends BaseLiferayOperationTestCase {
 	protected String getConfigFile() {
 		return "test-create-operation.xml";
 	}
-
-	private static final Pattern _productPattern = Pattern.compile(
-		"[\\s\\S]+\"active\"[\\s\\S]+\"catalogId\"[\\s\\S]+" +
-			"\"name\"[\\s\\S]+\"productType\"[\\s\\S]+");
 
 }

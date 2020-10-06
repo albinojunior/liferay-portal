@@ -18,9 +18,9 @@ import com.liferay.portal.kernel.cache.CacheRegistryItem;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.repository.RepositoryFactory;
 import com.liferay.portal.kernel.repository.registry.RepositoryDefiner;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.repository.external.LegacyExternalRepositoryDefiner;
 import com.liferay.portal.repository.util.ExternalRepositoryFactory;
 import com.liferay.portal.repository.util.ExternalRepositoryFactoryImpl;
@@ -62,7 +62,7 @@ public class RepositoryClassDefinitionCatalogImpl
 
 			registerLegacyExternalRepositoryFactory(
 				className, externalRepositoryFactory,
-				LanguageUtil.getPortalResourceBundleLoader());
+				LanguageUtil.getResourceBundleLoader());
 		}
 	}
 
@@ -195,12 +195,11 @@ public class RepositoryClassDefinitionCatalogImpl
 			_repositoryClassDefinitions.put(
 				className, repositoryClassDefinition);
 
-			Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-				"class.name", className
-			).build();
-
 			return registry.registerService(
-				RepositoryFactory.class, repositoryClassDefinition, properties);
+				RepositoryFactory.class, repositoryClassDefinition,
+				HashMapBuilder.<String, Object>put(
+					"class.name", className
+				).build());
 		}
 
 		@Override

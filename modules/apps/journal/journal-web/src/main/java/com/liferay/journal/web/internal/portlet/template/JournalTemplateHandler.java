@@ -103,6 +103,15 @@ public class JournalTemplateHandler extends BaseDDMTemplateHandler {
 		Map<String, TemplateVariableGroup> templateVariableGroups =
 			super.getTemplateVariableGroups(classPK, language, locale);
 
+		TemplateVariableGroup fieldsTemplateVariableGroup =
+			templateVariableGroups.get("fields");
+
+		if (fieldsTemplateVariableGroup != null) {
+			fieldsTemplateVariableGroup.addVariable(
+				"friendly-url", String.class,
+				"friendlyURLs[themeDisplay.getLanguageId()]!\"\"");
+		}
+
 		String[] restrictedVariables = getRestrictedVariables(language);
 
 		TemplateVariableGroup journalUtilTemplateVariableGroup =

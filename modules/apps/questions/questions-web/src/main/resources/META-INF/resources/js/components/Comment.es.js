@@ -12,41 +12,49 @@
  * details.
  */
 
+import {useMutation} from '@apollo/client';
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import React from 'react';
 
-import {deleteMessage} from '../utils/client.es';
+import {deleteMessageQuery} from '../utils/client.es';
+import ArticleBodyRenderer from './ArticleBodyRenderer.es';
 
-export default ({comment, commentChange}) => {
-	const deleteComment = () => {
-		deleteMessage(comment);
-		commentChange(comment);
-	};
+export default ({comment, commentChange, editable = true}) => {
+	const [deleteMessage] = useMutation(deleteMessageQuery, {
+		onCompleted() {
+			if (commentChange) {
+				commentChange(comment);
+			}
+		},
+	});
 
 	return (
-		<div className="c-my-3 question-reply row">
-			<div className="align-items-center col-1 d-flex justify-content-center">
+		<div className="c-my-3 questions-reply row">
+			<div className="align-items-md-center col-2 col-md-1 d-flex justify-content-end justify-content-md-center">
 				<ClayIcon
-					className="question-reply-icon text-secondary"
+					className="c-mt-3 c-mt-md-0 questions-reply-icon text-secondary"
 					symbol="reply"
 				/>
 			</div>
 
-			<div className="col-11">
-				<p className="c-mb-0">
-					{comment.articleBody}
-					{' - '}
-					<span className="font-weight-bold">
-						{comment.creator.name}
-					</span>
-				</p>
+			<div className="col-10 col-lg-11">
+				<div className="c-mb-0">
+					<ArticleBodyRenderer
+						{...comment}
+						signature={comment.creator.name}
+					/>
+				</div>
 
-				{comment.actions.delete && (
+				{editable && comment.actions.delete && (
 					<ClayButton
 						className="c-mt-3 font-weight-bold text-secondary"
 						displayType="unstyled"
-						onClick={deleteComment}
+						onClick={() => {
+							deleteMessage({
+								variables: {messageBoardMessageId: comment.id},
+							});
+						}}
 					>
 						{Liferay.Language.get('delete')}
 					</ClayButton>

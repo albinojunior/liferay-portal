@@ -100,10 +100,10 @@ public class DLFileEntryFinderImpl
 
 			sqlQuery.addScalar(COUNT_COLUMN_NAME, Type.LONG);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -510,8 +510,8 @@ public class DLFileEntryFinderImpl
 	}
 
 	protected int doCountByG_F(
-		long groupId, List<Long> folderIds, QueryDefinition queryDefinition,
-		boolean inlineSQLHelper) {
+		long groupId, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition, boolean inlineSQLHelper) {
 
 		Session session = null;
 
@@ -538,10 +538,10 @@ public class DLFileEntryFinderImpl
 				queryPos.add(folderId);
 			}
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -608,10 +608,10 @@ public class DLFileEntryFinderImpl
 				queryPos.add(mimeTypes);
 			}
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -696,7 +696,7 @@ public class DLFileEntryFinderImpl
 
 	protected String getDDMStructureIds(long[] ddmStructureIds) {
 		StringBundler sb = new StringBundler(
-			(ddmStructureIds.length * 2 - 1) + 2);
+			((ddmStructureIds.length * 2) - 1) + 2);
 
 		sb.append(StringPool.OPEN_PARENTHESIS);
 
@@ -784,7 +784,7 @@ public class DLFileEntryFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(folderIds.size() * 3 + 1);
+		StringBundler sb = new StringBundler((folderIds.size() * 3) + 1);
 
 		sb.append(StringPool.OPEN_PARENTHESIS);
 
@@ -807,7 +807,7 @@ public class DLFileEntryFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(mimeTypes.length * 3 - 1);
+		StringBundler sb = new StringBundler((mimeTypes.length * 3) - 1);
 
 		for (int i = 0; i < mimeTypes.length; i++) {
 			sb.append(tableName);
@@ -828,7 +828,7 @@ public class DLFileEntryFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(repositoryIds.size() * 3 + 1);
+		StringBundler sb = new StringBundler((repositoryIds.size() * 3) + 1);
 
 		sb.append(StringPool.OPEN_PARENTHESIS);
 

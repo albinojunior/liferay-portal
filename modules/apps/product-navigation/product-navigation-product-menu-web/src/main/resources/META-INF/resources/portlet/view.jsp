@@ -19,28 +19,34 @@
 <%
 String productMenuState = SessionClicks.get(request, "com.liferay.product.navigation.product.menu.web_productMenuState", "closed");
 String pagesTreeState = SessionClicks.get(request, "com.liferay.product.navigation.product.menu.web_pagesTreeState", "closed");
+
+ApplicationsMenuInstanceConfiguration applicationsMenuInstanceConfiguration = ConfigurationProviderUtil.getCompanyConfiguration(ApplicationsMenuInstanceConfiguration.class, themeDisplay.getCompanyId());
 %>
 
-<div class="lfr-product-menu-sidebar" id="productMenuSidebar">
-	<div class="sidebar-header">
-		<h1 class="sr-only"><liferay-ui:message key="product-admin-menu" /></h1>
+<div class="lfr-product-menu-sidebar <%= applicationsMenuInstanceConfiguration.enableApplicationsMenu() ? "lfr-applications-menu" : "" %>" id="productMenuSidebar">
+	<c:if test="<%= !applicationsMenuInstanceConfiguration.enableApplicationsMenu() %>">
+		<div class="sidebar-header">
+			<h1 class="sr-only"><liferay-ui:message key="product-admin-menu" /></h1>
 
-		<div class="autofit-row">
-			<div class="autofit-col autofit-col-expand">
-				<a href="<%= PortalUtil.addPreservedParameters(themeDisplay, themeDisplay.getURLPortal(), false, true) %>">
-					<span class="company-details text-truncate">
-						<img alt="" class="company-logo" src="<%= themeDisplay.getPathImage() + "/company_logo?img_id=" + company.getLogoId() + "&t=" + WebServerServletTokenUtil.getToken(company.getLogoId()) %>" />
+			<clay:content-row>
+				<clay:content-col
+					expand="<%= true %>"
+				>
+					<a href="<%= PortalUtil.addPreservedParameters(themeDisplay, themeDisplay.getURLPortal(), false, true) %>">
+						<span class="company-details text-truncate">
+							<img alt="" class="company-logo" src="<%= themeDisplay.getPathImage() + "/company_logo?img_id=" + company.getLogoId() + "&t=" + WebServerServletTokenUtil.getToken(company.getLogoId()) %>" />
 
-						<span class="company-name"><%= HtmlUtil.escape(company.getName()) %></span>
-					</span>
-				</a>
-			</div>
+							<span class="company-name"><%= HtmlUtil.escape(company.getName()) %></span>
+						</span>
+					</a>
+				</clay:content-col>
 
-			<div class="autofit-col">
-				<aui:icon cssClass="d-inline-block d-md-none icon-monospaced sidenav-close" image="times" markupView="lexicon" url="javascript:;" />
-			</div>
+				<clay:content-col>
+					<aui:icon cssClass="d-inline-block d-md-none icon-monospaced sidenav-close" image="times" markupView="lexicon" url="javascript:;" />
+				</clay:content-col>
+			</clay:content-row>
 		</div>
-	</div>
+	</c:if>
 
 	<div class="sidebar-body">
 		<c:choose>
@@ -49,7 +55,9 @@ String pagesTreeState = SessionClicks.get(request, "com.liferay.product.navigati
 			</c:when>
 			<c:when test='<%= Objects.equals(productMenuState, "open") && Objects.equals(pagesTreeState, "open") %>'>
 				<div class="pages-tree">
-					<liferay-util:include page="/portlet/pages_tree.jsp" servletContext="<%= application %>" />
+					<liferay-util:include page="/portlet/pages_tree.jsp" servletContext="<%= application %>">
+						<liferay-util:param name="redirect" value="<%= themeDisplay.getURLCurrent() %>" />
+					</liferay-util:include>
 				</div>
 			</c:when>
 		</c:choose>

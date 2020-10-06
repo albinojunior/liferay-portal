@@ -23,7 +23,6 @@ import java.util.Set;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.common.SchemaProperties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -45,13 +44,13 @@ public class TLiferayBatchOutputDefinition extends LiferayDefinition {
 		return concatPropertiesClasses(
 			super.getNestedCompatibleComponentPropertiesClass(),
 			(Class<? extends ComponentProperties>[])new Class<?>[] {
-				SchemaProperties.class
+				LiferayBatchOutputProperties.class
 			});
 	}
 
 	@Override
 	public Class<? extends ComponentProperties> getPropertyClass() {
-		return LiferayBatchOutputProperties.class;
+		return TLiferayBatchOutputProperties.class;
 	}
 
 	@Override
@@ -70,16 +69,12 @@ public class TLiferayBatchOutputDefinition extends LiferayDefinition {
 
 		assertEngineCompatibility(executionEngine);
 
-		if (connectorTopology == ConnectorTopology.OUTGOING) {
-			return getCommonRuntimeInfo(BATCH_OUTPUT_SINK_CLASS_NAME);
-		}
-
-		return null;
+		return getCommonRuntimeInfo(BATCH_OUTPUT_SINK_CLASS_NAME);
 	}
 
 	@Override
 	public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-		return EnumSet.of(ConnectorTopology.OUTGOING);
+		return EnumSet.of(ConnectorTopology.OUTGOING, ConnectorTopology.NONE);
 	}
 
 	@Override

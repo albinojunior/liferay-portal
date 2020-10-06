@@ -12,7 +12,7 @@
 import ClayPopover from '@clayui/popover';
 import {Align} from 'metal-position';
 import Proptypes from 'prop-types';
-import React, {useRef} from 'react';
+import React, {useLayoutEffect, useRef} from 'react';
 import ReactDOM from 'react-dom';
 
 /**
@@ -21,23 +21,29 @@ import ReactDOM from 'react-dom';
  * It is triggered on hover, thus it does not need to re-calculate on window resize,
  * scroll or any other event
  */
-const Popover = props => {
+const Popover = (props) => {
 	return ReactDOM.createPortal(
 		<PopoverComponent {...props} />,
 		document.body
 	);
 };
 
-const PopoverComponent = ({anchor, children, ...rest}) => {
+const PopoverComponent = ({
+	anchor,
+	align = Align.Top,
+	children,
+	position = 'top',
+	...rest
+}) => {
 	const popRef = useRef(null);
 
-	React.useLayoutEffect(() => {
-		Align.align(popRef.current, anchor, Align.Top, false);
+	useLayoutEffect(() => {
+		Align.align(popRef.current, anchor, align, false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
-		<ClayPopover alignPosition="top" ref={popRef} {...rest}>
+		<ClayPopover alignPosition={position} ref={popRef} {...rest}>
 			{children}
 		</ClayPopover>
 	);

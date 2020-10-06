@@ -37,17 +37,17 @@ public class SiteNavigationMenuItemCacheModel
 	implements CacheModel<SiteNavigationMenuItem>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SiteNavigationMenuItemCacheModel)) {
+		if (!(object instanceof SiteNavigationMenuItemCacheModel)) {
 			return false;
 		}
 
 		SiteNavigationMenuItemCacheModel siteNavigationMenuItemCacheModel =
-			(SiteNavigationMenuItemCacheModel)obj;
+			(SiteNavigationMenuItemCacheModel)object;
 
 		if ((siteNavigationMenuItemId ==
 				siteNavigationMenuItemCacheModel.siteNavigationMenuItemId) &&
@@ -200,7 +200,9 @@ public class SiteNavigationMenuItemCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
@@ -220,7 +222,7 @@ public class SiteNavigationMenuItemCacheModel
 		parentSiteNavigationMenuItemId = objectInput.readLong();
 		name = objectInput.readUTF();
 		type = objectInput.readUTF();
-		typeSettings = objectInput.readUTF();
+		typeSettings = (String)objectInput.readObject();
 
 		order = objectInput.readInt();
 		lastPublishDate = objectInput.readLong();
@@ -274,10 +276,10 @@ public class SiteNavigationMenuItemCacheModel
 		}
 
 		if (typeSettings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(typeSettings);
+			objectOutput.writeObject(typeSettings);
 		}
 
 		objectOutput.writeInt(order);

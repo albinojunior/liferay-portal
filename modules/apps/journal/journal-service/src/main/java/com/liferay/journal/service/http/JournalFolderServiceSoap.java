@@ -58,8 +58,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see JournalFolderServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class JournalFolderServiceSoap {
 
 	public static com.liferay.journal.model.JournalFolderSoap addFolder(
@@ -488,14 +490,15 @@ public class JournalFolderServiceSoap {
 				long companyId, long[] groupIds, long folderId,
 				int restrictionType, String keywords, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.DDMStructure> obc)
+					<com.liferay.dynamic.data.mapping.model.DDMStructure>
+						orderByComparator)
 		throws RemoteException {
 
 		try {
 			java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure>
 				returnValue = JournalFolderServiceUtil.searchDDMStructures(
 					companyId, groupIds, folderId, restrictionType, keywords,
-					start, end, obc);
+					start, end, orderByComparator);
 
 			return com.liferay.dynamic.data.mapping.model.DDMStructureSoap.
 				toSoapModels(returnValue);

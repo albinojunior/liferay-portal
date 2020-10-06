@@ -17,12 +17,12 @@ package com.liferay.microblogs.service.impl;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.microblogs.constants.MicroblogsEntryConstants;
 import com.liferay.microblogs.constants.MicroblogsPortletKeys;
 import com.liferay.microblogs.exception.UnsupportedMicroblogsEntryException;
 import com.liferay.microblogs.internal.social.MicroblogsActivityKeys;
 import com.liferay.microblogs.internal.util.MicroblogsUtil;
 import com.liferay.microblogs.model.MicroblogsEntry;
-import com.liferay.microblogs.model.MicroblogsEntryConstants;
 import com.liferay.microblogs.service.base.MicroblogsEntryLocalServiceBaseImpl;
 import com.liferay.microblogs.util.comparator.EntryCreateDateComparator;
 import com.liferay.petra.string.StringPool;
@@ -280,10 +280,10 @@ public class MicroblogsEntryLocalServiceImpl
 	@Override
 	public List<MicroblogsEntry> getMicroblogsEntries(
 		long companyId, long creatorClassNameId, int type, int start, int end,
-		OrderByComparator obc) {
+		OrderByComparator<MicroblogsEntry> orderByComparator) {
 
 		return microblogsEntryPersistence.findByC_CCNI_T(
-			companyId, creatorClassNameId, type, start, end, obc);
+			companyId, creatorClassNameId, type, start, end, orderByComparator);
 	}
 
 	@Override

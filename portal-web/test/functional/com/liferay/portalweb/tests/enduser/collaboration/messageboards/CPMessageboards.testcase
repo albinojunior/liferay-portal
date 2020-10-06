@@ -28,6 +28,8 @@ definition {
 
 	@priority = "5"
 	test AddMBCategory {
+		property portal.acceptance = "true";
+
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
 		MessageboardsCategory.addCP(categoryName = "MB Category Name");
@@ -60,6 +62,7 @@ definition {
 		property app.server.types = "jboss,tcserver,tomcat,weblogic,websphere,wildfly";
 		property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver,sybase";
 		property environment.acceptance = "true";
+		property portal.acceptance = "true";
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
@@ -105,17 +108,16 @@ definition {
 
 	@priority = "4"
 	test DeleteMBCategories {
-		Navigator.openURL();
-
-		for (var categoryName : list "MB Category1 Name,MB Category2 Name,MB Category3 Name") {
-			MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
-
-			MessageboardsCategory.addCP(categoryName = "${categoryName}");
+		for (var num : list "1,2,3") {
+			JSONMBMessage.addCategory(
+				categoryDescription = "MB Category Description",
+				categoryName = "MB Category${num} Name",
+				userEmailAddress = "test@liferay.com");
 		}
 
-		Navigator.openURL();
+		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
-		MessageboardsCategory.tearDownCP(assetType = "3 items");
+		MessageboardsCategory.deleteCP();
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
@@ -132,7 +134,7 @@ definition {
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "site-name");
 
-		MessageboardsThread.addCPWithAttachment(
+		MessageboardsThread.addCP(
 			mbAttachmentFile = "Document_1.doc",
 			threadBody = "MB Body",
 			threadSubject = "MB Subject");
@@ -179,9 +181,8 @@ definition {
 
 	@priority = "5"
 	test MoveToRecycleBinMBThread {
-		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
-
-		MessageboardsThread.addCP(
+		JSONMBMessage.addMessage(
+			groupName = "Guest",
 			threadBody = "MB Thread Message Body",
 			threadSubject = "MB Thread Message Subject");
 

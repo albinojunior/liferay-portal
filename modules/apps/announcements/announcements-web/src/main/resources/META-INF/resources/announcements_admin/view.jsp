@@ -46,7 +46,6 @@ AnnouncementsAdminViewManagementToolbarDisplayContext announcementsAdminViewMana
 %>
 
 <clay:navigation-bar
-	inverted="<%= true %>"
 	navigationItems='<%=
 		new JSPNavigationItemList(pageContext) {
 			{
@@ -62,7 +61,6 @@ AnnouncementsAdminViewManagementToolbarDisplayContext announcementsAdminViewMana
 						navigationItem.setHref(renderResponse.createRenderURL(), "navigation", "alerts");
 						navigationItem.setLabel(LanguageUtil.get(request, "alerts"));
 					});
-
 			}
 		}
 	%>'
@@ -79,10 +77,10 @@ AnnouncementsAdminViewManagementToolbarDisplayContext announcementsAdminViewMana
 	itemsTotal="<%= announcementsAdminViewManagementToolbarDisplayContext.getTotal() %>"
 	searchContainerId="announcementsEntries"
 	selectable="<%= true %>"
-	showSearch="false"
+	showSearch="<%= false %>"
 />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<aui:form action="<%= currentURL %>" method="get" name="fm">
 		<aui:input name="<%= Constants.CMD %>" type="hidden" />
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
@@ -103,9 +101,9 @@ AnnouncementsAdminViewManagementToolbarDisplayContext announcementsAdminViewMana
 			>
 
 				<%
-				Map<String, Object> rowData = new HashMap<String, Object>();
-
-				rowData.put("actions", StringUtil.merge(announcementsAdminViewManagementToolbarDisplayContext.getAvailableActions(entry)));
+				Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+					"actions", StringUtil.merge(announcementsAdminViewManagementToolbarDisplayContext.getAvailableActions(entry))
+				).build();
 
 				row.setData(rowData);
 
@@ -154,10 +152,10 @@ AnnouncementsAdminViewManagementToolbarDisplayContext announcementsAdminViewMana
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
-	var deleteEntries = function() {
+	var deleteEntries = function () {
 		if (
 			confirm(
 				'<liferay-ui:message key="are-you-sure-you-want-to-delete-the-selected-entries" />'
@@ -188,15 +186,15 @@ AnnouncementsAdminViewManagementToolbarDisplayContext announcementsAdminViewMana
 		deleteEntries: deleteEntries,
 	};
 
-	Liferay.componentReady('announcementsAdminViewManagementToolbar').then(function(
-		managementToolbar
-	) {
-		managementToolbar.on('actionItemClicked', function(event) {
-			var itemData = event.data.item.data;
+	Liferay.componentReady('announcementsAdminViewManagementToolbar').then(
+		function (managementToolbar) {
+			managementToolbar.on('actionItemClicked', function (event) {
+				var itemData = event.data.item.data;
 
-			if (itemData && itemData.action && ACTIONS[itemData.action]) {
-				ACTIONS[itemData.action]();
-			}
-		});
-	});
+				if (itemData && itemData.action && ACTIONS[itemData.action]) {
+					ACTIONS[itemData.action]();
+				}
+			});
+		}
+	);
 </aui:script>

@@ -14,7 +14,10 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
+import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 /**
  * Provides a wrapper for {@link DDMFormInstanceRecordLocalService}.
@@ -36,26 +39,27 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	/**
 	 * Adds the ddm form instance record to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceRecord the ddm form instance record
 	 * @return the ddm form instance record that was added
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		addDDMFormInstanceRecord(
-			com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-				ddmFormInstanceRecord) {
+	public DDMFormInstanceRecord addDDMFormInstanceRecord(
+		DDMFormInstanceRecord ddmFormInstanceRecord) {
 
 		return _ddmFormInstanceRecordLocalService.addDDMFormInstanceRecord(
 			ddmFormInstanceRecord);
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			addFormInstanceRecord(
-				long userId, long groupId, long ddmFormInstanceId,
-				com.liferay.dynamic.data.mapping.storage.DDMFormValues
-					ddmFormValues,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+	public DDMFormInstanceRecord addFormInstanceRecord(
+			long userId, long groupId, long ddmFormInstanceId,
+			com.liferay.dynamic.data.mapping.storage.DDMFormValues
+				ddmFormValues,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.addFormInstanceRecord(
@@ -69,8 +73,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @return the new ddm form instance record
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		createDDMFormInstanceRecord(long formInstanceRecordId) {
+	public DDMFormInstanceRecord createDDMFormInstanceRecord(
+		long formInstanceRecordId) {
 
 		return _ddmFormInstanceRecordLocalService.createDDMFormInstanceRecord(
 			formInstanceRecordId);
@@ -91,14 +95,16 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	/**
 	 * Deletes the ddm form instance record from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceRecord the ddm form instance record
 	 * @return the ddm form instance record that was removed
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		deleteDDMFormInstanceRecord(
-			com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-				ddmFormInstanceRecord) {
+	public DDMFormInstanceRecord deleteDDMFormInstanceRecord(
+		DDMFormInstanceRecord ddmFormInstanceRecord) {
 
 		return _ddmFormInstanceRecordLocalService.deleteDDMFormInstanceRecord(
 			ddmFormInstanceRecord);
@@ -107,13 +113,17 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	/**
 	 * Deletes the ddm form instance record with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param formInstanceRecordId the primary key of the ddm form instance record
 	 * @return the ddm form instance record that was removed
 	 * @throws PortalException if a ddm form instance record with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			deleteDDMFormInstanceRecord(long formInstanceRecordId)
+	public DDMFormInstanceRecord deleteDDMFormInstanceRecord(
+			long formInstanceRecordId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.deleteDDMFormInstanceRecord(
@@ -121,10 +131,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			deleteFormInstanceRecord(
-				com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-					ddmFormInstanceRecord)
+	public DDMFormInstanceRecord deleteFormInstanceRecord(
+			DDMFormInstanceRecord ddmFormInstanceRecord)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.deleteFormInstanceRecord(
@@ -132,8 +140,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			deleteFormInstanceRecord(long ddmFormInstanceRecordId)
+	public DDMFormInstanceRecord deleteFormInstanceRecord(
+			long ddmFormInstanceRecordId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.deleteFormInstanceRecord(
@@ -158,6 +166,11 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 
 		return _ddmFormInstanceRecordLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ddmFormInstanceRecordLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -253,8 +266,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		fetchDDMFormInstanceRecord(long formInstanceRecordId) {
+	public DDMFormInstanceRecord fetchDDMFormInstanceRecord(
+		long formInstanceRecordId) {
 
 		return _ddmFormInstanceRecordLocalService.fetchDDMFormInstanceRecord(
 			formInstanceRecordId);
@@ -268,16 +281,16 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @return the matching ddm form instance record, or <code>null</code> if a matching ddm form instance record could not be found
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		fetchDDMFormInstanceRecordByUuidAndGroupId(String uuid, long groupId) {
+	public DDMFormInstanceRecord fetchDDMFormInstanceRecordByUuidAndGroupId(
+		String uuid, long groupId) {
 
 		return _ddmFormInstanceRecordLocalService.
 			fetchDDMFormInstanceRecordByUuidAndGroupId(uuid, groupId);
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		fetchFormInstanceRecord(long ddmFormInstanceRecordId) {
+	public DDMFormInstanceRecord fetchFormInstanceRecord(
+		long ddmFormInstanceRecordId) {
 
 		return _ddmFormInstanceRecordLocalService.fetchFormInstanceRecord(
 			ddmFormInstanceRecordId);
@@ -298,8 +311,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @throws PortalException if a ddm form instance record with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			getDDMFormInstanceRecord(long formInstanceRecordId)
+	public DDMFormInstanceRecord getDDMFormInstanceRecord(
+			long formInstanceRecordId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.getDDMFormInstanceRecord(
@@ -315,8 +328,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @throws PortalException if a matching ddm form instance record could not be found
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			getDDMFormInstanceRecordByUuidAndGroupId(String uuid, long groupId)
+	public DDMFormInstanceRecord getDDMFormInstanceRecordByUuidAndGroupId(
+			String uuid, long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.
@@ -335,9 +348,8 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @return the range of ddm form instance records
 	 */
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			getDDMFormInstanceRecords(int start, int end) {
+	public java.util.List<DDMFormInstanceRecord> getDDMFormInstanceRecords(
+		int start, int end) {
 
 		return _ddmFormInstanceRecordLocalService.getDDMFormInstanceRecords(
 			start, end);
@@ -351,10 +363,9 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @return the matching ddm form instance records, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			getDDMFormInstanceRecordsByUuidAndCompanyId(
-				String uuid, long companyId) {
+	public java.util.List<DDMFormInstanceRecord>
+		getDDMFormInstanceRecordsByUuidAndCompanyId(
+			String uuid, long companyId) {
 
 		return _ddmFormInstanceRecordLocalService.
 			getDDMFormInstanceRecordsByUuidAndCompanyId(uuid, companyId);
@@ -371,13 +382,11 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	 * @return the range of matching ddm form instance records, or an empty list if no matches were found
 	 */
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			getDDMFormInstanceRecordsByUuidAndCompanyId(
-				String uuid, long companyId, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.
-						DDMFormInstanceRecord> orderByComparator) {
+	public java.util.List<DDMFormInstanceRecord>
+		getDDMFormInstanceRecordsByUuidAndCompanyId(
+			String uuid, long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<DDMFormInstanceRecord> orderByComparator) {
 
 		return _ddmFormInstanceRecordLocalService.
 			getDDMFormInstanceRecordsByUuidAndCompanyId(
@@ -433,44 +442,37 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			getFormInstanceRecord(long ddmFormInstanceRecordId)
+	public DDMFormInstanceRecord getFormInstanceRecord(
+			long formInstanceRecordId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.getFormInstanceRecord(
-			ddmFormInstanceRecordId);
+			formInstanceRecordId);
 	}
 
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			getFormInstanceRecords(long ddmFormInstanceId) {
+	public java.util.List<DDMFormInstanceRecord> getFormInstanceRecords(
+		long ddmFormInstanceId) {
 
 		return _ddmFormInstanceRecordLocalService.getFormInstanceRecords(
 			ddmFormInstanceId);
 	}
 
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			getFormInstanceRecords(
-				long ddmFormInstanceId, int status, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.
-						DDMFormInstanceRecord> orderByComparator) {
+	public java.util.List<DDMFormInstanceRecord> getFormInstanceRecords(
+		long ddmFormInstanceId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<DDMFormInstanceRecord>
+			orderByComparator) {
 
 		return _ddmFormInstanceRecordLocalService.getFormInstanceRecords(
 			ddmFormInstanceId, status, start, end, orderByComparator);
 	}
 
 	@Override
-	public java.util.List
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			getFormInstanceRecords(
-				long ddmFormInstanceId, long userId, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.
-						DDMFormInstanceRecord> orderByComparator) {
+	public java.util.List<DDMFormInstanceRecord> getFormInstanceRecords(
+		long ddmFormInstanceId, long userId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<DDMFormInstanceRecord>
+			orderByComparator) {
 
 		return _ddmFormInstanceRecordLocalService.getFormInstanceRecords(
 			ddmFormInstanceId, userId, start, end, orderByComparator);
@@ -538,9 +540,19 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 
 	@Override
 	public com.liferay.portal.kernel.search.BaseModelSearchResult
-		<com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord>
-			searchFormInstanceRecords(
-				com.liferay.portal.kernel.search.SearchContext searchContext) {
+		<DDMFormInstanceRecord> searchFormInstanceRecords(
+				long formInstanceId, String[] notEmptyFields, int status,
+				int start, int end, com.liferay.portal.kernel.search.Sort sort)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmFormInstanceRecordLocalService.searchFormInstanceRecords(
+			formInstanceId, notEmptyFields, status, start, end, sort);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.search.BaseModelSearchResult
+		<DDMFormInstanceRecord> searchFormInstanceRecords(
+			com.liferay.portal.kernel.search.SearchContext searchContext) {
 
 		return _ddmFormInstanceRecordLocalService.searchFormInstanceRecords(
 			searchContext);
@@ -549,26 +561,27 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	/**
 	 * Updates the ddm form instance record in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceRecord the ddm form instance record
 	 * @return the ddm form instance record that was updated
 	 */
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-		updateDDMFormInstanceRecord(
-			com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-				ddmFormInstanceRecord) {
+	public DDMFormInstanceRecord updateDDMFormInstanceRecord(
+		DDMFormInstanceRecord ddmFormInstanceRecord) {
 
 		return _ddmFormInstanceRecordLocalService.updateDDMFormInstanceRecord(
 			ddmFormInstanceRecord);
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			updateFormInstanceRecord(
-				long userId, long ddmFormInstanceRecordId, boolean majorVersion,
-				com.liferay.dynamic.data.mapping.storage.DDMFormValues
-					ddmFormValues,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+	public DDMFormInstanceRecord updateFormInstanceRecord(
+			long userId, long ddmFormInstanceRecordId, boolean majorVersion,
+			com.liferay.dynamic.data.mapping.storage.DDMFormValues
+				ddmFormValues,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.updateFormInstanceRecord(
@@ -577,14 +590,33 @@ public class DDMFormInstanceRecordLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
-			updateStatus(
-				long userId, long recordVersionId, int status,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+	public DDMFormInstanceRecord updateStatus(
+			long userId, long recordVersionId, int status,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceRecordLocalService.updateStatus(
 			userId, recordVersionId, status, serviceContext);
+	}
+
+	@Override
+	public CTPersistence<DDMFormInstanceRecord> getCTPersistence() {
+		return _ddmFormInstanceRecordLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<DDMFormInstanceRecord> getModelClass() {
+		return _ddmFormInstanceRecordLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DDMFormInstanceRecord>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _ddmFormInstanceRecordLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

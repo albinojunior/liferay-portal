@@ -16,6 +16,11 @@ import {PortletBase, fetch} from 'frontend-js-web';
 import core from 'metal';
 import {EventHandler} from 'metal-events';
 
+const RECENTLY_REMOVED_ATTACHMENTS = {
+	multiple: Liferay.Language.get('x-recently-removed-attachments'),
+	single: Liferay.Language.get('x-recently-removed-attachment'),
+};
+
 /**
  * MBPortlet handles the actions of replying or editing a
  * message board.
@@ -25,6 +30,7 @@ import {EventHandler} from 'metal-events';
  */
 
 class MBPortlet extends PortletBase {
+
 	/**
 	 * @inheritDoc
 	 */
@@ -42,7 +48,7 @@ class MBPortlet extends PortletBase {
 
 		if (publishButton) {
 			this.eventHandler_.add(
-				publishButton.addEventListener('click', e => {
+				publishButton.addEventListener('click', (e) => {
 					this.publish_(e);
 				})
 			);
@@ -52,7 +58,7 @@ class MBPortlet extends PortletBase {
 
 		if (saveButton) {
 			this.eventHandler_.add(
-				saveButton.addEventListener('click', e => {
+				saveButton.addEventListener('click', (e) => {
 					this.saveDraft_(e);
 				})
 			);
@@ -62,7 +68,7 @@ class MBPortlet extends PortletBase {
 
 		if (advancedReplyLink) {
 			this.eventHandler_.add(
-				advancedReplyLink.addEventListener('click', e => {
+				advancedReplyLink.addEventListener('click', (e) => {
 					this.openAdvancedReply_(e);
 				})
 			);
@@ -70,7 +76,7 @@ class MBPortlet extends PortletBase {
 
 		const searchContainerId = this.ns('messageAttachments');
 
-		Liferay.componentReady(searchContainerId).then(searchContainer => {
+		Liferay.componentReady(searchContainerId).then((searchContainer) => {
 			this.eventHandler_.add(
 				searchContainer
 					.get('contentBox')
@@ -93,7 +99,7 @@ class MBPortlet extends PortletBase {
 				Liferay.Util.openWindow({
 					dialog: {
 						on: {
-							visibleChange: event => {
+							visibleChange: (event) => {
 								if (!event.newVal) {
 									this.updateRemovedAttachments_();
 								}
@@ -167,7 +173,7 @@ class MBPortlet extends PortletBase {
 
 		if (tempImages.length > 0) {
 			if (confirm(this.strings.confirmDiscardImages)) {
-				tempImages.forEach(node => {
+				tempImages.forEach((node) => {
 					node.parentElement.remove();
 				});
 
@@ -212,8 +218,8 @@ class MBPortlet extends PortletBase {
 
 	updateRemovedAttachments_() {
 		fetch(this.getAttachmentsURL)
-			.then(res => res.json())
-			.then(attachments => {
+			.then((res) => res.json())
+			.then((attachments) => {
 				if (attachments.active.length > 0) {
 					const searchContainer = this.searchContainer_;
 					const searchContainerData = searchContainer.getData();
@@ -222,7 +228,7 @@ class MBPortlet extends PortletBase {
 						.getElementById(this.namespace + 'fileAttachments')
 						.classList.remove('hide');
 
-					attachments.active.forEach(attachment => {
+					attachments.active.forEach((attachment) => {
 						if (searchContainerData.indexOf(attachment.id) == -1) {
 							searchContainer.addRow(
 								[
@@ -252,11 +258,9 @@ class MBPortlet extends PortletBase {
 					deletedAttachmentsElement.style.display = 'initial';
 					deletedAttachmentsElement.innerHTML =
 						Liferay.Util.sub(
-							Liferay.Language.get(
-								attachments.deleted.length > 1
-									? 'x-recently-removed-attachments'
-									: 'x-recently-removed-attachment'
-							),
+							attachments.deleted.length > 1
+								? RECENTLY_REMOVED_ATTACHMENTS.multiple
+								: RECENTLY_REMOVED_ATTACHMENTS.single,
 							attachments.deleted.length
 						) + ' &raquo';
 				}
@@ -345,6 +349,7 @@ class MBPortlet extends PortletBase {
  */
 
 MBPortlet.STATE = {
+
 	/**
 	 * Portlet's constants
 	 * @instance

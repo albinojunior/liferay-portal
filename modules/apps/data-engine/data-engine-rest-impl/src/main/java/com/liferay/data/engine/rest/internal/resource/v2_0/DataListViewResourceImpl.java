@@ -14,10 +14,11 @@
 
 package com.liferay.data.engine.rest.internal.resource.v2_0;
 
+import com.liferay.data.engine.constants.DataActionKeys;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
+import com.liferay.data.engine.model.DEDataDefinitionFieldLink;
 import com.liferay.data.engine.model.DEDataListView;
 import com.liferay.data.engine.rest.dto.v2_0.DataListView;
-import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
 import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
 import com.liferay.data.engine.rest.internal.odata.entity.v2_0.DataDefinitionEntityModel;
 import com.liferay.data.engine.rest.internal.security.permission.resource.DataDefinitionModelResourcePermission;
@@ -27,9 +28,10 @@ import com.liferay.data.engine.service.DEDataListViewLocalService;
 import com.liferay.data.engine.util.comparator.DEDataListViewCreateDateComparator;
 import com.liferay.data.engine.util.comparator.DEDataListViewModifiedDateComparator;
 import com.liferay.data.engine.util.comparator.DEDataListViewNameComparator;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -58,6 +60,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.validation.ValidationException;
@@ -87,10 +90,19 @@ public class DataListViewResourceImpl
 				_deDataListViewLocalService.getDEDataListView(dataListViewId)),
 			ActionKeys.DELETE);
 
-		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
-			_getClassNameId(), dataListViewId);
+		_deleteDataListView(dataListViewId);
+	}
 
-		_deDataListViewLocalService.deleteDEDataListView(dataListViewId);
+	@Override
+	public void deleteDataListViewsDataDefinition(Long dataDefinitionId)
+		throws Exception {
+
+		for (DEDataListView deDataListView :
+				_deDataListViewLocalService.getDEDataListViews(
+					dataDefinitionId)) {
+
+			_deleteDataListView(deDataListView.getDeDataListViewId());
+		}
 	}
 
 	@Override
@@ -201,8 +213,8 @@ public class DataListViewResourceImpl
 				dataListView.getSortField()));
 
 		_addDataDefinitionFieldLinks(
-			dataListView.getDataDefinitionId(), dataListView.getId(),
-			dataListView.getFieldNames(), dataListView.getSiteId());
+			dataListView.getId(), ddmStructure, dataListView.getFieldNames(),
+			dataListView.getSiteId());
 
 		return dataListView;
 	}
@@ -218,10 +230,6 @@ public class DataListViewResourceImpl
 				_deDataListViewLocalService.getDEDataListView(dataListViewId)),
 			ActionKeys.UPDATE);
 
-		if (ArrayUtil.isEmpty(dataListView.getFieldNames())) {
-			throw new ValidationException("View is empty");
-		}
-
 		dataListView = _toDataListView(
 			_deDataListViewLocalService.updateDEDataListView(
 				dataListViewId, _toJSON(dataListView.getAppliedFilters()),
@@ -233,22 +241,89 @@ public class DataListViewResourceImpl
 			_getClassNameId(), dataListViewId);
 
 		_addDataDefinitionFieldLinks(
-			dataListView.getDataDefinitionId(), dataListView.getId(),
+			dataListView.getId(),
+			_ddmStructureLocalService.getDDMStructure(
+				dataListView.getDataDefinitionId()),
 			dataListView.getFieldNames(), dataListView.getSiteId());
 
 		return dataListView;
 	}
 
 	private void _addDataDefinitionFieldLinks(
-			long dataDefinitionId, long dataListViewId, String[] fieldNames,
+			long dataListViewId, DDMStructure ddmStructure, String[] fieldNames,
 			long groupId)
-		throws PortalException {
+		throws Exception {
+
+		Map<String, DDMFormField> fieldNameDDMFormFieldMap = new HashMap<>();
+
+		DDMForm ddmForm = ddmStructure.getDDMForm();
+
+		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
+			if (!Objects.equals(ddmFormField.getType(), "fieldset")) {
+				continue;
+			}
+
+			DDMStructure fieldSetDDMStructure =
+				_ddmStructureLocalService.getDDMStructure(
+					MapUtil.getLong(
+						ddmFormField.getProperties(), "ddmStructureId"));
+
+			Map<String, DDMFormField> map =
+				fieldSetDDMStructure.getFullHierarchyDDMFormFieldsMap(false);
+
+			for (String fieldName : map.keySet()) {
+				fieldNameDDMFormFieldMap.put(fieldName, ddmFormField);
+			}
+		}
 
 		for (String fieldName : fieldNames) {
 			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
-				groupId, _getClassNameId(), dataListViewId, dataDefinitionId,
-				fieldName);
+				groupId, _getClassNameId(), dataListViewId,
+				ddmStructure.getStructureId(), fieldName);
+
+			if (!fieldNameDDMFormFieldMap.containsKey(fieldName)) {
+				continue;
+			}
+
+			DDMFormField ddmFormField = fieldNameDDMFormFieldMap.get(fieldName);
+
+			DEDataDefinitionFieldLink dataDefinitionDEDataDefinitionFieldLink =
+				_deDataDefinitionFieldLinkLocalService.
+					fetchDEDataDefinitionFieldLinks(
+						_getClassNameId(), dataListViewId,
+						ddmStructure.getStructureId(), ddmFormField.getName());
+
+			if (dataDefinitionDEDataDefinitionFieldLink == null) {
+				_deDataDefinitionFieldLinkLocalService.
+					addDEDataDefinitionFieldLink(
+						groupId, _getClassNameId(), dataListViewId,
+						ddmStructure.getStructureId(), ddmFormField.getName());
+			}
+
+			DEDataDefinitionFieldLink fieldSetDEDataDefinitionFieldLink =
+				_deDataDefinitionFieldLinkLocalService.
+					fetchDEDataDefinitionFieldLinks(
+						_getClassNameId(), dataListViewId,
+						MapUtil.getLong(
+							ddmFormField.getProperties(), "ddmStructureId"),
+						ddmFormField.getName());
+
+			if (fieldSetDEDataDefinitionFieldLink == null) {
+				_deDataDefinitionFieldLinkLocalService.
+					addDEDataDefinitionFieldLink(
+						groupId, _getClassNameId(), dataListViewId,
+						MapUtil.getLong(
+							ddmFormField.getProperties(), "ddmStructureId"),
+						ddmFormField.getName());
+			}
 		}
+	}
+
+	private void _deleteDataListView(long dataListViewId) throws Exception {
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataListViewId);
+
+		_deDataListViewLocalService.deleteDEDataListView(dataListViewId);
 	}
 
 	private long _getClassNameId() {

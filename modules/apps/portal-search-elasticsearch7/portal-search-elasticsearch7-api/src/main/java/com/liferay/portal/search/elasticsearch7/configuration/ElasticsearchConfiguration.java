@@ -18,6 +18,8 @@ import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Michael C. Han
  */
@@ -27,8 +29,14 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 	localization = "content/Language",
 	name = "elasticsearch7-configuration-name"
 )
+@ProviderType
 public interface ElasticsearchConfiguration {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #productionModeEnabled()}
+	 */
+	@Deprecated
 	@Meta.AD(
 		deflt = "EMBEDDED", description = "operation-mode-help",
 		name = "operation-mode", required = false
@@ -36,10 +44,65 @@ public interface ElasticsearchConfiguration {
 	public OperationMode operationMode();
 
 	@Meta.AD(
+		deflt = "false", description = "production-mode-enabled-help",
+		name = "production-mode-enabled", required = false
+	)
+	public boolean productionModeEnabled();
+
+	@Meta.AD(
 		description = "remote-cluster-connection-id-help",
 		name = "remote-cluster-connection-id", required = false
 	)
 	public String remoteClusterConnectionId();
+
+	@Meta.AD(
+		deflt = "http://localhost:9200",
+		description = "network-host-addresses-help",
+		name = "network-host-addresses", required = false
+	)
+	public String[] networkHostAddresses();
+
+	@Meta.AD(
+		deflt = "false", description = "authentication-enabled-help",
+		name = "authentication-enabled", required = false
+	)
+	public boolean authenticationEnabled();
+
+	@Meta.AD(
+		deflt = "elastic", description = "username-help", name = "username",
+		required = false
+	)
+	public String username();
+
+	@Meta.AD(
+		description = "password-help", name = "password", required = false,
+		type = Meta.Type.Password
+	)
+	public String password();
+
+	@Meta.AD(
+		deflt = "false", description = "http-ssl-enabled-help",
+		name = "http-ssl-enabled", required = false
+	)
+	public boolean httpSSLEnabled();
+
+	@Meta.AD(
+		deflt = "pkcs12", description = "truststore-type-help",
+		name = "truststore-type", required = false
+	)
+	public String truststoreType();
+
+	@Meta.AD(
+		deflt = "/path/to/localhost.p12", description = "truststore-path-help",
+		name = "truststore-path", required = false
+	)
+	public String truststorePath();
+
+	@Meta.AD(
+		description = "truststore-password-help", name = "truststore-password",
+		required = false, type = Meta.Type.Password
+	)
+	public String truststorePassword();
 
 	@Meta.AD(
 		deflt = "liferay-", description = "index-name-prefix-help",
@@ -97,17 +160,37 @@ public interface ElasticsearchConfiguration {
 	public String clusterName();
 
 	@Meta.AD(
+		description = "node-name-help", name = "node-name", required = false
+	)
+	public String nodeName();
+
+	@Meta.AD(
 		deflt = "false", description = "bootstrap-mlockall-help",
 		name = "bootstrap-mlockall", required = false
 	)
 	public boolean bootstrapMlockAll();
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #sidecarHttpPort()}
+	 */
+	@Deprecated
 	@Meta.AD(
 		deflt = "9201", description = "embedded-http-port-help",
 		name = "embedded-http-port", required = false
 	)
 	public int embeddedHttpPort();
 
+	@Meta.AD(
+		description = "sidecar-http-port-help", name = "sidecar-http-port",
+		required = false
+	)
+	public String sidecarHttpPort();
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Meta.AD(
 		deflt = "9300-9400",
 		description = "discovery-zen-ping-unicast-hosts-port-help",
@@ -132,6 +215,12 @@ public interface ElasticsearchConfiguration {
 		name = "network-publish-host", required = false
 	)
 	public String networkPublishHost();
+
+	@Meta.AD(
+		deflt = "true", description = "track-total-hits-help",
+		name = "track-total-hits", required = false
+	)
+	public boolean trackTotalHits();
 
 	@Meta.AD(
 		deflt = "", description = "transport-tcp-port-help",
@@ -163,5 +252,43 @@ public interface ElasticsearchConfiguration {
 		name = "http-cors-configurations", required = false
 	)
 	public String httpCORSConfigurations();
+
+	@Meta.AD(
+		deflt = "false", description = "sidecar-debug-help",
+		name = "sidecar-debug", required = false
+	)
+	public boolean sidecarDebug();
+
+	@Meta.AD(
+		deflt = "-agentlib:jdwp=transport=dt_socket,address=8001,server=y,suspend=y,quiet=y",
+		description = "sidecar-debug-settings-help",
+		name = "sidecar-debug-settings", required = false
+	)
+	public String sidecarDebugSettings();
+
+	@Meta.AD(
+		deflt = "10000", description = "sidecar-heartbeat-interval-help",
+		name = "sidecar-heartbeat-interval", required = false
+	)
+	public long sidecarHeartbeatInterval();
+
+	@Meta.AD(
+		deflt = "elasticsearch7", description = "sidecar-home-help",
+		name = "sidecar-home", required = false
+	)
+	public String sidecarHome();
+
+	@Meta.AD(
+		deflt = "-Xms1g|-Xmx1g|-XX:+AlwaysPreTouch",
+		description = "sidecar-jvm-options-help", name = "sidecar-jvm-options",
+		required = false
+	)
+	public String[] sidecarJVMOptions();
+
+	@Meta.AD(
+		deflt = "10000", description = "sidecar-shutdown-timeout-help",
+		name = "sidecar-shutdown-timeout", required = false
+	)
+	public long sidecarShutdownTimeout();
 
 }

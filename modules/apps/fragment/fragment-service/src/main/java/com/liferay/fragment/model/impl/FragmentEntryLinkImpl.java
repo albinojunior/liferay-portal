@@ -17,6 +17,7 @@ package com.liferay.fragment.model.impl;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.service.FragmentEntryLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.GroupConstants;
 
 import java.util.Date;
 
@@ -51,6 +52,29 @@ public class FragmentEntryLinkImpl extends FragmentEntryLinkBaseImpl {
 		Date fragmentEntryModifiedDate = fragmentEntry.getModifiedDate();
 
 		return fragmentEntryModifiedDate.before(getLastPropagationDate());
+	}
+
+	@Override
+	public boolean isSystem() throws PortalException {
+		if (getFragmentEntryId() == 0) {
+			return false;
+		}
+
+		FragmentEntry fragmentEntry =
+			FragmentEntryLocalServiceUtil.fetchFragmentEntry(
+				getFragmentEntryId());
+
+		if (fragmentEntry == null) {
+			return false;
+		}
+
+		if (fragmentEntry.getGroupId() ==
+				GroupConstants.DEFAULT_PARENT_GROUP_ID) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

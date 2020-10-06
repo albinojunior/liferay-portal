@@ -40,7 +40,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 			<liferay-frontend:fieldset>
 				<div id="<portlet:namespace />articlePreview">
 					<liferay-util:include page="/journal_resources.jsp" servletContext="<%= application %>">
-						<liferay-util:param name="refererPortletName" value="<%= renderResponse.getNamespace() %>" />
+						<liferay-util:param name="refererPortletName" value="<%= liferayPortletResponse.getNamespace() %>" />
 					</liferay-util:include>
 				</div>
 			</liferay-frontend:fieldset>
@@ -54,7 +54,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
 
-<aui:script require="metal-dom/src/all/dom as dom, frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
+<aui:script require="metal-dom/src/all/dom as dom">
 	var articlePreview = document.getElementById(
 		'<portlet:namespace />articlePreview'
 	);
@@ -62,31 +62,24 @@ String redirect = ParamUtil.getString(request, "redirect");
 		'<portlet:namespace />assetEntryId'
 	);
 
-	var itemSelectorDialog = new ItemSelectorDialog.default({
-		eventName: '<portlet:namespace />selectedItem',
-		singleSelect: true,
-		title: '<liferay-ui:message key="select-web-content" />',
-		url: '<%= journalContentDisplayContext.getItemSelectorURL() %>',
-	});
-
-	itemSelectorDialog.on('selectedItemChange', function(event) {
-		var selectedItem = event.selectedItem;
-
-		if (!selectedItem) {
-			return;
-		}
-
-		var itemValue = JSON.parse(selectedItem.value);
-
-		retrieveWebContent(itemValue.classPK);
-	});
-
-	dom.delegate(articlePreview, 'click', '.web-content-selector', function(event) {
+	dom.delegate(articlePreview, 'click', '.web-content-selector', function (
+		event
+	) {
 		event.preventDefault();
-		itemSelectorDialog.open();
+
+		Liferay.Util.openSelectionModal({
+			onSelect: function (selectedItem) {
+				if (selectedItem) {
+					retrieveWebContent(selectedItem.assetclasspk);
+				}
+			},
+			selectEventName: '<portlet:namespace />selectedItem',
+			title: '<liferay-ui:message key="select-web-content" />',
+			url: '<%= journalContentDisplayContext.getItemSelectorURL() %>',
+		});
 	});
 
-	dom.delegate(articlePreview, 'click', '.selector-button', function(event) {
+	dom.delegate(articlePreview, 'click', '.selector-button', function (event) {
 		event.preventDefault();
 		retrieveWebContent(-1);
 	});
@@ -99,6 +92,6 @@ String redirect = ParamUtil.getString(request, "redirect");
 			uri
 		);
 
-		location.href = uri;
+		Liferay.Util.navigate(uri);
 	}
 </aui:script>

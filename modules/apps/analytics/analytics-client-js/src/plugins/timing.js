@@ -12,11 +12,14 @@
  * details.
  */
 
+import {MARK_NAVIGATION_START, MARK_VIEW_DURATION} from '../utils/constants';
+import {getDuration} from '../utils/performance';
+
 const applicationId = 'Page';
 
 /**
  * Sends page load information on the window load event
- * @param {object} analytics The Analytics client
+ * @param {Object} analytics The Analytics client
  */
 function onload(analytics) {
 	const perfData = window.performance.timing;
@@ -32,14 +35,20 @@ function onload(analytics) {
 
 /**
  * Sends view duration information on the window unload event
- * @param {object} analytics The Analytics client
+ * @param {Object} analytics The Analytics client
  */
 function unload(analytics) {
-	const perfData = window.performance.timing;
-	const viewDuration = new Date().getTime() - perfData.navigationStart;
+	const navigationStartMark = window.performance.getEntriesByName(
+		MARK_NAVIGATION_START
+	);
+	const navigationStart = navigationStartMark.length
+		? MARK_NAVIGATION_START
+		: 'navigationStart';
+
+	const duration = getDuration(MARK_VIEW_DURATION, navigationStart);
 
 	const props = {
-		viewDuration,
+		viewDuration: duration,
 	};
 
 	analytics.send('pageUnloaded', applicationId, props);
@@ -47,7 +56,7 @@ function unload(analytics) {
 
 /**
  * Plugin function that registers listeners against browser time events
- * @param {object} analytics The Analytics client
+ * @param {Object} analytics The Analytics client
  */
 function timing(analytics) {
 	const onLoad = onload.bind(null, analytics);

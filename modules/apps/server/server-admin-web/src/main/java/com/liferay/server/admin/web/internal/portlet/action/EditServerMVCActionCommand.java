@@ -381,15 +381,16 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 						return;
 					}
 
-					UnicodeProperties typeSettingsProperties =
+					UnicodeProperties typeSettingsUnicodeProperties =
 						layout.getTypeSettingsProperties();
 
-					Set<String> keys = typeSettingsProperties.keySet();
+					Set<String> keys = typeSettingsUnicodeProperties.keySet();
 
 					boolean orphan = true;
 
 					for (String key : keys) {
-						String value = typeSettingsProperties.getProperty(key);
+						String value =
+							typeSettingsUnicodeProperties.getProperty(key);
 
 						if (value.contains(pref.getPortletId())) {
 							orphan = false;
@@ -594,10 +595,10 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 		portletPreferences.setValue(
 			PropsKeys.XUGGLER_ENABLED, String.valueOf(xugglerEnabled));
 
-		Enumeration<String> enu = actionRequest.getParameterNames();
+		Enumeration<String> enumeration = actionRequest.getParameterNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.startsWith("imageMagickLimit")) {
 				String key = StringUtil.toLowerCase(name.substring(16));
@@ -617,10 +618,10 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 	protected void updateLogLevels(ActionRequest actionRequest)
 		throws Exception {
 
-		Enumeration<String> enu = actionRequest.getParameterNames();
+		Enumeration<String> enumeration = actionRequest.getParameterNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
 
 			if (name.startsWith("logLevel")) {
 				String loggerName = name.substring(8);
@@ -650,6 +651,8 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, "smtpPassword");
 		int smtpPort = ParamUtil.getInteger(actionRequest, "smtpPort");
 		boolean smtpSecure = ParamUtil.getBoolean(actionRequest, "smtpSecure");
+		boolean smtpStartTLSEnable = ParamUtil.getBoolean(
+			actionRequest, "smtpStartTLSEnable");
 		String smtpUser = ParamUtil.getString(actionRequest, "smtpUser");
 
 		String storeProtocol = Account.PROTOCOL_POP;
@@ -690,6 +693,9 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 
 		portletPreferences.setValue(
 			PropsKeys.MAIL_SESSION_MAIL_SMTP_PORT, String.valueOf(smtpPort));
+		portletPreferences.setValue(
+			PropsKeys.MAIL_SESSION_MAIL_SMTP_STARTTLS_ENABLE,
+			String.valueOf(smtpStartTLSEnable));
 		portletPreferences.setValue(
 			PropsKeys.MAIL_SESSION_MAIL_SMTP_USER, smtpUser);
 		portletPreferences.setValue(

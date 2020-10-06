@@ -213,17 +213,48 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 	public static final String TX_MANAGER = "${entity.getTXManager()}";
 
-	<#if entity.hasEagerBlobColumn()>
-		<#if !dependencyInjectorDS>
-			public static final boolean ENTITY_CACHE_ENABLED = false;
-
-			public static final boolean FINDER_CACHE_ENABLED = false;
-		</#if>
-
-		<#assign columnBitmaskEnabled = false />
+	<#if serviceBuilder.isVersionGTE_7_3_0()>
+		<#assign columnBitmaskEnabled = (entity.databaseRegularEntityColumns?size &lt; 64) && !entity.hasEagerBlobColumn()/>
 	<#else>
-		<#if !dependencyInjectorDS>
-			public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(${propsUtil}.get("value.object.entity.cache.enabled.${apiPackagePath}.model.${entity.name}"),
+		<#assign columnBitmaskEnabled = (entity.finderEntityColumns?size &gt; 0) && (entity.finderEntityColumns?size &lt; 64) && !entity.hasEagerBlobColumn()/>
+	</#if>
+
+	<#if !dependencyInjectorDS>
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			/**
+			* @deprecated As of Athanasius (7.3.x), with no direct replacement
+			*/
+			@Deprecated
+		</#if>
+		public static final boolean ENTITY_CACHE_ENABLED =
+		<#if entity.hasEagerBlobColumn()>
+			false;
+		<#elseif serviceBuilder.isVersionGTE_7_3_0()>
+			true;
+		<#else>
+			GetterUtil.getBoolean(${propsUtil}.get("value.object.entity.cache.enabled.${apiPackagePath}.model.${entity.name}"),
+			<#if entity.isCacheEnabled()>
+				true
+			<#else>
+				false
+			</#if>
+
+			);
+		</#if>
+
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			/**
+			* @deprecated As of Athanasius (7.3.x), with no direct replacement
+			*/
+			@Deprecated
+		</#if>
+		public static final boolean FINDER_CACHE_ENABLED =
+		<#if entity.hasEagerBlobColumn()>
+			false;
+		<#elseif serviceBuilder.isVersionGTE_7_3_0()>
+			true;
+		<#else>
+			GetterUtil.getBoolean(${propsUtil}.get("value.object.finder.cache.enabled.${apiPackagePath}.model.${entity.name}"),
 
 			<#if entity.isCacheEnabled()>
 				true
@@ -232,68 +263,77 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			</#if>
 
 			);
-
-			public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(${propsUtil}.get("value.object.finder.cache.enabled.${apiPackagePath}.model.${entity.name}"),
-
-			<#if entity.isCacheEnabled()>
-				true
+		</#if>
+		<#if !entity.hasEagerBlobColumn()>
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				/**
+				* @deprecated As of Athanasius (7.3.x), with no direct replacement
+				*/
+				@Deprecated
+			</#if>
+			public static final boolean COLUMN_BITMASK_ENABLED =
+			<#if columnBitmaskEnabled && serviceBuilder.isVersionGTE_7_3_0()>
+				true;
+			<#elseif (entity.finderEntityColumns?size == 0) || (entity.finderEntityColumns?size &gt; 64)>
+				false;
 			<#else>
-				false
+				GetterUtil.getBoolean(${propsUtil}.get("value.object.column.bitmask.enabled.${apiPackagePath}.model.${entity.name}"), true);
 			</#if>
-
-			);
-		</#if>
-
-		<#assign columnBitmaskEnabled = true />
-
-		<#if entity.finderEntityColumns?size == 0>
-			<#if !dependencyInjectorDS>
-				public static final boolean COLUMN_BITMASK_ENABLED = false;
-			</#if>
-
-			<#assign columnBitmaskEnabled = false />
-		</#if>
-
-		<#if entity.finderEntityColumns?size &gt; 64>
-			<#if !dependencyInjectorDS>
-				public static final boolean COLUMN_BITMASK_ENABLED = false;
-			</#if>
-
-			<#assign columnBitmaskEnabled = false />
-		</#if>
-
-		<#if columnBitmaskEnabled>
-			<#if !dependencyInjectorDS>
-				public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(${propsUtil}.get("value.object.column.bitmask.enabled.${apiPackagePath}.model.${entity.name}"), true);
-			</#if>
-
-			<#assign columnBitmask = 1 />
-
-			<#list entity.finderEntityColumns as entityColumn>
-				public static final long ${entityColumn.name?upper_case}_COLUMN_BITMASK = ${columnBitmask}L;
-
-				<#assign columnBitmask = columnBitmask * 2 />
-			</#list>
-
-			<#list orderList as order>
-				<#if !entity.finderEntityColumns?seq_contains(order)>
-					public static final long ${order.name?upper_case}_COLUMN_BITMASK = ${columnBitmask}L;
-
-					<#assign columnBitmask = columnBitmask * 2 />
-				</#if>
-			</#list>
 		</#if>
 	</#if>
 
+	<#if columnBitmaskEnabled>
+		<#assign columnBitmask = 1 />
+
+		<#list entity.finderEntityColumns as entityColumn>
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				/**
+				 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+				 */
+				@Deprecated
+			</#if>
+			public static final long ${entityColumn.name?upper_case}_COLUMN_BITMASK = ${columnBitmask}L;
+
+			<#assign columnBitmask = columnBitmask * 2 />
+		</#list>
+
+		<#list orderList as order>
+			<#if !entity.finderEntityColumns?seq_contains(order)>
+				<#if serviceBuilder.isVersionGTE_7_3_0()>
+					/**
+					* @deprecated As of Athanasius (7.3.x), replaced by {@link
+					*		#getColumnBitmask(String)
+					*/
+					@Deprecated
+				</#if>
+				public static final long ${order.name?upper_case}_COLUMN_BITMASK = ${columnBitmask}L;
+
+				<#assign columnBitmask = columnBitmask * 2 />
+			</#if>
+		</#list>
+	</#if>
+
 	<#if dependencyInjectorDS>
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			/**
+			* @deprecated As of Athanasius (7.3.x), with no direct replacement
+			*/
+			@Deprecated
+		</#if>
 		public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-			<#if !entity.hasEagerBlobColumn()>
+			<#if serviceBuilder.isVersionLTE_7_2_0() && !entity.hasEagerBlobColumn()>
 				_entityCacheEnabled = entityCacheEnabled;
 			</#if>
 		}
 
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			/**
+			* @deprecated As of Athanasius (7.3.x), with no direct replacement
+			*/
+			@Deprecated
+		</#if>
 		public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-			<#if !entity.hasEagerBlobColumn()>
+			<#if serviceBuilder.isVersionLTE_7_2_0() && !entity.hasEagerBlobColumn()>
 				_finderCacheEnabled = finderCacheEnabled;
 			</#if>
 		}
@@ -305,7 +345,13 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		 *
 		 * @param soapModel the soap model instance to convert
 		 * @return the normal model instance
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 		 */
+		@Deprecated
+		<#else>
+		 */
+		</#if>
 		public static ${entity.name} toModel(${entity.name}Soap soapModel) {
 			if (soapModel == null) {
 				return null;
@@ -329,7 +375,13 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		 *
 		 * @param soapModels the soap model instances to convert
 		 * @return the normal model instances
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 		 */
+		@Deprecated
+		<#else>
+		 */
+		</#if>
 		public static List<${entity.name}> toModels(${entity.name}Soap[] soapModels) {
 			if (soapModels == null) {
 				return null;
@@ -372,7 +424,18 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			public static final String MAPPING_TABLE_${stringUtil.upperCase(entityColumn.mappingTableName)}_SQL_CREATE = "${serviceBuilder.getCreateMappingTableSQL(serviceBuilder.getEntityMapping(entityColumn.mappingTableName))}";
 
 			<#if !dependencyInjectorDS>
-				public static final boolean FINDER_CACHE_ENABLED_${stringUtil.upperCase(entityColumn.mappingTableName)} = GetterUtil.getBoolean(${propsUtil}.get("value.object.finder.cache.enabled.${entityColumn.mappingTableName}"), true);
+				<#if serviceBuilder.isVersionGTE_7_3_0()>
+					/**
+					* @deprecated As of Athanasius (7.3.x), with no direct replacement
+					*/
+					@Deprecated
+				</#if>
+				public static final boolean FINDER_CACHE_ENABLED_${stringUtil.upperCase(entityColumn.mappingTableName)} =
+				  	<#if serviceBuilder.isVersionGTE_7_3_0()>
+						true;
+					<#else>
+						GetterUtil.getBoolean(${propsUtil}.get("value.object.finder.cache.enabled.${entityColumn.mappingTableName}"), true);
+					</#if>
 			</#if>
 		</#if>
 	</#list>
@@ -475,8 +538,10 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			attributes.put(attributeName, attributeGetterFunction.apply((${entity.name})this));
 		}
 
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
+		<#if serviceBuilder.isVersionLTE_7_2_0()>
+			attributes.put("entityCacheEnabled", isEntityCacheEnabled());
+			attributes.put("finderCacheEnabled", isFinderCacheEnabled());
+		</#if>
 
 		return attributes;
 	}
@@ -539,8 +604,8 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			new Function<${entity.name}, Object>() {
 
 				@Override
-				public Object apply(${entity.name} ${entity.varName}) {
-					return ${entity.varName}.get${entityColumn.methodName}();
+				public Object apply(${entity.name} ${entity.variableName}) {
+					return ${entity.variableName}.get${entityColumn.methodName}();
 				}
 
 			});
@@ -558,8 +623,8 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			new BiConsumer<${entity.name}, Object>() {
 
 				@Override
-				public void accept(${entity.name} ${entity.varName}, Object ${entityColumn.name}Object) {
-					${entity.varName}.set${entityColumn.methodName}((${entityColumnType})${entityColumn.name}Object);
+				public void accept(${entity.name} ${entity.variableName}, Object ${entityColumn.name}Object) {
+					${entity.variableName}.set${entityColumn.methodName}((${entityColumnType})${entityColumn.name}Object);
 				}
 
 			});
@@ -577,14 +642,14 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 		@Override
 		public String[] getAvailableLanguageIds() {
-			List<${localizedEntity.name}> ${localizedEntity.varNames} = ${entity.name}LocalServiceUtil.get${localizedEntity.names}(getPrimaryKey());
+			List<${localizedEntity.name}> ${localizedEntity.pluralVariableName} = ${entity.name}LocalServiceUtil.get${localizedEntity.pluralName}(getPrimaryKey());
 
-			String[] availableLanguageIds = new String[${localizedEntity.varNames}.size()];
+			String[] availableLanguageIds = new String[${localizedEntity.pluralVariableName}.size()];
 
 			for (int i = 0; i < availableLanguageIds.length; i++) {
-				${localizedEntity.name} ${localizedEntity.varName} = ${localizedEntity.varNames}.get(i);
+				${localizedEntity.name} ${localizedEntity.variableName} = ${localizedEntity.pluralVariableName}.get(i);
 
-				availableLanguageIds[i] = ${localizedEntity.varName}.getLanguageId();
+				availableLanguageIds[i] = ${localizedEntity.variableName}.getLanguageId();
 			}
 
 			return availableLanguageIds;
@@ -628,23 +693,23 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			public Map<String, String> getLanguageIdTo${entityColumn.methodName}Map() {
 				Map<String, String> languageIdTo${entityColumn.methodName}Map = new HashMap<String, String>();
 
-				List<${localizedEntity.name}> ${localizedEntity.varNames} = ${entity.name}LocalServiceUtil.get${localizedEntity.names}(getPrimaryKey());
+				List<${localizedEntity.name}> ${localizedEntity.pluralVariableName} = ${entity.name}LocalServiceUtil.get${localizedEntity.pluralName}(getPrimaryKey());
 
-				for (${localizedEntity.name} ${localizedEntity.varName} : ${localizedEntity.varNames}) {
-					languageIdTo${entityColumn.methodName}Map.put(${localizedEntity.varName}.getLanguageId(), ${localizedEntity.varName}.get${entityColumn.methodName}());
+				for (${localizedEntity.name} ${localizedEntity.variableName} : ${localizedEntity.pluralVariableName}) {
+					languageIdTo${entityColumn.methodName}Map.put(${localizedEntity.variableName}.getLanguageId(), ${localizedEntity.variableName}.get${entityColumn.methodName}());
 				}
 
 				return languageIdTo${entityColumn.methodName}Map;
 			}
 
 			private String _get${entityColumn.methodName}(String languageId) {
-				${localizedEntity.name} ${localizedEntity.varName} = ${entity.name}LocalServiceUtil.fetch${localizedEntity.name}(getPrimaryKey(), languageId);
+				${localizedEntity.name} ${localizedEntity.variableName} = ${entity.name}LocalServiceUtil.fetch${localizedEntity.name}(getPrimaryKey(), languageId);
 
-				if (${localizedEntity.varName} == null) {
+				if (${localizedEntity.variableName} == null) {
 					return "";
 				}
 
-				return ${localizedEntity.varName}.get${entityColumn.methodName}();
+				return ${localizedEntity.variableName}.get${entityColumn.methodName}();
 			}
 		</#list>
 	</#if>
@@ -652,36 +717,11 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 	<#if entity.versionEntity??>
 		<#assign versionEntity = entity.versionEntity />
 
-		public boolean getHead() {
-			return _head;
-		}
-
 		@Override
-		public boolean isHead() {
-			return _head;
-		}
-
-		public boolean getOriginalHead() {
-			return _originalHead;
-		}
-
-		public void setHead(boolean head) {
-			_columnBitmask |= HEAD_COLUMN_BITMASK;
-
-			if (!_setOriginalHead) {
-				_setOriginalHead = true;
-
-				_originalHead = _head;
-			}
-
-			_head = head;
-		}
-
-		@Override
-		public void populateVersionModel(${versionEntity.name} ${versionEntity.varName}) {
+		public void populateVersionModel(${versionEntity.name} ${versionEntity.variableName}) {
 			<#list entity.entityColumns as entityColumn>
 				<#if !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "HeadId") && !stringUtil.equals(entityColumn.methodName, "MvccVersion") && !entityColumn.isMappingManyToMany()>
-					${versionEntity.varName}.set${entityColumn.methodName}(get${entityColumn.methodName}());
+					${versionEntity.variableName}.set${entityColumn.methodName}(get${entityColumn.methodName}());
 				</#if>
 			</#list>
 		}
@@ -697,33 +737,33 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		}
 
 		@Override
-		public void populateVersionedModel(${versionedEntity.name} ${versionedEntity.varName}) {
+		public void populateVersionedModel(${versionedEntity.name} ${versionedEntity.variableName}) {
 			<#list versionedEntity.entityColumns as entityColumn>
 				<#if !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "HeadId") && !stringUtil.equals(entityColumn.methodName, "MvccVersion") && !entityColumn.isMappingManyToMany()>
-					${versionedEntity.varName}.set${entityColumn.methodName}(get${entityColumn.methodName}());
+					${versionedEntity.variableName}.set${entityColumn.methodName}(get${entityColumn.methodName}());
 				</#if>
 			</#list>
 		}
 
 		@Override
-		public void setVersionedModelId(long ${versionedEntity.getPKVarName()}) {
-			set${pkEntityColumn.methodName}(${versionedEntity.getPKVarName()});
+		public void setVersionedModelId(long ${versionedEntity.getPKVariableName()}) {
+			set${pkEntityColumn.methodName}(${versionedEntity.getPKVariableName()});
 		}
 
 		@Override
 		public ${versionedEntity.name} toVersionedModel() {
-			${versionedEntity.name} ${versionedEntity.varName} = new ${versionedEntity.name}Impl();
+			${versionedEntity.name} ${versionedEntity.variableName} = new ${versionedEntity.name}Impl();
 
-			${versionedEntity.varName}.setPrimaryKey(getVersionedModelId());
-			${versionedEntity.varName}.setHeadId(-getVersionedModelId());
+			${versionedEntity.variableName}.setPrimaryKey(getVersionedModelId());
+			${versionedEntity.variableName}.setHeadId(-getVersionedModelId());
 
-			populateVersionedModel(${versionedEntity.varName});
+			populateVersionedModel(${versionedEntity.variableName});
 
-			return ${versionedEntity.varName};
+			return ${versionedEntity.variableName};
 		}
 	</#if>
 
-	<#list entity.regularEntityColumns as entityColumn>
+	<#list entity.databaseRegularEntityColumns as entityColumn>
 		<#if stringUtil.equals(entityColumn.name, "classNameId") && !hasClassNameCacheField>
 			@Override
 			public String getClassName() {
@@ -752,7 +792,9 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			@JSON(include = false)
 		</#if>
 
-		@Override
+		<#if !entity.versionEntity?? || !stringUtil.equals(entityColumn.name, "head")>
+			@Override
+		</#if>
 		public ${entityColumn.genericizedType} get${entityColumn.methodName}() {
 			<#if stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
 				if (_${entityColumn.name} == null) {
@@ -845,18 +887,20 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			}
 		</#if>
 
-		@Override
+		<#if !entity.versionEntity?? || !stringUtil.equals(entityColumn.name, "head")>
+			@Override
+		</#if>
 		public void set${entityColumn.methodName}(${entityColumn.genericizedType} ${entityColumn.name}) {
 			<#if entity.hasEntityColumn("createDate", "Date") && entity.hasEntityColumn("modifiedDate", "Date") && stringUtil.equals(entityColumn.name, "modifiedDate")>
 				_setModifiedDate = true;
 			</#if>
 
-			<#if entityColumn.isOrderColumn() && columnBitmaskEnabled>
-				_columnBitmask = -1L;
-			</#if>
-
-			<#if entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name))>
-				<#if !entityColumn.isOrderColumn() && columnBitmaskEnabled>
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				if (_columnOriginalValues == Collections.EMPTY_MAP) {
+					_setColumnOriginalValues();
+				}
+			<#elseif entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name))>
+				<#if columnBitmaskEnabled>
 					_columnBitmask |= ${entityColumn.name?upper_case}_COLUMN_BITMASK;
 				</#if>
 
@@ -965,8 +1009,21 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#if>
 
 		<#if entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name))>
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				/**
+				* @deprecated As of Athanasius (7.3.x), replaced by {@link
+				*             #getColumnOriginalValue(String)}
+				*/
+				@Deprecated
+			</#if>
 			public ${entityColumn.type} getOriginal${entityColumn.methodName}() {
-				<#if stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
+				<#if serviceBuilder.isVersionGTE_7_3_0()>
+					<#if entityColumn.isPrimitiveType()>
+						return GetterUtil.get${serviceBuilder.getPrimitiveObj(entityColumn.type)}(this.<${serviceBuilder.getPrimitiveObj(entityColumn.type)}>getColumnOriginalValue("${entityColumn.DBName}"));
+					<#else>
+						return getColumnOriginalValue("${entityColumn.DBName}");
+					</#if>
+				<#elseif stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
 					return GetterUtil.getString(_original${entityColumn.methodName});
 				<#else>
 					return _original${entityColumn.methodName};
@@ -1311,6 +1368,22 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 	<#if columnBitmaskEnabled>
 		public long getColumnBitmask() {
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				if (_columnBitmask > 0) {
+					return _columnBitmask;
+				}
+
+				if ((_columnOriginalValues == null) || (_columnOriginalValues == Collections.EMPTY_MAP)) {
+					return 0;
+				}
+
+				for (Map.Entry<String, Object> entry : _columnOriginalValues.entrySet()) {
+					if (entry.getValue() != getColumnValue(entry.getKey())) {
+						_columnBitmask |= _columnBitmasks.get(entry.getKey());
+					}
+				}
+			</#if>
+
 			return _columnBitmask;
 		}
 	</#if>
@@ -1432,11 +1505,11 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 	@Override
 	public Object clone() {
-		${entity.name}Impl ${entity.varName}Impl = new ${entity.name}Impl();
+		${entity.name}Impl ${entity.variableName}Impl = new ${entity.name}Impl();
 
 		<#list entity.regularEntityColumns as entityColumn>
 			<#if !stringUtil.equals(entityColumn.type, "Blob")>
-				${entity.varName}Impl.set${entityColumn.methodName}(
+				${entity.variableName}Impl.set${entityColumn.methodName}(
 
 				<#if entityColumn.entityName??>
 					(${entityColumn.entityName})get${entityColumn.methodName}().clone()
@@ -1450,25 +1523,25 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			</#if>
 		</#list>
 
-		${entity.varName}Impl.resetOriginalValues();
+		${entity.variableName}Impl.resetOriginalValues();
 
-		return ${entity.varName}Impl;
+		return ${entity.variableName}Impl;
 	}
 
 	@Override
-	public int compareTo(${entity.name} ${entity.varName}) {
+	public int compareTo(${entity.name} ${entity.variableName}) {
 		<#if entity.isOrdered()>
 			int value = 0;
 
 			<#list entity.entityOrder.entityColumns as entityColumn>
 				<#if entityColumn.isPrimitiveType()>
 					<#if stringUtil.equals(entityColumn.type, "boolean")>
-						value = Boolean.compare(is${entityColumn.methodName}(), ${entity.varName}.is${entityColumn.methodName}());
+						value = Boolean.compare(is${entityColumn.methodName}(), ${entity.variableName}.is${entityColumn.methodName}());
 					<#else>
-						if (get${entityColumn.methodName}() < ${entity.varName}.get${entityColumn.methodName}()) {
+						if (get${entityColumn.methodName}() < ${entity.variableName}.get${entityColumn.methodName}()) {
 							value = -1;
 						}
-						else if (get${entityColumn.methodName}() > ${entity.varName}.get${entityColumn.methodName}()) {
+						else if (get${entityColumn.methodName}() > ${entity.variableName}.get${entityColumn.methodName}()) {
 							value = 1;
 						}
 						else {
@@ -1477,12 +1550,12 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 					</#if>
 				<#else>
 					<#if stringUtil.equals(entityColumn.type, "Date")>
-						value = DateUtil.compareTo(get${entityColumn.methodName}(), ${entity.varName}.get${entityColumn.methodName}());
+						value = DateUtil.compareTo(get${entityColumn.methodName}(), ${entity.variableName}.get${entityColumn.methodName}());
 					<#else>
 						<#if entityColumn.isCaseSensitive()>
-							value = get${entityColumn.methodName}().compareTo(${entity.varName}.get${entityColumn.methodName}());
+							value = get${entityColumn.methodName}().compareTo(${entity.variableName}.get${entityColumn.methodName}());
 						<#else>
-							value = get${entityColumn.methodName}().compareToIgnoreCase(${entity.varName}.get${entityColumn.methodName}());
+							value = get${entityColumn.methodName}().compareToIgnoreCase(${entity.variableName}.get${entityColumn.methodName}());
 						</#if>
 					</#if>
 				</#if>
@@ -1498,7 +1571,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 			return 0;
 		<#else>
-			${entity.PKClassName} primaryKey = ${entity.varName}.getPrimaryKey();
+			${entity.PKClassName} primaryKey = ${entity.variableName}.getPrimaryKey();
 
 			<#if entity.hasPrimitivePK()>
 				if (getPrimaryKey() < primaryKey) {
@@ -1517,18 +1590,18 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof ${entity.name})) {
+		if (!(object instanceof ${entity.name})) {
 			return false;
 		}
 
-		${entity.name} ${entity.varName} = (${entity.name})obj;
+		${entity.name} ${entity.variableName} = (${entity.name})object;
 
-		${entity.PKClassName} primaryKey = ${entity.varName}.getPrimaryKey();
+		${entity.PKClassName} primaryKey = ${entity.variableName}.getPrimaryKey();
 
 		<#if entity.hasPrimitivePK()>
 			if (getPrimaryKey() == primaryKey) {
@@ -1556,19 +1629,39 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#if>
 	}
 
+	<#if serviceBuilder.isVersionGTE_7_3_0()>
+		/**
+		* @deprecated As of Athanasius (7.3.x), with no direct replacement
+		*/
+		@Deprecated
+	</#if>
 	@Override
 	public boolean isEntityCacheEnabled() {
 		<#if dependencyInjectorDS>
-			return _entityCacheEnabled;
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				return true;
+			<#else>
+				return _entityCacheEnabled;
+			</#if>
 		<#else>
 			return ENTITY_CACHE_ENABLED;
 		</#if>
 	}
 
+	<#if serviceBuilder.isVersionGTE_7_3_0()>
+		/**
+		* @deprecated As of Athanasius (7.3.x), with no direct replacement
+		*/
+		@Deprecated
+	</#if>
 	@Override
 	public boolean isFinderCacheEnabled() {
 		<#if dependencyInjectorDS>
-			return _finderCacheEnabled;
+			<#if serviceBuilder.isVersionGTE_7_3_0()>
+				return true;
+			<#else>
+				return _finderCacheEnabled;
+			</#if>
 		<#else>
 			return FINDER_CACHE_ENABLED;
 		</#if>
@@ -1576,29 +1669,23 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 	@Override
 	public void resetOriginalValues() {
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			_columnOriginalValues = Collections.emptyMap();
+		</#if>
+
 		<#list entity.databaseRegularEntityColumns as entityColumn>
-			<#if entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name)) || (stringUtil.equals(entityColumn.type, "Blob") && entityColumn.lazy) || (entity.hasEntityColumn("createDate", "Date") && entity.hasEntityColumn("modifiedDate", "Date"))>
-				<#if !cloneCastModelImpl??>
-					<#assign cloneCastModelImpl = true />
-
-					${entity.name}ModelImpl ${entity.varName}ModelImpl = this;
-				</#if>
-			</#if>
-
-			<#if entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name))>
-				${entity.varName}ModelImpl._original${entityColumn.methodName} = ${entity.varName}ModelImpl._${entityColumn.name};
+			<#if stringUtil.equals(entityColumn.type, "Blob") && entityColumn.lazy>
+				_${entityColumn.name}BlobModel = null;
+			<#elseif serviceBuilder.isVersionLTE_7_2_0() && (entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name)))>
+				_original${entityColumn.methodName} = _${entityColumn.name};
 
 				<#if entityColumn.isPrimitiveType()>
-					${entity.varName}ModelImpl._setOriginal${entityColumn.methodName} = false;
+					_setOriginal${entityColumn.methodName} = false;
 				</#if>
-			</#if>
-
-			<#if stringUtil.equals(entityColumn.type, "Blob") && entityColumn.lazy>
-				${entity.varName}ModelImpl._${entityColumn.name}BlobModel = null;
 			</#if>
 
 			<#if entity.hasEntityColumn("createDate", "Date") && entity.hasEntityColumn("modifiedDate", "Date") && stringUtil.equals(entityColumn.name, "modifiedDate")>
-				${entity.varName}ModelImpl._setModifiedDate = false;
+				_setModifiedDate = false;
 			</#if>
 		</#list>
 
@@ -1612,16 +1699,16 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#list>
 
 		<#if columnBitmaskEnabled>
-			${entity.varName}ModelImpl._columnBitmask = 0;
+			_columnBitmask = 0;
 		</#if>
 	}
 
 	@Override
 	public CacheModel<${entity.name}> toCacheModel() {
-		${entity.name}CacheModel ${entity.varName}CacheModel = new ${entity.name}CacheModel();
+		${entity.name}CacheModel ${entity.variableName}CacheModel = new ${entity.name}CacheModel();
 
 		<#if entity.hasCompoundPK()>
-			${entity.varName}CacheModel.${entity.PKVarName} = getPrimaryKey();
+			${entity.variableName}CacheModel.${entity.PKVariableName} = getPrimaryKey();
 		</#if>
 
 		<#list entity.databaseRegularEntityColumns as entityColumn>
@@ -1630,23 +1717,29 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 					Date ${entityColumn.name} = get${entityColumn.methodName}();
 
 					if (${entityColumn.name} != null) {
-						${entity.varName}CacheModel.${entityColumn.name} = ${entityColumn.name}.getTime();
+						${entity.variableName}CacheModel.${entityColumn.name} = ${entityColumn.name}.getTime();
 					}
 					else {
-						${entity.varName}CacheModel.${entityColumn.name} = Long.MIN_VALUE;
+						${entity.variableName}CacheModel.${entityColumn.name} = Long.MIN_VALUE;
 					}
 				<#else>
-					<#if stringUtil.equals(entityColumn.type, "boolean")>
-						${entity.varName}CacheModel.${entityColumn.name} = is${entityColumn.methodName}();
+					<#if entityColumn.isPrimitiveTypeWrapper()>
+						${entityColumn.type} ${entityColumn.name} = get${entityColumn.methodName}();
+
+						if (${entityColumn.name} != null) {
+							${entity.variableName}CacheModel.${entityColumn.name} = ${entityColumn.name};
+						}
+					<#elseif stringUtil.equals(entityColumn.type, "boolean")>
+						${entity.variableName}CacheModel.${entityColumn.name} = is${entityColumn.methodName}();
 					<#else>
-						${entity.varName}CacheModel.${entityColumn.name} = get${entityColumn.methodName}();
+						${entity.variableName}CacheModel.${entityColumn.name} = get${entityColumn.methodName}();
 					</#if>
 
 					<#if stringUtil.equals(entityColumn.type, "String")>
-						String ${entityColumn.name} = ${entity.varName}CacheModel.${entityColumn.name};
+						String ${entityColumn.name} = ${entity.variableName}CacheModel.${entityColumn.name};
 
 						if ((${entityColumn.name} != null) && (${entityColumn.name}.length() == 0)) {
-							${entity.varName}CacheModel.${entityColumn.name} = null;
+							${entity.variableName}CacheModel.${entityColumn.name} = null;
 						}
 					</#if>
 				</#if>
@@ -1656,10 +1749,10 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		<#list cacheFields as cacheField>
 			<#assign methodName = serviceBuilder.getCacheFieldMethodName(cacheField) />
 
-			${entity.varName}CacheModel.${cacheField.name} = get${methodName}();
+			${entity.variableName}CacheModel.${cacheField.name} = get${methodName}();
 		</#list>
 
-		return ${entity.varName}CacheModel;
+		return ${entity.variableName}CacheModel;
 	}
 
 	<#if hasLazy>
@@ -1773,7 +1866,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 	}
 
-	<#if dependencyInjectorDS>
+	<#if serviceBuilder.isVersionLTE_7_2_0() && dependencyInjectorDS>
 		<#if entity.hasEagerBlobColumn()>
 			private static final boolean _entityCacheEnabled = false;
 			private static final boolean _finderCacheEnabled = false;
@@ -1793,7 +1886,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 				private String _${entityColumn.name}CurrentLanguageId;
 			</#if>
 
-			<#if entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name))>
+			<#if serviceBuilder.isVersionLTE_7_2_0() && (entityColumn.isFinderPath() || (validator.isNotNull(parentPKColumn) && (parentPKColumn.name == entityColumn.name)))>
 				private ${entityColumn.type} _original${entityColumn.methodName};
 
 				<#if entityColumn.isPrimitiveType()>
@@ -1807,7 +1900,91 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#if>
 	</#list>
 
+	<#if serviceBuilder.isVersionGTE_7_3_0()>
+		public <T> T getColumnValue(String columnName) {
+			<#if entity.versionEntity??>
+				if (columnName.equals("head")) {
+					return (T)(Object)getHead();
+				}
+			</#if>
+
+			<#if entity.badEntityColumns?size != 0>
+				columnName = _attributeNames.getOrDefault(columnName, columnName);
+			</#if>
+
+			Function<${entity.name}, Object> function =
+				_attributeGetterFunctions.get(columnName);
+
+			if (function == null) {
+				throw new IllegalArgumentException(
+					"No attribute getter function found for " + columnName);
+			}
+
+			return (T)function.apply((${entity.name})this);
+		}
+
+		public <T> T getColumnOriginalValue(String columnName) {
+			if (_columnOriginalValues == null) {
+				return null;
+			}
+
+			if (_columnOriginalValues == Collections.EMPTY_MAP) {
+				_setColumnOriginalValues();
+			}
+
+			return (T)_columnOriginalValues.get(columnName);
+		}
+
+		private void _setColumnOriginalValues() {
+			_columnOriginalValues = new HashMap<String, Object>();
+
+			<#list entity.databaseRegularEntityColumns as entityColumn>
+				<#if !stringUtil.equals(entityColumn.type, "Blob") || !entityColumn.lazy>
+					_columnOriginalValues.put("${entityColumn.DBName}", _${entityColumn.name});
+				</#if>
+			</#list>
+		}
+
+		<#if entity.badEntityColumns?size != 0>
+			private static final Map<String, String> _attributeNames;
+
+			static {
+				Map<String, String> attributeNames = new HashMap<>();
+
+				<#list entity.badEntityColumns as entityColumn>
+					attributeNames.put("${entityColumn.DBName}", "${entityColumn.name}");
+				</#list>
+
+				_attributeNames = Collections.unmodifiableMap(attributeNames);
+			}
+		</#if>
+
+		private transient Map<String, Object> _columnOriginalValues;
+	</#if>
+
 	<#if columnBitmaskEnabled>
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			public static long getColumnBitmask(String columnName) {
+				return _columnBitmasks.get(columnName);
+			}
+
+			private static final Map<String, Long> _columnBitmasks;
+
+			static {
+				Map<String, Long> columnBitmasks = new HashMap<>();
+
+				<#assign columnBitmask = 1 />
+
+				<#list entity.databaseRegularEntityColumns as entityColumn>
+					columnBitmasks.put("${entityColumn.DBName}", ${columnBitmask}L);
+
+					<#assign columnBitmask = columnBitmask * 2 />
+				</#list>
+
+				_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+			}
+		</#if>
+
 		private long _columnBitmask;
 	</#if>
 

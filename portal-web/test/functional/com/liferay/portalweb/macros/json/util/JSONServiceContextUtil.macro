@@ -30,6 +30,38 @@ definition {
 		return "${JSON}";
 	}
 
+	macro _addGroupId {
+		Variables.assertDefined(parameterList = "${groupName},${JSON}");
+
+		if (!(isSet(site))) {
+			var site = "true";
+		}
+
+		var groupId = JSONGroupAPI._getGroupIdByName(groupName = "${groupName}", site = "${site}");
+
+		var JSON = JSONUtil2._addJSONObject(
+			JSON = "${JSON}",
+			key = "scopeGroupId",
+			value = "${groupId}");
+
+		return "${JSON}";
+	}
+
+	macro _addGroupPermissions {
+		Variables.assertDefined(parameterList = "${JSON},${addGroupPermissions}");
+
+		if (!(("${addGroupPermissions}" == "true") || ("${addGroupPermissions}" == "false"))) {
+			fail("Invalid addGroupPermissions: '${addGroupPermissions}' specified. Allowed values are 'true' or 'false'.");
+		}
+
+		var JSON = JSONUtil2._addJSONObject(
+			JSON = "${JSON}",
+			key = "addGroupPermissions",
+			value = "${addGroupPermissions}");
+
+		return "${JSON}";
+	}
+
 	macro _addGuestPermissions {
 		Variables.assertDefined(parameterList = "${JSON},${addGuestPermissions}");
 
@@ -82,10 +114,23 @@ definition {
 				JSON = "${serviceContext}");
 		}
 
+		if (isSet(addGroupPermissions)) {
+			var serviceContext = JSONServiceContextUtil._addGroupPermissions(
+				addGroupPermissions = "${addGroupPermissions}",
+				JSON = "${serviceContext}");
+		}
+
 		if (isSet(addGuestPermissions)) {
 			var serviceContext = JSONServiceContextUtil._addGuestPermissions(
 				addGuestPermissions = "${addGuestPermissions}",
 				JSON = "${serviceContext}");
+		}
+
+		if (isSet(groupName)) {
+			var serviceContext = JSONServiceContextUtil._addGroupId(
+				groupName = "${groupName}",
+				JSON = "${serviceContext}",
+				site = "${site}");
 		}
 
 		if (isSet(workflowAction)) {

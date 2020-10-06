@@ -10,6 +10,7 @@
  */
 
 import {
+	act,
 	fireEvent,
 	render,
 	waitForElement,
@@ -49,6 +50,12 @@ function renderTestResultRankingsForm(props) {
 	);
 }
 
+jest.useFakeTimers();
+
+afterEach(() => {
+	act(() => jest.runAllTimers());
+});
+
 describe('ResultRankingsForm', () => {
 	it('renders the results ranking form', () => {
 		const {container} = renderTestResultRankingsForm();
@@ -71,7 +78,7 @@ describe('ResultRankingsForm', () => {
 
 			await waitForElement(() => getByTestId(expected[0]));
 
-			expected.forEach(id => {
+			expected.forEach((id) => {
 				expect(getByTestId(id)).toBeInTheDocument();
 			});
 		}
@@ -92,7 +99,7 @@ describe('ResultRankingsForm', () => {
 
 		const input = container.querySelector('.form-control-inset');
 
-		addedAliases.forEach(alias => {
+		addedAliases.forEach((alias) => {
 			fireEvent.change(input, {target: {value: alias}});
 
 			fireEvent.keyDown(input, {key: 'Enter', keyCode: 13, which: 13});

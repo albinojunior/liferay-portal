@@ -29,8 +29,8 @@ definition {
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "GogoShell#AccessGogoShellCommandViaPortlet";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 
@@ -50,8 +50,8 @@ definition {
 	test GogoShellCommandDisconnectNotSupported {
 		property test.name.skip.portal.instance = "GogoShell#GogoShellCommandDisconnectNotSupported";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 
@@ -66,8 +66,8 @@ definition {
 	test GogoShellPortletOnlyOnMainInstance {
 		property test.name.skip.portal.instance = "GogoShell#GogoShellPortletOnlyOnMainInstance";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -78,8 +78,8 @@ definition {
 
 		PortalInstances.viewCP(virtualHost = "www.able.com");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 
@@ -91,7 +91,7 @@ definition {
 		Navigator.openSpecificURL(url = "http://www.able.com:8080");
 
 		Portlet.viewNoPortletsPresentCP(
-			category = "Configuration",
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 	}
@@ -110,7 +110,7 @@ definition {
 			roleTitle = "Administrator",
 			userEmailAddress = "userea@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -124,8 +124,8 @@ definition {
 			userLoginEmailAddress = "userea@liferay.com",
 			userLoginFullName = "userfn userln");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 
@@ -144,7 +144,7 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -154,7 +154,7 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -167,15 +167,15 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
-			portlet = "Memberships");
+			portlet = "Memberships",
+			site = "${siteName}");
 
 		Site.assignSiteRoleCP(
 			resourceName = "userfn userln",
 			roleTitle = "Site Administrator");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 

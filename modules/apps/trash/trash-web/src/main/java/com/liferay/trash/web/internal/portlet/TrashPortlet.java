@@ -28,14 +28,13 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.trash.TrashHelper;
+import com.liferay.trash.constants.TrashEntryConstants;
 import com.liferay.trash.constants.TrashPortletKeys;
 import com.liferay.trash.kernel.exception.RestoreEntryException;
 import com.liferay.trash.model.TrashEntry;
-import com.liferay.trash.model.TrashEntryConstants;
 import com.liferay.trash.service.TrashEntryLocalService;
 import com.liferay.trash.service.TrashEntryService;
 import com.liferay.trash.web.internal.constants.TrashWebKeys;
@@ -170,13 +169,13 @@ public class TrashPortlet extends MVCPortlet {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		checkEntry(actionRequest, actionResponse);
-
 		List<ObjectValuePair<String, Long>> entries = new ArrayList<>();
 
 		long trashEntryId = ParamUtil.getLong(actionRequest, "trashEntryId");
 
 		if (trashEntryId > 0) {
+			checkEntry(actionRequest, actionResponse);
+
 			TrashEntry entry = _trashEntryService.restoreEntry(trashEntryId);
 
 			entries.add(
@@ -184,8 +183,8 @@ public class TrashPortlet extends MVCPortlet {
 					entry.getClassName(), entry.getClassPK()));
 		}
 		else {
-			long[] restoreEntryIds = StringUtil.split(
-				ParamUtil.getString(actionRequest, "restoreTrashEntryIds"), 0L);
+			long[] restoreEntryIds = ParamUtil.getLongValues(
+				actionRequest, "rowIds");
 
 			for (long restoreEntryId : restoreEntryIds) {
 				TrashEntry entry = _trashEntryService.restoreEntry(
@@ -323,11 +322,11 @@ public class TrashPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof
 				com.liferay.trash.exception.RestoreEntryException ||
-			cause instanceof RestoreEntryException ||
-			cause instanceof TrashPermissionException) {
+			throwable instanceof RestoreEntryException ||
+			throwable instanceof TrashPermissionException) {
 
 			return true;
 		}

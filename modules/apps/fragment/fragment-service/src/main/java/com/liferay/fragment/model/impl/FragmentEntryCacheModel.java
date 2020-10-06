@@ -37,17 +37,17 @@ public class FragmentEntryCacheModel
 	implements CacheModel<FragmentEntry>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof FragmentEntryCacheModel)) {
+		if (!(object instanceof FragmentEntryCacheModel)) {
 			return false;
 		}
 
 		FragmentEntryCacheModel fragmentEntryCacheModel =
-			(FragmentEntryCacheModel)obj;
+			(FragmentEntryCacheModel)object;
 
 		if ((fragmentEntryId == fragmentEntryCacheModel.fragmentEntryId) &&
 			(mvccVersion == fragmentEntryCacheModel.mvccVersion)) {
@@ -77,12 +77,16 @@ public class FragmentEntryCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(51);
+		StringBundler sb = new StringBundler(55);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
+		sb.append(", headId=");
+		sb.append(headId);
 		sb.append(", fragmentEntryId=");
 		sb.append(fragmentEntryId);
 		sb.append(", groupId=");
@@ -139,6 +143,7 @@ public class FragmentEntryCacheModel
 		FragmentEntryImpl fragmentEntryImpl = new FragmentEntryImpl();
 
 		fragmentEntryImpl.setMvccVersion(mvccVersion);
+		fragmentEntryImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			fragmentEntryImpl.setUuid("");
@@ -147,6 +152,8 @@ public class FragmentEntryCacheModel
 			fragmentEntryImpl.setUuid(uuid);
 		}
 
+		fragmentEntryImpl.setHeadId(headId);
+		fragmentEntryImpl.setHead(head);
 		fragmentEntryImpl.setFragmentEntryId(fragmentEntryId);
 		fragmentEntryImpl.setGroupId(groupId);
 		fragmentEntryImpl.setCompanyId(companyId);
@@ -253,9 +260,17 @@ public class FragmentEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
+
+		headId = objectInput.readLong();
+
+		head = objectInput.readBoolean();
 
 		fragmentEntryId = objectInput.readLong();
 
@@ -271,12 +286,12 @@ public class FragmentEntryCacheModel
 		fragmentCollectionId = objectInput.readLong();
 		fragmentEntryKey = objectInput.readUTF();
 		name = objectInput.readUTF();
-		css = objectInput.readUTF();
-		html = objectInput.readUTF();
-		js = objectInput.readUTF();
+		css = (String)objectInput.readObject();
+		html = (String)objectInput.readObject();
+		js = (String)objectInput.readObject();
 
 		cacheable = objectInput.readBoolean();
-		configuration = objectInput.readUTF();
+		configuration = (String)objectInput.readObject();
 
 		previewFileEntryId = objectInput.readLong();
 
@@ -296,12 +311,18 @@ public class FragmentEntryCacheModel
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
 
+		objectOutput.writeLong(ctCollectionId);
+
 		if (uuid == null) {
 			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(uuid);
 		}
+
+		objectOutput.writeLong(headId);
+
+		objectOutput.writeBoolean(head);
 
 		objectOutput.writeLong(fragmentEntryId);
 
@@ -338,33 +359,33 @@ public class FragmentEntryCacheModel
 		}
 
 		if (css == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(css);
+			objectOutput.writeObject(css);
 		}
 
 		if (html == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(html);
+			objectOutput.writeObject(html);
 		}
 
 		if (js == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(js);
+			objectOutput.writeObject(js);
 		}
 
 		objectOutput.writeBoolean(cacheable);
 
 		if (configuration == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(configuration);
+			objectOutput.writeObject(configuration);
 		}
 
 		objectOutput.writeLong(previewFileEntryId);
@@ -389,7 +410,10 @@ public class FragmentEntryCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
+	public long headId;
+	public boolean head;
 	public long fragmentEntryId;
 	public long groupId;
 	public long companyId;

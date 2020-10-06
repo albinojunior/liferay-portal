@@ -17,7 +17,6 @@ package com.liferay.taglib.ui;
 import com.liferay.portal.kernel.editor.Editor;
 import com.liferay.portal.kernel.editor.configuration.EditorConfiguration;
 import com.liferay.portal.kernel.editor.configuration.EditorConfigurationFactoryUtil;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
@@ -40,7 +39,6 @@ import com.liferay.registry.collections.ServiceTrackerCollections;
 import com.liferay.registry.collections.ServiceTrackerMap;
 import com.liferay.taglib.BaseValidatorTagSupport;
 import com.liferay.taglib.aui.AUIUtil;
-import com.liferay.taglib.util.TagResourceBundleUtil;
 
 import java.io.IOException;
 
@@ -518,16 +516,8 @@ public class InputEditorTag extends BaseValidatorTagSupport {
 			"liferay-ui:input-editor:onFocusMethod", _onFocusMethod);
 		httpServletRequest.setAttribute(
 			"liferay-ui:input-editor:onInitMethod", _onInitMethod);
-
-		if (Validator.isNull(_placeholder)) {
-			_placeholder = LanguageUtil.get(
-				TagResourceBundleUtil.getResourceBundle(pageContext),
-				"write-your-content-here");
-		}
-
 		httpServletRequest.setAttribute(
 			"liferay-ui:input-editor:placeholder", _placeholder);
-
 		httpServletRequest.setAttribute(
 			"liferay-ui:input-editor:required", String.valueOf(_required));
 		httpServletRequest.setAttribute(

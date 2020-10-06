@@ -22,6 +22,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.mobile.device.rules.model.MDRRuleGroupInstance;
 import com.liferay.mobile.device.rules.service.MDRRuleGroupInstanceLocalService;
 import com.liferay.mobile.device.rules.service.persistence.MDRRuleGroupInstancePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -81,6 +83,10 @@ public abstract class MDRRuleGroupInstanceLocalServiceBaseImpl
 	/**
 	 * Adds the mdr rule group instance to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mdrRuleGroupInstance the mdr rule group instance
 	 * @return the mdr rule group instance that was added
 	 */
@@ -111,6 +117,10 @@ public abstract class MDRRuleGroupInstanceLocalServiceBaseImpl
 	/**
 	 * Deletes the mdr rule group instance with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ruleGroupInstanceId the primary key of the mdr rule group instance
 	 * @return the mdr rule group instance that was removed
 	 * @throws PortalException if a mdr rule group instance with the primary key could not be found
@@ -127,6 +137,10 @@ public abstract class MDRRuleGroupInstanceLocalServiceBaseImpl
 	/**
 	 * Deletes the mdr rule group instance from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mdrRuleGroupInstance the mdr rule group instance
 	 * @return the mdr rule group instance that was removed
 	 */
@@ -136,6 +150,11 @@ public abstract class MDRRuleGroupInstanceLocalServiceBaseImpl
 		MDRRuleGroupInstance mdrRuleGroupInstance) {
 
 		return mdrRuleGroupInstancePersistence.remove(mdrRuleGroupInstance);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return mdrRuleGroupInstancePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -427,6 +446,10 @@ public abstract class MDRRuleGroupInstanceLocalServiceBaseImpl
 			(MDRRuleGroupInstance)persistedModel);
 	}
 
+	public BasePersistence<MDRRuleGroupInstance> getBasePersistence() {
+		return mdrRuleGroupInstancePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -518,6 +541,10 @@ public abstract class MDRRuleGroupInstanceLocalServiceBaseImpl
 
 	/**
 	 * Updates the mdr rule group instance in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MDRRuleGroupInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mdrRuleGroupInstance the mdr rule group instance
 	 * @return the mdr rule group instance that was updated

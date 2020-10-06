@@ -72,7 +72,7 @@ public <#if dependencyInjectorDS>abstract </#if>class ${entity.name}FinderBaseIm
 		@Override
 		public Set<String> getBadColumnNames() {
 			<#if dependencyInjectorDS>
-				return ${entity.varName}Persistence.getBadColumnNames();
+				return ${entity.variableName}Persistence.getBadColumnNames();
 			<#else>
 				return get${entity.name}Persistence().getBadColumnNames();
 			</#if>
@@ -88,16 +88,16 @@ public <#if dependencyInjectorDS>abstract </#if>class ${entity.name}FinderBaseIm
 		 * @return the ${entity.humanName} persistence
 		 */
 		public ${entity.name}Persistence get${entity.name}Persistence() {
-			return ${entity.varName}Persistence;
+			return ${entity.variableName}Persistence;
 		}
 
 		/**
 		 * Sets the ${entity.humanName} persistence.
 		 *
-		 * @param ${entity.varName}Persistence the ${entity.humanName} persistence
+		 * @param ${entity.variableName}Persistence the ${entity.humanName} persistence
 		 */
-		public void set${entity.name}Persistence(${entity.name}Persistence ${entity.varName}Persistence) {
-			this.${entity.varName}Persistence = ${entity.varName}Persistence;
+		public void set${entity.name}Persistence(${entity.name}Persistence ${entity.variableName}Persistence) {
+			this.${entity.variableName}Persistence = ${entity.variableName}Persistence;
 		}
 	</#if>
 
@@ -108,7 +108,7 @@ public <#if dependencyInjectorDS>abstract </#if>class ${entity.name}FinderBaseIm
 			@BeanReference(type = ${entity.name}Persistence.class)
 		</#if>
 
-		protected ${entity.name}Persistence ${entity.varName}Persistence;
+		protected ${entity.name}Persistence ${entity.variableName}Persistence;
 	</#if>
 
 	<#if entity.badEntityColumns?size != 0>

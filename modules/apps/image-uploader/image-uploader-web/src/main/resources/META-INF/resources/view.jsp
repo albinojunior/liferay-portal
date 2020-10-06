@@ -36,7 +36,7 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 		<%
 		FileEntry fileEntry = (FileEntry)SessionMessages.get(renderRequest, "imageUploaded");
 
-		previewURL = HttpUtil.addParameter(previewURL, renderResponse.getNamespace() + "tempImageFileName", tempImageFileName);
+		previewURL = HttpUtil.addParameter(previewURL, liferayPortletResponse.getNamespace() + "tempImageFileName", tempImageFileName);
 		%>
 
 		<aui:script>
@@ -66,7 +66,7 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 			<aui:input name="imageUploaded" type="hidden" value='<%= SessionMessages.contains(renderRequest, "imageUploaded") %>' />
 
 			<div class="dialog-body">
-				<div class="container-fluid-1280">
+				<clay:container-fluid>
 
 					<%
 					DLConfiguration dlConfiguration = ConfigurationProviderUtil.getSystemConfiguration(DLConfiguration.class);
@@ -114,7 +114,7 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 							</div>
 						</aui:fieldset>
 					</aui:fieldset-group>
-				</div>
+				</clay:container-fluid>
 			</div>
 
 			<aui:button-row>
@@ -125,13 +125,13 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 		</aui:form>
 
 		<script>
-			(function() {
+			(function () {
 				var uploadImageButton = document.getElementById(
 					'<portlet:namespace />uploadImage'
 				);
 
 				if (uploadImageButton) {
-					uploadImageButton.addEventListener('keydown', function(event) {
+					uploadImageButton.addEventListener('keydown', function (event) {
 						event.preventDefault();
 
 						if (event.key == 'Enter' || event.key == ' ') {

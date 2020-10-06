@@ -184,13 +184,20 @@ paths:
 ---
 
 tasks:
+    # Install Git
     - name: Install Git
       package:
           state: present
           name: git
+    # Deploy SSH key
     - name: Deploy SSH key
       copy:
           content: "{{ id_rsa_continuous-integration }}"
           dest: /home/rancher/.ssh/id_rsa_continuous-integration@liferay.com
           mode: 384
           owner: rancher
+    - copy:
+          content: |-
+              {{ github_repos | sort | join('
+              ') }}
+          dest: "/data/slaves/{{ item.hostname }}/git/liferay/.repositories"

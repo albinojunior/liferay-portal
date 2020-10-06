@@ -26,14 +26,13 @@ definition {
 	@priority = "5"
 	test RedirectOnExpire {
 		property custom.properties = "session.timeout.redirect.on.expire=true";
-		property test.name.skip.portal.instance = "LoginUsecase#SessionTimeoutRedirectOnExpire";
+		property test.name.skip.portal.instance = "SessionTimeout#RedirectOnExpire";
 		property web.xml.timeout = "2";
 
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Session Page");
@@ -48,15 +47,13 @@ definition {
 
 		AssertTextEquals.assertPartialText(
 			locator1 = "Home#ERROR_MESSAGE_EXPIRED_SESSION",
-			value1 = "WarningDue to inactivity, your session will expire");
+			value1 = "Due to inactivity, your session will expire");
 
 		Pause(locator1 = "60000");
 
 		AssertElementPresent(locator1 = "UserBar#USER_SIGN_IN");
 
-		AssertTextEquals(
-			locator1 = "HelloWorld#PORTLET_TITLE",
-			value1 = "Hello World");
+		Smoke.viewWelcomeContentPage();
 	}
 
 	@priority = "4"
@@ -73,7 +70,7 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "Home#ERROR_MESSAGE_EXPIRED_SESSION",
-			value1 = "DangerDue to inactivity, your session has expired. Please save any data you may have entered before refreshing the page.");
+			value1 = "Danger:Due to inactivity, your session has expired. Please save any data you may have entered before refreshing the page.");
 
 		Refresh();
 
@@ -107,7 +104,7 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "Home#ERROR_MESSAGE_EXPIRED_SESSION",
-			value1 = "DangerDue to inactivity, your session has expired. Please save any data you may have entered before refreshing the page.");
+			value1 = "Danger:Due to inactivity, your session has expired. Please save any data you may have entered before refreshing the page.");
 
 		Refresh();
 

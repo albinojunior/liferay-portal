@@ -34,8 +34,8 @@ public class OAuthApplicationLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by
-	 {@link #addOAuthApplication(long, String, String, String, int
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #addOAuthApplication(long, String, String, String, int
 	 boolean, String, String, ServiceContext)}
 	 */
 	@Deprecated
@@ -66,6 +66,10 @@ public class OAuthApplicationLocalServiceWrapper
 
 	/**
 	 * Adds the o auth application to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthApplication the o auth application
 	 * @return the o auth application that was added
@@ -114,6 +118,10 @@ public class OAuthApplicationLocalServiceWrapper
 	/**
 	 * Deletes the o auth application with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthApplicationId the primary key of the o auth application
 	 * @return the o auth application that was removed
 	 * @throws PortalException if a o auth application with the primary key could not be found
@@ -129,6 +137,10 @@ public class OAuthApplicationLocalServiceWrapper
 
 	/**
 	 * Deletes the o auth application from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthApplication the o auth application
 	 * @return the o auth application that was removed
@@ -153,6 +165,11 @@ public class OAuthApplicationLocalServiceWrapper
 
 		return _oAuthApplicationLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _oAuthApplicationLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -323,7 +340,7 @@ public class OAuthApplicationLocalServiceWrapper
 		getOAuthApplications(
 			long companyId, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				orderByComparator) {
+				<com.liferay.oauth.model.OAuthApplication> orderByComparator) {
 
 		return _oAuthApplicationLocalService.getOAuthApplications(
 			companyId, start, end, orderByComparator);
@@ -370,7 +387,8 @@ public class OAuthApplicationLocalServiceWrapper
 	public java.util.List<com.liferay.oauth.model.OAuthApplication> search(
 		long companyId, String keywords,
 		java.util.LinkedHashMap<String, Object> params, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator orderByComparator) {
+		com.liferay.portal.kernel.util.OrderByComparator
+			<com.liferay.oauth.model.OAuthApplication> orderByComparator) {
 
 		return _oAuthApplicationLocalService.search(
 			companyId, keywords, params, start, end, orderByComparator);
@@ -408,6 +426,10 @@ public class OAuthApplicationLocalServiceWrapper
 
 	/**
 	 * Updates the o auth application in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthApplicationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthApplication the o auth application
 	 * @return the o auth application that was updated

@@ -41,6 +41,10 @@ public class BatchEngineExportTaskLocalServiceUtil {
 	/**
 	 * Adds the batch engine export task to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param batchEngineExportTask the batch engine export task
 	 * @return the batch engine export task that was added
 	 */
@@ -57,11 +61,12 @@ public class BatchEngineExportTaskLocalServiceUtil {
 			long companyId, long userId, String callbackURL, String className,
 			String contentType, String executeStatus,
 			java.util.List<String> fieldNamesList,
-			java.util.Map<String, java.io.Serializable> parameters) {
+			java.util.Map<String, java.io.Serializable> parameters,
+			String taskItemDelegateName) {
 
 		return getService().addBatchEngineExportTask(
 			companyId, userId, callbackURL, className, contentType,
-			executeStatus, fieldNamesList, parameters);
+			executeStatus, fieldNamesList, parameters, taskItemDelegateName);
 	}
 
 	/**
@@ -90,6 +95,10 @@ public class BatchEngineExportTaskLocalServiceUtil {
 	/**
 	 * Deletes the batch engine export task from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param batchEngineExportTask the batch engine export task
 	 * @return the batch engine export task that was removed
 	 */
@@ -103,6 +112,10 @@ public class BatchEngineExportTaskLocalServiceUtil {
 
 	/**
 	 * Deletes the batch engine export task with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineExportTaskId the primary key of the batch engine export task
 	 * @return the batch engine export task that was removed
@@ -125,6 +138,12 @@ public class BatchEngineExportTaskLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -353,6 +372,10 @@ public class BatchEngineExportTaskLocalServiceUtil {
 
 	/**
 	 * Updates the batch engine export task in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineExportTask the batch engine export task
 	 * @return the batch engine export task that was updated

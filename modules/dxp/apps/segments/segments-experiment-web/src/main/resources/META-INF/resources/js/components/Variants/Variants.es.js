@@ -61,7 +61,8 @@ function Variants({onVariantPublish, selectedSegmentsExperienceId}) {
 			<h4 className="mb-3 mt-4 sheet-subtitle">
 				{Liferay.Language.get('variants')}
 				<ClayIcon
-					className="ml-1 reference-mark text-warning"
+					className="lexicon-icon-sm ml-1 reference-mark text-warning"
+					style={{verticalAlign: 'super'}}
 					symbol="asterisk"
 				/>
 			</h4>
@@ -156,7 +157,7 @@ function Variants({onVariantPublish, selectedSegmentsExperienceId}) {
 
 				let variantExperienceId = null;
 
-				const newVariants = variants.filter(variant => {
+				const newVariants = variants.filter((variant) => {
 					if (variant.segmentsExperimentRelId !== variantId) {
 						return true;
 					}
@@ -174,7 +175,7 @@ function Variants({onVariantPublish, selectedSegmentsExperienceId}) {
 					dispatch(reviewVariants());
 				}
 			})
-			.catch(_error => {
+			.catch((_error) => {
 				openErrorToast();
 			});
 	}
@@ -240,7 +241,7 @@ function Variants({onVariantPublish, selectedSegmentsExperienceId}) {
 					})
 				);
 			})
-			.catch(_error => {
+			.catch((_error) => {
 				openErrorToast();
 			});
 	}

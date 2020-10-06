@@ -18,9 +18,14 @@ import com.liferay.app.builder.rest.dto.v1_0.App;
 import com.liferay.app.builder.rest.resource.v1_0.AppResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+
+import java.util.function.BiFunction;
 
 import javax.annotation.Generated;
 
@@ -91,17 +96,21 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	public Response updateAppDeployment(
-			@GraphQLName("appId") Long appId,
-			@GraphQLName("deploymentAction")
-				com.liferay.app.builder.rest.constant.v1_0.DeploymentAction
-					deploymentAction)
+	public Response updateAppDeploy(@GraphQLName("appId") Long appId)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
 			_appResourceComponentServiceObjects, this::_populateResourceContext,
-			appResource -> appResource.putAppDeployment(
-				appId, deploymentAction));
+			appResource -> appResource.putAppDeploy(appId));
+	}
+
+	@GraphQLField
+	public Response updateAppUndeploy(@GraphQLName("appId") Long appId)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_appResourceComponentServiceObjects, this::_populateResourceContext,
+			appResource -> appResource.putAppUndeploy(appId));
 	}
 
 	@GraphQLField
@@ -163,6 +172,8 @@ public class Mutation {
 		appResource.setContextHttpServletResponse(_httpServletResponse);
 		appResource.setContextUriInfo(_uriInfo);
 		appResource.setContextUser(_user);
+		appResource.setGroupLocalService(_groupLocalService);
+		appResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private static ComponentServiceObjects<AppResource>
@@ -170,9 +181,12 @@ public class Mutation {
 
 	private AcceptLanguage _acceptLanguage;
 	private com.liferay.portal.kernel.model.Company _company;
-	private com.liferay.portal.kernel.model.User _user;
+	private GroupLocalService _groupLocalService;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
+	private RoleLocalService _roleLocalService;
+	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
+	private com.liferay.portal.kernel.model.User _user;
 
 }

@@ -36,16 +36,18 @@ String viewMode = ParamUtil.getString(request, "viewMode");
 			<portlet:param name="viewMode" value="<%= Constants.PRINT %>" />
 		</portlet:renderURL>
 
-		<div class="autofit-col print-action user-tool-asset-addon-entry">
+		<clay:content-col
+			cssClass="print-action user-tool-asset-addon-entry"
+		>
 			<liferay-ui:icon
 				icon="print"
 				label="<%= true %>"
 				linkCssClass="btn btn-monospaced btn-outline-borderless btn-outline-secondary btn-sm"
 				markupView="lexicon"
 				message='<%= LanguageUtil.format(request, "print-x-x", new Object[] {"hide-accessible", HtmlUtil.escape(articleDisplay.getTitle())}, false) %>'
-				url='<%= "javascript:" + renderResponse.getNamespace() + "printPage();" %>'
+				url='<%= "javascript:" + liferayPortletResponse.getNamespace() + "printPage();" %>'
 			/>
-		</div>
+		</clay:content-col>
 
 		<aui:script>
 			function <portlet:namespace />printPage() {

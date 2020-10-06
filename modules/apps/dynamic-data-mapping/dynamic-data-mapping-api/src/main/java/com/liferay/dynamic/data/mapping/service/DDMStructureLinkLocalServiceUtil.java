@@ -41,6 +41,10 @@ public class DDMStructureLinkLocalServiceUtil {
 	/**
 	 * Adds the ddm structure link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was added
 	 */
@@ -83,6 +87,10 @@ public class DDMStructureLinkLocalServiceUtil {
 	/**
 	 * Deletes the ddm structure link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was removed
 	 */
@@ -96,6 +104,10 @@ public class DDMStructureLinkLocalServiceUtil {
 
 	/**
 	 * Deletes the ddm structure link with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param structureLinkId the primary key of the ddm structure link
 	 * @return the ddm structure link that was removed
@@ -144,6 +156,12 @@ public class DDMStructureLinkLocalServiceUtil {
 
 	public static void deleteStructureStructureLinks(long structureId) {
 		getService().deleteStructureStructureLinks(structureId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -243,6 +261,10 @@ public class DDMStructureLinkLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static java.util.List
 		<com.liferay.dynamic.data.mapping.model.DDMStructureLink>
 			getClassNameStructureLinks(long classNameId) {
@@ -426,6 +448,10 @@ public class DDMStructureLinkLocalServiceUtil {
 
 	/**
 	 * Updates the ddm structure link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStructureLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmStructureLink the ddm structure link
 	 * @return the ddm structure link that was updated

@@ -16,11 +16,10 @@ definition {
 			groupName = "Site Name",
 			layoutName = "Staging Test Page");
 
-		Navigator.gotoSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
-
-		Portlet.addPG(portletName = "Asset Publisher");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Site Name",
+			layoutName = "Staging Test Page",
+			widgetName = "Asset Publisher");
 	}
 
 	tearDown {
@@ -39,31 +38,24 @@ definition {
 	test PublishDeleteWCFolderWithArticleViaAP {
 		Navigator.openSiteURL(siteName = "Site Name");
 
-		Portlet.addPG(portletName = "Asset Publisher");
-
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
 			portlet = "Staging");
 
 		Staging.activateStagingCP(siteName = "Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Web Content");
-
-		WebContentFolder.addCP(
+		JSONWebcontent.addFolder(
 			folderDescription = "WC Folder Description",
-			folderName = "WC Folder Name");
-
-		WebContent.addArticleCP(
-			webContentContent = "Webcontent Content",
-			webContentTitle = "Webcontent Title");
-
-		WebContent.moveArticlesToFolderCP(
 			folderName = "WC Folder Name",
-			webContentArticlesList = "Webcontent Title");
+			groupName = "Site Name (Staging)",
+			site = "false");
+
+		JSONWebcontent.addWebContent(
+			content = "Webcontent Content",
+			folderName = "WC Folder Name",
+			groupName = "Site Name (Staging)",
+			site = "false",
+			title = "Webcontent Title");
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",
@@ -75,7 +67,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Web Content");
 
 		WebContentFolder.moveToRecycleBinCP(
@@ -114,22 +105,23 @@ definition {
 	@description = "This is a use case for LPS-81196."
 	@priority = "3"
 	test StagingPublishAssetPublisherConfiguredCategoriesFilter {
+		Navigator.openSiteURL(siteName = "Site Name");
+
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
 			portlet = "Staging");
 
 		Staging.activateStagingCP(siteName = "Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Categorization",
-			panel = "Site Administration",
-			portlet = "Categories");
+		JSONCategory.addVocabulary(
+			groupName = "Site Name (Staging)",
+			site = "false",
+			title = "Vocabulary Name");
 
-		Vocabulary.addCP(vocabularyName = "Vocabulary Name");
-
-		Category.addCP(
-			categoryName = "Category Name 1",
+		JSONCategory.addCategory(
+			groupName = "Site Name (Staging)",
+			site = "false",
+			title = "Category Name 1",
 			vocabularyName = "Vocabulary Name");
 
 		Navigator.gotoStagedSitePage(
@@ -138,44 +130,45 @@ definition {
 
 		AssetPublisherPortlet.configureCategoriesFilterPG(categoryName = "Category Name 1");
 
-		Navigator.gotoStagedSitePage(
-			pageName = "Staging Test Page",
-			siteName = "Site Name");
+		IFrame.closeFrame();
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Web Content");
-
-		WebContentNavigator.gotoAddCP();
-
-		WebContent.addWithCategoryCP(
+		var categoryId = JSONCategory.getCategoryId(
 			categoryName = "Category Name 1",
-			vocabularyName = "Vocabulary Name",
-			webContentContent = "Web Content With One Category",
-			webContentTitle = "Web Content Title 1");
-
-		ProductMenu.gotoPortlet(
-			category = "Categorization",
-			panel = "Site Administration",
-			portlet = "Categories");
-
-		Category.addCP(
-			categoryName = "Category Name 2",
+			groupName = "Site Name (Staging)",
+			site = "false",
 			vocabularyName = "Vocabulary Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Web Content");
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId}",
+			content = "Web Content With One Category",
+			groupName = "Site Name (Staging)",
+			site = "false",
+			title = "Web Content Title 1");
 
-		WebContentNavigator.gotoAddCP();
+		JSONCategory.addCategory(
+			groupName = "Site Name (Staging)",
+			site = "false",
+			title = "Category Name 2",
+			vocabularyName = "Vocabulary Name");
 
-		WebContent.addWithMultipleCategories(
-			categoryNameList = "Category Name 1,Category Name 2",
-			vocabularyName = "Vocabulary Name",
-			webContentContent = "Web Content With Two Categories",
-			webContentTitle = "Web Content Title 2");
+		var firstCategoryId = JSONCategory.getCategoryId(
+			categoryName = "Category Name 1",
+			groupName = "Site Name (Staging)",
+			site = "false",
+			vocabularyName = "Vocabulary Name");
+
+		var secondCategoryId = JSONCategory.getCategoryId(
+			categoryName = "Category Name 2",
+			groupName = "Site Name (Staging)",
+			site = "false",
+			vocabularyName = "Vocabulary Name");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${firstCategoryId},${secondCategoryId}",
+			content = "Web Content With Two Categories",
+			groupName = "Site Name (Staging)",
+			site = "false",
+			title = "Web Content Title 2");
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",
@@ -192,6 +185,8 @@ definition {
 		AssetPublisherPortlet.editConfigureCategoriesFilterPG(
 			categoryNames = "Category Name 1,Category Name 2",
 			queryContains = "Does not Contain");
+
+		IFrame.closeFrame();
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",

@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -45,7 +46,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.junit.After;
@@ -179,6 +179,8 @@ public class LayoutPersistenceTest {
 
 		newLayout.setColorSchemeId(RandomTestUtil.randomString());
 
+		newLayout.setStyleBookEntryId(RandomTestUtil.nextLong());
+
 		newLayout.setCss(RandomTestUtil.randomString());
 
 		newLayout.setPriority(RandomTestUtil.nextInt());
@@ -259,6 +261,9 @@ public class LayoutPersistenceTest {
 			existingLayout.getThemeId(), newLayout.getThemeId());
 		Assert.assertEquals(
 			existingLayout.getColorSchemeId(), newLayout.getColorSchemeId());
+		Assert.assertEquals(
+			existingLayout.getStyleBookEntryId(),
+			newLayout.getStyleBookEntryId());
 		Assert.assertEquals(existingLayout.getCss(), newLayout.getCss());
 		Assert.assertEquals(
 			existingLayout.getPriority(), newLayout.getPriority());
@@ -541,12 +546,12 @@ public class LayoutPersistenceTest {
 			"userName", true, "createDate", true, "modifiedDate", true,
 			"parentPlid", true, "privateLayout", true, "layoutId", true,
 			"parentLayoutId", true, "classNameId", true, "classPK", true,
-			"name", true, "title", true, "description", true, "keywords", true,
-			"robots", true, "type", true, "hidden", true, "system", true,
-			"friendlyURL", true, "iconImageId", true, "themeId", true,
-			"colorSchemeId", true, "priority", true, "masterLayoutPlid", true,
-			"layoutPrototypeUuid", true, "layoutPrototypeLinkEnabled", true,
-			"sourcePrototypeLayoutUuid", true, "publishDate", true,
+			"name", true, "title", true, "keywords", true, "robots", true,
+			"type", true, "hidden", true, "system", true, "friendlyURL", true,
+			"iconImageId", true, "themeId", true, "colorSchemeId", true,
+			"styleBookEntryId", true, "priority", true, "masterLayoutPlid",
+			true, "layoutPrototypeUuid", true, "layoutPrototypeLinkEnabled",
+			true, "sourcePrototypeLayoutUuid", true, "publishDate", true,
 			"lastPublishDate", true, "status", true, "statusByUserId", true,
 			"statusByUserName", true, "statusDate", true);
 	}
@@ -757,88 +762,140 @@ public class LayoutPersistenceTest {
 
 		_persistence.clearCache();
 
-		Layout existingLayout = _persistence.findByPrimaryKey(
-			newLayout.getPrimaryKey());
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(newLayout.getPrimaryKey()));
+	}
 
-		Assert.assertTrue(
-			Objects.equals(
-				existingLayout.getUuid(),
-				ReflectionTestUtil.invoke(
-					existingLayout, "getOriginalUuid", new Class<?>[0])));
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		Layout newLayout = addLayout();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			Layout.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq("plid", newLayout.getPlid()));
+
+		List<Layout> result = _persistence.findWithDynamicQuery(dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(Layout layout) {
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getGroupId()),
+			layout.getUuid(),
+			ReflectionTestUtil.invoke(
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"uuid_"));
+		Assert.assertEquals(
+			Long.valueOf(layout.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalGroupId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"groupId"));
 		Assert.assertEquals(
-			Boolean.valueOf(existingLayout.getPrivateLayout()),
+			Boolean.valueOf(layout.getPrivateLayout()),
 			ReflectionTestUtil.<Boolean>invoke(
-				existingLayout, "getOriginalPrivateLayout", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"privateLayout"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getIconImageId()),
+			Long.valueOf(layout.getIconImageId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalIconImageId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"iconImageId"));
 
 		Assert.assertEquals(
-			Boolean.valueOf(existingLayout.getPrivateLayout()),
+			Boolean.valueOf(layout.getPrivateLayout()),
 			ReflectionTestUtil.<Boolean>invoke(
-				existingLayout, "getOriginalPrivateLayout", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"privateLayout"));
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getIconImageId()),
+			Long.valueOf(layout.getIconImageId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalIconImageId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"iconImageId"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getClassNameId()),
+			Long.valueOf(layout.getClassNameId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalClassNameId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"classNameId"));
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getClassPK()),
+			Long.valueOf(layout.getClassPK()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalClassPK", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"classPK"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getGroupId()),
+			Long.valueOf(layout.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalGroupId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"groupId"));
 		Assert.assertEquals(
-			Boolean.valueOf(existingLayout.getPrivateLayout()),
+			Boolean.valueOf(layout.getPrivateLayout()),
 			ReflectionTestUtil.<Boolean>invoke(
-				existingLayout, "getOriginalPrivateLayout", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"privateLayout"));
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getLayoutId()),
+			Long.valueOf(layout.getLayoutId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalLayoutId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"layoutId"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getGroupId()),
+			Long.valueOf(layout.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalGroupId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"groupId"));
 		Assert.assertEquals(
-			Boolean.valueOf(existingLayout.getPrivateLayout()),
+			Boolean.valueOf(layout.getPrivateLayout()),
 			ReflectionTestUtil.<Boolean>invoke(
-				existingLayout, "getOriginalPrivateLayout", new Class<?>[0]));
-		Assert.assertTrue(
-			Objects.equals(
-				existingLayout.getFriendlyURL(),
-				ReflectionTestUtil.invoke(
-					existingLayout, "getOriginalFriendlyURL",
-					new Class<?>[0])));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"privateLayout"));
+		Assert.assertEquals(
+			layout.getFriendlyURL(),
+			ReflectionTestUtil.invoke(
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"friendlyURL"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingLayout.getGroupId()),
+			Long.valueOf(layout.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingLayout, "getOriginalGroupId", new Class<?>[0]));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"groupId"));
 		Assert.assertEquals(
-			Boolean.valueOf(existingLayout.getPrivateLayout()),
+			Boolean.valueOf(layout.getPrivateLayout()),
 			ReflectionTestUtil.<Boolean>invoke(
-				existingLayout, "getOriginalPrivateLayout", new Class<?>[0]));
-		Assert.assertTrue(
-			Objects.equals(
-				existingLayout.getSourcePrototypeLayoutUuid(),
-				ReflectionTestUtil.invoke(
-					existingLayout, "getOriginalSourcePrototypeLayoutUuid",
-					new Class<?>[0])));
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"privateLayout"));
+		Assert.assertEquals(
+			layout.getSourcePrototypeLayoutUuid(),
+			ReflectionTestUtil.invoke(
+				layout, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"sourcePrototypeLayoutUuid"));
 	}
 
 	protected Layout addLayout() throws Exception {
@@ -901,6 +958,8 @@ public class LayoutPersistenceTest {
 		layout.setThemeId(RandomTestUtil.randomString());
 
 		layout.setColorSchemeId(RandomTestUtil.randomString());
+
+		layout.setStyleBookEntryId(RandomTestUtil.nextLong());
 
 		layout.setCss(RandomTestUtil.randomString());
 

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -40,16 +41,14 @@ public class GroupManagementToolbarDisplayContext
 	extends SearchContainerManagementToolbarDisplayContext {
 
 	public GroupManagementToolbarDisplayContext(
+		GroupDisplayContext groupDisplayContext,
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
-		LiferayPortletResponse liferayPortletResponse,
-		GroupDisplayContext groupDisplayContext) {
+		LiferayPortletResponse liferayPortletResponse) {
 
 		super(
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
 			groupDisplayContext.getGroupSearch());
-
-		_groupDisplayContext = groupDisplayContext;
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
@@ -100,7 +99,7 @@ public class GroupManagementToolbarDisplayContext
 		Map<String, String> entriesMap, PortletURL entryURL,
 		String parameterName, String parameterValue) {
 
-		if ((entriesMap == null) || entriesMap.isEmpty()) {
+		if (MapUtil.isEmpty(entriesMap)) {
 			return null;
 		}
 
@@ -135,7 +134,6 @@ public class GroupManagementToolbarDisplayContext
 		return new String[] {"site-name"};
 	}
 
-	private final GroupDisplayContext _groupDisplayContext;
 	private final ResourceBundle _resourceBundle;
 
 }

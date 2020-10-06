@@ -126,15 +126,15 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "details
 
 					<%
 					for (String conversion : conversions) {
-						Map<String, Object> data = new HashMap<>();
-
 						exportPageURL.setParameter("targetExtension", conversion);
-
-						data.put("resource-href", exportPageURL.toString());
 					%>
 
 						<liferay-ui:icon
-							data="<%= data %>"
+							data='<%=
+								HashMapBuilder.<String, Object>put(
+									"resource-href", exportPageURL.toString()
+								).build()
+							%>'
 							icon="<%= DLUtil.getFileIconCssClass(conversion) %>"
 							label="<%= true %>"
 							markupView="lexicon"

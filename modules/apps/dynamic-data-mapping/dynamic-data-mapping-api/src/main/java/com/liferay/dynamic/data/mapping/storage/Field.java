@@ -16,6 +16,7 @@ package com.liferay.dynamic.data.mapping.storage;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
+import com.liferay.dynamic.data.mapping.storage.constants.FieldConstants;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -94,16 +95,16 @@ public class Field implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Field)) {
+		if (!(object instanceof Field)) {
 			return false;
 		}
 
-		Field field = (Field)obj;
+		Field field = (Field)object;
 
 		if ((_ddmStructureId == field._ddmStructureId) &&
 			Objects.equals(_name, field._name) &&

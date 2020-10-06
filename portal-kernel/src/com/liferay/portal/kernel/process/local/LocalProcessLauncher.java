@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.process.local;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
@@ -98,11 +99,9 @@ public class LocalProcessLauncher {
 			String processCallableName =
 				(String)bootstrapObjectInputStream.readObject();
 
-			String logPrefixString = StringPool.OPEN_BRACKET.concat(
-				processCallableName
-			).concat(
-				StringPool.CLOSE_BRACKET
-			);
+			String logPrefixString = StringBundler.concat(
+				StringPool.OPEN_BRACKET, processCallableName,
+				StringPool.CLOSE_BRACKET);
 
 			byte[] logPrefix = logPrefixString.getBytes(StringPool.UTF8);
 
@@ -140,16 +139,16 @@ public class LocalProcessLauncher {
 
 			outProcessOutputStream.flush();
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			errPrintStream.flush();
 
 			ProcessException processException = null;
 
-			if (t instanceof ProcessException) {
-				processException = (ProcessException)t;
+			if (throwable instanceof ProcessException) {
+				processException = (ProcessException)throwable;
 			}
 			else {
-				processException = new ProcessException(t);
+				processException = new ProcessException(throwable);
 			}
 
 			errProcessOutputStream.writeProcessCallable(
@@ -237,7 +236,7 @@ public class LocalProcessLauncher {
 
 		public static final int UNKNOWN_CODE = 3;
 
-		public boolean shutdown(int shutdownCode, Throwable shutdownThrowable);
+		public boolean shutdown(int shutdownCode, Throwable throwable);
 
 	}
 

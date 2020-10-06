@@ -49,6 +49,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
@@ -231,14 +232,14 @@ public class DDLRecordSearchTest {
 		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
 			ddmForm);
 
-		Map<Locale, String> nameMap = HashMapBuilder.put(
-			LocaleUtil.JAPAN, "単純なテキスト"
-		).put(
-			LocaleUtil.US, "simple text"
-		).build();
-
 		DDMFormFieldValue nameDDMFormFieldValue =
-			createLocalizedDDMFormFieldValue("name", nameMap);
+			createLocalizedDDMFormFieldValue(
+				"name",
+				HashMapBuilder.put(
+					LocaleUtil.JAPAN, "単純なテキスト"
+				).put(
+					LocaleUtil.US, "simple text"
+				).build());
 
 		ddmFormValues.addDDMFormFieldValue(nameDDMFormFieldValue);
 
@@ -341,6 +342,9 @@ public class DDLRecordSearchTest {
 		assertSearch("\"The Bloggs\"", 3);
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
 	protected static SearchContext getSearchContext(
 			Group group, User user, DDLRecordSet recordSet)
 		throws Exception {
@@ -392,23 +396,20 @@ public class DDLRecordSearchTest {
 	}
 
 	protected void addRecord(String name) throws Exception {
-		Map<Locale, String> nameMap = HashMapBuilder.put(
-			LocaleUtil.US, name
-		).build();
-
-		addRecord(nameMap);
+		addRecord(
+			HashMapBuilder.put(
+				LocaleUtil.US, name
+			).build());
 	}
 
 	protected void addRecord(String name, String description) throws Exception {
-		Map<Locale, String> nameMap = HashMapBuilder.put(
-			LocaleUtil.US, name
-		).build();
-
-		Map<Locale, String> descriptionMap = HashMapBuilder.put(
-			LocaleUtil.US, description
-		).build();
-
-		addRecord(nameMap, descriptionMap);
+		addRecord(
+			HashMapBuilder.put(
+				LocaleUtil.US, name
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.US, description
+			).build());
 	}
 
 	protected DDLRecordSet addRecordSet() throws Exception {

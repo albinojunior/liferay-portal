@@ -14,21 +14,28 @@
 
 package com.liferay.change.tracking.web.internal.servlet.taglib;
 
+import com.liferay.change.tracking.constants.CTActionKeys;
 import com.liferay.change.tracking.constants.CTConstants;
-import com.liferay.change.tracking.constants.CTPortletKeys;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTPreferences;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.change.tracking.service.CTEntryLocalService;
 import com.liferay.change.tracking.service.CTPreferencesLocalService;
+import com.liferay.change.tracking.web.internal.constants.CTPortletKeys;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.service.permission.PortletPermission;
 import com.liferay.portal.kernel.servlet.taglib.BaseDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -80,7 +87,20 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 			_ctPreferencesLocalService.fetchCTPreferences(
 				themeDisplay.getCompanyId(), 0);
 
-		if (ctPreferences == null) {
+		try {
+			if ((ctPreferences == null) ||
+				!_portletPermission.contains(
+					themeDisplay.getPermissionChecker(),
+					CTPortletKeys.PUBLICATIONS, ActionKeys.VIEW)) {
+
+				return;
+			}
+		}
+		catch (PortalException portalException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(portalException, portalException);
+			}
+
 			return;
 		}
 
@@ -138,7 +158,7 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 			writer.write("</span></button></div>");
 
 			String componentId =
-				_portal.getPortletNamespace(CTPortletKeys.CHANGE_LISTS) +
+				_portal.getPortletNamespace(CTPortletKeys.PUBLICATIONS) +
 					"IndicatorComponent";
 			String module =
 				_npmResolver.resolveModuleName("change-tracking-web") +
@@ -153,8 +173,8 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 
 			writer.write("</div>");
 		}
-		catch (JspException jspException) {
-			ReflectionUtil.throwException(jspException);
+		catch (JspException | PortalException exception) {
+			ReflectionUtil.throwException(exception);
 		}
 	}
 
@@ -165,24 +185,25 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 	}
 
 	private Map<String, Object> _getReactData(
-		HttpServletRequest httpServletRequest, CTCollection ctCollection,
-		CTPreferences ctPreferences, ThemeDisplay themeDisplay) {
+			HttpServletRequest httpServletRequest, CTCollection ctCollection,
+			CTPreferences ctPreferences, ThemeDisplay themeDisplay)
+		throws PortalException {
 
 		PortletURL checkoutURL = _portal.getControlPanelPortletURL(
 			httpServletRequest, themeDisplay.getScopeGroup(),
-			CTPortletKeys.CHANGE_LISTS, 0, 0, PortletRequest.ACTION_PHASE);
+			CTPortletKeys.PUBLICATIONS, 0, 0, PortletRequest.ACTION_PHASE);
 
 		checkoutURL.setParameter(
-			ActionRequest.ACTION_NAME, "/change_lists/checkout_ct_collection");
+			ActionRequest.ACTION_NAME, "/publications/checkout_ct_collection");
 		checkoutURL.setParameter(
 			"redirect", _portal.getCurrentURL(httpServletRequest));
 
 		PortletURL selectURL = _portal.getControlPanelPortletURL(
 			httpServletRequest, themeDisplay.getScopeGroup(),
-			CTPortletKeys.CHANGE_LISTS, 0, 0, PortletRequest.RENDER_PHASE);
+			CTPortletKeys.PUBLICATIONS, 0, 0, PortletRequest.RENDER_PHASE);
 
 		selectURL.setParameter(
-			"mvcPath", "/change_lists/select_change_list.jsp");
+			"mvcPath", "/publications/select_publication.jsp");
 
 		try {
 			selectURL.setWindowState(LiferayWindowState.POP_UP);
@@ -194,7 +215,7 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 		Map<String, Object> data = HashMapBuilder.<String, Object>put(
 			"checkoutURL", checkoutURL.toString()
 		).put(
-			"namespace", _portal.getPortletNamespace(CTPortletKeys.CHANGE_LISTS)
+			"namespace", _portal.getPortletNamespace(CTPortletKeys.PUBLICATIONS)
 		).put(
 			"selectURL", selectURL.toString()
 		).build();
@@ -215,7 +236,7 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 			data.put("title", _language.get(resourceBundle, "production"));
 		}
 		else {
-			data.put("iconClass", "change-tracking-indicator-icon-change-list");
+			data.put("iconClass", "change-tracking-indicator-icon-publication");
 			data.put("iconName", "radio-button");
 			data.put("title", ctCollection.getName());
 		}
@@ -223,15 +244,15 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		if (ctPreferences != null) {
-			long previousCtCollectionId =
-				ctPreferences.getPreviousCtCollectionId();
-
 			if (ctCollectionId == CTConstants.CT_COLLECTION_ID_PRODUCTION) {
-				CTCollection previousCtCollection =
+				long previousCtCollectionId =
+					ctPreferences.getPreviousCtCollectionId();
+
+				CTCollection previousCTCollection =
 					_ctCollectionLocalService.fetchCTCollection(
 						previousCtCollectionId);
 
-				if (previousCtCollection != null) {
+				if (previousCTCollection != null) {
 					checkoutURL.setParameter(
 						"ctCollectionId",
 						String.valueOf(previousCtCollectionId));
@@ -243,7 +264,7 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 							"label",
 							_language.format(
 								resourceBundle, "work-on-x",
-								previousCtCollection.getName(), false)
+								previousCTCollection.getName(), false)
 						).put(
 							"symbolLeft", "radio-button"
 						));
@@ -271,8 +292,8 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 				"href",
 				StringBundler.concat(
 					"javascript:Liferay.fire('",
-					_portal.getPortletNamespace(CTPortletKeys.CHANGE_LISTS),
-					"openDialog', {});")
+					_portal.getPortletNamespace(CTPortletKeys.PUBLICATIONS),
+					"openDialog', {}); void(0);")
 			).put(
 				"label", _language.get(resourceBundle, "select-a-publication")
 			).put(
@@ -281,16 +302,16 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 
 		PortletURL addURL = _portal.getControlPanelPortletURL(
 			httpServletRequest, themeDisplay.getScopeGroup(),
-			CTPortletKeys.CHANGE_LISTS, 0, 0, PortletRequest.RENDER_PHASE);
+			CTPortletKeys.PUBLICATIONS, 0, 0, PortletRequest.RENDER_PHASE);
 
 		addURL.setParameter(
-			"mvcRenderCommandName", "/change_lists/add_ct_collection");
+			"mvcRenderCommandName", "/publications/add_ct_collection");
 
-		PortletURL overviewURL = _portal.getControlPanelPortletURL(
+		PortletURL backURL = _portal.getControlPanelPortletURL(
 			httpServletRequest, themeDisplay.getScopeGroup(),
-			CTPortletKeys.CHANGE_LISTS, 0, 0, PortletRequest.RENDER_PHASE);
+			CTPortletKeys.PUBLICATIONS, 0, 0, PortletRequest.RENDER_PHASE);
 
-		addURL.setParameter("backURL", overviewURL.toString());
+		addURL.setParameter("redirect", backURL.toString());
 
 		jsonArray.put(
 			JSONUtil.put(
@@ -302,11 +323,21 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 			));
 
 		if (ctCollection != null) {
+			PortletURL reviewURL = _portal.getControlPanelPortletURL(
+				httpServletRequest, themeDisplay.getScopeGroup(),
+				CTPortletKeys.PUBLICATIONS, 0, 0, PortletRequest.RENDER_PHASE);
+
+			reviewURL.setParameter(
+				"mvcRenderCommandName", "/publications/view_changes");
+			reviewURL.setParameter("backURL", backURL.toString());
+			reviewURL.setParameter(
+				"ctCollectionId", String.valueOf(ctCollectionId));
+
 			jsonArray.put(
 				JSONUtil.put("type", "divider")
 			).put(
 				JSONUtil.put(
-					"href", overviewURL.toString()
+					"href", reviewURL.toString()
 				).put(
 					"label", _language.get(resourceBundle, "review-changes")
 				).put(
@@ -317,28 +348,42 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 			int count = _ctEntryLocalService.getCTCollectionCTEntriesCount(
 				ctCollection.getCtCollectionId());
 
-			if (count > 0) {
+			if ((count > 0) &&
+				_ctCollectionModelResourcePermission.contains(
+					themeDisplay.getPermissionChecker(), ctCollection,
+					CTActionKeys.PUBLISH)) {
+
 				jsonArray.put(JSONUtil.put("type", "divider"));
 
-				PortletURL conflictsURL = _portal.getControlPanelPortletURL(
+				PortletURL publishURL = _portal.getControlPanelPortletURL(
 					httpServletRequest, themeDisplay.getScopeGroup(),
-					CTPortletKeys.CHANGE_LISTS, 0, 0,
+					CTPortletKeys.PUBLICATIONS, 0, 0,
 					PortletRequest.RENDER_PHASE);
 
-				conflictsURL.setParameter(
-					"mvcRenderCommandName", "/change_lists/view_conflicts");
-				conflictsURL.setParameter(
+				publishURL.setParameter(
+					"mvcRenderCommandName", "/publications/view_conflicts");
+				publishURL.setParameter(
 					"ctCollectionId",
 					String.valueOf(ctCollection.getCtCollectionId()));
 
 				jsonArray.put(
 					JSONUtil.put(
-						"href", conflictsURL.toString()
+						"href", publishURL.toString()
 					).put(
-						"label",
-						_language.get(resourceBundle, "prepare-to-publish")
+						"label", _language.get(resourceBundle, "publish")
 					).put(
-						"symbolLeft", "upload"
+						"symbolLeft", "change"
+					));
+
+				publishURL.setParameter("schedule", Boolean.TRUE.toString());
+
+				jsonArray.put(
+					JSONUtil.put(
+						"href", publishURL.toString()
+					).put(
+						"label", _language.get(resourceBundle, "schedule")
+					).put(
+						"symbolLeft", "calendar"
 					));
 			}
 		}
@@ -348,8 +393,17 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 		return data;
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		ChangeTrackingIndicatorDynamicInclude.class);
+
 	@Reference
 	private CTCollectionLocalService _ctCollectionLocalService;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.change.tracking.model.CTCollection)"
+	)
+	private ModelResourcePermission<CTCollection>
+		_ctCollectionModelResourcePermission;
 
 	@Reference
 	private CTEntryLocalService _ctEntryLocalService;
@@ -368,6 +422,9 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private PortletPermission _portletPermission;
 
 	@Reference
 	private ReactRenderer _reactRenderer;

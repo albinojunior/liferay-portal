@@ -73,7 +73,7 @@
 
 		// Left list
 
-		List leftList = new ArrayList();
+		List<KeyValuePair> leftList = new ArrayList<>();
 
 		String[] currentLanguageIds = PrefsPropsUtil.getStringArray(company.getCompanyId(), PropsKeys.LOCALES, StringPool.COMMA, PropsValues.LOCALES_ENABLED);
 
@@ -83,7 +83,7 @@
 
 		// Right list
 
-		List rightList = new ArrayList();
+		List<KeyValuePair> rightList = new ArrayList<>();
 
 		for (String propsValuesLanguageId : SetUtil.fromArray(PropsValues.LOCALES)) {
 			if (!ArrayUtil.contains(availableLanguageIds, propsValuesLanguageId)) {
@@ -112,7 +112,7 @@
 	var languageSelectInput = A.one('#<portlet:namespace />languageId');
 
 	if (languageSelectInput) {
-		languageSelectInput.on('change', function() {
+		languageSelectInput.on('change', function () {
 			new A.Alert({
 				bodyContent:
 					'<liferay-ui:message key="this-change-will-only-affect-the-newly-created-localized-content" />',

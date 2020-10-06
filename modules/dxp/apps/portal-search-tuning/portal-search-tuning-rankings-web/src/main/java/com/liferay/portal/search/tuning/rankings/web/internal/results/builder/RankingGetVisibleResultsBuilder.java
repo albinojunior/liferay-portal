@@ -33,12 +33,15 @@ import com.liferay.portal.search.searcher.SearchResponse;
 import com.liferay.portal.search.searcher.Searcher;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.Ranking;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingIndexReader;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexName;
 import com.liferay.portal.search.tuning.rankings.web.internal.searcher.RankingSearchRequestHelper;
+import com.liferay.portal.search.tuning.rankings.web.internal.util.RankingResultUtil;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 /**
  * @author André de Oliveira
@@ -50,19 +53,22 @@ public class RankingGetVisibleResultsBuilder {
 		ComplexQueryPartBuilderFactory complexQueryPartBuilderFactory,
 		DLAppLocalService dlAppLocalService,
 		FastDateFormatFactory fastDateFormatFactory,
+		RankingIndexName rankingIndexName,
 		RankingIndexReader rankingIndexReader,
 		RankingSearchRequestHelper rankingSearchRequestHelper,
 		ResourceActions resourceActions, ResourceRequest resourceRequest,
-		Queries queries, Searcher searcher,
+		ResourceResponse resourceResponse, Queries queries, Searcher searcher,
 		SearchRequestBuilderFactory searchRequestBuilderFactory) {
 
 		_complexQueryPartBuilderFactory = complexQueryPartBuilderFactory;
 		_dlAppLocalService = dlAppLocalService;
 		_fastDateFormatFactory = fastDateFormatFactory;
+		_rankingIndexName = rankingIndexName;
 		_rankingIndexReader = rankingIndexReader;
 		_rankingSearchRequestHelper = rankingSearchRequestHelper;
 		_resourceActions = resourceActions;
 		_resourceRequest = resourceRequest;
+		_resourceResponse = resourceResponse;
 		_queries = queries;
 		_searcher = searcher;
 		_searchRequestBuilderFactory = searchRequestBuilderFactory;
@@ -70,7 +76,7 @@ public class RankingGetVisibleResultsBuilder {
 
 	public JSONObject build() {
 		Optional<Ranking> optional = _rankingIndexReader.fetchOptional(
-			_rankingId);
+			_rankingIndexName, _rankingId);
 
 		if (!optional.isPresent()) {
 			return JSONUtil.put(
@@ -177,11 +183,24 @@ public class RankingGetVisibleResultsBuilder {
 			_dlAppLocalService, _fastDateFormatFactory, _resourceActions,
 			_resourceRequest);
 
-		return rankingJSONBuilder.document(
+		return rankingJSONBuilder.deleted(
+			_isAssetDeleted(document)
+		).document(
 			document
 		).pinned(
 			ranking.isPinned(document.getString(Field.UID))
+		).viewURL(
+			_getViewURL(document)
 		).build();
+	}
+
+	private String _getViewURL(Document document) {
+		return RankingResultUtil.getRankingResultViewURL(
+			document, _resourceRequest, _resourceResponse, true);
+	}
+
+	private boolean _isAssetDeleted(Document document) {
+		return RankingResultUtil.isAssetDeleted(document);
 	}
 
 	private long _companyId;
@@ -193,10 +212,12 @@ public class RankingGetVisibleResultsBuilder {
 	private final Queries _queries;
 	private String _queryString;
 	private String _rankingId;
+	private final RankingIndexName _rankingIndexName;
 	private final RankingIndexReader _rankingIndexReader;
 	private final RankingSearchRequestHelper _rankingSearchRequestHelper;
 	private final ResourceActions _resourceActions;
 	private final ResourceRequest _resourceRequest;
+	private final ResourceResponse _resourceResponse;
 	private final Searcher _searcher;
 	private final SearchRequestBuilderFactory _searchRequestBuilderFactory;
 	private int _size;

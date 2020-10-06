@@ -17,8 +17,12 @@
 <%@ include file="/init.jsp" %>
 
 <%
-HttpServletRequest originalServletRequest = (HttpServletRequest)request.getAttribute(PortletLayoutTypeControllerWebKeys.ORIGINAL_HTTP_SERVLET_REQUEST);
+String portletResource = ParamUtil.getString(request, "portletResource");
 %>
+
+<c:if test="<%= Validator.isNotNull(portletResource) %>">
+	<liferay-ui:success key='<%= portletResource + "requestProcessed" %>' message="your-request-completed-successfully" />
+</c:if>
 
 <c:choose>
 	<c:when test="<%= themeDisplay.isStatePopUp() || themeDisplay.isWidget() || layoutTypePortlet.hasStateMax() %>">
@@ -44,6 +48,8 @@ HttpServletRequest originalServletRequest = (HttpServletRequest)request.getAttri
 		}
 
 		if (Validator.isNotNull(templateContent)) {
+			HttpServletRequest originalServletRequest = (HttpServletRequest)request.getAttribute(PortletLayoutTypeControllerWebKeys.ORIGINAL_HTTP_SERVLET_REQUEST);
+
 			RuntimePageUtil.processTemplate(originalServletRequest, response, ppid, new StringTemplateResource(templateId, templateContent), langType);
 		}
 		%>
@@ -57,18 +63,12 @@ HttpServletRequest originalServletRequest = (HttpServletRequest)request.getAttri
 		</style>
 
 		<%
-		PortletLayoutDisplayContext portletLayoutDisplayContext = new PortletLayoutDisplayContext(request);
-
-		request.setAttribute("render_layout_structure.jsp-portletLayoutDisplayContext", portletLayoutDisplayContext);
-
-		LayoutStructure layoutStructure = portletLayoutDisplayContext.getLayoutStructure();
-
-		LayoutStructureItem layoutStructureItem = layoutStructure.getMainLayoutStructureItem();
-
-		request.setAttribute("render_layout_structure.jsp-childrenItemIds", layoutStructureItem.getChildrenItemIds());
+		PortletLayoutDisplayContext portletLayoutDisplayContext = new PortletLayoutDisplayContext();
 		%>
 
-		<liferay-util:include page="/layout/view/render_layout_structure.jsp" servletContext="<%= application %>" />
+		<liferay-layout:render-layout-structure
+			layoutStructure="<%= portletLayoutDisplayContext.getLayoutStructure(themeDisplay.getScopeGroupId(), themeDisplay.getLayout()) %>"
+		/>
 	</c:otherwise>
 </c:choose>
 

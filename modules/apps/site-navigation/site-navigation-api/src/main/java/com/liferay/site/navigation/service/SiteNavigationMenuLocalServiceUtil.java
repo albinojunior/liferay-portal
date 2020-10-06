@@ -70,6 +70,10 @@ public class SiteNavigationMenuLocalServiceUtil {
 	/**
 	 * Adds the site navigation menu to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteNavigationMenu the site navigation menu
 	 * @return the site navigation menu that was added
 	 */
@@ -117,6 +121,10 @@ public class SiteNavigationMenuLocalServiceUtil {
 	/**
 	 * Deletes the site navigation menu with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteNavigationMenuId the primary key of the site navigation menu
 	 * @return the site navigation menu that was removed
 	 * @throws PortalException if a site navigation menu with the primary key could not be found
@@ -130,6 +138,10 @@ public class SiteNavigationMenuLocalServiceUtil {
 
 	/**
 	 * Deletes the site navigation menu from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param siteNavigationMenu the site navigation menu
 	 * @return the site navigation menu that was removed
@@ -146,6 +158,12 @@ public class SiteNavigationMenuLocalServiceUtil {
 
 	public static void deleteSiteNavigationMenus(long groupId) {
 		getService().deleteSiteNavigationMenus(groupId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -372,7 +390,8 @@ public class SiteNavigationMenuLocalServiceUtil {
 			getSiteNavigationMenus(
 				long groupId, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator) {
+					<com.liferay.site.navigation.model.SiteNavigationMenu>
+						orderByComparator) {
 
 		return getService().getSiteNavigationMenus(
 			groupId, start, end, orderByComparator);
@@ -383,7 +402,8 @@ public class SiteNavigationMenuLocalServiceUtil {
 			getSiteNavigationMenus(
 				long groupId, String keywords, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator) {
+					<com.liferay.site.navigation.model.SiteNavigationMenu>
+						orderByComparator) {
 
 		return getService().getSiteNavigationMenus(
 			groupId, keywords, start, end, orderByComparator);
@@ -478,6 +498,10 @@ public class SiteNavigationMenuLocalServiceUtil {
 
 	/**
 	 * Updates the site navigation menu in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param siteNavigationMenu the site navigation menu
 	 * @return the site navigation menu that was updated

@@ -47,7 +47,7 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 
 		JavaClass javaClass = (JavaClass)javaTerm;
 
-		if (javaClass.isAnonymous()) {
+		if (javaClass.isAnonymous() || javaClass.hasAnnotation("Deprecated")) {
 			return javaTerm.getContent();
 		}
 
@@ -66,9 +66,10 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 			_checkModulePackageName(fileName, packageName);
 		}
 
-		String className = javaClass.getName();
+		_checkPackageNameByClassName(
+			fileName, absolutePath, javaClass.getName(), packageName);
 
-		if (className.startsWith("Base")) {
+		if (absolutePath.contains("-api/")) {
 			return javaTerm.getContent();
 		}
 
@@ -82,9 +83,8 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 				expectedInternalImplementsDataEntry, CharPool.COLON);
 
 			if (array.length == 2) {
-				_checkPackageName(
-					fileName, javaClass.getImplementedClassNames(), array[0],
-					packageName, array[1], true);
+				_checkInternalPackageName(
+					fileName, javaClass, array[0], packageName, array[1]);
 			}
 		}
 
@@ -96,66 +96,42 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 		return new String[] {JAVA_CLASS};
 	}
 
-	private void _checkModulePackageName(String fileName, String packageName)
+	private void _checkInternalPackageName(
+			String fileName, JavaClass javaClass, String implementedClassName,
+			String packageName, String expectedPackageName)
 		throws IOException {
 
-		if (!packageName.startsWith("com.liferay")) {
-			return;
-		}
+		List<String> implementedClassNames =
+			javaClass.getImplementedClassNames();
 
-		BNDSettings bndSettings = getBNDSettings(fileName);
-
-		if (bndSettings == null) {
-			return;
-		}
-
-		String bundleSymbolicName = BNDSourceUtil.getDefinitionValue(
-			bndSettings.getContent(), "Bundle-SymbolicName");
-
-		if (!bundleSymbolicName.startsWith("com.liferay")) {
-			return;
-		}
-
-		bundleSymbolicName = bundleSymbolicName.replaceAll(
-			"\\.(api|service|test)$", StringPool.BLANK);
-
-		if (packageName.contains(bundleSymbolicName)) {
-			return;
-		}
-
-		bundleSymbolicName = bundleSymbolicName.replaceAll(
-			"\\.impl$", ".internal");
-
-		if (!packageName.contains(bundleSymbolicName)) {
-			addMessage(
-				fileName,
-				"Package should follow Bundle-SymbolicName specified in " +
-					bndSettings.getFileName());
-		}
-	}
-
-	private void _checkPackageName(
-			String fileName, List<String> implementedClassNames,
-			String implementedClassName, String packageName,
-			String expectedPackageName, boolean internal)
-		throws IOException {
-
-		if (!implementedClassNames.contains(implementedClassName)) {
-			return;
-		}
-
-		if (internal && !packageName.contains(".internal.") &&
+		if (!packageName.contains(".internal.") &&
 			!packageName.endsWith(".internal")) {
 
-			addMessage(
-				fileName,
-				StringBundler.concat(
-					"Class implementing '", implementedClassName,
-					"' should be in 'internal' package"));
+			String className = javaClass.getName();
+
+			if (implementedClassNames.contains(implementedClassName) &&
+				!className.startsWith("Base")) {
+
+				addMessage(
+					fileName,
+					StringBundler.concat(
+						"Class implementing '", implementedClassName,
+						"' should be in 'internal' package"));
+			}
+
+			return;
 		}
 
 		if (packageName.endsWith(expectedPackageName)) {
 			return;
+		}
+
+		if (!implementedClassNames.contains(implementedClassName)) {
+			List<String> extendedClassNames = javaClass.getExtendedClassNames();
+
+			if (!extendedClassNames.contains("Base" + implementedClassName)) {
+				return;
+			}
 		}
 
 		BNDSettings bndSettings = getBNDSettings(fileName);
@@ -194,12 +170,61 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 			}
 		}
 
-		if (!packageName.endsWith(expectedPackageName)) {
+		if (packageName.endsWith(expectedPackageName)) {
+			return;
+		}
+
+		if (implementedClassNames.contains(implementedClassName)) {
 			addMessage(
 				fileName,
 				StringBundler.concat(
 					"Package for class implementing '", implementedClassName,
 					"' should end with '", expectedPackageName, "'"));
+		}
+		else {
+			addMessage(
+				fileName,
+				StringBundler.concat(
+					"Package for class extending 'Base", implementedClassName,
+					"' should end with '", expectedPackageName, "'"));
+		}
+	}
+
+	private void _checkModulePackageName(String fileName, String packageName)
+		throws IOException {
+
+		if (!packageName.startsWith("com.liferay")) {
+			return;
+		}
+
+		BNDSettings bndSettings = getBNDSettings(fileName);
+
+		if (bndSettings == null) {
+			return;
+		}
+
+		String bundleSymbolicName = BNDSourceUtil.getDefinitionValue(
+			bndSettings.getContent(), "Bundle-SymbolicName");
+
+		if (!bundleSymbolicName.startsWith("com.liferay")) {
+			return;
+		}
+
+		bundleSymbolicName = bundleSymbolicName.replaceAll(
+			"\\.(api|service|test)$", StringPool.BLANK);
+
+		if (packageName.contains(bundleSymbolicName)) {
+			return;
+		}
+
+		bundleSymbolicName = bundleSymbolicName.replaceAll(
+			"\\.impl$", ".internal");
+
+		if (!packageName.contains(bundleSymbolicName)) {
+			addMessage(
+				fileName,
+				"Package should follow Bundle-SymbolicName specified in " +
+					bndSettings.getFileName());
 		}
 	}
 
@@ -258,15 +283,6 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 			}
 		}
 
-		if (className.endsWith("OSGiCommands") &&
-			!packageName.endsWith(".osgi.commands")) {
-
-			addMessage(
-				fileName,
-				"Class '" + className +
-					"' should be in package ending with '.osgi.commands'");
-		}
-
 		if (className.matches(".*(?<!Display)Context") &&
 			packageName.endsWith(".display.context")) {
 
@@ -286,11 +302,46 @@ public class JavaPackagePathCheck extends BaseJavaTermCheck {
 		}
 	}
 
+	private void _checkPackageNameByClassName(
+		String fileName, String absolutePath, String className,
+		String packageName) {
+
+		if (className.endsWith("Constants") &&
+			absolutePath.contains("/portal-kernel/")) {
+
+			return;
+		}
+
+		List<String> expectedPackagePathDataEntries = getAttributeValues(
+			_EXPECTED_PACKAGE_PATH_DATA_KEY, absolutePath);
+
+		for (String expectedPackagePathDataEntry :
+				expectedPackagePathDataEntries) {
+
+			String[] array = StringUtil.split(
+				expectedPackagePathDataEntry, CharPool.COLON);
+
+			if ((array.length == 2) && className.matches(array[0]) &&
+				!packageName.endsWith("." + array[1])) {
+
+				addMessage(
+					fileName,
+					StringBundler.concat(
+						"Class '", className,
+						"' should be in package ending with '.", array[1],
+						"'"));
+			}
+		}
+	}
+
 	private static final String _ALLOWED_INTERNAL_PACKAGE_DIR_NAMES_KEY =
 		"allowedInternalPackageDirNames";
 
 	private static final String _EXPECTED_INTERNAL_IMPLEMENTS_DATA_KEY =
 		"expectedInternalImplementsData";
+
+	private static final String _EXPECTED_PACKAGE_PATH_DATA_KEY =
+		"expectedPackagePathData";
 
 	private static final Pattern _apiOrServiceBundleSymbolicNamePattern =
 		Pattern.compile("\\.(api|service)$");

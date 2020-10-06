@@ -41,6 +41,7 @@ import org.osgi.service.component.annotations.Reference;
 public class LayoutContentModelResourcePermissionImpl
 	implements LayoutContentModelResourcePermission {
 
+	@Override
 	public boolean contains(
 		PermissionChecker permissionChecker, long plid, String actionId) {
 
@@ -62,11 +63,12 @@ public class LayoutContentModelResourcePermissionImpl
 		return false;
 	}
 
+	@Override
 	public boolean contains(
 		PermissionChecker permissionChecker, String className, long classPK,
 		String actionId) {
 
-		ModelResourcePermission modelResourcePermission =
+		ModelResourcePermission<?> modelResourcePermission =
 			_modelResourcePermissionServiceTrackerMap.getService(className);
 
 		if (modelResourcePermission == null) {
@@ -93,14 +95,16 @@ public class LayoutContentModelResourcePermissionImpl
 	protected void activate(BundleContext bundleContext) {
 		_modelResourcePermissionServiceTrackerMap =
 			ServiceTrackerMapFactory.openSingleValueMap(
-				bundleContext, ModelResourcePermission.class,
+				bundleContext,
+				(Class<ModelResourcePermission<?>>)
+					(Class<?>)ModelResourcePermission.class,
 				"model.class.name");
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutContentModelResourcePermissionImpl.class);
 
-	private static ServiceTrackerMap<String, ModelResourcePermission>
+	private static ServiceTrackerMap<String, ModelResourcePermission<?>>
 		_modelResourcePermissionServiceTrackerMap;
 
 	@Reference

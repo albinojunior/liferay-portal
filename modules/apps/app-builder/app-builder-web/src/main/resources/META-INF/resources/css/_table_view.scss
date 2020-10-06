@@ -1,5 +1,56 @@
+$appBuilderTableViewSidebarWidth: 340px;
+$appBuilderTableViewTransitionTime: 0.5s;
+
 .app-builder-table-view {
+	margin-top: 64px;
+
+	&__content {
+		margin: 1.5rem $appBuilderTableViewSidebarWidth 0 0;
+		transition: margin ease $appBuilderTableViewTransitionTime;
+
+		&--sidebar-closed {
+			margin-right: 0;
+		}
+	}
+
+	&__sidebar {
+		.default,
+		.secondary {
+			border-left: 1px solid #e7e7ed;
+			flex-flow: column;
+			height: 100%;
+			position: fixed;
+			right: 0;
+			top: 120px;
+			transition: transform ease $appBuilderTableViewTransitionTime;
+			width: $appBuilderTableViewSidebarWidth;
+		}
+
+		.default {
+			transform: translateX(0%);
+		}
+
+		.secondary {
+			transform: translateX(100%);
+			width: 73px;
+		}
+
+		&--closed {
+			.default {
+				transform: translateX(100%);
+			}
+
+			.secondary {
+				transform: translateX(0%);
+			}
+		}
+	}
+
 	.data-layout-builder-sidebar {
+		@media (max-width: 576px) {
+			top: 112px;
+		}
+
 		.sidebar-header {
 			padding-bottom: 1rem;
 
@@ -38,6 +89,7 @@
 		}
 
 		.sidebar-body {
+			height: calc(100vh - 192px);
 			padding-top: 0;
 
 			.table-view-filters-header {
@@ -47,6 +99,12 @@
 			.table-view-filters-list:not(.single-field) .table-view-filter {
 				border-bottom: 1px solid #e7e7ed;
 				padding: 1.5rem 0;
+			}
+
+			.component-tbar {
+				.container-fluid {
+					margin-top: 4px;
+				}
 			}
 		}
 

@@ -28,6 +28,8 @@ definition {
 			value1 = "Sign In");
 
 		AssertElementNotPresent(locator1 = "Button#SIGN_IN");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
 	}
 
 	@summary = "Agree to Liferay Portal Terms of Use"
@@ -59,7 +61,9 @@ definition {
 	}
 
 	macro signInPortalInstanceSetUp {
-		SignIn.signInSpecificURL(url = "http://localhost:8080/");
+		var defaultPortalURL = PropsUtil.get("default.portal.url");
+
+		SignIn.signInSpecificURL(url = "${defaultPortalURL}");
 
 		if (IsElementPresent(locator1 = "Button#I_AGREE")) {
 			SignIn.agreeToTermsOfUse();
@@ -69,8 +73,8 @@ definition {
 			SignIn.setPasswordReminder();
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -92,7 +96,7 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		Pause(locator1 = "3000");
+		WaitForElementPresent(locator1 = "//script[contains(@src,'ManagementToolbar.es.js')]");
 
 		Type(
 			locator1 = "TextInput#WEB_ID",
@@ -110,7 +114,7 @@ definition {
 
 		Pause(locator1 = "3000");
 
-		Alert.viewSuccessMessage();
+		WaitForElementPresent(locator1 = "//script[contains(@src,'OpenToast.es.js')]");
 
 		Navigator.openURL();
 	}

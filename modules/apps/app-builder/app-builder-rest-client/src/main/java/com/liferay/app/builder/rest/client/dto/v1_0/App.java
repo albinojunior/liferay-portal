@@ -30,6 +30,31 @@ import javax.annotation.Generated;
 @Generated("")
 public class App implements Cloneable {
 
+	public static App toDTO(String json) {
+		return AppSerDes.toDTO(json);
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	public void setActive(
+		UnsafeSupplier<Boolean, Exception> activeUnsafeSupplier) {
+
+		try {
+			active = activeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean active;
+
 	public AppDeployment[] getAppDeployments() {
 		return appDeployments;
 	}
@@ -73,6 +98,27 @@ public class App implements Cloneable {
 
 	protected Long dataDefinitionId;
 
+	public String getDataDefinitionName() {
+		return dataDefinitionName;
+	}
+
+	public void setDataDefinitionName(String dataDefinitionName) {
+		this.dataDefinitionName = dataDefinitionName;
+	}
+
+	public void setDataDefinitionName(
+		UnsafeSupplier<String, Exception> dataDefinitionNameUnsafeSupplier) {
+
+		try {
+			dataDefinitionName = dataDefinitionNameUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String dataDefinitionName;
+
 	public Long getDataLayoutId() {
 		return dataLayoutId;
 	}
@@ -114,6 +160,27 @@ public class App implements Cloneable {
 	}
 
 	protected Long dataListViewId;
+
+	public Long getDataRecordCollectionId() {
+		return dataRecordCollectionId;
+	}
+
+	public void setDataRecordCollectionId(Long dataRecordCollectionId) {
+		this.dataRecordCollectionId = dataRecordCollectionId;
+	}
+
+	public void setDataRecordCollectionId(
+		UnsafeSupplier<Long, Exception> dataRecordCollectionIdUnsafeSupplier) {
+
+		try {
+			dataRecordCollectionId = dataRecordCollectionIdUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Long dataRecordCollectionId;
 
 	public Date getDateCreated() {
 		return dateCreated;
@@ -197,6 +264,27 @@ public class App implements Cloneable {
 
 	protected Map<String, Object> name;
 
+	public String getScope() {
+		return scope;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
+	}
+
+	public void setScope(
+		UnsafeSupplier<String, Exception> scopeUnsafeSupplier) {
+
+		try {
+			scope = scopeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String scope;
+
 	public Long getSiteId() {
 		return siteId;
 	}
@@ -218,27 +306,6 @@ public class App implements Cloneable {
 
 	protected Long siteId;
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public void setStatus(
-		UnsafeSupplier<String, Exception> statusUnsafeSupplier) {
-
-		try {
-			status = statusUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected String status;
-
 	public Long getUserId() {
 		return userId;
 	}
@@ -259,6 +326,27 @@ public class App implements Cloneable {
 	}
 
 	protected Long userId;
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public void setVersion(
+		UnsafeSupplier<String, Exception> versionUnsafeSupplier) {
+
+		try {
+			version = versionUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String version;
 
 	@Override
 	public App clone() throws CloneNotSupportedException {

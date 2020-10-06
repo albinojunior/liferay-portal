@@ -17,6 +17,7 @@ package com.liferay.document.library.kernel.service;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.document.library.kernel.model.DLFileShortcut;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.messaging.async.Async;
@@ -47,6 +48,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see DLAppHelperLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
@@ -57,7 +59,7 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link DLAppHelperLocalServiceUtil} to access the dl app helper local service. Add custom service methods to <code>com.liferay.portlet.documentlibrary.service.impl.DLAppHelperLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portlet.documentlibrary.service.impl.DLAppHelperLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the dl app helper local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link DLAppHelperLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public void addFolder(
 			long userId, Folder folder, ServiceContext serviceContext)

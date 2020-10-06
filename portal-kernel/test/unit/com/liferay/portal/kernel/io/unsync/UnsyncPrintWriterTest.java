@@ -186,12 +186,12 @@ public class UnsyncPrintWriterTest {
 		Assert.assertEquals("abcdefghijklmnopqr", stringWriter.toString());
 	}
 
-	private static Writer _getOut(UnsyncPrintWriter unsyncPrintWriter) {
+	private Writer _getOut(UnsyncPrintWriter unsyncPrintWriter) {
 		try {
 			return (Writer)_writerField.get(unsyncPrintWriter);
 		}
-		catch (Throwable t) {
-			throw new RuntimeException(t);
+		catch (Throwable throwable) {
+			throw new RuntimeException(throwable);
 		}
 	}
 

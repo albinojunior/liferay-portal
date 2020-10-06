@@ -15,18 +15,24 @@
 package com.liferay.portal.lpkg.deployer.internal;
 
 import com.liferay.osgi.util.bundle.BundleStartLevelUtil;
+import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.concurrent.DefaultNoticeableFuture;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.license.util.LicenseManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ThrowableCollector;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
-import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.xml.Document;
+import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.lpkg.deployer.LPKGDeployer;
 import com.liferay.portal.lpkg.deployer.LPKGVerifier;
 import com.liferay.portal.lpkg.deployer.LPKGVerifyException;
@@ -51,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -143,6 +150,8 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 			if (lpkgBundle != null) {
 				return Collections.emptyList();
 			}
+
+			_deployLicense(lpkgFile);
 
 			List<Bundle> bundles = new ArrayList<>();
 
@@ -251,8 +260,8 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 		try {
 			_activate(bundleContext);
 		}
-		catch (Throwable t) {
-			_throwableCollector.collect(t);
+		catch (Throwable throwable) {
+			_throwableCollector.collect(throwable);
 		}
 	}
 
@@ -360,8 +369,51 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 		_installOverrideWars(bundleContext, warFiles);
 	}
 
+	private void _deployLicense(File file) {
+		try (ZipFile zipFile = new ZipFile(file)) {
+			Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
+
+			while (enumeration.hasMoreElements()) {
+				ZipEntry zipEntry = enumeration.nextElement();
+
+				String zipEntryName = zipEntry.getName();
+
+				if (!zipEntryName.endsWith(".xml")) {
+					continue;
+				}
+
+				try (InputStream inputStream = zipFile.getInputStream(
+						zipEntry)) {
+
+					String content = StreamUtil.toString(inputStream);
+
+					Document document = SAXReaderUtil.read(content);
+
+					Element rootElement = document.getRootElement();
+
+					String rootElementName = rootElement.getName();
+
+					if (!rootElementName.equals("license") &&
+						!rootElementName.equals("licenses")) {
+
+						continue;
+					}
+
+					JSONObject jsonObject = JSONUtil.put("licenseXML", content);
+
+					LicenseManagerUtil.registerLicense(jsonObject);
+				}
+				catch (Exception exception) {
+				}
+			}
+		}
+		catch (Exception exception) {
+			_log.error("Unable to register license", exception);
+		}
+	}
+
 	private Path _getDeploymentDirPath(BundleContext bundleContext)
-		throws IOException {
+		throws Exception {
 
 		File deploymentDir = new File(
 			GetterUtil.getString(
@@ -495,7 +547,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 	}
 
 	private Properties _loadOverrideWarsProperties(BundleContext bundleContext)
-		throws IOException {
+		throws Exception {
 
 		Bundle bundle = bundleContext.getBundle(0);
 
@@ -548,7 +600,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 	private void _saveOverrideWarsProperties(
 			BundleContext bundleContext, Properties properties)
-		throws IOException {
+		throws Exception {
 
 		Bundle bundle = bundleContext.getBundle(0);
 
@@ -625,7 +677,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 	private Set<Bundle> _uninstallOrphanOverridingJars(
 			BundleContext bundleContext, List<File> jarFiles)
-		throws BundleException {
+		throws Exception {
 
 		Set<Bundle> removedBundles = new HashSet<>();
 
@@ -658,7 +710,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 	private void _uninstallOrphanOverridingWars(
 			BundleContext bundleContext, List<File> warFiles)
-		throws IOException {
+		throws Exception {
 
 		Properties properties = _loadOverrideWarsProperties(bundleContext);
 

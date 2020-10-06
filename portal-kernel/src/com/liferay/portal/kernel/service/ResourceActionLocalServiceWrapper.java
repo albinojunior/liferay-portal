@@ -34,6 +34,10 @@ public class ResourceActionLocalServiceWrapper
 	/**
 	 * Adds the resource action to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourceActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param resourceAction the resource action
 	 * @return the resource action that was added
 	 */
@@ -112,6 +116,10 @@ public class ResourceActionLocalServiceWrapper
 	/**
 	 * Deletes the resource action with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourceActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param resourceActionId the primary key of the resource action
 	 * @return the resource action that was removed
 	 * @throws PortalException if a resource action with the primary key could not be found
@@ -128,6 +136,10 @@ public class ResourceActionLocalServiceWrapper
 	/**
 	 * Deletes the resource action from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourceActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param resourceAction the resource action
 	 * @return the resource action that was removed
 	 */
@@ -136,6 +148,11 @@ public class ResourceActionLocalServiceWrapper
 		com.liferay.portal.kernel.model.ResourceAction resourceAction) {
 
 		return _resourceActionLocalService.deleteResourceAction(resourceAction);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _resourceActionLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -344,6 +361,10 @@ public class ResourceActionLocalServiceWrapper
 
 	/**
 	 * Updates the resource action in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ResourceActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param resourceAction the resource action
 	 * @return the resource action that was updated

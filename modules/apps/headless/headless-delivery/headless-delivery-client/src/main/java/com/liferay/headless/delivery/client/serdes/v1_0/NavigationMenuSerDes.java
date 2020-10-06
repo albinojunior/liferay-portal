@@ -63,6 +63,16 @@ public class NavigationMenuSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+		if (navigationMenu.getActions() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"actions\": ");
+
+			sb.append(_toJSON(navigationMenu.getActions()));
+		}
+
 		if (navigationMenu.getCreator() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -152,6 +162,20 @@ public class NavigationMenuSerDes {
 			sb.append("]");
 		}
 
+		if (navigationMenu.getNavigationType() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"navigationType\": ");
+
+			sb.append("\"");
+
+			sb.append(navigationMenu.getNavigationType());
+
+			sb.append("\"");
+		}
+
 		if (navigationMenu.getSiteId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -184,6 +208,13 @@ public class NavigationMenuSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+		if (navigationMenu.getActions() == null) {
+			map.put("actions", null);
+		}
+		else {
+			map.put("actions", String.valueOf(navigationMenu.getActions()));
+		}
+
 		if (navigationMenu.getCreator() == null) {
 			map.put("creator", null);
 		}
@@ -191,13 +222,25 @@ public class NavigationMenuSerDes {
 			map.put("creator", String.valueOf(navigationMenu.getCreator()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(navigationMenu.getDateCreated()));
+		if (navigationMenu.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(
+					navigationMenu.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(navigationMenu.getDateModified()));
+		if (navigationMenu.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(
+					navigationMenu.getDateModified()));
+		}
 
 		if (navigationMenu.getId() == null) {
 			map.put("id", null);
@@ -220,6 +263,15 @@ public class NavigationMenuSerDes {
 			map.put(
 				"navigationMenuItems",
 				String.valueOf(navigationMenu.getNavigationMenuItems()));
+		}
+
+		if (navigationMenu.getNavigationType() == null) {
+			map.put("navigationType", null);
+		}
+		else {
+			map.put(
+				"navigationType",
+				String.valueOf(navigationMenu.getNavigationType()));
 		}
 
 		if (navigationMenu.getSiteId() == null) {
@@ -250,7 +302,14 @@ public class NavigationMenuSerDes {
 			NavigationMenu navigationMenu, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "creator")) {
+			if (Objects.equals(jsonParserFieldName, "actions")) {
+				if (jsonParserFieldValue != null) {
+					navigationMenu.setActions(
+						(Map)NavigationMenuSerDes.toMap(
+							(String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "creator")) {
 				if (jsonParserFieldValue != null) {
 					navigationMenu.setCreator(
 						CreatorSerDes.toDTO((String)jsonParserFieldValue));
@@ -294,15 +353,21 @@ public class NavigationMenuSerDes {
 						));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "navigationType")) {
+				if (jsonParserFieldValue != null) {
+					navigationMenu.setNavigationType(
+						NavigationMenu.NavigationType.create(
+							(String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "siteId")) {
 				if (jsonParserFieldValue != null) {
 					navigationMenu.setSiteId(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -358,10 +423,13 @@ public class NavigationMenuSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

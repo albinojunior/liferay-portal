@@ -28,7 +28,6 @@ definition {
 	test AddBlogsEntryWithImageViaBlogsImages {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "${pageName}");
@@ -75,25 +74,181 @@ definition {
 	}
 
 	@priority = "4"
-	test AddWebContentArticleWithImageViaURL {
+	test AddMBThreadWithLinkToDocument {
+		property portal.acceptance = "true";
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "Document_1.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
+
+		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
+
+		LexiconEntry.gotoAdd();
+
+		MenuItem.click(menuItem = "Thread");
+
+		Type(
+			locator1 = "TextInput#SUBJECT",
+			value1 = "MB Thread Message Subject");
+
+		CKEditor.addTextWithLink(
+			displayText = "Link to Document",
+			dmDocumentTitle = "Document_1.jpg",
+			fieldLabel = "Body");
+
+		PortletEntry.publish();
+
+		Click(
+			key_text = "Link to Document",
+			locator1 = "Link#ANY");
+
+		AssertElementPresent(locator1 = "//img[contains(@src,'Document_1.jpg')]");
+	}
+
+	@priority = "4"
+	test AddMBThreadWithLinkToPage {
+		property portal.acceptance = "true";
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "${pageName}");
+
+		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
+
+		LexiconEntry.gotoAdd();
+
+		MenuItem.click(menuItem = "Thread");
+
+		Type(
+			locator1 = "TextInput#SUBJECT",
+			value1 = "MB Thread Message Subject");
+
+		CKEditor.addTextWithLink(
+			displayText = "Link to Page",
+			fieldLabel = "Body",
+			pageName = "${pageName}");
+
+		PortletEntry.publish();
+
+		Click(
+			key_text = "Link to Page",
+			locator1 = "Link#ANY");
+
+		AssertVisible(
+			key_pageName = "${pageName}",
+			locator1 = "Home#PAGE_ACTIVE");
+	}
+
+	@priority = "4"
+	test AddWebContentArticleCopyPasteContent {
+		property app.server.types = "jboss,tcserver,tomcat,weblogic,websphere,wildfly";
+		property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver,sybase";
+		property environment.acceptance = "true";
+
+		Open(locator1 = "http://www.standards-schmandards.com/exhibits/wysiwyg/sampledoc.htm");
+
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" == "safari") {
+			KeyPress.keyDown(
+				locator1 = "//body",
+				value1 = "\COMMAND");
+
+			KeyPress(
+				locator1 = "//body",
+				value1 = "a");
+
+			Pause(locator1 = "1000");
+
+			KeyPress(
+				locator1 = "//body",
+				value1 = "c");
+
+			KeyPress.keyUp(
+				locator1 = "//body",
+				value1 = "\COMMAND");
+		}
+
+		else {
+			SelectFieldText(locator1 = "//body");
+
+			RobotType.robotTypeShortcut(locator1 = "Ctrl + c");
+		}
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
+			category = "Content & Data",
 			portlet = "Web Content");
 
 		WebContentNavigator.gotoAddCP();
 
 		PortletEntry.inputTitle(title = "Web Content Title");
 
-		Click.pauseClickAt(
-			key_editor = "content",
-			locator1 = "AlloyEditor#EDITOR");
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME_2");
 
-		Click(locator1 = "AlloyEditor#CONTENT_ADD_BUTTON");
+		Click(locator1 = "CKEditor#BODY");
 
-		Click.clickNoMouseOver(locator1 = "AlloyEditor#CONTENT_ADD_MENUBAR_IMAGE");
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" == "safari") {
+			KeyPress.keyDown(
+				key_editor = "content",
+				locator1 = "AlloyEditor#EDITOR",
+				value1 = "\COMMAND");
+
+			KeyPress(
+				key_editor = "content",
+				locator1 = "AlloyEditor#EDITOR",
+				value1 = "v");
+
+			KeyPress.keyUp(
+				key_editor = "content",
+				locator1 = "AlloyEditor#EDITOR",
+				value1 = "\COMMAND");
+		}
+
+		else {
+			RobotType.robotTypeShortcut(locator1 = "Ctrl + v");
+		}
+
+		Pause(locator1 = "5000");
+
+		takeScreenshot();
+
+		SelectFrame(value1 = "relative=top");
+
+		PortletEntry.publish();
+
+		WebContentNavigator.gotoPreviewEntryCP(webContentTitle = "Web Content Title");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "//div[@class='portlet-body']/div[contains(@class,'mt-2')]",
+			value1 = "Sample document for editor area test");
+
+		AssertElementPresent(locator1 = "//img[contains(@src,'redhead.JPG')]");
+
+		takeScreenshot();
+	}
+
+	@priority = "4"
+	test AddWebContentArticleWithImageViaURL {
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
+			category = "Content & Data",
+			portlet = "Web Content");
+
+		WebContentNavigator.gotoAddCP();
+
+		PortletEntry.inputTitle(title = "Web Content Title");
+
+		ItemSelector.gotoItemSelectorViaCKEditor();
 
 		ItemSelector.addFromURL(
 			imageSourceURL = "https://raw.githubusercontent.com/liferay/liferay-portal/master/portal-web/test/functional/com/liferay/portalweb/dependencies/Document_1.jpg",
@@ -103,39 +258,116 @@ definition {
 
 		WebContentNavigator.gotoPreviewEntryCP(webContentTitle = "Web Content Title");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertElementPresent(locator1 = "//img[contains(@src,'Document_1.jpg')]");
 	}
 
-	@description = "This is a use case for LPS-61676."
 	@priority = "4"
-	test RemoveAppliedStylingInAlloyEditor {
-		Navigator.openURL();
-
+	test PreviewSourceContent {
 		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
+			category = "Content & Data",
 			portlet = "Web Content");
 
 		WebContentNavigator.gotoAddCP();
 
-		AlloyEditor.addContent(content = "This is a sentence");
+		PortletEntry.inputTitle(title = "Web Content Title");
 
-		AlloyEditor.toggleStylingInAlloyEditor(boldContent = "This is a sentence");
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
 
-		AlloyEditor.viewStylingInAlloyEditor(boldContent = "This is a sentence");
+		Click(locator1 = "CKEditor#TOOLBAR_PREVIEW_BUTTON");
 
-		AlloyEditor.toggleStylingInAlloyEditor(boldContent = "This is a sentence");
+		Type.typeCodeMirrorEditorNoError(
+			locator1 = "CKEditor#SOURCE_CODE_DIALOG",
+			value1 = "<h1>Sample Header 1</h1><p>sample text</p>");
 
-		AlloyEditor.viewNoStylingInAlloyEditor(boldContent = "This is a sentence");
+		AssertTextEquals.assertPartialText(
+			locator1 = "CKEditor#SOURCE_CODE_DIALOG",
+			value1 = "<h1>Sample Header 1</h1>");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "CKEditor#SOURCE_CODE_DIALOG",
+			value1 = "<p>sample text</p>");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#CODE_PREVIEW_IFRAME");
+
+		AssertElementPresent(locator1 = "//h1[normalize-space(text())='Sample Header 1']");
+
+		AssertElementPresent(locator1 = "//p[normalize-space(text())='sample text']");
+	}
+
+	@priority = "4"
+	test PreviewSourceContentEditContent {
+		Open(locator1 = "http://www.standards-schmandards.com/exhibits/wysiwyg/sampledoc.htm");
+
+		SelectFieldText(locator1 = "//body");
+
+		RobotType.robotTypeShortcut(locator1 = "Ctrl + c");
+
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
+			category = "Content & Data",
+			portlet = "Web Content");
+
+		WebContentNavigator.gotoAddCP();
+
+		PortletEntry.inputTitle(title = "Web Content Title");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME_2");
+
+		Click(locator1 = "CKEditor#BODY");
+
+		RobotType.robotTypeShortcut(locator1 = "Ctrl + v");
+
+		SelectFrame(value1 = "relative=top");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		Click(locator1 = "CKEditor#TOOLBAR_PREVIEW_BUTTON");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "CKEditor#SOURCE_CODE_DIALOG",
+			value1 = "<h1>Sample document for editor area test</h1>");
+
+		Type.typeCodeMirrorEditorNoError(
+			locator1 = "CKEditor#SOURCE_CODE_DIALOG",
+			value1 = "<h1>Sample document for editor area test edit</h1>");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#CODE_PREVIEW_IFRAME");
+
+		AssertElementPresent(locator1 = "//h1[normalize-space(text())='Sample document for editor area test edit']");
+	}
+
+	@priority = "4"
+	test ViewSourceCodeFormattedInTextView {
+		ProductMenu.gotoPortlet(
+			category = "Content & Data",
+			portlet = "Web Content");
+
+		WebContentNavigator.gotoAddCP();
+
+		PortletEntry.inputTitle(title = "Web Content Title");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		Type.typeCodeMirrorEditorNoError(
+			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
+			value1 = "<h1>Sample Header 1</h1><p>sample text</p>");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME_2");
+
+		AssertElementPresent(locator1 = "//h1[normalize-space(text())='Sample Header 1']");
+
+		AssertElementPresent(locator1 = "//p[normalize-space(text())='sample text']");
 	}
 
 	@priority = "4"
 	test ViewWikiFrontPageLeftToRight {
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "${pageName}");
@@ -162,7 +394,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "${pageName}");

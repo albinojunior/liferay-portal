@@ -17,6 +17,8 @@ package com.liferay.asset.service;
 import com.liferay.asset.model.AssetEntryUsage;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -55,6 +57,7 @@ import org.osgi.annotation.versioning.ProviderType;
  com.liferay.layout.service.impl.LayoutClassedModelUsageLocalServiceImpl}
  * @generated
  */
+@CTAware
 @Deprecated
 @ProviderType
 @Transactional(
@@ -68,11 +71,15 @@ public interface AssetEntryUsageLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AssetEntryUsageLocalServiceUtil} to access the asset entry usage local service. Add custom service methods to <code>com.liferay.asset.service.impl.AssetEntryUsageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.asset.service.impl.AssetEntryUsageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the asset entry usage local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AssetEntryUsageLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the asset entry usage to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryUsage the asset entry usage
 	 * @return the asset entry usage that was added
@@ -105,6 +112,10 @@ public interface AssetEntryUsageLocalService
 	/**
 	 * Deletes the asset entry usage from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetEntryUsage the asset entry usage
 	 * @return the asset entry usage that was removed
 	 */
@@ -114,6 +125,10 @@ public interface AssetEntryUsageLocalService
 
 	/**
 	 * Deletes the asset entry usage with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryUsageId the primary key of the asset entry usage
 	 * @return the asset entry usage that was removed
@@ -136,6 +151,9 @@ public interface AssetEntryUsageLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -348,6 +366,10 @@ public interface AssetEntryUsageLocalService
 
 	/**
 	 * Updates the asset entry usage in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryUsage the asset entry usage
 	 * @return the asset entry usage that was updated

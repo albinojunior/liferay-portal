@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-input-localized',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var STR_BLANK = '';
@@ -106,7 +106,9 @@ AUI.add(
 
 						var itemsError = instance.get(STR_ITEMS_ERROR);
 
-						var itemIndex = instance.get('defaultLanguageId');
+						var itemIndex =
+							instance.get('selectedLanguageId') ||
+							instance.get('defaultLanguageId');
 
 						if (itemsError.length) {
 							itemIndex = itemsError[0];
@@ -114,6 +116,10 @@ AUI.add(
 
 						return instance.get(STR_ITEMS).indexOf(itemIndex);
 					},
+				},
+
+				selectedLanguageId: {
+					validator: Lang.isString,
 				},
 
 				translatedLanguages: {
@@ -230,6 +236,25 @@ AUI.add(
 					return '#' + namespace + id + '_' + languageId;
 				},
 
+				_moveDefaultLanguageFlagToFirstPosition(defaultLanguageId) {
+					var instance = this;
+
+					var flags = instance._flags.getDOMNode();
+
+					var languageNode = flags.querySelector(
+						'[data-languageid="' + defaultLanguageId + '"]'
+					)?.parentElement;
+
+					if (languageNode) {
+						flags.removeChild(languageNode);
+
+						flags.insertBefore(
+							languageNode,
+							flags.firstElementChild
+						);
+					}
+				},
+
 				_onDefaultLocaleChanged(event) {
 					var instance = this;
 
@@ -256,6 +281,10 @@ AUI.add(
 
 					instance._updateTranslationStatus(defaultLanguageId);
 					instance._updateTranslationStatus(prevDefaultLanguageId);
+
+					instance._moveDefaultLanguageFlagToFirstPosition(
+						defaultLanguageId
+					);
 
 					Liferay.fire('inputLocalized:localeChanged', {
 						item: event.item,
@@ -449,7 +478,9 @@ AUI.add(
 					var items = instance.get(STR_ITEMS);
 					var selected = instance.get(STR_SELECTED);
 
-					return items[selected];
+					return (
+						items[selected] || instance.get('selectedLanguageId')
+					);
 				},
 
 				getValue(languageId) {
@@ -479,7 +510,7 @@ AUI.add(
 							instance._onSelectFlag,
 							instance
 						),
-						Liferay.on(
+						Liferay.after(
 							'inputLocalized:defaultLocaleChanged',
 							A.bind('_onDefaultLocaleChanged', instance)
 						),
@@ -657,7 +688,13 @@ AUI.add(
 					instances[id] = inputLocalizedInstance;
 				}
 
-				Liferay.component(id, inputLocalizedInstance);
+				var portletId = inputLocalizedInstance
+					.get('namespace')
+					.replace(/^_|_$/gm, '');
+
+				Liferay.component(id, inputLocalizedInstance, {
+					portletId,
+				});
 			},
 
 			unregister(id) {
@@ -666,16 +703,6 @@ AUI.add(
 		});
 
 		Liferay.InputLocalized = InputLocalized;
-
-		Liferay.on('destroyPortlet', event => {
-			var portletNamespace = '_' + event.portletId + '_';
-
-			A.Object.each(Liferay.InputLocalized._instances, item => {
-				if (item.get('namespace') === portletNamespace) {
-					item.destroy();
-				}
-			});
-		});
 	},
 	'',
 	{

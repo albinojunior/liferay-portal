@@ -24,37 +24,34 @@ public class DispatchTriggerImpl extends DispatchTriggerBaseImpl {
 	public DispatchTriggerImpl() {
 	}
 
-	@Override
-	public UnicodeProperties getTypeSettingsProperties() {
-		if (_typeSettingsProperties == null) {
-			_typeSettingsProperties = new UnicodeProperties(true);
+	public UnicodeProperties getTaskSettingsUnicodeProperties() {
+		if (_taskSettingsUnicodeProperties == null) {
+			_taskSettingsUnicodeProperties = new UnicodeProperties(true);
 
-			_typeSettingsProperties.fastLoad(getTypeSettings());
+			_taskSettingsUnicodeProperties.fastLoad(getTaskSettings());
 		}
 
-		return _typeSettingsProperties;
+		return _taskSettingsUnicodeProperties;
 	}
 
-	@Override
-	public void setTypeSettings(String typeSettings) {
-		super.setTypeSettings(typeSettings);
+	public void setTaskSettings(String taskSettings) {
+		super.setTaskSettings(taskSettings);
 
-		_typeSettingsProperties = null;
+		_taskSettingsUnicodeProperties = null;
 	}
 
-	@Override
-	public void setTypeSettingsProperties(
-		UnicodeProperties typeSettingsProperties) {
+	public void setTaskSettingsUnicodeProperties(
+		UnicodeProperties taskSettingsUnicodeProperties) {
 
-		_typeSettingsProperties = typeSettingsProperties;
+		_taskSettingsUnicodeProperties = taskSettingsUnicodeProperties;
 
-		if (_typeSettingsProperties == null) {
-			_typeSettingsProperties = new UnicodeProperties();
+		if (_taskSettingsUnicodeProperties == null) {
+			_taskSettingsUnicodeProperties = new UnicodeProperties();
 		}
 
-		super.setTypeSettings(_typeSettingsProperties.toString());
+		super.setTaskSettings(_taskSettingsUnicodeProperties.toString());
 	}
 
-	private transient UnicodeProperties _typeSettingsProperties;
+	private transient UnicodeProperties _taskSettingsUnicodeProperties;
 
 }

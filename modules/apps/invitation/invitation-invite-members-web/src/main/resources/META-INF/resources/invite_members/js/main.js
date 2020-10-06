@@ -14,12 +14,10 @@
 
 AUI.add(
 	'liferay-portlet-invite-members',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var Language = Liferay.Language;
-
-		var LString = Lang.String;
 
 		var Util = Liferay.Util;
 
@@ -212,7 +210,7 @@ AUI.add(
 				_onInviteMembersListResults(event) {
 					var instance = this;
 
-					var responseData = A.JSON.parse(event.data.responseText);
+					var responseData = JSON.parse(event.data.responseText);
 
 					instance._membersList.html(
 						instance._renderResults(responseData).join(STR_BLANK)
@@ -242,10 +240,10 @@ AUI.add(
 						body,
 						method: 'POST',
 					})
-						.then(response => {
+						.then((response) => {
 							return response.json();
 						})
-						.then(responseData => {
+						.then((responseData) => {
 							var moreResults = instance._membersList.one(
 								'.more-results'
 							);
@@ -311,7 +309,7 @@ AUI.add(
 					}
 					else {
 						buffer.push(
-							A.Array.map(results, result => {
+							A.Array.map(results, (result) => {
 								var cssClass = 'user';
 
 								if (result.hasPendingMemberRequest) {
@@ -329,10 +327,10 @@ AUI.add(
 
 								return Lang.sub(TPL_USER, {
 									cssClass,
-									userEmailAddress: LString.escapeHTML(
+									userEmailAddress: Liferay.Util.escapeHTML(
 										result.userEmailAddress
 									),
-									userFullName: LString.escapeHTML(
+									userFullName: Liferay.Util.escapeHTML(
 										result.userFullName
 									),
 									userId: result.userId,
@@ -405,7 +403,7 @@ AUI.add(
 
 					var invitedEmailList = instance.one('#invitedEmailList');
 
-					invitedEmailList.all('.user').each(item => {
+					invitedEmailList.all('.user').each((item) => {
 						emailAddresses.push(item.attr('data-emailAddress'));
 					});
 
@@ -422,7 +420,7 @@ AUI.add(
 
 					var userIds = [];
 
-					instance._invitedMembersList.all('.user').each(item => {
+					instance._invitedMembersList.all('.user').each((item) => {
 						userIds.push(item.attr('data-userId'));
 					});
 

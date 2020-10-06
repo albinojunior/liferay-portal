@@ -264,7 +264,7 @@ function AutoField({
 	}, [currentRules]);
 
 	const handleDeleteRule = useCallback(
-		event => {
+		(event) => {
 			const index = parseInt(event.currentTarget.dataset.index, 10);
 
 			setCurrentRules([
@@ -277,7 +277,7 @@ function AutoField({
 	);
 
 	const handleRuleChange = useCallback(
-		event => {
+		(event) => {
 			const index = parseInt(event.currentTarget.dataset.index, 10);
 			const property = event.currentTarget.dataset.property;
 
@@ -376,6 +376,4 @@ AutoField.propTypes = {
 	vocabularyIds: PropTypes.arrayOf(PropTypes.string),
 };
 
-export default function(props) {
-	return <AutoField {...props} />;
-}
+export default AutoField;

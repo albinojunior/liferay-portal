@@ -41,6 +41,10 @@ public class KBFolderLocalServiceUtil {
 	/**
 	 * Adds the kb folder to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbFolder the kb folder
 	 * @return the kb folder that was added
 	 */
@@ -86,6 +90,10 @@ public class KBFolderLocalServiceUtil {
 	/**
 	 * Deletes the kb folder from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbFolder the kb folder
 	 * @return the kb folder that was removed
 	 */
@@ -97,6 +105,10 @@ public class KBFolderLocalServiceUtil {
 
 	/**
 	 * Deletes the kb folder with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbFolderId the primary key of the kb folder
 	 * @return the kb folder that was removed
@@ -124,6 +136,12 @@ public class KBFolderLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -222,10 +240,12 @@ public class KBFolderLocalServiceUtil {
 			fetchFirstChildKBFolder(
 				long groupId, long kbFolderId,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.knowledge.base.model.KBFolder> obc)
+					<com.liferay.knowledge.base.model.KBFolder>
+						orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return getService().fetchFirstChildKBFolder(groupId, kbFolderId, obc);
+		return getService().fetchFirstChildKBFolder(
+			groupId, kbFolderId, orderByComparator);
 	}
 
 	public static com.liferay.knowledge.base.model.KBFolder fetchKBFolder(
@@ -438,6 +458,10 @@ public class KBFolderLocalServiceUtil {
 
 	/**
 	 * Updates the kb folder in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBFolderLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbFolder the kb folder
 	 * @return the kb folder that was updated

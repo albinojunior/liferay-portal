@@ -32,7 +32,7 @@ public class DQLDisjunction extends DQLJunction {
 
 		List<DQLCriterion> dqlCriterions = list();
 
-		StringBundler sb = new StringBundler(dqlCriterions.size() * 2 + 1);
+		StringBundler sb = new StringBundler((dqlCriterions.size() * 2) + 1);
 
 		sb.append("(");
 

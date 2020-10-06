@@ -256,7 +256,6 @@ public class DDLViewRecordsDisplayContext {
 		return NavigationItemListBuilder.add(
 			navigationItem -> {
 				navigationItem.setActive(true);
-				navigationItem.setHref(StringPool.BLANK);
 				navigationItem.setLabel(
 					HtmlUtil.extractText(
 						_ddlRecordSet.getName(_ddlRequestHelper.getLocale())));
@@ -343,7 +342,7 @@ public class DDLViewRecordsDisplayContext {
 
 		headerNames.add(StringPool.BLANK);
 
-		SearchContainer recordSearch = new RecordSearch(
+		SearchContainer<DDLRecord> recordSearch = new RecordSearch(
 			_liferayPortletRequest, portletURL, headerNames);
 
 		if (!_user.isDefaultUser()) {
@@ -534,7 +533,7 @@ public class DDLViewRecordsDisplayContext {
 	}
 
 	protected SearchContext getSearchContext(
-		SearchContainer recordSearch, int status) {
+		SearchContainer<DDLRecord> recordSearch, int status) {
 
 		SearchContext searchContext = SearchContextFactory.getInstance(
 			_ddlRequestHelper.getRequest());
@@ -610,7 +609,8 @@ public class DDLViewRecordsDisplayContext {
 		}
 	}
 
-	protected void setDDLRecordSearchResults(SearchContainer recordSearch)
+	protected void setDDLRecordSearchResults(
+			SearchContainer<DDLRecord> recordSearch)
 		throws PortalException {
 
 		List<DDLRecord> results = null;
@@ -641,7 +641,8 @@ public class DDLViewRecordsDisplayContext {
 		recordSearch.setResults(results);
 	}
 
-	protected void setDDLRecordSearchTotal(SearchContainer recordSearch)
+	protected void setDDLRecordSearchTotal(
+			SearchContainer<DDLRecord> recordSearch)
 		throws PortalException {
 
 		int total;

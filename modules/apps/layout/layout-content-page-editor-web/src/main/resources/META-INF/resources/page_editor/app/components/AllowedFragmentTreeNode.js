@@ -17,20 +17,20 @@ import React from 'react';
 
 function hasSomeChildrenSelected(node) {
 	return node.children.some(
-		children => children.selected || hasSomeChildrenSelected(children)
+		(children) => children.selected || hasSomeChildrenSelected(children)
 	);
 }
 
 export default function AllowedFragmentTreeNode({node}) {
 	return (
-		<div className="lfr-treeview-label">
+		<div className="lfr-treeview-label mt-2">
 			<ClayCheckbox
 				aria-label={node.name}
 				checked={node.selected}
 				indeterminate={!node.selected && hasSomeChildrenSelected(node)}
 				label={node.name}
 				onChange={() => {}}
-				onDoubleClick={event => {
+				onDoubleClick={(event) => {
 					event.stopPropagation();
 				}}
 			/>

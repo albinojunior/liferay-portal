@@ -19,8 +19,6 @@
 <%
 String tabs2 = ParamUtil.getString(request, "tabs2", "users");
 
-String redirect = ParamUtil.getString(request, "redirect");
-
 long roleId = ParamUtil.getLong(request, "roleId");
 
 Role role = RoleServiceUtil.fetchRole(roleId);
@@ -40,7 +38,7 @@ String eventName = ParamUtil.getString(request, "eventName", liferayPortletRespo
 
 EditRoleAssignmentsManagementToolbarDisplayContext editRoleAssignmentsManagementToolbarDisplayContext = new EditRoleAssignmentsManagementToolbarDisplayContext(request, renderRequest, renderResponse, displayStyle, "available");
 
-SearchContainer searchContainer = editRoleAssignmentsManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<?> searchContainer = editRoleAssignmentsManagementToolbarDisplayContext.getSearchContainer();
 
 PortletURL portletURL = editRoleAssignmentsManagementToolbarDisplayContext.getPortletURL();
 %>
@@ -100,10 +98,10 @@ PortletURL portletURL = editRoleAssignmentsManagementToolbarDisplayContext.getPo
 		'<portlet:namespace />assigneesSearch'
 	);
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		var nodes = event.elements.currentPageSelectedElements.getDOMNodes();
 
-		var <portlet:namespace />assigneeIds = nodes.map(function(node) {
+		var <portlet:namespace />assigneeIds = nodes.map(function (node) {
 			return node.value;
 		});
 

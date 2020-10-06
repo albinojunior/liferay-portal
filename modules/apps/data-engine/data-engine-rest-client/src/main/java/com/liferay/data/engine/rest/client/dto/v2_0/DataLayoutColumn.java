@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataLayoutColumn implements Cloneable {
 
+	public static DataLayoutColumn toDTO(String json) {
+		return DataLayoutColumnSerDes.toDTO(json);
+	}
+
 	public Integer getColumnSize() {
 		return columnSize;
 	}

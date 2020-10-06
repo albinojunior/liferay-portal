@@ -16,13 +16,9 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-Map<String, Object> data = (Map<String, Object>)request.getAttribute("liferay-frontend:translation-manager:data");
-%>
-
 <div>
 	<react:component
-		data="<%= data %>"
 		module="translation_manager/index"
+		props='<%= (Map<String, Object>)request.getAttribute("liferay-frontend:translation-manager:data") %>'
 	/>
 </div>

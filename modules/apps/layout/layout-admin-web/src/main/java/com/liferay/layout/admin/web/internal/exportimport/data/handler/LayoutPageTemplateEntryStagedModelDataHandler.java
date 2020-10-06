@@ -24,12 +24,13 @@ import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
+import com.liferay.layout.configuration.LayoutExportImportConfiguration;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutPrototype;
@@ -45,13 +46,17 @@ import com.liferay.portal.kernel.xml.Element;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Pavel Savinov
  */
-@Component(immediate = true, service = StagedModelDataHandler.class)
+@Component(
+	configurationPid = "com.liferay.layout.configuration.LayoutExportImportConfiguration",
+	immediate = true, service = StagedModelDataHandler.class
+)
 public class LayoutPageTemplateEntryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<LayoutPageTemplateEntry> {
 
@@ -69,6 +74,12 @@ public class LayoutPageTemplateEntryStagedModelDataHandler
 		LayoutPageTemplateEntry layoutPageTemplateEntry) {
 
 		return layoutPageTemplateEntry.getName();
+	}
+
+	@Activate
+	protected void activate(Map<String, Object> properties) {
+		_layoutExportImportConfiguration = ConfigurableUtil.createConfigurable(
+			LayoutExportImportConfiguration.class, properties);
 	}
 
 	@Override
@@ -372,7 +383,7 @@ public class LayoutPageTemplateEntryStagedModelDataHandler
 	private LayoutPageTemplateEntry _addStagedModel(
 			PortletDataContext portletDataContext,
 			LayoutPageTemplateEntry layoutPageTemplateEntry)
-		throws PortalException {
+		throws Exception {
 
 		if (layoutPageTemplateEntry.isDefaultTemplate()) {
 			LayoutPageTemplateEntry defaultLayoutPageTemplateEntry =
@@ -394,7 +405,7 @@ public class LayoutPageTemplateEntryStagedModelDataHandler
 	private void _exportReferenceLayout(
 			LayoutPageTemplateEntry layoutPageTemplateEntry,
 			PortletDataContext portletDataContext)
-		throws PortletDataException {
+		throws Exception {
 
 		Layout layout = _layoutLocalService.fetchLayout(
 			layoutPageTemplateEntry.getPlid());
@@ -413,10 +424,11 @@ public class LayoutPageTemplateEntryStagedModelDataHandler
 			return;
 		}
 
-		Layout draftLayout = _layoutLocalService.fetchLayout(
-			_portal.getClassNameId(Layout.class), layout.getPlid());
+		Layout draftLayout = layout.fetchDraftLayout();
 
-		if (draftLayout != null) {
+		if (_layoutExportImportConfiguration.exportDraftLayout() &&
+			(draftLayout != null)) {
+
 			StagedModelDataHandlerUtil.exportReferenceStagedModel(
 				portletDataContext, layoutPageTemplateEntry, draftLayout,
 				PortletDataContext.REFERENCE_TYPE_DEPENDENCY);
@@ -432,7 +444,7 @@ public class LayoutPageTemplateEntryStagedModelDataHandler
 			LayoutPageTemplateEntry layoutPageTemplateEntry,
 			LayoutPageTemplateEntry importedLayoutPageTemplateEntry,
 			LayoutPrototype layoutPrototype)
-		throws PortalException {
+		throws Exception {
 
 		if (ExportImportThreadLocal.isStagingInProcess() ||
 			(layoutPrototype == null)) {
@@ -485,6 +497,9 @@ public class LayoutPageTemplateEntryStagedModelDataHandler
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
+
+	private volatile LayoutExportImportConfiguration
+		_layoutExportImportConfiguration;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

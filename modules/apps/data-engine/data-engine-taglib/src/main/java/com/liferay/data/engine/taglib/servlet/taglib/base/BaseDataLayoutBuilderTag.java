@@ -34,6 +34,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		return super.doStartTag();
 	}
 
+	public java.util.List<java.util.Map<java.lang.String, java.lang.Object>> getAdditionalPanels() {
+		return _additionalPanels;
+	}
+
 	public java.lang.String getComponentId() {
 		return _componentId;
 	}
@@ -48,6 +52,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 
 	public java.lang.Long getDataLayoutId() {
 		return _dataLayoutId;
+	}
+
+	public java.lang.String getFieldSetContentType() {
+		return _fieldSetContentType;
 	}
 
 	public java.lang.Long getGroupId() {
@@ -66,8 +74,8 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		return _scopes;
 	}
 
-	public boolean getSinglePage() {
-		return _singlePage;
+	public void setAdditionalPanels(java.util.List<java.util.Map<java.lang.String, java.lang.Object>> additionalPanels) {
+		_additionalPanels = additionalPanels;
 	}
 
 	public void setComponentId(java.lang.String componentId) {
@@ -86,6 +94,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		_dataLayoutId = dataLayoutId;
 	}
 
+	public void setFieldSetContentType(java.lang.String fieldSetContentType) {
+		_fieldSetContentType = fieldSetContentType;
+	}
+
 	public void setGroupId(java.lang.Long groupId) {
 		_groupId = groupId;
 	}
@@ -102,10 +114,6 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		_scopes = scopes;
 	}
 
-	public void setSinglePage(boolean singlePage) {
-		_singlePage = singlePage;
-	}
-
 	@Override
 	public void setPageContext(PageContext pageContext) {
 		super.setPageContext(pageContext);
@@ -117,15 +125,16 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 	protected void cleanUp() {
 		super.cleanUp();
 
+		_additionalPanels = null;
 		_componentId = null;
 		_contentType = null;
 		_dataDefinitionId = null;
 		_dataLayoutId = null;
+		_fieldSetContentType = null;
 		_groupId = null;
 		_localizable = false;
 		_namespace = null;
 		_scopes = null;
-		_singlePage = false;
 	}
 
 	@Override
@@ -140,15 +149,16 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
+		setNamespacedAttribute(request, "additionalPanels", _additionalPanels);
 		setNamespacedAttribute(request, "componentId", _componentId);
 		setNamespacedAttribute(request, "contentType", _contentType);
 		setNamespacedAttribute(request, "dataDefinitionId", _dataDefinitionId);
 		setNamespacedAttribute(request, "dataLayoutId", _dataLayoutId);
+		setNamespacedAttribute(request, "fieldSetContentType", _fieldSetContentType);
 		setNamespacedAttribute(request, "groupId", _groupId);
 		setNamespacedAttribute(request, "localizable", _localizable);
 		setNamespacedAttribute(request, "namespace", _namespace);
 		setNamespacedAttribute(request, "scopes", _scopes);
-		setNamespacedAttribute(request, "singlePage", _singlePage);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "liferay-data-engine:data-layout-builder:";
@@ -159,14 +169,15 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 	private static final String _START_PAGE =
 		"/data_layout_builder/start.jsp";
 
+	private java.util.List<java.util.Map<java.lang.String, java.lang.Object>> _additionalPanels = null;
 	private java.lang.String _componentId = null;
 	private java.lang.String _contentType = null;
 	private java.lang.Long _dataDefinitionId = null;
 	private java.lang.Long _dataLayoutId = null;
+	private java.lang.String _fieldSetContentType = null;
 	private java.lang.Long _groupId = null;
 	private boolean _localizable = false;
 	private java.lang.String _namespace = null;
 	private java.util.Set _scopes = null;
-	private boolean _singlePage = false;
 
 }

@@ -4,6 +4,14 @@ package ${configYAML.apiPackagePath}.client.dto.${escapedVersion};
 	import ${configYAML.apiPackagePath}.client.constant.${escapedVersion}.${globalEnumSchemaName};
 </#list>
 
+<#list allExternalSchemas?keys as externalSchemaName>
+	import ${configYAML.apiPackagePath}.client.dto.${escapedVersion}.${externalSchemaName};
+</#list>
+
+<#list allSchemas?keys as schemaName>
+	import ${configYAML.apiPackagePath}.client.dto.${escapedVersion}.${schemaName};
+</#list>
+
 import ${configYAML.apiPackagePath}.client.function.UnsafeSupplier;
 import ${configYAML.apiPackagePath}.client.serdes.${escapedVersion}.${schemaName}SerDes;
 
@@ -21,48 +29,15 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class ${schemaName} implements Cloneable {
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 
-	<#list enumSchemas?keys as enumName>
-		public static enum ${enumName} {
+	public static ${schemaName} toDTO(String json) {
+		return ${schemaName}SerDes.toDTO(json);
+	}
 
-			<#list enumSchemas[enumName].enumValues as enumValue>
-				${freeMarkerTool.getEnumFieldName(enumValue)}("${enumValue}")
-
-				<#if enumValue_has_next>
-					,
-				</#if>
-			</#list>;
-
-			public static ${enumName} create(String value) {
-				for (${enumName} ${freeMarkerTool.getSchemaVarName(enumName)} : values()) {
-					if (Objects.equals(${freeMarkerTool.getSchemaVarName(enumName)}.getValue(), value)) {
-						return ${freeMarkerTool.getSchemaVarName(enumName)};
-					}
-				}
-
-				return null;
-			}
-
-			public String getValue() {
-				return _value;
-			}
-
-			@Override
-			public String toString() {
-				return _value;
-			}
-
-			private ${enumName}(String value) {
-				_value = value;
-			}
-
-			private final String _value;
-
-		}
-	</#list>
-
-	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
+	<#assign
+		enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema)
+		properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema)
+	/>
 
 	<#list properties?keys as propertyName>
 		<#assign capitalizedPropertyName = propertyName?cap_first />
@@ -133,5 +108,44 @@ public class ${schemaName} implements Cloneable {
 	public String toString() {
 		return ${schemaName}SerDes.toJSON(this);
 	}
+
+	<#list enumSchemas?keys as enumName>
+		public static enum ${enumName} {
+
+		<#list enumSchemas[enumName].enumValues as enumValue>
+			${freeMarkerTool.getEnumFieldName(enumValue)}("${enumValue}")
+
+			<#if enumValue_has_next>
+				,
+			</#if>
+		</#list>;
+
+		public static ${enumName} create(String value) {
+			for (${enumName} ${freeMarkerTool.getSchemaVarName(enumName)} : values()) {
+				if (Objects.equals(${freeMarkerTool.getSchemaVarName(enumName)}.getValue(), value)) {
+					return ${freeMarkerTool.getSchemaVarName(enumName)};
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ${enumName}(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+		}
+	</#list>
 
 }

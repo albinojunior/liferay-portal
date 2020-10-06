@@ -22,8 +22,8 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -100,7 +100,7 @@ public class JournalFolderStagedModelDataHandler
 			List<JournalFolder> ancestorFolders = folder.getAncestors();
 
 			StringBundler sb = new StringBundler(
-				4 * ancestorFolders.size() + 1);
+				(4 * ancestorFolders.size()) + 1);
 
 			Collections.reverse(ancestorFolders);
 
@@ -225,10 +225,9 @@ public class JournalFolderStagedModelDataHandler
 		TrashHandler trashHandler = existingFolder.getTrashHandler();
 
 		if (trashHandler.isRestorable(existingFolder.getFolderId())) {
-			long userId = portletDataContext.getUserId(folder.getUserUuid());
-
 			trashHandler.restoreTrashEntry(
-				userId, existingFolder.getFolderId());
+				portletDataContext.getUserId(folder.getUserUuid()),
+				existingFolder.getFolderId());
 		}
 	}
 

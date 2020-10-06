@@ -16,10 +16,10 @@ package com.liferay.fragment.internal.renderer;
 
 import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.renderer.FragmentPortletRenderer;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
-import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryConstants;
+import com.liferay.portal.kernel.portlet.constants.PortletPreferencesFactoryConstants;
 import com.liferay.taglib.portletext.RuntimeTag;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
@@ -51,7 +51,7 @@ public class FragmentPortletRendererImpl implements FragmentPortletRenderer {
 				portletName, instanceId, StringPool.BLANK,
 				PortletPreferencesFactoryConstants.
 					SETTINGS_SCOPE_PORTLET_INSTANCE,
-				defaultPreferences, false, null, httpServletRequest,
+				defaultPreferences, true, null, httpServletRequest,
 				pipingServletResponse);
 		}
 		catch (Exception exception) {

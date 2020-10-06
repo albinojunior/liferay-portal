@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class DLFolderUADAnonymizerTest
 	extends BaseHasAssetEntryUADAnonymizerTestCase<DLFolder>
-	implements WhenHasStatusByUserIdField {
+	implements WhenHasStatusByUserIdField<DLFolder> {
 
 	@ClassRule
 	@Rule
@@ -97,7 +97,7 @@ public class DLFolderUADAnonymizerTest
 	}
 
 	@Override
-	protected UADAnonymizer getUADAnonymizer() {
+	protected UADAnonymizer<DLFolder> getUADAnonymizer() {
 		return _uadAnonymizer;
 	}
 
@@ -142,6 +142,6 @@ public class DLFolderUADAnonymizerTest
 	private Group _group;
 
 	@Inject(filter = "component.name=*.DLFolderUADAnonymizer")
-	private UADAnonymizer _uadAnonymizer;
+	private UADAnonymizer<DLFolder> _uadAnonymizer;
 
 }

@@ -37,9 +37,14 @@ definition {
 		}
 
 		task ("Add a navigation menu") {
+			JSONSitenavigation.addSiteNavigationMenu(
+				groupName = "Test Site Name (Staging)",
+				site = "false",
+				siteNavigationMenuName = "Test Navigation Menu Name");
+
 			NavigationMenusAdmin.openNavigationMenusAdmin(siteURLKey = "test-site-name-staging");
 
-			NavigationMenusAdmin.addMenu(menuName = "Test Navigation Menu Name");
+			LexiconEntry.gotoEntry(rowEntry = "Test Navigation Menu Name");
 		}
 	}
 
@@ -57,6 +62,8 @@ definition {
 	@description = "Navigation menus are only editable in the staging site and cannot be edited in the live site."
 	@priority = "5"
 	test CannotEditNavigationMenuInLive {
+		property portal.acceptance = "true";
+
 		task ("Publish to live") {
 			Staging.openStagingAdmin(siteURLKey = "test-site-name-staging");
 
@@ -163,6 +170,8 @@ definition {
 	@description = "Edits to navigation menus will appear in live until after publish. This test has the Navigation Menu widget display a specific navigation menu and covers LPS-86525."
 	@priority = "5"
 	test PublishEditedNavigationMenu {
+		property portal.acceptance = "true";
+
 		task ("Add the first page to the navigation menu") {
 			NavigationMenusAdmin.addItem(
 				item = "Page",
@@ -300,6 +309,8 @@ definition {
 	@description = "Edits to navigation menus will appear in live until after publish. This test has the Navigation Menu widget display the primary navigation menu and covers LPS-86529."
 	@priority = "5"
 	test PublishEditedPrimaryNavigationMenu {
+		property portal.acceptance = "true";
+
 		task ("Add the first page to the navigation menu") {
 			NavigationMenusAdmin.addItem(
 				item = "Page",
@@ -442,9 +453,11 @@ definition {
 		}
 	}
 
-	@description = "Navigation menus can be published to live and do not appear in live until published. This test has the Navigation Menu widget display a specific navigation menu. This test covers LPS-86142."
+	@description = "Navigation menus can be published to live and do not appear in live until published. This is a use case for LPS-86142 and LPS-112993."
 	@priority = "5"
 	test PublishNavigationMenu {
+		property portal.acceptance = "true";
+
 		task ("Add the first page to the navigation menu") {
 			NavigationMenusAdmin.addItem(
 				item = "Page",
@@ -549,8 +562,8 @@ definition {
 				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
 		}
 
-		task ("Navigate to the Navigation Menu widget in the live site") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
+		task ("Navigate to the live site via Applications Menu") {
+			ApplicationsMenu.gotoSite(site = "Test Site Name");
 		}
 
 		task ("Assert the Navigation Menu widget is display the navigation menu and not the site hierarchy - the navigation menu has the first page and the URL item but does not have the second page or third page") {
@@ -589,6 +602,8 @@ definition {
 	@description = "Publishing navigation menus should not also publish pages. When publishing only navigation menus, pages that exist in the staging site but do not exist in the live site should not appear in the Navigation Menu widget. This test has the Navigation Menu widget display a specific navigation menu and covers LPS-86525."
 	@priority = "5"
 	test PublishNavigationMenuWithDeletedPages {
+		property portal.acceptance = "true";
+
 		task ("Add the first page, second page, and third page to the navigation menu") {
 			NavigationMenusAdmin.addItem(
 				item = "Page",
@@ -663,6 +678,8 @@ definition {
 	@description = "Navigation menus can be published to live and do not appear in live until published. This test has the Navigation Menu widget display the primary navigation menu."
 	@priority = "5"
 	test PublishPrimaryNavigationMenu {
+		property portal.acceptance = "true";
+
 		task ("Add the first page to the navigation menu") {
 			NavigationMenusAdmin.addItem(
 				item = "Page",
@@ -815,6 +832,8 @@ definition {
 	@description = "Publishing navigation menus should not also publish pages. When publishing only navigation menus, pages that exist in the staging site but do not exist in the live site should not appear in the Navigation Menu widget. This test has the Navigation Menu widget display the primary navigation menu."
 	@priority = "5"
 	test PublishPrimaryNavigationMenuWithDeletedPages {
+		property portal.acceptance = "true";
+
 		task ("Add the first page, second page, and third page to the navigation menu") {
 			NavigationMenusAdmin.addItem(
 				item = "Page",
@@ -893,6 +912,87 @@ definition {
 			AssertElementNotPresent(
 				key_pageName = "Test Page 3",
 				locator1 = "Home#PAGE");
+		}
+	}
+
+	@description = "This is a use case for LPS-113994. The Naviation Menu is able to display more than 2 sublevels page hierarchy when use the default template after enable Live."
+	@priority = "3"
+	test ShowMoreThanTwoSublevelsWhenSelectPublicPagesHierarchyAndBarMinimallyStyled {
+		task ("Add a site via JSON") {
+			JSONGroup.addGroup(groupName = "Site Name");
+		}
+
+		task ("Add a widget page with 3 sublevels child pages") {
+			JSONLayout.addPublicLayout(
+				groupName = "Site Name",
+				layoutName = "Home");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Site Name",
+				layoutName = "Child Page",
+				parentLayoutName = "Home");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Site Name",
+				layoutName = "Child Child Page",
+				parentLayoutName = "Child Page");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Site Name",
+				layoutName = "Child Child Child Page",
+				parentLayoutName = "Child Child Page");
+		}
+
+		task ("Activate local live staging") {
+			Staging.openStagingAdmin(siteURLKey = "site-name");
+
+			Staging.activateStagingCP(siteName = "Site Name");
+		}
+
+		task ("Navigate to Home in Staging site") {
+			Navigator.gotoStagedSitePage(
+				pageName = "Home",
+				siteName = "Site Name");
+		}
+
+		task ("Assert Select Public Pages Hierarchy and Bar minimally styled") {
+			NavigationMenusWidget.gotoNavigationMenuWidgetConfig();
+
+			NavigationMenusWidget.selectNavigation(menuType = "Public Pages Hierarchy");
+
+			Pause(locator1 = "3000");
+
+			NavigationMenusWidget.selectDisplayTemplate(templateName = "Bar minimally styled");
+
+			Pause(locator1 = "3000");
+
+			Portlet.saveAndCloseConfig();
+		}
+
+		task ("Navigate to Child Page via Navigation Menu widget") {
+			NavigationMenusWidget.gotoSublevel(
+				itemName = "Child Page",
+				pageName = "Home",
+				type = "Drop Down");
+
+			AssertTextEquals(
+				locator1 = "ControlMenu#HEADING",
+				value1 = "Child Page");
+		}
+
+		task ("Navigate to Home in Live site") {
+			Navigator.gotoSitePage(
+				pageName = "Home",
+				siteName = "Site Name");
+		}
+
+		task ("Navigate to Child Child Page via Navigation Menu widget") {
+			NavigationMenusWidget.gotoSublevel(
+				itemName = "Child Child Page",
+				pageName = "Home",
+				type = "Drop Down");
+
+			AssertLocation.assertPartialLocation(value1 = "web/site-name/child-child-page");
 		}
 	}
 

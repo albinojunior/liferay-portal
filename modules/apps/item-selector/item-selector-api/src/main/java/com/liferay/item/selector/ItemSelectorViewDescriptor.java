@@ -28,6 +28,10 @@ import java.util.Locale;
  */
 public interface ItemSelectorViewDescriptor<T> {
 
+	public default String getDefaultDisplayStyle() {
+		return "icon";
+	}
+
 	public ItemDescriptor getItemDescriptor(T t);
 
 	public ItemSelectorReturnType getItemSelectorReturnType();
@@ -36,7 +40,7 @@ public interface ItemSelectorViewDescriptor<T> {
 		return null;
 	}
 
-	public SearchContainer getSearchContainer() throws PortalException;
+	public SearchContainer<T> getSearchContainer() throws PortalException;
 
 	public default boolean isShowBreadcrumb() {
 		return true;

@@ -23,8 +23,10 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.portlet.social.service.http.SocialActivitySettingServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class SocialActivitySettingSoap implements Serializable {
 
 	public static SocialActivitySettingSoap toSoapModel(
@@ -32,6 +34,8 @@ public class SocialActivitySettingSoap implements Serializable {
 
 		SocialActivitySettingSoap soapModel = new SocialActivitySettingSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setActivitySettingId(model.getActivitySettingId());
 		soapModel.setGroupId(model.getGroupId());
 		soapModel.setCompanyId(model.getCompanyId());
@@ -101,6 +105,22 @@ public class SocialActivitySettingSoap implements Serializable {
 		setActivitySettingId(pk);
 	}
 
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getActivitySettingId() {
 		return _activitySettingId;
 	}
@@ -157,6 +177,8 @@ public class SocialActivitySettingSoap implements Serializable {
 		_value = value;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _activitySettingId;
 	private long _groupId;
 	private long _companyId;

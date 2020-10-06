@@ -65,8 +65,10 @@ portletDisplay.setURLBack(backURL);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
-	<aui:col cssClass="lfr-asset-column lfr-asset-column-details">
+<clay:container-fluid>
+	<clay:col
+		cssClass="lfr-asset-column lfr-asset-column-details"
+	>
 		<liferay-ui:success key='<%= workflowTaskDisplayContext.getPortletResource() + "requestProcessed" %>' message="your-request-completed-successfully" />
 
 		<liferay-ui:error exception="<%= WorkflowTaskDueDateException.class %>" message="please-enter-a-valid-due-date" />
@@ -82,13 +84,15 @@ renderResponse.setTitle(headerTitle);
 					<liferay-util:param name="mvcPath" value="/edit_workflow_task.jsp" />
 				</liferay-util:include>
 
-				<aui:col width="<%= 50 %>">
+				<clay:col
+					md="6"
+				>
 					<aui:field-wrapper label="assigned-to">
 						<aui:fieldset>
-							<div class="card-row">
+							<div class="align-items-center card-row">
 								<c:choose>
 									<c:when test="<%= workflowTask.isAssignedToSingleUser() %>">
-										<div class="card-col-field">
+										<div class="card-col-field mr-2">
 											<div class="list-group-card-icon">
 												<liferay-ui:user-portrait
 													userId="<%= workflowTask.getAssigneeUserId() %>"
@@ -119,9 +123,11 @@ renderResponse.setTitle(headerTitle);
 							<%= workflowTaskDisplayContext.getState(workflowTask) %>
 						</aui:fieldset>
 					</aui:field-wrapper>
-				</aui:col>
+				</clay:col>
 
-				<aui:col width="<%= 50 %>">
+				<clay:col
+					md="6"
+				>
 					<aui:field-wrapper label="create-date">
 						<aui:fieldset>
 							<%= workflowTaskDisplayContext.getCreateDate(workflowTask) %>
@@ -133,16 +139,16 @@ renderResponse.setTitle(headerTitle);
 							<%= workflowTaskDisplayContext.getDueDateString(workflowTask) %>
 						</aui:fieldset>
 					</aui:field-wrapper>
-				</aui:col>
+				</clay:col>
 
 				<c:if test="<%= Validator.isNotNull(workflowTask.getDescription()) %>">
-					<aui:col>
+					<clay:col>
 						<aui:field-wrapper label="description">
 							<aui:fieldset>
 								<%= workflowTaskDisplayContext.getDescription(workflowTask) %>
 							</aui:fieldset>
 						</aui:field-wrapper>
-					</aui:col>
+					</clay:col>
 				</c:if>
 			</aui:fieldset>
 
@@ -156,13 +162,15 @@ renderResponse.setTitle(headerTitle);
 						markupView="lexicon"
 						title="<%= workflowTaskDisplayContext.getPreviewOfTitle(workflowTask) %>"
 					>
-						<div class="locale-actions">
-							<liferay-ui:language
-								formAction="<%= currentURL %>"
-								languageId="<%= languageId %>"
-								languageIds="<%= assetRenderer.getAvailableLanguageIds() %>"
-							/>
-						</div>
+						<c:if test="<%= assetRenderer.isLocalizable() %>">
+							<div class="locale-actions">
+								<liferay-ui:language
+									formAction="<%= currentURL %>"
+									languageId="<%= languageId %>"
+									languageIds="<%= assetRenderer.getAvailableLanguageIds() %>"
+								/>
+							</div>
+						</c:if>
 
 						<div class="task-content-actions">
 							<liferay-ui:icon-list>
@@ -251,6 +259,18 @@ renderResponse.setTitle(headerTitle);
 							assetRenderer="<%= assetRenderer %>"
 							template="<%= AssetRenderer.TEMPLATE_ABSTRACT %>"
 						/>
+
+						<c:if test="<%= assetEntry != null %>">
+							<h4 class="task-content-author">
+								<liferay-ui:message key="author" />
+							</h4>
+
+							<liferay-asset:asset-metadata
+								className="<%= assetEntry.getClassName() %>"
+								classPK="<%= assetEntry.getClassPK() %>"
+								metadataFields='<%= new String[] {"author", "categories", "tags"} %>'
+							/>
+						</c:if>
 					</liferay-ui:panel>
 
 					<c:if test="<%= assetEntry != null %>">
@@ -285,8 +305,8 @@ renderResponse.setTitle(headerTitle);
 				</liferay-ui:panel>
 			</liferay-ui:panel-container>
 		</aui:fieldset-group>
-	</aui:col>
-</div>
+	</clay:col>
+</clay:container-fluid>
 
 <aui:script use="liferay-workflow-tasks">
 	var onTaskClickFn = A.rbind('onTaskClick', Liferay.WorkflowTasks, '');

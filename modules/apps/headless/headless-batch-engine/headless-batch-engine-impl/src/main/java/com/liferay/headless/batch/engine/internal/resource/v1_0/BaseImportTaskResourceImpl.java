@@ -18,6 +18,7 @@ import com.liferay.headless.batch.engine.dto.v1_0.ImportTask;
 import com.liferay.headless.batch.engine.resource.v1_0.ImportTaskResource;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -80,7 +81,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
-			@Parameter(in = ParameterIn.QUERY, name = "callbackURL")
+			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/import-task/{className}")
@@ -91,6 +93,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 				className,
 			@Parameter(hidden = true) @QueryParam("callbackURL") String
 				callbackURL,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName,
 			Object object)
 		throws Exception {
 
@@ -109,7 +113,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
-			@Parameter(in = ParameterIn.QUERY, name = "callbackURL")
+			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/import-task/{className}")
@@ -120,6 +125,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 				className,
 			@Parameter(hidden = true) @QueryParam("callbackURL") String
 				callbackURL,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName,
 			MultipartBody multipartBody)
 		throws Exception {
 
@@ -146,7 +153,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
 			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
-			@Parameter(in = ParameterIn.QUERY, name = "fieldNameMapping")
+			@Parameter(in = ParameterIn.QUERY, name = "fieldNameMapping"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/import-task/{className}")
@@ -159,6 +167,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 				callbackURL,
 			@Parameter(hidden = true) @QueryParam("fieldNameMapping") String
 				fieldNameMapping,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName,
 			Object object)
 		throws Exception {
 
@@ -180,7 +190,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
 			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
-			@Parameter(in = ParameterIn.QUERY, name = "fieldNameMapping")
+			@Parameter(in = ParameterIn.QUERY, name = "fieldNameMapping"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/import-task/{className}")
@@ -193,6 +204,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 				callbackURL,
 			@Parameter(hidden = true) @QueryParam("fieldNameMapping") String
 				fieldNameMapping,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName,
 			MultipartBody multipartBody)
 		throws Exception {
 
@@ -216,7 +229,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
-			@Parameter(in = ParameterIn.QUERY, name = "callbackURL")
+			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/import-task/{className}")
@@ -227,6 +241,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 				className,
 			@Parameter(hidden = true) @QueryParam("callbackURL") String
 				callbackURL,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName,
 			Object object)
 		throws Exception {
 
@@ -245,7 +261,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
-			@Parameter(in = ParameterIn.QUERY, name = "callbackURL")
+			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/import-task/{className}")
@@ -256,6 +273,8 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 				className,
 			@Parameter(hidden = true) @QueryParam("callbackURL") String
 				callbackURL,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName,
 			MultipartBody multipartBody)
 		throws Exception {
 
@@ -316,6 +335,14 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -325,12 +352,21 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -338,11 +374,7 @@ public abstract class BaseImportTaskResourceImpl implements ImportTaskResource {
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(
-		ImportTask importTask, ImportTask existingImportTask) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

@@ -43,7 +43,7 @@ portletURL.setParameter("redirect", redirect);
 portletURL.setParameter("ruleGroupId", String.valueOf(ruleGroupId));
 portletURL.setParameter("groupId", String.valueOf(groupId));
 
-SearchContainer rulesSearchContainer = new SearchContainer(renderRequest, portletURL, null, "no-classification-rules-are-configured-for-this-device-family");
+SearchContainer<MDRRule> rulesSearchContainer = new SearchContainer(renderRequest, portletURL, null, "no-classification-rules-are-configured-for-this-device-family");
 
 String orderByCol = ParamUtil.getString(request, "orderByCol", "create-date");
 
@@ -77,15 +77,10 @@ renderResponse.setTitle(ruleGroup.getName(locale));
 <liferay-frontend:management-bar
 	disabled="<%= rulesCount <= 0 %>"
 >
-
-	<%
-	PortletURL displayStyleURL = PortletURLUtil.clone(portletURL, renderResponse);
-	%>
-
 	<liferay-frontend:management-bar-buttons>
 		<liferay-frontend:management-bar-display-buttons
 			displayViews='<%= new String[] {"icon", "descriptive", "list"} %>'
-			portletURL="<%= displayStyleURL %>"
+			portletURL="<%= PortletURLUtil.clone(portletURL, renderResponse) %>"
 			selectedDisplayStyle="<%= displayStyle %>"
 		/>
 
@@ -126,7 +121,7 @@ renderResponse.setTitle(ruleGroup.getName(locale));
 	</liferay-frontend:management-bar-filters>
 </liferay-frontend:management-bar>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<liferay-ui:search-container
 		searchContainer="<%= rulesSearchContainer %>"
 	>
@@ -206,4 +201,4 @@ renderResponse.setTitle(ruleGroup.getName(locale));
 			type="more"
 		/>
 	</liferay-ui:search-container>
-</div>
+</clay:container-fluid>

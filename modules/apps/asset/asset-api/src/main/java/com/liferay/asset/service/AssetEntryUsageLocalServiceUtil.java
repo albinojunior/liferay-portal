@@ -44,6 +44,10 @@ public class AssetEntryUsageLocalServiceUtil {
 	/**
 	 * Adds the asset entry usage to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetEntryUsage the asset entry usage
 	 * @return the asset entry usage that was added
 	 */
@@ -97,6 +101,10 @@ public class AssetEntryUsageLocalServiceUtil {
 	/**
 	 * Deletes the asset entry usage from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetEntryUsage the asset entry usage
 	 * @return the asset entry usage that was removed
 	 */
@@ -108,6 +116,10 @@ public class AssetEntryUsageLocalServiceUtil {
 
 	/**
 	 * Deletes the asset entry usage with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryUsageId the primary key of the asset entry usage
 	 * @return the asset entry usage that was removed
@@ -143,6 +155,12 @@ public class AssetEntryUsageLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -435,6 +453,10 @@ public class AssetEntryUsageLocalServiceUtil {
 
 	/**
 	 * Updates the asset entry usage in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryUsageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryUsage the asset entry usage
 	 * @return the asset entry usage that was updated

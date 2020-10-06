@@ -569,26 +569,17 @@ public class HtmlImpl implements Html {
 		if (hasQuote && hasApostrophe) {
 			String[] parts = xPathAttribute.split(StringPool.APOSTROPHE);
 
-			return "concat('".concat(
-				StringUtil.merge(parts, "', \"'\", '")
-			).concat(
-				"')"
-			);
+			return StringBundler.concat(
+				"concat('", StringUtil.merge(parts, "', \"'\", '"), "')");
 		}
 
 		if (hasQuote) {
-			return StringPool.APOSTROPHE.concat(
-				xPathAttribute
-			).concat(
-				StringPool.APOSTROPHE
-			);
+			return StringBundler.concat(
+				StringPool.APOSTROPHE, xPathAttribute, StringPool.APOSTROPHE);
 		}
 
-		return StringPool.QUOTE.concat(
-			xPathAttribute
-		).concat(
-			StringPool.QUOTE
-		);
+		return StringBundler.concat(
+			StringPool.QUOTE, xPathAttribute, StringPool.QUOTE);
 	}
 
 	/**
@@ -970,9 +961,19 @@ public class HtmlImpl implements Html {
 		return pos;
 	}
 
-	private static void _appendHexChars(
-		StringBuilder sb, char[] buffer, char c) {
+	private static boolean _isValidXmlCharacter(char c) {
+		if (((c >= CharPool.SPACE) && (c <= '\ud7ff')) ||
+			((c >= '\ue000') && (c <= '\ufffd')) || Character.isSurrogate(c) ||
+			(c == CharPool.TAB) || (c == CharPool.NEW_LINE) ||
+			(c == CharPool.RETURN)) {
 
+			return true;
+		}
+
+		return false;
+	}
+
+	private void _appendHexChars(StringBuilder sb, char[] buffer, char c) {
 		int index = buffer.length;
 
 		do {
@@ -990,18 +991,6 @@ public class HtmlImpl implements Html {
 		}
 
 		sb.append(buffer, index, buffer.length - index);
-	}
-
-	private static boolean _isValidXmlCharacter(char c) {
-		if (((c >= CharPool.SPACE) && (c <= '\ud7ff')) ||
-			((c >= '\ue000') && (c <= '\ufffd')) || Character.isSurrogate(c) ||
-			(c == CharPool.TAB) || (c == CharPool.NEW_LINE) ||
-			(c == CharPool.RETURN)) {
-
-			return true;
-		}
-
-		return false;
 	}
 
 	private boolean _isUnicodeCompatibilityCharacter(char c) {
@@ -1064,6 +1053,8 @@ public class HtmlImpl implements Html {
 		"gt", ">"
 	).put(
 		"lt", "<"
+	).put(
+		"nbsp", " "
 	).put(
 		"rsquo", "\u2019"
 	).build();

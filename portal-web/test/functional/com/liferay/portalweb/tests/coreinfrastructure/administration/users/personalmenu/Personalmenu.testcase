@@ -81,7 +81,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
 			portlet = "Staging");
 
 		Staging.activateStagingCP(siteName = "${siteName}");
@@ -97,7 +96,7 @@ definition {
 
 		Portlet.viewTitle(portletName = "My Workflow Tasks");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -114,8 +113,6 @@ definition {
 	@priority = "4"
 	test NavigateToMySites {
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
-		ProductMenu.gotoSiteViaLink();
 
 		UserBar.gotoDropdownItem(dropdownItem = "My Sites");
 
@@ -142,7 +139,7 @@ definition {
 
 		Portlet.viewPG(portletName = "Notifications");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -163,9 +160,10 @@ definition {
 
 		Portlet.viewNoSpecificPG(portletName = "Notifications");
 
+		Navigator.gotoPage(pageName = "Home");
+
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Web Content");
 
 		UserBar.gotoDropdownItem(dropdownItem = "Notifications");
@@ -224,7 +222,7 @@ definition {
 
 	@priority = "4"
 	test ViewMyAccountUser {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -235,7 +233,7 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -270,7 +268,7 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -296,6 +294,16 @@ definition {
 
 	@priority = "4"
 	test ViewMyAccountViaSignInPortlet {
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		SitePages.addPublicPage(
+			pageName = "Sign In Page",
+			sitePageType = "Widget Page");
+
+		Navigator.gotoPage(pageName = "Sign In Page");
+
 		Portlet.addPG(portletName = "Sign In");
 
 		AssertClick(
@@ -313,7 +321,7 @@ definition {
 			userLastName = "user1",
 			userScreenName = "user1");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");

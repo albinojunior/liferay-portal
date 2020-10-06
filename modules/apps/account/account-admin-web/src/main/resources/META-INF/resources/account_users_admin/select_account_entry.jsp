@@ -17,18 +17,28 @@
 <%@ include file="/init.jsp" %>
 
 <%
-SearchContainer accountEntryDisplaySearchContainer = AccountEntryDisplaySearchContainerFactory.create(liferayPortletRequest, liferayPortletResponse);
+SearchContainer<AccountEntryDisplay> accountEntryDisplaySearchContainer = AccountEntryDisplaySearchContainerFactory.create(liferayPortletRequest, liferayPortletResponse);
 
-accountEntryDisplaySearchContainer.setRowChecker(null);
+long accountGroupId = ParamUtil.getLong(request, "accountGroupId");
+
+if (accountGroupId > 0) {
+	accountEntryDisplaySearchContainer.setRowChecker(new AccountGroupAccountEntryRowChecker(liferayPortletResponse, accountGroupId));
+}
 
 SelectAccountEntryManagementToolbarDisplayContext selectAccountEntryManagementToolbarDisplayContext = new SelectAccountEntryManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, accountEntryDisplaySearchContainer);
+
+if (selectAccountEntryManagementToolbarDisplayContext.isSingleSelect()) {
+	accountEntryDisplaySearchContainer.setRowChecker(null);
+}
 %>
 
 <clay:management-toolbar
 	displayContext="<%= selectAccountEntryManagementToolbarDisplayContext %>"
 />
 
-<aui:container cssClass="container-fluid container-fluid-max-xl" id="selectAccountEntry">
+<clay:container-fluid
+	id='<%= liferayPortletResponse.getNamespace() + "selectAccountEntry" %>'
+>
 	<liferay-ui:search-container
 		searchContainer="<%= accountEntryDisplaySearchContainer %>"
 	>
@@ -37,39 +47,91 @@ SelectAccountEntryManagementToolbarDisplayContext selectAccountEntryManagementTo
 			keyProperty="accountEntryId"
 			modelVar="accountEntryDisplay"
 		>
+
+			<%
+			String cssClass = "table-cell-expand";
+
+			Optional<User> userOptional = accountEntryDisplay.getPersonAccountEntryUserOptional();
+
+			boolean disabled = userOptional.isPresent();
+
+			if (disabled) {
+				cssClass += " text-muted";
+			}
+			%>
+
 			<liferay-ui:search-container-column-text
-				cssClass="table-cell-expand table-title"
+				cssClass='<%= cssClass + " table-title" %>'
 				name="name"
-				property="name"
+				value="<%= HtmlUtil.escape(accountEntryDisplay.getName()) %>"
 			/>
 
 			<liferay-ui:search-container-column-text
-				cssClass="table-cell-expand"
-				name="parent-account"
-				property="parentAccountEntryName"
+				cssClass="<%= cssClass %>"
+				name="type"
+				translate="<%= true %>"
+				value="<%= HtmlUtil.escape(accountEntryDisplay.getType()) %>"
 			/>
 
-			<liferay-ui:search-container-column-text>
-
-				<%
-				Map<String, Object> data = HashMapBuilder.<String, Object>put(
-					"accountentryid", accountEntryDisplay.getAccountEntryId()
-				).build();
-				%>
-
-				<aui:button cssClass="choose-account selector-button" data="<%= data %>" value="choose" />
-			</liferay-ui:search-container-column-text>
+			<c:if test="<%= selectAccountEntryManagementToolbarDisplayContext.isSingleSelect() %>">
+				<liferay-ui:search-container-column-text>
+					<aui:button
+						cssClass="choose-account selector-button"
+						data='<%=
+							HashMapBuilder.<String, Object>put(
+								"accountentryid", accountEntryDisplay.getAccountEntryId()
+							).put(
+								"entityid", accountEntryDisplay.getAccountEntryId()
+							).put(
+								"entityname", accountEntryDisplay.getName()
+							).build()
+						%>'
+						disabled="<%= disabled %>"
+						value="choose"
+					/>
+				</liferay-ui:search-container-column-text>
+			</c:if>
 		</liferay-ui:search-container-row>
 
 		<liferay-ui:search-iterator
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</aui:container>
+</clay:container-fluid>
 
-<aui:script>
-	Liferay.Util.selectEntityHandler(
-		'#<portlet:namespace />selectAccountEntry',
-		'<%= HtmlUtil.escapeJS(liferayPortletResponse.getNamespace() + "addAccountUser") %>'
-	);
-</aui:script>
+<c:choose>
+	<c:when test="<%= selectAccountEntryManagementToolbarDisplayContext.isSingleSelect() %>">
+		<aui:script>
+			Liferay.Util.selectEntityHandler(
+				'#<portlet:namespace />selectAccountEntry',
+				'<%= HtmlUtil.escapeJS(liferayPortletResponse.getNamespace() + "selectAccountEntry") %>'
+			);
+		</aui:script>
+	</c:when>
+	<c:otherwise>
+		<aui:script use="liferay-search-container">
+			var searchContainer = Liferay.SearchContainer.get(
+				'<portlet:namespace />accountEntries'
+			);
+
+			searchContainer.on('rowToggled', function (event) {
+				var selectedItems = event.elements.allSelectedElements;
+
+				var result = {};
+
+				if (!selectedItems.isEmpty()) {
+					result = {
+						data: {
+							value: selectedItems.get('value').join(','),
+						},
+					};
+				}
+
+				Liferay.Util.getOpener().Liferay.fire(
+					'<%= HtmlUtil.escapeJS(liferayPortletResponse.getNamespace() + "selectAccountEntries") %>',
+					result
+				);
+			});
+		</aui:script>
+	</c:otherwise>
+</c:choose>

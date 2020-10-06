@@ -27,8 +27,9 @@ import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.search.sort.Sort;
 import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
+import com.liferay.portal.search.tuning.rankings.web.internal.display.context.RankingEntryDisplayContext;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingFields;
-import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingIndexDefinition;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexName;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,12 +43,14 @@ import javax.servlet.http.HttpServletRequest;
 public class SearchRankingRequest {
 
 	public SearchRankingRequest(
-		HttpServletRequest httpServletRequest, Queries queries, Sorts sorts,
-		SearchContainer searchContainer,
+		HttpServletRequest httpServletRequest, Queries queries,
+		RankingIndexName rankingIndexName, Sorts sorts,
+		SearchContainer<RankingEntryDisplayContext> searchContainer,
 		SearchEngineAdapter searchEngineAdapter) {
 
 		_httpServletRequest = httpServletRequest;
 		_queries = queries;
+		_rankingIndexName = rankingIndexName;
 		_sorts = sorts;
 		_searchContext = SearchContextFactory.getInstance(httpServletRequest);
 		_searchContainer = searchContainer;
@@ -68,7 +71,7 @@ public class SearchRankingRequest {
 		}
 
 		searchSearchRequest.setFetchSource(true);
-		searchSearchRequest.setIndexNames(RankingIndexDefinition.INDEX_NAME);
+		searchSearchRequest.setIndexNames(_rankingIndexName.getIndexName());
 		searchSearchRequest.setSize(_searchContainer.getDelta());
 		searchSearchRequest.setSorts(_getSorts());
 		searchSearchRequest.setStart(_searchContainer.getStart());
@@ -105,7 +108,8 @@ public class SearchRankingRequest {
 
 	private final HttpServletRequest _httpServletRequest;
 	private final Queries _queries;
-	private final SearchContainer _searchContainer;
+	private final RankingIndexName _rankingIndexName;
+	private final SearchContainer<RankingEntryDisplayContext> _searchContainer;
 	private final SearchContext _searchContext;
 	private final SearchEngineAdapter _searchEngineAdapter;
 	private final Sorts _sorts;

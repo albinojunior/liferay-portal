@@ -9,14 +9,13 @@
  * distribution rights of the Software.
  */
 
-import {useCallback, useContext, useEffect, useMemo} from 'react';
+import {useCallback, useContext, useMemo} from 'react';
 
 import {FilterContext} from '../components/filter/FilterContext.es';
 import {useFiltersConstants} from '../components/filter/hooks/useFiltersConstants.es';
 import {
 	getCapitalizedFilterKey,
 	getFilterResults,
-	getFilterValues,
 	getSelectedItems,
 } from '../components/filter/util/filterUtil.es';
 import {useRouterParams} from './useRouterParams.es';
@@ -26,13 +25,9 @@ const useFilter = ({
 	prefixKeys = [''],
 	withoutRouteParams,
 }) => {
-	const {
-		dispatch,
-		dispatchFilter,
-		filterState,
-		filterValues,
-		setFilterValues,
-	} = useContext(FilterContext);
+	const {dispatch, dispatchFilter, filterState, filterValues} = useContext(
+		FilterContext
+	);
 
 	const {filters} = useRouterParams();
 	const {keys, pinnedValues, titles} = useFiltersConstants(filterKeys);
@@ -40,8 +35,8 @@ const useFilter = ({
 	const prefixedKeys = useMemo(() => {
 		const newKeys = [];
 
-		keys.forEach(key =>
-			prefixKeys.forEach(prefix => {
+		keys.forEach((key) =>
+			prefixKeys.forEach((prefix) => {
 				newKeys.push(getCapitalizedFilterKey(prefix, key));
 			})
 		);
@@ -56,7 +51,7 @@ const useFilter = ({
 	);
 
 	const hasFilterError = useCallback(
-		filterKey => {
+		(filterKey) => {
 			const {errors = []} = filterState;
 
 			return errors.includes(filterKey);
@@ -75,12 +70,6 @@ const useFilter = ({
 	const selectedFilters = useMemo(() => getSelectedItems(filterResults), [
 		filterResults,
 	]);
-
-	useEffect(() => {
-		const newFilterValues = getFilterValues(filterState);
-		setFilterValues(newFilterValues);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [filterState]);
 
 	return {
 		dispatch,

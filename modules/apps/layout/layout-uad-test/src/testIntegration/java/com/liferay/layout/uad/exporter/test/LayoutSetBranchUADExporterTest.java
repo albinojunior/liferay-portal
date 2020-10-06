@@ -32,12 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 /**
  * @author Brian Wing Shun Chan
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class LayoutSetBranchUADExporterTest
 	extends BaseUADExporterTestCase<LayoutSetBranch> {
@@ -67,7 +69,7 @@ public class LayoutSetBranchUADExporterTest
 	}
 
 	@Override
-	protected UADExporter getUADExporter() {
+	protected UADExporter<LayoutSetBranch> getUADExporter() {
 		return _uadExporter;
 	}
 
@@ -78,6 +80,6 @@ public class LayoutSetBranchUADExporterTest
 	private final List<LayoutSetBranch> _layoutSetBranchs = new ArrayList<>();
 
 	@Inject(filter = "component.name=*.LayoutSetBranchUADExporter")
-	private UADExporter _uadExporter;
+	private UADExporter<LayoutSetBranch> _uadExporter;
 
 }

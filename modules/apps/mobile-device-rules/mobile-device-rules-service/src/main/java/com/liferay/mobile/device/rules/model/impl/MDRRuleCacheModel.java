@@ -37,16 +37,16 @@ public class MDRRuleCacheModel
 	implements CacheModel<MDRRule>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof MDRRuleCacheModel)) {
+		if (!(object instanceof MDRRuleCacheModel)) {
 			return false;
 		}
 
-		MDRRuleCacheModel mdrRuleCacheModel = (MDRRuleCacheModel)obj;
+		MDRRuleCacheModel mdrRuleCacheModel = (MDRRuleCacheModel)object;
 
 		if ((ruleId == mdrRuleCacheModel.ruleId) &&
 			(mvccVersion == mdrRuleCacheModel.mvccVersion)) {
@@ -195,7 +195,9 @@ public class MDRRuleCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
@@ -214,7 +216,7 @@ public class MDRRuleCacheModel
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
 		type = objectInput.readUTF();
-		typeSettings = objectInput.readUTF();
+		typeSettings = (String)objectInput.readObject();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -271,10 +273,10 @@ public class MDRRuleCacheModel
 		}
 
 		if (typeSettings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(typeSettings);
+			objectOutput.writeObject(typeSettings);
 		}
 
 		objectOutput.writeLong(lastPublishDate);

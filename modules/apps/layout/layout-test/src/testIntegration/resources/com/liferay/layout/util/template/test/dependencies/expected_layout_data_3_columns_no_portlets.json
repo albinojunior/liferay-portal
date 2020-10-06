@@ -4,7 +4,8 @@
 			"children": [
 				"ROOT-CONTAINER0"
 			],
-			"config": {},
+			"config": {
+			},
 			"itemId": "ROOT",
 			"parentId": "",
 			"type": "root"
@@ -14,11 +15,46 @@
 				"ROOT-CONTAINER0-ROW0"
 			],
 			"config": {
-				"backgroundImage": {},
-				"paddingBottom": 3,
-				"paddingHorizontal": 3,
-				"paddingTop": 3,
-				"type": "fixed"
+				"landscapeMobile": {
+					"styles": {
+					}
+				},
+				"portraitMobile": {
+					"styles": {
+					}
+				},
+				"styles": {
+					"backgroundImage": {
+					},
+					"borderRadius": "",
+					"borderWidth": 0,
+					"fontFamily": "",
+					"fontSize": "",
+					"fontWeight": "",
+					"height": "",
+					"marginBottom": "",
+					"marginLeft": "",
+					"marginRight": "",
+					"marginTop": "",
+					"maxHeight": "",
+					"maxWidth": "",
+					"minHeight": "",
+					"minWidth": "",
+					"opacity": 100,
+					"overflow": "",
+					"paddingBottom": "",
+					"paddingLeft": "",
+					"paddingRight": "",
+					"paddingTop": "",
+					"shadow": "",
+					"textAlign": "",
+					"width": ""
+				},
+				"tablet": {
+					"styles": {
+					}
+				},
+				"widthType": "fluid"
 			},
 			"itemId": "ROOT-CONTAINER0",
 			"parentId": "ROOT",
@@ -32,14 +68,60 @@
 			],
 			"config": {
 				"gutters": true,
-				"numberOfColumns": 3
+				"landscapeMobile": {
+					"modulesPerRow": 3,
+					"reverseOrder": false,
+					"verticalAlignment": "top"
+				},
+				"modulesPerRow": 3,
+				"numberOfColumns": 3,
+				"portraitMobile": {
+					"modulesPerRow": 3,
+					"reverseOrder": false,
+					"verticalAlignment": "top"
+				},
+				"reverseOrder": false,
+				"styles": {
+					"backgroundImage": {
+					},
+					"borderRadius": "",
+					"borderWidth": 0,
+					"fontFamily": "",
+					"fontSize": "",
+					"fontWeight": "",
+					"height": "",
+					"marginBottom": "",
+					"marginLeft": "",
+					"marginRight": "",
+					"marginTop": "",
+					"maxHeight": "",
+					"maxWidth": "",
+					"minHeight": "",
+					"minWidth": "",
+					"opacity": 100,
+					"overflow": "",
+					"paddingBottom": "",
+					"paddingLeft": "",
+					"paddingRight": "",
+					"paddingTop": "",
+					"shadow": "",
+					"textAlign": "",
+					"width": ""
+				},
+				"tablet": {
+					"modulesPerRow": 3,
+					"reverseOrder": false,
+					"verticalAlignment": "top"
+				},
+				"verticalAlignment": "top"
 			},
 			"itemId": "ROOT-CONTAINER0-ROW0",
 			"parentId": "ROOT-CONTAINER0",
 			"type": "row"
 		},
 		"ROOT-CONTAINER0-ROW0-COLUMN0": {
-			"children": [],
+			"children": [
+			],
 			"config": {
 				"size": 4
 			},
@@ -48,7 +130,8 @@
 			"type": "column"
 		},
 		"ROOT-CONTAINER0-ROW0-COLUMN1": {
-			"children": [],
+			"children": [
+			],
 			"config": {
 				"size": 4
 			},
@@ -57,7 +140,8 @@
 			"type": "column"
 		},
 		"ROOT-CONTAINER0-ROW0-COLUMN2": {
-			"children": [],
+			"children": [
+			],
 			"config": {
 				"size": 4
 			},

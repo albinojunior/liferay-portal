@@ -32,8 +32,8 @@ import org.osgi.service.component.annotations.Component;
 @Component(
 	immediate = true,
 	property = {
-		"panel.category.key=" + PanelCategoryKeys.CONTROL_PANEL,
-		"panel.category.order:Integer=600"
+		"panel.category.key=" + PanelCategoryKeys.APPLICATIONS_MENU_APPLICATIONS,
+		"panel.category.order:Integer=700"
 	},
 	service = PanelCategory.class
 )
@@ -41,7 +41,8 @@ public class AppBuilderPanelCategory extends BasePanelCategory {
 
 	@Override
 	public String getKey() {
-		return AppBuilderPanelCategoryKeys.CONTROL_PANEL_APP_BUILDER;
+		return AppBuilderPanelCategoryKeys.
+			APPLICATIONS_MENU_APPLICATIONS_APP_BUILDER;
 	}
 
 	@Override

@@ -18,7 +18,7 @@
 
 <%
 long fileEntryTypeId = ParamUtil.getLong(request, "fileEntryTypeId");
-String eventName = ParamUtil.getString(request, "eventName", renderResponse.getNamespace() + "selectFileEntryType");
+String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectFileEntryType");
 
 long[] groupIds = PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId);
 
@@ -61,9 +61,9 @@ portletURL.setParameter("eventName", eventName);
 				row.setCssClass("select-action active");
 			}
 
-			Map<String, Object> rowData = new HashMap<String, Object>();
-
-			rowData.put("fileEntryTypeId", fileEntryType.getFileEntryTypeId());
+			Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+				"fileEntryTypeId", fileEntryType.getFileEntryTypeId()
+			).build();
 
 			row.setData(rowData);
 			%>
@@ -95,7 +95,7 @@ portletURL.setParameter("eventName", eventName);
 
 	form.delegate(
 		'click',
-		function(event) {
+		function (event) {
 			event.preventDefault();
 
 			var currentTarget = event.currentTarget;
@@ -107,7 +107,9 @@ portletURL.setParameter("eventName", eventName);
 			Liferay.Util.getOpener().Liferay.fire(
 				'<%= HtmlUtil.escapeJS(eventName) %>',
 				{
-					data: currentTarget.attr('data-fileEntryTypeId'),
+					data: {
+						value: currentTarget.attr('data-fileEntryTypeId'),
+					},
 				}
 			);
 		},

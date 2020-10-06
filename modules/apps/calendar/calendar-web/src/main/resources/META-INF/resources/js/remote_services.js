@@ -14,9 +14,8 @@
 
 AUI.add(
 	'liferay-calendar-remote-services',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
-		var LString = Lang.String;
 
 		var isString = Lang.isString;
 		var toInt = Lang.toInt;
@@ -56,7 +55,7 @@ AUI.add(
 
 					const data = new URLSearchParams();
 
-					Object.keys(payload).forEach(key => {
+					Object.keys(payload).forEach((key) => {
 						data.append(key, payload[key]);
 					});
 
@@ -64,10 +63,10 @@ AUI.add(
 						body: data,
 						method: 'POST',
 					})
-						.then(response => {
+						.then((response) => {
 							return response.json();
 						})
-						.then(data => {
+						.then((data) => {
 							config.callback(data);
 						});
 				},
@@ -99,7 +98,7 @@ AUI.add(
 					const data = new URLSearchParams();
 
 					if (payload) {
-						Object.keys(payload).forEach(key => {
+						Object.keys(payload).forEach((key) => {
 							data.append(key, payload[key]);
 						});
 					}
@@ -108,10 +107,10 @@ AUI.add(
 						body: data,
 						method: 'POST',
 					})
-						.then(response => {
+						.then((response) => {
 							return response.text();
 						})
-						.then(data => {
+						.then((data) => {
 							if (data.length) {
 								config.callback(JSON.parse(data));
 							}
@@ -131,16 +130,16 @@ AUI.add(
 						body: data,
 						method: 'POST',
 					})
-						.then(response => {
+						.then((response) => {
 							return response.json();
 						})
-						.then(data => {
-							if (Liferay.Util.isFunction(callback.success)) {
+						.then((data) => {
+							if (typeof callback.success === 'function') {
 								callback.success.apply(this, [data]);
 							}
 						})
-						.catch(err => {
-							if (Liferay.Util.isFunction(callback.failure)) {
+						.catch((err) => {
+							if (typeof callback.failure === 'function') {
 								callback.failure(err);
 							}
 						});
@@ -179,7 +178,7 @@ AUI.add(
 								if (success) {
 									success.call(instance, data);
 									MessageUtil.showSuccessMessage(
-										instance.get('rootNode')
+										instance.get('rootNode')._node
 									);
 								}
 							},
@@ -208,7 +207,7 @@ AUI.add(
 								if (success) {
 									success.call(instance, data);
 									MessageUtil.showSuccessMessage(
-										instance.get('rootNode')
+										instance.get('rootNode')._node
 									);
 								}
 							},
@@ -473,7 +472,7 @@ AUI.add(
 								if (data.exception) {
 									CalendarUtil.destroyEvent(schedulerEvent);
 									MessageUtil.showErrorMessage(
-										instance.get('rootNode'),
+										instance.get('rootNode')._node,
 										data.exception
 									);
 								}
@@ -486,7 +485,7 @@ AUI.add(
 									if (success) {
 										success.call(instance, data);
 										MessageUtil.showSuccessMessage(
-											instance.get('rootNode')
+											instance.get('rootNode')._node
 										);
 									}
 								}
@@ -511,7 +510,7 @@ AUI.add(
 							startTimeMinute: startDate.getMinutes(),
 							startTimeMonth: startDate.getMonth(),
 							startTimeYear: startDate.getFullYear(),
-							title: LString.unescapeHTML(
+							title: Liferay.Util.unescapeHTML(
 								schedulerEvent.get('content')
 							),
 							updateInstance,

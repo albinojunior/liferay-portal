@@ -49,25 +49,26 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 	<aui:input name="articleURL" type="hidden" value="<%= editArticleRenderURL %>" />
 	<aui:input name="ddmStructureId" type="hidden" />
 	<aui:input name="ddmTemplateId" type="hidden" />
+	<aui:input name="defaultLanguageId" type="hidden" value="<%= journalEditArticleDisplayContext.getDefaultArticleLanguageId() %>" />
 	<aui:input name="languageId" type="hidden" value="<%= journalEditArticleDisplayContext.getSelectedLanguageId() %>" />
 	<aui:input name="workflowAction" type="hidden" value="<%= String.valueOf(WorkflowConstants.ACTION_SAVE_DRAFT) %>" />
 
 	<nav class="component-tbar subnav-tbar-light tbar tbar-article">
-		<div class="container-fluid container-fluid-max-xl">
+
+		<%
+		DDMStructure ddmStructure = journalEditArticleDisplayContext.getDDMStructure();
+		%>
+
+		<clay:container-fluid>
 			<ul class="tbar-nav">
 				<li class="tbar-item tbar-item-expand">
-
-					<%
-					DDMStructure ddmStructure = journalEditArticleDisplayContext.getDDMStructure();
-					%>
-
-					<aui:input autoFocus="<%= (article == null) || article.isNew() %>" cssClass="form-control-inline" defaultLanguageId="<%= journalEditArticleDisplayContext.getDefaultArticleLanguageId() %>" label="" localized="<%= true %>" name="titleMapAsXML" placeholder='<%= LanguageUtil.format(request, "untitled-x", HtmlUtil.escape(ddmStructure.getName(locale))) %>' selectedLanguageId="<%= journalEditArticleDisplayContext.getSelectedLanguageId() %>" type="text" wrapperCssClass="article-content-title mb-0" />
+					<aui:input autoFocus="<%= (article == null) || article.isNew() %>" cssClass="form-control-inline" defaultLanguageId="<%= journalEditArticleDisplayContext.getDefaultArticleLanguageId() %>" label="" localized="<%= true %>" name="titleMapAsXML" placeholder='<%= LanguageUtil.format(request, "untitled-x", HtmlUtil.escape(ddmStructure.getName(locale))) %>' required="<%= journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASS_NAME_ID_DEFAULT %>" selectedLanguageId="<%= journalEditArticleDisplayContext.getSelectedLanguageId() %>" type="text" wrapperCssClass="article-content-title mb-0" />
 				</li>
 				<li class="tbar-item">
 					<div class="journal-article-button-row tbar-section text-right">
 						<aui:button cssClass="btn-outline-borderless btn-outline-secondary btn-sm mr-3" href="<%= journalEditArticleDisplayContext.getRedirect() %>" type="cancel" />
 
-						<c:if test="<%= journalEditArticleDisplayContext.getClassNameId() > JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
+						<c:if test="<%= journalEditArticleDisplayContext.getClassNameId() > JournalArticleConstants.CLASS_NAME_ID_DEFAULT %>">
 							<portlet:actionURL name="/journal/reset_values_ddm_structure" var="resetValuesDDMStructureURL">
 								<portlet:param name="mvcPath" value="/edit_ddm_structure.jsp" />
 								<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -80,7 +81,7 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 						</c:if>
 
 						<c:if test="<%= journalEditArticleDisplayContext.hasSavePermission() %>">
-							<c:if test="<%= journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
+							<c:if test="<%= journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASS_NAME_ID_DEFAULT %>">
 								<aui:button cssClass="btn-sm mr-3" data-actionname='<%= ((article == null) || Validator.isNull(article.getArticleId())) ? "/journal/add_article" : "/journal/update_article" %>' name="saveButton" primary="<%= false %>" type="submit" value="<%= journalEditArticleDisplayContext.getSaveButtonLabel() %>" />
 							</c:if>
 
@@ -88,16 +89,15 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 						</c:if>
 
 						<clay:button
+							borderless="<%= true %>"
 							icon="cog"
-							id='<%= renderResponse.getNamespace() + "contextualSidebarButton" %>'
-							monospaced="<%= true %>"
-							size="sm"
-							style="borderless"
+							id='<%= liferayPortletResponse.getNamespace() + "contextualSidebarButton" %>'
+							small="<%= true %>"
 						/>
 					</div>
 				</li>
 			</ul>
-		</div>
+		</clay:container-fluid>
 	</nav>
 
 	<div class="contextual-sidebar edit-article-sidebar sidebar-light sidebar-sm" id="<portlet:namespace />contextualSidebarContainer">
@@ -106,7 +106,7 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 			<%
 			String tabs1Names = "properties,usages";
 
-			if ((article == null) || (journalEditArticleDisplayContext.getClassNameId() != JournalArticleConstants.CLASSNAME_ID_DEFAULT)) {
+			if ((article == null) || (journalEditArticleDisplayContext.getClassNameId() != JournalArticleConstants.CLASS_NAME_ID_DEFAULT)) {
 				tabs1Names = "properties";
 			}
 			%>
@@ -125,7 +125,7 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 					/>
 				</liferay-ui:section>
 
-				<c:if test="<%= (article != null) && (journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
+				<c:if test="<%= (article != null) && (journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASS_NAME_ID_DEFAULT) %>">
 					<liferay-ui:section>
 						<liferay-layout:layout-classed-model-usages-view
 							className="<%= JournalArticle.class.getName() %>"
@@ -138,8 +138,10 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 	</div>
 
 	<div class="contextual-sidebar-content">
-		<div class="container-fluid container-fluid-max-xl container-view">
-			<div class="sheet sheet-lg">
+		<clay:container-fluid
+			cssClass="container-view"
+		>
+			<clay:sheet>
 				<aui:model-context bean="<%= article %>" defaultLanguageId="<%= journalEditArticleDisplayContext.getDefaultArticleLanguageId() %>" model="<%= JournalArticle.class %>" />
 
 				<liferay-ui:error exception="<%= ArticleContentException.class %>" message="please-enter-valid-content" />
@@ -178,10 +180,10 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 							<liferay-ui:message arguments="<%= new String[] {eicve.getLayoutURL(), eicve.getGroupFriendlyURL()} %>" key="unable-to-validate-referenced-page-with-url-x-because-the-page-group-with-url-x-cannot-be-found" />
 						</c:when>
 						<c:when test="<%= eicve.getType() == ExportImportContentValidationException.LAYOUT_NOT_FOUND %>">
-							<liferay-ui:message arguments="<%= new String[] {MapUtil.toString(eicve.getLayoutReferenceParameters())} %>" key="unable-to-validate-referenced-page-because-it-cannot-be-found-with-the-following-parameters-x" />
+							<liferay-ui:message arguments="<%= MapUtil.toString(eicve.getLayoutReferenceParameters()) %>" key="unable-to-validate-referenced-page-because-it-cannot-be-found-with-the-following-parameters-x" />
 						</c:when>
 						<c:when test="<%= eicve.getType() == ExportImportContentValidationException.LAYOUT_WITH_URL_NOT_FOUND %>">
-							<liferay-ui:message arguments="<%= new String[] {eicve.getLayoutURL()} %>" key="unable-to-validate-referenced-page-because-it-cannot-be-found-with-url-x" />
+							<liferay-ui:message arguments="<%= eicve.getLayoutURL() %>" key="unable-to-validate-referenced-page-because-it-cannot-be-found-with-url-x" />
 						</c:when>
 						<c:otherwise>
 							<liferay-ui:message key="an-unexpected-error-occurred" />
@@ -245,15 +247,21 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 					<c:choose>
 						<c:when test="<%= journalDisplayContext.useDataEngineEditor() %>">
 							<liferay-data-engine:data-layout-renderer
-								containerId="reportId"
+								containerId='<%= liferayPortletResponse.getNamespace() + "dataEngineLayoutRenderer" %>'
 								dataDefinitionId="<%= ddmStructure.getStructureId() %>"
 								dataRecordValues="<%= journalEditArticleDisplayContext.getValues(ddmStructure) %>"
-								namespace="<%= renderResponse.getNamespace() %>"
+								namespace="<%= liferayPortletResponse.getNamespace() %>"
+							/>
+
+							<liferay-frontend:component
+								componentId='<%= liferayPortletResponse.getNamespace() + "dataEngineLayoutRendererLanguageProxy" %>'
+								module="js/dataEngineLayoutRendererLanguageProxy.es"
+								servletContext="<%= application %>"
 							/>
 						</c:when>
 						<c:otherwise>
 							<liferay-ddm:html
-								checkRequired="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>"
+								checkRequired="<%= classNameId == JournalArticleConstants.CLASS_NAME_ID_DEFAULT %>"
 								classNameId="<%= PortalUtil.getClassNameId(DDMStructure.class) %>"
 								classPK="<%= ddmStructure.getStructureId() %>"
 								ddmFormValues="<%= journalEditArticleDisplayContext.getDDMFormValues(ddmStructure) %>"
@@ -268,13 +276,14 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 						</c:otherwise>
 					</c:choose>
 				</div>
-			</div>
-		</div>
+			</clay:sheet>
+		</clay:container-fluid>
 	</div>
 </aui:form>
 
 <liferay-frontend:component
-	componentId='<%= renderResponse.getNamespace() + "JournalPortletComponent" %>'
+	componentId='<%= liferayPortletResponse.getNamespace() + "JournalPortletComponent" %>'
+	context="<%= journalEditArticleDisplayContext.getComponentContext() %>"
 	module="js/JournalPortlet.es"
 	servletContext="<%= application %>"
 />

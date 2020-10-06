@@ -37,18 +37,30 @@ definition {
 			Pause(locator1 = "3000");
 		}
 
-		if (IsElementPresent(locator1 = "ProductMenu#PRODUCT_MENU_OPENED")) {
-			Click.clickNoSPARefresh(locator1 = "ProductMenu#TOGGLE");
+		if (IsElementNotPresent(locator1 = "GoogleDrive#GOOGLE_DRIVE_IFRAME")) {
+			Refresh();
+
+			AssertClick(
+				locator1 = "Button#SELECT_FILE",
+				value1 = "Select File");
+
+			SelectWindow.selectWindowNoSPARefresh(locator1 = "title=${windowTitle}");
 		}
 
-		SelectFrame(locator1 = "GoogleDrive#GOOGLE_DRIVE_IFRAME");
+		SelectFrame.selectFrameNoLoading(locator1 = "GoogleDrive#GOOGLE_DRIVE_IFRAME");
 	}
 
 	macro selectDocument {
 		var key_googleDocName = "${googleDocName}";
 
+		Type(
+			locator1 = "GoogleDrive#SEARCH_TERMS",
+			value1 = "${googleDocName}");
+
+		Click(locator1 = "GoogleDrive#SEARCH_BUTTON");
+
 		Click.clickAt(
-			locator1 = "GoogleDrive#LIST_VIEW_DOCUMENT",
+			locator1 = "GoogleDrive#LIST_VIEW_DOCUMENT_SPECIFIC",
 			value1 = "${googleDocName}");
 
 		Click.clickAt(

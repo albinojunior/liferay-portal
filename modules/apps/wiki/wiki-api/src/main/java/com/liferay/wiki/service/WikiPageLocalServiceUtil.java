@@ -132,6 +132,10 @@ public class WikiPageLocalServiceUtil {
 	/**
 	 * Adds the wiki page to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WikiPageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param wikiPage the wiki page
 	 * @return the wiki page that was added
 	 */
@@ -237,6 +241,10 @@ public class WikiPageLocalServiceUtil {
 	/**
 	 * Deletes the wiki page with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WikiPageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pageId the primary key of the wiki page
 	 * @return the wiki page that was removed
 	 * @throws PortalException if a wiki page with the primary key could not be found
@@ -249,6 +257,10 @@ public class WikiPageLocalServiceUtil {
 
 	/**
 	 * Deletes the wiki page from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WikiPageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param wikiPage the wiki page
 	 * @return the wiki page that was removed
@@ -263,6 +275,12 @@ public class WikiPageLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().discardDraft(nodeId, title, version);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -432,10 +450,12 @@ public class WikiPageLocalServiceUtil {
 
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getChildren(
 		long nodeId, boolean head, String parentTitle, int status, int start,
-		int end, com.liferay.portal.kernel.util.OrderByComparator obc) {
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<com.liferay.wiki.model.WikiPage> orderByComparator) {
 
 		return getService().getChildren(
-			nodeId, head, parentTitle, status, start, end, obc);
+			nodeId, head, parentTitle, status, start, end, orderByComparator);
 	}
 
 	public static int getChildrenCount(
@@ -652,17 +672,19 @@ public class WikiPageLocalServiceUtil {
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
 		long nodeId, boolean head, int status, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.wiki.model.WikiPage> obc) {
+			<com.liferay.wiki.model.WikiPage> orderByComparator) {
 
-		return getService().getPages(nodeId, head, status, start, end, obc);
+		return getService().getPages(
+			nodeId, head, status, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
 		long nodeId, boolean head, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.wiki.model.WikiPage> obc) {
+			<com.liferay.wiki.model.WikiPage> orderByComparator) {
 
-		return getService().getPages(nodeId, head, start, end, obc);
+		return getService().getPages(
+			nodeId, head, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
@@ -674,9 +696,9 @@ public class WikiPageLocalServiceUtil {
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
 		long nodeId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.wiki.model.WikiPage> obc) {
+			<com.liferay.wiki.model.WikiPage> orderByComparator) {
 
-		return getService().getPages(nodeId, start, end, obc);
+		return getService().getPages(nodeId, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
@@ -706,9 +728,10 @@ public class WikiPageLocalServiceUtil {
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
 		long nodeId, String title, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.wiki.model.WikiPage> obc) {
+			<com.liferay.wiki.model.WikiPage> orderByComparator) {
 
-		return getService().getPages(nodeId, title, start, end, obc);
+		return getService().getPages(
+			nodeId, title, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.wiki.model.WikiPage> getPages(
@@ -1047,6 +1070,10 @@ public class WikiPageLocalServiceUtil {
 
 	/**
 	 * Updates the wiki page in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect WikiPageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param wikiPage the wiki page
 	 * @return the wiki page that was updated

@@ -117,74 +117,6 @@ public class TestExecutorRunnable implements Runnable {
 		}
 	}
 
-	private static Statement _classBlock(
-		TestClass testClass, Description description,
-		ObjectOutputStream objectOutputStream) {
-
-		Statement statement = new Statement() {
-
-			@Override
-			public void evaluate() throws Throwable {
-				for (FrameworkMethod frameworkMethod :
-						testClass.getAnnotatedMethods(Test.class)) {
-
-					Description description = Description.createTestDescription(
-						testClass.getName(), frameworkMethod.getName());
-
-					try {
-						objectOutputStream.writeObject(
-							RunNotifierCommand.testStarted(description));
-
-						objectOutputStream.flush();
-
-						Statement statement = _methodBlock(
-							testClass, frameworkMethod.getMethod());
-
-						statement.evaluate();
-					}
-					catch (Throwable t) {
-						_processThrowable(
-							false, t, objectOutputStream, description);
-					}
-					finally {
-						objectOutputStream.writeObject(
-							RunNotifierCommand.testFinished(description));
-
-						objectOutputStream.flush();
-					}
-				}
-			}
-
-		};
-
-		statement = _withBefores(
-			statement, BeforeClass.class, testClass, statement);
-		statement = _withAfters(
-			statement, AfterClass.class, testClass, statement);
-		statement = _withRules(
-			statement, ClassRule.class, testClass, null, description);
-
-		return statement;
-	}
-
-	private static void _execute(
-			TestClass testClass, ObjectOutputStream objectOutputStream)
-		throws IOException {
-
-		Description description = Description.createSuiteDescription(
-			testClass.getJavaClass());
-
-		try {
-			Statement statement = _classBlock(
-				testClass, description, objectOutputStream);
-
-			statement.evaluate();
-		}
-		catch (Throwable t) {
-			_processThrowable(true, t, objectOutputStream, description);
-		}
-	}
-
 	private static Throwable _findAssumptionViolatedException(
 		Throwable throwable) {
 
@@ -192,111 +124,13 @@ public class TestExecutorRunnable implements Runnable {
 			return throwable;
 		}
 
-		Throwable[] suppressions = throwable.getSuppressed();
+		Throwable[] suppressionThrowables = throwable.getSuppressed();
 
-		for (Throwable suppression : suppressions) {
-			return _findAssumptionViolatedException(suppression);
+		for (Throwable suppressionThrowable : suppressionThrowables) {
+			return _findAssumptionViolatedException(suppressionThrowable);
 		}
 
 		return null;
-	}
-
-	private static Class _getExpectedExceptionClass(Method method) {
-		Test test = method.getAnnotation(Test.class);
-
-		if (test == null) {
-			return Test.None.class;
-		}
-
-		return test.expected();
-	}
-
-	private static Statement _methodBlock(TestClass testClass, Method method)
-		throws Throwable {
-
-		Class<?> clazz = testClass.getJavaClass();
-
-		Object target = clazz.newInstance();
-
-		Statement statement = new InvokeMethod(null, target) {
-
-			@Override
-			public void evaluate() throws Throwable {
-				Thread currentThread = Thread.currentThread();
-
-				ClassLoader classLoader = currentThread.getContextClassLoader();
-
-				currentThread.setContextClassLoader(clazz.getClassLoader());
-
-				Throwable throwable = null;
-
-				try {
-					method.invoke(target);
-				}
-				catch (Throwable t) {
-					throwable = t;
-				}
-				finally {
-					currentThread.setContextClassLoader(classLoader);
-				}
-
-				if (throwable == null) {
-					Class<?> throwableClass = _getExpectedExceptionClass(
-						method);
-
-					if (Test.None.class != throwableClass) {
-						throw new AssertionError(
-							"Expected test to throw " + throwableClass);
-					}
-				}
-				else {
-					if (throwable instanceof InvocationTargetException) {
-						throwable = throwable.getCause();
-					}
-
-					if (throwable instanceof AssumptionViolatedException) {
-						throw throwable;
-					}
-
-					_processExpectedException(throwable, method);
-				}
-			}
-
-		};
-
-		statement = _withTimeout(method, statement);
-
-		statement = _withBefores(statement, Before.class, testClass, target);
-
-		statement = _withAfters(statement, After.class, testClass, target);
-
-		statement = _withRules(
-			statement, Rule.class, testClass, target,
-			Description.createTestDescription(
-				clazz, method.getName(), method.getAnnotations()));
-
-		return statement;
-	}
-
-	private static void _processExpectedException(
-			Throwable throwable, Method method)
-		throws Throwable {
-
-		Class<?> expectedThrown = _getExpectedExceptionClass(method);
-
-		if (expectedThrown == Test.None.class) {
-			throw throwable;
-		}
-
-		Class<?> clazz = throwable.getClass();
-
-		if (!expectedThrown.isAssignableFrom(clazz)) {
-			String message =
-				"Unexpected exception, expected<" + expectedThrown.getName() +
-					"> but was<" + clazz.getName() + ">";
-
-			throw new Exception(message, throwable);
-		}
 	}
 
 	private static void _processThrowable(
@@ -336,8 +170,11 @@ public class TestExecutorRunnable implements Runnable {
 			MultipleFailureException multipleFailureException =
 				(MultipleFailureException)throwable;
 
-			for (Throwable t : multipleFailureException.getFailures()) {
-				_processThrowable(objectOutputStream, description, t);
+			for (Throwable curThrowable :
+					multipleFailureException.getFailures()) {
+
+				_processThrowable(
+					objectOutputStream, description, curThrowable);
 			}
 		}
 		else {
@@ -349,22 +186,22 @@ public class TestExecutorRunnable implements Runnable {
 
 	private static void _processThrowable(
 			ObjectOutputStream objectOutputStream, Description description,
-			Throwable t)
+			Throwable throwable)
 		throws IOException {
 
 		try {
 			objectOutputStream.writeObject(
-				RunNotifierCommand.testFailure(description, t));
+				RunNotifierCommand.testFailure(description, throwable));
 		}
 		catch (NotSerializableException notSerializableException) {
 			objectOutputStream.reset();
 
-			Class<? extends Throwable> clazz = t.getClass();
+			Class<? extends Throwable> clazz = throwable.getClass();
 
 			Exception exception = new Exception(
-				clazz.getName() + ": " + t.getMessage());
+				clazz.getName() + ": " + throwable.getMessage());
 
-			exception.setStackTrace(t.getStackTrace());
+			exception.setStackTrace(throwable.getStackTrace());
 
 			notSerializableException.initCause(exception);
 
@@ -374,64 +211,54 @@ public class TestExecutorRunnable implements Runnable {
 		}
 	}
 
-	private static Statement _withAfters(
-		Statement statement, Class<? extends Annotation> afterClass,
-		TestClass junitTestClass, Object target) {
+	private Statement _classBlock(
+		TestClass testClass, Description description,
+		ObjectOutputStream objectOutputStream) {
 
-		List<FrameworkMethod> frameworkMethods =
-			junitTestClass.getAnnotatedMethods(afterClass);
+		Statement statement = new Statement() {
 
-		if (!frameworkMethods.isEmpty()) {
-			statement = new RunAfters(statement, frameworkMethods, target);
-		}
+			@Override
+			public void evaluate() throws Throwable {
+				for (FrameworkMethod frameworkMethod :
+						testClass.getAnnotatedMethods(Test.class)) {
+
+					Description description = Description.createTestDescription(
+						testClass.getName(), frameworkMethod.getName());
+
+					try {
+						objectOutputStream.writeObject(
+							RunNotifierCommand.testStarted(description));
+
+						objectOutputStream.flush();
+
+						Statement statement = _methodBlock(
+							testClass, frameworkMethod.getMethod());
+
+						statement.evaluate();
+					}
+					catch (Throwable throwable) {
+						_processThrowable(
+							false, throwable, objectOutputStream, description);
+					}
+					finally {
+						objectOutputStream.writeObject(
+							RunNotifierCommand.testFinished(description));
+
+						objectOutputStream.flush();
+					}
+				}
+			}
+
+		};
+
+		statement = _withBefores(
+			statement, BeforeClass.class, testClass, statement);
+		statement = _withAfters(
+			statement, AfterClass.class, testClass, statement);
+		statement = _withRules(
+			statement, ClassRule.class, testClass, null, description);
 
 		return statement;
-	}
-
-	private static Statement _withBefores(
-		Statement statement, Class<? extends Annotation> beforeClass,
-		TestClass junitTestClass, Object target) {
-
-		List<FrameworkMethod> frameworkMethods =
-			junitTestClass.getAnnotatedMethods(beforeClass);
-
-		if (!frameworkMethods.isEmpty()) {
-			statement = new RunBefores(statement, frameworkMethods, target);
-		}
-
-		return statement;
-	}
-
-	private static Statement _withRules(
-		Statement statement, Class<? extends Annotation> ruleClass,
-		TestClass junitTestClass, Object target, Description description) {
-
-		List<TestRule> testRules = junitTestClass.getAnnotatedMethodValues(
-			target, ruleClass, TestRule.class);
-
-		testRules.addAll(
-			junitTestClass.getAnnotatedFieldValues(
-				target, ruleClass, TestRule.class));
-
-		if (!testRules.isEmpty()) {
-			statement = new RunRules(statement, testRules, description);
-		}
-
-		return statement;
-	}
-
-	private static Statement _withTimeout(Method method, Statement statement) {
-		Test test = method.getAnnotation(Test.class);
-
-		if ((test == null) || (test.timeout() <= 0)) {
-			return statement;
-		}
-
-		FailOnTimeout.Builder builder = FailOnTimeout.builder();
-
-		builder.withTimeout(test.timeout(), TimeUnit.MILLISECONDS);
-
-		return builder.build(statement);
 	}
 
 	private TestClass _createTestClass(String testClassName)
@@ -473,6 +300,181 @@ public class TestExecutorRunnable implements Runnable {
 			}
 
 		};
+	}
+
+	private void _execute(
+			TestClass testClass, ObjectOutputStream objectOutputStream)
+		throws IOException {
+
+		Description description = Description.createSuiteDescription(
+			testClass.getJavaClass());
+
+		try {
+			Statement statement = _classBlock(
+				testClass, description, objectOutputStream);
+
+			statement.evaluate();
+		}
+		catch (Throwable throwable) {
+			_processThrowable(true, throwable, objectOutputStream, description);
+		}
+	}
+
+	private Class<?> _getExpectedExceptionClass(Method method) {
+		Test test = method.getAnnotation(Test.class);
+
+		if (test == null) {
+			return Test.None.class;
+		}
+
+		return test.expected();
+	}
+
+	private Statement _methodBlock(TestClass testClass, Method method)
+		throws Throwable {
+
+		Class<?> clazz = testClass.getJavaClass();
+
+		Object target = clazz.newInstance();
+
+		Statement statement = new InvokeMethod(null, target) {
+
+			@Override
+			public void evaluate() throws Throwable {
+				Thread currentThread = Thread.currentThread();
+
+				ClassLoader classLoader = currentThread.getContextClassLoader();
+
+				currentThread.setContextClassLoader(clazz.getClassLoader());
+
+				Throwable throwable1 = null;
+
+				try {
+					method.invoke(target);
+				}
+				catch (Throwable throwable2) {
+					throwable1 = throwable2;
+				}
+				finally {
+					currentThread.setContextClassLoader(classLoader);
+				}
+
+				if (throwable1 == null) {
+					Class<?> throwableClass = _getExpectedExceptionClass(
+						method);
+
+					if (Test.None.class != throwableClass) {
+						throw new AssertionError(
+							"Expected test to throw " + throwableClass);
+					}
+				}
+				else {
+					if (throwable1 instanceof InvocationTargetException) {
+						throwable1 = throwable1.getCause();
+					}
+
+					if (throwable1 instanceof AssumptionViolatedException) {
+						throw throwable1;
+					}
+
+					_processExpectedException(throwable1, method);
+				}
+			}
+
+		};
+
+		statement = _withTimeout(method, statement);
+
+		statement = _withBefores(statement, Before.class, testClass, target);
+
+		statement = _withAfters(statement, After.class, testClass, target);
+
+		statement = _withRules(
+			statement, Rule.class, testClass, target,
+			Description.createTestDescription(
+				clazz, method.getName(), method.getAnnotations()));
+
+		return statement;
+	}
+
+	private void _processExpectedException(Throwable throwable, Method method)
+		throws Throwable {
+
+		Class<?> expectedThrown = _getExpectedExceptionClass(method);
+
+		if (expectedThrown == Test.None.class) {
+			throw throwable;
+		}
+
+		Class<?> clazz = throwable.getClass();
+
+		if (!expectedThrown.isAssignableFrom(clazz)) {
+			String message =
+				"Unexpected exception, expected<" + expectedThrown.getName() +
+					"> but was<" + clazz.getName() + ">";
+
+			throw new Exception(message, throwable);
+		}
+	}
+
+	private Statement _withAfters(
+		Statement statement, Class<? extends Annotation> afterClass,
+		TestClass junitTestClass, Object target) {
+
+		List<FrameworkMethod> frameworkMethods =
+			junitTestClass.getAnnotatedMethods(afterClass);
+
+		if (!frameworkMethods.isEmpty()) {
+			statement = new RunAfters(statement, frameworkMethods, target);
+		}
+
+		return statement;
+	}
+
+	private Statement _withBefores(
+		Statement statement, Class<? extends Annotation> beforeClass,
+		TestClass junitTestClass, Object target) {
+
+		List<FrameworkMethod> frameworkMethods =
+			junitTestClass.getAnnotatedMethods(beforeClass);
+
+		if (!frameworkMethods.isEmpty()) {
+			statement = new RunBefores(statement, frameworkMethods, target);
+		}
+
+		return statement;
+	}
+
+	private Statement _withRules(
+		Statement statement, Class<? extends Annotation> ruleClass,
+		TestClass junitTestClass, Object target, Description description) {
+
+		List<TestRule> testRules = junitTestClass.getAnnotatedMethodValues(
+			target, ruleClass, TestRule.class);
+
+		testRules.addAll(
+			junitTestClass.getAnnotatedFieldValues(
+				target, ruleClass, TestRule.class));
+
+		if (!testRules.isEmpty()) {
+			statement = new RunRules(statement, testRules, description);
+		}
+
+		return statement;
+	}
+
+	private Statement _withTimeout(Method method, Statement statement) {
+		Test test = method.getAnnotation(Test.class);
+
+		if ((test == null) || (test.timeout() <= 0)) {
+			return statement;
+		}
+
+		FailOnTimeout.Builder builder = FailOnTimeout.builder();
+
+		builder.withTimeout(test.timeout(), TimeUnit.MILLISECONDS);
+
+		return builder.build(statement);
 	}
 
 	private static final Logger _logger = Logger.getLogger(

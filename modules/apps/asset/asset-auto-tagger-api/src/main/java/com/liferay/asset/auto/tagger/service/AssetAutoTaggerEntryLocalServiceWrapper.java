@@ -39,6 +39,10 @@ public class AssetAutoTaggerEntryLocalServiceWrapper
 	/**
 	 * Adds the asset auto tagger entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetAutoTaggerEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetAutoTaggerEntry the asset auto tagger entry
 	 * @return the asset auto tagger entry that was added
 	 */
@@ -57,6 +61,16 @@ public class AssetAutoTaggerEntryLocalServiceWrapper
 
 		return _assetAutoTaggerEntryLocalService.addAssetAutoTaggerEntry(
 			assetEntry, assetTag);
+	}
+
+	@Override
+	public AssetAutoTaggerEntry addAssetAutoTaggerEntry(
+			com.liferay.asset.kernel.model.AssetEntry assetEntry,
+			String assetTagName)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetAutoTaggerEntryLocalService.addAssetAutoTaggerEntry(
+			assetEntry, assetTagName);
 	}
 
 	/**
@@ -88,6 +102,10 @@ public class AssetAutoTaggerEntryLocalServiceWrapper
 	/**
 	 * Deletes the asset auto tagger entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetAutoTaggerEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetAutoTaggerEntry the asset auto tagger entry
 	 * @return the asset auto tagger entry that was removed
 	 */
@@ -101,6 +119,10 @@ public class AssetAutoTaggerEntryLocalServiceWrapper
 
 	/**
 	 * Deletes the asset auto tagger entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetAutoTaggerEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetAutoTaggerEntryId the primary key of the asset auto tagger entry
 	 * @return the asset auto tagger entry that was removed
@@ -125,6 +147,11 @@ public class AssetAutoTaggerEntryLocalServiceWrapper
 
 		return _assetAutoTaggerEntryLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _assetAutoTaggerEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -336,6 +363,10 @@ public class AssetAutoTaggerEntryLocalServiceWrapper
 
 	/**
 	 * Updates the asset auto tagger entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetAutoTaggerEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetAutoTaggerEntry the asset auto tagger entry
 	 * @return the asset auto tagger entry that was updated

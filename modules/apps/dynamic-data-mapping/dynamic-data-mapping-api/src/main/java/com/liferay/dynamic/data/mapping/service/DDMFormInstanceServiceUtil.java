@@ -69,6 +69,21 @@ public class DDMFormInstanceServiceUtil {
 			settingsDDMFormValues, serviceContext);
 	}
 
+	public static com.liferay.dynamic.data.mapping.model.DDMFormInstance
+			copyFormInstance(
+				long groupId, java.util.Map<java.util.Locale, String> nameMap,
+				com.liferay.dynamic.data.mapping.model.DDMFormInstance
+					ddmFormInstance,
+				com.liferay.dynamic.data.mapping.storage.DDMFormValues
+					settingsDDMFormValues,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().copyFormInstance(
+			groupId, nameMap, ddmFormInstance, settingsDDMFormValues,
+			serviceContext);
+	}
+
 	public static void deleteFormInstance(long ddmFormInstanceId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -100,6 +115,12 @@ public class DDMFormInstanceServiceUtil {
 		return getService().getFormInstancesCount(companyId, groupId);
 	}
 
+	public static int getFormInstancesCount(String uuid)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().getFormInstancesCount(uuid);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -107,6 +128,19 @@ public class DDMFormInstanceServiceUtil {
 	 */
 	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMFormInstance> search(
+			long companyId, long groupId, String keywords, int status,
+			int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.dynamic.data.mapping.model.DDMFormInstance>
+					orderByComparator) {
+
+		return getService().search(
+			companyId, groupId, keywords, status, start, end,
+			orderByComparator);
 	}
 
 	public static java.util.List
@@ -140,11 +174,26 @@ public class DDMFormInstanceServiceUtil {
 	}
 
 	public static int searchCount(
+		long companyId, long groupId, String keywords, int status) {
+
+		return getService().searchCount(companyId, groupId, keywords, status);
+	}
+
+	public static int searchCount(
 		long companyId, long groupId, String[] names, String[] descriptions,
 		boolean andOperator) {
 
 		return getService().searchCount(
 			companyId, groupId, names, descriptions, andOperator);
+	}
+
+	public static void sendEmail(
+			long formInstanceId, String message, String subject,
+			String[] toEmailAddresses)
+		throws Exception {
+
+		getService().sendEmail(
+			formInstanceId, message, subject, toEmailAddresses);
 	}
 
 	/**

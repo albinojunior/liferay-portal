@@ -14,11 +14,15 @@
  */
 --%>
 
+<%@ include file="/init.jsp" %>
+
 <%
 SegmentsDisplayContext segmentsDisplayContext = (SegmentsDisplayContext)request.getAttribute(SegmentsWebKeys.SEGMENTS_DISPLAY_CONTEXT);
-%>
 
-<%@ include file="/init.jsp" %>
+String eventName = liferayPortletResponse.getNamespace() + "assignSiteRoles";
+
+request.setAttribute("view.jsp-eventName", eventName);
+%>
 
 <clay:management-toolbar
 	actionDropdownItems="<%= segmentsDisplayContext.getActionDropdownItems() %>"
@@ -57,9 +61,9 @@ SegmentsDisplayContext segmentsDisplayContext = (SegmentsDisplayContext)request.
 		>
 
 			<%
-			Map<String, Object> rowData = new HashMap<>();
-
-			rowData.put("actions", segmentsDisplayContext.getAvailableActions(segmentsEntry));
+			Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+				"actions", segmentsDisplayContext.getAvailableActions(segmentsEntry)
+			).build();
 
 			row.setData(rowData);
 			%>
@@ -130,7 +134,7 @@ SegmentsDisplayContext segmentsDisplayContext = (SegmentsDisplayContext)request.
 </aui:form>
 
 <aui:script sandbox="<%= true %>">
-	var deleteSegmentsEntries = function() {
+	var deleteSegmentsEntries = function () {
 		if (
 			confirm(
 				'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
@@ -146,15 +150,54 @@ SegmentsDisplayContext segmentsDisplayContext = (SegmentsDisplayContext)request.
 		deleteSegmentsEntries: deleteSegmentsEntries,
 	};
 
-	Liferay.componentReady('segmentsEntriesManagementToolbar').then(function(
+	Liferay.componentReady('segmentsEntriesManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {
 				ACTIONS[itemData.action]();
 			}
+		});
+	});
+</aui:script>
+
+<portlet:actionURL name="updateSegmentsEntrySiteRoles" var="updateSegmentsEntrySiteRolesURL">
+	<portlet:param name="redirect" value="<%= currentURL %>" />
+</portlet:actionURL>
+
+<aui:form action="<%= updateSegmentsEntrySiteRolesURL %>" cssClass="hide" method="post" name="updateSegmentsEntrySiteRolesFm">
+	<aui:input name="segmentsEntryId" type="hidden" />
+	<aui:input name="siteRoleIds" type="hidden" />
+</aui:form>
+
+<aui:script require="metal-dom/src/all/dom as dom">
+	var form = document.getElementById(
+		'<portlet:namespace />updateSegmentsEntrySiteRolesFm'
+	);
+
+	dom.delegate(document, 'click', '.assign-site-roles-link', function (event) {
+		var link = dom.closest(event.target, '.assign-site-roles-link');
+
+		var itemSelectorURL = link.dataset.itemselectorurl;
+		var segmentsEntryId = link.dataset.segmentsentryid;
+
+		Liferay.Util.openSelectionModal({
+			eventName: '<%= eventName %>',
+			multiple: true,
+			onSelect: function (selectedItem) {
+				if (selectedItem) {
+					var data = {
+						segmentsEntryId: segmentsEntryId,
+						siteRoleIds: selectedItem.value,
+					};
+
+					Liferay.Util.postForm(form, {data: data});
+				}
+			},
+			title: '<liferay-ui:message key="assign-site-roles" />',
+			url: itemSelectorURL,
 		});
 	});
 </aui:script>

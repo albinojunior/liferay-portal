@@ -15,18 +15,22 @@
 package com.liferay.account.internal.model.listener.test;
 
 import com.liferay.account.model.AccountEntry;
+import com.liferay.account.model.AccountGroup;
 import com.liferay.account.model.AccountRole;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
+import com.liferay.account.service.AccountGroupAccountEntryRelLocalService;
+import com.liferay.account.service.AccountGroupLocalService;
 import com.liferay.account.service.AccountRoleLocalService;
-import com.liferay.account.service.test.AccountEntryTestUtil;
+import com.liferay.account.service.test.util.AccountEntryTestUtil;
+import com.liferay.account.service.test.util.AccountGroupTestUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -44,6 +48,7 @@ import org.junit.runner.RunWith;
 /**
  * @author Pei-Jung Lan
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class AccountEntryModelListenerWhenDeletingAccountEntryTest {
 
@@ -60,17 +65,17 @@ public class AccountEntryModelListenerWhenDeletingAccountEntryTest {
 
 	@Test
 	public void testAccountEntryOrganizationRelDeleted() throws Exception {
-		_organization = OrganizationTestUtil.addOrganization();
+		Organization organization = OrganizationTestUtil.addOrganization();
 
 		_accountEntryOrganizationRelLocalService.addAccountEntryOrganizationRel(
 			_accountEntry.getAccountEntryId(),
-			_organization.getOrganizationId());
+			organization.getOrganizationId());
 
 		Assert.assertTrue(
 			_accountEntryOrganizationRelLocalService.
 				hasAccountEntryOrganizationRel(
 					_accountEntry.getAccountEntryId(),
-					_organization.getOrganizationId()));
+					organization.getOrganizationId()));
 
 		_accountEntryLocalService.deleteAccountEntry(_accountEntry);
 
@@ -82,19 +87,19 @@ public class AccountEntryModelListenerWhenDeletingAccountEntryTest {
 			_accountEntryOrganizationRelLocalService.
 				hasAccountEntryOrganizationRel(
 					_accountEntry.getAccountEntryId(),
-					_organization.getOrganizationId()));
+					organization.getOrganizationId()));
 	}
 
 	@Test
 	public void testAccountEntryUserRelDeleted() throws Exception {
-		_user = UserTestUtil.addUser();
+		User user = UserTestUtil.addUser();
 
 		_accountEntryUserRelLocalService.addAccountEntryUserRel(
-			_accountEntry.getAccountEntryId(), _user.getUserId());
+			_accountEntry.getAccountEntryId(), user.getUserId());
 
 		Assert.assertTrue(
 			_accountEntryUserRelLocalService.hasAccountEntryUserRel(
-				_accountEntry.getAccountEntryId(), _user.getUserId()));
+				_accountEntry.getAccountEntryId(), user.getUserId()));
 
 		_accountEntryLocalService.deleteAccountEntry(_accountEntry);
 
@@ -104,7 +109,27 @@ public class AccountEntryModelListenerWhenDeletingAccountEntryTest {
 
 		Assert.assertFalse(
 			_accountEntryUserRelLocalService.hasAccountEntryUserRel(
-				_accountEntry.getAccountEntryId(), _user.getUserId()));
+				_accountEntry.getAccountEntryId(), user.getUserId()));
+	}
+
+	@Test
+	public void testAccountGroupAccountEntryRelDeleted() throws Exception {
+		AccountGroup accountGroup = AccountGroupTestUtil.addAccountGroup(
+			_accountGroupLocalService, RandomTestUtil.randomString(),
+			RandomTestUtil.randomString());
+
+		_accountGroupAccountEntryRelLocalService.addAccountGroupAccountEntryRel(
+			accountGroup.getAccountGroupId(),
+			_accountEntry.getAccountEntryId());
+
+		_accountEntryLocalService.deleteAccountEntry(
+			_accountEntry.getAccountEntryId());
+
+		Assert.assertEquals(
+			0,
+			_accountGroupAccountEntryRelLocalService.
+				getAccountGroupAccountEntryRelsCountByAccountGroupId(
+					accountGroup.getAccountGroupId()));
 	}
 
 	@Test
@@ -136,15 +161,16 @@ public class AccountEntryModelListenerWhenDeletingAccountEntryTest {
 	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
 
 	@Inject
-	private AccountRoleLocalService _accountRoleLocalService;
+	private AccountGroupAccountEntryRelLocalService
+		_accountGroupAccountEntryRelLocalService;
 
-	@DeleteAfterTestRun
-	private Organization _organization;
+	@Inject
+	private AccountGroupLocalService _accountGroupLocalService;
+
+	@Inject
+	private AccountRoleLocalService _accountRoleLocalService;
 
 	@Inject
 	private RoleLocalService _roleLocalService;
-
-	@DeleteAfterTestRun
-	private User _user;
 
 }

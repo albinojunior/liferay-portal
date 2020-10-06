@@ -22,7 +22,7 @@ MBMessage selMessage = (MBMessage)request.getAttribute(WebKeys.MESSAGE_BOARDS_TR
 MBMessage message = (MBMessage)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE);
 MBCategory category = (MBCategory)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CATEGORY);
 MBThread thread = (MBThread)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_THREAD);
-int depth = ((Integer)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH)).intValue();
+int depth = (Integer)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH);
 
 int index = GetterUtil.getInteger(request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_INDEX));
 
@@ -34,10 +34,12 @@ if (message.getMessageId() == selMessage.getMessageId()) {
 	request.setAttribute("view_thread_tree.jsp-messageFound", true);
 }
 
-List messages = treeWalker.getMessages();
+List<MBMessage> messages = treeWalker.getMessages();
 int[] range = treeWalker.getChildrenRange(message);
 
 MBMessageIterator mbMessageIterator = new MBMessageIterator(messages, range[0], range[1]);
+
+MBMessage rootMessage = treeWalker.getRoot();
 %>
 
 <c:choose>
@@ -63,7 +65,7 @@ MBMessageIterator mbMessageIterator = new MBMessageIterator(messages, range[0], 
 	</c:otherwise>
 </c:choose>
 
-<c:if test="<%= message.getMessageId() != treeWalker.getRoot().getMessageId() %>">
+<c:if test="<%= message.getMessageId() != rootMessage.getMessageId() %>">
 
 	<%
 	depth++;

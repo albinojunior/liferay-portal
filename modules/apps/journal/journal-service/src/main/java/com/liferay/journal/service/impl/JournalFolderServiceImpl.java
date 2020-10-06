@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionHelper;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -57,7 +57,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		ModelResourcePermissionHelper.check(
+		ModelResourcePermissionUtil.check(
 			_journalFolderModelResourcePermission, getPermissionChecker(),
 			groupId, parentFolderId, ActionKeys.ADD_FOLDER);
 
@@ -122,7 +122,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 	public List<Long> getFolderIds(long groupId, long folderId)
 		throws PortalException {
 
-		ModelResourcePermissionHelper.check(
+		ModelResourcePermissionUtil.check(
 			_journalFolderModelResourcePermission, getPermissionChecker(),
 			groupId, folderId, ActionKeys.VIEW);
 
@@ -172,28 +172,30 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 	@Override
 	public List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int status, int start, int end,
-		OrderByComparator<?> obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		return getFoldersAndArticles(
-			groupId, 0, folderId, status, start, end, obc);
+			groupId, 0, folderId, status, start, end, orderByComparator);
 	}
 
 	@Override
 	public List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int start, int end,
-		OrderByComparator<?> obc) {
+		OrderByComparator<?> orderByComparator) {
 
 		return getFoldersAndArticles(
-			groupId, folderId, WorkflowConstants.STATUS_ANY, start, end, obc);
+			groupId, folderId, WorkflowConstants.STATUS_ANY, start, end,
+			orderByComparator);
 	}
 
 	@Override
 	public List<Object> getFoldersAndArticles(
 		long groupId, long userId, long folderId, int status, int start,
-		int end, OrderByComparator<?> obc) {
+		int end, OrderByComparator<?> orderByComparator) {
 
 		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, userId, true, start, end, (OrderByComparator<Object>)obc);
+			status, userId, true, start, end,
+			(OrderByComparator<Object>)orderByComparator);
 
 		return journalFolderFinder.filterFindF_A_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -202,10 +204,11 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 	@Override
 	public List<Object> getFoldersAndArticles(
 		long groupId, long userId, long folderId, int status, Locale locale,
-		int start, int end, OrderByComparator<?> obc) {
+		int start, int end, OrderByComparator<?> orderByComparator) {
 
 		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, userId, true, start, end, (OrderByComparator<Object>)obc);
+			status, userId, true, start, end,
+			(OrderByComparator<Object>)orderByComparator);
 
 		return journalFolderFinder.filterFindF_A_ByG_F_L(
 			groupId, folderId, locale, queryDefinition);
@@ -360,18 +363,18 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 	public List<DDMStructure> searchDDMStructures(
 			long companyId, long[] groupIds, long folderId, int restrictionType,
 			String keywords, int start, int end,
-			OrderByComparator<DDMStructure> obc)
+			OrderByComparator<DDMStructure> orderByComparator)
 		throws PortalException {
 
 		return filterStructures(
 			journalFolderLocalService.searchDDMStructures(
 				companyId, groupIds, folderId, restrictionType, keywords, start,
-				end, obc));
+				end, orderByComparator));
 	}
 
 	@Override
 	public void subscribe(long groupId, long folderId) throws PortalException {
-		ModelResourcePermissionHelper.check(
+		ModelResourcePermissionUtil.check(
 			_journalFolderModelResourcePermission, getPermissionChecker(),
 			groupId, folderId, ActionKeys.SUBSCRIBE);
 
@@ -382,7 +385,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 	public void unsubscribe(long groupId, long folderId)
 		throws PortalException {
 
-		ModelResourcePermissionHelper.check(
+		ModelResourcePermissionUtil.check(
 			_journalFolderModelResourcePermission, getPermissionChecker(),
 			groupId, folderId, ActionKeys.SUBSCRIBE);
 
@@ -412,7 +415,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			boolean mergeWithParentFolder, ServiceContext serviceContext)
 		throws PortalException {
 
-		ModelResourcePermissionHelper.check(
+		ModelResourcePermissionUtil.check(
 			_journalFolderModelResourcePermission, getPermissionChecker(),
 			groupId, folderId, ActionKeys.UPDATE);
 
@@ -430,15 +433,15 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 
 		ddmStructures = ListUtil.copy(ddmStructures);
 
-		Iterator<DDMStructure> itr = ddmStructures.iterator();
+		Iterator<DDMStructure> iterator = ddmStructures.iterator();
 
-		while (itr.hasNext()) {
-			DDMStructure ddmStructure = itr.next();
+		while (iterator.hasNext()) {
+			DDMStructure ddmStructure = iterator.next();
 
 			if (!_ddmStructureModelResourcePermission.contains(
 					permissionChecker, ddmStructure, ActionKeys.VIEW)) {
 
-				itr.remove();
+				iterator.remove();
 			}
 		}
 

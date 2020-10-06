@@ -18,6 +18,8 @@ import com.liferay.application.list.PanelAppRegistry;
 import com.liferay.application.list.PanelCategoryRegistry;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.application.list.display.context.logic.PanelCategoryHelper;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -35,6 +37,8 @@ import javax.portlet.PortletURL;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Julio Camarero
@@ -97,6 +101,15 @@ public class GroupURLProvider {
 		Group group, PortletRequest portletRequest,
 		boolean includeStagingGroup) {
 
+		if (group.isDepot()) {
+			String depotDashboardGroupURL = _getDepotDashboardGroupURL(
+				group, portletRequest);
+
+			if (depotDashboardGroupURL != null) {
+				return depotDashboardGroupURL;
+			}
+		}
+
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -143,8 +156,47 @@ public class GroupURLProvider {
 		_panelCategoryRegistry = panelCategoryRegistry;
 	}
 
+	private String _getDepotDashboardGroupURL(
+		Group group, PortletRequest portletRequest) {
+
+		try {
+			if (_depotEntryLocalService == null) {
+				return null;
+			}
+
+			PortletURL portletURL = _portal.getControlPanelPortletURL(
+				portletRequest, group, _DEPOT_ADMIN_PORTLET_ID, 0, 0,
+				PortletRequest.RENDER_PHASE);
+
+			portletURL.setParameter(
+				"mvcRenderCommandName", "/depot/view_depot_dashboard");
+
+			DepotEntry depotEntry = _depotEntryLocalService.getGroupDepotEntry(
+				group.getGroupId());
+
+			portletURL.setParameter(
+				"depotEntryId", String.valueOf(depotEntry.getDepotEntryId()));
+
+			return portletURL.toString();
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException, portalException);
+
+			return null;
+		}
+	}
+
+	private static final String _DEPOT_ADMIN_PORTLET_ID =
+		"com_liferay_depot_web_portlet_DepotAdminPortlet";
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		GroupURLProvider.class);
+
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference
 	private Http _http;

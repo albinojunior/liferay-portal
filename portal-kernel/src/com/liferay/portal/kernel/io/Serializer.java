@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.io;
 
 import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.petra.lang.ClassLoaderPool;
+import com.liferay.portal.kernel.io.constants.SerializationConstants;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -285,7 +286,7 @@ public class Serializer {
 			}
 		}
 		else {
-			byte[] buffer = getBuffer(length * 2 + 5);
+			byte[] buffer = getBuffer((length * 2) + 5);
 
 			BigEndianCodec.putBoolean(buffer, index++, asciiCode);
 

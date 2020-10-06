@@ -25,33 +25,8 @@ public abstract class IndentLevelSpiraArtifact extends PathSpiraArtifact {
 		super(jsonObject);
 	}
 
-	@Override
-	protected PathSpiraArtifact getParentSpiraArtifact() {
-		if (_parentSpiraArtifact != null) {
-			return _parentSpiraArtifact;
-		}
-
-		String indentLevel = _getIndentLevel();
-
-		if (indentLevel.length() <= 3) {
-			return null;
-		}
-
-		String parentIndentLevel = indentLevel.substring(
-			0, indentLevel.length() - 3);
-
-		_parentSpiraArtifact = getSpiraArtifactByIndentLevel(parentIndentLevel);
-
-		return _parentSpiraArtifact;
-	}
-
-	protected abstract PathSpiraArtifact getSpiraArtifactByIndentLevel(
-		String indentLevel);
-
-	private String _getIndentLevel() {
+	protected String getIndentLevel() {
 		return jsonObject.getString("IndentLevel");
 	}
-
-	private PathSpiraArtifact _parentSpiraArtifact;
 
 }

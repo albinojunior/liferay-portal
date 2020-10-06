@@ -34,26 +34,9 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "user-gr
 <liferay-ui:error exception="<%= RequiredUserGroupException.class %>" message="you-cannot-delete-user-groups-that-have-users" />
 
 <%
-List<NavigationItem> navigationItems = new ArrayList<>();
-
-NavigationItem entriesNavigationItem = new NavigationItem();
-
-entriesNavigationItem.setActive(true);
-entriesNavigationItem.setHref(StringPool.BLANK);
-entriesNavigationItem.setLabel(LanguageUtil.get(request, "user-groups"));
-
-navigationItems.add(entriesNavigationItem);
-%>
-
-<clay:navigation-bar
-	inverted="<%= true %>"
-	navigationItems="<%= navigationItems %>"
-/>
-
-<%
 ViewUserGroupsManagementToolbarDisplayContext viewUserGroupsManagementToolbarDisplayContext = new ViewUserGroupsManagementToolbarDisplayContext(request, renderRequest, renderResponse, displayStyle);
 
-SearchContainer searchContainer = viewUserGroupsManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<UserGroup> searchContainer = viewUserGroupsManagementToolbarDisplayContext.getSearchContainer();
 
 PortletURL portletURL = viewUserGroupsManagementToolbarDisplayContext.getPortletURL();
 %>
@@ -93,7 +76,7 @@ PortletURL portletURL = viewUserGroupsManagementToolbarDisplayContext.getPortlet
 </aui:form>
 
 <aui:script>
-	window.<portlet:namespace />deleteUserGroups = function() {
+	window.<portlet:namespace />deleteUserGroups = function () {
 		<portlet:namespace />doDeleteUserGroup(
 			'<%= UserGroup.class.getName() %>',
 			Liferay.Util.listCheckedExcept(
@@ -103,10 +86,10 @@ PortletURL portletURL = viewUserGroupsManagementToolbarDisplayContext.getPortlet
 		);
 	};
 
-	window.<portlet:namespace />doDeleteUserGroup = function(className, ids) {
+	window.<portlet:namespace />doDeleteUserGroup = function (className, ids) {
 		var status = <%= WorkflowConstants.STATUS_INACTIVE %>;
 
-		<portlet:namespace />getUsersCount(className, ids, status, function(
+		<portlet:namespace />getUsersCount(className, ids, status, function (
 			responseData
 		) {
 			var count = parseInt(responseData, 10);
@@ -114,37 +97,40 @@ PortletURL portletURL = viewUserGroupsManagementToolbarDisplayContext.getPortlet
 			if (count > 0) {
 				status = <%= WorkflowConstants.STATUS_APPROVED %>;
 
-				<portlet:namespace />getUsersCount(className, ids, status, function(
-					responseData
-				) {
-					count = parseInt(responseData, 10);
+				<portlet:namespace />getUsersCount(
+					className,
+					ids,
+					status,
+					function (responseData) {
+						count = parseInt(responseData, 10);
 
-					if (count > 0) {
-						if (
-							confirm(
-								'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
-							)
-						) {
-							<portlet:namespace />doDeleteUserGroups(ids);
-						}
-					}
-					else {
-						var message;
-
-						if (ids && ids.toString().split(',').length > 1) {
-							message =
-								'<%= UnicodeLanguageUtil.get(request, "one-or-more-user-groups-are-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-user-groups-by-automatically-unassociating-the-deactivated-users") %>';
+						if (count > 0) {
+							if (
+								confirm(
+									'<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-this") %>'
+								)
+							) {
+								<portlet:namespace />doDeleteUserGroups(ids);
+							}
 						}
 						else {
-							message =
-								'<%= UnicodeLanguageUtil.get(request, "the-selected-user-group-is-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-user-group-by-automatically-unassociating-the-deactivated-users") %>';
-						}
+							var message;
 
-						if (confirm(message)) {
-							<portlet:namespace />doDeleteUserGroups(ids);
+							if (ids && ids.toString().split(',').length > 1) {
+								message =
+									'<%= UnicodeLanguageUtil.get(request, "one-or-more-user-groups-are-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-user-groups-by-automatically-unassociating-the-deactivated-users") %>';
+							}
+							else {
+								message =
+									'<%= UnicodeLanguageUtil.get(request, "the-selected-user-group-is-associated-with-deactivated-users.-do-you-want-to-proceed-with-deleting-the-selected-user-group-by-automatically-unassociating-the-deactivated-users") %>';
+							}
+
+							if (confirm(message)) {
+								<portlet:namespace />doDeleteUserGroups(ids);
+							}
 						}
 					}
-				});
+				);
 			}
 			else if (
 				confirm(
@@ -191,10 +177,10 @@ PortletURL portletURL = viewUserGroupsManagementToolbarDisplayContext.getPortlet
 		url.searchParams.set('status', status);
 
 		Liferay.Util.fetch(url.toString())
-			.then(function(response) {
+			.then(function (response) {
 				return response.text();
 			})
-			.then(function(response) {
+			.then(function (response) {
 				callback(response);
 			});
 	}

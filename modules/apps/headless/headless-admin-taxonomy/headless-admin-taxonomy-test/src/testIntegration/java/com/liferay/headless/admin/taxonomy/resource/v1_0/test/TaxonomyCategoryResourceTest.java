@@ -15,16 +15,17 @@
 package com.liferay.headless.admin.taxonomy.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
+import com.liferay.asset.test.util.AssetTestUtil;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.TaxonomyCategory;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -43,18 +44,6 @@ public class TaxonomyCategoryResourceTest
 			UserLocalServiceUtil.getDefaultUserId(testGroup.getCompanyId()),
 			testGroup.getGroupId(), RandomTestUtil.randomString(),
 			new ServiceContext());
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLDeleteTaxonomyCategory() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetTaxonomyCategory() {
 	}
 
 	@Override
@@ -79,6 +68,25 @@ public class TaxonomyCategoryResourceTest
 	}
 
 	@Override
+	protected TaxonomyCategory
+			testGetTaxonomyCategoryRankedPage_addTaxonomyCategory(
+				TaxonomyCategory taxonomyCategory)
+		throws Exception {
+
+		taxonomyCategory =
+			testPostTaxonomyCategoryTaxonomyCategory_addTaxonomyCategory(
+				taxonomyCategory);
+
+		AssetEntry assetEntry = AssetTestUtil.addAssetEntry(
+			testGroup.getGroupId());
+
+		AssetCategoryLocalServiceUtil.addAssetEntryAssetCategory(
+			assetEntry.getEntryId(), Long.valueOf(taxonomyCategory.getId()));
+
+		return taxonomyCategory;
+	}
+
+	@Override
 	protected String
 			testGetTaxonomyCategoryTaxonomyCategoriesPage_getParentTaxonomyCategoryId()
 		throws Exception {
@@ -95,6 +103,14 @@ public class TaxonomyCategoryResourceTest
 		testGetTaxonomyVocabularyTaxonomyCategoriesPage_getTaxonomyVocabularyId() {
 
 		return _assetVocabulary.getVocabularyId();
+	}
+
+	@Override
+	protected TaxonomyCategory testGraphQLTaxonomyCategory_addTaxonomyCategory()
+		throws Exception {
+
+		return testPostTaxonomyCategoryTaxonomyCategory_addTaxonomyCategory(
+			randomTaxonomyCategory());
 	}
 
 	@Override

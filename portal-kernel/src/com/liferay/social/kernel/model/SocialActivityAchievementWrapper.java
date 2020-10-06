@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -44,6 +46,8 @@ public class SocialActivityAchievementWrapper
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("activityAchievementId", getActivityAchievementId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
@@ -57,6 +61,18 @@ public class SocialActivityAchievementWrapper
 
 	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
+		Long mvccVersion = (Long)attributes.get("mvccVersion");
+
+		if (mvccVersion != null) {
+			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
+		}
+
 		Long activityAchievementId = (Long)attributes.get(
 			"activityAchievementId");
 
@@ -132,6 +148,16 @@ public class SocialActivityAchievementWrapper
 	}
 
 	/**
+	 * Returns the ct collection ID of this social activity achievement.
+	 *
+	 * @return the ct collection ID of this social activity achievement
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
+	}
+
+	/**
 	 * Returns the first in group of this social activity achievement.
 	 *
 	 * @return the first in group of this social activity achievement
@@ -149,6 +175,16 @@ public class SocialActivityAchievementWrapper
 	@Override
 	public long getGroupId() {
 		return model.getGroupId();
+	}
+
+	/**
+	 * Returns the mvcc version of this social activity achievement.
+	 *
+	 * @return the mvcc version of this social activity achievement
+	 */
+	@Override
+	public long getMvccVersion() {
+		return model.getMvccVersion();
 	}
 
 	/**
@@ -237,6 +273,16 @@ public class SocialActivityAchievementWrapper
 	}
 
 	/**
+	 * Sets the ct collection ID of this social activity achievement.
+	 *
+	 * @param ctCollectionId the ct collection ID of this social activity achievement
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
+	}
+
+	/**
 	 * Sets whether this social activity achievement is first in group.
 	 *
 	 * @param firstInGroup the first in group of this social activity achievement
@@ -254,6 +300,16 @@ public class SocialActivityAchievementWrapper
 	@Override
 	public void setGroupId(long groupId) {
 		model.setGroupId(groupId);
+	}
+
+	/**
+	 * Sets the mvcc version of this social activity achievement.
+	 *
+	 * @param mvccVersion the mvcc version of this social activity achievement
+	 */
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		model.setMvccVersion(mvccVersion);
 	}
 
 	/**
@@ -294,6 +350,20 @@ public class SocialActivityAchievementWrapper
 	@Override
 	public void setUserUuid(String userUuid) {
 		model.setUserUuid(userUuid);
+	}
+
+	@Override
+	public Map<String, Function<SocialActivityAchievement, Object>>
+		getAttributeGetterFunctions() {
+
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<SocialActivityAchievement, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

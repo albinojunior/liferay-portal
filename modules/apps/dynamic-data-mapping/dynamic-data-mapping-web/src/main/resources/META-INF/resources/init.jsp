@@ -28,6 +28,8 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
 <%@ page import="com.liferay.dynamic.data.mapping.constants.DDMPortletKeys" %><%@
+page import="com.liferay.dynamic.data.mapping.constants.DDMStructureConstants" %><%@
+page import="com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants" %><%@
 page import="com.liferay.dynamic.data.mapping.constants.DDMWebKeys" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.NoSuchStructureException" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.RequiredStructureException" %><%@
@@ -43,10 +45,8 @@ page import="com.liferay.dynamic.data.mapping.exception.TemplateSmallImageNameEx
 page import="com.liferay.dynamic.data.mapping.exception.TemplateSmallImageSizeException" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMForm" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMStructure" %><%@
-page import="com.liferay.dynamic.data.mapping.model.DDMStructureConstants" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMStructureVersion" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMTemplate" %><%@
-page import="com.liferay.dynamic.data.mapping.model.DDMTemplateConstants" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMTemplateVersion" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStorageLinkLocalServiceUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil" %><%@
@@ -92,6 +92,10 @@ page import="com.liferay.portal.kernel.model.Group" %><%@
 page import="com.liferay.portal.kernel.model.Portlet" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.portlet.PortletURLFactoryUtil" %><%@
+page import="com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader" %><%@
+page import="com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader" %><%@
+page import="com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader" %><%@
+page import="com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil" %><%@
 page import="com.liferay.portal.kernel.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.kernel.security.permission.ResourceActionsUtil" %><%@
 page import="com.liferay.portal.kernel.service.GroupLocalServiceUtil" %><%@
@@ -101,14 +105,10 @@ page import="com.liferay.portal.kernel.template.TemplateHandler" %><%@
 page import="com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil" %><%@
 page import="com.liferay.portal.kernel.template.TemplateVariableDefinition" %><%@
 page import="com.liferay.portal.kernel.template.TemplateVariableGroup" %><%@
-page import="com.liferay.portal.kernel.util.AggregateResourceBundleLoader" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
-page import="com.liferay.portal.kernel.util.ResourceBundleLoader" %><%@
-page import="com.liferay.portal.kernel.util.ResourceBundleLoaderUtil" %><%@
-page import="com.liferay.portal.kernel.util.ResourceBundleUtil" %><%@
 page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
@@ -142,7 +142,6 @@ page import="org.osgi.framework.FrameworkUtil" %>
 <%
 String refererWebDAVToken = ParamUtil.getString(request, "refererWebDAVToken", portletConfig.getInitParameter("refererWebDAVToken"));
 String scopeTitle = ParamUtil.getString(request, "scopeTitle");
-boolean showAncestorScopes = ParamUtil.getBoolean(request, "showAncestorScopes");
 boolean showManageTemplates = ParamUtil.getBoolean(request, "showManageTemplates", true);
 
 DDMDisplay ddmDisplay = null;

@@ -14,19 +14,16 @@
 
 package com.liferay.configuration.admin.web.internal.util;
 
-import com.liferay.configuration.admin.display.ConfigurationVisibilityController;
 import com.liferay.configuration.admin.web.internal.model.ConfigurationModel;
-import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
-import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.configuration.metatype.definitions.ExtendedMetaTypeInformation;
 import com.liferay.portal.configuration.metatype.definitions.ExtendedMetaTypeService;
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.IOException;
@@ -45,11 +42,11 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -199,7 +196,8 @@ public class ConfigurationModelRetrieverImpl
 		throws IOException {
 
 		Configuration[] configurations = getFactoryConfigurations(
-			factoryConfigurationModel.getFactoryPid());
+			factoryConfigurationModel.getFactoryPid(), scope.getPropertyKey(),
+			String.valueOf(scopePK));
 
 		if (configurations == null) {
 			return Collections.emptyList();
@@ -209,9 +207,10 @@ public class ConfigurationModelRetrieverImpl
 
 		for (Configuration configuration : configurations) {
 			ConfigurationModel curConfigurationModel = new ConfigurationModel(
-				factoryConfigurationModel, configuration,
+				configuration.getBundleLocation(),
 				factoryConfigurationModel.getBundleSymbolicName(),
-				configuration.getBundleLocation(), false);
+				factoryConfigurationModel.getClassLoader(), configuration,
+				factoryConfigurationModel, false);
 
 			factoryInstances.add(curConfigurationModel);
 		}
@@ -222,11 +221,6 @@ public class ConfigurationModelRetrieverImpl
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
-
-		_configurationVisibilityControllerServiceTrackerMap =
-			ServiceTrackerMapFactory.openSingleValueMap(
-				_bundleContext, ConfigurationVisibilityController.class,
-				"configuration.pid");
 	}
 
 	protected void collectConfigurationModels(
@@ -266,47 +260,9 @@ public class ConfigurationModelRetrieverImpl
 		}
 	}
 
-	@Deactivate
-	protected void deactivate() {
-		_configurationVisibilityControllerServiceTrackerMap.close();
-	}
-
 	protected String getAndFilterString(String... filterStrings) {
-		StringBundler sb = new StringBundler(filterStrings.length + 3);
-
-		sb.append(StringPool.OPEN_PARENTHESIS);
-		sb.append(StringPool.AMPERSAND);
-
-		for (String filterString : filterStrings) {
-			if (Validator.isNull(filterString)) {
-				return StringPool.BLANK;
-			}
-
-			sb.append(filterString);
-		}
-
-		sb.append(StringPool.CLOSE_PARENTHESIS);
-
-		return sb.toString();
-	}
-
-	protected Configuration getCompanyDefaultConfiguration(String factoryPid) {
-		Configuration configuration = null;
-
-		try {
-			Configuration[] factoryConfigurations = getFactoryConfigurations(
-				factoryPid, ConfigurationModel.PROPERTY_KEY_COMPANY_ID,
-				ConfigurationModel.PROPERTY_VALUE_COMPANY_ID_DEFAULT);
-
-			if (ArrayUtil.isNotEmpty(factoryConfigurations)) {
-				configuration = factoryConfigurations[0];
-			}
-		}
-		catch (IOException ioException) {
-			ReflectionUtil.throwException(ioException);
-		}
-
-		return configuration;
+		return getLogicalOperatorFilterString(
+			StringPool.AMPERSAND, filterStrings);
 	}
 
 	protected ConfigurationModel getConfigurationModel(
@@ -314,23 +270,14 @@ public class ConfigurationModelRetrieverImpl
 		String pid, boolean factory, String locale,
 		ExtendedObjectClassDefinition.Scope scope, Serializable scopePK) {
 
+		BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+
 		ConfigurationModel configurationModel = new ConfigurationModel(
+			StringPool.QUESTION, bundle.getSymbolicName(),
+			bundleWiring.getClassLoader(),
+			getConfiguration(pid, scope, scopePK),
 			extendedMetaTypeInformation.getObjectClassDefinition(pid, locale),
-			getConfiguration(pid, scope, scopePK), bundle.getSymbolicName(),
-			StringPool.QUESTION, factory);
-
-		ConfigurationVisibilityController configurationVisibilityController =
-			_configurationVisibilityControllerServiceTrackerMap.getService(pid);
-
-		if ((configurationVisibilityController != null) &&
-			!configurationVisibilityController.isVisible(scope, scopePK)) {
-
-			return null;
-		}
-
-		if (!scope.equals(scope.SYSTEM) && configurationModel.isFactory()) {
-			return null;
-		}
+			factory);
 
 		if (scope.equals(scope.COMPANY) && configurationModel.isSystemScope()) {
 			return null;
@@ -340,20 +287,16 @@ public class ConfigurationModelRetrieverImpl
 			return null;
 		}
 
-		if (configurationModel.isCompanyFactory()) {
-			Configuration configuration = getCompanyDefaultConfiguration(pid);
-
-			configurationModel = new ConfigurationModel(
-				configurationModel.getExtendedObjectClassDefinition(),
-				configuration, bundle.getSymbolicName(), StringPool.QUESTION,
-				configurationModel.isFactory());
-		}
-
 		return configurationModel;
 	}
 
 	protected Comparator<ConfigurationModel> getConfigurationModelComparator() {
 		return new ConfigurationModelComparator();
+	}
+
+	protected String getExcludedPropertyFilterString(String propertyName) {
+		return StringBundler.concat(
+			"(!", getPropertyFilterString(propertyName, "*"), ")");
 	}
 
 	protected Configuration[] getFactoryConfigurations(String factoryPid)
@@ -377,6 +320,23 @@ public class ConfigurationModelRetrieverImpl
 			filterString = getAndFilterString(
 				filterString, propertyFilterString);
 		}
+		else {
+			filterString = getAndFilterString(
+				filterString,
+				getOrFilterString(
+					getExcludedPropertyFilterString(
+						ExtendedObjectClassDefinition.Scope.COMPANY.
+							getPropertyKey()),
+					getPropertyFilterString(
+						ExtendedObjectClassDefinition.Scope.COMPANY.
+							getPropertyKey(),
+						String.valueOf(CompanyConstants.SYSTEM))),
+				getExcludedPropertyFilterString(
+					ExtendedObjectClassDefinition.Scope.GROUP.getPropertyKey()),
+				getExcludedPropertyFilterString(
+					ExtendedObjectClassDefinition.Scope.PORTLET_INSTANCE.
+						getPropertyKey()));
+		}
 
 		try {
 			configurations = _configurationAdmin.listConfigurations(
@@ -387,6 +347,31 @@ public class ConfigurationModelRetrieverImpl
 		}
 
 		return configurations;
+	}
+
+	protected String getLogicalOperatorFilterString(
+		String logicalOperator, String... filterStrings) {
+
+		StringBundler sb = new StringBundler(filterStrings.length + 3);
+
+		sb.append(StringPool.OPEN_PARENTHESIS);
+		sb.append(logicalOperator);
+
+		for (String filterString : filterStrings) {
+			if (Validator.isNull(filterString)) {
+				return StringPool.BLANK;
+			}
+
+			sb.append(filterString);
+		}
+
+		sb.append(StringPool.CLOSE_PARENTHESIS);
+
+		return sb.toString();
+	}
+
+	protected String getOrFilterString(String... filterStrings) {
+		return getLogicalOperatorFilterString(StringPool.PIPE, filterStrings);
 	}
 
 	protected String getPidFilterString(
@@ -418,9 +403,6 @@ public class ConfigurationModelRetrieverImpl
 
 	@Reference
 	private ConfigurationAdmin _configurationAdmin;
-
-	private ServiceTrackerMap<String, ConfigurationVisibilityController>
-		_configurationVisibilityControllerServiceTrackerMap;
 
 	@Reference
 	private ExtendedMetaTypeService _extendedMetaTypeService;

@@ -1289,13 +1289,13 @@ public class JournalArticleUtil {
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
 	 * </p>
 	 *
-	 * @param DDMStructureKeies the ddm structure keies
+	 * @param DDMStructureKeys the ddm structure keys
 	 * @return the matching journal articles
 	 */
 	public static List<JournalArticle> findByDDMStructureKey(
-		String[] DDMStructureKeies) {
+		String[] DDMStructureKeys) {
 
-		return getPersistence().findByDDMStructureKey(DDMStructureKeies);
+		return getPersistence().findByDDMStructureKey(DDMStructureKeys);
 	}
 
 	/**
@@ -1305,16 +1305,16 @@ public class JournalArticleUtil {
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
 	 * </p>
 	 *
-	 * @param DDMStructureKeies the ddm structure keies
+	 * @param DDMStructureKeys the ddm structure keys
 	 * @param start the lower bound of the range of journal articles
 	 * @param end the upper bound of the range of journal articles (not inclusive)
 	 * @return the range of matching journal articles
 	 */
 	public static List<JournalArticle> findByDDMStructureKey(
-		String[] DDMStructureKeies, int start, int end) {
+		String[] DDMStructureKeys, int start, int end) {
 
 		return getPersistence().findByDDMStructureKey(
-			DDMStructureKeies, start, end);
+			DDMStructureKeys, start, end);
 	}
 
 	/**
@@ -1324,18 +1324,18 @@ public class JournalArticleUtil {
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
 	 * </p>
 	 *
-	 * @param DDMStructureKeies the ddm structure keies
+	 * @param DDMStructureKeys the ddm structure keys
 	 * @param start the lower bound of the range of journal articles
 	 * @param end the upper bound of the range of journal articles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching journal articles
 	 */
 	public static List<JournalArticle> findByDDMStructureKey(
-		String[] DDMStructureKeies, int start, int end,
+		String[] DDMStructureKeys, int start, int end,
 		OrderByComparator<JournalArticle> orderByComparator) {
 
 		return getPersistence().findByDDMStructureKey(
-			DDMStructureKeies, start, end, orderByComparator);
+			DDMStructureKeys, start, end, orderByComparator);
 	}
 
 	/**
@@ -1353,12 +1353,12 @@ public class JournalArticleUtil {
 	 * @return the ordered range of matching journal articles
 	 */
 	public static List<JournalArticle> findByDDMStructureKey(
-		String[] DDMStructureKeies, int start, int end,
+		String[] DDMStructureKeys, int start, int end,
 		OrderByComparator<JournalArticle> orderByComparator,
 		boolean useFinderCache) {
 
 		return getPersistence().findByDDMStructureKey(
-			DDMStructureKeies, start, end, orderByComparator, useFinderCache);
+			DDMStructureKeys, start, end, orderByComparator, useFinderCache);
 	}
 
 	/**
@@ -1383,11 +1383,11 @@ public class JournalArticleUtil {
 	/**
 	 * Returns the number of journal articles where DDMStructureKey = any &#63;.
 	 *
-	 * @param DDMStructureKeies the ddm structure keies
+	 * @param DDMStructureKeys the ddm structure keys
 	 * @return the number of matching journal articles
 	 */
-	public static int countByDDMStructureKey(String[] DDMStructureKeies) {
-		return getPersistence().countByDDMStructureKey(DDMStructureKeies);
+	public static int countByDDMStructureKey(String[] DDMStructureKeys) {
+		return getPersistence().countByDDMStructureKey(DDMStructureKeys);
 	}
 
 	/**
@@ -5693,196 +5693,6 @@ public class JournalArticleUtil {
 	}
 
 	/**
-	 * Returns all the journal articles where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @return the matching journal articles
-	 */
-	public static List<JournalArticle> findByC_DDMTK(
-		long classNameId, String DDMTemplateKey) {
-
-		return getPersistence().findByC_DDMTK(classNameId, DDMTemplateKey);
-	}
-
-	/**
-	 * Returns a range of all the journal articles where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
-	 * </p>
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param start the lower bound of the range of journal articles
-	 * @param end the upper bound of the range of journal articles (not inclusive)
-	 * @return the range of matching journal articles
-	 */
-	public static List<JournalArticle> findByC_DDMTK(
-		long classNameId, String DDMTemplateKey, int start, int end) {
-
-		return getPersistence().findByC_DDMTK(
-			classNameId, DDMTemplateKey, start, end);
-	}
-
-	/**
-	 * Returns an ordered range of all the journal articles where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
-	 * </p>
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param start the lower bound of the range of journal articles
-	 * @param end the upper bound of the range of journal articles (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching journal articles
-	 */
-	public static List<JournalArticle> findByC_DDMTK(
-		long classNameId, String DDMTemplateKey, int start, int end,
-		OrderByComparator<JournalArticle> orderByComparator) {
-
-		return getPersistence().findByC_DDMTK(
-			classNameId, DDMTemplateKey, start, end, orderByComparator);
-	}
-
-	/**
-	 * Returns an ordered range of all the journal articles where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
-	 * </p>
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param start the lower bound of the range of journal articles
-	 * @param end the upper bound of the range of journal articles (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param useFinderCache whether to use the finder cache
-	 * @return the ordered range of matching journal articles
-	 */
-	public static List<JournalArticle> findByC_DDMTK(
-		long classNameId, String DDMTemplateKey, int start, int end,
-		OrderByComparator<JournalArticle> orderByComparator,
-		boolean useFinderCache) {
-
-		return getPersistence().findByC_DDMTK(
-			classNameId, DDMTemplateKey, start, end, orderByComparator,
-			useFinderCache);
-	}
-
-	/**
-	 * Returns the first journal article in the ordered set where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching journal article
-	 * @throws NoSuchArticleException if a matching journal article could not be found
-	 */
-	public static JournalArticle findByC_DDMTK_First(
-			long classNameId, String DDMTemplateKey,
-			OrderByComparator<JournalArticle> orderByComparator)
-		throws com.liferay.journal.exception.NoSuchArticleException {
-
-		return getPersistence().findByC_DDMTK_First(
-			classNameId, DDMTemplateKey, orderByComparator);
-	}
-
-	/**
-	 * Returns the first journal article in the ordered set where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching journal article, or <code>null</code> if a matching journal article could not be found
-	 */
-	public static JournalArticle fetchByC_DDMTK_First(
-		long classNameId, String DDMTemplateKey,
-		OrderByComparator<JournalArticle> orderByComparator) {
-
-		return getPersistence().fetchByC_DDMTK_First(
-			classNameId, DDMTemplateKey, orderByComparator);
-	}
-
-	/**
-	 * Returns the last journal article in the ordered set where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching journal article
-	 * @throws NoSuchArticleException if a matching journal article could not be found
-	 */
-	public static JournalArticle findByC_DDMTK_Last(
-			long classNameId, String DDMTemplateKey,
-			OrderByComparator<JournalArticle> orderByComparator)
-		throws com.liferay.journal.exception.NoSuchArticleException {
-
-		return getPersistence().findByC_DDMTK_Last(
-			classNameId, DDMTemplateKey, orderByComparator);
-	}
-
-	/**
-	 * Returns the last journal article in the ordered set where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching journal article, or <code>null</code> if a matching journal article could not be found
-	 */
-	public static JournalArticle fetchByC_DDMTK_Last(
-		long classNameId, String DDMTemplateKey,
-		OrderByComparator<JournalArticle> orderByComparator) {
-
-		return getPersistence().fetchByC_DDMTK_Last(
-			classNameId, DDMTemplateKey, orderByComparator);
-	}
-
-	/**
-	 * Returns the journal articles before and after the current journal article in the ordered set where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param id the primary key of the current journal article
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next journal article
-	 * @throws NoSuchArticleException if a journal article with the primary key could not be found
-	 */
-	public static JournalArticle[] findByC_DDMTK_PrevAndNext(
-			long id, long classNameId, String DDMTemplateKey,
-			OrderByComparator<JournalArticle> orderByComparator)
-		throws com.liferay.journal.exception.NoSuchArticleException {
-
-		return getPersistence().findByC_DDMTK_PrevAndNext(
-			id, classNameId, DDMTemplateKey, orderByComparator);
-	}
-
-	/**
-	 * Removes all the journal articles where classNameId = &#63; and DDMTemplateKey = &#63; from the database.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 */
-	public static void removeByC_DDMTK(
-		long classNameId, String DDMTemplateKey) {
-
-		getPersistence().removeByC_DDMTK(classNameId, DDMTemplateKey);
-	}
-
-	/**
-	 * Returns the number of journal articles where classNameId = &#63; and DDMTemplateKey = &#63;.
-	 *
-	 * @param classNameId the class name ID
-	 * @param DDMTemplateKey the ddm template key
-	 * @return the number of matching journal articles
-	 */
-	public static int countByC_DDMTK(long classNameId, String DDMTemplateKey) {
-		return getPersistence().countByC_DDMTK(classNameId, DDMTemplateKey);
-	}
-
-	/**
 	 * Returns all the journal articles where displayDate &lt; &#63; and status = &#63;.
 	 *
 	 * @param displayDate the display date
@@ -9462,73 +9272,79 @@ public class JournalArticleUtil {
 	}
 
 	/**
-	 * Returns all the journal articles where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns all the journal articles where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @return the matching journal articles
 	 */
-	public static List<JournalArticle> findByC_ED_ST(
-		long classNameId, Date expirationDate, int status) {
+	public static List<JournalArticle> findByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status) {
 
-		return getPersistence().findByC_ED_ST(
-			classNameId, expirationDate, status);
+		return getPersistence().findByG_F_C_NotST(
+			groupId, folderId, classNameId, status);
 	}
 
 	/**
-	 * Returns a range of all the journal articles where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns a range of all the journal articles where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
 	 * </p>
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param start the lower bound of the range of journal articles
 	 * @param end the upper bound of the range of journal articles (not inclusive)
 	 * @return the range of matching journal articles
 	 */
-	public static List<JournalArticle> findByC_ED_ST(
-		long classNameId, Date expirationDate, int status, int start, int end) {
+	public static List<JournalArticle> findByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status, int start,
+		int end) {
 
-		return getPersistence().findByC_ED_ST(
-			classNameId, expirationDate, status, start, end);
+		return getPersistence().findByG_F_C_NotST(
+			groupId, folderId, classNameId, status, start, end);
 	}
 
 	/**
-	 * Returns an ordered range of all the journal articles where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns an ordered range of all the journal articles where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
 	 * </p>
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param start the lower bound of the range of journal articles
 	 * @param end the upper bound of the range of journal articles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching journal articles
 	 */
-	public static List<JournalArticle> findByC_ED_ST(
-		long classNameId, Date expirationDate, int status, int start, int end,
-		OrderByComparator<JournalArticle> orderByComparator) {
+	public static List<JournalArticle> findByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status, int start,
+		int end, OrderByComparator<JournalArticle> orderByComparator) {
 
-		return getPersistence().findByC_ED_ST(
-			classNameId, expirationDate, status, start, end, orderByComparator);
+		return getPersistence().findByG_F_C_NotST(
+			groupId, folderId, classNameId, status, start, end,
+			orderByComparator);
 	}
 
 	/**
-	 * Returns an ordered range of all the journal articles where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns an ordered range of all the journal articles where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
 	 * </p>
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param start the lower bound of the range of journal articles
 	 * @param end the upper bound of the range of journal articles (not inclusive)
@@ -9536,134 +9352,243 @@ public class JournalArticleUtil {
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching journal articles
 	 */
-	public static List<JournalArticle> findByC_ED_ST(
-		long classNameId, Date expirationDate, int status, int start, int end,
-		OrderByComparator<JournalArticle> orderByComparator,
+	public static List<JournalArticle> findByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status, int start,
+		int end, OrderByComparator<JournalArticle> orderByComparator,
 		boolean useFinderCache) {
 
-		return getPersistence().findByC_ED_ST(
-			classNameId, expirationDate, status, start, end, orderByComparator,
-			useFinderCache);
+		return getPersistence().findByG_F_C_NotST(
+			groupId, folderId, classNameId, status, start, end,
+			orderByComparator, useFinderCache);
 	}
 
 	/**
-	 * Returns the first journal article in the ordered set where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns the first journal article in the ordered set where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal article
 	 * @throws NoSuchArticleException if a matching journal article could not be found
 	 */
-	public static JournalArticle findByC_ED_ST_First(
-			long classNameId, Date expirationDate, int status,
+	public static JournalArticle findByG_F_C_NotST_First(
+			long groupId, long folderId, long classNameId, int status,
 			OrderByComparator<JournalArticle> orderByComparator)
 		throws com.liferay.journal.exception.NoSuchArticleException {
 
-		return getPersistence().findByC_ED_ST_First(
-			classNameId, expirationDate, status, orderByComparator);
+		return getPersistence().findByG_F_C_NotST_First(
+			groupId, folderId, classNameId, status, orderByComparator);
 	}
 
 	/**
-	 * Returns the first journal article in the ordered set where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns the first journal article in the ordered set where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal article, or <code>null</code> if a matching journal article could not be found
 	 */
-	public static JournalArticle fetchByC_ED_ST_First(
-		long classNameId, Date expirationDate, int status,
+	public static JournalArticle fetchByG_F_C_NotST_First(
+		long groupId, long folderId, long classNameId, int status,
 		OrderByComparator<JournalArticle> orderByComparator) {
 
-		return getPersistence().fetchByC_ED_ST_First(
-			classNameId, expirationDate, status, orderByComparator);
+		return getPersistence().fetchByG_F_C_NotST_First(
+			groupId, folderId, classNameId, status, orderByComparator);
 	}
 
 	/**
-	 * Returns the last journal article in the ordered set where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns the last journal article in the ordered set where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal article
 	 * @throws NoSuchArticleException if a matching journal article could not be found
 	 */
-	public static JournalArticle findByC_ED_ST_Last(
-			long classNameId, Date expirationDate, int status,
+	public static JournalArticle findByG_F_C_NotST_Last(
+			long groupId, long folderId, long classNameId, int status,
 			OrderByComparator<JournalArticle> orderByComparator)
 		throws com.liferay.journal.exception.NoSuchArticleException {
 
-		return getPersistence().findByC_ED_ST_Last(
-			classNameId, expirationDate, status, orderByComparator);
+		return getPersistence().findByG_F_C_NotST_Last(
+			groupId, folderId, classNameId, status, orderByComparator);
 	}
 
 	/**
-	 * Returns the last journal article in the ordered set where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns the last journal article in the ordered set where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal article, or <code>null</code> if a matching journal article could not be found
 	 */
-	public static JournalArticle fetchByC_ED_ST_Last(
-		long classNameId, Date expirationDate, int status,
+	public static JournalArticle fetchByG_F_C_NotST_Last(
+		long groupId, long folderId, long classNameId, int status,
 		OrderByComparator<JournalArticle> orderByComparator) {
 
-		return getPersistence().fetchByC_ED_ST_Last(
-			classNameId, expirationDate, status, orderByComparator);
+		return getPersistence().fetchByG_F_C_NotST_Last(
+			groupId, folderId, classNameId, status, orderByComparator);
 	}
 
 	/**
-	 * Returns the journal articles before and after the current journal article in the ordered set where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns the journal articles before and after the current journal article in the ordered set where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
 	 * @param id the primary key of the current journal article
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal article
 	 * @throws NoSuchArticleException if a journal article with the primary key could not be found
 	 */
-	public static JournalArticle[] findByC_ED_ST_PrevAndNext(
-			long id, long classNameId, Date expirationDate, int status,
+	public static JournalArticle[] findByG_F_C_NotST_PrevAndNext(
+			long id, long groupId, long folderId, long classNameId, int status,
 			OrderByComparator<JournalArticle> orderByComparator)
 		throws com.liferay.journal.exception.NoSuchArticleException {
 
-		return getPersistence().findByC_ED_ST_PrevAndNext(
-			id, classNameId, expirationDate, status, orderByComparator);
+		return getPersistence().findByG_F_C_NotST_PrevAndNext(
+			id, groupId, folderId, classNameId, status, orderByComparator);
 	}
 
 	/**
-	 * Removes all the journal articles where classNameId = &#63; and expirationDate = &#63; and status = &#63; from the database.
+	 * Returns all the journal articles that the user has permission to view where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
+	 * @param status the status
+	 * @return the matching journal articles that the user has permission to view
+	 */
+	public static List<JournalArticle> filterFindByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status) {
+
+		return getPersistence().filterFindByG_F_C_NotST(
+			groupId, folderId, classNameId, status);
+	}
+
+	/**
+	 * Returns a range of all the journal articles that the user has permission to view where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
+	 * @param classNameId the class name ID
+	 * @param status the status
+	 * @param start the lower bound of the range of journal articles
+	 * @param end the upper bound of the range of journal articles (not inclusive)
+	 * @return the range of matching journal articles that the user has permission to view
+	 */
+	public static List<JournalArticle> filterFindByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status, int start,
+		int end) {
+
+		return getPersistence().filterFindByG_F_C_NotST(
+			groupId, folderId, classNameId, status, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the journal articles that the user has permissions to view where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>JournalArticleModelImpl</code>.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
+	 * @param classNameId the class name ID
+	 * @param status the status
+	 * @param start the lower bound of the range of journal articles
+	 * @param end the upper bound of the range of journal articles (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching journal articles that the user has permission to view
+	 */
+	public static List<JournalArticle> filterFindByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status, int start,
+		int end, OrderByComparator<JournalArticle> orderByComparator) {
+
+		return getPersistence().filterFindByG_F_C_NotST(
+			groupId, folderId, classNameId, status, start, end,
+			orderByComparator);
+	}
+
+	/**
+	 * Returns the journal articles before and after the current journal article in the ordered set of journal articles that the user has permission to view where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
+	 *
+	 * @param id the primary key of the current journal article
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
+	 * @param classNameId the class name ID
+	 * @param status the status
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next journal article
+	 * @throws NoSuchArticleException if a journal article with the primary key could not be found
+	 */
+	public static JournalArticle[] filterFindByG_F_C_NotST_PrevAndNext(
+			long id, long groupId, long folderId, long classNameId, int status,
+			OrderByComparator<JournalArticle> orderByComparator)
+		throws com.liferay.journal.exception.NoSuchArticleException {
+
+		return getPersistence().filterFindByG_F_C_NotST_PrevAndNext(
+			id, groupId, folderId, classNameId, status, orderByComparator);
+	}
+
+	/**
+	 * Removes all the journal articles where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63; from the database.
+	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
+	 * @param classNameId the class name ID
 	 * @param status the status
 	 */
-	public static void removeByC_ED_ST(
-		long classNameId, Date expirationDate, int status) {
+	public static void removeByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status) {
 
-		getPersistence().removeByC_ED_ST(classNameId, expirationDate, status);
+		getPersistence().removeByG_F_C_NotST(
+			groupId, folderId, classNameId, status);
 	}
 
 	/**
-	 * Returns the number of journal articles where classNameId = &#63; and expirationDate = &#63; and status = &#63;.
+	 * Returns the number of journal articles where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
 	 * @param classNameId the class name ID
-	 * @param expirationDate the expiration date
 	 * @param status the status
 	 * @return the number of matching journal articles
 	 */
-	public static int countByC_ED_ST(
-		long classNameId, Date expirationDate, int status) {
+	public static int countByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status) {
 
-		return getPersistence().countByC_ED_ST(
-			classNameId, expirationDate, status);
+		return getPersistence().countByG_F_C_NotST(
+			groupId, folderId, classNameId, status);
+	}
+
+	/**
+	 * Returns the number of journal articles that the user has permission to view where groupId = &#63; and folderId = &#63; and classNameId = &#63; and status &ne; &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param folderId the folder ID
+	 * @param classNameId the class name ID
+	 * @param status the status
+	 * @return the number of matching journal articles that the user has permission to view
+	 */
+	public static int filterCountByG_F_C_NotST(
+		long groupId, long folderId, long classNameId, int status) {
+
+		return getPersistence().filterCountByG_F_C_NotST(
+			groupId, folderId, classNameId, status);
 	}
 
 	/**

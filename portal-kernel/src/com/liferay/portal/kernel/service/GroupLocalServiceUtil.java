@@ -39,6 +39,10 @@ public class GroupLocalServiceUtil {
 	/**
 	 * Adds the group to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param group the group
 	 * @return the group that was added
 	 */
@@ -239,6 +243,10 @@ public class GroupLocalServiceUtil {
 	/**
 	 * Deletes the group from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param group the group
 	 * @return the group that was removed
 	 * @throws PortalException
@@ -252,6 +260,10 @@ public class GroupLocalServiceUtil {
 
 	/**
 	 * Deletes the group with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param groupId the primary key of the group
 	 * @return the group that was removed
@@ -369,6 +381,12 @@ public class GroupLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().disableStaging(groupId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -600,7 +618,7 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
 	 * @return the active or inactive groups
 	 */
@@ -608,10 +626,10 @@ public class GroupLocalServiceUtil {
 		getActiveGroups(
 			long companyId, boolean site, boolean active, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().getActiveGroups(
-			companyId, site, active, start, end, obc);
+			companyId, site, active, start, end, orderByComparator);
 	}
 
 	/**
@@ -632,7 +650,7 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
 	 * @return the active or inactive groups
 	 */
@@ -640,9 +658,10 @@ public class GroupLocalServiceUtil {
 		getActiveGroups(
 			long companyId, boolean active, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
-		return getService().getActiveGroups(companyId, active, start, end, obc);
+		return getService().getActiveGroups(
+			companyId, active, start, end, orderByComparator);
 	}
 
 	/**
@@ -778,6 +797,12 @@ public class GroupLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().getGroupByUuidAndCompanyId(uuid, companyId);
+	}
+
+	public static java.util.List<Long> getGroupIds(
+		long companyId, boolean active) {
+
+		return getService().getGroupIds(companyId, active);
 	}
 
 	/**
@@ -1017,20 +1042,21 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
 	 * @return the range of matching groups ordered by comparator
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group>
 		getLayoutsGroups(
 			long companyId, long parentGroupId, boolean site, boolean active,
 			int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().getLayoutsGroups(
-			companyId, parentGroupId, site, active, start, end, obc);
+			companyId, parentGroupId, site, active, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -1052,20 +1078,20 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
 	 * @return the range of matching groups ordered by comparator
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group>
 		getLayoutsGroups(
 			long companyId, long parentGroupId, boolean site, int start,
 			int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().getLayoutsGroups(
-			companyId, parentGroupId, site, start, end, obc);
+			companyId, parentGroupId, site, start, end, orderByComparator);
 	}
 
 	/**
@@ -1528,6 +1554,13 @@ public class GroupLocalServiceUtil {
 		return getService().getUserSitesGroups(userId, includeAdministrative);
 	}
 
+	public static java.util.List<com.liferay.portal.kernel.model.Group>
+			getUserSitesGroups(long userId, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().getUserSitesGroups(userId, start, end);
+	}
+
 	public static boolean hasOrganizationGroup(
 		long organizationId, long groupId) {
 
@@ -1745,18 +1778,20 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, long parentGroupId, String keywords,
 		java.util.LinkedHashMap<String, Object> params, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
-			companyId, parentGroupId, keywords, params, start, end, obc);
+			companyId, parentGroupId, keywords, params, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -1833,20 +1868,21 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, long parentGroupId, String name, String description,
 		java.util.LinkedHashMap<String, Object> params, boolean andOperator,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
 			companyId, parentGroupId, name, description, params, andOperator,
-			start, end, obc);
+			start, end, orderByComparator);
 	}
 
 	/**
@@ -1923,20 +1959,21 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, long[] classNameIds, long parentGroupId,
 		String keywords, java.util.LinkedHashMap<String, Object> params,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
 			companyId, classNameIds, parentGroupId, keywords, params, start,
-			end, obc);
+			end, orderByComparator);
 	}
 
 	/**
@@ -2019,20 +2056,21 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, long[] classNameIds, long parentGroupId, String name,
 		String description, java.util.LinkedHashMap<String, Object> params,
 		boolean andOperator, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
 			companyId, classNameIds, parentGroupId, name, description, params,
-			andOperator, start, end, obc);
+			andOperator, start, end, orderByComparator);
 	}
 
 	/**
@@ -2103,18 +2141,20 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, long[] classNameIds, String keywords,
 		java.util.LinkedHashMap<String, Object> params, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
-			companyId, classNameIds, keywords, params, start, end, obc);
+			companyId, classNameIds, keywords, params, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -2195,20 +2235,21 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, long[] classNameIds, String name, String description,
 		java.util.LinkedHashMap<String, Object> params, boolean andOperator,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
 			companyId, classNameIds, name, description, params, andOperator,
-			start, end, obc);
+			start, end, orderByComparator);
 	}
 
 	/**
@@ -2272,18 +2313,19 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, String keywords,
 		java.util.LinkedHashMap<String, Object> params, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
-			companyId, keywords, params, start, end, obc);
+			companyId, keywords, params, start, end, orderByComparator);
 	}
 
 	/**
@@ -2357,19 +2399,21 @@ public class GroupLocalServiceUtil {
 	 * @param start the lower bound of the range of groups to return
 	 * @param end the upper bound of the range of groups to return (not
 	 inclusive)
-	 * @param obc the comparator to order the groups (optionally
+	 * @param orderByComparator the comparator to order the groups (optionally
 	 <code>null</code>)
-	 * @return the matching groups ordered by comparator <code>obc</code>
+	 * @return the matching groups ordered by comparator
+	 <code>orderByComparator</code>
 	 */
 	public static java.util.List<com.liferay.portal.kernel.model.Group> search(
 		long companyId, String name, String description,
 		java.util.LinkedHashMap<String, Object> params, boolean andOperator,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
-			<com.liferay.portal.kernel.model.Group> obc) {
+			<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getService().search(
-			companyId, name, description, params, andOperator, start, end, obc);
+			companyId, name, description, params, andOperator, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -2668,6 +2712,10 @@ public class GroupLocalServiceUtil {
 
 	/**
 	 * Updates the group in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param group the group
 	 * @return the group that was updated

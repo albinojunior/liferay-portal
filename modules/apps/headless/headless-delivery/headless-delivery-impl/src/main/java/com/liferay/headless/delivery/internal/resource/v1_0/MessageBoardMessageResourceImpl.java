@@ -17,7 +17,7 @@ package com.liferay.headless.delivery.internal.resource.v1_0;
 import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.headless.common.spi.resource.SPIRatingResource;
-import com.liferay.headless.common.spi.service.context.ServiceContextUtil;
+import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.headless.delivery.dto.v1_0.MessageBoardMessage;
 import com.liferay.headless.delivery.dto.v1_0.Rating;
 import com.liferay.headless.delivery.internal.dto.v1_0.converter.MessageBoardMessageDTOConverter;
@@ -27,6 +27,7 @@ import com.liferay.headless.delivery.internal.dto.v1_0.util.RatingUtil;
 import com.liferay.headless.delivery.internal.odata.entity.v1_0.MessageBoardMessageEntityModel;
 import com.liferay.headless.delivery.resource.v1_0.MessageBoardMessageResource;
 import com.liferay.message.boards.constants.MBMessageConstants;
+import com.liferay.message.boards.exception.NoSuchMessageException;
 import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.model.MBThread;
 import com.liferay.message.boards.service.MBMessageService;
@@ -37,18 +38,20 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.filter.TermFilter;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.SearchUtil;
-import com.liferay.ratings.kernel.model.RatingsEntry;
+import com.liferay.portal.vulcan.util.UriInfoUtil;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
 
 import java.io.Serializable;
@@ -58,6 +61,7 @@ import java.util.Map;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -80,6 +84,7 @@ public class MessageBoardMessageResourceImpl
 		_mbMessageService.deleteMessage(messageBoardMessageId);
 	}
 
+	@Override
 	public void deleteMessageBoardMessageMyRating(Long messageBoardMessageId)
 		throws Exception {
 
@@ -110,16 +115,31 @@ public class MessageBoardMessageResourceImpl
 	public Page<MessageBoardMessage>
 			getMessageBoardMessageMessageBoardMessagesPage(
 				Long parentMessageBoardMessageId, Boolean flatten,
-				String search, Filter filter, Pagination pagination,
-				Sort[] sorts)
+				String search, Aggregation aggregation, Filter filter,
+				Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		MBMessage mbMessage = _mbMessageService.getMessage(
 			parentMessageBoardMessageId);
 
 		return _getMessageBoardMessagesPage(
-			_getMessageBoardListActions(mbMessage), parentMessageBoardMessageId,
-			search, filter, pagination, sorts, flatten, null);
+			HashMapBuilder.put(
+				"get-child-messages",
+				addAction(
+					"VIEW", mbMessage.getMessageId(),
+					"getMessageBoardMessageMessageBoardMessagesPage",
+					mbMessage.getUserId(), "com.liferay.message.boards",
+					mbMessage.getGroupId())
+			).put(
+				"reply-to-message",
+				addAction(
+					"REPLY_TO_MESSAGE", mbMessage.getMessageId(),
+					"postMessageBoardMessageMessageBoardMessage",
+					mbMessage.getUserId(), "com.liferay.message.boards",
+					mbMessage.getGroupId())
+			).build(),
+			parentMessageBoardMessageId, null, flatten, search, aggregation,
+			filter, pagination, sorts);
 	}
 
 	@Override
@@ -134,28 +154,66 @@ public class MessageBoardMessageResourceImpl
 	@Override
 	public Page<MessageBoardMessage>
 			getMessageBoardThreadMessageBoardMessagesPage(
-				Long messageBoardThreadId, String search, Filter filter,
-				Pagination pagination, Sort[] sorts)
+				Long messageBoardThreadId, String search,
+				Aggregation aggregation, Filter filter, Pagination pagination,
+				Sort[] sorts)
 		throws Exception {
 
 		MBThread mbThread = _mbThreadLocalService.getMBThread(
 			messageBoardThreadId);
 
 		return _getMessageBoardMessagesPage(
-			_getMessageBoardThreadListActions(mbThread),
-			mbThread.getRootMessageId(), search, filter, pagination, sorts,
-			false, null);
+			HashMapBuilder.put(
+				"create",
+				addAction(
+					"ADD_MESSAGE", mbThread.getThreadId(),
+					"postMessageBoardThreadMessageBoardMessage",
+					mbThread.getUserId(), "com.liferay.message.boards",
+					mbThread.getGroupId())
+			).put(
+				"get",
+				addAction(
+					"VIEW", mbThread.getThreadId(),
+					"getMessageBoardThreadMessageBoardMessagesPage",
+					mbThread.getUserId(), "com.liferay.message.boards",
+					mbThread.getGroupId())
+			).build(),
+			mbThread.getRootMessageId(), null, false, search, aggregation,
+			filter, pagination, sorts);
+	}
+
+	@Override
+	public MessageBoardMessage getSiteMessageBoardMessageByFriendlyUrlPath(
+			Long siteId, String friendlyUrlPath)
+		throws Exception {
+
+		MBMessage mbMessage = _mbMessageService.fetchMBMessageByUrlSubject(
+			siteId, friendlyUrlPath);
+
+		if (mbMessage == null) {
+			throw new NoSuchMessageException(
+				"No message exists with friendly URL path " + friendlyUrlPath);
+		}
+
+		return _toMessageBoardMessage(mbMessage);
 	}
 
 	@Override
 	public Page<MessageBoardMessage> getSiteMessageBoardMessagesPage(
-			Long siteId, Boolean flatten, String search, Filter filter,
-			Pagination pagination, Sort[] sorts)
+			Long siteId, Boolean flatten, String search,
+			Aggregation aggregation, Filter filter, Pagination pagination,
+			Sort[] sorts)
 		throws Exception {
 
 		return _getMessageBoardMessagesPage(
-			_getSiteListActions(siteId), null, search, filter, pagination,
-			sorts, flatten, siteId);
+			HashMapBuilder.put(
+				"get",
+				addAction(
+					"VIEW", "getSiteMessageBoardMessagesPage",
+					"com.liferay.message.boards", siteId)
+			).build(),
+			null, siteId, flatten, search, aggregation, filter, pagination,
+			sorts);
 	}
 
 	@Override
@@ -221,12 +279,11 @@ public class MessageBoardMessageResourceImpl
 			mbMessage.getClassName(), mbMessage.getClassPK(),
 			messageBoardMessageId, headline,
 			messageBoardMessage.getArticleBody(),
-			ServiceContextUtil.createServiceContext(
-				_getExpandoBridgeAttributes(messageBoardMessage),
-				mbMessage.getGroupId(),
-				messageBoardMessage.getViewableByAsString()));
+			_getServiceContext(messageBoardMessage, mbMessage.getGroupId()));
 
-		_updateAnswer(mbMessage, messageBoardMessage);
+		if (messageBoardMessage.getShowAsAnswer() != mbMessage.isAnswer()) {
+			_updateAnswer(mbMessage, messageBoardMessage);
+		}
 
 		return _toMessageBoardMessage(mbMessage);
 	}
@@ -283,39 +340,12 @@ public class MessageBoardMessageResourceImpl
 			Collections.emptyList(),
 			GetterUtil.getBoolean(messageBoardMessage.getAnonymous()), 0.0,
 			false,
-			ServiceContextUtil.createServiceContext(
-				_getExpandoBridgeAttributes(messageBoardMessage),
-				parentMBMessage.getGroupId(),
-				messageBoardMessage.getViewableByAsString()));
+			_getServiceContext(
+				messageBoardMessage, parentMBMessage.getGroupId()));
 
 		_updateAnswer(mbMessage, messageBoardMessage);
 
 		return _toMessageBoardMessage(mbMessage);
-	}
-
-	private Map<String, Map<String, String>> _getActions(MBMessage mbMessage) {
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"delete",
-			addAction("DELETE", mbMessage, "deleteMessageBoardMessage")
-		).put(
-			"get", addAction("VIEW", mbMessage, "getMessageBoardMessage")
-		).put(
-			"replace", addAction("UPDATE", mbMessage, "putMessageBoardMessage")
-		).put(
-			"reply-to-message",
-			addAction(
-				"REPLY_TO_MESSAGE", mbMessage.getMessageId(),
-				"postMessageBoardMessageMessageBoardMessage",
-				"com.liferay.message.boards", mbMessage.getGroupId())
-		).put(
-			"subscribe",
-			addAction("SUBSCRIBE", mbMessage, "putMessageBoardMessageSubscribe")
-		).put(
-			"unsubscribe",
-			addAction("SUBSCRIBE", mbMessage, "putMessageBoardMessageSubscribe")
-		).put(
-			"update", addAction("UPDATE", mbMessage, "patchMessageBoardMessage")
-		).build();
 	}
 
 	private Map<String, Serializable> _getExpandoBridgeAttributes(
@@ -327,28 +357,11 @@ public class MessageBoardMessageResourceImpl
 			contextAcceptLanguage.getPreferredLocale());
 	}
 
-	private Map<String, Map<String, String>> _getMessageBoardListActions(
-		MBMessage mbMessage) {
-
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"get-child-messages",
-			addAction(
-				"VIEW", mbMessage.getMessageId(),
-				"getMessageBoardMessageMessageBoardMessagesPage",
-				"com.liferay.message.boards", mbMessage.getGroupId())
-		).put(
-			"reply-to-message",
-			addAction(
-				"REPLY_TO_MESSAGE", mbMessage.getMessageId(),
-				"postMessageBoardMessageMessageBoardMessage",
-				"com.liferay.message.boards", mbMessage.getGroupId())
-		).build();
-	}
-
 	private Page<MessageBoardMessage> _getMessageBoardMessagesPage(
 			Map<String, Map<String, String>> actions,
-			Long messageBoardMessageId, String search, Filter filter,
-			Pagination pagination, Sort[] sorts, Boolean flatten, Long siteId)
+			Long messageBoardMessageId, Long siteId, Boolean flatten,
+			String keywords, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		if (messageBoardMessageId != null) {
@@ -398,72 +411,81 @@ public class MessageBoardMessageResourceImpl
 						BooleanClauseOccur.MUST);
 				}
 			},
-			filter, MBMessage.class, search, pagination,
+			filter, MBMessage.class, keywords, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
-			searchContext -> searchContext.setCompanyId(
-				contextCompany.getCompanyId()),
+			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+			},
 			sorts,
 			document -> _toMessageBoardMessage(
 				_mbMessageService.getMessage(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
-	private Map<String, Map<String, String>> _getMessageBoardThreadListActions(
-		MBThread mbThread) {
+	private ServiceContext _getServiceContext(
+		MessageBoardMessage messageBoardMessage, long siteId) {
 
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"create",
-			addAction(
-				"ADD_MESSAGE", mbThread.getThreadId(),
-				"postMessageBoardThreadMessageBoardMessage",
-				"com.liferay.message.boards", mbThread.getGroupId())
-		).put(
-			"get",
-			addAction(
-				"VIEW", mbThread.getThreadId(),
-				"getMessageBoardThreadMessageBoardMessagesPage",
-				"com.liferay.message.boards", mbThread.getGroupId())
-		).build();
-	}
+		ServiceContext serviceContext =
+			ServiceContextRequestUtil.createServiceContext(
+				_getExpandoBridgeAttributes(messageBoardMessage), siteId,
+				contextHttpServletRequest,
+				messageBoardMessage.getViewableByAsString());
 
-	private Map<String, Map<String, String>> _getRatingActions(
-			RatingsEntry ratingsEntry)
-		throws Exception {
+		String link = contextHttpServletRequest.getHeader("Link");
 
-		MBMessage mbMessage = _mbMessageService.getMessage(
-			ratingsEntry.getClassPK());
+		if (link == null) {
+			UriBuilder uriBuilder = UriInfoUtil.getBaseUriBuilder(
+				contextUriInfo);
 
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"create",
-			addAction("UPDATE", mbMessage, "postMessageBoardMessageMyRating")
-		).put(
-			"delete",
-			addAction("UPDATE", mbMessage, "deleteMessageBoardMessageMyRating")
-		).put(
-			"get",
-			addAction("VIEW", mbMessage, "getMessageBoardMessageMyRating")
-		).put(
-			"replace",
-			addAction("UPDATE", mbMessage, "putMessageBoardMessageMyRating")
-		).build();
-	}
+			link = String.valueOf(
+				uriBuilder.replacePath(
+					"/"
+				).build());
+		}
 
-	private Map<String, Map<String, String>> _getSiteListActions(long site) {
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"get",
-			addAction(
-				"VIEW", "getSiteMessageBoardMessagesPage",
-				"com.liferay.message.boards", site)
-		).build();
+		serviceContext.setAttribute("entryURL", link);
+
+		if (messageBoardMessage.getId() == null) {
+			serviceContext.setCommand("add");
+		}
+		else {
+			serviceContext.setCommand("update");
+		}
+
+		return serviceContext;
 	}
 
 	private SPIRatingResource<Rating> _getSPIRatingResource() {
 		return new SPIRatingResource<>(
 			MBMessage.class.getName(), _ratingsEntryLocalService,
-			ratingsEntry -> RatingUtil.toRating(
-				_getRatingActions(ratingsEntry), _portal, ratingsEntry,
-				_userLocalService),
+			ratingsEntry -> {
+				MBMessage mbMessage = _mbMessageService.getMessage(
+					ratingsEntry.getClassPK());
+
+				return RatingUtil.toRating(
+					HashMapBuilder.put(
+						"create",
+						addAction(
+							"VIEW", mbMessage,
+							"postMessageBoardMessageMyRating")
+					).put(
+						"delete",
+						addAction(
+							"VIEW", mbMessage,
+							"deleteMessageBoardMessageMyRating")
+					).put(
+						"get",
+						addAction(
+							"VIEW", mbMessage, "getMessageBoardMessageMyRating")
+					).put(
+						"replace",
+						addAction(
+							"VIEW", mbMessage, "putMessageBoardMessageMyRating")
+					).build(),
+					_portal, ratingsEntry, _userLocalService);
+			},
 			contextUser);
 	}
 
@@ -472,8 +494,38 @@ public class MessageBoardMessageResourceImpl
 
 		return _messageBoardMessageDTOConverter.toDTO(
 			new DefaultDTOConverterContext(
-				false, _getActions(mbMessage), _dtoConverterRegistry,
-				mbMessage.getPrimaryKey(),
+				false,
+				HashMapBuilder.put(
+					"delete",
+					addAction("DELETE", mbMessage, "deleteMessageBoardMessage")
+				).put(
+					"get",
+					addAction("VIEW", mbMessage, "getMessageBoardMessage")
+				).put(
+					"replace",
+					addAction("UPDATE", mbMessage, "putMessageBoardMessage")
+				).put(
+					"reply-to-message",
+					addAction(
+						"REPLY_TO_MESSAGE", mbMessage.getMessageId(),
+						"postMessageBoardMessageMessageBoardMessage",
+						mbMessage.getUserId(), "com.liferay.message.boards",
+						mbMessage.getGroupId())
+				).put(
+					"subscribe",
+					addAction(
+						"SUBSCRIBE", mbMessage,
+						"putMessageBoardMessageSubscribe")
+				).put(
+					"unsubscribe",
+					addAction(
+						"SUBSCRIBE", mbMessage,
+						"putMessageBoardMessageSubscribe")
+				).put(
+					"update",
+					addAction("UPDATE", mbMessage, "patchMessageBoardMessage")
+				).build(),
+				_dtoConverterRegistry, mbMessage.getPrimaryKey(),
 				contextAcceptLanguage.getPreferredLocale(), contextUriInfo,
 				contextUser));
 	}

@@ -37,6 +37,10 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 	/**
 	 * Adds the kaleo task instance token to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskInstanceTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskInstanceToken the kaleo task instance token
 	 * @return the kaleo task instance token that was added
 	 */
@@ -66,6 +70,22 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 		return _kaleoTaskInstanceTokenLocalService.addKaleoTaskInstanceToken(
 			kaleoInstanceTokenId, kaleoTaskId, kaleoTaskName,
 			kaleoTaskAssignments, dueDate, workflowContext, serviceContext);
+	}
+
+	@Override
+	public com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken
+			assignKaleoTaskInstanceToken(
+				long kaleoTaskInstanceTokenId,
+				java.util.Collection
+					<com.liferay.portal.workflow.kaleo.model.
+						KaleoTaskAssignment> kaleoTaskAssignments,
+				java.util.Map<String, java.io.Serializable> workflowContext,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kaleoTaskInstanceTokenLocalService.assignKaleoTaskInstanceToken(
+			kaleoTaskInstanceTokenId, kaleoTaskAssignments, workflowContext,
+			serviceContext);
 	}
 
 	@Override
@@ -146,6 +166,10 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 	/**
 	 * Deletes the kaleo task instance token from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskInstanceTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskInstanceToken the kaleo task instance token
 	 * @return the kaleo task instance token that was removed
 	 */
@@ -161,6 +185,10 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 
 	/**
 	 * Deletes the kaleo task instance token with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskInstanceTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskInstanceTokenId the primary key of the kaleo task instance token
 	 * @return the kaleo task instance token that was removed
@@ -185,6 +213,11 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 
 		return _kaleoTaskInstanceTokenLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _kaleoTaskInstanceTokenLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -725,6 +758,33 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.search.BaseModelSearchResult
+		<com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken>
+				searchKaleoTaskInstanceTokens(
+					String assetTitle, String[] taskNames, String[] assetTypes,
+					Long[] assetPrimaryKeys, String assigneeClassName,
+					Long[] assigneeClassPKs, java.util.Date dueDateGT,
+					java.util.Date dueDateLT, Boolean completed,
+					Long kaleoDefinitionId, Long[] kaleoInstanceIds,
+					Boolean searchByUserRoles, boolean andOperator, int start,
+					int end,
+					com.liferay.portal.kernel.util.OrderByComparator
+						<com.liferay.portal.workflow.kaleo.model.
+							KaleoTaskInstanceToken> orderByComparator,
+					com.liferay.portal.kernel.service.ServiceContext
+						serviceContext)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kaleoTaskInstanceTokenLocalService.
+			searchKaleoTaskInstanceTokens(
+				assetTitle, taskNames, assetTypes, assetPrimaryKeys,
+				assigneeClassName, assigneeClassPKs, dueDateGT, dueDateLT,
+				completed, kaleoDefinitionId, kaleoInstanceIds,
+				searchByUserRoles, andOperator, start, end, orderByComparator,
+				serviceContext);
+	}
+
+	@Override
 	public com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken
 			updateDueDate(
 				long kaleoTaskInstanceTokenId, java.util.Date dueDate,
@@ -737,6 +797,10 @@ public class KaleoTaskInstanceTokenLocalServiceWrapper
 
 	/**
 	 * Updates the kaleo task instance token in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskInstanceTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskInstanceToken the kaleo task instance token
 	 * @return the kaleo task instance token that was updated

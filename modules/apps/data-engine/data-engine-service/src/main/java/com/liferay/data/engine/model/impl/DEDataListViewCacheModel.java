@@ -36,17 +36,17 @@ public class DEDataListViewCacheModel
 	implements CacheModel<DEDataListView>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DEDataListViewCacheModel)) {
+		if (!(object instanceof DEDataListViewCacheModel)) {
 			return false;
 		}
 
 		DEDataListViewCacheModel deDataListViewCacheModel =
-			(DEDataListViewCacheModel)obj;
+			(DEDataListViewCacheModel)object;
 
 		if (deDataListViewId == deDataListViewCacheModel.deDataListViewId) {
 			return true;
@@ -168,7 +168,9 @@ public class DEDataListViewCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		uuid = objectInput.readUTF();
 
 		deDataListViewId = objectInput.readLong();
@@ -181,10 +183,10 @@ public class DEDataListViewCacheModel
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
-		appliedFilters = objectInput.readUTF();
+		appliedFilters = (String)objectInput.readObject();
 
 		ddmStructureId = objectInput.readLong();
-		fieldNames = objectInput.readUTF();
+		fieldNames = (String)objectInput.readObject();
 		name = objectInput.readUTF();
 		sortField = objectInput.readUTF();
 	}
@@ -217,19 +219,19 @@ public class DEDataListViewCacheModel
 		objectOutput.writeLong(modifiedDate);
 
 		if (appliedFilters == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(appliedFilters);
+			objectOutput.writeObject(appliedFilters);
 		}
 
 		objectOutput.writeLong(ddmStructureId);
 
 		if (fieldNames == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(fieldNames);
+			objectOutput.writeObject(fieldNames);
 		}
 
 		if (name == null) {

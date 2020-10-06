@@ -13,13 +13,13 @@ import {useMemo} from 'react';
 
 import filterConstants from '../util/filterConstants.es';
 
-const useFiltersConstants = filterKeys => {
-	const constants = useMemo(() => {
+const useFiltersConstants = (filterKeys) => {
+	return useMemo(() => {
 		const keys = [];
 		const pinnedValues = [];
 		const titles = [];
 
-		filterKeys.forEach(filterKey => {
+		filterKeys.forEach((filterKey) => {
 			if (filterConstants[filterKey]) {
 				keys.push(filterConstants[filterKey].key);
 				pinnedValues.push(filterConstants[filterKey].pinned);
@@ -30,8 +30,6 @@ const useFiltersConstants = filterKeys => {
 		return {keys, pinnedValues, titles};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [filterKeys]);
-
-	return constants;
 };
 
 export {useFiltersConstants};

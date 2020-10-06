@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -56,11 +57,15 @@ public interface PasswordTrackerLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link PasswordTrackerLocalServiceUtil} to access the password tracker local service. Add custom service methods to <code>com.liferay.portal.service.impl.PasswordTrackerLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.PasswordTrackerLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the password tracker local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link PasswordTrackerLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the password tracker to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordTracker the password tracker
 	 * @return the password tracker that was added
@@ -86,6 +91,10 @@ public interface PasswordTrackerLocalService
 	/**
 	 * Deletes the password tracker with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param passwordTrackerId the primary key of the password tracker
 	 * @return the password tracker that was removed
 	 * @throws PortalException if a password tracker with the primary key could not be found
@@ -96,6 +105,10 @@ public interface PasswordTrackerLocalService
 
 	/**
 	 * Deletes the password tracker from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordTracker the password tracker
 	 * @return the password tracker that was removed
@@ -112,6 +125,9 @@ public interface PasswordTrackerLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -249,6 +265,10 @@ public interface PasswordTrackerLocalService
 
 	/**
 	 * Updates the password tracker in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordTracker the password tracker
 	 * @return the password tracker that was updated

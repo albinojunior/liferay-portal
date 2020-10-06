@@ -58,9 +58,10 @@ public class GroupFinderUtil {
 			long companyId, java.util.LinkedHashMap<String, Object> params,
 			int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
-		return getFinder().findByCompanyId(companyId, params, start, end, obc);
+		return getFinder().findByCompanyId(
+			companyId, params, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.portal.kernel.model.Group>
@@ -68,10 +69,11 @@ public class GroupFinderUtil {
 			long companyId, long parentGroupId, boolean site, Boolean active,
 			int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getFinder().findByLayouts(
-			companyId, parentGroupId, site, active, start, end, obc);
+			companyId, parentGroupId, site, active, start, end,
+			orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.portal.kernel.model.Group>
@@ -79,10 +81,10 @@ public class GroupFinderUtil {
 			long companyId, long parentGroupId, boolean site, int start,
 			int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getFinder().findByLayouts(
-			companyId, parentGroupId, site, start, end, obc);
+			companyId, parentGroupId, site, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.portal.kernel.model.Group>
@@ -111,6 +113,12 @@ public class GroupFinderUtil {
 		return getFinder().findByC_GK(companyId, groupKey);
 	}
 
+	public static java.util.List<Long> findByC_A(
+		long companyId, boolean active) {
+
+		return getFinder().findByC_A(companyId, active);
+	}
+
 	public static java.util.List<com.liferay.portal.kernel.model.Group>
 		findByL_TS_S_RSGC(
 			long liveGroupId, String typeSettings, boolean site,
@@ -127,11 +135,11 @@ public class GroupFinderUtil {
 			java.util.LinkedHashMap<String, Object> params, boolean andOperator,
 			int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.portal.kernel.model.Group> obc) {
+				<com.liferay.portal.kernel.model.Group> orderByComparator) {
 
 		return getFinder().findByC_C_PG_N_D(
 			companyId, classNameIds, parentGroupId, names, descriptions, params,
-			andOperator, start, end, obc);
+			andOperator, start, end, orderByComparator);
 	}
 
 	public static GroupFinder getFinder() {

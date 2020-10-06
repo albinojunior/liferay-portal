@@ -14,7 +14,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Dynamic Data Lists");
 
 		DDLDataDefinition.addCP();
@@ -39,7 +38,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Dynamic Data Lists");
 
 		DDLList.addCP();
@@ -52,7 +50,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Dynamic Data Lists");
 	}
 
@@ -74,6 +71,8 @@ definition {
 	@description = "This is a use case for LPS-69335."
 	@priority = "4"
 	test ViewFieldTranslations {
+		property portal.upstream = "quarantine";
+
 		DDLRecord.addCP();
 
 		DDLRecord.populateFieldText(

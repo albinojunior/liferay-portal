@@ -12,9 +12,7 @@
  * details.
  */
 
-(function() {
-	var A = AUI();
-
+(function () {
 	var BBCodeUtil = Liferay.BBCodeUtil;
 	var CKTools = CKEDITOR.tools;
 
@@ -165,7 +163,7 @@
 		'<img src="{imageSrc}" {attributes} />'
 	);
 
-	var Converter = function(config) {
+	var Converter = function (config) {
 		var instance = this;
 
 		config = config || {};
@@ -176,7 +174,7 @@
 	};
 
 	Converter.prototype = {
-		_escapeHTML: A.Lang.String.escapeHTML,
+		_escapeHTML: Liferay.Util.escapeHTML,
 
 		_extractData(toTagName, consume) {
 			var instance = this;

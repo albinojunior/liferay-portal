@@ -17,7 +17,6 @@ package com.liferay.layout.type.controller.content.internal.product.navigation.c
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.security.permission.resource.LayoutContentModelResourcePermission;
-import com.liferay.layout.type.controller.content.internal.layout.type.controller.ContentLayoutTypeController;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -35,7 +34,9 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.product.navigation.control.menu.BaseProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.ProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.constants.ProductNavigationControlMenuCategoryKeys;
@@ -99,10 +100,14 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 					themeDisplay);
 			}
 			else {
-				Layout draftLayout = _layoutLocalService.fetchLayout(
-					_portal.getClassNameId(Layout.class), layout.getPlid());
+				Layout draftLayout = layout.fetchDraftLayout();
 
 				if (draftLayout == null) {
+					UnicodeProperties unicodeProperties =
+						layout.getTypeSettingsProperties();
+
+					unicodeProperties.put("published", "true");
+
 					ServiceContext serviceContext =
 						ServiceContextFactory.getInstance(httpServletRequest);
 
@@ -113,11 +118,16 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 						layout.getNameMap(), layout.getTitleMap(),
 						layout.getDescriptionMap(), layout.getKeywordsMap(),
 						layout.getRobotsMap(), layout.getType(),
-						layout.getTypeSettings(), true, true,
+						unicodeProperties.toString(), true, true,
 						layout.getMasterLayoutPlid(), Collections.emptyMap(),
 						serviceContext);
 
-					_layoutCopyHelper.copyLayout(layout, draftLayout);
+					draftLayout = _layoutCopyHelper.copyLayout(
+						layout, draftLayout);
+
+					_layoutLocalService.updateStatus(
+						draftLayout.getUserId(), draftLayout.getPlid(),
+						WorkflowConstants.STATUS_APPROVED, serviceContext);
 				}
 
 				redirect = _portal.getLayoutFullURL(draftLayout, themeDisplay);
@@ -159,10 +169,6 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 			return false;
 		}
 
-		if (!(layoutTypeController instanceof ContentLayoutTypeController)) {
-			return false;
-		}
-
 		String className = (String)httpServletRequest.getAttribute(
 			ContentPageEditorWebKeys.CLASS_NAME);
 
@@ -173,6 +179,10 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 		}
 
 		Layout layout = themeDisplay.getLayout();
+
+		if (!layout.isTypeContent()) {
+			return false;
+		}
 
 		if (layout.isSystem() && layout.isTypeContent()) {
 			layout = _layoutLocalService.getLayout(layout.getClassPK());

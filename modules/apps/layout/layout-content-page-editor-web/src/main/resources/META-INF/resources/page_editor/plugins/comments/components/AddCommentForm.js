@@ -18,13 +18,15 @@ import React, {useState} from 'react';
 
 import {useDispatch} from '../../../app/store/index';
 import addFragmentComment from '../../../app/thunks/addFragmentComment';
+import {useId} from '../../../app/utils/useId';
 import CommentForm from './CommentForm';
 
 export default function AddCommentForm({fragmentEntryLinkId}) {
 	const [addingComment, setAddingComment] = useState(false);
+	const dispatch = useDispatch();
+	const pageEditorCommentEditorId = useId();
 	const [showButtons, setShowButtons] = useState(false);
 	const [textareaContent, setTextareaContent] = useState('');
-	const dispatch = useDispatch();
 
 	const _handleCancelButtonClick = () => {
 		setShowButtons(false);
@@ -54,7 +56,6 @@ export default function AddCommentForm({fragmentEntryLinkId}) {
 					message: Liferay.Language.get(
 						'the-comment-could-not-be-saved'
 					),
-					title: Liferay.Language.get('error'),
 					type: 'danger',
 				});
 
@@ -62,7 +63,7 @@ export default function AddCommentForm({fragmentEntryLinkId}) {
 			});
 	};
 
-	const _handleTextareaChange = content => {
+	const _handleTextareaChange = (content) => {
 		if (content) {
 			setTextareaContent(content);
 		}
@@ -71,7 +72,7 @@ export default function AddCommentForm({fragmentEntryLinkId}) {
 	return (
 		<div className="px-3">
 			<CommentForm
-				id="pageEditorCommentEditor"
+				id={pageEditorCommentEditorId}
 				loading={addingComment}
 				onCancelButtonClick={_handleCancelButtonClick}
 				onFormFocus={_handleFormFocus}

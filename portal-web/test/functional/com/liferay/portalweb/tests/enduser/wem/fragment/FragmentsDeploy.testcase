@@ -164,7 +164,7 @@ definition {
 
 			Click.waitForMenuToggleJSClick(
 				key_card = "Link",
-				locator1 = "LexiconCard#CARD_ELLIPSIS");
+				locator1 = "Card#CARD_ELLIPSIS");
 
 			MenuItem.viewNotPresent(menuItem = "Delete");
 
@@ -186,7 +186,7 @@ definition {
 
 			Click.waitForMenuToggleJSClick(
 				key_card = "Image",
-				locator1 = "LexiconCard#CARD_ELLIPSIS");
+				locator1 = "Card#CARD_ELLIPSIS");
 
 			MenuItem.viewNotPresent(menuItem = "Delete");
 
@@ -207,8 +207,8 @@ definition {
 		property test.name.skip.portal.instance = "FragmentsDeploy#CannotDeleteSystemScopedReadOnlyDeployedFragmentInOtherVirtualInstance";
 
 		task ("Add a new Virtual Instance") {
-			ProductMenu.gotoPortlet(
-				category = "Configuration",
+			ApplicationsMenu.gotoPortlet(
+				category = "System",
 				panel = "Control Panel",
 				portlet = "Virtual Instances");
 
@@ -242,7 +242,7 @@ definition {
 
 			Click.waitForMenuToggleJSClick(
 				key_card = "Image",
-				locator1 = "LexiconCard#CARD_ELLIPSIS");
+				locator1 = "Card#CARD_ELLIPSIS");
 
 			MenuItem.viewNotPresent(menuItem = "Delete");
 
@@ -300,8 +300,8 @@ definition {
 		property test.name.skip.portal.instance = "FragmentsDeploy#DeployFragmentsToSpecificVirtualInstance";
 
 		task ("Add a new Virtual Instance") {
-			ProductMenu.gotoPortlet(
-				category = "Configuration",
+			ApplicationsMenu.gotoPortlet(
+				category = "System",
 				panel = "Control Panel",
 				portlet = "Virtual Instances");
 
@@ -418,8 +418,8 @@ definition {
 		}
 
 		task ("Assert new fragment exists in future virtual instance") {
-			ProductMenu.gotoPortlet(
-				category = "Configuration",
+			ApplicationsMenu.gotoPortlet(
+				category = "System",
 				panel = "Control Panel",
 				portlet = "Virtual Instances");
 

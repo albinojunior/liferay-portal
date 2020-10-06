@@ -59,7 +59,7 @@ public interface TasksEntryLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link TasksEntryLocalServiceUtil} to access the tasks entry local service. Add custom service methods to <code>com.liferay.tasks.service.impl.TasksEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.tasks.service.impl.TasksEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the tasks entry local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link TasksEntryLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public TasksEntry addTasksEntry(
 			long userId, String title, int priority, long assigneeUserId,
@@ -70,6 +70,10 @@ public interface TasksEntryLocalService
 
 	/**
 	 * Adds the tasks entry to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tasksEntry the tasks entry
 	 * @return the tasks entry that was added
@@ -102,6 +106,10 @@ public interface TasksEntryLocalService
 	/**
 	 * Deletes the tasks entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param tasksEntryId the primary key of the tasks entry
 	 * @return the tasks entry that was removed
 	 * @throws PortalException if a tasks entry with the primary key could not be found
@@ -112,6 +120,10 @@ public interface TasksEntryLocalService
 
 	/**
 	 * Deletes the tasks entry from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tasksEntry the tasks entry
 	 * @return the tasks entry that was removed
@@ -318,6 +330,10 @@ public interface TasksEntryLocalService
 
 	/**
 	 * Updates the tasks entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect TasksEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tasksEntry the tasks entry
 	 * @return the tasks entry that was updated

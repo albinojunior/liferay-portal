@@ -37,16 +37,17 @@ public class AssetEntryCacheModel
 	implements CacheModel<AssetEntry>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AssetEntryCacheModel)) {
+		if (!(object instanceof AssetEntryCacheModel)) {
 			return false;
 		}
 
-		AssetEntryCacheModel assetEntryCacheModel = (AssetEntryCacheModel)obj;
+		AssetEntryCacheModel assetEntryCacheModel =
+			(AssetEntryCacheModel)object;
 
 		if ((entryId == assetEntryCacheModel.entryId) &&
 			(mvccVersion == assetEntryCacheModel.mvccVersion)) {
@@ -265,7 +266,9 @@ public class AssetEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		ctCollectionId = objectInput.readLong();
@@ -297,8 +300,8 @@ public class AssetEntryCacheModel
 		expirationDate = objectInput.readLong();
 		mimeType = objectInput.readUTF();
 		title = objectInput.readUTF();
-		description = objectInput.readUTF();
-		summary = objectInput.readUTF();
+		description = (String)objectInput.readObject();
+		summary = (String)objectInput.readObject();
 		url = objectInput.readUTF();
 		layoutUuid = objectInput.readUTF();
 
@@ -369,17 +372,17 @@ public class AssetEntryCacheModel
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(description);
+			objectOutput.writeObject(description);
 		}
 
 		if (summary == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(summary);
+			objectOutput.writeObject(summary);
 		}
 
 		if (url == null) {

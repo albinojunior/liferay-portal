@@ -121,11 +121,11 @@ public class AssetListManagementToolbarDisplayContext
 				dropdownItem.putData(
 					"title",
 					LanguageUtil.format(
-						request, "add-x-content-set",
+						request, "add-x-collection",
 						AssetListEntryTypeConstants.TYPE_MANUAL_LABEL, true));
 				dropdownItem.setHref("#");
 				dropdownItem.setLabel(
-					LanguageUtil.get(request, "manual-selection"));
+					LanguageUtil.get(request, "manual-collection"));
 			}
 		).addPrimaryDropdownItem(
 			dropdownItem -> {
@@ -146,11 +146,11 @@ public class AssetListManagementToolbarDisplayContext
 				dropdownItem.putData(
 					"title",
 					LanguageUtil.format(
-						request, "add-x-content-set",
+						request, "add-x-collection",
 						AssetListEntryTypeConstants.TYPE_DYNAMIC_LABEL, true));
 				dropdownItem.setHref("#");
 				dropdownItem.setLabel(
-					LanguageUtil.get(request, "dynamic-selection"));
+					LanguageUtil.get(request, "dynamic-collection"));
 			}
 		).build();
 	}

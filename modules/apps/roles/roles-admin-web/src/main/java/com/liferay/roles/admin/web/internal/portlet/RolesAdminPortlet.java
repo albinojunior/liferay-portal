@@ -20,14 +20,18 @@ import com.liferay.application.list.constants.ApplicationListWebKeys;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.application.list.display.context.logic.PanelCategoryHelper;
 import com.liferay.application.list.display.context.logic.PersonalMenuEntryHelper;
+import com.liferay.depot.configuration.DepotConfiguration;
+import com.liferay.depot.model.DepotEntry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.osgi.service.tracker.collections.map.PropertyServiceReferenceComparator;
 import com.liferay.petra.lang.SafeClosable;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.exception.DuplicateRoleException;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.NoSuchRoleException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.RequiredRoleException;
 import com.liferay.portal.kernel.exception.RoleAssignmentException;
 import com.liferay.portal.kernel.exception.RoleNameException;
@@ -67,8 +71,9 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.product.navigation.personal.menu.PersonalMenuEntry;
 import com.liferay.roles.admin.constants.RolesAdminPortletKeys;
 import com.liferay.roles.admin.constants.RolesAdminWebKeys;
+import com.liferay.roles.admin.panel.category.role.type.mapper.PanelCategoryRoleTypeMapper;
 import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
-import com.liferay.roles.admin.web.internal.role.type.contributor.provider.RoleTypeContributorProvider;
+import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 import com.liferay.segments.service.SegmentsEntryRoleLocalService;
 
 import java.io.IOException;
@@ -77,9 +82,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -347,9 +354,11 @@ public class RolesAdminPortlet extends MVCPortlet {
 
 	public List<PersonalMenuEntry> getPersonalMenuEntries() {
 		List<PersonalMenuEntry> personalMenuEntries = new ArrayList<>(
-			_serviceTrackerList.size());
+			_personalMenuEntryServiceTrackerList.size());
 
-		for (PersonalMenuEntry personalMenuEntry : _serviceTrackerList) {
+		for (PersonalMenuEntry personalMenuEntry :
+				_personalMenuEntryServiceTrackerList) {
+
 			personalMenuEntries.add(personalMenuEntry);
 		}
 
@@ -449,7 +458,8 @@ public class RolesAdminPortlet extends MVCPortlet {
 				String[] groupIds = StringUtil.split(
 					ParamUtil.getString(actionRequest, "groupIds" + target));
 
-				groupIds = ArrayUtil.distinct(groupIds);
+				groupIds = ArrayUtil.distinct(
+					ArrayUtil.filter(groupIds, Validator::isNotNull));
 
 				int scope = ResourceConstants.SCOPE_COMPANY;
 
@@ -514,15 +524,20 @@ public class RolesAdminPortlet extends MVCPortlet {
 			new PropertyServiceReferenceComparator<>(
 				"product.navigation.personal.menu.entry.order");
 
-		_serviceTrackerList = ServiceTrackerListFactory.open(
+		_personalMenuEntryServiceTrackerList = ServiceTrackerListFactory.open(
 			bundleContext, PersonalMenuEntry.class,
 			Collections.reverseOrder(
 				groupComparator.thenComparing(entryOrderComparator)));
+
+		_panelCategoryRoleTypeMapperServiceTrackerList =
+			ServiceTrackerListFactory.open(
+				bundleContext, PanelCategoryRoleTypeMapper.class);
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		_serviceTrackerList.close();
+		_personalMenuEntryServiceTrackerList.close();
+		_panelCategoryRoleTypeMapperServiceTrackerList.close();
 	}
 
 	@Override
@@ -579,14 +594,14 @@ public class RolesAdminPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof DuplicateRoleException ||
-			cause instanceof NoSuchRoleException ||
-			cause instanceof PrincipalException ||
-			cause instanceof RequiredRoleException ||
-			cause instanceof RoleAssignmentException ||
-			cause instanceof RoleNameException ||
-			cause instanceof RolePermissionsException) {
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof DuplicateRoleException ||
+			throwable instanceof NoSuchRoleException ||
+			throwable instanceof PrincipalException ||
+			throwable instanceof RequiredRoleException ||
+			throwable instanceof RoleAssignmentException ||
+			throwable instanceof RoleNameException ||
+			throwable instanceof RolePermissionsException) {
 
 			return true;
 		}
@@ -633,6 +648,14 @@ public class RolesAdminPortlet extends MVCPortlet {
 		portletRequest.setAttribute(
 			RolesAdminWebKeys.ROLE_TYPES,
 			_roleTypeContributorProvider.getRoleTypeContributors());
+
+		String mvcPath = ParamUtil.getString(portletRequest, "mvcPath");
+
+		if (mvcPath.equals("/edit_role_permissions.jsp")) {
+			portletRequest.setAttribute(
+				RolesAdminWebKeys.PANEL_CATEGORY_KEYS,
+				_getPanelCategoryKeys(type));
+		}
 	}
 
 	@Reference(unbind = "-")
@@ -737,8 +760,10 @@ public class RolesAdminPortlet extends MVCPortlet {
 		String selResource = null;
 		String actionId = null;
 
-		if (panelCategoryHelper.containsPortlet(
-				portletId, PanelCategoryKeys.CONTROL_PANEL) &&
+		if ((panelCategoryHelper.containsPortlet(
+				portletId, PanelCategoryKeys.APPLICATIONS_MENU) ||
+			 panelCategoryHelper.containsPortlet(
+				 portletId, PanelCategoryKeys.CONTROL_PANEL)) &&
 			(role.getType() == RoleConstants.TYPE_REGULAR)) {
 
 			selResource = PortletKeys.PORTAL;
@@ -746,6 +771,13 @@ public class RolesAdminPortlet extends MVCPortlet {
 		}
 		else if (panelCategoryHelper.containsPortlet(
 					portletId, PanelCategoryKeys.SITE_ADMINISTRATION)) {
+
+			updateAction(
+				role, scopeGroupId, DepotEntry.class.getName(),
+				ActionKeys.VIEW_SITE_ADMINISTRATION, true, scope,
+				ArrayUtil.filter(
+					groupIds,
+					groupId -> _isDepotGroup(role.getCompanyId(), groupId)));
 
 			selResource = Group.class.getName();
 			actionId = ActionKeys.VIEW_SITE_ADMINISTRATION;
@@ -778,6 +810,41 @@ public class RolesAdminPortlet extends MVCPortlet {
 		}
 	}
 
+	private String[] _getPanelCategoryKeys(int type) {
+		Set<String> panelCategoryKeys = new HashSet<>();
+
+		for (PanelCategoryRoleTypeMapper panelCategoryRoleTypeMapper :
+				_panelCategoryRoleTypeMapperServiceTrackerList) {
+
+			if (ArrayUtil.contains(
+					panelCategoryRoleTypeMapper.getRoleTypes(), type)) {
+
+				panelCategoryKeys.add(
+					panelCategoryRoleTypeMapper.getPanelCategoryKey());
+			}
+		}
+
+		return panelCategoryKeys.toArray(new String[0]);
+	}
+
+	private boolean _isDepotGroup(long companyId, String groupKey) {
+		try {
+			Group group = _groupService.getGroup(companyId, groupKey);
+
+			if (group.isDepot()) {
+				return true;
+			}
+
+			return false;
+		}
+		catch (PortalException portalException) {
+			return ReflectionUtil.throwException(portalException);
+		}
+	}
+
+	@Reference
+	private DepotConfiguration _depotConfiguration;
+
 	private GroupService _groupService;
 
 	@Reference
@@ -788,6 +855,11 @@ public class RolesAdminPortlet extends MVCPortlet {
 
 	private PanelAppRegistry _panelAppRegistry;
 	private PanelCategoryRegistry _panelCategoryRegistry;
+	private ServiceTrackerList
+		<PanelCategoryRoleTypeMapper, PanelCategoryRoleTypeMapper>
+			_panelCategoryRoleTypeMapperServiceTrackerList;
+	private ServiceTrackerList<PersonalMenuEntry, PersonalMenuEntry>
+		_personalMenuEntryServiceTrackerList;
 
 	@Reference
 	private Portal _portal;
@@ -805,8 +877,6 @@ public class RolesAdminPortlet extends MVCPortlet {
 	@Reference
 	private SegmentsEntryRoleLocalService _segmentsEntryRoleLocalService;
 
-	private ServiceTrackerList<PersonalMenuEntry, PersonalMenuEntry>
-		_serviceTrackerList;
 	private UserService _userService;
 
 }

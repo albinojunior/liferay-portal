@@ -68,6 +68,20 @@ public class FormatSourceMojo extends AbstractMojo {
 	/**
 	 * @parameter
 	 */
+	public void setFailOnAutoFix(boolean failOnAutoFix) {
+		_sourceFormatterArgs.setFailOnAutoFix(failOnAutoFix);
+	}
+
+	/**
+	 * @parameter
+	 */
+	public void setFailOnHasWarning(boolean failOnHasWarning) {
+		_sourceFormatterArgs.setFailOnHasWarning(failOnHasWarning);
+	}
+
+	/**
+	 * @parameter
+	 */
 	public void setFileNames(String[] fileNames) {
 		_sourceFormatterArgs.setFileNames(Arrays.asList(fileNames));
 	}
@@ -152,8 +166,8 @@ public class FormatSourceMojo extends AbstractMojo {
 	/**
 	 * @parameter
 	 */
-	public void setThrowException(boolean throwException) {
-		_sourceFormatterArgs.setThrowException(throwException);
+	public void setValidateCommitMessages(boolean validateCommitMessages) {
+		_sourceFormatterArgs.setValidateCommitMessages(validateCommitMessages);
 	}
 
 	private final SourceFormatterArgs _sourceFormatterArgs =

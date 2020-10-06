@@ -69,9 +69,9 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
 public class JSPortletExtender {
 
 	@Activate
-	protected void activate(BundleContext context) {
+	protected void activate(BundleContext bundleContext) {
 		_bundleTracker = new BundleTracker<>(
-			context, Bundle.ACTIVE, _bundleTrackerCustomizer);
+			bundleContext, Bundle.ACTIVE, _bundleTrackerCustomizer);
 
 		_bundleTracker.open();
 	}
@@ -83,29 +83,6 @@ public class JSPortletExtender {
 		_bundleTracker = null;
 	}
 
-	private static boolean _optIn(Bundle bundle) {
-		BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
-
-		List<BundleWire> bundleWires = bundleWiring.getRequiredWires(
-			ExtenderNamespace.EXTENDER_NAMESPACE);
-
-		for (BundleWire bundleWire : bundleWires) {
-			BundleCapability bundleCapability = bundleWire.getCapability();
-
-			Map<String, Object> attributes = bundleCapability.getAttributes();
-
-			Object value = attributes.get(ExtenderNamespace.EXTENDER_NAMESPACE);
-
-			if ((value != null) &&
-				value.equals("liferay.frontend.js.portlet")) {
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	private void _addServiceProperties(
 		Dictionary<String, Object> properties, JSONObject portletJSONObject) {
 
@@ -113,10 +90,10 @@ public class JSPortletExtender {
 			return;
 		}
 
-		Iterator<String> keys = portletJSONObject.keys();
+		Iterator<String> iterator = portletJSONObject.keys();
 
-		while (keys.hasNext()) {
-			String key = keys.next();
+		while (iterator.hasNext()) {
+			String key = iterator.next();
 
 			Object value = portletJSONObject.get(key);
 
@@ -158,6 +135,29 @@ public class JSPortletExtender {
 		}
 
 		return portletName;
+	}
+
+	private boolean _optIn(Bundle bundle) {
+		BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+
+		List<BundleWire> bundleWires = bundleWiring.getRequiredWires(
+			ExtenderNamespace.EXTENDER_NAMESPACE);
+
+		for (BundleWire bundleWire : bundleWires) {
+			BundleCapability bundleCapability = bundleWire.getCapability();
+
+			Map<String, Object> attributes = bundleCapability.getAttributes();
+
+			Object value = attributes.get(ExtenderNamespace.EXTENDER_NAMESPACE);
+
+			if ((value != null) &&
+				value.equals("liferay.frontend.js.portlet")) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private JSONObject _parse(URL url) {

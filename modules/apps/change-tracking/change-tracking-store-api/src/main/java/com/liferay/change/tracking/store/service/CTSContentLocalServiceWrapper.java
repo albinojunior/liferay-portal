@@ -38,6 +38,10 @@ public class CTSContentLocalServiceWrapper
 	/**
 	 * Adds the cts content to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTSContentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctsContent the cts content
 	 * @return the cts content that was added
 	 */
@@ -80,6 +84,10 @@ public class CTSContentLocalServiceWrapper
 	/**
 	 * Deletes the cts content from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTSContentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctsContent the cts content
 	 * @return the cts content that was removed
 	 */
@@ -90,6 +98,10 @@ public class CTSContentLocalServiceWrapper
 
 	/**
 	 * Deletes the cts content with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTSContentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctsContentId the primary key of the cts content
 	 * @return the cts content that was removed
@@ -128,6 +140,11 @@ public class CTSContentLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ctsContentLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _ctsContentLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -350,6 +367,10 @@ public class CTSContentLocalServiceWrapper
 
 	/**
 	 * Updates the cts content in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTSContentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctsContent the cts content
 	 * @return the cts content that was updated

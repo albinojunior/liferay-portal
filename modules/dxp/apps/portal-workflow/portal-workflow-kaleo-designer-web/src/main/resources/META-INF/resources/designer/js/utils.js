@@ -11,13 +11,17 @@
 
 AUI.add(
 	'liferay-kaleo-designer-utils',
-	A => {
+	(A) => {
 		var AArray = A.Array;
 		var isArray = Array.isArray;
 
 		var STR_CDATA_CLOSE = ']]>';
 
 		var STR_CDATA_OPEN = '<![CDATA[';
+
+		var STR_CHAR_CRLF = '\r\n';
+
+		var STR_CHAR_TAB = '\t';
 
 		var STR_ELLIPSIS = '...';
 
@@ -67,17 +71,23 @@ AUI.add(
 
 		KaleoDesignerUtils.PropertyListFormatter = PropertyListFormatter;
 
-		var cdata = function(value) {
+		var cdata = function (value) {
 			value = value
 				.replace(STR_CDATA_OPEN, '')
 				.replace(STR_CDATA_CLOSE, '');
 
-			return STR_CDATA_OPEN + value + STR_CDATA_CLOSE;
+			return (
+				STR_CHAR_CRLF +
+				STR_CDATA_OPEN +
+				value +
+				STR_CDATA_CLOSE +
+				STR_CHAR_CRLF
+			);
 		};
 
 		KaleoDesignerUtils.cdata = cdata;
 
-		var jsonParse = function(val) {
+		var jsonParse = function (val) {
 			var jsonObj = null;
 
 			try {
@@ -90,11 +100,14 @@ AUI.add(
 
 		KaleoDesignerUtils.jsonParse = jsonParse;
 
-		var jsonStringify = function(val) {
+		var jsonStringify = function (val) {
 			var jsonString = null;
 
 			try {
-				jsonString = JSON.stringify(val);
+				jsonString =
+					STR_CHAR_CRLF +
+					JSON.stringify(val, null, STR_CHAR_TAB) +
+					STR_CHAR_CRLF;
 			}
 			catch (e) {}
 
@@ -103,11 +116,11 @@ AUI.add(
 
 		KaleoDesignerUtils.jsonStringify = jsonStringify;
 
-		var serializeForm = function(form) {
+		var serializeForm = function (form) {
 			var data = {};
 
 			if (form) {
-				form.all(':input:not(:button)').each(item => {
+				form.all(':input:not(:button)').each((item) => {
 					var checked = item.get('checked');
 					var name = item.get('name');
 					var type = item.get('type');
@@ -130,7 +143,7 @@ AUI.add(
 						if (type === 'select-multiple') {
 							value = [];
 
-							item.all('option:selected').each(option => {
+							item.all('option:selected').each((option) => {
 								value.push({
 									notificationType: option.val(),
 								});
@@ -147,13 +160,13 @@ AUI.add(
 
 		KaleoDesignerUtils.serializeForm = serializeForm;
 
-		var uniformRandomInt = function(a, b) {
+		var uniformRandomInt = function (a, b) {
 			return parseInt(a + Math.random() * (b - a), 10) || 0;
 		};
 
 		KaleoDesignerUtils.uniformRandomInt = uniformRandomInt;
 
-		var previewBeforeRevert = function(_, renderUrl, actionUrl, title) {
+		var previewBeforeRevert = function (_, renderUrl, actionUrl, title) {
 			var dialog = Liferay.Util.Window.getWindow({
 				dialog: {
 					destroyOnHide: true,
@@ -186,9 +199,9 @@ AUI.add(
 								cssClass: 'close',
 								discardDefaultButtonCssClasses: true,
 								labelHTML:
-									'<svg class="lexicon-icon" focusable="false"><use data-href="' +
+									'<svg class="lexicon-icon" focusable="false"><use href="' +
 									Liferay.ThemeDisplay.getPathThemeImages() +
-									'/lexicon/icons.svg#times" /><title>' +
+									'/clay/icons.svg#times" /><title>' +
 									Liferay.Language.get('close') +
 									'</title></svg>',
 								on: {
@@ -230,6 +243,7 @@ AUI.add(
 			deleteNodesMessage: Liferay.Language.get(
 				'are-you-sure-you-want-to-delete-the-selected-nodes'
 			),
+			depot: Liferay.Language.get('depot'),
 			description: Liferay.Language.get('description'),
 			duration: Liferay.Language.get('duration'),
 			edit: Liferay.Language.get('edit'),

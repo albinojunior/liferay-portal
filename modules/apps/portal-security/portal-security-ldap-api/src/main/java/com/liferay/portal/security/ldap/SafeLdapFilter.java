@@ -61,7 +61,7 @@ public class SafeLdapFilter {
 		}
 
 		StringBundler sb = new StringBundler(
-			_filterSB.length() + _arguments.size() * 2);
+			_filterSB.length() + (_arguments.size() * 2));
 
 		int placeholderPos = 0;
 
@@ -134,7 +134,7 @@ public class SafeLdapFilter {
 		return _filterSB;
 	}
 
-	protected static final String ARGUMENT_PLACEHOLDER = "(PLACEHOLDER)";
+	protected static final String ARGUMENT_PLACEHOLDER = "{PLACEHOLDER}";
 
 	private final List<Object> _arguments;
 	private final StringBundler _filterSB;

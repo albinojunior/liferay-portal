@@ -17,6 +17,7 @@ package com.liferay.app.builder.service.base;
 import com.liferay.app.builder.model.AppBuilderAppDeployment;
 import com.liferay.app.builder.service.AppBuilderAppDeploymentLocalService;
 import com.liferay.app.builder.service.persistence.AppBuilderAppDeploymentPersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +75,10 @@ public abstract class AppBuilderAppDeploymentLocalServiceBaseImpl
 	/**
 	 * Adds the app builder app deployment to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was added
 	 */
@@ -105,6 +111,10 @@ public abstract class AppBuilderAppDeploymentLocalServiceBaseImpl
 	/**
 	 * Deletes the app builder app deployment with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeploymentId the primary key of the app builder app deployment
 	 * @return the app builder app deployment that was removed
 	 * @throws PortalException if a app builder app deployment with the primary key could not be found
@@ -122,6 +132,10 @@ public abstract class AppBuilderAppDeploymentLocalServiceBaseImpl
 	/**
 	 * Deletes the app builder app deployment from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was removed
 	 */
@@ -132,6 +146,11 @@ public abstract class AppBuilderAppDeploymentLocalServiceBaseImpl
 
 		return appBuilderAppDeploymentPersistence.remove(
 			appBuilderAppDeployment);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return appBuilderAppDeploymentPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -316,6 +335,10 @@ public abstract class AppBuilderAppDeploymentLocalServiceBaseImpl
 				(AppBuilderAppDeployment)persistedModel);
 	}
 
+	public BasePersistence<AppBuilderAppDeployment> getBasePersistence() {
+		return appBuilderAppDeploymentPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -357,6 +380,10 @@ public abstract class AppBuilderAppDeploymentLocalServiceBaseImpl
 
 	/**
 	 * Updates the app builder app deployment in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppDeploymentLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppDeployment the app builder app deployment
 	 * @return the app builder app deployment that was updated

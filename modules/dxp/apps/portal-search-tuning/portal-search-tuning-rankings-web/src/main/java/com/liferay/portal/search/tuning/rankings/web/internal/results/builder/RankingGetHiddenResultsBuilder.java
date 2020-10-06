@@ -32,12 +32,15 @@ import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.search.query.Query;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.Ranking;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingIndexReader;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexName;
+import com.liferay.portal.search.tuning.rankings.web.internal.util.RankingResultUtil;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 /**
  * @author André de Oliveira
@@ -48,22 +51,25 @@ public class RankingGetHiddenResultsBuilder {
 	public RankingGetHiddenResultsBuilder(
 		DLAppLocalService dlAppLocalService,
 		FastDateFormatFactory fastDateFormatFactory, Queries queries,
+		RankingIndexName rankingIndexName,
 		RankingIndexReader rankingIndexReader, ResourceActions resourceActions,
-		ResourceRequest resourceRequest,
+		ResourceRequest resourceRequest, ResourceResponse resourceResponse,
 		SearchEngineAdapter searchEngineAdapter) {
 
 		_dlAppLocalService = dlAppLocalService;
 		_fastDateFormatFactory = fastDateFormatFactory;
 		_queries = queries;
+		_rankingIndexName = rankingIndexName;
 		_rankingIndexReader = rankingIndexReader;
 		_resourceActions = resourceActions;
 		_resourceRequest = resourceRequest;
+		_resourceResponse = resourceResponse;
 		_searchEngineAdapter = searchEngineAdapter;
 	}
 
 	public JSONObject build() {
 		Optional<Ranking> optional = _rankingIndexReader.fetchOptional(
-			_rankingId);
+			_rankingIndexName, _rankingId);
 
 		if (!optional.isPresent()) {
 			return JSONUtil.put(
@@ -159,23 +165,38 @@ public class RankingGetHiddenResultsBuilder {
 			_dlAppLocalService, _fastDateFormatFactory, _resourceActions,
 			_resourceRequest);
 
-		return rankingJSONBuilder.document(
+		return rankingJSONBuilder.deleted(
+			_isAssetDeleted(document)
+		).document(
 			document
 		).hidden(
 			true
+		).viewURL(
+			_getViewURL(document)
 		).build();
 	}
 
 	protected static final String LIFERAY_DOCUMENT_TYPE = "LiferayDocumentType";
+
+	private String _getViewURL(Document document) {
+		return RankingResultUtil.getRankingResultViewURL(
+			document, _resourceRequest, _resourceResponse, true);
+	}
+
+	private boolean _isAssetDeleted(Document document) {
+		return RankingResultUtil.isAssetDeleted(document);
+	}
 
 	private final DLAppLocalService _dlAppLocalService;
 	private final FastDateFormatFactory _fastDateFormatFactory;
 	private int _from;
 	private final Queries _queries;
 	private String _rankingId;
+	private final RankingIndexName _rankingIndexName;
 	private final RankingIndexReader _rankingIndexReader;
 	private final ResourceActions _resourceActions;
 	private final ResourceRequest _resourceRequest;
+	private final ResourceResponse _resourceResponse;
 	private final SearchEngineAdapter _searchEngineAdapter;
 	private int _size;
 

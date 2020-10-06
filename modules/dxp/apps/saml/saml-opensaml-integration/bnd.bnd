@@ -1,6 +1,6 @@
 Bundle-Name: Liferay SAML OpenSAML Integration
 Bundle-SymbolicName: com.liferay.saml.opensaml.integration
-Bundle-Version: 4.0.4
+Bundle-Version: 4.0.22
 Export-Package: com.liferay.saml.opensaml.integration.resolver
 Import-Package:\
 	!bsh,\
@@ -18,6 +18,8 @@ Import-Package:\
 	\
 	!javax.annotation.*,\
 	\
+	!junit.*,\
+	\
 	!net.fortuna.*,\
 	\
 	!net.jcip.*,\
@@ -32,6 +34,7 @@ Import-Package:\
 	\
 	!org.apache.axis.*,\
 	!org.apache.commons.configuration,\
+	!org.apache.commons.httpclient.*,\
 	!org.apache.commons.ssl,\
 	!org.apache.log.*,\
 	!org.apache.oro.*,\
@@ -51,6 +54,7 @@ Import-Package:\
 	!sun.io,\
 	\
 	*
+-fixupmessages: Classes found in the wrong directory: ...;is:=ignore
 -includeresource:\
 	opensaml-core-*;lib:=true,\
 	opensaml-messaging-api-*;lib:=true,\

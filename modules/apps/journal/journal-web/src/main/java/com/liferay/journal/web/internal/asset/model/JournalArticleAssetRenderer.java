@@ -15,16 +15,16 @@
 package com.liferay.journal.web.internal.asset.model;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
-import com.liferay.asset.display.page.util.AssetDisplayPageHelper;
+import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.asset.kernel.model.DDMFormValuesReader;
 import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
+import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalArticleDisplay;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.service.JournalContentSearchLocalServiceUtil;
@@ -424,6 +424,11 @@ public class JournalArticleAssetRenderer
 					getClassName(), getClassPK(), themeDisplay);
 
 			if (Validator.isNotNull(friendlyURL)) {
+				if (!_article.isApproved()) {
+					friendlyURL =
+						friendlyURL + StringPool.SLASH + _article.getId();
+				}
+
 				return friendlyURL;
 			}
 		}
@@ -441,7 +446,7 @@ public class JournalArticleAssetRenderer
 
 		if (!_article.isApproved()) {
 			sb.append(StringPool.SLASH);
-			sb.append(_article.getVersion());
+			sb.append(_article.getId());
 		}
 
 		return PortalUtil.addPreservedParameters(themeDisplay, sb.toString());
@@ -645,14 +650,15 @@ public class JournalArticleAssetRenderer
 	}
 
 	private boolean _isShowDisplayPage(long groupId, JournalArticle article)
-		throws PortalException {
+		throws Exception {
 
-		AssetRendererFactory assetRendererFactory = getAssetRendererFactory();
+		AssetRendererFactory<JournalArticle> assetRendererFactory =
+			getAssetRendererFactory();
 
 		AssetEntry assetEntry = assetRendererFactory.getAssetEntry(
 			JournalArticle.class.getName(), getClassPK());
 
-		boolean hasDisplayPage = AssetDisplayPageHelper.hasAssetDisplayPage(
+		boolean hasDisplayPage = AssetDisplayPageUtil.hasAssetDisplayPage(
 			groupId, assetEntry);
 
 		if (Validator.isNull(article.getLayoutUuid()) && !hasDisplayPage) {

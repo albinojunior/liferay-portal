@@ -29,6 +29,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ENTRY_CONTENT_ROW_NUMBER_TD_3</td>
+	<td>xpath=(//*[@data-qa-id='row'])[${key_rowNumber}]/td[3]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ENTRY_CONTENT_ROW_NUMBER_CHECKBOX</td>
 	<td>xpath=(//*[@data-qa-id='row'])[${key_rowNumber}]//input[@title='Select']</td>
 	<td></td>
@@ -98,6 +103,12 @@
 <tr>
 	<td>ENTRY_CONTENT_LIST_COLUMN</td>
 	<td>//tr[@data-qa-id='row']/td[${key_columnNumber}]</td>
+	<td></td>
+</tr>
+<!--ENTRY_CONTENT_REDIRECT-->
+<tr>
+	<td>ENTRY_CONTENT_REDIRECT_DESTINATION_URL_COLUMN</td>
+	<td>//td[contains(@class,'lfr-destination-url-column')][contains(.,'${key_destinationURL}')]</td>
 	<td></td>
 </tr>
 <tr>

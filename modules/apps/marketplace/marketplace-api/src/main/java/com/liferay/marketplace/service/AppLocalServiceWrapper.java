@@ -33,6 +33,10 @@ public class AppLocalServiceWrapper
 	/**
 	 * Adds the app to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param app the app
 	 * @return the app that was added
 	 */
@@ -73,6 +77,10 @@ public class AppLocalServiceWrapper
 	/**
 	 * Deletes the app from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param app the app
 	 * @return the app that was removed
 	 */
@@ -85,6 +93,10 @@ public class AppLocalServiceWrapper
 
 	/**
 	 * Deletes the app with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appId the primary key of the app
 	 * @return the app that was removed
@@ -106,6 +118,11 @@ public class AppLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _appLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _appLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -366,6 +383,10 @@ public class AppLocalServiceWrapper
 
 	/**
 	 * Updates the app in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param app the app
 	 * @return the app that was updated

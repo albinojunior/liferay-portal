@@ -1,9 +1,37 @@
 {
 	"items": {
 		"75d9f756-a7fb-4b9a-b949-601d5d4461e9": {
-			"children": [],
+			"children": [
+			],
 			"config": {
-				"fragmentEntryLinkId": "${FRAGMENT_ENTRY_LINK_ID}"
+				"fragmentEntryLinkId": "${FRAGMENT_ENTRY_LINK_ID}",
+				"styles": {
+					"backgroundImage": {
+					},
+					"borderRadius": "",
+					"borderWidth": 0,
+					"fontFamily": "",
+					"fontSize": "",
+					"fontWeight": "",
+					"height": "h-auto",
+					"marginBottom": "",
+					"marginLeft": "",
+					"marginRight": "",
+					"marginTop": "",
+					"maxHeight": "none",
+					"maxWidth": "none",
+					"minHeight": "auto",
+					"minWidth": "auto",
+					"opacity": 1,
+					"overflow": "",
+					"paddingBottom": "",
+					"paddingLeft": "",
+					"paddingRight": "",
+					"paddingTop": "",
+					"shadow": "",
+					"textAlign": "",
+					"width": "w-auto"
+				}
 			},
 			"itemId": "75d9f756-a7fb-4b9a-b949-601d5d4461e9",
 			"parentId": "9ae245cb-f716-494b-b51c-b23836cff3fe",
@@ -13,7 +41,8 @@
 			"children": [
 				"75d9f756-a7fb-4b9a-b949-601d5d4461e9"
 			],
-			"config": {},
+			"config": {
+			},
 			"itemId": "9ae245cb-f716-494b-b51c-b23836cff3fe",
 			"parentId": "",
 			"type": "root"

@@ -55,10 +55,28 @@ public class CleanServiceBuilderMojoTest
 		Assert.assertEquals(result.output, 0, result.exitCode);
 	}
 
-	private static void _preparePomXml(
+	private static String _replace(String s, String key, File file) {
+		String value = null;
+
+		if (file != null) {
+			value = file.getAbsolutePath();
+		}
+
+		return _replace(s, key, value);
+	}
+
+	private static String _replace(String s, String key, String value) {
+		if (value == null) {
+			value = "";
+		}
+
+		return s.replace(key, value);
+	}
+
+	private void _preparePomXml(
 			File projectDir, File serviceXmlFile, String servletContextName,
 			String url)
-		throws IOException {
+		throws Exception {
 
 		String content = FileTestUtil.read(
 			CleanServiceBuilderMojoTest.class, "dependencies/pom_xml.tmpl");
@@ -77,24 +95,6 @@ public class CleanServiceBuilderMojoTest
 
 		Files.write(
 			pomXmlFile.toPath(), content.getBytes(StandardCharsets.UTF_8));
-	}
-
-	private static String _replace(String s, String key, File file) {
-		String value = null;
-
-		if (file != null) {
-			value = file.getAbsolutePath();
-		}
-
-		return _replace(s, key, value);
-	}
-
-	private static String _replace(String s, String key, String value) {
-		if (value == null) {
-			value = "";
-		}
-
-		return s.replace(key, value);
 	}
 
 	private static final String _DB_SUPPORT_VERSION = System.getProperty(

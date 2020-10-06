@@ -15,6 +15,7 @@
 package com.liferay.portal.security.service.access.policy.service;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -63,7 +64,7 @@ public interface SAPEntryLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link SAPEntryLocalServiceUtil} to access the sap entry local service. Add custom service methods to <code>com.liferay.portal.security.service.access.policy.service.impl.SAPEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.security.service.access.policy.service.impl.SAPEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the sap entry local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link SAPEntryLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public SAPEntry addSAPEntry(
 			long userId, String allowedServiceSignatures,
@@ -73,6 +74,10 @@ public interface SAPEntryLocalService
 
 	/**
 	 * Adds the sap entry to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SAPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param sapEntry the sap entry
 	 * @return the sap entry that was added
@@ -107,6 +112,10 @@ public interface SAPEntryLocalService
 	/**
 	 * Deletes the sap entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SAPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sapEntryId the primary key of the sap entry
 	 * @return the sap entry that was removed
 	 * @throws PortalException if a sap entry with the primary key could not be found
@@ -117,12 +126,19 @@ public interface SAPEntryLocalService
 	/**
 	 * Deletes the sap entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SAPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param sapEntry the sap entry
 	 * @return the sap entry that was removed
 	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public SAPEntry deleteSAPEntry(SAPEntry sapEntry) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -216,7 +232,8 @@ public interface SAPEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SAPEntry> getCompanySAPEntries(
-		long companyId, int start, int end, OrderByComparator<SAPEntry> obc);
+		long companyId, int start, int end,
+		OrderByComparator<SAPEntry> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getCompanySAPEntriesCount(long companyId);
@@ -303,6 +320,10 @@ public interface SAPEntryLocalService
 
 	/**
 	 * Updates the sap entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SAPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param sapEntry the sap entry
 	 * @return the sap entry that was updated

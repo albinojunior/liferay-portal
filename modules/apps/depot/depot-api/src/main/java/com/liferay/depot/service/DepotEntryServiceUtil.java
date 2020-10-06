@@ -62,6 +62,16 @@ public class DepotEntryServiceUtil {
 	}
 
 	public static java.util.List<com.liferay.depot.model.DepotEntry>
+			getGroupConnectedDepotEntries(
+				long groupId, boolean ddmStructuresAvailable, int start,
+				int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().getGroupConnectedDepotEntries(
+			groupId, ddmStructuresAvailable, start, end);
+	}
+
+	public static java.util.List<com.liferay.depot.model.DepotEntry>
 			getGroupConnectedDepotEntries(long groupId, int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -95,13 +105,13 @@ public class DepotEntryServiceUtil {
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			java.util.Map<String, Boolean> depotAppCustomizationMap,
 			com.liferay.portal.kernel.util.UnicodeProperties
-				typeSettingsProperties,
+				typeSettingsUnicodeProperties,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().updateDepotEntry(
 			depotEntryId, nameMap, descriptionMap, depotAppCustomizationMap,
-			typeSettingsProperties, serviceContext);
+			typeSettingsUnicodeProperties, serviceContext);
 	}
 
 	public static DepotEntryService getService() {

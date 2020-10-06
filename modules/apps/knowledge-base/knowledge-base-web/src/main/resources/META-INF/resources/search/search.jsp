@@ -44,6 +44,7 @@ String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 
 	searchContext.setAttribute("paginationType", "regular");
 	searchContext.setEnd(searchContainer.getEnd());
+	searchContext.setIncludeInternalAssetCategories(true);
 	searchContext.setKeywords(keywords);
 	searchContext.setStart(searchContainer.getStart());
 	searchContext.setSorts(KBUtil.getKBArticleSorts(orderByCol, orderByType));
@@ -54,7 +55,9 @@ String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 
 	List<Tuple> tuples = new ArrayList<Tuple>();
 
-	for (int i = 0; i < hits.getDocs().length; i++) {
+	Document[] documents = hits.getDocs();
+
+	for (int i = 0; i < documents.length; i++) {
 		Object[] array = new Object[5];
 
 		Document document = hits.doc(i);

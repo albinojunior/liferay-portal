@@ -95,11 +95,11 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 
 		boolean active = ParamUtil.getBoolean(actionRequest, "active");
 
-		UnicodeProperties settingsProperties =
+		UnicodeProperties settingsUnicodeProperties =
 			layoutSetPrototype.getSettingsProperties();
 
 		boolean layoutsUpdateable = GetterUtil.getBoolean(
-			settingsProperties.getProperty("layoutsUpdateable"));
+			settingsUnicodeProperties.getProperty("layoutsUpdateable"));
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			actionRequest);
@@ -206,15 +206,15 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 		String customJspServletContextName = ParamUtil.getString(
 			actionRequest, "customJspServletContextName");
 
-		UnicodeProperties settingsProperties =
+		UnicodeProperties settingsUnicodeProperties =
 			layoutSetPrototype.getSettingsProperties();
 
-		settingsProperties.setProperty(
+		settingsUnicodeProperties.setProperty(
 			"customJspServletContextName", customJspServletContextName);
 
 		layoutSetPrototypeService.updateLayoutSetPrototype(
 			layoutSetPrototype.getLayoutSetPrototypeId(),
-			settingsProperties.toString());
+			settingsUnicodeProperties.toString());
 	}
 
 	@Override
@@ -239,10 +239,10 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof NoSuchLayoutSetPrototypeException ||
-			cause instanceof PrincipalException ||
-			cause instanceof RequiredLayoutSetPrototypeException) {
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof NoSuchLayoutSetPrototypeException ||
+			throwable instanceof PrincipalException ||
+			throwable instanceof RequiredLayoutSetPrototypeException) {
 
 			return true;
 		}

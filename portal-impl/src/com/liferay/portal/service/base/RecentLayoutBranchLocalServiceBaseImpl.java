@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.RecentLayoutBranchLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.LayoutBranchPersistence;
 import com.liferay.portal.kernel.service.persistence.RecentLayoutBranchPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -71,6 +73,10 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 	/**
 	 * Adds the recent layout branch to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutBranch the recent layout branch
 	 * @return the recent layout branch that was added
 	 */
@@ -101,6 +107,10 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 	/**
 	 * Deletes the recent layout branch with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutBranchId the primary key of the recent layout branch
 	 * @return the recent layout branch that was removed
 	 * @throws PortalException if a recent layout branch with the primary key could not be found
@@ -117,6 +127,10 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 	/**
 	 * Deletes the recent layout branch from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutBranch the recent layout branch
 	 * @return the recent layout branch that was removed
 	 */
@@ -126,6 +140,11 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 		RecentLayoutBranch recentLayoutBranch) {
 
 		return recentLayoutBranchPersistence.remove(recentLayoutBranch);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return recentLayoutBranchPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -306,6 +325,10 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 			(RecentLayoutBranch)persistedModel);
 	}
 
+	public BasePersistence<RecentLayoutBranch> getBasePersistence() {
+		return recentLayoutBranchPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -317,15 +340,15 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns a range of all the recent layout branchs.
+	 * Returns a range of all the recent layout branches.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portal.model.impl.RecentLayoutBranchModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of recent layout branchs
-	 * @param end the upper bound of the range of recent layout branchs (not inclusive)
-	 * @return the range of recent layout branchs
+	 * @param start the lower bound of the range of recent layout branches
+	 * @param end the upper bound of the range of recent layout branches (not inclusive)
+	 * @return the range of recent layout branches
 	 */
 	@Override
 	public List<RecentLayoutBranch> getRecentLayoutBranchs(int start, int end) {
@@ -333,9 +356,9 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the number of recent layout branchs.
+	 * Returns the number of recent layout branches.
 	 *
-	 * @return the number of recent layout branchs
+	 * @return the number of recent layout branches
 	 */
 	@Override
 	public int getRecentLayoutBranchsCount() {
@@ -344,6 +367,10 @@ public abstract class RecentLayoutBranchLocalServiceBaseImpl
 
 	/**
 	 * Updates the recent layout branch in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutBranch the recent layout branch
 	 * @return the recent layout branch that was updated

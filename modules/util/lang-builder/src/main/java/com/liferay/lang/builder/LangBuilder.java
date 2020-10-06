@@ -20,8 +20,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.language.LanguageConstants;
+import com.liferay.portal.kernel.language.LanguageBuilderUtil;
 import com.liferay.portal.kernel.language.LanguageValidator;
+import com.liferay.portal.kernel.language.constants.LanguageConstants;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
@@ -37,7 +38,6 @@ import io.github.firemaples.translate.Translate;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -59,12 +59,6 @@ import org.apache.commons.io.FileUtils;
  * @author Hugo Huijser
  */
 public class LangBuilder {
-
-	public static final String AUTOMATIC_COPY =
-		com.liferay.portal.tools.LangBuilder.AUTOMATIC_COPY;
-
-	public static final String AUTOMATIC_TRANSLATION =
-		com.liferay.portal.tools.LangBuilder.AUTOMATIC_TRANSLATION;
 
 	public static void main(String[] args) throws Exception {
 		Map<String, String> arguments = ArgumentsUtil.parseArguments(args);
@@ -183,6 +177,7 @@ public class LangBuilder {
 		_createProperties(content, "ko"); // Korean
 		_createProperties(content, "lo"); // Lao
 		_createProperties(content, "lt"); // Lithuanian
+		_createProperties(content, "ms"); // Malay
 		_createProperties(content, "nb"); // Norwegian Bokmål
 		_createProperties(content, "fa"); // Persian
 		_createProperties(content, "pl"); // Polish
@@ -201,20 +196,6 @@ public class LangBuilder {
 		_createProperties(content, "tr"); // Turkish
 		_createProperties(content, "uk"); // Ukrainian
 		_createProperties(content, "vi"); // Vietnamese
-	}
-
-	private static String _getSpecialPropertyValue(String key) {
-		if (key.equals(LanguageConstants.KEY_DIR)) {
-			return LanguageConstants.VALUE_LTR;
-		}
-		else if (key.equals(LanguageConstants.KEY_LINE_BEGIN)) {
-			return LanguageConstants.VALUE_LEFT;
-		}
-		else if (key.equals(LanguageConstants.KEY_LINE_END)) {
-			return LanguageConstants.VALUE_RIGHT;
-		}
-
-		return StringPool.BLANK;
 	}
 
 	private static void _processCurrentBranch(
@@ -270,7 +251,7 @@ public class LangBuilder {
 	}
 
 	private void _copyProperties(File file, String languageId)
-		throws IOException {
+		throws Exception {
 
 		Path path = Paths.get(
 			_langDirName,
@@ -281,14 +262,14 @@ public class LangBuilder {
 	}
 
 	private void _createProperties(String content, String languageId)
-		throws IOException {
+		throws Exception {
 
 		_createProperties(content, languageId, null);
 	}
 
 	private void _createProperties(
 			String content, String languageId, String parentLanguageId)
-		throws IOException {
+		throws Exception {
 
 		File propertiesFile = new File(
 			StringBundler.concat(
@@ -366,7 +347,8 @@ public class LangBuilder {
 				}
 
 				if ((translatedText != null) &&
-					translatedText.endsWith(AUTOMATIC_COPY)) {
+					translatedText.endsWith(
+						LanguageBuilderUtil.AUTOMATIC_COPY)) {
 
 					translatedText = "";
 				}
@@ -381,7 +363,8 @@ public class LangBuilder {
 							 ArrayUtil.contains(
 								 _AUTOMATIC_COPY_LANGUAGE_IDS, languageId)) {
 
-						translatedText = value + AUTOMATIC_COPY;
+						translatedText =
+							value + LanguageBuilderUtil.AUTOMATIC_COPY;
 					}
 					else if (line.contains("[")) {
 						int pos = line.indexOf("[");
@@ -395,7 +378,8 @@ public class LangBuilder {
 							translatedText = translatedBaseKey;
 						}
 						else {
-							translatedText = value + AUTOMATIC_COPY;
+							translatedText =
+								value + LanguageBuilderUtil.AUTOMATIC_COPY;
 						}
 					}
 					else if (languageId.equals("el") &&
@@ -430,13 +414,15 @@ public class LangBuilder {
 							"en", languageId, key, value, 0);
 
 						if (Validator.isNull(translatedText)) {
-							translatedText = value + AUTOMATIC_COPY;
+							translatedText =
+								value + LanguageBuilderUtil.AUTOMATIC_COPY;
 						}
 						else if (!key.startsWith("country.") &&
 								 !key.startsWith("language.")) {
 
 							translatedText =
-								translatedText + AUTOMATIC_TRANSLATION;
+								translatedText +
+									LanguageBuilderUtil.AUTOMATIC_TRANSLATION;
 						}
 					}
 				}
@@ -485,6 +471,8 @@ public class LangBuilder {
 
 	private String _fixTranslation(String value) {
 		value = StringUtil.replace(value, "\n", "\\n");
+		value = StringUtil.replace(
+			value, CharPool.NO_BREAK_SPACE, CharPool.SPACE);
 
 		value = StringUtil.replace(
 			value.trim(),
@@ -555,6 +543,20 @@ public class LangBuilder {
 		return languageId;
 	}
 
+	private String _getSpecialPropertyValue(String key) {
+		if (key.equals(LanguageConstants.KEY_DIR)) {
+			return LanguageConstants.VALUE_LTR;
+		}
+		else if (key.equals(LanguageConstants.KEY_LINE_BEGIN)) {
+			return LanguageConstants.VALUE_LEFT;
+		}
+		else if (key.equals(LanguageConstants.KEY_LINE_END)) {
+			return LanguageConstants.VALUE_RIGHT;
+		}
+
+		return StringPool.BLANK;
+	}
+
 	private void _initKeysWithUpdatedValues() throws Exception {
 		File backupLanguageFile = new File(
 			StringBundler.concat(
@@ -586,7 +588,7 @@ public class LangBuilder {
 	}
 
 	private String _orderProperties(File propertiesFile, boolean checkExistence)
-		throws IOException {
+		throws Exception {
 
 		if (checkExistence && !propertiesFile.exists()) {
 			_write(propertiesFile, StringPool.BLANK);
@@ -680,7 +682,7 @@ public class LangBuilder {
 		return content;
 	}
 
-	private String _read(File file) throws IOException {
+	private String _read(File file) throws Exception {
 		String s = new String(
 			Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
 
@@ -688,7 +690,7 @@ public class LangBuilder {
 			s, StringPool.RETURN_NEW_LINE, StringPool.NEW_LINE);
 	}
 
-	private Properties _readProperties(File file) throws IOException {
+	private Properties _readProperties(File file) throws Exception {
 		try (FileInputStream fileInputStream = new FileInputStream(file)) {
 			return PropertiesUtil.load(fileInputStream, StringPool.UTF8);
 		}
@@ -714,15 +716,15 @@ public class LangBuilder {
 			return null;
 		}
 
-		Language fromLanguage = Language.fromString(
-			_getMicrosoftLanguageId(fromLanguageId));
-
 		Language toLanguage = Language.fromString(
 			_getMicrosoftLanguageId(toLanguageId));
 
 		if (toLanguage == null) {
 			return null;
 		}
+
+		Language fromLanguage = Language.fromString(
+			_getMicrosoftLanguageId(fromLanguageId));
 
 		String toText = null;
 
@@ -756,7 +758,7 @@ public class LangBuilder {
 		return toText;
 	}
 
-	private void _write(File file, String s) throws IOException {
+	private void _write(File file, String s) throws Exception {
 		FileUtils.writeStringToFile(file, s, StringPool.UTF8);
 	}
 

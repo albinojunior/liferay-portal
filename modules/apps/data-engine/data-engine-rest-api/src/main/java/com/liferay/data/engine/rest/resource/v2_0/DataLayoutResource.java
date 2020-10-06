@@ -15,10 +15,15 @@
 package com.liferay.data.engine.rest.resource.v2_0;
 
 import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
+import com.liferay.data.engine.rest.dto.v2_0.DataLayoutRenderingContext;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.Locale;
 
 import javax.annotation.Generated;
 
@@ -41,6 +46,13 @@ import org.osgi.annotation.versioning.ProviderType;
 @Generated("")
 @ProviderType
 public interface DataLayoutResource {
+
+	public static Builder builder() {
+		return FactoryHolder.factory.create();
+	}
+
+	public void deleteDataLayoutsDataDefinition(Long dataDefinitionId)
+		throws Exception;
 
 	public Page<DataLayout> getDataDefinitionDataLayoutsPage(
 			Long dataDefinitionId, String keywords, Pagination pagination,
@@ -68,6 +80,11 @@ public interface DataLayoutResource {
 	public Response putDataLayoutBatch(String callbackURL, Object object)
 		throws Exception;
 
+	public Response postDataLayoutContext(
+			Long dataLayoutId,
+			DataLayoutRenderingContext dataLayoutRenderingContext)
+		throws Exception;
+
 	public DataLayout getSiteDataLayoutByContentTypeByDataLayoutKey(
 			Long siteId, String contentType, String dataLayoutKey)
 		throws Exception;
@@ -92,5 +109,38 @@ public interface DataLayoutResource {
 
 	public void setContextUser(
 		com.liferay.portal.kernel.model.User contextUser);
+
+	public void setGroupLocalService(GroupLocalService groupLocalService);
+
+	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public static class FactoryHolder {
+
+		public static volatile Factory factory;
+
+	}
+
+	@ProviderType
+	public interface Builder {
+
+		public DataLayoutResource build();
+
+		public Builder checkPermissions(boolean checkPermissions);
+
+		public Builder httpServletRequest(
+			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
+
+		public Builder user(com.liferay.portal.kernel.model.User user);
+
+	}
+
+	@ProviderType
+	public interface Factory {
+
+		public Builder create();
+
+	}
 
 }

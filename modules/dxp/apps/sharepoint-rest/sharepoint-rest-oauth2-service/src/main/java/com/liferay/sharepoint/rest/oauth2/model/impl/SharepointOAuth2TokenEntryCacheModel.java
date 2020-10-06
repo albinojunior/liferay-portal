@@ -36,18 +36,18 @@ public class SharepointOAuth2TokenEntryCacheModel
 	implements CacheModel<SharepointOAuth2TokenEntry>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SharepointOAuth2TokenEntryCacheModel)) {
+		if (!(object instanceof SharepointOAuth2TokenEntryCacheModel)) {
 			return false;
 		}
 
 		SharepointOAuth2TokenEntryCacheModel
 			sharepointOAuth2TokenEntryCacheModel =
-				(SharepointOAuth2TokenEntryCacheModel)obj;
+				(SharepointOAuth2TokenEntryCacheModel)object;
 
 		if (sharepointOAuth2TokenEntryId ==
 				sharepointOAuth2TokenEntryCacheModel.
@@ -151,7 +151,9 @@ public class SharepointOAuth2TokenEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		sharepointOAuth2TokenEntryId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -159,10 +161,10 @@ public class SharepointOAuth2TokenEntryCacheModel
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
-		accessToken = objectInput.readUTF();
+		accessToken = (String)objectInput.readObject();
 		configurationPid = objectInput.readUTF();
 		expirationDate = objectInput.readLong();
-		refreshToken = objectInput.readUTF();
+		refreshToken = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -183,10 +185,10 @@ public class SharepointOAuth2TokenEntryCacheModel
 		objectOutput.writeLong(createDate);
 
 		if (accessToken == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(accessToken);
+			objectOutput.writeObject(accessToken);
 		}
 
 		if (configurationPid == null) {
@@ -199,10 +201,10 @@ public class SharepointOAuth2TokenEntryCacheModel
 		objectOutput.writeLong(expirationDate);
 
 		if (refreshToken == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(refreshToken);
+			objectOutput.writeObject(refreshToken);
 		}
 	}
 

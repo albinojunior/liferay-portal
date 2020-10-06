@@ -20,6 +20,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -56,13 +57,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.validation.constraints.NotNull;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -74,6 +81,64 @@ import javax.ws.rs.core.UriInfo;
 public abstract class BaseNavigationMenuResourceImpl
 	implements NavigationMenuResource, EntityModelResource,
 			   VulcanBatchEngineTaskItemDelegate<NavigationMenu> {
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-delivery/v1.0/navigation-menus/{navigationMenuId}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@DELETE
+	@Operation(
+		description = "Deletes the navigation menu and returns a 204 if the operation succeeds"
+	)
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "navigationMenuId")}
+	)
+	@Path("/navigation-menus/{navigationMenuId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "NavigationMenu")})
+	public void deleteNavigationMenu(
+			@NotNull @Parameter(hidden = true) @PathParam("navigationMenuId")
+				Long navigationMenuId)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-delivery/v1.0/navigation-menus/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@DELETE
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.QUERY, name = "callbackURL")}
+	)
+	@Path("/navigation-menus/batch")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "NavigationMenu")})
+	public Response deleteNavigationMenuBatch(
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.deleteImportTask(
+				NavigationMenu.class.getName(), callbackURL, object)
+		).build();
+	}
 
 	/**
 	 * Invoke this method with the command line:
@@ -95,6 +160,68 @@ public abstract class BaseNavigationMenuResourceImpl
 		throws Exception {
 
 		return new NavigationMenu();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-delivery/v1.0/navigation-menus/{navigationMenuId}' -d $'{"name": ___, "navigationMenuItems": ___, "navigationType": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		description = "Replaces the navigation menu with the information sent in the request body. Any missing fields are deleted, unless they are required."
+	)
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "navigationMenuId")}
+	)
+	@Path("/navigation-menus/{navigationMenuId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "NavigationMenu")})
+	public NavigationMenu putNavigationMenu(
+			@NotNull @Parameter(hidden = true) @PathParam("navigationMenuId")
+				Long navigationMenuId,
+			NavigationMenu navigationMenu)
+		throws Exception {
+
+		return new NavigationMenu();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-delivery/v1.0/navigation-menus/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.QUERY, name = "callbackURL")}
+	)
+	@Path("/navigation-menus/batch")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "NavigationMenu")})
+	public Response putNavigationMenuBatch(
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.putImportTask(
+				NavigationMenu.class.getName(), callbackURL, object)
+		).build();
 	}
 
 	/**
@@ -123,12 +250,78 @@ public abstract class BaseNavigationMenuResourceImpl
 		return Page.of(Collections.emptyList());
 	}
 
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-delivery/v1.0/sites/{siteId}/navigation-menus' -d $'{"name": ___, "navigationMenuItems": ___, "navigationType": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@Operation(description = "Creates a new navigation menu.")
+	@POST
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "siteId")})
+	@Path("/sites/{siteId}/navigation-menus")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "NavigationMenu")})
+	public NavigationMenu postSiteNavigationMenu(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			NavigationMenu navigationMenu)
+		throws Exception {
+
+		return new NavigationMenu();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-delivery/v1.0/sites/{siteId}/navigation-menus/batch'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes("application/json")
+	@POST
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "siteId"),
+			@Parameter(in = ParameterIn.QUERY, name = "callbackURL")
+		}
+	)
+	@Path("/sites/{siteId}/navigation-menus/batch")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "NavigationMenu")})
+	public Response postSiteNavigationMenuBatch(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.postImportTask(
+				NavigationMenu.class.getName(), callbackURL, null, object)
+		).build();
+	}
+
 	@Override
 	@SuppressWarnings("PMD.UnusedLocalVariable")
 	public void create(
 			java.util.Collection<NavigationMenu> navigationMenus,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (NavigationMenu navigationMenu : navigationMenus) {
+			postSiteNavigationMenu(
+				Long.valueOf((String)parameters.get("siteId")), navigationMenu);
+		}
 	}
 
 	@Override
@@ -136,6 +329,10 @@ public abstract class BaseNavigationMenuResourceImpl
 			java.util.Collection<NavigationMenu> navigationMenus,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (NavigationMenu navigationMenu : navigationMenus) {
+			deleteNavigationMenu(navigationMenu.getId());
+		}
 	}
 
 	@Override
@@ -190,6 +387,13 @@ public abstract class BaseNavigationMenuResourceImpl
 			java.util.Collection<NavigationMenu> navigationMenus,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (NavigationMenu navigationMenu : navigationMenus) {
+			putNavigationMenu(
+				navigationMenu.getId() != null ? navigationMenu.getId() :
+				(Long)parameters.get("navigationMenuId"),
+				navigationMenu);
+		}
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -224,6 +428,14 @@ public abstract class BaseNavigationMenuResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -233,12 +445,21 @@ public abstract class BaseNavigationMenuResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -246,11 +467,7 @@ public abstract class BaseNavigationMenuResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(
-		NavigationMenu navigationMenu, NavigationMenu existingNavigationMenu) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

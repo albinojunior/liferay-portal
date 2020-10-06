@@ -60,6 +60,10 @@ public class AssetTagLocalServiceWrapper
 	/**
 	 * Adds the asset tag to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetTag the asset tag
 	 * @return the asset tag that was added
 	 */
@@ -198,6 +202,10 @@ public class AssetTagLocalServiceWrapper
 	/**
 	 * Deletes the asset tag from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetTag the asset tag
 	 * @return the asset tag that was removed
 	 */
@@ -208,6 +216,10 @@ public class AssetTagLocalServiceWrapper
 
 	/**
 	 * Deletes the asset tag with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param tagId the primary key of the asset tag
 	 * @return the asset tag that was removed
@@ -266,6 +278,11 @@ public class AssetTagLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_assetTagLocalService.deleteTag(tagId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _assetTagLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -911,6 +928,10 @@ public class AssetTagLocalServiceWrapper
 
 	/**
 	 * Updates the asset tag in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetTagLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetTag the asset tag
 	 * @return the asset tag that was updated

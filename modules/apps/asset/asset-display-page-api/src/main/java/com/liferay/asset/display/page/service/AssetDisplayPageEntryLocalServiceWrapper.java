@@ -39,6 +39,10 @@ public class AssetDisplayPageEntryLocalServiceWrapper
 	/**
 	 * Adds the asset display page entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetDisplayPageEntry the asset display page entry
 	 * @return the asset display page entry that was added
 	 */
@@ -103,6 +107,10 @@ public class AssetDisplayPageEntryLocalServiceWrapper
 	/**
 	 * Deletes the asset display page entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetDisplayPageEntry the asset display page entry
 	 * @return the asset display page entry that was removed
 	 */
@@ -116,6 +124,10 @@ public class AssetDisplayPageEntryLocalServiceWrapper
 
 	/**
 	 * Deletes the asset display page entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetDisplayPageEntryId the primary key of the asset display page entry
 	 * @return the asset display page entry that was removed
@@ -149,6 +161,11 @@ public class AssetDisplayPageEntryLocalServiceWrapper
 
 		return _assetDisplayPageEntryLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _assetDisplayPageEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -443,6 +460,10 @@ public class AssetDisplayPageEntryLocalServiceWrapper
 
 	/**
 	 * Updates the asset display page entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetDisplayPageEntry the asset display page entry
 	 * @return the asset display page entry that was updated

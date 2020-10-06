@@ -18,25 +18,18 @@
 
 <%
 DepotApplicationDisplayContext depotApplicationDisplayContext = (DepotApplicationDisplayContext)request.getAttribute(DepotAdminWebKeys.DEPOT_APPLICATION_DISPLAY_CONTEXT);
-
-PortletURL viewGroupSelectorURL = PortletURLUtil.clone(depotApplicationDisplayContext.getPortletURL(), liferayPortletResponse);
-
-viewGroupSelectorURL.setParameter("groupType", "site");
-viewGroupSelectorURL.setParameter("showGroupSelector", Boolean.TRUE.toString());
 %>
 
-<div class="container-fluid container-fluid-max-xl pt-4">
+<clay:container-fluid
+	cssClass="pt-4"
+>
 	<div class="alert alert-info">
 		<span class="alert-indicator">
 			<svg class="lexicon-icon lexicon-icon-info-circle" focusable="false" role="presentation">
-				<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#info-circle" />
+				<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg#info-circle" />
 			</svg>
 		</span>
 
-		<%
-		String taglibViewGroupSelectorLink = "<a href=\"" + HtmlUtil.escape(viewGroupSelectorURL.toString()) + "\">";
-		%>
-
-		<strong class="lead">Info:</strong><liferay-ui:message arguments='<%= new Object[] {depotApplicationDisplayContext.getPortletTitle(), taglibViewGroupSelectorLink, "</a>"} %>' key="x-application-is-disabled-for-this-scope.-please-go-back-to-selection" />
+		<strong class="lead">Info:</strong><%= depotApplicationDisplayContext.getMessage() %>
 	</div>
-</div>
+</clay:container-fluid>

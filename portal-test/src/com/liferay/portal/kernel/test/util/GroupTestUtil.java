@@ -69,15 +69,14 @@ public class GroupTestUtil {
 			return scopeGroup;
 		}
 
-		Map<Locale, String> nameMap = HashMapBuilder.put(
-			LocaleUtil.getDefault(), String.valueOf(layout.getPlid())
-		).build();
-
 		return GroupLocalServiceUtil.addGroup(
 			userId, parentGroupId, Layout.class.getName(), layout.getPlid(),
-			GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, null, 0, true,
-			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false, true,
-			null);
+			GroupConstants.DEFAULT_LIVE_GROUP_ID,
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), String.valueOf(layout.getPlid())
+			).build(),
+			null, 0, true, GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null,
+			false, true, null);
 	}
 
 	public static Group addGroup(
@@ -207,7 +206,8 @@ public class GroupTestUtil {
 			Locale defaultLocale)
 		throws Exception {
 
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
 		boolean inheritLocales = false;
 
@@ -215,23 +215,23 @@ public class GroupTestUtil {
 			inheritLocales = true;
 		}
 
-		typeSettingsProperties.put(
+		typeSettingsUnicodeProperties.put(
 			GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES,
 			String.valueOf(inheritLocales));
 
 		if (availableLocales != null) {
-			typeSettingsProperties.put(
+			typeSettingsUnicodeProperties.put(
 				PropsKeys.LOCALES,
 				StringUtil.merge(LocaleUtil.toLanguageIds(availableLocales)));
 		}
 
 		if (defaultLocale != null) {
-			typeSettingsProperties.put(
+			typeSettingsUnicodeProperties.put(
 				"languageId", LocaleUtil.toLanguageId(defaultLocale));
 		}
 
 		Group group = GroupLocalServiceUtil.updateGroup(
-			groupId, typeSettingsProperties.toString());
+			groupId, typeSettingsUnicodeProperties.toString());
 
 		ThreadLocalCacheManager.clearAll(Lifecycle.REQUEST);
 

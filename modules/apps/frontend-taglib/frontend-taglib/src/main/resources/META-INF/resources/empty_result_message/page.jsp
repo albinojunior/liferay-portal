@@ -20,7 +20,14 @@
 	<div class="<%= animationTypeCssClass %>"></div>
 
 	<h1 class="taglib-empty-result-message-title">
-		<liferay-ui:message arguments="<%= elementType %>" key="no-x-yet" translateArguments="<%= false %>" />
+		<c:choose>
+			<c:when test="<%= Validator.isNull(title) %>">
+				<liferay-ui:message arguments="<%= elementType %>" key="no-x-yet" translateArguments="<%= false %>" />
+			</c:when>
+			<c:otherwise>
+				<%= title %>
+			</c:otherwise>
+		</c:choose>
 	</h1>
 
 	<c:if test="<%= Validator.isNotNull(description) %>">
@@ -36,10 +43,12 @@
 					<clay:dropdown-menu
 						componentId="<%= componentId %>"
 						defaultEventHandler="<%= defaultEventHandler %>"
+						displayType="<%= buttonCssClass %>"
 						dropdownItems="<%= actionDropdownItems %>"
-						label='<%= LanguageUtil.get(request, "new") %>'
-						style="primary"
-						triggerCssClasses="btn-sm"
+						label="new"
+						propsTransformer="<%= propsTransformer %>"
+						propsTransformerServletContext="<%= propsTransformerServletContext %>"
+						small="<%= true %>"
 					/>
 				</c:when>
 				<c:otherwise>
@@ -51,12 +60,14 @@
 					<c:choose>
 						<c:when test='<%= Validator.isNotNull(actionDropdownItem.get("href")) %>'>
 							<clay:link
-								buttonStyle="primary"
+								buttonStyle="<%= buttonCssClass %>"
 								componentId="<%= componentId %>"
 								data='<%= (HashMap)actionDropdownItem.get("data") %>'
 								defaultEventHandler="<%= defaultEventHandler %>"
 								href='<%= String.valueOf(actionDropdownItem.get("href")) %>'
 								label='<%= String.valueOf(actionDropdownItem.get("label")) %>'
+								propsTransformer="<%= propsTransformer %>"
+								servletContext="<%= application %>"
 							/>
 						</c:when>
 						<c:otherwise>
@@ -64,8 +75,10 @@
 								componentId="<%= componentId %>"
 								data='<%= (HashMap)actionDropdownItem.get("data") %>'
 								defaultEventHandler="<%= defaultEventHandler %>"
+								displayType="<%= buttonCssClass %>"
 								label='<%= String.valueOf(actionDropdownItem.get("label")) %>'
-								style="primary"
+								propsTransformer="<%= propsTransformer %>"
+								servletContext="<%= application %>"
 							/>
 						</c:otherwise>
 					</c:choose>

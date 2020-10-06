@@ -1,15 +1,12 @@
 .page-editor__page-structure {
-	.lfr-treeview {
-		&-node-list {
-			border-left-style: solid;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 
-			&-item {
-				margin-bottom: 0;
-
-				&__children {
-					padding-left: 24px;
-				}
-			}
-		}
+	&__content {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		overflow: hidden;
 	}
 }

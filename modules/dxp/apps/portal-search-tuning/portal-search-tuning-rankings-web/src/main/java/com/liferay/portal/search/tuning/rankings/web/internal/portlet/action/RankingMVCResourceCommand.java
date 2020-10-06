@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.FastDateFormatFactory;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.filter.ComplexQueryPartBuilderFactory;
 import com.liferay.portal.search.query.Queries;
@@ -31,6 +32,8 @@ import com.liferay.portal.search.searcher.SearchRequestBuilderFactory;
 import com.liferay.portal.search.searcher.Searcher;
 import com.liferay.portal.search.tuning.rankings.web.internal.constants.ResultRankingsPortletKeys;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingIndexReader;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexName;
+import com.liferay.portal.search.tuning.rankings.web.internal.index.name.RankingIndexNameBuilder;
 import com.liferay.portal.search.tuning.rankings.web.internal.results.builder.RankingGetHiddenResultsBuilder;
 import com.liferay.portal.search.tuning.rankings.web.internal.results.builder.RankingGetSearchResultsBuilder;
 import com.liferay.portal.search.tuning.rankings.web.internal.results.builder.RankingGetVisibleResultsBuilder;
@@ -64,7 +67,7 @@ public class RankingMVCResourceCommand implements MVCResourceCommand {
 		try {
 			writeJSONPortletResponse(
 				resourceRequest, resourceResponse,
-				getJSONObject(resourceRequest));
+				getJSONObject(resourceRequest, resourceResponse));
 
 			return false;
 		}
@@ -83,11 +86,14 @@ public class RankingMVCResourceCommand implements MVCResourceCommand {
 		);
 	}
 
-	protected JSONObject getHiddenResults(ResourceRequest resourceRequest) {
+	protected JSONObject getHiddenResultsJSONObject(
+		ResourceRequest resourceRequest, ResourceResponse resourceResponse) {
+
 		RankingGetHiddenResultsBuilder rankingGetHiddenResultsBuilder =
 			new RankingGetHiddenResultsBuilder(
 				dlAppLocalService, fastDateFormatFactory, queries,
-				rankingIndexReader, resourceActions, resourceRequest,
+				getRankingIndexName(resourceRequest), rankingIndexReader,
+				resourceActions, resourceRequest, resourceResponse,
 				searchEngineAdapter);
 
 		RankingMVCResourceRequest rankingMVCResourceRequest =
@@ -102,30 +108,45 @@ public class RankingMVCResourceCommand implements MVCResourceCommand {
 		).build();
 	}
 
-	protected JSONObject getJSONObject(ResourceRequest resourceRequest) {
+	protected JSONObject getJSONObject(
+		ResourceRequest resourceRequest, ResourceResponse resourceResponse) {
+
 		String cmd = ParamUtil.getString(resourceRequest, Constants.CMD);
 
-		if (cmd.equals("getHiddenResults")) {
-			return getHiddenResults(resourceRequest);
+		if (cmd.equals("getHiddenResultsJSONObject")) {
+			return getHiddenResultsJSONObject(
+				resourceRequest, resourceResponse);
 		}
 
-		if (cmd.equals("getSearchResults")) {
-			return getSearchResults(resourceRequest);
+		if (cmd.equals("getSearchResultsJSONObject")) {
+			return getSearchResultsJSONObject(
+				resourceRequest, resourceResponse);
 		}
 
-		if (cmd.equals("getVisibleResults")) {
-			return getVisibleResults(resourceRequest);
+		if (cmd.equals("getVisibleResultsJSONObject")) {
+			return getVisibleResultsJSONObject(
+				resourceRequest, resourceResponse);
 		}
 
 		return null;
 	}
 
-	protected JSONObject getSearchResults(ResourceRequest resourceRequest) {
+	protected RankingIndexName getRankingIndexName(
+		ResourceRequest resourceRequest) {
+
+		return rankingIndexNameBuilder.getRankingIndexName(
+			portal.getCompanyId(resourceRequest));
+	}
+
+	protected JSONObject getSearchResultsJSONObject(
+		ResourceRequest resourceRequest, ResourceResponse resourceResponse) {
+
 		RankingGetSearchResultsBuilder rankingGetSearchResultsBuilder =
 			new RankingGetSearchResultsBuilder(
 				complexQueryPartBuilderFactory, dlAppLocalService,
 				fastDateFormatFactory, queries, resourceActions,
-				resourceRequest, searcher, searchRequestBuilderFactory);
+				resourceRequest, resourceResponse, searcher,
+				searchRequestBuilderFactory);
 
 		RankingMVCResourceRequest rankingMVCResourceRequest =
 			new RankingMVCResourceRequest(resourceRequest);
@@ -141,13 +162,16 @@ public class RankingMVCResourceCommand implements MVCResourceCommand {
 		).build();
 	}
 
-	protected JSONObject getVisibleResults(ResourceRequest resourceRequest) {
+	protected JSONObject getVisibleResultsJSONObject(
+		ResourceRequest resourceRequest, ResourceResponse resourceResponse) {
+
 		RankingGetVisibleResultsBuilder rankingGetVisibleResultsBuilder =
 			new RankingGetVisibleResultsBuilder(
 				complexQueryPartBuilderFactory, dlAppLocalService,
-				fastDateFormatFactory, rankingIndexReader,
-				rankingSearchRequestHelper, resourceActions, resourceRequest,
-				queries, searcher, searchRequestBuilderFactory);
+				fastDateFormatFactory, getRankingIndexName(resourceRequest),
+				rankingIndexReader, rankingSearchRequestHelper, resourceActions,
+				resourceRequest, resourceResponse, queries, searcher,
+				searchRequestBuilderFactory);
 
 		RankingMVCResourceRequest rankingMVCResourceRequest =
 			new RankingMVCResourceRequest(resourceRequest);
@@ -192,7 +216,13 @@ public class RankingMVCResourceCommand implements MVCResourceCommand {
 	protected FastDateFormatFactory fastDateFormatFactory;
 
 	@Reference
+	protected Portal portal;
+
+	@Reference
 	protected Queries queries;
+
+	@Reference
+	protected RankingIndexNameBuilder rankingIndexNameBuilder;
 
 	@Reference
 	protected RankingIndexReader rankingIndexReader;

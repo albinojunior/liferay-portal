@@ -35,16 +35,16 @@ public class CTMessageCacheModel
 	implements CacheModel<CTMessage>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof CTMessageCacheModel)) {
+		if (!(object instanceof CTMessageCacheModel)) {
 			return false;
 		}
 
-		CTMessageCacheModel ctMessageCacheModel = (CTMessageCacheModel)obj;
+		CTMessageCacheModel ctMessageCacheModel = (CTMessageCacheModel)object;
 
 		if ((ctMessageId == ctMessageCacheModel.ctMessageId) &&
 			(mvccVersion == ctMessageCacheModel.mvccVersion)) {
@@ -74,12 +74,14 @@ public class CTMessageCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(9);
+		StringBundler sb = new StringBundler(11);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
 		sb.append(", ctMessageId=");
 		sb.append(ctMessageId);
+		sb.append(", companyId=");
+		sb.append(companyId);
 		sb.append(", ctCollectionId=");
 		sb.append(ctCollectionId);
 		sb.append(", messageContent=");
@@ -95,6 +97,7 @@ public class CTMessageCacheModel
 
 		ctMessageImpl.setMvccVersion(mvccVersion);
 		ctMessageImpl.setCtMessageId(ctMessageId);
+		ctMessageImpl.setCompanyId(companyId);
 		ctMessageImpl.setCtCollectionId(ctCollectionId);
 
 		if (messageContent == null) {
@@ -110,13 +113,17 @@ public class CTMessageCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		ctMessageId = objectInput.readLong();
 
+		companyId = objectInput.readLong();
+
 		ctCollectionId = objectInput.readLong();
-		messageContent = objectInput.readUTF();
+		messageContent = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -125,18 +132,21 @@ public class CTMessageCacheModel
 
 		objectOutput.writeLong(ctMessageId);
 
+		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(ctCollectionId);
 
 		if (messageContent == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(messageContent);
+			objectOutput.writeObject(messageContent);
 		}
 	}
 
 	public long mvccVersion;
 	public long ctMessageId;
+	public long companyId;
 	public long ctCollectionId;
 	public String messageContent;
 

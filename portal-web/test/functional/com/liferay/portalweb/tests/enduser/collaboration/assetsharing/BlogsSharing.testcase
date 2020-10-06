@@ -46,6 +46,8 @@ definition {
 	@description = "This test asserts that proper notifications are sent based on sharing permissions granted."
 	@priority = "5"
 	test AssertNotifications {
+		property portal.acceptance = "true";
+
 		BlogsNavigator.gotoShare(entryTitle = "Blogs Entry Title");
 
 		Asset.share(
@@ -149,6 +151,8 @@ definition {
 	@description = "This test ensures a user can only comment on a blog entry once it is shared with him."
 	@priority = "5"
 	test ShareWithCommentPermissions {
+		property portal.acceptance = "true";
+
 		BlogsNavigator.gotoShare(entryTitle = "Blogs Entry Title");
 
 		Asset.share(
@@ -183,6 +187,8 @@ definition {
 	@description = "This test ensures a user can update a blog entry once it is shared with him."
 	@priority = "5"
 	test ShareWithUpdatePermissions {
+		property portal.acceptance = "true";
+
 		BlogsNavigator.gotoShare(entryTitle = "Blogs Entry Title");
 
 		Asset.share(

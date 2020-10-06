@@ -15,6 +15,7 @@
 package com.liferay.portal.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
@@ -26,24 +27,32 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.NoSuchServiceComponentException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ServiceComponent;
+import com.liferay.portal.kernel.model.ServiceComponentTable;
 import com.liferay.portal.kernel.service.persistence.ServiceComponentPersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.model.impl.ServiceComponentImpl;
 import com.liferay.portal.model.impl.ServiceComponentModelImpl;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceRegistration;
 
 import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The persistence implementation for the service component service.
@@ -249,10 +258,6 @@ public class ServiceComponentPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -617,8 +622,6 @@ public class ServiceComponentPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -781,11 +784,6 @@ public class ServiceComponentPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(
-						_finderPathFetchByBNS_BNU, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -877,8 +875,6 @@ public class ServiceComponentPersistenceImpl
 				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -899,17 +895,18 @@ public class ServiceComponentPersistenceImpl
 		"serviceComponent.buildNumber = ?";
 
 	public ServiceComponentPersistenceImpl() {
-		setModelClass(ServiceComponent.class);
-
-		setModelImplClass(ServiceComponentImpl.class);
-		setModelPKClass(long.class);
-		setEntityCacheEnabled(ServiceComponentModelImpl.ENTITY_CACHE_ENABLED);
-
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("data", "data_");
 
 		setDBColumnNames(dbColumnNames);
+
+		setModelClass(ServiceComponent.class);
+
+		setModelImplClass(ServiceComponentImpl.class);
+		setModelPKClass(long.class);
+
+		setTable(ServiceComponentTable.INSTANCE);
 	}
 
 	/**
@@ -920,7 +917,6 @@ public class ServiceComponentPersistenceImpl
 	@Override
 	public void cacheResult(ServiceComponent serviceComponent) {
 		EntityCacheUtil.putResult(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
 			ServiceComponentImpl.class, serviceComponent.getPrimaryKey(),
 			serviceComponent);
 
@@ -931,8 +927,6 @@ public class ServiceComponentPersistenceImpl
 				serviceComponent.getBuildNumber()
 			},
 			serviceComponent);
-
-		serviceComponent.resetOriginalValues();
 	}
 
 	/**
@@ -944,14 +938,10 @@ public class ServiceComponentPersistenceImpl
 	public void cacheResult(List<ServiceComponent> serviceComponents) {
 		for (ServiceComponent serviceComponent : serviceComponents) {
 			if (EntityCacheUtil.getResult(
-					ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
 					ServiceComponentImpl.class,
 					serviceComponent.getPrimaryKey()) == null) {
 
 				cacheResult(serviceComponent);
-			}
-			else {
-				serviceComponent.resetOriginalValues();
 			}
 		}
 	}
@@ -982,28 +972,14 @@ public class ServiceComponentPersistenceImpl
 	@Override
 	public void clearCache(ServiceComponent serviceComponent) {
 		EntityCacheUtil.removeResult(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentImpl.class, serviceComponent.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(
-			(ServiceComponentModelImpl)serviceComponent, true);
+			ServiceComponentImpl.class, serviceComponent);
 	}
 
 	@Override
 	public void clearCache(List<ServiceComponent> serviceComponents) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (ServiceComponent serviceComponent : serviceComponents) {
 			EntityCacheUtil.removeResult(
-				ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-				ServiceComponentImpl.class, serviceComponent.getPrimaryKey());
-
-			clearUniqueFindersCache(
-				(ServiceComponentModelImpl)serviceComponent, true);
+				ServiceComponentImpl.class, serviceComponent);
 		}
 	}
 
@@ -1015,7 +991,6 @@ public class ServiceComponentPersistenceImpl
 
 		for (Serializable primaryKey : primaryKeys) {
 			EntityCacheUtil.removeResult(
-				ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
 				ServiceComponentImpl.class, primaryKey);
 		}
 	}
@@ -1032,33 +1007,6 @@ public class ServiceComponentPersistenceImpl
 			_finderPathCountByBNS_BNU, args, Long.valueOf(1), false);
 		FinderCacheUtil.putResult(
 			_finderPathFetchByBNS_BNU, args, serviceComponentModelImpl, false);
-	}
-
-	protected void clearUniqueFindersCache(
-		ServiceComponentModelImpl serviceComponentModelImpl,
-		boolean clearCurrent) {
-
-		if (clearCurrent) {
-			Object[] args = new Object[] {
-				serviceComponentModelImpl.getBuildNamespace(),
-				serviceComponentModelImpl.getBuildNumber()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByBNS_BNU, args);
-			FinderCacheUtil.removeResult(_finderPathFetchByBNS_BNU, args);
-		}
-
-		if ((serviceComponentModelImpl.getColumnBitmask() &
-			 _finderPathFetchByBNS_BNU.getColumnBitmask()) != 0) {
-
-			Object[] args = new Object[] {
-				serviceComponentModelImpl.getOriginalBuildNamespace(),
-				serviceComponentModelImpl.getOriginalBuildNumber()
-			};
-
-			FinderCacheUtil.removeResult(_finderPathCountByBNS_BNU, args);
-			FinderCacheUtil.removeResult(_finderPathFetchByBNS_BNU, args);
-		}
 	}
 
 	/**
@@ -1192,10 +1140,8 @@ public class ServiceComponentPersistenceImpl
 		try {
 			session = openSession();
 
-			if (serviceComponent.isNew()) {
+			if (isNew) {
 				session.save(serviceComponent);
-
-				serviceComponent.setNew(false);
 			}
 			else {
 				serviceComponent = (ServiceComponent)session.merge(
@@ -1209,59 +1155,14 @@ public class ServiceComponentPersistenceImpl
 			closeSession(session);
 		}
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (!ServiceComponentModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(
-				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-		else if (isNew) {
-			Object[] args = new Object[] {
-				serviceComponentModelImpl.getBuildNamespace()
-			};
-
-			FinderCacheUtil.removeResult(
-				_finderPathCountByBuildNamespace, args);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindByBuildNamespace, args);
-
-			FinderCacheUtil.removeResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
-			FinderCacheUtil.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
-		}
-		else {
-			if ((serviceComponentModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByBuildNamespace.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					serviceComponentModelImpl.getOriginalBuildNamespace()
-				};
-
-				FinderCacheUtil.removeResult(
-					_finderPathCountByBuildNamespace, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByBuildNamespace, args);
-
-				args = new Object[] {
-					serviceComponentModelImpl.getBuildNamespace()
-				};
-
-				FinderCacheUtil.removeResult(
-					_finderPathCountByBuildNamespace, args);
-				FinderCacheUtil.removeResult(
-					_finderPathWithoutPaginationFindByBuildNamespace, args);
-			}
-		}
-
 		EntityCacheUtil.putResult(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentImpl.class, serviceComponent.getPrimaryKey(),
-			serviceComponent, false);
+			ServiceComponentImpl.class, serviceComponentModelImpl, false, true);
 
-		clearUniqueFindersCache(serviceComponentModelImpl, false);
 		cacheUniqueFindersCache(serviceComponentModelImpl);
+
+		if (isNew) {
+			serviceComponent.setNew(false);
+		}
 
 		serviceComponent.resetOriginalValues();
 
@@ -1444,10 +1345,6 @@ public class ServiceComponentPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1493,9 +1390,6 @@ public class ServiceComponentPersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				FinderCacheUtil.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1535,71 +1429,66 @@ public class ServiceComponentPersistenceImpl
 	 * Initializes the service component persistence.
 	 */
 	public void afterPropertiesSet() {
-		_finderPathWithPaginationFindAll = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED,
-			ServiceComponentImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findAll", new String[0]);
+		Registry registry = RegistryUtil.getRegistry();
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED,
-			ServiceComponentImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_argumentsResolverServiceRegistration = registry.registerService(
+			ArgumentsResolver.class,
+			new ServiceComponentModelArgumentsResolver(),
+			HashMapBuilder.<String, Object>put(
+				"model.class.name", ServiceComponent.class.getName()
+			).build());
 
-		_finderPathCountAll = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 
-		_finderPathWithPaginationFindByBuildNamespace = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED,
-			ServiceComponentImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByBuildNamespace",
+		_finderPathWithPaginationFindByBuildNamespace = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByBuildNamespace",
 			new String[] {
 				String.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"buildNamespace"}, true);
 
-		_finderPathWithoutPaginationFindByBuildNamespace = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED,
-			ServiceComponentImpl.class,
+		_finderPathWithoutPaginationFindByBuildNamespace = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByBuildNamespace",
 			new String[] {String.class.getName()},
-			ServiceComponentModelImpl.BUILDNAMESPACE_COLUMN_BITMASK |
-			ServiceComponentModelImpl.BUILDNUMBER_COLUMN_BITMASK);
+			new String[] {"buildNamespace"}, true);
 
-		_finderPathCountByBuildNamespace = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByBuildNamespace = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByBuildNamespace",
-			new String[] {String.class.getName()});
+			new String[] {String.class.getName()},
+			new String[] {"buildNamespace"}, false);
 
-		_finderPathFetchByBNS_BNU = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED,
-			ServiceComponentImpl.class, FINDER_CLASS_NAME_ENTITY,
-			"fetchByBNS_BNU",
+		_finderPathFetchByBNS_BNU = _createFinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByBNS_BNU",
 			new String[] {String.class.getName(), Long.class.getName()},
-			ServiceComponentModelImpl.BUILDNAMESPACE_COLUMN_BITMASK |
-			ServiceComponentModelImpl.BUILDNUMBER_COLUMN_BITMASK);
+			new String[] {"buildNamespace", "buildNumber"}, true);
 
-		_finderPathCountByBNS_BNU = new FinderPath(
-			ServiceComponentModelImpl.ENTITY_CACHE_ENABLED,
-			ServiceComponentModelImpl.FINDER_CACHE_ENABLED, Long.class,
+		_finderPathCountByBNS_BNU = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByBNS_BNU",
-			new String[] {String.class.getName(), Long.class.getName()});
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"buildNamespace", "buildNumber"}, false);
 	}
 
 	public void destroy() {
 		EntityCacheUtil.removeCache(ServiceComponentImpl.class.getName());
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 	}
 
 	private static final String _SQL_SELECT_SERVICECOMPONENT =
@@ -1627,5 +1516,110 @@ public class ServiceComponentPersistenceImpl
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
 		new String[] {"data"});
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			Registry registry = RegistryUtil.getRegistry();
+
+			_serviceRegistrations.add(
+				registry.registerService(
+					FinderPath.class, finderPath,
+					HashMapBuilder.<String, Object>put(
+						"cache.name", cacheName
+					).build()));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class ServiceComponentModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			ServiceComponentModelImpl serviceComponentModelImpl =
+				(ServiceComponentModelImpl)baseModel;
+
+			long columnBitmask = serviceComponentModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(
+					serviceComponentModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						serviceComponentModelImpl.getColumnBitmask(columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(
+					serviceComponentModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			ServiceComponentModelImpl serviceComponentModelImpl,
+			String[] columnNames, boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] =
+						serviceComponentModelImpl.getColumnOriginalValue(
+							columnName);
+				}
+				else {
+					arguments[i] = serviceComponentModelImpl.getColumnValue(
+						columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
+	}
 
 }

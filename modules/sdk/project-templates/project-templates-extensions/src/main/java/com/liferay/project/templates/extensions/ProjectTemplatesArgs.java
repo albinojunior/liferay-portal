@@ -64,6 +64,10 @@ public class ProjectTemplatesArgs {
 		return _packageName;
 	}
 
+	public String getProduct() {
+		return _product;
+	}
+
 	public ProjectTemplatesArgsExt getProjectTemplatesArgsExt() {
 		return _projectTemplatesArgsExt;
 	}
@@ -150,6 +154,10 @@ public class ProjectTemplatesArgs {
 		_packageName = packageName;
 	}
 
+	public void setProduct(String product) {
+		_product = product;
+	}
+
 	public void setProjectTemplatesArgsExt(
 		ProjectTemplatesArgsExt projectTemplatesArgsExt) {
 
@@ -220,7 +228,7 @@ public class ProjectTemplatesArgs {
 		description = "The version of Liferay to target when creating the project.",
 		names = "--liferay-version"
 	)
-	private String _liferayVersion = "7.2";
+	private String _liferayVersion = "7.3.4";
 
 	@Parameter(
 		description = "Print the list of available project templates.",
@@ -246,6 +254,12 @@ public class ProjectTemplatesArgs {
 		names = "--package-name"
 	)
 	private String _packageName;
+
+	@Parameter(
+		description = "The option for Liferay Platform product. (portal)|(dxp)",
+		names = "--product"
+	)
+	private String _product = "portal";
 
 	private ProjectTemplatesArgsExt _projectTemplatesArgsExt;
 

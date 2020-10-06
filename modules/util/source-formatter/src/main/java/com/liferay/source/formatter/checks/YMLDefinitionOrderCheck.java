@@ -45,21 +45,18 @@ public class YMLDefinitionOrderCheck extends BaseFileCheck {
 			return content;
 		}
 
-		String[] ymlDefinitions = content.split("\n---\n");
+		List<String> directives = YMLSourceUtil.splitDirectives(content);
 
-		StringBundler sb = new StringBundler(ymlDefinitions.length * 2);
+		StringBundler sb = new StringBundler(directives.size() * 2);
 
-		for (String ymlDefinition : ymlDefinitions) {
-			sb.append(
-				_sortDefinitions(fileName, ymlDefinition, StringPool.BLANK));
+		for (String directive : directives) {
+			sb.append(_sortDefinitions(fileName, directive, StringPool.BLANK));
 			sb.append("\n---\n");
 		}
 
 		sb.setIndex(sb.index() - 1);
 
-		content = _sortPathParameters(sb.toString());
-
-		return content;
+		return _sortPathParameters(sb.toString());
 	}
 
 	private List<String> _combineComments(
@@ -117,12 +114,38 @@ public class YMLDefinitionOrderCheck extends BaseFileCheck {
 		return -1;
 	}
 
+	private String _removeComments(String definition) {
+		int y = definition.indexOf("\n");
+
+		if (y == -1) {
+			return definition;
+		}
+
+		int x = 0;
+
+		String line = definition.substring(x, y);
+
+		while (line.matches(" *#.*")) {
+			x = y + 1;
+
+			y = definition.indexOf("\n", x);
+
+			if (y == -1) {
+				return definition;
+			}
+
+			line = definition.substring(x, y);
+		}
+
+		return definition.substring(x);
+	}
+
 	private List<String> _removeDuplicateAttribute(List<String> list) {
 		List<String> definitions = new ArrayList<>();
-		Iterator<String> itr = list.iterator();
+		Iterator<String> iterator = list.iterator();
 
-		while (itr.hasNext()) {
-			String s = itr.next();
+		while (iterator.hasNext()) {
+			String s = iterator.next();
 
 			if (!definitions.contains(s) || s.startsWith("{{") ||
 				s.startsWith("#")) {
@@ -170,14 +193,14 @@ public class YMLDefinitionOrderCheck extends BaseFileCheck {
 					}
 
 					String[] definition1Lines = StringUtil.splitLines(
-						definition1);
+						_removeComments(definition1));
 					String[] definition2Lines = StringUtil.splitLines(
-						definition2);
+						_removeComments(definition2));
 
 					String trimmedDefinition1Line = definition1Lines[0];
 					String trimmedDefinition2Line = definition2Lines[0];
 
-					if (trimmedDefinition1Line.equals(StringPool.DASH) &&
+					if (trimmedDefinition1Line.equals(StringPool.DASH) ||
 						trimmedDefinition2Line.equals(StringPool.DASH)) {
 
 						if (definition1Lines[1].contains("in: ") &&
@@ -290,9 +313,7 @@ public class YMLDefinitionOrderCheck extends BaseFileCheck {
 			matcher2 = pattern.matcher(path);
 
 			while (matcher2.find()) {
-				String inPaths = null;
-
-				inPaths = matcher2.group();
+				String inPaths = matcher2.group();
 
 				pattern = Pattern.compile(" *-\n( +)in: path(\n\\1.+)*\n");
 

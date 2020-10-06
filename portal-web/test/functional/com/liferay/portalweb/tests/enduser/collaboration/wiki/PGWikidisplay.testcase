@@ -14,7 +14,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Wiki Display Test Page");
@@ -45,7 +44,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -92,7 +90,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -117,13 +114,15 @@ definition {
 			locator1 = "Link#ADD_CHILD_PAGE",
 			value1 = "Add Child Page");
 
+		WikiEntry.addPageTitle(wikiPageTitle = "Wiki FrontPage Child Page Title");
+
 		WikiEntry.selectPageFormat(pageFormat = "HTML");
 
 		WikiEntry.confirmHTML();
 
-		WikiEntry.addPageTitle(wikiPageTitle = "Wiki FrontPage Child Page Title");
+		CKEditor.addSourceContent(content = "${welcomeToLiferay}");
 
-		AlloyEditor.addSourceContent(content = "${welcomeToLiferay}");
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -148,7 +147,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -240,7 +238,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -279,7 +276,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");

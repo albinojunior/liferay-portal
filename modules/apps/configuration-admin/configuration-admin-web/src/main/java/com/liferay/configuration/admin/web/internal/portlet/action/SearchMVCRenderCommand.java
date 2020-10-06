@@ -74,8 +74,8 @@ public class SearchMVCRenderCommand implements MVCRenderCommand {
 
 		_clusterConfigurationModelIndexer.initialize();
 
-		Indexer indexer = _indexerRegistry.nullSafeGetIndexer(
-			ConfigurationModel.class);
+		Indexer<ConfigurationModel> indexer =
+			_indexerRegistry.nullSafeGetIndexer(ConfigurationModel.class);
 
 		SearchContext searchContext = new SearchContext();
 
@@ -188,7 +188,7 @@ public class SearchMVCRenderCommand implements MVCRenderCommand {
 	@Reference
 	private ConfigurationEntryRetriever _configurationEntryRetriever;
 
-	@Reference
+	@Reference(target = "(filter.visibility=*)")
 	private ConfigurationModelRetriever _configurationModelRetriever;
 
 	@Reference

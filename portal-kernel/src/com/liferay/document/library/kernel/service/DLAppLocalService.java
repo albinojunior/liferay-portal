@@ -15,6 +15,7 @@
 package com.liferay.document.library.kernel.service;
 
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -42,6 +43,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see DLAppLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
@@ -52,7 +54,7 @@ public interface DLAppLocalService extends BaseLocalService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link DLAppLocalServiceUtil} to access the dl app local service. Add custom service methods to <code>com.liferay.portlet.documentlibrary.service.impl.DLAppLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portlet.documentlibrary.service.impl.DLAppLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the dl app local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link DLAppLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public FileEntry addFileEntry(
 			long userId, long repositoryId, long folderId,
@@ -158,7 +160,7 @@ public interface DLAppLocalService extends BaseLocalService {
 	 </code>)
 	 * @param description the file's description
 	 * @param changeLog the file's version change log
-	 * @param is the file's data (optionally <code>null</code>)
+	 * @param inputStream the file's data (optionally <code>null</code>)
 	 * @param size the file's size (optionally <code>0</code>)
 	 * @param serviceContext the service context to be applied. Can set the
 	 asset category IDs, asset tag names, and expando bridge
@@ -172,8 +174,8 @@ public interface DLAppLocalService extends BaseLocalService {
 	public FileEntry addFileEntry(
 			long userId, long repositoryId, long folderId,
 			String sourceFileName, String mimeType, String title,
-			String description, String changeLog, InputStream is, long size,
-			ServiceContext serviceContext)
+			String description, String changeLog, InputStream inputStream,
+			long size, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**
@@ -578,7 +580,7 @@ public interface DLAppLocalService extends BaseLocalService {
 	 <code>null</code>)
 	 * @param dlVersionNumberIncrease the kind of version number increase to
 	 apply for these changes.
-	 * @param is the file's data (optionally <code>null</code>)
+	 * @param inputStream the file's data (optionally <code>null</code>)
 	 * @param size the file's size (optionally <code>0</code>)
 	 * @param serviceContext the service context to be applied. Can set the
 	 asset category IDs, asset tag names, and expando bridge
@@ -592,8 +594,8 @@ public interface DLAppLocalService extends BaseLocalService {
 	public FileEntry updateFileEntry(
 			long userId, long fileEntryId, String sourceFileName,
 			String mimeType, String title, String description, String changeLog,
-			DLVersionNumberIncrease dlVersionNumberIncrease, InputStream is,
-			long size, ServiceContext serviceContext)
+			DLVersionNumberIncrease dlVersionNumberIncrease,
+			InputStream inputStream, long size, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**

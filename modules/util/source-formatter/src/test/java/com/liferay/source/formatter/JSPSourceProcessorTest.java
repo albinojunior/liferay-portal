@@ -37,6 +37,11 @@ public class JSPSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testFormatTagAttributes() throws Exception {
+		test("FormatTagAttributes.testjsp");
+	}
+
+	@Test
 	public void testFormatTaglibs() throws Exception {
 		test("FormatTaglibs.testjsp");
 	}
@@ -54,6 +59,17 @@ public class JSPSourceProcessorTest extends BaseSourceProcessorTestCase {
 	@Test
 	public void testIncorrectIndentation() throws Exception {
 		test("IncorrectIndentation.testjsp");
+	}
+
+	@Test
+	public void testIncorrectMethodCalls() throws Exception {
+		test(
+			"IncorrectMethodCalls.testjsp",
+			new String[] {
+				"Use type 'LiferayPortletResponse' to call 'getNamespace()'",
+				"Use type 'LiferayPortletResponse' to call 'getNamespace()'"
+			},
+			new Integer[] {21, 28});
 	}
 
 	@Test

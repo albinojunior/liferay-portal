@@ -38,7 +38,7 @@
 			<liferay-ui:icon-menu
 				direction="left-side"
 				icon="<%= StringUtil.toLowerCase(normalizedDefaultLanguageId) %>"
-				id="<%= fieldsNamespace + \"Menu\" %>"
+				id='<%= fieldsNamespace + "Menu" %>'
 				markupView="lexicon"
 				message="<%= StringPool.BLANK %>"
 				showWhenSingleIcon="<%= true %>"
@@ -54,7 +54,7 @@
 
 						uniqueLanguageIds.add(defaultLanguageId);
 
-						Set<Locale> availableLocales;
+						Set<Locale> availableLocales = null;
 
 						if (defaultEditLocale == null) {
 							availableLocales = ddmForm.getAvailableLocales();
@@ -78,29 +78,29 @@
 
 							String title = HtmlUtil.escapeAttribute(curLocale.getDisplayName(LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request)))) + " " + LanguageUtil.get(LocaleUtil.getDefault(), "translation");
 
-							Map<String, Object> data = new HashMap<String, Object>();
-
-							data.put("languageid", curLanguageId);
-
-							Map<String, Object> iconData = new HashMap<>();
-
-							iconData.put("index", index++);
-							iconData.put("languageid", curLanguageId);
-							iconData.put("value", curLanguageId);
+							Map<String, Object> iconData = HashMapBuilder.<String, Object>put(
+								"index", index++
+							).put(
+								"languageid", curLanguageId
+							).put(
+								"value", curLanguageId
+							).build();
 							%>
 
-							<liferay-ui:icon
-								alt="<%= title %>"
-								data="<%= iconData %>"
-								icon="<%= StringUtil.toLowerCase(StringUtil.replace(curLanguageId, '_', '-')) %>"
-								iconCssClass="inline-item inline-item-before"
-								linkCssClass="<%= linkCssClass %>"
-								markupView="lexicon"
-								message="<%= StringUtil.replace(curLanguageId, '_', '-') %>"
-								onClick="event.preventDefault(); fireLocaleChanged(event);"
-								url="javascript:;"
-							>
-							</liferay-ui:icon>
+							<c:if test="<%= showLanguageSelector %>">
+								<liferay-ui:icon
+									alt="<%= title %>"
+									data="<%= iconData %>"
+									icon="<%= StringUtil.toLowerCase(StringUtil.replace(curLanguageId, '_', '-')) %>"
+									iconCssClass="inline-item inline-item-before"
+									linkCssClass="<%= linkCssClass %>"
+									markupView="lexicon"
+									message="<%= StringUtil.replace(curLanguageId, '_', '-') %>"
+									onClick="event.preventDefault(); fireLocaleChanged(event);"
+									url="javascript:;"
+								>
+								</liferay-ui:icon>
+							</c:if>
 
 						<%
 						}
@@ -122,7 +122,7 @@
 		ddmFormFieldRenderingContext.setLocale(requestedLocale);
 		ddmFormFieldRenderingContext.setMode(mode);
 		ddmFormFieldRenderingContext.setNamespace(fieldsNamespace);
-		ddmFormFieldRenderingContext.setPortletNamespace(portletResponse.getNamespace());
+		ddmFormFieldRenderingContext.setPortletNamespace(liferayPortletResponse.getNamespace());
 		ddmFormFieldRenderingContext.setReadOnly(readOnly);
 		ddmFormFieldRenderingContext.setShowEmptyFieldLabel(showEmptyFieldLabel);
 		%>
@@ -136,8 +136,16 @@
 
 			var ddmFormDefinition = <%= DDMUtil.getDDMFormJSONString(ddmForm) %>;
 
-			ddmFormDefinition.defaultLanguageId =
-				'<%= LocaleUtil.toLanguageId(defaultLocale) %>';
+			<%
+			if (defaultLocale != null) {
+			%>
+
+				ddmFormDefinition.defaultLanguageId =
+					'<%= LocaleUtil.toLanguageId(defaultLocale) %>';
+
+			<%
+			}
+			%>
 
 			var liferayDDMForm = Liferay.component(
 				'<portlet:namespace /><%= HtmlUtil.escapeJS(fieldsNamespace) %>ddmForm',
@@ -166,7 +174,7 @@
 				})
 			);
 
-			var onLocaleChange = function(event) {
+			var onLocaleChange = function (event) {
 				var languageId = event.item.getAttribute('data-value');
 
 				languageId = languageId.replace('_', '-');
@@ -186,13 +194,13 @@
 
 			Liferay.on('inputLocalized:localeChanged', onLocaleChange);
 
-			window.fireLocaleChanged = function(event) {
+			window.fireLocaleChanged = function (event) {
 				Liferay.fire('inputLocalized:localeChanged', {
 					item: event.currentTarget,
 				});
 			};
 
-			var onDestroyPortlet = function(event) {
+			var onDestroyPortlet = function (event) {
 				if (event.portletId === '<%= portletDisplay.getId() %>') {
 					liferayDDMForm.destroy();
 

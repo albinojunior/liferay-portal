@@ -771,7 +771,7 @@ public class IntrabandProxyUtil {
 			return methodId1.compareTo(methodId2);
 		}
 
-		private static String _getMethodId(Method method) {
+		private String _getMethodId(Method method) {
 			Proxy proxy = method.getAnnotation(Proxy.class);
 
 			String methodName = proxy.name();
@@ -780,11 +780,8 @@ public class IntrabandProxyUtil {
 				methodName = method.getName();
 			}
 
-			return methodName.concat(
-				StringPool.DASH
-			).concat(
-				Type.getMethodDescriptor(method)
-			);
+			return StringBundler.concat(
+				methodName, StringPool.DASH, Type.getMethodDescriptor(method));
 		}
 
 	}
@@ -806,13 +803,9 @@ public class IntrabandProxyUtil {
 			for (int i = 0; i < proxyMethods.size(); i++) {
 				Method proxyMethod = proxyMethods.get(i);
 
-				String name = proxyMethod.getName();
-
-				proxyMethodSignatures[i] = name.concat(
-					StringPool.DASH
-				).concat(
-					Type.getMethodDescriptor(proxyMethod)
-				);
+				proxyMethodSignatures[i] = StringBundler.concat(
+					proxyMethod.getName(), StringPool.DASH,
+					Type.getMethodDescriptor(proxyMethod));
 			}
 		}
 
@@ -867,7 +860,7 @@ public class IntrabandProxyUtil {
 			String[] proxyMethodsSignatures) {
 
 			StringBundler sb = new StringBundler(
-				proxyMethodsSignatures.length * 4 + 1);
+				(proxyMethodsSignatures.length * 4) + 1);
 
 			sb.append(StringPool.OPEN_CURLY_BRACE);
 
@@ -1076,8 +1069,8 @@ public class IntrabandProxyUtil {
 				ClassLoader.class, "defineClass", String.class, byte[].class,
 				int.class, int.class);
 		}
-		catch (Throwable t) {
-			throw new ExceptionInInitializerError(t);
+		catch (Throwable throwable) {
+			throw new ExceptionInInitializerError(throwable);
 		}
 	}
 

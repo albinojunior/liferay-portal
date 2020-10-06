@@ -28,6 +28,8 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
+import com.liferay.portal.test.rule.SynchronousMailTestRule;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.test.util.SegmentsTestUtil;
 
@@ -35,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,6 +47,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class SegmentUserResourceTest extends BaseSegmentUserResourceTestCase {
+
+	@ClassRule
+	@Rule
+	public static final SynchronousMailTestRule synchronousMailTestRule =
+		SynchronousMailTestRule.INSTANCE;
 
 	@Test
 	public void testGetSegmentUserAccountsEmptyPage() throws Exception {
@@ -54,6 +63,28 @@ public class SegmentUserResourceTest extends BaseSegmentUserResourceTestCase {
 		Assert.assertEquals(0, page.getTotalCount());
 	}
 
+	@Override
+	@Test
+	public void testGetSegmentUserAccountsPage() throws Exception {
+		Page<SegmentUser> page = segmentUserResource.getSegmentUserAccountsPage(
+			testGetSegmentUserAccountsPage_getSegmentId(), null);
+
+		long totalCount = page.getTotalCount();
+
+		Long segmentId = testGetSegmentUserAccountsPage_getSegmentId();
+
+		testGetSegmentUserAccountsPage_addSegmentUser(
+			segmentId, randomSegmentUser());
+		testGetSegmentUserAccountsPage_addSegmentUser(
+			segmentId, randomSegmentUser());
+
+		page = segmentUserResource.getSegmentUserAccountsPage(segmentId, null);
+
+		Assert.assertEquals(totalCount + 2, page.getTotalCount());
+
+		assertValid(page);
+	}
+
 	@Test(expected = Problem.ProblemException.class)
 	public void testGetSegmentUserAccountsPageWithNonexistingSegmentId()
 		throws Exception {
@@ -61,6 +92,9 @@ public class SegmentUserResourceTest extends BaseSegmentUserResourceTestCase {
 		segmentUserResource.getSegmentUserAccountsPage(
 			RandomTestUtil.randomLong(), null);
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected SegmentUser randomSegmentUser() {
@@ -93,19 +127,19 @@ public class SegmentUserResourceTest extends BaseSegmentUserResourceTestCase {
 	protected Long testGetSegmentUserAccountsPage_getSegmentId()
 		throws Exception {
 
-		String criteria = JSONUtil.put(
-			"criteria",
-			JSONUtil.put(
-				"user",
-				JSONUtil.put(
-					"conjunction", "and"
-				).put(
-					"filterString", _filterString
-				))
-		).toString();
-
 		SegmentsEntry segmentsEntry = SegmentsTestUtil.addSegmentsEntry(
-			testGroup.getGroupId(), criteria, User.class.getName());
+			testGroup.getGroupId(),
+			JSONUtil.put(
+				"criteria",
+				JSONUtil.put(
+					"user",
+					JSONUtil.put(
+						"conjunction", "and"
+					).put(
+						"filterString", _filterString
+					))
+			).toString(),
+			User.class.getName());
 
 		return segmentsEntry.getSegmentsEntryId();
 	}

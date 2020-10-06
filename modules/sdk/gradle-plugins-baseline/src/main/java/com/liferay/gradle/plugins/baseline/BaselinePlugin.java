@@ -44,8 +44,10 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.ReportingBasePlugin;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.util.VersionNumber;
@@ -97,13 +99,8 @@ public class BaselinePlugin implements Plugin<Project> {
 		final AbstractArchiveTask newJarTask,
 		final BaselineConfigurationExtension baselineConfigurationExtension) {
 
-		Project project = newJarTask.getProject();
-
-		ConfigurationContainer configurationContainer =
-			project.getConfigurations();
-
-		Configuration configuration = configurationContainer.maybeCreate(
-			BASELINE_CONFIGURATION_NAME);
+		Configuration configuration = GradleUtil.addConfiguration(
+			newJarTask.getProject(), BASELINE_CONFIGURATION_NAME);
 
 		configuration.defaultDependencies(
 			new Action<DependencySet>() {
@@ -132,7 +129,7 @@ public class BaselinePlugin implements Plugin<Project> {
 		final AbstractArchiveTask newJarTask) {
 
 		final BaselineTask baselineTask = _addTaskBaseline(
-			newJarTask, BASELINE_TASK_NAME, true);
+			newJarTask, BASELINE_TASK_NAME);
 
 		baselineTask.setDescription(
 			"Compares the public API of this project with the public API of " +
@@ -146,7 +143,7 @@ public class BaselinePlugin implements Plugin<Project> {
 		AbstractArchiveTask newJarTask, int majorVersion) {
 
 		BaselineTask baselineTask = _addTaskBaseline(
-			newJarTask, BASELINE_TASK_NAME + majorVersion, false);
+			newJarTask, BASELINE_TASK_NAME + majorVersion);
 
 		baselineTask.dependsOn(newJarTask);
 
@@ -170,17 +167,28 @@ public class BaselinePlugin implements Plugin<Project> {
 
 		baselineTask.setBaselineConfiguration(baselineConfiguration);
 
+		TaskOutputs taskOutputs = baselineTask.getOutputs();
+
+		taskOutputs.upToDateWhen(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					return false;
+				}
+
+			});
+
 		return baselineTask;
 	}
 
 	private BaselineTask _addTaskBaseline(
-		final AbstractArchiveTask newJarTask, String taskName,
-		boolean overwrite) {
+		final AbstractArchiveTask newJarTask, String taskName) {
 
 		Project project = newJarTask.getProject();
 
-		final BaselineTask baselineTask = GradleUtil.addTask(
-			project, taskName, BaselineTask.class, overwrite);
+		BaselineTask baselineTask = GradleUtil.addTask(
+			project, taskName, BaselineTask.class);
 
 		File bndFile = project.file("bnd.bnd");
 
@@ -204,7 +212,7 @@ public class BaselinePlugin implements Plugin<Project> {
 				@Override
 				public File call() throws Exception {
 					SourceSet sourceSet = GradleUtil.getSourceSet(
-						baselineTask.getProject(),
+						newJarTask.getProject(),
 						SourceSet.MAIN_SOURCE_SET_NAME);
 
 					return GradleUtil.getSrcDir(sourceSet.getResources());
@@ -268,8 +276,6 @@ public class BaselinePlugin implements Plugin<Project> {
 			baselineConfigurationExtension.getLowestMajorVersion();
 
 		if (lowestMajorVersion != null) {
-			BaselineTask previousVersionBaselineTask = baselineTask;
-
 			int maxMajorVersion = versionNumber.getMajor();
 
 			if ((versionNumber.getMinor() == 0) &&
@@ -293,9 +299,7 @@ public class BaselinePlugin implements Plugin<Project> {
 						true);
 				}
 
-				previousVersionBaselineTask.dependsOn(majorVersionBaselineTask);
-
-				previousVersionBaselineTask = majorVersionBaselineTask;
+				baselineTask.dependsOn(majorVersionBaselineTask);
 			}
 		}
 		else if (baselineConfigurationExtension.
@@ -434,29 +438,18 @@ public class BaselinePlugin implements Plugin<Project> {
 				}
 
 				if ((newVersion != null) &&
-					(newVersion.getQualifier() == null)) {
+					(newVersion.getQualifier() == null) &&
+					(newVersion.getMicro() > 0)) {
 
-					if (newVersion.getMicro() > 0) {
-						StringBuilder sb = new StringBuilder();
+					StringBuilder sb = new StringBuilder();
 
-						sb.append(newVersion.getMajor());
-						sb.append('.');
-						sb.append(newVersion.getMinor());
-						sb.append('.');
-						sb.append(newVersion.getMicro() - 1);
+					sb.append(newVersion.getMajor());
+					sb.append('.');
+					sb.append(newVersion.getMinor());
+					sb.append('.');
+					sb.append(newVersion.getMicro() - 1);
 
-						version = sb.toString();
-					}
-					else if (newVersion.getMinor() > 0) {
-						StringBuilder sb = new StringBuilder();
-
-						sb.append(newVersion.getMajor());
-						sb.append('.');
-						sb.append(newVersion.getMinor() - 1);
-						sb.append(".0");
-
-						version = sb.toString();
-					}
+					version = sb.toString();
 				}
 			}
 		}

@@ -49,7 +49,7 @@ renderResponse.setTitle(title);
 
 <portlet:actionURL name="/plugins_admin/edit_plugin" var="editPluginURL" />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<aui:form action="<%= editPluginURL %>" method="post" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="pluginId" type="hidden" value="<%= pluginId %>" />
@@ -68,7 +68,7 @@ renderResponse.setTitle(title);
 						<aui:field-wrapper helpMessage="edit-plugin-permissions-help" label="permissions">
 
 							<%
-							List resourceActions = ResourceActionsUtil.getResourceActions(portlet.getPortletId(), null);
+							List<String> resourceActions = ResourceActionsUtil.getResourceActions(portlet.getPortletId(), null);
 
 							int maxNumberOfRolesChecked = 500;
 
@@ -228,7 +228,7 @@ renderResponse.setTitle(title);
 			<aui:button href="<%= redirect %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <%!
 private List<Role> _filterRoles(List<Role> roles, String portletId, String actionId) throws Exception {

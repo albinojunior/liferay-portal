@@ -67,18 +67,18 @@ public class DDMFormValuesJSONDeserializer
 		DDMFormValuesDeserializerDeserializeRequest
 			ddmFormValuesDeserializerDeserializeRequest) {
 
-		DDMFormValues ddmFormValues = null;
+		DDMForm ddmForm =
+			ddmFormValuesDeserializerDeserializeRequest.getDDMForm();
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		DDMFormValuesDeserializerDeserializeResponse.Builder builder =
+			DDMFormValuesDeserializerDeserializeResponse.Builder.newBuilder(
+				ddmFormValues);
 
 		try {
-			String content =
-				ddmFormValuesDeserializerDeserializeRequest.getContent();
-
-			DDMForm ddmForm =
-				ddmFormValuesDeserializerDeserializeRequest.getDDMForm();
-
-			JSONObject jsonObject = _jsonFactory.createJSONObject(content);
-
-			ddmFormValues = new DDMFormValues(ddmForm);
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
+				ddmFormValuesDeserializerDeserializeRequest.getContent());
 
 			setDDMFormValuesAvailableLocales(
 				jsonObject.getJSONArray("availableLanguageIds"), ddmFormValues);
@@ -86,17 +86,18 @@ public class DDMFormValuesJSONDeserializer
 				jsonObject.getString("defaultLanguageId"), ddmFormValues);
 			setDDMFormFieldValues(
 				jsonObject.getJSONArray("fieldValues"), ddmForm, ddmFormValues);
+
 			setDDMFormLocalizedValuesDefaultLocale(ddmFormValues);
+
+			return builder.build();
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(exception, exception);
 			}
-		}
 
-		DDMFormValuesDeserializerDeserializeResponse.Builder builder =
-			DDMFormValuesDeserializerDeserializeResponse.Builder.newBuilder(
-				ddmFormValues);
+			builder = builder.exception(exception);
+		}
 
 		return builder.build();
 	}
@@ -184,10 +185,10 @@ public class DDMFormValuesJSONDeserializer
 	protected LocalizedValue getLocalizedValue(JSONObject jsonObject) {
 		LocalizedValue localizedValue = new LocalizedValue();
 
-		Iterator<String> itr = jsonObject.keys();
+		Iterator<String> iterator = jsonObject.keys();
 
-		while (itr.hasNext()) {
-			String languageId = itr.next();
+		while (iterator.hasNext()) {
+			String languageId = iterator.next();
 
 			if (LanguageUtil.isAvailableLocale(languageId)) {
 				localizedValue.addString(
@@ -286,9 +287,7 @@ public class DDMFormValuesJSONDeserializer
 			return;
 		}
 
-		Value value = getValue(ddmFormField, jsonObject);
-
-		ddmFormFieldValue.setValue(value);
+		ddmFormFieldValue.setValue(getValue(ddmFormField, jsonObject));
 	}
 
 	protected void setDDMFormLocalizedValuesDefaultLocale(

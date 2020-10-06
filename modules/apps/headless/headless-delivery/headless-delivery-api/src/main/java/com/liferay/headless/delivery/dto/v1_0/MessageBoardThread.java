@@ -24,6 +24,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -50,42 +51,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Generated("")
 @GraphQLName("MessageBoardThread")
 @JsonFilter("Liferay.Vulcan")
-@Schema(requiredProperties = {"headline"})
+@Schema(
+	requiredProperties = {"headline"},
+	description = "Represents a discussion thread in a message board."
+)
 @XmlRootElement(name = "MessageBoardThread")
 public class MessageBoardThread {
 
-	@GraphQLName("ViewableBy")
-	public static enum ViewableBy {
-
-		ANYONE("Anyone"), MEMBERS("Members"), OWNER("Owner");
-
-		@JsonCreator
-		public static ViewableBy create(String value) {
-			for (ViewableBy viewableBy : values()) {
-				if (Objects.equals(viewableBy.getValue(), value)) {
-					return viewableBy;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private ViewableBy(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static MessageBoardThread toDTO(String json) {
+		return ObjectMapperUtil.readValue(MessageBoardThread.class, json);
 	}
 
 	@Schema
@@ -358,6 +332,66 @@ public class MessageBoardThread {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String encodingFormat;
 
+	@Schema
+	public String getFriendlyUrlPath() {
+		return friendlyUrlPath;
+	}
+
+	public void setFriendlyUrlPath(String friendlyUrlPath) {
+		this.friendlyUrlPath = friendlyUrlPath;
+	}
+
+	@JsonIgnore
+	public void setFriendlyUrlPath(
+		UnsafeSupplier<String, Exception> friendlyUrlPathUnsafeSupplier) {
+
+		try {
+			friendlyUrlPath = friendlyUrlPathUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String friendlyUrlPath;
+
+	@Schema(
+		description = "A flag that indicates whether this thread has a message considered as valid"
+	)
+	public Boolean getHasValidAnswer() {
+		return hasValidAnswer;
+	}
+
+	public void setHasValidAnswer(Boolean hasValidAnswer) {
+		this.hasValidAnswer = hasValidAnswer;
+	}
+
+	@JsonIgnore
+	public void setHasValidAnswer(
+		UnsafeSupplier<Boolean, Exception> hasValidAnswerUnsafeSupplier) {
+
+		try {
+			hasValidAnswer = hasValidAnswerUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "A flag that indicates whether this thread has a message considered as valid"
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean hasValidAnswer;
+
 	@Schema(description = "The thread's main title.")
 	public String getHeadline() {
 		return headline;
@@ -440,6 +474,38 @@ public class MessageBoardThread {
 	@GraphQLField(description = "A list of keywords describing the thread.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String[] keywords;
+
+	@Schema(
+		description = "A flag that indicates whether this thread is locked."
+	)
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
+	@JsonIgnore
+	public void setLocked(
+		UnsafeSupplier<Boolean, Exception> lockedUnsafeSupplier) {
+
+		try {
+			locked = lockedUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "A flag that indicates whether this thread is locked."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Boolean locked;
 
 	@Schema
 	public Long getMessageBoardSectionId() {
@@ -563,6 +629,32 @@ public class MessageBoardThread {
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected RelatedContent[] relatedContents;
 
+	@Schema
+	public Boolean getSeen() {
+		return seen;
+	}
+
+	public void setSeen(Boolean seen) {
+		this.seen = seen;
+	}
+
+	@JsonIgnore
+	public void setSeen(UnsafeSupplier<Boolean, Exception> seenUnsafeSupplier) {
+		try {
+			seen = seenUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean seen;
+
 	@Schema(
 		description = "A flag that indicates whether this thread was posted as a question that can receive approved answers."
 	)
@@ -650,7 +742,7 @@ public class MessageBoardThread {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Boolean subscribed;
 
 	@Schema
@@ -957,6 +1049,30 @@ public class MessageBoardThread {
 			sb.append("\"");
 		}
 
+		if (friendlyUrlPath != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"friendlyUrlPath\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(friendlyUrlPath));
+
+			sb.append("\"");
+		}
+
+		if (hasValidAnswer != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"hasValidAnswer\": ");
+
+			sb.append(hasValidAnswer);
+		}
+
 		if (headline != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -1003,6 +1119,16 @@ public class MessageBoardThread {
 			}
 
 			sb.append("]");
+		}
+
+		if (locked != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"locked\": ");
+
+			sb.append(locked);
 		}
 
 		if (messageBoardSectionId != null) {
@@ -1053,6 +1179,16 @@ public class MessageBoardThread {
 			}
 
 			sb.append("]");
+		}
+
+		if (seen != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"seen\": ");
+
+			sb.append(seen);
 		}
 
 		if (showAsQuestion != null) {
@@ -1174,10 +1310,54 @@ public class MessageBoardThread {
 	)
 	public String xClassName;
 
+	@GraphQLName("ViewableBy")
+	public static enum ViewableBy {
+
+		ANYONE("Anyone"), MEMBERS("Members"), OWNER("Owner");
+
+		@JsonCreator
+		public static ViewableBy create(String value) {
+			for (ViewableBy viewableBy : values()) {
+				if (Objects.equals(viewableBy.getValue(), value)) {
+					return viewableBy;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ViewableBy(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);
 
 		return string.replaceAll("\"", "\\\\\"");
+	}
+
+	private static boolean _isArray(Object value) {
+		if (value == null) {
+			return false;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		return clazz.isArray();
 	}
 
 	private static String _toJSON(Map<String, ?> map) {
@@ -1195,9 +1375,42 @@ public class MessageBoardThread {
 			sb.append("\"");
 			sb.append(entry.getKey());
 			sb.append("\":");
-			sb.append("\"");
-			sb.append(entry.getValue());
-			sb.append("\"");
+
+			Object value = entry.getValue();
+
+			if (_isArray(value)) {
+				sb.append("[");
+
+				Object[] valueArray = (Object[])value;
+
+				for (int i = 0; i < valueArray.length; i++) {
+					if (valueArray[i] instanceof String) {
+						sb.append("\"");
+						sb.append(valueArray[i]);
+						sb.append("\"");
+					}
+					else {
+						sb.append(valueArray[i]);
+					}
+
+					if ((i + 1) < valueArray.length) {
+						sb.append(", ");
+					}
+				}
+
+				sb.append("]");
+			}
+			else if (value instanceof Map) {
+				sb.append(_toJSON((Map<String, ?>)value));
+			}
+			else if (value instanceof String) {
+				sb.append("\"");
+				sb.append(value);
+				sb.append("\"");
+			}
+			else {
+				sb.append(value);
+			}
 
 			if (iterator.hasNext()) {
 				sb.append(",");

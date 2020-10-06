@@ -24,8 +24,10 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.dynamic.data.mapping.service.http.DDMFormInstanceVersionServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class DDMFormInstanceVersionSoap implements Serializable {
 
 	public static DDMFormInstanceVersionSoap toSoapModel(
@@ -34,6 +36,7 @@ public class DDMFormInstanceVersionSoap implements Serializable {
 		DDMFormInstanceVersionSoap soapModel = new DDMFormInstanceVersionSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setFormInstanceVersionId(model.getFormInstanceVersionId());
 		soapModel.setGroupId(model.getGroupId());
 		soapModel.setCompanyId(model.getCompanyId());
@@ -118,6 +121,14 @@ public class DDMFormInstanceVersionSoap implements Serializable {
 
 	public void setMvccVersion(long mvccVersion) {
 		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public long getFormInstanceVersionId() {
@@ -249,6 +260,7 @@ public class DDMFormInstanceVersionSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _formInstanceVersionId;
 	private long _groupId;
 	private long _companyId;

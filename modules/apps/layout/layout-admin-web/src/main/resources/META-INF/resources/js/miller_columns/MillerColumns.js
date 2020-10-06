@@ -15,41 +15,50 @@
 import {usePrevious} from 'frontend-js-react-web';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {DndProvider} from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import {HTML5Backend} from 'react-dnd-html5-backend';
 
+import DragPreview from './DragPreview';
 import MillerColumnsColumn from './MillerColumnsColumn';
 
-const getItemsMap = columns => {
+const getItemsMap = (columns, oldItems = new Map()) => {
 	const map = new Map();
 
-	let parentId;
+	let parentId, parentKey;
 
 	columns.forEach((column, columnIndex) => {
 		let childrenCount = 0;
-		let newParentId;
+		let newParentId, newParentKey;
 
-		column.forEach(item => {
+		column.forEach((item) => {
 			childrenCount++;
 
-			map.set(item.id, {
+			const oldItem = Array.from(oldItems.values()).find(
+				(oldItem) => oldItem.id === item.id
+			);
+
+			map.set(item.key, {
 				...item,
+				checked: oldItem ? oldItem.checked : false,
 				columnIndex,
 				parentId,
+				parentKey,
 			});
 
 			if (item.active && item.hasChild) {
 				newParentId = item.id;
+				newParentKey = item.key;
 			}
 		});
 
-		if (parentId) {
-			map.set(parentId, {
-				...map.get(parentId),
+		if (parentKey) {
+			map.set(parentKey, {
+				...map.get(parentKey),
 				childrenCount,
 			});
 		}
 
 		parentId = newParentId;
+		parentKey = newParentKey;
 	});
 
 	return map;
@@ -64,21 +73,26 @@ const MillerColumns = ({
 	onColumnsChange = noop,
 	onItemMove = noop,
 	onItemStayHover,
+	rtl,
+	searchContainer,
 }) => {
 	const ref = useRef();
 
 	const [items, setItems] = useState(() => getItemsMap(initialColumns));
 
 	// Transform items map into a columns-like array.
+
 	const columns = useMemo(() => {
 		const columns = [];
 
-		// eslint-disable-next-line no-for-of-loops/no-for-of-loops, no-unused-vars
+		// eslint-disable-next-line no-for-of-loops/no-for-of-loops
 		for (const item of items.values()) {
 			if (!columns[item.columnIndex]) {
 				columns[item.columnIndex] = {
 					items: [],
-					parent: items.get(item.parentId),
+					parent: Array.from(items.values()).find(
+						(_item) => _item.id === item.parentId
+					),
 				};
 			}
 
@@ -88,8 +102,9 @@ const MillerColumns = ({
 		}
 
 		// Add empty column in the end if last column has an active item
+
 		const lastColumnActiveItem = columns[columns.length - 1].items.find(
-			item => item.active
+			(item) => item.active
 		);
 		if (lastColumnActiveItem && !lastColumnActiveItem.hasChild) {
 			columns.push({
@@ -106,9 +121,9 @@ const MillerColumns = ({
 
 	useEffect(() => {
 		if (previousInitialColumnsValue !== initialColumns) {
-			setItems(getItemsMap(initialColumns));
+			setItems(getItemsMap(initialColumns, items));
 		}
-	}, [initialColumns, previousInitialColumnsValue]);
+	}, [initialColumns, items, previousInitialColumnsValue]);
 
 	useEffect(() => {
 		if (previousColumnsValue !== columns) {
@@ -122,114 +137,141 @@ const MillerColumns = ({
 		}
 	}, []);
 
-	const onItemDrop = (sourceId, newParentId, newIndex) => {
-		const newItems = new Map();
+	useEffect(() => {
+		if (searchContainer) {
+			searchContainer.on('rowToggled', (event) => {
+				setItems((oldItems) => {
+					const newItems = new Map(oldItems);
 
-		const source = items.get(sourceId);
-		const parent = items.get(newParentId);
+					newItems.forEach((item) => {
+						const itemNode = event.elements.allElements._nodes.find(
+							(node) => node.value === item.id
+						);
 
-		// If no newIndex is provided set it as the last of the siblings.
-		if (typeof newIndex !== 'number') {
-			newIndex = parent.childrenCount || 0;
+						if (itemNode) {
+							newItems.set(item.id, {
+								...newItems.get(item.id),
+								checked: itemNode.checked,
+							});
+						}
+					});
+
+					return newItems;
+				});
+			});
+		}
+	}, [searchContainer]);
+
+	const getMovedItems = (sources, newParentId, targetIndex) => {
+		const targetColumnItems = Array.from(items.values()).filter(
+			(item) => item.parentId === newParentId
+		);
+
+		// Return sources if target column has no items
+
+		if (!targetColumnItems.length) {
+			return sources.map((source, index) => ({
+				plid: source.id,
+				position: targetIndex + index,
+			}));
 		}
 
-		const newSource = {
-			...source,
-			active: newParentId === source.parentId && source.active,
-			columnIndex: parent.columnIndex + 1,
-			parentId: newParentId,
-		};
+		// Calculate all items of the target column that are changing position
 
-		let prevColumnIndex;
-		let itemIndex = 0;
+		const movedItems = new Map();
 
-		// eslint-disable-next-line no-for-of-loops/no-for-of-loops, no-unused-vars
-		for (let item of items.values()) {
-			const columnIndex = item.columnIndex;
+		let previousSources = 0;
 
-			if (item.columnIndex > prevColumnIndex) {
-				// Exit if source was active but not anymore and we are on the
-				// next column to where source used to live to avoid saving its
-				// children (which must not be shown anymore)
-				if (
-					source.active &&
-					!newSource.active &&
-					columnIndex > newSource.columnIndex + 1
-				) {
-					break;
-				}
+		targetColumnItems.forEach((item, index) => {
 
-				// Reset itemIndex counter on each column
-				itemIndex = 0;
+			// Iterating on target position. Insert sources into movedItems
+
+			if (index === targetIndex) {
+				sources.forEach((source, sourceIndex) => {
+					movedItems.set(source.id, {
+						plid: source.id,
+						position: index - previousSources + sourceIndex,
+					});
+				});
+
+				previousSources = sources.length - previousSources;
 			}
 
-			// Skip the source item iteration
-			if (item.id === sourceId) {
-				itemIndex++;
-				prevColumnIndex = item.columnIndex;
-				continue;
+			// Iterating on a source. Don't insert it into movedItems but we
+			// update previous sources counter
+
+			if (sources.some((source) => source.id === item.id)) {
+				previousSources =
+					index < targetIndex
+						? previousSources + 1
+						: previousSources - 1;
 			}
 
-			if (item.id === newParentId) {
-				let newChildrenCount = item.childrenCount;
+			// Insert item that is not a source into movedItems if it has a new
+			// position
 
-				if (newParentId !== source.parentId) {
-					newChildrenCount++;
-				}
-
-				item = {
-					...item,
-					childrenCount: newChildrenCount,
-					hasChild: true,
-				};
+			else if (previousSources) {
+				movedItems.set(item.id, {
+					plid: item.id,
+					position:
+						index < targetIndex
+							? index - previousSources
+							: index + previousSources,
+				});
 			}
-			else if (item.id === source.parentId) {
-				const newChildrenCount = item.childrenCount - 1;
+		});
 
-				item = {
-					...item,
-					childrenCount: newChildrenCount,
-					hasChild: newChildrenCount > 0,
-				};
+		// Insert sources into movedItems in the case we are targeting last
+		// position of column so the loop does not reach it
+
+		sources.forEach((source, index) => {
+			if (!movedItems.has(source.id)) {
+				movedItems.set(source.id, {
+					plid: source.id,
+					position: targetIndex + index,
+				});
 			}
+		});
 
-			if (
-				itemIndex === newIndex &&
-				columnIndex === newSource.columnIndex &&
-				parent.active
-			) {
-				newItems.set(newSource.id, newSource);
+		return Array.from(movedItems.values());
+	};
+
+	const onItemDrop = (sources, newParentId, targetIndex) => {
+
+		// Update checked items to keep them selected after updating items
+		// with server response
+
+		const newItems = new Map(items);
+
+		sources.forEach((source) => {
+			if (source.checked) {
+				newItems.set(source.id, source);
 			}
-
-			newItems.set(item.id, {...item});
-
-			itemIndex++;
-			prevColumnIndex = item.columnIndex;
-		}
-
-		// If source parent is active (children are visible) set (again or not)
-		// the newSource in the map in case it's being placed as the last
-		// element (so won't reach that position in the loop).
-		if (parent.active) {
-			newItems.set(newSource.id, newSource);
-		}
+		});
 
 		setItems(newItems);
-		onItemMove(sourceId, newParentId, newIndex);
+
+		onItemMove(
+			getMovedItems(sources, newParentId, targetIndex),
+			newParentId
+		);
 	};
 
 	return (
 		<DndProvider backend={HTML5Backend}>
+			<DragPreview rtl={rtl} />
 			<div className="bg-white miller-columns-row" ref={ref}>
 				{columns.map((column, index) => (
 					<MillerColumnsColumn
 						actionHandlers={actionHandlers}
-						items={column.items}
+						columnItems={column.items}
+						items={items}
 						key={index}
 						namespace={namespace}
 						onItemDrop={onItemDrop}
 						onItemStayHover={onItemStayHover}
 						parent={column.parent}
+						rtl={rtl}
 					/>
 				))}
 			</div>

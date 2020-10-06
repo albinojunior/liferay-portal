@@ -19,8 +19,14 @@ import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import javax.portlet.PortletURL;
@@ -28,6 +34,7 @@ import javax.portlet.PortletURL;
 import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Jürgen Kappler
@@ -35,10 +42,11 @@ import org.osgi.service.component.annotations.Component;
 @Component(immediate = true, service = AssetInfoEditURLProvider.class)
 public class AssetInfoEditURLProviderImpl implements AssetInfoEditURLProvider {
 
+	@Override
 	public String getURL(
 		String className, long classPK, HttpServletRequest httpServletRequest) {
 
-		AssetRendererFactory assetRendererFactory =
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 
@@ -47,8 +55,8 @@ public class AssetInfoEditURLProviderImpl implements AssetInfoEditURLProvider {
 		}
 
 		try {
-			AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(
-				classPK);
+			AssetRenderer<?> assetRenderer =
+				assetRendererFactory.getAssetRenderer(classPK);
 
 			if (assetRenderer == null) {
 				return StringPool.BLANK;
@@ -64,9 +72,32 @@ public class AssetInfoEditURLProviderImpl implements AssetInfoEditURLProvider {
 				return StringPool.BLANK;
 			}
 
+			String redirect = ParamUtil.getString(
+				httpServletRequest, "redirect");
+
+			if (Validator.isNull(redirect)) {
+				Layout layout = themeDisplay.getLayout();
+
+				if (layout.isTypeAssetDisplay()) {
+					redirect = themeDisplay.getURLCurrent();
+				}
+				else {
+					String mode = ParamUtil.getString(
+						_portal.getOriginalServletRequest(httpServletRequest),
+						"p_l_mode", Constants.VIEW);
+
+					redirect = _http.setParameter(
+						_portal.getLayoutRelativeURL(layout, themeDisplay),
+						"p_l_mode", mode);
+				}
+			}
+
+			redirect = _http.addParameter(
+				redirect, "portletResource",
+				assetRendererFactory.getPortletId());
+
 			PortletURL editAssetEntryURL = assetRenderer.getURLEdit(
-				httpServletRequest, LiferayWindowState.NORMAL,
-				themeDisplay.getURLCurrent());
+				httpServletRequest, LiferayWindowState.NORMAL, redirect);
 
 			if (editAssetEntryURL == null) {
 				return StringPool.BLANK;
@@ -82,5 +113,11 @@ public class AssetInfoEditURLProviderImpl implements AssetInfoEditURLProvider {
 
 		return StringPool.BLANK;
 	}
+
+	@Reference
+	private Http _http;
+
+	@Reference
+	private Portal _portal;
 
 }

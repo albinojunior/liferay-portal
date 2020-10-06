@@ -36,17 +36,17 @@ public class SamlSpIdpConnectionCacheModel
 	implements CacheModel<SamlSpIdpConnection>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SamlSpIdpConnectionCacheModel)) {
+		if (!(object instanceof SamlSpIdpConnectionCacheModel)) {
 			return false;
 		}
 
 		SamlSpIdpConnectionCacheModel samlSpIdpConnectionCacheModel =
-			(SamlSpIdpConnectionCacheModel)obj;
+			(SamlSpIdpConnectionCacheModel)object;
 
 		if (samlSpIdpConnectionId ==
 				samlSpIdpConnectionCacheModel.samlSpIdpConnectionId) {
@@ -209,7 +209,9 @@ public class SamlSpIdpConnectionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		samlSpIdpConnectionId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -231,7 +233,7 @@ public class SamlSpIdpConnectionCacheModel
 		ldapImportEnabled = objectInput.readBoolean();
 		metadataUpdatedDate = objectInput.readLong();
 		metadataUrl = objectInput.readUTF();
-		metadataXml = objectInput.readUTF();
+		metadataXml = (String)objectInput.readObject();
 		name = objectInput.readUTF();
 		nameIdFormat = objectInput.readUTF();
 
@@ -285,10 +287,10 @@ public class SamlSpIdpConnectionCacheModel
 		}
 
 		if (metadataXml == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(metadataXml);
+			objectOutput.writeObject(metadataXml);
 		}
 
 		if (name == null) {

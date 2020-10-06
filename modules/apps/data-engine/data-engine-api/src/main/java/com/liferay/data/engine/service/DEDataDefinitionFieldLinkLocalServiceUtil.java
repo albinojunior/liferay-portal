@@ -41,6 +41,10 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 	/**
 	 * Adds the de data definition field link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param deDataDefinitionFieldLink the de data definition field link
 	 * @return the de data definition field link that was added
 	 */
@@ -101,6 +105,10 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 	/**
 	 * Deletes the de data definition field link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param deDataDefinitionFieldLink the de data definition field link
 	 * @return the de data definition field link that was removed
 	 */
@@ -115,6 +123,10 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 
 	/**
 	 * Deletes the de data definition field link with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param deDataDefinitionFieldLinkId the primary key of the de data definition field link
 	 * @return the de data definition field link that was removed
@@ -138,11 +150,24 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 		getService().deleteDEDataDefinitionFieldLinks(classNameId, classPK);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 DEDataDefinitionFieldLinkLocalServiceImpl#deleteDEDataDefinitionFieldLinks(
+	 long, long, String[])}
+	 */
+	@Deprecated
 	public static void deleteDEDataDefinitionFieldLinks(
 		long classNameId, long ddmStructureId, String fieldName) {
 
 		getService().deleteDEDataDefinitionFieldLinks(
 			classNameId, ddmStructureId, fieldName);
+	}
+
+	public static void deleteDEDataDefinitionFieldLinks(
+		long classNameId, long ddmStructureId, String[] fieldNames) {
+
+		getService().deleteDEDataDefinitionFieldLinks(
+			classNameId, ddmStructureId, fieldNames);
 	}
 
 	/**
@@ -154,6 +179,12 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -263,6 +294,15 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 			uuid, groupId);
 	}
 
+	public static com.liferay.data.engine.model.DEDataDefinitionFieldLink
+		fetchDEDataDefinitionFieldLinks(
+			long classNameId, long classPK, long ddmStructureId,
+			String fieldName) {
+
+		return getService().fetchDEDataDefinitionFieldLinks(
+			classNameId, classPK, ddmStructureId, fieldName);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -329,10 +369,43 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 	public static java.util.List
 		<com.liferay.data.engine.model.DEDataDefinitionFieldLink>
 			getDEDataDefinitionFieldLinks(
+				long classNameId, long ddmStructureId) {
+
+		return getService().getDEDataDefinitionFieldLinks(
+			classNameId, ddmStructureId);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 DEDataDefinitionFieldLinkLocalServiceImpl#getDEDataDefinitionFieldLinks(
+	 long, long, String[])}
+	 */
+	@Deprecated
+	public static java.util.List
+		<com.liferay.data.engine.model.DEDataDefinitionFieldLink>
+			getDEDataDefinitionFieldLinks(
 				long classNameId, long ddmStructureId, String fieldName) {
 
 		return getService().getDEDataDefinitionFieldLinks(
 			classNameId, ddmStructureId, fieldName);
+	}
+
+	public static java.util.List
+		<com.liferay.data.engine.model.DEDataDefinitionFieldLink>
+			getDEDataDefinitionFieldLinks(
+				long classNameId, long ddmStructureId, String[] fieldNames) {
+
+		return getService().getDEDataDefinitionFieldLinks(
+			classNameId, ddmStructureId, fieldNames);
+	}
+
+	public static java.util.List
+		<com.liferay.data.engine.model.DEDataDefinitionFieldLink>
+			getDEDataDefinitionFieldLinks(
+				long ddmStructureId, String[] fieldNames) {
+
+		return getService().getDEDataDefinitionFieldLinks(
+			ddmStructureId, fieldNames);
 	}
 
 	/**
@@ -418,6 +491,10 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 
 	/**
 	 * Updates the de data definition field link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DEDataDefinitionFieldLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param deDataDefinitionFieldLink the de data definition field link
 	 * @return the de data definition field link that was updated

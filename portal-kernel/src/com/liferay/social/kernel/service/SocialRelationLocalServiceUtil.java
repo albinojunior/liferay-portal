@@ -54,6 +54,10 @@ public class SocialRelationLocalServiceUtil {
 	/**
 	 * Adds the social relation to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialRelation the social relation
 	 * @return the social relation that was added
 	 */
@@ -160,6 +164,10 @@ public class SocialRelationLocalServiceUtil {
 	/**
 	 * Deletes the social relation with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param relationId the primary key of the social relation
 	 * @return the social relation that was removed
 	 * @throws PortalException if a social relation with the primary key could not be found
@@ -174,6 +182,10 @@ public class SocialRelationLocalServiceUtil {
 	/**
 	 * Deletes the social relation from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialRelation the social relation
 	 * @return the social relation that was removed
 	 */
@@ -182,6 +194,12 @@ public class SocialRelationLocalServiceUtil {
 			com.liferay.social.kernel.model.SocialRelation socialRelation) {
 
 		return getService().deleteSocialRelation(socialRelation);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -557,6 +575,10 @@ public class SocialRelationLocalServiceUtil {
 
 	/**
 	 * Updates the social relation in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param socialRelation the social relation
 	 * @return the social relation that was updated

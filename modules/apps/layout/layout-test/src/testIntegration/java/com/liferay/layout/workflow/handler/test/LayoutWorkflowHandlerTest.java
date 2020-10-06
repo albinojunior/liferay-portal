@@ -39,8 +39,9 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
+import java.io.Serializable;
+
 import java.util.Collections;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -87,7 +88,7 @@ public class LayoutWorkflowHandlerTest {
 
 		Assert.assertEquals(WorkflowConstants.STATUS_DRAFT, layout.getStatus());
 
-		WorkflowHandler workflowHandler =
+		WorkflowHandler<?> workflowHandler =
 			WorkflowHandlerRegistryUtil.getWorkflowHandler(
 				Layout.class.getName());
 
@@ -108,8 +109,9 @@ public class LayoutWorkflowHandlerTest {
 		Assert.assertEquals(
 			WorkflowConstants.STATUS_PENDING, layout.getStatus());
 
-		Map<String, Object> workflowContext =
-			HashMapBuilder.<String, Object>put(
+		workflowHandler.updateStatus(
+			WorkflowConstants.STATUS_APPROVED,
+			HashMapBuilder.<String, Serializable>put(
 				WorkflowConstants.CONTEXT_ENTRY_CLASS_PK,
 				String.valueOf(layout.getPlid())
 			).put(
@@ -117,10 +119,7 @@ public class LayoutWorkflowHandlerTest {
 				String.valueOf(TestPropsValues.getUserId())
 			).put(
 				"serviceContext", _serviceContext
-			).build();
-
-		workflowHandler.updateStatus(
-			WorkflowConstants.STATUS_APPROVED, workflowContext);
+			).build());
 
 		layout = _layoutLocalService.getLayout(layout.getPlid());
 
@@ -133,7 +132,7 @@ public class LayoutWorkflowHandlerTest {
 		Layout layout = LayoutTestUtil.addLayout(
 			_group.getGroupId(), StringPool.BLANK);
 
-		WorkflowHandler workflowHandler =
+		WorkflowHandler<?> workflowHandler =
 			WorkflowHandlerRegistryUtil.getWorkflowHandler(
 				Layout.class.getName());
 

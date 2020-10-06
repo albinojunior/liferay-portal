@@ -41,6 +41,10 @@ public class KaleoTaskFormInstanceLocalServiceUtil {
 	/**
 	 * Adds the kaleo task form instance to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskFormInstance the kaleo task form instance
 	 * @return the kaleo task form instance that was added
 	 */
@@ -115,6 +119,10 @@ public class KaleoTaskFormInstanceLocalServiceUtil {
 	/**
 	 * Deletes the kaleo task form instance from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskFormInstance the kaleo task form instance
 	 * @return the kaleo task form instance that was removed
 	 */
@@ -128,6 +136,10 @@ public class KaleoTaskFormInstanceLocalServiceUtil {
 
 	/**
 	 * Deletes the kaleo task form instance with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskFormInstanceId the primary key of the kaleo task form instance
 	 * @return the kaleo task form instance that was removed
@@ -157,6 +169,12 @@ public class KaleoTaskFormInstanceLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -347,6 +365,10 @@ public class KaleoTaskFormInstanceLocalServiceUtil {
 
 	/**
 	 * Updates the kaleo task form instance in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskFormInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskFormInstance the kaleo task form instance
 	 * @return the kaleo task form instance that was updated

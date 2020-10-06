@@ -35,10 +35,16 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface Sitemap {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final int MAXIMUM_ENTRIES = 50000;
+
 	public void addURLElement(
-		Element element, String url, UnicodeProperties typeSettingsProperties,
-		Date modifiedDate, String canonicalURL,
-		Map<Locale, String> alternateURLs);
+		Element element, String url,
+		UnicodeProperties typeSettingsUnicodeProperties, Date modifiedDate,
+		String canonicalURL, Map<Locale, String> alternateURLs);
 
 	public String encodeXML(String input);
 

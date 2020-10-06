@@ -63,23 +63,23 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
-	<liferay-util:buffer
-		var="removeFileEntryTypeIcon"
-	>
-		<liferay-ui:icon
-			icon="times"
-			label="<%= true %>"
-			markupView="lexicon"
-			message="remove"
-		/>
-	</liferay-util:buffer>
+<liferay-util:buffer
+	var="removeFileEntryTypeIcon"
+>
+	<liferay-ui:icon
+		icon="times"
+		label="<%= true %>"
+		markupView="lexicon"
+		message="remove"
+	/>
+</liferay-util:buffer>
 
+<clay:container-fluid>
 	<portlet:actionURL name="/document_library/edit_folder" var="editFolderURL">
 		<portlet:param name="mvcRenderCommandName" value="/document_library/edit_folder" />
 	</portlet:actionURL>
 
-	<aui:form action="<%= editFolderURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "savePage();" %>'>
+	<aui:form action="<%= editFolderURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "savePage();" %>'>
 		<aui:input name="<%= Constants.CMD %>" type="hidden" value='<%= rootFolder ? "updateWorkflowDefinitions" : ((folder == null) ? Constants.ADD : Constants.UPDATE) %>' />
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="portletResource" type="hidden" value='<%= ParamUtil.getString(request, "portletResource") %>' />
@@ -92,15 +92,15 @@ renderResponse.setTitle(headerTitle);
 
 		<liferay-ui:error exception="<%= FolderNameException.class %>">
 			<p>
-				<liferay-ui:message arguments="<%= new String[] {DLFolderConstants.getNameReservedWords(PropsValues.DL_NAME_BLACKLIST)} %>" key="the-folder-name-cannot-be-blank-or-a-reserved-word-such-as-x" />
+				<liferay-ui:message arguments="<%= DLFolderConstants.getNameReservedWords(PropsValues.DL_NAME_BLACKLIST) %>" key="the-folder-name-cannot-be-blank-or-a-reserved-word-such-as-x" />
 			</p>
 
 			<p>
-				<liferay-ui:message arguments="<%= new String[] {DLFolderConstants.getNameInvalidEndCharacters(PropsValues.DL_CHAR_LAST_BLACKLIST)} %>" key="the-folder-name-cannot-end-with-the-following-characters-x" />
+				<liferay-ui:message arguments="<%= DLFolderConstants.getNameInvalidEndCharacters(PropsValues.DL_CHAR_LAST_BLACKLIST) %>" key="the-folder-name-cannot-end-with-the-following-characters-x" />
 			</p>
 
 			<p>
-				<liferay-ui:message arguments="<%= new String[] {DLFolderConstants.getNameInvalidCharacters(PropsValues.DL_CHAR_BLACKLIST)} %>" key="the-folder-name-cannot-contain-the-following-invalid-characters-x" />
+				<liferay-ui:message arguments="<%= DLFolderConstants.getNameInvalidCharacters(PropsValues.DL_CHAR_BLACKLIST) %>" key="the-folder-name-cannot-contain-the-following-invalid-characters-x" />
 			</p>
 		</liferay-ui:error>
 
@@ -215,11 +215,12 @@ renderResponse.setTitle(headerTitle);
 							<liferay-ui:icon
 								cssClass="modify-link select-file-entry-type"
 								icon="search"
+								id="selectDocumentTypeButton"
 								label="<%= true %>"
 								linkCssClass="btn btn-secondary"
 								markupView="lexicon"
 								message="select-document-type"
-								url='<%= "javascript:" + renderResponse.getNamespace() + "openFileEntryTypeSelector();" %>'
+								url="javascript:;"
 							/>
 
 							<aui:select cssClass='<%= !fileEntryTypes.isEmpty() ? "default-document-type" : "default-document-type hide" %>' helpMessage="default-document-type-help" label="default-document-type" name="defaultFileEntryTypeId">
@@ -228,7 +229,7 @@ renderResponse.setTitle(headerTitle);
 								for (DLFileEntryType fileEntryType : fileEntryTypes) {
 								%>
 
-									<aui:option id='<%= renderResponse.getNamespace() + "defaultFileEntryTypeId-" + fileEntryType.getFileEntryTypeId() %>' label="<%= HtmlUtil.escape(fileEntryType.getName(locale)) %>" selected="<%= fileEntryType.getFileEntryTypeId() == defaultFileEntryTypeId %>" value="<%= fileEntryType.getFileEntryTypeId() %>" />
+									<aui:option id='<%= liferayPortletResponse.getNamespace() + "defaultFileEntryTypeId-" + fileEntryType.getFileEntryTypeId() %>' label="<%= HtmlUtil.escape(fileEntryType.getName(locale)) %>" selected="<%= fileEntryType.getFileEntryTypeId() == defaultFileEntryTypeId %>" value="<%= fileEntryType.getFileEntryTypeId() %>" />
 
 								<%
 								}
@@ -307,7 +308,7 @@ renderResponse.setTitle(headerTitle);
 			<aui:button href="<%= redirect %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <liferay-util:buffer
 	var="workflowDefinitionsBuffer"
@@ -330,48 +331,10 @@ renderResponse.setTitle(headerTitle);
 	</c:if>
 </liferay-util:buffer>
 
-<aui:script>
-	var <portlet:namespace />documentTypesChanged = false;
+<aui:script sandbox="<%= true %>">
+	window['<portlet:namespace />documentTypesChanged'] = false;
 
-	function <portlet:namespace />openFileEntryTypeSelector() {
-		var searchContainer = Liferay.SearchContainer.get(
-			'<portlet:namespace />dlFileEntryTypesSearchContainer'
-		);
-
-		var searchContainerData = searchContainer.getData();
-
-		if (!searchContainerData.length) {
-			searchContainerData = [];
-		}
-		else {
-			searchContainerData = searchContainerData.split(',');
-		}
-
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					destroyOnHide: true,
-					modal: true,
-					width: 1024,
-				},
-				eventName: '<portlet:namespace />selectFileEntryType',
-				id: '<portlet:namespace />fileEntryTypeSelector',
-				selectedData: searchContainerData,
-				title: '<%= UnicodeLanguageUtil.get(request, "document-types") %>',
-				uri:
-					'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/document_library/select_restricted_file_entry_type.jsp" /><portlet:param name="includeBasicFileEntryType" value="<%= Boolean.TRUE.toString() %>" /></portlet:renderURL>',
-			},
-			function(event) {
-				<portlet:namespace />selectFileEntryType(
-					event.entityid,
-					event.entityname
-				);
-			}
-		);
-	}
-
-	function <portlet:namespace />savePage() {
+	window['<portlet:namespace />savePage'] = function () {
 		var message =
 			'<%= UnicodeLanguageUtil.get(request, workflowEnabled ? "change-document-types-and-workflow-message" : "change-document-types-message") %>';
 
@@ -386,85 +349,13 @@ renderResponse.setTitle(headerTitle);
 		if (submit) {
 			submitForm(document.<portlet:namespace />fm);
 		}
-	}
-
-	Liferay.provide(
-		window,
-		'<portlet:namespace />selectFileEntryType',
-		function(fileEntryTypeId, fileEntryTypeName) {
-			var A = AUI();
-
-			var searchContainer = Liferay.SearchContainer.get(
-				'<portlet:namespace />dlFileEntryTypesSearchContainer'
-			);
-
-			var fileEntryTypeLink =
-				'<a class="modify-link" data-rowId="' +
-				fileEntryTypeId +
-				'" href="javascript:;"><%= UnicodeFormatter.toString(removeFileEntryTypeIcon) %></a>';
-
-			<c:choose>
-				<c:when test="<%= workflowEnabled %>">
-					var restrictionTypeWorkflow = A.one(
-						'#<portlet:namespace />restrictionTypeWorkflow'
-					);
-
-					restrictionTypeWorkflow.hide();
-
-					var workflowDefinitions =
-						'<%= UnicodeFormatter.toString(workflowDefinitionsBuffer) %>';
-
-					workflowDefinitions = workflowDefinitions.replace(
-						/LIFERAY_WORKFLOW_DEFINITION_FILE_ENTRY_TYPE/g,
-						'workflowDefinition' + fileEntryTypeId
-					);
-
-					<portlet:namespace />documentTypesChanged = true;
-
-					searchContainer.addRow(
-						[fileEntryTypeName, workflowDefinitions, fileEntryTypeLink],
-						fileEntryTypeId
-					);
-				</c:when>
-				<c:otherwise>
-					searchContainer.addRow(
-						[fileEntryTypeName, fileEntryTypeLink],
-						fileEntryTypeId
-					);
-				</c:otherwise>
-			</c:choose>
-
-			searchContainer.updateDataStore();
-
-			var select = A.one('#<portlet:namespace />defaultFileEntryTypeId');
-
-			var selectContainer = A.one(
-				'#<portlet:namespace />restrictionTypeDefinedDiv .default-document-type'
-			);
-
-			selectContainer.show();
-
-			var option = A.Node.create(
-				'<option id="<portlet:namespace />defaultFileEntryTypeId-' +
-					fileEntryTypeId +
-					'" value="' +
-					fileEntryTypeId +
-					'">' +
-					fileEntryTypeName +
-					'</option>'
-			);
-
-			select.show();
-
-			select.append(option);
-		},
-		['liferay-search-container']
-	);
+	};
 
 	Liferay.Util.toggleRadio('<portlet:namespace />restrictionTypeInherit', '', [
 		'<portlet:namespace />restrictionTypeDefinedDiv',
 		'<portlet:namespace />restrictionTypeWorkflowDiv',
 	]);
+
 	Liferay.Util.toggleRadio(
 		'<portlet:namespace />restrictionTypeDefined',
 		'<portlet:namespace />restrictionTypeDefinedDiv',
@@ -481,13 +372,121 @@ renderResponse.setTitle(headerTitle);
 </aui:script>
 
 <aui:script use="liferay-search-container">
+	var selectFileEntryType = function (fileEntryTypeId, fileEntryTypeName) {
+		var searchContainer = Liferay.SearchContainer.get(
+			'<portlet:namespace />dlFileEntryTypesSearchContainer'
+		);
+
+		var fileEntryTypeLink =
+			'<a class="modify-link" data-rowId="' +
+			fileEntryTypeId +
+			'" href="javascript:;"><%= UnicodeFormatter.toString(removeFileEntryTypeIcon) %></a>';
+
+		<c:choose>
+			<c:when test="<%= workflowEnabled %>">
+				var restrictionTypeWorkflow = document.getElementById(
+					'<portlet:namespace />restrictionTypeWorkflow'
+				);
+
+				restrictionTypeWorkflow.classList.add('hide');
+				restrictionTypeWorkflow.setAttribute('hidden', 'hidden');
+				restrictionTypeWorkflow.style.display = 'none';
+
+				var workflowDefinitions =
+					'<%= UnicodeFormatter.toString(workflowDefinitionsBuffer) %>';
+
+				workflowDefinitions = workflowDefinitions.replace(
+					/LIFERAY_WORKFLOW_DEFINITION_FILE_ENTRY_TYPE/g,
+					'workflowDefinition' + fileEntryTypeId
+				);
+
+				<portlet:namespace />documentTypesChanged = true;
+
+				searchContainer.addRow(
+					[fileEntryTypeName, workflowDefinitions, fileEntryTypeLink],
+					fileEntryTypeId
+				);
+			</c:when>
+			<c:otherwise>
+				searchContainer.addRow(
+					[fileEntryTypeName, fileEntryTypeLink],
+					fileEntryTypeId
+				);
+			</c:otherwise>
+		</c:choose>
+
+		searchContainer.updateDataStore();
+
+		var select = document.getElementById(
+			'<portlet:namespace />defaultFileEntryTypeId'
+		);
+
+		var selectContainer = document.querySelector(
+			'#<portlet:namespace />restrictionTypeDefinedDiv .default-document-type'
+		);
+
+		selectContainer.classList.remove('hide');
+		selectContainer.removeAttribute('hidden');
+		selectContainer.style.display = '';
+
+		var option = document.createElement('option');
+		option.setAttribute(
+			'id',
+			'<portlet:namespace />defaultFileEntryTypeId-' + fileEntryTypeId
+		);
+		option.setAttribute('value', fileEntryTypeId);
+		option.text = fileEntryTypeName;
+
+		select.classList.remove('hide');
+		select.removeAttribute('hidden');
+		select.style.display = '';
+
+		select.appendChild(option);
+	};
+
+	var selectDocumentTypeButton = document.getElementById(
+		'<portlet:namespace />selectDocumentTypeButton'
+	);
+
+	if (selectDocumentTypeButton) {
+		selectDocumentTypeButton.addEventListener('click', function () {
+			var searchContainer = Liferay.SearchContainer.get(
+				'<portlet:namespace />dlFileEntryTypesSearchContainer'
+			);
+
+			var searchContainerData = searchContainer.getData();
+
+			if (!searchContainerData.length) {
+				searchContainerData = [];
+			}
+			else {
+				searchContainerData = searchContainerData.split(',');
+			}
+
+			Liferay.Util.openSelectionModal({
+				id: '<portlet:namespace />fileEntryTypeSelector',
+				onSelect: function (selectedItem) {
+					selectFileEntryType(
+						selectedItem.entityid,
+						selectedItem.entityname
+					);
+				},
+				selectEventName: '<portlet:namespace />selectFileEntryType',
+				selectedData: searchContainerData,
+				title: '<%= UnicodeLanguageUtil.get(request, "document-types") %>',
+				url:
+					'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/document_library/select_restricted_file_entry_type.jsp" /><portlet:param name="includeBasicFileEntryType" value="<%= Boolean.TRUE.toString() %>" /></portlet:renderURL>',
+			});
+		});
+	}
+
 	var searchContainer = Liferay.SearchContainer.get(
 		'<portlet:namespace />dlFileEntryTypesSearchContainer'
 	);
 
 	searchContainer.get('contentBox').delegate(
 		'click',
-		function(event) {
+		function (event) {
 			var A = AUI();
 
 			var link = event.currentTarget;
@@ -496,34 +495,42 @@ renderResponse.setTitle(headerTitle);
 
 			searchContainer.deleteRow(tr, link.getAttribute('data-rowId'));
 
-			A.one(
-				'#<portlet:namespace />defaultFileEntryTypeId-' +
+			var option = document.getElementById(
+				'<portlet:namespace />defaultFileEntryTypeId-' +
 					link.getAttribute('data-rowId')
-			).remove();
+			);
+
+			option.parentElement.removeChild(option);
 
 			<portlet:namespace />documentTypesChanged = true;
 
-			var select = A.one(
-				'#<%= liferayPortletResponse.getNamespace() + "workflowDefinition" + DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL %>'
+			var select = document.getElementById(
+				'<%= liferayPortletResponse.getNamespace() + "workflowDefinition" + DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL %>'
 			);
 
-			var selectContainer = A.one(
-				'#<portlet:namespace />restrictionTypeWorkflow'
+			var selectContainer = document.getElementById(
+				'<portlet:namespace />restrictionTypeWorkflow'
 			);
 
-			var fileEntryTypesCount = select.get('children').size();
+			var fileEntryTypesCount = select.children.length;
 
 			if (fileEntryTypesCount == 0) {
-				selectContainer.hide();
+				selectContainer.classList.add('hide');
+				selectContainer.setAttribute('hidden', 'hidden');
+				selectContainer.style.display = 'none';
 
-				var restrictionTypeWorkflow = A.one(
-					'#<portlet:namespace />restrictionTypeWorkflow'
+				var restrictionTypeWorkflow = document.getElementById(
+					'<portlet:namespace />restrictionTypeWorkflow'
 				);
 
-				restrictionTypeWorkflow.show();
+				restrictionTypeWorkflow.classList.remove('hide');
+				restrictionTypeWorkflow.removeAttribute('hidden');
+				restrictionTypeWorkflow.style.display = '';
 			}
 			else {
-				selectContainer.show();
+				selectContainer.classList.remove('hide');
+				selectContainer.removeAttribute('hidden');
+				selectContainer.style.display = '';
 			}
 		},
 		'.modify-link'

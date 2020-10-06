@@ -118,8 +118,8 @@
 /portal/commons-discovery.jar
 /portal/commons-exec.jar
 /portal/commons-fileupload.jar
-/portal/commons-httpclient.jar
 /portal/commons-io.jar
+/portal/commons-lang3.jar
 /portal/commons-lang.jar
 /portal/commons-logging.jar
 /portal/commons-math3.jar
@@ -173,6 +173,7 @@
 /portal/jcl-over-slf4j.jar
 /portal/jcommon.jar
 /portal/jdom.jar
+/portal/jdom2.jar
 /portal/jempbox.jar
 /portal/jena.jar
 /portal/jericho-html.jar
@@ -225,6 +226,7 @@
 /portal/rhino.jar
 /portal/rmi-api.jar
 /portal/rome.jar
+/portal/rometools-utils.jar
 /portal/rometools.jar
 /portal/saaj-api.jar
 /portal/saaj-impl.jar
@@ -234,6 +236,7 @@
 /portal/slf4j-api.jar
 /portal/soap.jar
 /portal/soap-api.jar
+/portal/sparse-bit-set.jar
 /portal/spring-aop.jar
 /portal/spring-aspects.jar
 /portal/spring-beans.jar
@@ -258,7 +261,6 @@
 /portal/tomcat-jdbc.jar
 /portal/tomcat-juli.jar
 /portal/transaction.jar
-/portal/truezip.jar
 /portal/unoil.jar
 /portal/urlrewritefilter.jar
 /portal/vorbis-java-core.jar

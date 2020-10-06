@@ -16,6 +16,8 @@ package com.liferay.asset.entry.rel.service;
 
 import com.liferay.asset.entry.rel.model.AssetEntryAssetCategoryRel;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -50,6 +52,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see AssetEntryAssetCategoryRelLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
@@ -62,11 +65,15 @@ public interface AssetEntryAssetCategoryRelLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AssetEntryAssetCategoryRelLocalServiceUtil} to access the asset entry asset category rel local service. Add custom service methods to <code>com.liferay.asset.entry.rel.service.impl.AssetEntryAssetCategoryRelLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.asset.entry.rel.service.impl.AssetEntryAssetCategoryRelLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the asset entry asset category rel local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AssetEntryAssetCategoryRelLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the asset entry asset category rel to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryAssetCategoryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryAssetCategoryRel the asset entry asset category rel
 	 * @return the asset entry asset category rel that was added
@@ -100,6 +107,10 @@ public interface AssetEntryAssetCategoryRelLocalService
 	/**
 	 * Deletes the asset entry asset category rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryAssetCategoryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetEntryAssetCategoryRel the asset entry asset category rel
 	 * @return the asset entry asset category rel that was removed
 	 */
@@ -109,6 +120,10 @@ public interface AssetEntryAssetCategoryRelLocalService
 
 	/**
 	 * Deletes the asset entry asset category rel with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryAssetCategoryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryAssetCategoryRelId the primary key of the asset entry asset category rel
 	 * @return the asset entry asset category rel that was removed
@@ -134,6 +149,9 @@ public interface AssetEntryAssetCategoryRelLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -306,6 +324,10 @@ public interface AssetEntryAssetCategoryRelLocalService
 
 	/**
 	 * Updates the asset entry asset category rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetEntryAssetCategoryRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetEntryAssetCategoryRel the asset entry asset category rel
 	 * @return the asset entry asset category rel that was updated

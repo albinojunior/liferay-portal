@@ -1,5 +1,7 @@
 {
+	"cacheable": true,
 	"fragmentEntryKey": "image",
+	"icon": "picture",
 	"name": "image",
 	"thumbnail": "image.png",
 	"type": "component"

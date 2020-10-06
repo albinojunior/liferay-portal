@@ -17,7 +17,7 @@
 <%@ include file="/blogs/init.jsp" %>
 
 <%
-SearchContainer searchContainer = (SearchContainer)request.getAttribute("view_entry_content.jsp-searchContainer");
+SearchContainer<BaseModel<?>> searchContainer = (SearchContainer)request.getAttribute("view_entry_content.jsp-searchContainer");
 
 BlogsEntry entry = (BlogsEntry)request.getAttribute("view_entry_content.jsp-entry");
 
@@ -42,27 +42,37 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 			</c:choose>
 		</portlet:renderURL>
 
-		<div class="container widget-mode-detail-header">
+		<clay:container-fluid
+			cssClass="widget-mode-detail-header"
+		>
 			<liferay-asset:asset-categories-available
 				className="<%= BlogsEntry.class.getName() %>"
 				classPK="<%= entry.getEntryId() %>"
 			>
-				<div class="row">
-					<div class="categories col-md-8 mx-auto widget-metadata">
+				<clay:row>
+					<clay:col
+						cssClass="categories mx-auto widget-metadata"
+						md="8"
+					>
 						<liferay-asset:asset-categories-summary
 							className="<%= BlogsEntry.class.getName() %>"
 							classPK="<%= entry.getEntryId() %>"
 							displayStyle="simple-category"
 							portletURL="<%= renderResponse.createRenderURL() %>"
 						/>
-					</div>
-				</div>
+					</clay:col>
+				</clay:row>
 			</liferay-asset:asset-categories-available>
 
-			<div class="row">
-				<div class="col-md-8 mx-auto">
-					<div class="autofit-row">
-						<div class="autofit-col autofit-col-expand">
+			<clay:row>
+				<clay:col
+					cssClass="mx-auto"
+					md="8"
+				>
+					<clay:content-row>
+						<clay:content-col
+							expand="<%= true %>"
+						>
 							<h3 class="title"><%= HtmlUtil.escape(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry)) %></h3>
 
 							<%
@@ -72,9 +82,11 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 							<c:if test="<%= Validator.isNotNull(subtitle) %>">
 								<h4 class="sub-title"><%= HtmlUtil.escape(subtitle) %></h4>
 							</c:if>
-						</div>
+						</clay:content-col>
 
-						<div class="autofit-col visible-interaction">
+						<clay:content-col
+							cssClass="visible-interaction"
+						>
 							<div class="dropdown dropdown-action">
 								<c:if test="<%= BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.UPDATE) %>">
 
@@ -96,31 +108,39 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 									</a>
 								</c:if>
 							</div>
-						</div>
-					</div>
+						</clay:content-col>
+					</clay:content-row>
 
-					<div class="autofit-row widget-metadata">
-						<div class="autofit-col inline-item-before">
+					<clay:content-row
+						cssClass="widget-metadata"
+					>
 
-							<%
-							User entryUser = UserLocalServiceUtil.fetchUser(entry.getUserId());
+						<%
+						User entryUser = UserLocalServiceUtil.fetchUser(entry.getUserId());
 
-							String entryUserURL = StringPool.BLANK;
+						String entryUserURL = StringPool.BLANK;
 
-							if ((entryUser != null) && !entryUser.isDefaultUser()) {
-								entryUserURL = entryUser.getDisplayURL(themeDisplay);
-							}
-							%>
+						if ((entryUser != null) && !entryUser.isDefaultUser()) {
+							entryUserURL = entryUser.getDisplayURL(themeDisplay);
+						}
+						%>
 
+						<clay:content-col
+							cssClass="inline-item-before"
+						>
 							<liferay-ui:user-portrait
 								cssClass="sticker-lg"
 								user="<%= entryUser %>"
 							/>
-						</div>
+						</clay:content-col>
 
-						<div class="autofit-col autofit-col-expand">
-							<div class="autofit-row">
-								<div class="autofit-col autofit-col-expand">
+						<clay:content-col
+							expand="<%= true %>"
+						>
+							<clay:content-row>
+								<clay:content-col
+									expand="<%= true %>"
+								>
 									<div class="text-truncate-inline">
 										<a class="text-truncate username" href="<%= entryUserURL %>"><%= HtmlUtil.escape(entry.getUserName()) %></a>
 									</div>
@@ -141,13 +161,13 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 											- <liferay-ui:message arguments="<%= assetEntry.getViewCount() %>" key='<%= (assetEntry.getViewCount() == 1) ? "x-view" : "x-views" %>' />
 										</c:if>
 									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+								</clay:content-col>
+							</clay:content-row>
+						</clay:content-col>
+					</clay:content-row>
+				</clay:col>
+			</clay:row>
+		</clay:container-fluid>
 
 		<%
 		String coverImageURL = entry.getCoverImageURL(themeDisplay);
@@ -159,7 +179,10 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 
 		<!-- text resume -->
 
-		<div class="container widget-mode-detail-header" id="<portlet:namespace /><%= entry.getEntryId() %>">
+		<clay:container-fluid
+			cssClass="widget-mode-detail-header"
+			id="<%= liferayPortletResponse.getNamespace() + entry.getEntryId() %>"
+		>
 			<c:if test="<%= Validator.isNotNull(coverImageURL) %>">
 
 				<%
@@ -167,43 +190,55 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 				%>
 
 				<c:if test="<%= Validator.isNotNull(coverImageCaption) %>">
-					<div class="row">
-						<div class="col-md-8 mx-auto">
+					<clay:row>
+						<clay:col
+							cssClass="mx-auto"
+							md="8"
+						>
 							<div class="cover-image-caption">
 								<small><%= entry.getCoverImageCaption() %></small>
 							</div>
-						</div>
-					</div>
+						</clay:col>
+					</clay:row>
 				</c:if>
 			</c:if>
 
-			<div class="row">
-				<div class="col-md-8 mx-auto widget-mode-detail-text">
+			<clay:row>
+				<clay:col
+					cssClass="mx-auto widget-mode-detail-text"
+					md="8"
+				>
 					<%= entry.getContent() %>
-				</div>
-			</div>
+				</clay:col>
+			</clay:row>
 
 			<liferay-expando:custom-attributes-available
 				className="<%= BlogsEntry.class.getName() %>"
 			>
-				<div class="row">
-					<div class="col-md-8 mx-auto widget-mode-detail">
+				<clay:row>
+					<clay:col
+						cssClass="mx-auto widget-mode-detail-text"
+						md="8"
+					>
 						<liferay-expando:custom-attribute-list
 							className="<%= BlogsEntry.class.getName() %>"
 							classPK="<%= entry.getEntryId() %>"
 							editable="<%= false %>"
 							label="<%= true %>"
 						/>
-					</div>
-				</div>
+					</clay:col>
+				</clay:row>
 			</liferay-expando:custom-attributes-available>
 
 			<liferay-asset:asset-tags-available
 				className="<%= BlogsEntry.class.getName() %>"
 				classPK="<%= entry.getEntryId() %>"
 			>
-				<div class="row">
-					<div class="col-md-8 mx-auto widget-mode-detail">
+				<clay:row>
+					<clay:col
+						cssClass="mx-auto widget-mode-detail-text"
+						md="8"
+					>
 						<div class="entry-tags">
 							<liferay-asset:asset-tags-summary
 								className="<%= BlogsEntry.class.getName() %>"
@@ -211,14 +246,17 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 								portletURL="<%= renderResponse.createRenderURL() %>"
 							/>
 						</div>
-					</div>
-				</div>
+					</clay:col>
+				</clay:row>
 			</liferay-asset:asset-tags-available>
-		</div>
+		</clay:container-fluid>
 
-		<div class="container">
-			<div class="row">
-				<div class="col-md-8 mx-auto widget-mode-detail">
+		<clay:container-fluid>
+			<clay:row>
+				<clay:col
+					cssClass="mx-auto widget-mode-detail-text"
+					md="8"
+				>
 
 					<%
 					request.setAttribute("entry_toolbar.jsp-entry", entry);
@@ -227,12 +265,15 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 					<liferay-util:include page="/blogs/entry_toolbar.jsp" servletContext="<%= application %>">
 						<liferay-util:param name="showFlags" value="<%= Boolean.TRUE.toString() %>" />
 					</liferay-util:include>
-				</div>
-			</div>
+				</clay:col>
+			</clay:row>
 
 			<c:if test="<%= blogsPortletInstanceConfiguration.enableRelatedAssets() %>">
-				<div class="row">
-					<div class="col-md-8 mx-auto widget-mode-detail">
+				<clay:row>
+					<clay:col
+						cssClass="mx-auto widget-mode-detail-text"
+						md="8"
+					>
 
 						<%
 						AssetEntry assetEntry = BlogsEntryAssetEntryUtil.getAssetEntry(request, entry);
@@ -245,10 +286,10 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 								classPK="<%= entry.getEntryId() %>"
 							/>
 						</div>
-					</div>
-				</div>
+					</clay:col>
+				</clay:row>
 			</c:if>
-		</div>
+		</clay:container-fluid>
 	</c:when>
 	<c:otherwise>
 

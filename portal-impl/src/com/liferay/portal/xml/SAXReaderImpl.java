@@ -299,11 +299,11 @@ public class SAXReaderImpl implements SAXReader {
 	public XPath createXPath(
 		String xPathExpression, String prefix, String namespace) {
 
-		Map<String, String> namespaceContextMap = HashMapBuilder.put(
-			prefix, namespace
-		).build();
-
-		return createXPath(xPathExpression, namespaceContextMap);
+		return createXPath(
+			xPathExpression,
+			HashMapBuilder.put(
+				prefix, namespace
+			).build());
 	}
 
 	@Override
@@ -342,12 +342,12 @@ public class SAXReaderImpl implements SAXReader {
 	}
 
 	@Override
-	public Document read(InputStream is) throws DocumentException {
-		return read(is, false);
+	public Document read(InputStream inputStream) throws DocumentException {
+		return read(inputStream, false);
 	}
 
 	@Override
-	public Document read(InputStream is, boolean validate)
+	public Document read(InputStream inputStream, boolean validate)
 		throws DocumentException {
 
 		Class<?> clazz = getClass();
@@ -365,7 +365,7 @@ public class SAXReaderImpl implements SAXReader {
 
 			org.dom4j.io.SAXReader saxReader = getSAXReader(validate);
 
-			return new DocumentImpl(saxReader.read(is));
+			return new DocumentImpl(saxReader.read(inputStream));
 		}
 		catch (org.dom4j.DocumentException documentException) {
 			throw new DocumentException(

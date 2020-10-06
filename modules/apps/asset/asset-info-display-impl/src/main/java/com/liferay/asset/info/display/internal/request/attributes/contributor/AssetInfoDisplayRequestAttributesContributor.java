@@ -14,14 +14,18 @@
 
 package com.liferay.asset.info.display.internal.request.attributes.contributor;
 
-import com.liferay.asset.display.page.constants.AssetDisplayPageWebKeys;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.display.contributor.InfoDisplayContributor;
-import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
 import com.liferay.info.display.request.attributes.contributor.InfoDisplayRequestAttributesContributor;
+import com.liferay.info.item.InfoItemReference;
+import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.provider.InfoItemDetailsProvider;
+import com.liferay.info.item.provider.InfoItemObjectProvider;
+import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
+import com.liferay.layout.display.page.LayoutDisplayPageProvider;
+import com.liferay.layout.display.page.LayoutDisplayPageProviderTracker;
+import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -65,23 +69,47 @@ public class AssetInfoDisplayRequestAttributesContributor
 			return;
 		}
 
-		InfoDisplayContributor infoDisplayContributor =
-			_infoDisplayContributorTracker.getInfoDisplayContributor(
-				assetEntry.getClassName());
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			_layoutDisplayPageProviderTracker.
+				getLayoutDisplayPageProviderByClassName(
+					assetEntry.getClassName());
 
 		httpServletRequest.setAttribute(
-			InfoDisplayWebKeys.INFO_DISPLAY_CONTRIBUTOR,
-			infoDisplayContributor);
+			LayoutDisplayPageWebKeys.LAYOUT_DISPLAY_PAGE_PROVIDER,
+			layoutDisplayPageProvider);
 
 		try {
-			InfoDisplayObjectProvider infoDisplayObjectProvider =
-				infoDisplayContributor.getInfoDisplayObjectProvider(
+			LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider =
+				layoutDisplayPageProvider.getLayoutDisplayPageObjectProvider(
+					new InfoItemReference(
+						assetEntry.getClassName(), assetEntry.getClassPK()));
+
+			if (layoutDisplayPageObjectProvider != null) {
+				httpServletRequest.setAttribute(
+					LayoutDisplayPageWebKeys.
+						LAYOUT_DISPLAY_PAGE_OBJECT_PROVIDER,
+					layoutDisplayPageObjectProvider);
+			}
+
+			InfoItemObjectProvider<?> infoItemObjectProvider =
+				_infoItemServiceTracker.getFirstInfoItemService(
+					InfoItemObjectProvider.class, assetEntry.getClassName());
+
+			if (infoItemObjectProvider != null) {
+				Object infoItem = infoItemObjectProvider.getInfoItem(
 					assetEntry.getClassPK());
 
-			if (infoDisplayObjectProvider != null) {
 				httpServletRequest.setAttribute(
-					AssetDisplayPageWebKeys.INFO_DISPLAY_OBJECT_PROVIDER,
-					infoDisplayObjectProvider);
+					InfoDisplayWebKeys.INFO_ITEM, infoItem);
+
+				InfoItemDetailsProvider infoItemDetailsProvider =
+					_infoItemServiceTracker.getFirstInfoItemService(
+						InfoItemDetailsProvider.class,
+						assetEntry.getClassName());
+
+				httpServletRequest.setAttribute(
+					InfoDisplayWebKeys.INFO_ITEM_DETAILS,
+					infoItemDetailsProvider.getInfoItemDetails(infoItem));
 			}
 		}
 		catch (Exception exception) {
@@ -98,6 +126,9 @@ public class AssetInfoDisplayRequestAttributesContributor
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Reference
-	private InfoDisplayContributorTracker _infoDisplayContributorTracker;
+	private InfoItemServiceTracker _infoItemServiceTracker;
+
+	@Reference
+	private LayoutDisplayPageProviderTracker _layoutDisplayPageProviderTracker;
 
 }

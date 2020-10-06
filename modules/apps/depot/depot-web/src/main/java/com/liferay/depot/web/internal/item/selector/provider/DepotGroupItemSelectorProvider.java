@@ -16,14 +16,19 @@ package com.liferay.depot.web.internal.item.selector.provider;
 
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryService;
-import com.liferay.depot.web.internal.util.DepotSupportChecker;
 import com.liferay.item.selector.provider.GroupItemSelectorProvider;
+import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.LayoutPrototype;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.service.GroupService;
+import com.liferay.portal.kernel.service.LayoutPrototypeService;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,9 +45,20 @@ import org.osgi.service.component.annotations.Reference;
 public class DepotGroupItemSelectorProvider
 	implements GroupItemSelectorProvider {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public String getEmptyResultsMessage() {
 		return "no-asset-libraries-were-found";
+	}
+
+	@Override
+	public String getEmptyResultsMessage(Locale locale) {
+		return ResourceBundleUtil.getString(
+			_resourceBundleLoader.loadResourceBundle(locale),
+			"no-asset-libraries-were-found");
 	}
 
 	@Override
@@ -54,7 +70,7 @@ public class DepotGroupItemSelectorProvider
 
 			for (DepotEntry depotEntry :
 					_depotEntryService.getGroupConnectedDepotEntries(
-						_getLiveGroupId(groupId), start, end)) {
+						_getGroupId(groupId), start, end)) {
 
 				groups.add(depotEntry.getGroup());
 			}
@@ -72,7 +88,7 @@ public class DepotGroupItemSelectorProvider
 	public int getGroupsCount(long companyId, long groupId, String keywords) {
 		try {
 			return _depotEntryService.getGroupConnectedDepotEntriesCount(
-				_getLiveGroupId(groupId));
+				_getGroupId(groupId));
 		}
 		catch (PortalException portalException) {
 			_log.error(portalException, portalException);
@@ -96,19 +112,31 @@ public class DepotGroupItemSelectorProvider
 		return _language.get(locale, "asset-library");
 	}
 
-	@Override
-	public boolean isEnabled() {
-		return _depotSupportChecker.isEnabled();
-	}
-
-	private long _getLiveGroupId(long groupId) throws PortalException {
+	private long _getGroupId(long groupId) throws PortalException {
 		Group group = _groupService.getGroup(groupId);
+
+		if (group.isLayoutPrototype()) {
+			LayoutPrototype layoutPrototype =
+				_layoutPrototypeService.getLayoutPrototype(group.getClassPK());
+
+			LayoutPageTemplateEntry layoutPageTemplateEntry =
+				_layoutPageTemplateEntryLocalService.
+					fetchFirstLayoutPageTemplateEntry(
+						layoutPrototype.getLayoutPrototypeId());
+
+			if ((layoutPageTemplateEntry != null) &&
+				(layoutPageTemplateEntry.getGroupId() > 0)) {
+
+				group = _groupService.getGroup(
+					layoutPageTemplateEntry.getGroupId());
+			}
+		}
 
 		if (group.isStagingGroup()) {
 			return group.getLiveGroupId();
 		}
 
-		return groupId;
+		return group.getGroupId();
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -118,12 +146,19 @@ public class DepotGroupItemSelectorProvider
 	private DepotEntryService _depotEntryService;
 
 	@Reference
-	private DepotSupportChecker _depotSupportChecker;
-
-	@Reference
 	private GroupService _groupService;
 
 	@Reference
 	private Language _language;
+
+	@Reference
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
+
+	@Reference
+	private LayoutPrototypeService _layoutPrototypeService;
+
+	@Reference(target = "(bundle.symbolic.name=com.liferay.depot.web)")
+	private ResourceBundleLoader _resourceBundleLoader;
 
 }

@@ -639,20 +639,20 @@ public class MediaQueryProviderImplTest {
 	private void _addAdaptiveMedias(
 			FileEntry fileEntry,
 			AdaptiveMedia<AMImageProcessor>... adaptiveMedias)
-		throws PortalException {
+		throws Exception {
 
 		Mockito.when(
 			_amImageFinder.getAdaptiveMediaStream(Mockito.any(Function.class))
 		).thenAnswer(
 			invocation -> {
-				Function<AMImageQueryBuilder, AMQuery>
+				Function<AMImageQueryBuilder, AMQuery<?, ?>>
 					amImageQueryBuilderFunction = invocation.getArgumentAt(
 						0, Function.class);
 
 				AMImageQueryBuilderImpl amImageQueryBuilderImpl =
 					new AMImageQueryBuilderImpl();
 
-				AMQuery amQuery = amImageQueryBuilderFunction.apply(
+				AMQuery<?, ?> amQuery = amImageQueryBuilderFunction.apply(
 					amImageQueryBuilderImpl);
 
 				if (!AMImageQueryBuilderImpl.AM_QUERY.equals(amQuery)) {
@@ -739,7 +739,7 @@ public class MediaQueryProviderImplTest {
 			String.valueOf(width)
 		).put(
 			() -> {
-				AMAttribute amAttribute =
+				AMAttribute<?, ?> amAttribute =
 					AMAttribute.getConfigurationUuidAMAttribute();
 
 				return amAttribute.getName();

@@ -1,7 +1,5 @@
-apply plugin: "com.liferay.lang.merger"
-
 dependencies {
-	compileOnly group: "com.liferay", name: "biz.aQute.bnd.annotation", version: "4.2.0.LIFERAY-PATCHED-1"
+	compileOnly group: "biz.aQute.bnd", name: "biz.aQute.bnd.annotation", version: "4.2.0"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.util.taglib", version: "default"
@@ -15,6 +13,7 @@ dependencies {
 	compileOnly project(":apps:frontend-taglib:frontend-taglib")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib-clay")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib-soy")
+	compileOnly project(":apps:portal-workflow:portal-workflow-api")
 	compileOnly project(":apps:portal-workflow:portal-workflow-kaleo-api")
 	compileOnly project(":apps:portal-workflow:portal-workflow-kaleo-definition-api")
 	compileOnly project(":apps:portal:portal-upgrade-api")
@@ -26,13 +25,4 @@ dependencies {
 	compileOnly project(":dxp:apps:portal-workflow:portal-workflow-kaleo-designer-web")
 	compileOnly project(":dxp:apps:portal-workflow:portal-workflow-kaleo-forms-api")
 	compileOnly project(":dxp:apps:portal-workflow:portal-workflow-kaleo-forms-service")
-}
-
-mergeLang {
-	sourceDirs = [
-		"../../../../apps/dynamic-data-mapping/dynamic-data-mapping-lang/src/main/resources/content",
-		"../../../../apps/portal-workflow/portal-workflow-lang/src/main/resources/content",
-		"../../../../apps/staging/staging-lang/src/main/resources/content",
-		"src/main/resources/content"
-	]
 }

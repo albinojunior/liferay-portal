@@ -36,19 +36,19 @@ import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.exportimport.kernel.staging.StagingConstants;
+import com.liferay.exportimport.kernel.staging.constants.StagingConstants;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.journal.configuration.JournalGroupServiceConfiguration;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
+import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.constants.JournalConstants;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.internal.exportimport.creation.strategy.JournalCreationStrategy;
 import com.liferay.journal.internal.util.JournalUtil;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalArticleResource;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.JournalArticleResourceLocalService;
 import com.liferay.petra.string.StringBundler;
@@ -200,7 +200,7 @@ public class JournalArticleStagedModelDataHandler
 			List<JournalFolder> ancestorFolders = folder.getAncestors();
 
 			StringBundler sb = new StringBundler(
-				4 * ancestorFolders.size() + 5);
+				(4 * ancestorFolders.size()) + 5);
 
 			Collections.reverse(ancestorFolders);
 
@@ -436,7 +436,7 @@ public class JournalArticleStagedModelDataHandler
 		if (article.isSmallImage()) {
 			if (Validator.isNotNull(article.getSmallImageURL())) {
 				String smallImageURL =
-					_journalArticleExportImportContentProcessor.
+					_dlReferencesExportImportContentProcessor.
 						replaceExportContentReferences(
 							portletDataContext, article,
 							article.getSmallImageURL() + StringPool.SPACE, true,
@@ -780,7 +780,7 @@ public class JournalArticleStagedModelDataHandler
 
 				if (Validator.isNotNull(article.getSmallImageURL())) {
 					String smallImageURL =
-						_journalArticleExportImportContentProcessor.
+						_dlReferencesExportImportContentProcessor.
 							replaceImportContentReferences(
 								portletDataContext, article,
 								article.getSmallImageURL());
@@ -1003,6 +1003,12 @@ public class JournalArticleStagedModelDataHandler
 				serviceContext.getAssetTagNames(),
 				serviceContext.getAssetLinkEntryIds(),
 				serviceContext.getAssetPriority());
+
+			if (article.isExpired() && !importedArticle.isExpired()) {
+				_journalArticleLocalService.expireArticle(
+					userId, importedArticle.getGroupId(),
+					importedArticle.getArticleId(), articleURL, serviceContext);
+			}
 
 			serviceContext.setModifiedDate(importedArticle.getModifiedDate());
 
@@ -1334,7 +1340,7 @@ public class JournalArticleStagedModelDataHandler
 
 	private void _exportAssetDisplayPage(
 			PortletDataContext portletDataContext, JournalArticle article)
-		throws PortletDataException {
+		throws Exception {
 
 		AssetDisplayPageEntry assetDisplayPageEntry =
 			_assetDisplayPageEntryLocalService.fetchAssetDisplayPageEntry(
@@ -1351,13 +1357,12 @@ public class JournalArticleStagedModelDataHandler
 
 	private void _exportFriendlyURLEntries(
 			PortletDataContext portletDataContext, JournalArticle article)
-		throws PortletDataException {
-
-		long classNameId = _portal.getClassNameId(JournalArticle.class);
+		throws Exception {
 
 		List<FriendlyURLEntry> friendlyURLEntries =
 			_friendlyURLEntryLocalService.getFriendlyURLEntries(
-				article.getGroupId(), classNameId,
+				article.getGroupId(),
+				_portal.getClassNameId(JournalArticle.class),
 				article.getResourcePrimKey());
 
 		for (FriendlyURLEntry friendlyURLEntry : friendlyURLEntries) {
@@ -1677,6 +1682,10 @@ public class JournalArticleStagedModelDataHandler
 	private ConfigurationProvider _configurationProvider;
 	private DDMStructureLocalService _ddmStructureLocalService;
 	private DDMTemplateLocalService _ddmTemplateLocalService;
+
+	@Reference(target = "(content.processor.type=DLReferences)")
+	private ExportImportContentProcessor<String>
+		_dlReferencesExportImportContentProcessor;
 
 	@Reference
 	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;

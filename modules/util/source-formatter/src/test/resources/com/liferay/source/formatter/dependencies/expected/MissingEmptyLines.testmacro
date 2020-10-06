@@ -1,8 +1,6 @@
 @component-name = "portal-acceptance"
 definition {
 
-	property custom.properties = "layout.parallel.render.enable=false";
-
 	setUp {
 		TestCase.setUpPortalInstance();
 	}
@@ -15,9 +13,9 @@ definition {
 	@priority = "5"
 	test AddDefaultExperienceWithBannerCenter {
 
-		//Call Navigator.openWithAppendToBaseURL()
+		// Call Navigator.openWithAppendToBaseURL()
 
-		//	Paremater: urlAppend
+		// Parameter: urlAppend
 
 		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/experience-content-page");
 

@@ -21,9 +21,6 @@ a.control-menu-icon,
 }
 
 .control-menu-level-1 {
-	background-color: $control-menu-level-1-bg;
-	color: $control-menu-level-1-color;
-
 	> .container-fluid {
 		padding: 8px;
 
@@ -32,28 +29,87 @@ a.control-menu-icon,
 		}
 	}
 
-	a,
-	button:not(.dropdown-item) {
-		color: $control-menu-level-1-link-color;
-
-		&:focus,
-		&:hover {
-			color: $control-menu-level-1-link-hover-color;
-			text-decoration: none;
-		}
-	}
-
 	.personal-menu-dropdown .dropdown-toggle {
 		margin-bottom: -2px;
 		margin-top: -2px;
 		padding: 2px;
 	}
+
+	a:not(.dropdown-item),
+	button:not(.btn-link):not(.dropdown-item):not(.nav-link) {
+		&:focus,
+		&:hover {
+			text-decoration: none;
+		}
+	}
 }
 
 .control-menu-level-1-heading {
-	color: $white;
 	font-size: 1rem;
-	font-weight: bold;
+	font-weight: 600;
+}
+
+.control-menu-level-1-dark {
+	background-color: $control-menu-level-1-bg;
+	color: $control-menu-level-1-color;
+
+	a:not(.dropdown-item),
+	button:not(.btn-link):not(.dropdown-item):not(.nav-link) {
+		color: $control-menu-level-1-link-color;
+
+		&:focus,
+		&:hover {
+			background-color: $control-menu-level-1-link-background-color;
+			color: $control-menu-level-1-link-hover-color;
+		}
+	}
+
+	.control-menu-level-1-heading {
+		color: $white;
+	}
+}
+
+.control-menu-level-1-light {
+	background-color: $control-menu-level-1-light-bg;
+	border-bottom: $control-menu-level-1-light-border;
+	color: $control-menu-level-1-light-color;
+
+	a:not(.dropdown-item),
+	button:not(.btn-link):not(.dropdown-item):not(.nav-link) {
+		color: $control-menu-level-1-light-link-color;
+		&:focus,
+		&:hover {
+			background-color: $control-menu-level-1-light-link-background-color;
+			color: $control-menu-level-1-light-link-hover-color;
+		}
+	}
+
+	> .container-fluid {
+		padding-bottom: $control-menu-level-1-padding - 1px;
+
+		@include media-breakpoint-up(sm) {
+			padding-bottom: $control-menu-level-1-padding-desktop - 1px;
+		}
+	}
+
+	.control-menu-level-1-heading {
+		color: $gray-900;
+	}
+
+	.toast-animation {
+		.cn,
+		.pm {
+			border-color: $control-menu-level-1-light-color;
+		}
+	}
+
+	.product-menu-toggle:focus,
+	.product-menu-toggle:hover {
+		.cn,
+		.pm {
+			border-color: $control-menu-level-1-light-link-hover-color;
+		}
+	}
 }
 
 .control-menu-level-1-nav {
@@ -61,16 +117,13 @@ a.control-menu-icon,
 	flex-wrap: wrap;
 	justify-content: space-between;
 
-	> li > .control-menu-nav > .control-menu-nav-item {
-		@include media-breakpoint-up(xs) {
-			margin-left: 4px;
-			margin-right: 4px;
-		}
+	@include media-breakpoint-up(sm) {
+		flex-wrap: nowrap;
+	}
 
-		@include media-breakpoint-up(sm) {
-			margin-left: 8px;
-			margin-right: 8px;
-		}
+	> li > .control-menu-nav > .control-menu-nav-item {
+		margin-left: 4px;
+		margin-right: 4px;
 	}
 
 	> .control-menu-nav-item {
@@ -175,12 +228,8 @@ a.control-menu-icon,
 	flex-basis: 0;
 	flex-grow: 1;
 	flex-shrink: 1;
-	min-width: 64px;
+	min-width: 48px;
 	width: 0;
-
-	.ie & {
-		width: auto;
-	}
 
 	.clamp-container {
 		overflow: hidden;
@@ -193,6 +242,16 @@ a.control-menu-icon,
 	span.text-muted {
 		font-size: 0.875rem;
 	}
+}
+
+.control-menu-nav-item-separator:not(:first-child):before {
+	background-color: $gray-600;
+	content: '';
+	height: 16px;
+	margin-right: 16px;
+	position: relative;
+	top: 9px;
+	width: 1px;
 }
 
 .control-menu-nav-item-field {
@@ -216,11 +275,16 @@ a.control-menu-icon,
 .tools-control-group {
 	flex: 1;
 	flex-wrap: wrap;
-	min-width: 50px;
 
 	> .control-menu-nav {
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		justify-content: center;
+		overflow: hidden;
+
+		@include media-breakpoint-up(md) {
+			flex-wrap: wrap;
+			overflow: auto;
+		}
 
 		> li > .lfr-portal-tooltip > .control-menu-icon {
 			@extend %control-menu-icon-monospaced;

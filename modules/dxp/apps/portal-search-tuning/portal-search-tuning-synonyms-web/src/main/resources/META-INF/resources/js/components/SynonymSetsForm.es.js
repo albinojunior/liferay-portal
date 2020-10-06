@@ -11,6 +11,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
+import ClayLayout from '@clayui/layout';
 import ClayMultiSelect from '@clayui/multi-select';
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
@@ -26,7 +27,7 @@ function filterDuplicates(list) {
 	return cleanedList.filter(
 		(item, index) =>
 			cleanedList.findIndex(
-				newVal =>
+				(newVal) =>
 					newVal.label.toLowerCase() === item.label.toLowerCase() &&
 					newVal.value.toLowerCase() === item.value.toLowerCase()
 			) === index
@@ -73,7 +74,7 @@ class SynonymSetsForm extends Component {
 		super(props);
 
 		if (props.synonymSets.length > 0) {
-			props.synonymSets.split(',').forEach(synonym => {
+			props.synonymSets.split(',').forEach((synonym) => {
 				this.state.synonyms.push({
 					label: synonym,
 					value: synonym,
@@ -86,17 +87,17 @@ class SynonymSetsForm extends Component {
 		window.history.back();
 	};
 
-	_handleInputChange = value => {
+	_handleInputChange = (value) => {
 		this.setState({inputValue: value});
 	};
 
-	_handleSubmit = event => {
+	_handleSubmit = (event) => {
 		event.preventDefault();
 
 		const form = document.forms[this.props.formName];
 
 		const synonymSetsString = this.state.synonyms.map(
-			synonym => synonym.value
+			(synonym) => synonym.value
 		);
 
 		form.elements[this.props.inputName].value = synonymSetsString;
@@ -104,7 +105,7 @@ class SynonymSetsForm extends Component {
 		submitForm(form);
 	};
 
-	_handleItemsChange = values => {
+	_handleItemsChange = (values) => {
 		this.setState({
 			synonyms: filterDuplicates(values),
 		});
@@ -115,63 +116,59 @@ class SynonymSetsForm extends Component {
 
 		return (
 			<div className="synonym-sets-form">
-				<div className="container-fluid-max-xl">
-					<div className="sheet-lg">
-						<div className="sheet-title">
-							{Liferay.Language.get('create-synonym-set')}
-						</div>
-
-						<div className="sheet-text">
-							{Liferay.Language.get(
-								'broaden-the-scope-of-search-by-treating-terms-equally-using-synonyms'
-							)}
-						</div>
-
-						<ClayForm.Group>
-							<label htmlFor="synonym-sets-input">
-								{Liferay.Language.get('synonyms')}
-							</label>
-
-							<ClayInput.Group>
-								<ClayInput.GroupItem>
-									<ClayMultiSelect
-										id="synonym-sets-input"
-										inputValue={inputValue}
-										items={synonyms}
-										onChange={this._handleInputChange}
-										onItemsChange={this._handleItemsChange}
-									/>
-
-									<ClayForm.FeedbackGroup>
-										<ClayForm.Text>
-											{Liferay.Language.get(
-												'type-a-comma-or-press-enter-to-input-a-synonym'
-											)}
-										</ClayForm.Text>
-									</ClayForm.FeedbackGroup>
-								</ClayInput.GroupItem>
-							</ClayInput.Group>
-						</ClayForm.Group>
-
-						<div className="sheet-footer">
-							<ClayButton
-								disabled={synonyms.length === 0}
-								displayType="primary"
-								onClick={this._handleSubmit}
-								type="submit"
-							>
-								{Liferay.Language.get('publish')}
-							</ClayButton>
-
-							<ClayButton
-								displayType="secondary"
-								onClick={this._handleCancel}
-							>
-								{Liferay.Language.get('cancel')}
-							</ClayButton>
-						</div>
-					</div>
+				<div className="sheet-title">
+					{Liferay.Language.get('create-synonym-set')}
 				</div>
+
+				<div className="sheet-text">
+					{Liferay.Language.get(
+						'broaden-the-scope-of-search-by-treating-terms-equally-using-synonyms'
+					)}
+				</div>
+
+				<ClayForm.Group>
+					<label htmlFor="synonym-sets-input">
+						{Liferay.Language.get('synonyms')}
+					</label>
+
+					<ClayInput.Group>
+						<ClayInput.GroupItem>
+							<ClayMultiSelect
+								id="synonym-sets-input"
+								inputValue={inputValue}
+								items={synonyms}
+								onChange={this._handleInputChange}
+								onItemsChange={this._handleItemsChange}
+							/>
+
+							<ClayForm.FeedbackGroup>
+								<ClayForm.Text>
+									{Liferay.Language.get(
+										'type-a-comma-or-press-enter-to-input-a-synonym'
+									)}
+								</ClayForm.Text>
+							</ClayForm.FeedbackGroup>
+						</ClayInput.GroupItem>
+					</ClayInput.Group>
+				</ClayForm.Group>
+
+				<ClayLayout.SheetFooter>
+					<ClayButton
+						disabled={synonyms.length === 0}
+						displayType="primary"
+						onClick={this._handleSubmit}
+						type="submit"
+					>
+						{Liferay.Language.get('publish')}
+					</ClayButton>
+
+					<ClayButton
+						displayType="secondary"
+						onClick={this._handleCancel}
+					>
+						{Liferay.Language.get('cancel')}
+					</ClayButton>
+				</ClayLayout.SheetFooter>
 			</div>
 		);
 	}

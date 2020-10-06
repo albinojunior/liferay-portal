@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.usersadmin.search.UserSearch;
 import com.liferay.portlet.usersadmin.search.UserSearchTerms;
 import com.liferay.users.admin.item.selector.web.internal.search.UserItemSelectorChecker;
@@ -58,6 +59,17 @@ public class UserItemSelectorViewDisplayContext {
 			JavaConstants.JAVAX_PORTLET_RESPONSE);
 	}
 
+	public String getDisplayStyle() {
+		if (Validator.isNotNull(_displayStyle)) {
+			return _displayStyle;
+		}
+
+		_displayStyle = ParamUtil.getString(
+			_httpServletRequest, "displayStyle", "list");
+
+		return _displayStyle;
+	}
+
 	public String getItemSelectedEventName() {
 		return _itemSelectedEventName;
 	}
@@ -78,6 +90,12 @@ public class UserItemSelectorViewDisplayContext {
 		return _portletURL;
 	}
 
+	public RowChecker getRowChecker() throws PortalException {
+		SearchContainer<User> searchContainer = getSearchContainer();
+
+		return searchContainer.getRowChecker();
+	}
+
 	public SearchContainer<User> getSearchContainer() throws PortalException {
 		if (_searchContainer != null) {
 			return _searchContainer;
@@ -92,7 +110,7 @@ public class UserItemSelectorViewDisplayContext {
 				getOrderByCol(), getOrderByType());
 
 		RowChecker rowChecker = new UserItemSelectorChecker(
-			_renderResponse, getCheckedUserIds());
+			_renderResponse, getCheckedUserIds(), isCheckedUseIdsEnable());
 
 		_searchContainer.setOrderByCol(getOrderByCol());
 		_searchContainer.setOrderByComparator(orderByComparator);
@@ -120,10 +138,19 @@ public class UserItemSelectorViewDisplayContext {
 		return _searchContainer;
 	}
 
+	public String getSearchContainerId() {
+		return "users";
+	}
+
 	protected long[] getCheckedUserIds() {
 		return ParamUtil.getLongValues(_portletRequest, "checkedUserIds");
 	}
 
+	protected boolean isCheckedUseIdsEnable() {
+		return ParamUtil.getBoolean(_portletRequest, "checkedUserIdsEnabled");
+	}
+
+	private String _displayStyle;
 	private final HttpServletRequest _httpServletRequest;
 	private final String _itemSelectedEventName;
 	private final PortletRequest _portletRequest;

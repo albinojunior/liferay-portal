@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -211,13 +212,15 @@ public class DDMFormLayoutFactoryHelper {
 	}
 
 	protected void setDefaultLocale() {
-		Locale defaultLocale = LocaleThreadLocal.getSiteDefaultLocale();
-
-		if (defaultLocale == null) {
-			defaultLocale = LocaleUtil.getDefault();
-		}
-
-		_defaultLocale = defaultLocale;
+		_defaultLocale = Optional.ofNullable(
+			LocaleThreadLocal.getThemeDisplayLocale()
+		).orElse(
+			Optional.ofNullable(
+				LocaleThreadLocal.getSiteDefaultLocale()
+			).orElse(
+				LocaleUtil.getDefault()
+			)
+		);
 	}
 
 	private final Class<?> _clazz;

@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class SLA implements Cloneable {
 
+	public static SLA toDTO(String json) {
+		return SLASerDes.toDTO(json);
+	}
+
 	public String getCalendarKey() {
 		return calendarKey;
 	}

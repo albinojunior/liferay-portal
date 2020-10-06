@@ -17,15 +17,16 @@ package com.liferay.portal.workflow.metrics.rest.resource.v1_0.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.search.document.DocumentBuilderFactory;
-import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
-import com.liferay.portal.search.query.Queries;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
-import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.AssigneeUser;
-import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.CreatorUser;
+import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
+import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Creator;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Instance;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
 import com.liferay.portal.workflow.metrics.rest.client.pagination.Page;
@@ -40,30 +41,23 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Rafael Praxedes
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class InstanceResourceTest extends BaseInstanceResourceTestCase {
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		BaseInstanceResourceTestCase.setUpClass();
-
-		_workflowMetricsRESTTestHelper = new WorkflowMetricsRESTTestHelper(
-			_documentBuilderFactory, _queries, _searchEngineAdapter);
-	}
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
+		_classPK = RandomTestUtil.nextLong();
 		_process = _workflowMetricsRESTTestHelper.addProcess(
 			testGroup.getCompanyId());
 		_user = UserTestUtil.addUser();
@@ -88,57 +82,78 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		super.testGetProcessInstancesPage();
 
 		_testGetProcessInstancesPage(
-			new Long[] {_user.getUserId()}, null,
+			new Long[] {_user.getUserId()}, null, null,
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance2),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, new String[] {"Completed"},
+			null, new Long[] {_classPK}, null,
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance1),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, new String[] {"Completed", "Pending"},
+			null, null, true,
+			(instance1, instance2, page) -> assertEquals(
+				Collections.singletonList(instance1),
+				(List<Instance>)page.getItems()));
+		_testGetProcessInstancesPage(
+			null, null, null,
 			(instance1, instance2, page) -> assertEqualsIgnoringOrder(
 				Arrays.asList(instance1, instance2),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, new String[] {"Pending"},
+			null, null, false,
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance2),
 				(List<Instance>)page.getItems()));
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetProcessInstance() throws Exception {
-	}
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"assetTitle", "assetType", "processId"};
+		return new String[] {"assetTitle", "assetType", "classPK", "processId"};
 	}
 
 	@Override
 	protected Instance randomInstance() throws Exception {
 		Instance instance = super.randomInstance();
 
-		instance.setAssigneeUsers(new AssigneeUser[0]);
+		instance.setAssetTitle_i18n(
+			HashMapBuilder.put(
+				LocaleUtil.US.toLanguageTag(), instance.getAssetTitle()
+			).build());
+		instance.setAssetType_i18n(
+			HashMapBuilder.put(
+				LocaleUtil.US.toLanguageTag(), instance.getAssetType()
+			).build());
+
+		instance.setAssignees(new Assignee[0]);
 
 		User adminUser = UserTestUtil.getAdminUser(testGroup.getCompanyId());
 
-		instance.setCreatorUser(
-			new CreatorUser() {
+		instance.setCreator(
+			new Creator() {
 				{
 					id = adminUser.getUserId();
 					name = adminUser.getFullName();
 				}
 			});
 
+		instance.setCompleted(false);
 		instance.setDateCompletion((Date)null);
+		instance.setProcessId(_process.getId());
+		instance.setProcessVersion(_process.getVersion());
 
 		return instance;
+	}
+
+	@Override
+	protected Instance testDeleteProcessInstance_addInstance()
+		throws Exception {
+
+		return testGetProcessInstance_addInstance();
 	}
 
 	@Override
@@ -157,9 +172,15 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		instance = _workflowMetricsRESTTestHelper.addInstance(
 			testGroup.getCompanyId(), instance);
 
-		for (AssigneeUser assigneeUser : instance.getAssigneeUsers()) {
-			_workflowMetricsRESTTestHelper.addToken(
-				assigneeUser.getId(), testGroup.getCompanyId(), instance);
+		for (Assignee assignee : instance.getAssignees()) {
+			_workflowMetricsRESTTestHelper.addTask(
+				assignee, testGroup.getCompanyId(), instance,
+				TestPropsValues.getUser());
+		}
+
+		if (instance.getCompleted()) {
+			_workflowMetricsRESTTestHelper.completeInstance(
+				testGroup.getCompanyId(), instance);
 		}
 
 		_instances.add(instance);
@@ -177,15 +198,34 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		return testGetProcessInstance_addInstance();
 	}
 
+	@Override
+	protected Instance testPatchProcessInstance_addInstance() throws Exception {
+		return testGetProcessInstance_addInstance();
+	}
+
+	@Override
+	protected Instance testPatchProcessInstanceComplete_addInstance()
+		throws Exception {
+
+		Instance instance = testGetProcessInstance_addInstance();
+
+		instance.setCompleted(true);
+		instance.setDateCompletion(RandomTestUtil.nextDate());
+
+		return instance;
+	}
+
 	private void _deleteInstances() throws Exception {
 		for (Instance instance : _instances) {
 			_workflowMetricsRESTTestHelper.deleteInstance(
 				testGroup.getCompanyId(), instance);
 		}
+
+		_instances.clear();
 	}
 
 	private void _testGetProcessInstancesPage(
-			Long[] assigneeUserIds, String[] statuses,
+			Long[] assigneeIds, Long[] classPKs, Boolean completed,
 			UnsafeTriConsumer<Instance, Instance, Page<Instance>, Exception>
 				unsafeTriConsumer)
 		throws Exception {
@@ -194,15 +234,17 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 
 		Instance instance1 = randomInstance();
 
+		instance1.setClassPK(_classPK);
+		instance1.setCompleted(true);
 		instance1.setDateCompletion(RandomTestUtil.nextDate());
 
 		testGetProcessInstancesPage_addInstance(_process.getId(), instance1);
 
 		Instance instance2 = randomInstance();
 
-		instance2.setAssigneeUsers(
-			new AssigneeUser[] {
-				new AssigneeUser() {
+		instance2.setAssignees(
+			new Assignee[] {
+				new Assignee() {
 					{
 						id = _user.getUserId();
 					}
@@ -212,27 +254,18 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		testGetProcessInstancesPage_addInstance(_process.getId(), instance2);
 
 		Page<Instance> page = instanceResource.getProcessInstancesPage(
-			_process.getId(), assigneeUserIds, null, null, null, statuses, null,
-			Pagination.of(1, 2));
+			_process.getId(), assigneeIds, classPKs, completed, null, null,
+			null, null, Pagination.of(1, 2));
 
 		unsafeTriConsumer.accept(instance1, instance2, page);
 	}
 
-	@Inject
-	private static DocumentBuilderFactory _documentBuilderFactory;
-
-	@Inject
-	private static Queries _queries;
-
-	@Inject(blocking = false, filter = "search.engine.impl=Elasticsearch")
-	private static SearchEngineAdapter _searchEngineAdapter;
-
-	private static WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
-
+	private Long _classPK;
 	private final List<Instance> _instances = new ArrayList<>();
 	private Process _process;
-
-	@DeleteAfterTestRun
 	private User _user;
+
+	@Inject
+	private WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
 
 }

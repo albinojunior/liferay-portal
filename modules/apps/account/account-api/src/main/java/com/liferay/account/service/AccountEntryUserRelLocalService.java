@@ -15,6 +15,7 @@
 package com.liferay.account.service;
 
 import com.liferay.account.model.AccountEntryUserRel;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -59,11 +60,15 @@ public interface AccountEntryUserRelLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link AccountEntryUserRelLocalServiceUtil} to access the account entry user rel local service. Add custom service methods to <code>com.liferay.account.service.impl.AccountEntryUserRelLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.account.service.impl.AccountEntryUserRelLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the account entry user rel local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link AccountEntryUserRelLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the account entry user rel to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryUserRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountEntryUserRel the account entry user rel
 	 * @return the account entry user rel that was added
@@ -86,6 +91,12 @@ public interface AccountEntryUserRelLocalService
 			long accountEntryId, long[] accountUserIds)
 		throws PortalException;
 
+	public AccountEntryUserRel addPersonTypeAccountEntryUserRel(
+			long accountEntryId, long creatorUserId, String screenName,
+			String emailAddress, Locale locale, String firstName,
+			String middleName, String lastName, long prefixId, long suffixId)
+		throws PortalException;
+
 	/**
 	 * Creates a new account entry user rel with the primary key. Does not add the account entry user rel to the database.
 	 *
@@ -105,6 +116,10 @@ public interface AccountEntryUserRelLocalService
 	/**
 	 * Deletes the account entry user rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryUserRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param accountEntryUserRel the account entry user rel
 	 * @return the account entry user rel that was removed
 	 */
@@ -114,6 +129,10 @@ public interface AccountEntryUserRelLocalService
 
 	/**
 	 * Deletes the account entry user rel with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryUserRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountEntryUserRelId the primary key of the account entry user rel
 	 * @return the account entry user rel that was removed
@@ -128,12 +147,17 @@ public interface AccountEntryUserRelLocalService
 			long accountEntryId, long[] accountUserIds)
 		throws PortalException;
 
+	public void deleteAccountEntryUserRelsByAccountEntryId(long accountEntryId);
+
 	/**
 	 * @throws PortalException
 	 */
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -276,8 +300,15 @@ public interface AccountEntryUserRelLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public boolean hasAccountEntryUserRel(long accountEntryId, long userId);
 
+	public void setPersonTypeAccountEntryUser(long accountEntryId, long userId)
+		throws PortalException;
+
 	/**
 	 * Updates the account entry user rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AccountEntryUserRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param accountEntryUserRel the account entry user rel
 	 * @return the account entry user rel that was updated
@@ -285,5 +316,10 @@ public interface AccountEntryUserRelLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public AccountEntryUserRel updateAccountEntryUserRel(
 		AccountEntryUserRel accountEntryUserRel);
+
+	public void updateAccountEntryUserRels(
+			long[] addAccountEntryIds, long[] deleteAccountEntryIds,
+			long accountUserId)
+		throws PortalException;
 
 }

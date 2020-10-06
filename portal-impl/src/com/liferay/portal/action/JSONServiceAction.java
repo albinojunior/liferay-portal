@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -87,19 +88,19 @@ public class JSONServiceAction extends JSONAction {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		String className = ParamUtil.getString(
-			httpServletRequest, "serviceClassName");
-		String methodName = ParamUtil.getString(
-			httpServletRequest, "serviceMethodName");
+		if (!isValidRequest(httpServletRequest)) {
+			return null;
+		}
 
 		String[] serviceParameters = getStringArrayFromJSON(
 			httpServletRequest, "serviceParameters");
 		String[] serviceParameterTypes = getStringArrayFromJSON(
 			httpServletRequest, "serviceParameterTypes");
 
-		if (!isValidRequest(httpServletRequest)) {
-			return null;
-		}
+		String className = ParamUtil.getString(
+			httpServletRequest, "serviceClassName");
+		String methodName = ParamUtil.getString(
+			httpServletRequest, "serviceMethodName");
 
 		Thread currentThread = Thread.currentThread();
 
@@ -133,21 +134,21 @@ public class JSONServiceAction extends JSONAction {
 						" with args ", Arrays.toString(args)));
 			}
 
-			Object returnObj = null;
+			Object returnObject = null;
 
 			boolean remoteAccess = AccessControlThreadLocal.isRemoteAccess();
 
 			try {
 				AccessControlThreadLocal.setRemoteAccess(true);
 
-				returnObj = method.invoke(clazz, args);
+				returnObject = method.invoke(clazz, args);
 			}
 			finally {
 				AccessControlThreadLocal.setRemoteAccess(remoteAccess);
 			}
 
-			if (returnObj != null) {
-				return getReturnValue(returnObj);
+			if (returnObject != null) {
+				return getReturnValue(returnObject);
 			}
 
 			return JSONFactoryUtil.getNullJSON();
@@ -161,7 +162,15 @@ public class JSONServiceAction extends JSONAction {
 					exception);
 			}
 
-			return JSONFactoryUtil.serializeThrowable(exception);
+			if (PropsValues.JSON_SERVICE_SERIALIZE_THROWABLE) {
+				return JSONFactoryUtil.serializeThrowable(exception);
+			}
+
+			PortalUtil.sendError(
+				HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception,
+				httpServletRequest, httpServletResponse);
+
+			return JSONFactoryUtil.getNullJSON();
 		}
 	}
 
@@ -562,9 +571,9 @@ public class JSONServiceAction extends JSONAction {
 		return _REROUTE_PATH;
 	}
 
-	protected String getReturnValue(Object returnObj) throws Exception {
-		if (returnObj instanceof JSONSerializable) {
-			JSONSerializable jsonSerializable = (JSONSerializable)returnObj;
+	protected String getReturnValue(Object returnObject) throws Exception {
+		if (returnObject instanceof JSONSerializable) {
+			JSONSerializable jsonSerializable = (JSONSerializable)returnObject;
 
 			return jsonSerializable.toJSONString();
 		}
@@ -573,7 +582,7 @@ public class JSONServiceAction extends JSONAction {
 
 		jsonSerializer.exclude("*.class");
 
-		return jsonSerializer.serializeDeep(returnObj);
+		return jsonSerializer.serializeDeep(returnObject);
 	}
 
 	protected String[] getStringArrayFromJSON(
@@ -632,11 +641,8 @@ public class JSONServiceAction extends JSONAction {
 				fieldDescriptor = "S";
 			}
 			else {
-				fieldDescriptor = "L".concat(
-					fieldDescriptor
-				).concat(
-					StringPool.SEMICOLON
-				);
+				fieldDescriptor = StringBundler.concat(
+					"L", fieldDescriptor, StringPool.SEMICOLON);
 			}
 
 			return dimensions.concat(fieldDescriptor);

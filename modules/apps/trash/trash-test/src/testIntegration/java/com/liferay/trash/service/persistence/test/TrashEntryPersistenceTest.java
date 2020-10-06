@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -125,6 +126,8 @@ public class TrashEntryPersistenceTest {
 
 		newTrashEntry.setMvccVersion(RandomTestUtil.nextLong());
 
+		newTrashEntry.setCtCollectionId(RandomTestUtil.nextLong());
+
 		newTrashEntry.setGroupId(RandomTestUtil.nextLong());
 
 		newTrashEntry.setCompanyId(RandomTestUtil.nextLong());
@@ -153,6 +156,9 @@ public class TrashEntryPersistenceTest {
 		Assert.assertEquals(
 			existingTrashEntry.getMvccVersion(),
 			newTrashEntry.getMvccVersion());
+		Assert.assertEquals(
+			existingTrashEntry.getCtCollectionId(),
+			newTrashEntry.getCtCollectionId());
 		Assert.assertEquals(
 			existingTrashEntry.getEntryId(), newTrashEntry.getEntryId());
 		Assert.assertEquals(
@@ -244,10 +250,10 @@ public class TrashEntryPersistenceTest {
 
 	protected OrderByComparator<TrashEntry> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"TrashEntry", "mvccVersion", true, "entryId", true, "groupId", true,
-			"companyId", true, "userId", true, "userName", true, "createDate",
-			true, "classNameId", true, "classPK", true, "systemEventSetKey",
-			true, "status", true);
+			"TrashEntry", "mvccVersion", true, "ctCollectionId", true,
+			"entryId", true, "groupId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "classNameId", true,
+			"classPK", true, "systemEventSetKey", true, "status", true);
 	}
 
 	@Test
@@ -460,17 +466,60 @@ public class TrashEntryPersistenceTest {
 
 		_persistence.clearCache();
 
-		TrashEntry existingTrashEntry = _persistence.findByPrimaryKey(
-			newTrashEntry.getPrimaryKey());
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(newTrashEntry.getPrimaryKey()));
+	}
 
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		TrashEntry newTrashEntry = addTrashEntry();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			TrashEntry.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq("entryId", newTrashEntry.getEntryId()));
+
+		List<TrashEntry> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(TrashEntry trashEntry) {
 		Assert.assertEquals(
-			Long.valueOf(existingTrashEntry.getClassNameId()),
+			Long.valueOf(trashEntry.getClassNameId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingTrashEntry, "getOriginalClassNameId", new Class<?>[0]));
+				trashEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "classNameId"));
 		Assert.assertEquals(
-			Long.valueOf(existingTrashEntry.getClassPK()),
+			Long.valueOf(trashEntry.getClassPK()),
 			ReflectionTestUtil.<Long>invoke(
-				existingTrashEntry, "getOriginalClassPK", new Class<?>[0]));
+				trashEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "classPK"));
 	}
 
 	protected TrashEntry addTrashEntry() throws Exception {
@@ -479,6 +528,8 @@ public class TrashEntryPersistenceTest {
 		TrashEntry trashEntry = _persistence.create(pk);
 
 		trashEntry.setMvccVersion(RandomTestUtil.nextLong());
+
+		trashEntry.setCtCollectionId(RandomTestUtil.nextLong());
 
 		trashEntry.setGroupId(RandomTestUtil.nextLong());
 

@@ -15,11 +15,12 @@
 package com.liferay.layout.page.template.admin.web.internal.servlet.taglib.util;
 
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
 import com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType;
 import com.liferay.item.selector.criteria.upload.criterion.UploadItemSelectorCriterion;
+import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
 import com.liferay.layout.page.template.admin.web.internal.constants.LayoutPageTemplateAdminWebKeys;
 import com.liferay.layout.page.template.admin.web.internal.security.permission.resource.LayoutPageTemplateEntryPermission;
@@ -31,6 +32,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -46,9 +48,11 @@ import com.liferay.taglib.security.PermissionsURLTag;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceURL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -69,76 +73,80 @@ public class MasterLayoutActionDropdownItemsProvider {
 			LayoutPageTemplateAdminWebKeys.ITEM_SELECTOR);
 		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		_draftLayout = LayoutLocalServiceUtil.fetchDraftLayout(
+			layoutPageTemplateEntry.getPlid());
 	}
 
 	public List<DropdownItem> getActionDropdownItems() throws Exception {
-		return new DropdownItemList() {
-			{
-				if (_layoutPageTemplateEntry.getLayoutPageTemplateEntryId() >
-						0) {
+		LayoutPageTemplateEntry defaultLayoutPageTemplateEntry =
+			LayoutPageTemplateEntryServiceUtil.
+				fetchDefaultLayoutPageTemplateEntry(
+					_themeDisplay.getScopeGroupId(),
+					LayoutPageTemplateEntryTypeConstants.TYPE_MASTER_LAYOUT,
+					WorkflowConstants.STATUS_APPROVED);
+		boolean hasUpdatePermission =
+			LayoutPageTemplateEntryPermission.contains(
+				_themeDisplay.getPermissionChecker(), _layoutPageTemplateEntry,
+				ActionKeys.UPDATE);
+		long layoutPageTemplateEntryId =
+			_layoutPageTemplateEntry.getLayoutPageTemplateEntryId();
 
-					if (LayoutPageTemplateEntryPermission.contains(
-							_themeDisplay.getPermissionChecker(),
-							_layoutPageTemplateEntry, ActionKeys.UPDATE)) {
-
-						add(_getEditMasterLayoutActionUnsafeConsumer());
-
-						add(
-							_getUpdateMasterLayoutPreviewActionUnsafeConsumer());
-
-						if (_layoutPageTemplateEntry.getPreviewFileEntryId() >
-								0) {
-
-							add(
-								_getDeleteMasterLayoutPreviewActionUnsafeConsumer());
-						}
-
-						add(_getRenameMasterLayoutActionUnsafeConsumer());
-
-						add(_getCopyMasterLayoutActionUnsafeConsumer());
-					}
-
-					if (LayoutPageTemplateEntryPermission.contains(
-							_themeDisplay.getPermissionChecker(),
-							_layoutPageTemplateEntry, ActionKeys.PERMISSIONS)) {
-
-						add(_getPermissionsMasterLayoutActionUnsafeConsumer());
-					}
-
-					if (_layoutPageTemplateEntry.isApproved() &&
-						!_layoutPageTemplateEntry.isDefaultTemplate() &&
-						LayoutPageTemplateEntryPermission.contains(
-							_themeDisplay.getPermissionChecker(),
-							_layoutPageTemplateEntry, ActionKeys.UPDATE)) {
-
-						add(
-							_getMarkAsDefaultMasterLayoutActionUnsafeConsumer());
-					}
-
-					if (LayoutPageTemplateEntryPermission.contains(
-							_themeDisplay.getPermissionChecker(),
-							_layoutPageTemplateEntry, ActionKeys.DELETE)) {
-
-						add(_getDeleteMasterLayoutActionUnsafeConsumer());
-					}
-				}
-				else {
-					LayoutPageTemplateEntry defaultLayoutPageTemplateEntry =
-						LayoutPageTemplateEntryServiceUtil.
-							fetchDefaultLayoutPageTemplateEntry(
-								_themeDisplay.getScopeGroupId(),
-								LayoutPageTemplateEntryTypeConstants.
-									TYPE_MASTER_LAYOUT,
-								WorkflowConstants.STATUS_APPROVED);
-
-					if (defaultLayoutPageTemplateEntry != null) {
-						add(
-							_getMarkAsDefaulBlanktMasterLayoutActionUnsafeConsumer(
-								defaultLayoutPageTemplateEntry));
-					}
-				}
-			}
-		};
+		return DropdownItemListBuilder.add(
+			() -> (layoutPageTemplateEntryId > 0) && hasUpdatePermission,
+			_getEditMasterLayoutActionUnsafeConsumer()
+		).add(
+			() -> (layoutPageTemplateEntryId > 0) && hasUpdatePermission,
+			_getUpdateMasterLayoutPreviewActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId > 0) && hasUpdatePermission &&
+				(_layoutPageTemplateEntry.getPreviewFileEntryId() > 0),
+			_getDeleteMasterLayoutPreviewActionUnsafeConsumer()
+		).add(
+			() -> (layoutPageTemplateEntryId > 0) && hasUpdatePermission,
+			_getRenameMasterLayoutActionUnsafeConsumer()
+		).add(
+			() -> (layoutPageTemplateEntryId > 0) && hasUpdatePermission,
+			_getCopyMasterLayoutActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId > 0) &&
+				(_layoutPageTemplateEntry.getLayoutPrototypeId() == 0),
+			_getExportMasterLayoutActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId > 0) &&
+				LayoutPageTemplateEntryPermission.contains(
+					_themeDisplay.getPermissionChecker(),
+					_layoutPageTemplateEntry, ActionKeys.PERMISSIONS),
+			_getPermissionsMasterLayoutActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId > 0) &&
+				_layoutPageTemplateEntry.isApproved() &&
+				!_layoutPageTemplateEntry.isDefaultTemplate() &&
+				hasUpdatePermission,
+			_getMarkAsDefaultMasterLayoutActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId > 0) &&
+				LayoutPageTemplateEntryPermission.contains(
+					_themeDisplay.getPermissionChecker(),
+					_layoutPageTemplateEntry, ActionKeys.DELETE),
+			_getDeleteMasterLayoutActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId > 0) && hasUpdatePermission &&
+				_isShowDiscardDraftAction(),
+			_getDiscardDraftActionUnsafeConsumer()
+		).add(
+			() ->
+				(layoutPageTemplateEntryId <= 0) &&
+				(defaultLayoutPageTemplateEntry != null),
+			_getMarkAsDefaulBlanktMasterLayoutActionUnsafeConsumer(
+				defaultLayoutPageTemplateEntry)
+		).build();
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
@@ -226,17 +234,40 @@ public class MasterLayoutActionDropdownItemsProvider {
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
+		_getDiscardDraftActionUnsafeConsumer() {
+
+		if (_draftLayout == null) {
+			return null;
+		}
+
+		PortletURL discardDraftURL = PortletURLFactoryUtil.create(
+			_httpServletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
+			PortletRequest.ACTION_PHASE);
+
+		discardDraftURL.setParameter(
+			ActionRequest.ACTION_NAME, "/layout/discard_draft_layout");
+		discardDraftURL.setParameter("redirect", _themeDisplay.getURLCurrent());
+		discardDraftURL.setParameter(
+			"selPlid", String.valueOf(_draftLayout.getPlid()));
+
+		return dropdownItem -> {
+			dropdownItem.putData("action", "discardDraft");
+			dropdownItem.putData("discardDraftURL", discardDraftURL.toString());
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "discard-draft"));
+		};
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
 		_getEditMasterLayoutActionUnsafeConsumer() {
 
-		Layout layout = LayoutLocalServiceUtil.fetchLayout(
-			_layoutPageTemplateEntry.getPlid());
-
-		Layout draftLayout = LayoutLocalServiceUtil.fetchLayout(
-			PortalUtil.getClassNameId(Layout.class), layout.getPlid());
+		if (_draftLayout == null) {
+			return null;
+		}
 
 		return dropdownItem -> {
 			String layoutFullURL = PortalUtil.getLayoutFullURL(
-				draftLayout, _themeDisplay);
+				_draftLayout, _themeDisplay);
 
 			layoutFullURL = HttpUtil.setParameter(
 				layoutFullURL, "p_l_back_url", _themeDisplay.getURLCurrent());
@@ -247,6 +278,26 @@ public class MasterLayoutActionDropdownItemsProvider {
 
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "edit"));
+		};
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
+		_getExportMasterLayoutActionUnsafeConsumer() {
+
+		ResourceURL exportMasterLayoutURL = _renderResponse.createResourceURL();
+
+		exportMasterLayoutURL.setParameter(
+			"layoutPageTemplateEntryId",
+			String.valueOf(
+				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
+		exportMasterLayoutURL.setResourceID(
+			"/layout_page_template/export_master_layout");
+
+		return dropdownItem -> {
+			dropdownItem.setDisabled(_layoutPageTemplateEntry.isDraft());
+			dropdownItem.setHref(exportMasterLayoutURL);
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "export"));
 		};
 	}
 
@@ -282,6 +333,10 @@ public class MasterLayoutActionDropdownItemsProvider {
 	private UnsafeConsumer<DropdownItem, Exception>
 		_getMarkAsDefaulBlanktMasterLayoutActionUnsafeConsumer(
 			LayoutPageTemplateEntry defaultLayoutPageTemplateEntry) {
+
+		if (defaultLayoutPageTemplateEntry == null) {
+			return null;
+		}
 
 		PortletURL markAsDefaultMasterLayoutURL =
 			_renderResponse.createActionURL();
@@ -440,6 +495,19 @@ public class MasterLayoutActionDropdownItemsProvider {
 		};
 	}
 
+	private boolean _isShowDiscardDraftAction() {
+		if (_draftLayout == null) {
+			return false;
+		}
+
+		if (_draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private final Layout _draftLayout;
 	private final HttpServletRequest _httpServletRequest;
 	private final ItemSelector _itemSelector;
 	private final LayoutPageTemplateEntry _layoutPageTemplateEntry;

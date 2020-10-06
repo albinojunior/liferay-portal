@@ -12,19 +12,24 @@
  * details.
  */
 
+import {EVENT_TYPES} from 'dynamic-data-mapping-form-renderer';
 import React, {useContext, useEffect} from 'react';
 
 import AppContext from '../AppContext.es';
 import {
+	ADD_DATA_LAYOUT_RULE,
+	UPDATE_DATA_LAYOUT_RULE,
 	UPDATE_EDITING_LANGUAGE_ID,
 	UPDATE_FIELD_TYPES,
 	UPDATE_FOCUSED_FIELD,
+	UPDATE_HOVERED_FIELD,
 	UPDATE_PAGES,
 } from '../actions.es';
+import {getDropHandler} from '../drag-and-drop/getDropHandler.es';
 import DataLayoutBuilderContext from './DataLayoutBuilderContext.es';
 
 export default ({children, dataLayoutBuilder}) => {
-	const [, dispatch] = useContext(AppContext);
+	const [{dataDefinition}, dispatch] = useContext(AppContext);
 
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
@@ -48,11 +53,22 @@ export default ({children, dataLayoutBuilder}) => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
 
 		const eventHandler = provider.on('focusedFieldChanged', ({newVal}) => {
-			provider.once('rendered', () => {
-				dispatch({
-					payload: {focusedField: newVal},
-					type: UPDATE_FOCUSED_FIELD,
-				});
+			dispatch({
+				payload: {focusedField: newVal},
+				type: UPDATE_FOCUSED_FIELD,
+			});
+		});
+
+		return () => eventHandler.removeListener();
+	}, [dataLayoutBuilder, dispatch]);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+
+		const eventHandler = provider.on('fieldHovered', (newVal) => {
+			dispatch({
+				payload: {hoveredField: newVal},
+				type: UPDATE_HOVERED_FIELD,
 			});
 		});
 
@@ -63,12 +79,37 @@ export default ({children, dataLayoutBuilder}) => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
 
 		const eventHandler = provider.on('pagesChanged', ({newVal}) => {
-			provider.once('rendered', () => {
-				dispatch({payload: {pages: newVal}, type: UPDATE_PAGES});
-			});
+			dispatch({payload: {pages: newVal}, type: UPDATE_PAGES});
 		});
 
 		return () => eventHandler.removeListener();
+	}, [dataLayoutBuilder, dispatch]);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+
+		const ruleAddedEventHandler = provider.on('ruleAdded', (dataRule) => {
+			provider.once('rendered', () => {
+				dispatch({
+					payload: {dataRule},
+					type: ADD_DATA_LAYOUT_RULE,
+				});
+			});
+		});
+
+		const ruleEditedEventHandler = provider.on('ruleEdited', (dataRule) => {
+			provider.once('rendered', () => {
+				dispatch({
+					payload: {dataRule},
+					type: UPDATE_DATA_LAYOUT_RULE,
+				});
+			});
+		});
+
+		return () => {
+			ruleAddedEventHandler.removeListener();
+			ruleEditedEventHandler.removeListener();
+		};
 	}, [dataLayoutBuilder, dispatch]);
 
 	useEffect(() => {
@@ -76,6 +117,15 @@ export default ({children, dataLayoutBuilder}) => {
 
 		dispatch({payload: {fieldTypes}, type: UPDATE_FIELD_TYPES});
 	}, [dataLayoutBuilder, dispatch]);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+		const onDrop = getDropHandler({dataDefinition, dataLayoutBuilder});
+
+		const eventHandler = provider.on(EVENT_TYPES.FIELD_DROP, onDrop);
+
+		return () => eventHandler.removeListener();
+	}, [dataLayoutBuilder, dataDefinition]);
 
 	return (
 		<DataLayoutBuilderContext.Provider

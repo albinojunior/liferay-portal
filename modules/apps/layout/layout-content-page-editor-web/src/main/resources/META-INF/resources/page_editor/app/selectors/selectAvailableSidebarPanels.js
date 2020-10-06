@@ -12,23 +12,32 @@
  * details.
  */
 
-import {AVAILABLE_PANELS} from './selectAvailablePanels';
+import {VIEWPORT_SIZES} from '../config/constants/viewportSizes';
+import {
+	CONTENT_CHANGE_PANELS,
+	RESPONSIVE_PANELS,
+} from './selectAvailablePanels';
 
 /**
  * @param {{ [panelId: string]: object }} sidebarPanels
  */
 export default function selectAvailableSidebarPanels(sidebarPanels) {
-	/**
-	 * @param {{ permissions: import("../../types/ActionKeys").ActionKeysMap }} state
-	 */
-	return function({permissions}) {
-		if (
-			permissions.LOCKED_SEGMENTS_EXPERIMENT ||
-			!permissions.UPDATE_LAYOUT_CONTENT
-		) {
-			const availableSidebarPanels = {};
 
-			AVAILABLE_PANELS.forEach(panelId => {
+	/**
+	 * @param {{ permissions: import("../../types/ActionKeys").ActionKeysMap, selectedViewportSize: string }} state
+	 */
+	return function ({permissions, selectedViewportSize}) {
+		const availableSidebarPanels = {};
+
+		if (permissions.LOCKED_SEGMENTS_EXPERIMENT || !permissions.UPDATE) {
+			CONTENT_CHANGE_PANELS.forEach((panelId) => {
+				availableSidebarPanels[panelId] = sidebarPanels[panelId];
+			});
+
+			return availableSidebarPanels;
+		}
+		else if (selectedViewportSize !== VIEWPORT_SIZES.desktop) {
+			RESPONSIVE_PANELS.forEach((panelId) => {
 				availableSidebarPanels[panelId] = sidebarPanels[panelId];
 			});
 

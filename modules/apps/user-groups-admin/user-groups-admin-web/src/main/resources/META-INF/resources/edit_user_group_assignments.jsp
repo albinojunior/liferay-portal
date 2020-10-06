@@ -17,7 +17,15 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String redirect = ParamUtil.getString(request, "redirect");
+String backURL = ParamUtil.getString(request, "backURL");
+
+PortletURL homeURL = renderResponse.createRenderURL();
+
+homeURL.setParameter("mvcPath", "/view.jsp");
+
+if (Validator.isNull(backURL)) {
+	backURL = homeURL.toString();
+}
 
 long userGroupId = ParamUtil.getLong(request, "userGroupId");
 
@@ -35,34 +43,13 @@ else {
 }
 
 portletDisplay.setShowBackIcon(true);
-portletDisplay.setURLBack(redirect);
+portletDisplay.setURLBack(backURL);
 
 renderResponse.setTitle(userGroup.getName());
-
-PortletURL homeURL = renderResponse.createRenderURL();
-
-homeURL.setParameter("mvcPath", "/view.jsp");
 
 PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "user-groups"), homeURL.toString());
 PortalUtil.addPortletBreadcrumbEntry(request, userGroup.getName(), null);
 
-List<NavigationItem> navigationItems = new ArrayList<>();
-
-NavigationItem entriesNavigationItem = new NavigationItem();
-
-entriesNavigationItem.setActive(true);
-entriesNavigationItem.setHref(StringPool.BLANK);
-entriesNavigationItem.setLabel(LanguageUtil.get(request, "users"));
-
-navigationItems.add(entriesNavigationItem);
-%>
-
-<clay:navigation-bar
-	inverted="<%= true %>"
-	navigationItems="<%= navigationItems %>"
-/>
-
-<%
 EditUserGroupAssignmentsManagementToolbarDisplayContext editUserGroupAssignmentsManagementToolbarDisplayContext = new EditUserGroupAssignmentsManagementToolbarDisplayContext(request, renderRequest, renderResponse, displayStyle, "/edit_user_group_assignments.jsp");
 
 LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
@@ -73,7 +60,7 @@ if (filterManageableOrganizations) {
 
 userParams.put("usersUserGroups", Long.valueOf(userGroup.getUserGroupId()));
 
-SearchContainer searchContainer = editUserGroupAssignmentsManagementToolbarDisplayContext.getSearchContainer(userParams);
+SearchContainer<User> searchContainer = editUserGroupAssignmentsManagementToolbarDisplayContext.getSearchContainer(userParams);
 
 PortletURL portletURL = editUserGroupAssignmentsManagementToolbarDisplayContext.getPortletURL();
 %>
@@ -138,7 +125,7 @@ PortletURL portletURL = editUserGroupAssignmentsManagementToolbarDisplayContext.
 	</liferay-ui:search-container>
 </aui:form>
 
-<aui:script require="frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
+<aui:script sandbox="<%= true %>">
 	var form = document.<portlet:namespace />fm;
 
 	<portlet:renderURL var="selectUsersURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
@@ -147,27 +134,24 @@ PortletURL portletURL = editUserGroupAssignmentsManagementToolbarDisplayContext.
 	</portlet:renderURL>
 
 	function <portlet:namespace />addUsers(event) {
-		var itemSelectorDialog = new ItemSelectorDialog.default({
-			eventName: '<portlet:namespace />selectUsers',
+		Liferay.Util.openSelectionModal({
+			onSelect: function (selectedItem) {
+				if (selectedItem) {
+					Liferay.Util.postForm(form, {
+						data: {
+							addUserIds: selectedItem,
+						},
+						url:
+							'<portlet:actionURL name="editUserGroupAssignments" />',
+					});
+				}
+			},
+			multiple: true,
+			selectEventName: '<portlet:namespace />selectUsers',
 			title:
 				'<liferay-ui:message arguments="<%= HtmlUtil.escape(userGroup.getName()) %>" key="add-users-to-x" />',
 			url: '<%= selectUsersURL %>',
 		});
-
-		itemSelectorDialog.on('selectedItemChange', function(event) {
-			var selectedItem = event.selectedItem;
-
-			if (selectedItem) {
-				Liferay.Util.postForm(form, {
-					data: {
-						addUserIds: selectedItem,
-					},
-					url: '<portlet:actionURL name="editUserGroupAssignments" />',
-				});
-			}
-		});
-
-		itemSelectorDialog.open();
 	}
 
 	function <portlet:namespace />removeUsers() {
@@ -184,7 +168,7 @@ PortletURL portletURL = editUserGroupAssignmentsManagementToolbarDisplayContext.
 	}
 
 	Liferay.componentReady('editUserGroupAssignmentsManagementToolbar').then(
-		function(managementToolbar) {
+		function (managementToolbar) {
 			managementToolbar.on(
 				'actionItemClicked',
 				<portlet:namespace />removeUsers

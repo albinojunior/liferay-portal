@@ -15,7 +15,10 @@
 package com.liferay.portal.kernel.service;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -30,6 +33,8 @@ import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.Team;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -55,18 +60,19 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see RoleLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
 )
 public interface RoleLocalService
-	extends BaseLocalService, PersistedModelLocalService {
+	extends BaseLocalService, CTService<Role>, PersistedModelLocalService {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link RoleLocalServiceUtil} to access the role local service. Add custom service methods to <code>com.liferay.portal.service.impl.RoleLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.RoleLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the role local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link RoleLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public void addGroupRole(long groupId, long roleId);
 
@@ -105,6 +111,10 @@ public interface RoleLocalService
 
 	/**
 	 * Adds the role to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param role the role
 	 * @return the role that was added
@@ -189,6 +199,10 @@ public interface RoleLocalService
 	/**
 	 * Deletes the role with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param roleId the primary key of the role
 	 * @return the role that was removed
 	 * @throws PortalException if a role with the primary key could not be found
@@ -198,6 +212,10 @@ public interface RoleLocalService
 
 	/**
 	 * Deletes the role from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param role the role
 	 * @return the role that was removed
@@ -231,6 +249,9 @@ public interface RoleLocalService
 	 */
 	public void deleteUserRoles(long userId, long[] roleIds)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -314,7 +335,7 @@ public interface RoleLocalService
 	 * @return Returns the role with the name or <code>null</code> if a role
 	 with the name could not be found in the company
 	 */
-	@Transactional(enabled = false)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Role fetchRole(long companyId, String name);
 
 	/**
@@ -466,7 +487,7 @@ public interface RoleLocalService
 	 * @param name the role's name
 	 * @return the role with the name
 	 */
-	@Transactional(enabled = false)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Role getRole(long companyId, String name) throws PortalException;
 
 	/**
@@ -791,7 +812,10 @@ public interface RoleLocalService
 	 * @param name the role's name (optionally <code>null</code>)
 	 * @return the role with the name, or <code>null</code> if a role with the
 	 name could not be found in the company
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #fetchRole(long, String)}
 	 */
+	@Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Role loadFetchRole(long companyId, String name);
 
@@ -801,7 +825,10 @@ public interface RoleLocalService
 	 * @param companyId the primary key of the company
 	 * @param name the role's name
 	 * @return the role with the name in the company
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getRole(long, String)}
 	 */
+	@Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Role loadGetRole(long companyId, String name) throws PortalException;
 
@@ -826,16 +853,16 @@ public interface RoleLocalService
 	 * @param start the lower bound of the range of roles to return
 	 * @param end the upper bound of the range of roles to return (not
 	 inclusive)
-	 * @param obc the comparator to order the roles (optionally
+	 * @param orderByComparator the comparator to order the roles (optionally
 	 <code>null</code>)
 	 * @return the ordered range of the matching roles, ordered by
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 * @see com.liferay.portal.kernel.service.persistence.RoleFinder
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Role> search(
 		long companyId, String keywords, Integer[] types, int start, int end,
-		OrderByComparator<Role> obc);
+		OrderByComparator<Role> orderByComparator);
 
 	/**
 	 * Returns an ordered range of all the roles that match the keywords, types,
@@ -861,17 +888,17 @@ public interface RoleLocalService
 	 * @param start the lower bound of the range of roles to return
 	 * @param end the upper bound of the range of roles to return (not
 	 inclusive)
-	 * @param obc the comparator to order the roles (optionally
+	 * @param orderByComparator the comparator to order the roles (optionally
 	 <code>null</code>)
 	 * @return the ordered range of the matching roles, ordered by
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 * @see com.liferay.portal.kernel.service.persistence.RoleFinder
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Role> search(
 		long companyId, String keywords, Integer[] types,
 		LinkedHashMap<String, Object> params, int start, int end,
-		OrderByComparator<Role> obc);
+		OrderByComparator<Role> orderByComparator);
 
 	/**
 	 * Returns an ordered range of all the roles that match the name,
@@ -894,16 +921,16 @@ public interface RoleLocalService
 	 * @param start the lower bound of the range of the roles to return
 	 * @param end the upper bound of the range of the roles to return (not
 	 inclusive)
-	 * @param obc the comparator to order the roles (optionally
+	 * @param orderByComparator the comparator to order the roles (optionally
 	 <code>null</code>)
 	 * @return the ordered range of the matching roles, ordered by
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 * @see com.liferay.portal.kernel.service.persistence.RoleFinder
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Role> search(
 		long companyId, String name, String description, Integer[] types,
-		int start, int end, OrderByComparator<Role> obc);
+		int start, int end, OrderByComparator<Role> orderByComparator);
 
 	/**
 	 * Returns an ordered range of all the roles that match the name,
@@ -929,17 +956,17 @@ public interface RoleLocalService
 	 * @param start the lower bound of the range of the roles to return
 	 * @param end the upper bound of the range of the roles to return (not
 	 inclusive)
-	 * @param obc the comparator to order the roles (optionally
+	 * @param orderByComparator the comparator to order the roles (optionally
 	 <code>null</code>)
 	 * @return the ordered range of the matching roles, ordered by
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 * @see com.liferay.portal.kernel.service.persistence.RoleFinder
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Role> search(
 		long companyId, String name, String description, Integer[] types,
 		LinkedHashMap<String, Object> params, int start, int end,
-		OrderByComparator<Role> obc);
+		OrderByComparator<Role> orderByComparator);
 
 	/**
 	 * Returns the number of roles that match the keywords and types.
@@ -1042,6 +1069,10 @@ public interface RoleLocalService
 	/**
 	 * Updates the role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RoleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param role the role
 	 * @return the role that was updated
 	 */
@@ -1049,5 +1080,19 @@ public interface RoleLocalService
 	public Role updateRole(Role role);
 
 	public void validateName(String name) throws PortalException;
+
+	@Override
+	@Transactional(enabled = false)
+	public CTPersistence<Role> getCTPersistence();
+
+	@Override
+	@Transactional(enabled = false)
+	public Class<Role> getModelClass();
+
+	@Override
+	@Transactional(rollbackFor = Throwable.class)
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<Role>, R, E> updateUnsafeFunction)
+		throws E;
 
 }

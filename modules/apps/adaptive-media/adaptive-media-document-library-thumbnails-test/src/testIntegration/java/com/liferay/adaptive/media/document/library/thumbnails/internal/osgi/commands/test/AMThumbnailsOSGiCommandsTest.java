@@ -63,13 +63,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
@@ -200,6 +200,7 @@ public class AMThumbnailsOSGiCommandsTest {
 		Assert.assertEquals(count + 2, _getThumbnailCount());
 	}
 
+	@Ignore
 	@Test
 	public void testMigrateOnlyProcessesImages() throws Exception {
 		try (PropsValuesReplacer propsValuesReplacer1 = new PropsValuesReplacer(
@@ -241,11 +242,10 @@ public class AMThumbnailsOSGiCommandsTest {
 		Object service = registry.getService(
 			registry.getServiceReference(_CLASS_NAME_PROCESSOR));
 
-		Bundle bundle = FrameworkUtil.getBundle(service.getClass());
-
 		ComponentDescriptionDTO componentDescriptionDTO =
 			serviceComponentRuntime.getComponentDescriptionDTO(
-				bundle, _CLASS_NAME_PROCESSOR);
+				FrameworkUtil.getBundle(service.getClass()),
+				_CLASS_NAME_PROCESSOR);
 
 		if (componentDescriptionDTO == null) {
 			return;
@@ -257,7 +257,7 @@ public class AMThumbnailsOSGiCommandsTest {
 		promise.getValue();
 	}
 
-	private static void _disableDocumentLibraryAM() throws BundleException {
+	private static void _disableDocumentLibraryAM() throws Exception {
 		Bundle bundle = FrameworkUtil.getBundle(
 			AMThumbnailsOSGiCommandsTest.class);
 
@@ -283,11 +283,10 @@ public class AMThumbnailsOSGiCommandsTest {
 		Object service = registry.getService(
 			registry.getServiceReference(_CLASS_NAME_OSGI_COMMAND));
 
-		Bundle bundle = FrameworkUtil.getBundle(service.getClass());
-
 		ComponentDescriptionDTO componentDescriptionDTO =
 			serviceComponentRuntime.getComponentDescriptionDTO(
-				bundle, _CLASS_NAME_PROCESSOR);
+				FrameworkUtil.getBundle(service.getClass()),
+				_CLASS_NAME_PROCESSOR);
 
 		if (componentDescriptionDTO == null) {
 			return;
@@ -299,7 +298,7 @@ public class AMThumbnailsOSGiCommandsTest {
 		promise.getValue();
 	}
 
-	private static void _enableDocumentLibraryAM() throws BundleException {
+	private static void _enableDocumentLibraryAM() throws Exception {
 		Bundle bundle = FrameworkUtil.getBundle(
 			AMThumbnailsOSGiCommandsTest.class);
 

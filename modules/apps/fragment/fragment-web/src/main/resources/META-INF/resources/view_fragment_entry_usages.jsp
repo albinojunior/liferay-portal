@@ -25,11 +25,17 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(fragmentEntryLinkDisplayContext.getRedirect());
 
 renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x", fragmentEntry.getName()));
+
+FragmentEntryUsageManagementToolbarDisplayContext fragmentEntryUsageManagementToolbarDisplayContext = new FragmentEntryUsageManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, fragmentEntryLinkDisplayContext.getSearchContainer());
 %>
 
-<div class="container-fluid container-fluid-max-xl container-form-lg">
-	<div class="row">
-		<div class="col-lg-3">
+<clay:container-fluid
+	cssClass="container-form-lg"
+>
+	<clay:row>
+		<clay:col
+			lg="3"
+		>
 			<nav class="menubar menubar-transparent menubar-vertical-expand-lg">
 				<ul class="nav nav-nested">
 					<li class="nav-item">
@@ -65,6 +71,18 @@ renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x",
 							<li class="nav-item">
 
 								<%
+								PortletURL masterPagessNavigationURL = fragmentEntryLinkDisplayContext.getPortletURL();
+
+								masterPagessNavigationURL.setParameter("navigation", "master-pages");
+								%>
+
+								<a class="nav-link <%= Objects.equals(fragmentEntryLinkDisplayContext.getNavigation(), "master-pages") ? "active" : StringPool.BLANK %>" href="<%= masterPagessNavigationURL.toString() %>">
+									<liferay-ui:message arguments="<%= fragmentEntryLinkDisplayContext.getMasterPagesUsageCount() %>" key="master-pages-x" />
+								</a>
+							</li>
+							<li class="nav-item">
+
+								<%
 								PortletURL pageTemplatesNavigationURL = fragmentEntryLinkDisplayContext.getPortletURL();
 
 								pageTemplatesNavigationURL.setParameter("navigation", "page-templates");
@@ -90,16 +108,25 @@ renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x",
 					</li>
 				</ul>
 			</nav>
-		</div>
+		</clay:col>
 
-		<div class="col-lg-9">
-			<div class="sheet">
+		<clay:col
+			lg="9"
+		>
+			<clay:sheet
+				size="full"
+			>
 				<h2 class="sheet-title">
-					<div class="autofit-row autofit-row-center">
-						<div class="autofit-col">
+					<clay:content-row
+						verticalAlign="center"
+					>
+						<clay:content-col>
 							<c:choose>
 								<c:when test='<%= Objects.equals(fragmentEntryLinkDisplayContext.getNavigation(), "pages") %>'>
 									<liferay-ui:message arguments="<%= fragmentEntryLinkDisplayContext.getPagesUsageCount() %>" key="pages-x" />
+								</c:when>
+								<c:when test='<%= Objects.equals(fragmentEntryLinkDisplayContext.getNavigation(), "master-pages") %>'>
+									<liferay-ui:message arguments="<%= fragmentEntryLinkDisplayContext.getMasterPagesUsageCount() %>" key="master-pages-x" />
 								</c:when>
 								<c:when test='<%= Objects.equals(fragmentEntryLinkDisplayContext.getNavigation(), "page-templates") %>'>
 									<liferay-ui:message arguments="<%= fragmentEntryLinkDisplayContext.getPageTemplatesUsageCount() %>" key="page-templates-x" />
@@ -111,13 +138,9 @@ renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x",
 									<liferay-ui:message arguments="<%= fragmentEntryLinkDisplayContext.getAllUsageCount() %>" key="all-x" />
 								</c:otherwise>
 							</c:choose>
-						</div>
-					</div>
+						</clay:content-col>
+					</clay:content-row>
 				</h2>
-
-				<%
-				FragmentEntryUsageManagementToolbarDisplayContext fragmentEntryUsageManagementToolbarDisplayContext = new FragmentEntryUsageManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, fragmentEntryLinkDisplayContext.getSearchContainer());
-				%>
 
 				<clay:management-toolbar
 					displayContext="<%= fragmentEntryUsageManagementToolbarDisplayContext %>"
@@ -168,10 +191,10 @@ renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x",
 						/>
 					</liferay-ui:search-container>
 				</aui:form>
-			</div>
-		</div>
-	</div>
-</div>
+			</clay:sheet>
+		</clay:col>
+	</clay:row>
+</clay:container-fluid>
 
 <liferay-frontend:component
 	componentId="<%= fragmentEntryUsageManagementToolbarDisplayContext.getDefaultEventHandler() %>"

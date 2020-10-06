@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalServiceUtil;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.TaxonomyVocabulary;
 import com.liferay.headless.admin.taxonomy.client.http.HttpInvoker;
 import com.liferay.headless.admin.taxonomy.client.pagination.Page;
@@ -29,6 +31,7 @@ import com.liferay.headless.admin.taxonomy.client.pagination.Pagination;
 import com.liferay.headless.admin.taxonomy.client.resource.v1_0.TaxonomyVocabularyResource;
 import com.liferay.headless.admin.taxonomy.client.serdes.v1_0.TaxonomyVocabularySerDes;
 import com.liferay.petra.function.UnsafeTriConsumer;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONDeserializer;
@@ -40,20 +43,24 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -113,12 +120,25 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		testCompany = CompanyLocalServiceUtil.getCompany(
 			testGroup.getCompanyId());
 
+		testDepotEntry = DepotEntryLocalServiceUtil.addDepotEntry(
+			Collections.singletonMap(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
+			null,
+			new ServiceContext() {
+				{
+					setCompanyId(testGroup.getCompanyId());
+					setUserId(TestPropsValues.getUserId());
+				}
+			});
+
 		_taxonomyVocabularyResource.setContextCompany(testCompany);
 
 		TaxonomyVocabularyResource.Builder builder =
 			TaxonomyVocabularyResource.builder();
 
-		taxonomyVocabularyResource = builder.locale(
+		taxonomyVocabularyResource = builder.authentication(
+			"test@liferay.com", "test"
+		).locale(
 			LocaleUtil.getDefault()
 		).build();
 	}
@@ -189,6 +209,7 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 		TaxonomyVocabulary taxonomyVocabulary = randomTaxonomyVocabulary();
 
+		taxonomyVocabulary.setAssetLibraryKey(regex);
 		taxonomyVocabulary.setDescription(regex);
 		taxonomyVocabulary.setName(regex);
 
@@ -198,8 +219,373 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 		taxonomyVocabulary = TaxonomyVocabularySerDes.toDTO(json);
 
+		Assert.assertEquals(regex, taxonomyVocabulary.getAssetLibraryKey());
 		Assert.assertEquals(regex, taxonomyVocabulary.getDescription());
 		Assert.assertEquals(regex, taxonomyVocabulary.getName());
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPage() throws Exception {
+		Page<TaxonomyVocabulary> page =
+			taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+				testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId(),
+				RandomTestUtil.randomString(), null, Pagination.of(1, 2), null);
+
+		Assert.assertEquals(0, page.getTotalCount());
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+		Long irrelevantAssetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getIrrelevantAssetLibraryId();
+
+		if ((irrelevantAssetLibraryId != null)) {
+			TaxonomyVocabulary irrelevantTaxonomyVocabulary =
+				testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+					irrelevantAssetLibraryId,
+					randomIrrelevantTaxonomyVocabulary());
+
+			page =
+				taxonomyVocabularyResource.
+					getAssetLibraryTaxonomyVocabulariesPage(
+						irrelevantAssetLibraryId, null, null,
+						Pagination.of(1, 2), null);
+
+			Assert.assertEquals(1, page.getTotalCount());
+
+			assertEquals(
+				Arrays.asList(irrelevantTaxonomyVocabulary),
+				(List<TaxonomyVocabulary>)page.getItems());
+			assertValid(page);
+		}
+
+		TaxonomyVocabulary taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		TaxonomyVocabulary taxonomyVocabulary2 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		page =
+			taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+				assetLibraryId, null, null, Pagination.of(1, 2), null);
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(taxonomyVocabulary1, taxonomyVocabulary2),
+			(List<TaxonomyVocabulary>)page.getItems());
+		assertValid(page);
+
+		taxonomyVocabularyResource.deleteTaxonomyVocabulary(
+			taxonomyVocabulary1.getId());
+
+		taxonomyVocabularyResource.deleteTaxonomyVocabulary(
+			taxonomyVocabulary2.getId());
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithFilterDateTimeEquals()
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(
+			EntityField.Type.DATE_TIME);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+
+		TaxonomyVocabulary taxonomyVocabulary1 = randomTaxonomyVocabulary();
+
+		taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, taxonomyVocabulary1);
+
+		for (EntityField entityField : entityFields) {
+			Page<TaxonomyVocabulary> page =
+				taxonomyVocabularyResource.
+					getAssetLibraryTaxonomyVocabulariesPage(
+						assetLibraryId, null,
+						getFilterString(
+							entityField, "between", taxonomyVocabulary1),
+						Pagination.of(1, 2), null);
+
+			assertEquals(
+				Collections.singletonList(taxonomyVocabulary1),
+				(List<TaxonomyVocabulary>)page.getItems());
+		}
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithFilterStringEquals()
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(
+			EntityField.Type.STRING);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+
+		TaxonomyVocabulary taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		TaxonomyVocabulary taxonomyVocabulary2 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		for (EntityField entityField : entityFields) {
+			Page<TaxonomyVocabulary> page =
+				taxonomyVocabularyResource.
+					getAssetLibraryTaxonomyVocabulariesPage(
+						assetLibraryId, null,
+						getFilterString(entityField, "eq", taxonomyVocabulary1),
+						Pagination.of(1, 2), null);
+
+			assertEquals(
+				Collections.singletonList(taxonomyVocabulary1),
+				(List<TaxonomyVocabulary>)page.getItems());
+		}
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithPagination()
+		throws Exception {
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+
+		TaxonomyVocabulary taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		TaxonomyVocabulary taxonomyVocabulary2 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		TaxonomyVocabulary taxonomyVocabulary3 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, randomTaxonomyVocabulary());
+
+		Page<TaxonomyVocabulary> page1 =
+			taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+				assetLibraryId, null, null, Pagination.of(1, 2), null);
+
+		List<TaxonomyVocabulary> taxonomyVocabularies1 =
+			(List<TaxonomyVocabulary>)page1.getItems();
+
+		Assert.assertEquals(
+			taxonomyVocabularies1.toString(), 2, taxonomyVocabularies1.size());
+
+		Page<TaxonomyVocabulary> page2 =
+			taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+				assetLibraryId, null, null, Pagination.of(2, 2), null);
+
+		Assert.assertEquals(3, page2.getTotalCount());
+
+		List<TaxonomyVocabulary> taxonomyVocabularies2 =
+			(List<TaxonomyVocabulary>)page2.getItems();
+
+		Assert.assertEquals(
+			taxonomyVocabularies2.toString(), 1, taxonomyVocabularies2.size());
+
+		Page<TaxonomyVocabulary> page3 =
+			taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+				assetLibraryId, null, null, Pagination.of(1, 3), null);
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(
+				taxonomyVocabulary1, taxonomyVocabulary2, taxonomyVocabulary3),
+			(List<TaxonomyVocabulary>)page3.getItems());
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithSortDateTime()
+		throws Exception {
+
+		testGetAssetLibraryTaxonomyVocabulariesPageWithSort(
+			EntityField.Type.DATE_TIME,
+			(entityField, taxonomyVocabulary1, taxonomyVocabulary2) -> {
+				BeanUtils.setProperty(
+					taxonomyVocabulary1, entityField.getName(),
+					DateUtils.addMinutes(new Date(), -2));
+			});
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithSortInteger()
+		throws Exception {
+
+		testGetAssetLibraryTaxonomyVocabulariesPageWithSort(
+			EntityField.Type.INTEGER,
+			(entityField, taxonomyVocabulary1, taxonomyVocabulary2) -> {
+				BeanUtils.setProperty(
+					taxonomyVocabulary1, entityField.getName(), 0);
+				BeanUtils.setProperty(
+					taxonomyVocabulary2, entityField.getName(), 1);
+			});
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithSortString()
+		throws Exception {
+
+		testGetAssetLibraryTaxonomyVocabulariesPageWithSort(
+			EntityField.Type.STRING,
+			(entityField, taxonomyVocabulary1, taxonomyVocabulary2) -> {
+				Class<?> clazz = taxonomyVocabulary1.getClass();
+
+				String entityFieldName = entityField.getName();
+
+				Method method = clazz.getMethod(
+					"get" + StringUtil.upperCaseFirstLetter(entityFieldName));
+
+				Class<?> returnType = method.getReturnType();
+
+				if (returnType.isAssignableFrom(Map.class)) {
+					BeanUtils.setProperty(
+						taxonomyVocabulary1, entityFieldName,
+						Collections.singletonMap("Aaa", "Aaa"));
+					BeanUtils.setProperty(
+						taxonomyVocabulary2, entityFieldName,
+						Collections.singletonMap("Bbb", "Bbb"));
+				}
+				else if (entityFieldName.contains("email")) {
+					BeanUtils.setProperty(
+						taxonomyVocabulary1, entityFieldName,
+						"aaa" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()) +
+									"@liferay.com");
+					BeanUtils.setProperty(
+						taxonomyVocabulary2, entityFieldName,
+						"bbb" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()) +
+									"@liferay.com");
+				}
+				else {
+					BeanUtils.setProperty(
+						taxonomyVocabulary1, entityFieldName,
+						"aaa" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()));
+					BeanUtils.setProperty(
+						taxonomyVocabulary2, entityFieldName,
+						"bbb" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()));
+				}
+			});
+	}
+
+	protected void testGetAssetLibraryTaxonomyVocabulariesPageWithSort(
+			EntityField.Type type,
+			UnsafeTriConsumer
+				<EntityField, TaxonomyVocabulary, TaxonomyVocabulary, Exception>
+					unsafeTriConsumer)
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(type);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+
+		TaxonomyVocabulary taxonomyVocabulary1 = randomTaxonomyVocabulary();
+		TaxonomyVocabulary taxonomyVocabulary2 = randomTaxonomyVocabulary();
+
+		for (EntityField entityField : entityFields) {
+			unsafeTriConsumer.accept(
+				entityField, taxonomyVocabulary1, taxonomyVocabulary2);
+		}
+
+		taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, taxonomyVocabulary1);
+
+		taxonomyVocabulary2 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, taxonomyVocabulary2);
+
+		for (EntityField entityField : entityFields) {
+			Page<TaxonomyVocabulary> ascPage =
+				taxonomyVocabularyResource.
+					getAssetLibraryTaxonomyVocabulariesPage(
+						assetLibraryId, null, null, Pagination.of(1, 2),
+						entityField.getName() + ":asc");
+
+			assertEquals(
+				Arrays.asList(taxonomyVocabulary1, taxonomyVocabulary2),
+				(List<TaxonomyVocabulary>)ascPage.getItems());
+
+			Page<TaxonomyVocabulary> descPage =
+				taxonomyVocabularyResource.
+					getAssetLibraryTaxonomyVocabulariesPage(
+						assetLibraryId, null, null, Pagination.of(1, 2),
+						entityField.getName() + ":desc");
+
+			assertEquals(
+				Arrays.asList(taxonomyVocabulary2, taxonomyVocabulary1),
+				(List<TaxonomyVocabulary>)descPage.getItems());
+		}
+	}
+
+	protected TaxonomyVocabulary
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				Long assetLibraryId, TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		return taxonomyVocabularyResource.postAssetLibraryTaxonomyVocabulary(
+			assetLibraryId, taxonomyVocabulary);
+	}
+
+	protected Long
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId()
+		throws Exception {
+
+		return testDepotEntry.getDepotEntryId();
+	}
+
+	protected Long
+			testGetAssetLibraryTaxonomyVocabulariesPage_getIrrelevantAssetLibraryId()
+		throws Exception {
+
+		return null;
+	}
+
+	@Test
+	public void testPostAssetLibraryTaxonomyVocabulary() throws Exception {
+		TaxonomyVocabulary randomTaxonomyVocabulary =
+			randomTaxonomyVocabulary();
+
+		TaxonomyVocabulary postTaxonomyVocabulary =
+			testPostAssetLibraryTaxonomyVocabulary_addTaxonomyVocabulary(
+				randomTaxonomyVocabulary);
+
+		assertEquals(randomTaxonomyVocabulary, postTaxonomyVocabulary);
+		assertValid(postTaxonomyVocabulary);
+	}
+
+	protected TaxonomyVocabulary
+			testPostAssetLibraryTaxonomyVocabulary_addTaxonomyVocabulary(
+				TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		return taxonomyVocabularyResource.postAssetLibraryTaxonomyVocabulary(
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId(),
+			taxonomyVocabulary);
 	}
 
 	@Test
@@ -410,27 +796,46 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			(entityField, taxonomyVocabulary1, taxonomyVocabulary2) -> {
 				Class<?> clazz = taxonomyVocabulary1.getClass();
 
+				String entityFieldName = entityField.getName();
+
 				Method method = clazz.getMethod(
-					"get" +
-						StringUtil.upperCaseFirstLetter(entityField.getName()));
+					"get" + StringUtil.upperCaseFirstLetter(entityFieldName));
 
 				Class<?> returnType = method.getReturnType();
 
 				if (returnType.isAssignableFrom(Map.class)) {
 					BeanUtils.setProperty(
-						taxonomyVocabulary1, entityField.getName(),
+						taxonomyVocabulary1, entityFieldName,
 						Collections.singletonMap("Aaa", "Aaa"));
 					BeanUtils.setProperty(
-						taxonomyVocabulary2, entityField.getName(),
+						taxonomyVocabulary2, entityFieldName,
 						Collections.singletonMap("Bbb", "Bbb"));
+				}
+				else if (entityFieldName.contains("email")) {
+					BeanUtils.setProperty(
+						taxonomyVocabulary1, entityFieldName,
+						"aaa" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()) +
+									"@liferay.com");
+					BeanUtils.setProperty(
+						taxonomyVocabulary2, entityFieldName,
+						"bbb" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()) +
+									"@liferay.com");
 				}
 				else {
 					BeanUtils.setProperty(
-						taxonomyVocabulary1, entityField.getName(),
-						"Aaa" + RandomTestUtil.randomString());
+						taxonomyVocabulary1, entityFieldName,
+						"aaa" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()));
 					BeanUtils.setProperty(
-						taxonomyVocabulary2, entityField.getName(),
-						"Bbb" + RandomTestUtil.randomString());
+						taxonomyVocabulary2, entityFieldName,
+						"bbb" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()));
 				}
 			});
 	}
@@ -510,37 +915,25 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 	@Test
 	public void testGraphQLGetSiteTaxonomyVocabulariesPage() throws Exception {
-		List<GraphQLField> graphQLFields = new ArrayList<>();
-
-		List<GraphQLField> itemsGraphQLFields = getGraphQLFields();
-
-		graphQLFields.add(
-			new GraphQLField(
-				"items", itemsGraphQLFields.toArray(new GraphQLField[0])));
-
-		graphQLFields.add(new GraphQLField("page"));
-		graphQLFields.add(new GraphQLField("totalCount"));
+		Long siteId = testGetSiteTaxonomyVocabulariesPage_getSiteId();
 
 		GraphQLField graphQLField = new GraphQLField(
-			"query",
-			new GraphQLField(
-				"taxonomyVocabularies",
-				new HashMap<String, Object>() {
-					{
-						put("page", 1);
-						put("pageSize", 2);
-						put("siteKey", "\"" + testGroup.getGroupId() + "\"");
-					}
-				},
-				graphQLFields.toArray(new GraphQLField[0])));
+			"taxonomyVocabularies",
+			new HashMap<String, Object>() {
+				{
+					put("page", 1);
+					put("pageSize", 2);
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			invoke(graphQLField.toString()));
-
-		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+					put("siteKey", "\"" + siteId + "\"");
+				}
+			},
+			new GraphQLField("items", getGraphQLFields()),
+			new GraphQLField("page"), new GraphQLField("totalCount"));
 
 		JSONObject taxonomyVocabulariesJSONObject =
-			dataJSONObject.getJSONObject("taxonomyVocabularies");
+			JSONUtil.getValueAsJSONObject(
+				invokeGraphQLQuery(graphQLField), "JSONObject/data",
+				"JSONObject/taxonomyVocabularies");
 
 		Assert.assertEquals(
 			0, taxonomyVocabulariesJSONObject.get("totalCount"));
@@ -550,20 +943,18 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		TaxonomyVocabulary taxonomyVocabulary2 =
 			testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary();
 
-		jsonObject = JSONFactoryUtil.createJSONObject(
-			invoke(graphQLField.toString()));
-
-		dataJSONObject = jsonObject.getJSONObject("data");
-
-		taxonomyVocabulariesJSONObject = dataJSONObject.getJSONObject(
-			"taxonomyVocabularies");
+		taxonomyVocabulariesJSONObject = JSONUtil.getValueAsJSONObject(
+			invokeGraphQLQuery(graphQLField), "JSONObject/data",
+			"JSONObject/taxonomyVocabularies");
 
 		Assert.assertEquals(
 			2, taxonomyVocabulariesJSONObject.get("totalCount"));
 
-		assertEqualsJSONArray(
+		assertEqualsIgnoringOrder(
 			Arrays.asList(taxonomyVocabulary1, taxonomyVocabulary2),
-			taxonomyVocabulariesJSONObject.getJSONArray("items"));
+			Arrays.asList(
+				TaxonomyVocabularySerDes.toDTOs(
+					taxonomyVocabulariesJSONObject.getString("items"))));
 	}
 
 	@Test
@@ -598,15 +989,12 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary(
 				randomTaxonomyVocabulary);
 
-		Assert.assertTrue(
-			equalsJSONObject(
-				randomTaxonomyVocabulary,
-				JSONFactoryUtil.createJSONObject(
-					JSONFactoryUtil.serialize(taxonomyVocabulary))));
+		Assert.assertTrue(equals(randomTaxonomyVocabulary, taxonomyVocabulary));
 	}
 
 	@Test
 	public void testDeleteTaxonomyVocabulary() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
 		TaxonomyVocabulary taxonomyVocabulary =
 			testDeleteTaxonomyVocabulary_addTaxonomyVocabulary();
 
@@ -638,46 +1026,38 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		TaxonomyVocabulary taxonomyVocabulary =
 			testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary();
 
-		GraphQLField graphQLField = new GraphQLField(
-			"mutation",
-			new GraphQLField(
-				"deleteTaxonomyVocabulary",
-				new HashMap<String, Object>() {
-					{
-						put("taxonomyVocabularyId", taxonomyVocabulary.getId());
-					}
-				}));
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			invoke(graphQLField.toString()));
-
-		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
-
 		Assert.assertTrue(
-			dataJSONObject.getBoolean("deleteTaxonomyVocabulary"));
+			JSONUtil.getValueAsBoolean(
+				invokeGraphQLMutation(
+					new GraphQLField(
+						"deleteTaxonomyVocabulary",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"taxonomyVocabularyId",
+									taxonomyVocabulary.getId());
+							}
+						})),
+				"JSONObject/data", "Object/deleteTaxonomyVocabulary"));
 
 		try (CaptureAppender captureAppender =
 				Log4JLoggerTestUtil.configureLog4JLogger(
 					"graphql.execution.SimpleDataFetcherExceptionHandler",
 					Level.WARN)) {
 
-			graphQLField = new GraphQLField(
-				"query",
-				new GraphQLField(
-					"taxonomyVocabulary",
-					new HashMap<String, Object>() {
-						{
-							put(
-								"taxonomyVocabularyId",
-								taxonomyVocabulary.getId());
-						}
-					},
-					new GraphQLField("id")));
-
-			jsonObject = JSONFactoryUtil.createJSONObject(
-				invoke(graphQLField.toString()));
-
-			JSONArray errorsJSONArray = jsonObject.getJSONArray("errors");
+			JSONArray errorsJSONArray = JSONUtil.getValueAsJSONArray(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"taxonomyVocabulary",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"taxonomyVocabularyId",
+									taxonomyVocabulary.getId());
+							}
+						},
+						new GraphQLField("id"))),
+				"JSONArray/errors");
 
 			Assert.assertTrue(errorsJSONArray.length() > 0);
 		}
@@ -709,28 +1089,45 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		TaxonomyVocabulary taxonomyVocabulary =
 			testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary();
 
-		List<GraphQLField> graphQLFields = getGraphQLFields();
-
-		GraphQLField graphQLField = new GraphQLField(
-			"query",
-			new GraphQLField(
-				"taxonomyVocabulary",
-				new HashMap<String, Object>() {
-					{
-						put("taxonomyVocabularyId", taxonomyVocabulary.getId());
-					}
-				},
-				graphQLFields.toArray(new GraphQLField[0])));
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			invoke(graphQLField.toString()));
-
-		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
-
 		Assert.assertTrue(
-			equalsJSONObject(
+			equals(
 				taxonomyVocabulary,
-				dataJSONObject.getJSONObject("taxonomyVocabulary")));
+				TaxonomyVocabularySerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"taxonomyVocabulary",
+								new HashMap<String, Object>() {
+									{
+										put(
+											"taxonomyVocabularyId",
+											taxonomyVocabulary.getId());
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data", "Object/taxonomyVocabulary"))));
+	}
+
+	@Test
+	public void testGraphQLGetTaxonomyVocabularyNotFound() throws Exception {
+		Long irrelevantTaxonomyVocabularyId = RandomTestUtil.randomLong();
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"taxonomyVocabulary",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"taxonomyVocabularyId",
+									irrelevantTaxonomyVocabularyId);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
 	}
 
 	@Test
@@ -798,6 +1195,55 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			testGroup.getGroupId(), randomTaxonomyVocabulary());
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
+	protected void appendGraphQLFieldValue(StringBuilder sb, Object value)
+		throws Exception {
+
+		if (value instanceof Object[]) {
+			StringBuilder arraySB = new StringBuilder("[");
+
+			for (Object object : (Object[])value) {
+				if (arraySB.length() > 1) {
+					arraySB.append(",");
+				}
+
+				arraySB.append("{");
+
+				Class<?> clazz = object.getClass();
+
+				for (Field field :
+						ReflectionUtil.getDeclaredFields(
+							clazz.getSuperclass())) {
+
+					arraySB.append(field.getName());
+					arraySB.append(": ");
+
+					appendGraphQLFieldValue(arraySB, field.get(object));
+
+					arraySB.append(",");
+				}
+
+				arraySB.setLength(arraySB.length() - 1);
+
+				arraySB.append("}");
+			}
+
+			arraySB.append("]");
+
+			sb.append(arraySB.toString());
+		}
+		else if (value instanceof String) {
+			sb.append("\"");
+			sb.append(value);
+			sb.append("\"");
+		}
+		else {
+			sb.append(value);
+		}
+	}
+
 	protected TaxonomyVocabulary
 			testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary()
 		throws Exception {
@@ -811,103 +1257,28 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				TaxonomyVocabulary taxonomyVocabulary)
 		throws Exception {
 
+		JSONDeserializer<TaxonomyVocabulary> jsonDeserializer =
+			JSONFactoryUtil.createJSONDeserializer();
+
 		StringBuilder sb = new StringBuilder("{");
 
-		for (String additionalAssertFieldName :
-				getAdditionalAssertFieldNames()) {
+		for (Field field :
+				ReflectionUtil.getDeclaredFields(TaxonomyVocabulary.class)) {
 
-			if (Objects.equals("description", additionalAssertFieldName)) {
-				sb.append(additionalAssertFieldName);
-				sb.append(": ");
+			if (!ArrayUtil.contains(
+					getAdditionalAssertFieldNames(), field.getName())) {
 
-				Object value = taxonomyVocabulary.getDescription();
+				continue;
+			}
 
-				if (value instanceof String) {
-					sb.append("\"");
-					sb.append(value);
-					sb.append("\"");
-				}
-				else {
-					sb.append(value);
-				}
-
+			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			if (Objects.equals("id", additionalAssertFieldName)) {
-				sb.append(additionalAssertFieldName);
-				sb.append(": ");
+			sb.append(field.getName());
+			sb.append(": ");
 
-				Object value = taxonomyVocabulary.getId();
-
-				if (value instanceof String) {
-					sb.append("\"");
-					sb.append(value);
-					sb.append("\"");
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append(", ");
-			}
-
-			if (Objects.equals("name", additionalAssertFieldName)) {
-				sb.append(additionalAssertFieldName);
-				sb.append(": ");
-
-				Object value = taxonomyVocabulary.getName();
-
-				if (value instanceof String) {
-					sb.append("\"");
-					sb.append(value);
-					sb.append("\"");
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append(", ");
-			}
-
-			if (Objects.equals(
-					"numberOfTaxonomyCategories", additionalAssertFieldName)) {
-
-				sb.append(additionalAssertFieldName);
-				sb.append(": ");
-
-				Object value =
-					taxonomyVocabulary.getNumberOfTaxonomyCategories();
-
-				if (value instanceof String) {
-					sb.append("\"");
-					sb.append(value);
-					sb.append("\"");
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append(", ");
-			}
-
-			if (Objects.equals("siteId", additionalAssertFieldName)) {
-				sb.append(additionalAssertFieldName);
-				sb.append(": ");
-
-				Object value = taxonomyVocabulary.getSiteId();
-
-				if (value instanceof String) {
-					sb.append("\"");
-					sb.append(value);
-					sb.append("\"");
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append(", ");
-			}
+			appendGraphQLFieldValue(sb, field.get(taxonomyVocabulary));
 		}
 
 		sb.append("}");
@@ -916,30 +1287,21 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 		graphQLFields.add(new GraphQLField("id"));
 
-		GraphQLField graphQLField = new GraphQLField(
-			"mutation",
-			new GraphQLField(
-				"createSiteTaxonomyVocabulary",
-				new HashMap<String, Object>() {
-					{
-						put("siteKey", "\"" + testGroup.getGroupId() + "\"");
-						put("taxonomyVocabulary", sb.toString());
-					}
-				},
-				graphQLFields.toArray(new GraphQLField[0])));
-
-		JSONDeserializer<TaxonomyVocabulary> jsonDeserializer =
-			JSONFactoryUtil.createJSONDeserializer();
-
-		String object = invoke(graphQLField.toString());
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(object);
-
-		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
-
 		return jsonDeserializer.deserialize(
-			String.valueOf(
-				dataJSONObject.getJSONObject("createSiteTaxonomyVocabulary")),
+			JSONUtil.getValueAsString(
+				invokeGraphQLMutation(
+					new GraphQLField(
+						"createSiteTaxonomyVocabulary",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"siteKey",
+									"\"" + testGroup.getGroupId() + "\"");
+								put("taxonomyVocabulary", sb.toString());
+							}
+						},
+						graphQLFields)),
+				"JSONObject/data", "JSONObject/createSiteTaxonomyVocabulary"),
 			TaxonomyVocabulary.class);
 	}
 
@@ -1004,27 +1366,9 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		}
 	}
 
-	protected void assertEqualsJSONArray(
-		List<TaxonomyVocabulary> taxonomyVocabularies, JSONArray jsonArray) {
+	protected void assertValid(TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
 
-		for (TaxonomyVocabulary taxonomyVocabulary : taxonomyVocabularies) {
-			boolean contains = false;
-
-			for (Object object : jsonArray) {
-				if (equalsJSONObject(taxonomyVocabulary, (JSONObject)object)) {
-					contains = true;
-
-					break;
-				}
-			}
-
-			Assert.assertTrue(
-				jsonArray + " does not contain " + taxonomyVocabulary,
-				contains);
-		}
-	}
-
-	protected void assertValid(TaxonomyVocabulary taxonomyVocabulary) {
 		boolean valid = true;
 
 		if (taxonomyVocabulary.getDateCreated() == null) {
@@ -1039,7 +1383,11 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			valid = false;
 		}
 
+		Group group = testDepotEntry.getGroup();
+
 		if (!Objects.equals(
+				taxonomyVocabulary.getAssetLibraryKey(), group.getGroupKey()) &&
+			!Objects.equals(
 				taxonomyVocabulary.getSiteId(), testGroup.getGroupId())) {
 
 			valid = false;
@@ -1050,6 +1398,14 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 			if (Objects.equals("actions", additionalAssertFieldName)) {
 				if (taxonomyVocabulary.getActions() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("assetLibraryKey", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getAssetLibraryKey() == null) {
 					valid = false;
 				}
 
@@ -1164,13 +1520,52 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		return new String[0];
 	}
 
-	protected List<GraphQLField> getGraphQLFields() {
+	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (String additionalAssertFieldName :
-				getAdditionalAssertFieldNames()) {
+		graphQLFields.add(new GraphQLField("siteId"));
 
-			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+		for (Field field :
+				ReflectionUtil.getDeclaredFields(
+					com.liferay.headless.admin.taxonomy.dto.v1_0.
+						TaxonomyVocabulary.class)) {
+
+			if (!ArrayUtil.contains(
+					getAdditionalAssertFieldNames(), field.getName())) {
+
+				continue;
+			}
+
+			graphQLFields.addAll(getGraphQLFields(field));
+		}
+
+		return graphQLFields;
+	}
+
+	protected List<GraphQLField> getGraphQLFields(Field... fields)
+		throws Exception {
+
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		for (Field field : fields) {
+			com.liferay.portal.vulcan.graphql.annotation.GraphQLField
+				vulcanGraphQLField = field.getAnnotation(
+					com.liferay.portal.vulcan.graphql.annotation.GraphQLField.
+						class);
+
+			if (vulcanGraphQLField != null) {
+				Class<?> clazz = field.getType();
+
+				if (clazz.isArray()) {
+					clazz = clazz.getComponentType();
+				}
+
+				List<GraphQLField> childrenGraphQLFields = getGraphQLFields(
+					ReflectionUtil.getDeclaredFields(clazz));
+
+				graphQLFields.add(
+					new GraphQLField(field.getName(), childrenGraphQLFields));
+			}
 		}
 
 		return graphQLFields;
@@ -1188,20 +1583,13 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			return true;
 		}
 
-		if (!Objects.equals(
-				taxonomyVocabulary1.getSiteId(),
-				taxonomyVocabulary2.getSiteId())) {
-
-			return false;
-		}
-
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
 			if (Objects.equals("actions", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary1.getActions(),
-						taxonomyVocabulary2.getActions())) {
+				if (!equals(
+						(Map)taxonomyVocabulary1.getActions(),
+						(Map)taxonomyVocabulary2.getActions())) {
 
 					return false;
 				}
@@ -1278,9 +1666,9 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			}
 
 			if (Objects.equals("description_i18n", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary1.getDescription_i18n(),
-						taxonomyVocabulary2.getDescription_i18n())) {
+				if (!equals(
+						(Map)taxonomyVocabulary1.getDescription_i18n(),
+						(Map)taxonomyVocabulary2.getDescription_i18n())) {
 
 					return false;
 				}
@@ -1311,9 +1699,9 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			}
 
 			if (Objects.equals("name_i18n", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary1.getName_i18n(),
-						taxonomyVocabulary2.getName_i18n())) {
+				if (!equals(
+						(Map)taxonomyVocabulary1.getName_i18n(),
+						(Map)taxonomyVocabulary2.getName_i18n())) {
 
 					return false;
 				}
@@ -1353,58 +1741,30 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		return true;
 	}
 
-	protected boolean equalsJSONObject(
-		TaxonomyVocabulary taxonomyVocabulary, JSONObject jsonObject) {
+	protected boolean equals(
+		Map<String, Object> map1, Map<String, Object> map2) {
 
-		for (String fieldName : getAdditionalAssertFieldNames()) {
-			if (Objects.equals("description", fieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary.getDescription(),
-						jsonObject.getString("description"))) {
+		if (Objects.equals(map1.keySet(), map2.keySet())) {
+			for (Map.Entry<String, Object> entry : map1.entrySet()) {
+				if (entry.getValue() instanceof Map) {
+					if (!equals(
+							(Map)entry.getValue(),
+							(Map)map2.get(entry.getKey()))) {
+
+						return false;
+					}
+				}
+				else if (!Objects.deepEquals(
+							entry.getValue(), map2.get(entry.getKey()))) {
 
 					return false;
 				}
-
-				continue;
 			}
 
-			if (Objects.equals("id", fieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary.getId(), jsonObject.getLong("id"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("name", fieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary.getName(),
-						jsonObject.getString("name"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("numberOfTaxonomyCategories", fieldName)) {
-				if (!Objects.deepEquals(
-						taxonomyVocabulary.getNumberOfTaxonomyCategories(),
-						jsonObject.getInt("numberOfTaxonomyCategories"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			throw new IllegalArgumentException(
-				"Invalid field name " + fieldName);
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	protected java.util.Collection<EntityField> getEntityFields()
@@ -1461,6 +1821,14 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		if (entityFieldName.equals("actions")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("assetLibraryKey")) {
+			sb.append("'");
+			sb.append(String.valueOf(taxonomyVocabulary.getAssetLibraryKey()));
+			sb.append("'");
+
+			return sb.toString();
 		}
 
 		if (entityFieldName.equals("assetTypes")) {
@@ -1613,14 +1981,37 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		return httpResponse.getContent();
 	}
 
+	protected JSONObject invokeGraphQLMutation(GraphQLField graphQLField)
+		throws Exception {
+
+		GraphQLField mutationGraphQLField = new GraphQLField(
+			"mutation", graphQLField);
+
+		return JSONFactoryUtil.createJSONObject(
+			invoke(mutationGraphQLField.toString()));
+	}
+
+	protected JSONObject invokeGraphQLQuery(GraphQLField graphQLField)
+		throws Exception {
+
+		GraphQLField queryGraphQLField = new GraphQLField(
+			"query", graphQLField);
+
+		return JSONFactoryUtil.createJSONObject(
+			invoke(queryGraphQLField.toString()));
+	}
+
 	protected TaxonomyVocabulary randomTaxonomyVocabulary() throws Exception {
 		return new TaxonomyVocabulary() {
 			{
+				assetLibraryKey = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
-				description = RandomTestUtil.randomString();
+				description = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
-				name = RandomTestUtil.randomString();
+				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				numberOfTaxonomyCategories = RandomTestUtil.randomInt();
 				siteId = testGroup.getGroupId();
 			}
@@ -1648,6 +2039,7 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 	protected TaxonomyVocabularyResource taxonomyVocabularyResource;
 	protected Group irrelevantGroup;
 	protected Company testCompany;
+	protected DepotEntry testDepotEntry;
 	protected Group testGroup;
 
 	protected class GraphQLField {
@@ -1656,9 +2048,22 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			this(key, new HashMap<>(), graphQLFields);
 		}
 
+		public GraphQLField(String key, List<GraphQLField> graphQLFields) {
+			this(key, new HashMap<>(), graphQLFields);
+		}
+
 		public GraphQLField(
 			String key, Map<String, Object> parameterMap,
 			GraphQLField... graphQLFields) {
+
+			_key = key;
+			_parameterMap = parameterMap;
+			_graphQLFields = Arrays.asList(graphQLFields);
+		}
+
+		public GraphQLField(
+			String key, Map<String, Object> parameterMap,
+			List<GraphQLField> graphQLFields) {
 
 			_key = key;
 			_parameterMap = parameterMap;
@@ -1686,7 +2091,7 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				sb.append(")");
 			}
 
-			if (_graphQLFields.length > 0) {
+			if (!_graphQLFields.isEmpty()) {
 				sb.append("{");
 
 				for (GraphQLField graphQLField : _graphQLFields) {
@@ -1702,7 +2107,7 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			return sb.toString();
 		}
 
-		private final GraphQLField[] _graphQLFields;
+		private final List<GraphQLField> _graphQLFields;
 		private final String _key;
 		private final Map<String, Object> _parameterMap;
 

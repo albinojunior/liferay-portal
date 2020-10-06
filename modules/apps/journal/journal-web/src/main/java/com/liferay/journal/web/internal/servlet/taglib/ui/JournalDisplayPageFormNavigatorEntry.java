@@ -60,7 +60,7 @@ public class JournalDisplayPageFormNavigatorEntry
 			group = themeDisplay.getScopeGroup();
 		}
 
-		if ((group != null) && group.isCompany()) {
+		if ((group != null) && (group.isCompany() || group.isDepot())) {
 			return false;
 		}
 
@@ -69,12 +69,12 @@ public class JournalDisplayPageFormNavigatorEntry
 
 	@Reference(target = "(view=private)", unbind = "-")
 	public void setPrivateLayoutsItemSelectorView(
-		ItemSelectorView itemSelectorView) {
+		ItemSelectorView<?> itemSelectorView) {
 	}
 
 	@Reference(target = "(view=public)", unbind = "-")
 	public void setPublicLayoutsItemSelectorView(
-		ItemSelectorView itemSelectorView) {
+		ItemSelectorView<?> itemSelectorView) {
 	}
 
 	@Override

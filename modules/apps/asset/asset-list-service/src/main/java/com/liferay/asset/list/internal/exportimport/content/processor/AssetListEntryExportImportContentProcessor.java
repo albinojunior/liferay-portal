@@ -18,6 +18,7 @@ import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
+import com.liferay.asset.util.AssetRendererFactoryClassProvider;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -84,9 +85,9 @@ public class AssetListEntryExportImportContentProcessor
 			StringUtil.split(
 				unicodeProperties.getProperty("classNameIds", null)));
 
-		LongStream classNameIdsStream = Arrays.stream(classNameIds);
+		LongStream classNameIdsLongStream = Arrays.stream(classNameIds);
 
-		String[] classNames = classNameIdsStream.mapToObj(
+		String[] classNames = classNameIdsLongStream.mapToObj(
 			classNameId -> _portal.getClassName(classNameId)
 		).toArray(
 			String[]::new
@@ -108,16 +109,17 @@ public class AssetListEntryExportImportContentProcessor
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactories(
 				portletDataContext.getCompanyId());
 
-		for (AssetRendererFactory assetRendererFactory :
+		for (AssetRendererFactory<?> assetRendererFactory :
 				assetRendererFactories) {
 
-			Class<?> clazz = assetRendererFactory.getClass();
-
-			String className = clazz.getSimpleName();
+			Class<? extends AssetRendererFactory<?>> clazz =
+				_assetRendererFactoryClassProvider.getClass(
+					assetRendererFactory);
 
 			long[] classTypeIds = GetterUtil.getLongValues(
 				StringUtil.split(
-					unicodeProperties.getProperty("classTypeIds" + className)));
+					unicodeProperties.getProperty(
+						"classTypeIds" + clazz.getSimpleName())));
 
 			if (ArrayUtil.isEmpty(classTypeIds)) {
 				continue;
@@ -207,15 +209,18 @@ public class AssetListEntryExportImportContentProcessor
 		long[] oldGroupIds = GetterUtil.getLongValues(
 			StringUtil.split(unicodeProperties.getProperty("groupIds", null)));
 
-		LongStream oldGroupIdsStream = Arrays.stream(oldGroupIds);
+		LongStream oldGroupIdsLongStream = Arrays.stream(oldGroupIds);
 
-		long[] newGroupIds = oldGroupIdsStream.map(
-			oldGroupId -> MapUtil.getLong(groupIds, oldGroupId, oldGroupId)
-		).filter(
-			oldGroupId -> _groupLocalService.fetchGroup(oldGroupId) != null
-		).toArray();
-
-		unicodeProperties.put("groupIds", StringUtil.merge(newGroupIds));
+		unicodeProperties.put(
+			"groupIds",
+			StringUtil.merge(
+				oldGroupIdsLongStream.map(
+					oldGroupId -> MapUtil.getLong(
+						groupIds, oldGroupId, oldGroupId)
+				).filter(
+					oldGroupId ->
+						_groupLocalService.fetchGroup(oldGroupId) != null
+				).toArray()));
 
 		String[] classNames = StringUtil.split(
 			unicodeProperties.getProperty("classNames"));
@@ -242,22 +247,22 @@ public class AssetListEntryExportImportContentProcessor
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactories(
 				portletDataContext.getCompanyId());
 
-		for (AssetRendererFactory assetRendererFactory :
+		for (AssetRendererFactory<?> assetRendererFactory :
 				assetRendererFactories) {
 
-			Class<?> clazz = assetRendererFactory.getClass();
-
-			String className = clazz.getSimpleName();
+			Class<?> clazz = _assetRendererFactoryClassProvider.getClass(
+				assetRendererFactory);
 
 			long[] classTypeIds = GetterUtil.getLongValues(
 				StringUtil.split(
-					unicodeProperties.getProperty("classTypeIds" + className)));
+					unicodeProperties.getProperty(
+						"classTypeIds" + clazz.getSimpleName())));
 
 			if (ArrayUtil.isEmpty(classTypeIds)) {
 				continue;
 			}
 
-			LongStream classTypeIdsStream = Arrays.stream(classTypeIds);
+			LongStream classTypeIdsLongStream = Arrays.stream(classTypeIds);
 
 			Map<Long, Long> ddmStructureIds =
 				(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -266,26 +271,28 @@ public class AssetListEntryExportImportContentProcessor
 				(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 					DLFileEntryType.class);
 
-			long[] newClassTypeIds = classTypeIdsStream.map(
-				classTypeId -> {
-					long newClassTypeId = classTypeId;
+			unicodeProperties.setProperty(
+				"classTypeIds" + clazz.getSimpleName(),
+				StringUtil.merge(
+					classTypeIdsLongStream.map(
+						classTypeId -> _getClassTypeId(
+							classTypeId, ddmStructureIds, dlFileEntryTypeIds)
+					).toArray()));
 
-					newClassTypeId = MapUtil.getLong(
-						ddmStructureIds, classTypeId, classTypeId);
+			long anyClassType = GetterUtil.getLong(
+				unicodeProperties.getProperty(
+					"anyClassType" + clazz.getSimpleName()));
 
-					if (newClassTypeId != classTypeId) {
-						return newClassTypeId;
-					}
+			if (anyClassType == 0L) {
+				continue;
+			}
 
-					newClassTypeId = MapUtil.getLong(
-						dlFileEntryTypeIds, classTypeId, classTypeId);
-
-					return newClassTypeId;
-				}
-			).toArray();
+			long newAnyClassType = _getClassTypeId(
+				anyClassType, ddmStructureIds, dlFileEntryTypeIds);
 
 			unicodeProperties.setProperty(
-				"classTypeIds" + className, StringUtil.merge(newClassTypeIds));
+				"anyClassType" + clazz.getSimpleName(),
+				String.valueOf(newAnyClassType));
 		}
 
 		for (Map.Entry<String, String> entry : unicodeProperties.entrySet()) {
@@ -359,8 +366,27 @@ public class AssetListEntryExportImportContentProcessor
 		}
 	}
 
+	private long _getClassTypeId(
+		long classTypeId, Map<Long, Long>... primaryKeysMaps) {
+
+		for (Map<Long, Long> primaryKeysMap : primaryKeysMaps) {
+			long newClassTypeId = MapUtil.getLong(
+				primaryKeysMap, classTypeId, classTypeId);
+
+			if (newClassTypeId != classTypeId) {
+				return newClassTypeId;
+			}
+		}
+
+		return classTypeId;
+	}
+
 	@Reference
 	private AssetCategoryLocalService _assetCategoryLocalService;
+
+	@Reference
+	private AssetRendererFactoryClassProvider
+		_assetRendererFactoryClassProvider;
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;

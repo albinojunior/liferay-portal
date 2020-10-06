@@ -34,6 +34,10 @@ public class CompanyInfoLocalServiceWrapper
 	/**
 	 * Adds the company info to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was added
 	 */
@@ -71,6 +75,10 @@ public class CompanyInfoLocalServiceWrapper
 	/**
 	 * Deletes the company info from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was removed
 	 */
@@ -83,6 +91,10 @@ public class CompanyInfoLocalServiceWrapper
 
 	/**
 	 * Deletes the company info with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyInfoId the primary key of the company info
 	 * @return the company info that was removed
@@ -105,6 +117,11 @@ public class CompanyInfoLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _companyInfoLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _companyInfoLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -291,6 +308,10 @@ public class CompanyInfoLocalServiceWrapper
 
 	/**
 	 * Updates the company info in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyInfoLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyInfo the company info
 	 * @return the company info that was updated

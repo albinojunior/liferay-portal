@@ -9,52 +9,56 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext} from 'react';
+import React, {useContext, useMemo} from 'react';
 
 import filterConstants from '../../../shared/components/filter/util/filterConstants.es';
-import {ChildLink} from '../../../shared/components/router/routerWrapper.es';
+import ChildLink from '../../../shared/components/router/ChildLink.es';
 import {getFormattedPercentage} from '../../../shared/util/util.es';
 import {AppContext} from '../../AppContext.es';
 import {processStatusConstants} from '../../filter/ProcessStatusFilter.es';
 import {slaStatusConstants} from '../../filter/SLAStatusFilter.es';
 
 const Item = ({
+	assignee: {id, name},
 	currentTab,
-	id,
-	name,
 	onTimeTaskCount,
 	overdueTaskCount,
 	processId,
 	processStepKey,
 	taskCount,
 }) => {
-	const currentCount =
-		currentTab === 'overdue'
-			? overdueTaskCount
-			: currentTab === 'onTime'
-			? onTimeTaskCount
-			: taskCount;
 	const {defaultDelta} = useContext(AppContext);
 
-	const formattedPercentage = getFormattedPercentage(currentCount, taskCount);
+	const counts = useMemo(
+		() => ({
+			onTime: onTimeTaskCount,
+			overdue: overdueTaskCount,
+			total: taskCount,
+		}),
+		[onTimeTaskCount, overdueTaskCount, taskCount]
+	);
 
-	const getFiltersQuery = () => {
-		const filterParams = {
+	const filters = useMemo(
+		() => ({
 			[filterConstants.assignee.key]: [id],
 			[filterConstants.processStatus.key]: [
 				processStatusConstants.pending,
 			],
+			[filterConstants.processStep.key]: [processStepKey],
 			[filterConstants.slaStatus.key]: [slaStatusConstants[currentTab]],
-		};
+		}),
+		[currentTab, id, processStepKey]
+	);
 
-		if (processStepKey && processStepKey !== 'allSteps') {
-			filterParams[filterConstants.processStep.key] = [processStepKey];
-		}
+	const formattedPercentage = useMemo(
+		() => getFormattedPercentage(counts[currentTab], taskCount),
+		[counts, currentTab, taskCount]
+	);
 
-		return filterParams;
-	};
-
-	const instancesListPath = `/instance/${processId}/${defaultDelta}/1`;
+	const instancesListPath = useMemo(
+		() => `/instance/${processId}/${defaultDelta}/1`,
+		[defaultDelta, processId]
+	);
 
 	return (
 		<tr>
@@ -64,7 +68,7 @@ const Item = ({
 			>
 				<ChildLink
 					className={'workload-by-assignee-link'}
-					query={{filters: getFiltersQuery()}}
+					query={{filters}}
 					to={instancesListPath}
 				>
 					<span data-testid="assigneeName">{name}</span>
@@ -73,7 +77,7 @@ const Item = ({
 
 			<td className="border-0 text-right" data-testid="taskCount">
 				<span className="task-count-value" data-testid="taskCountValue">
-					{currentCount}
+					{counts[currentTab]}
 				</span>
 
 				{currentTab !== 'total' && (

@@ -23,8 +23,6 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 FileEntry fileEntry = (FileEntry)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY);
 
-long fileEntryId = fileEntry.getFileEntryId();
-
 long folderId = fileEntry.getFolderId();
 
 if (Validator.isNull(redirect)) {
@@ -99,15 +97,10 @@ if (portletTitleBasedNavigation) {
 	<liferay-util:include page="/document_library/file_entry_upper_tbar.jsp" servletContext="<%= application %>" />
 </c:if>
 
-<c:choose>
-	<c:when test="<%= portletTitleBasedNavigation %>">
-<div class="container-fluid-1280" id="<portlet:namespace />FileEntry">
-	</c:when>
-	<c:otherwise>
-<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
-	</c:otherwise>
-</c:choose>
-
+<clay:container-fluid
+	cssClass='<%= portletTitleBasedNavigation ? StringPool.BLANK : "closed sidenav-container sidenav-right" %>'
+	id='<%= liferayPortletResponse.getNamespace() + (portletTitleBasedNavigation ? "FileEntry" : "infoPanelId") %>'
+>
 	<portlet:actionURL name="/document_library/edit_file_entry" var="editFileEntry" />
 
 	<aui:form action="<%= editFileEntry %>" method="post" name="fm">
@@ -133,9 +126,9 @@ if (portletTitleBasedNavigation) {
 			<div class="contextual-sidebar sidebar-light sidebar-preview">
 
 				<%
-					request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
-					request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
-					request.setAttribute("info_panel_file_entry.jsp-hideActions", true);
+				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
+				request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
+				request.setAttribute("info_panel_file_entry.jsp-hideActions", true);
 				%>
 
 				<liferay-util:include page="/document_library/info_panel_file_entry.jsp" servletContext="<%= application %>" />
@@ -145,8 +138,8 @@ if (portletTitleBasedNavigation) {
 			<liferay-frontend:sidebar-panel>
 
 				<%
-					request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
-					request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
+				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
+				request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
 				%>
 
 				<liferay-util:include page="/document_library/info_panel_file_entry.jsp" servletContext="<%= application %>" />
@@ -166,15 +159,15 @@ if (portletTitleBasedNavigation) {
 				<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
 
 					<%
-						for (ToolbarItem toolbarItem : dlViewFileVersionDisplayContext.getToolbarItems()) {
+					for (ToolbarItem toolbarItem : dlViewFileVersionDisplayContext.getToolbarItems()) {
 					%>
 
-					<liferay-ui:toolbar-item
-						toolbarItem="<%= toolbarItem %>"
-					/>
+						<liferay-ui:toolbar-item
+							toolbarItem="<%= toolbarItem %>"
+						/>
 
 					<%
-						}
+					}
 					%>
 
 				</c:if>
@@ -184,18 +177,13 @@ if (portletTitleBasedNavigation) {
 		<c:if test="<%= (lock != null) && DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.UPDATE) %>">
 			<c:choose>
 				<c:when test="<%= fileEntry.hasLock() %>">
-					<div class="alert alert-success">
+					<div class="alert alert-info">
 						<c:choose>
 							<c:when test="<%= lock.isNeverExpires() %>">
 								<liferay-ui:message key="you-now-have-an-indefinite-lock-on-this-document" />
 							</c:when>
 							<c:otherwise>
-
-								<%
-								String lockExpirationTime = StringUtil.toLowerCase(LanguageUtil.getTimeDescription(request, DLFileEntryConstants.LOCK_EXPIRATION_TIME));
-								%>
-
-								<liferay-ui:message arguments="<%= lockExpirationTime %>" key="you-now-have-a-lock-on-this-document" translateArguments="<%= false %>" />
+								<liferay-ui:message arguments="<%= StringUtil.toLowerCase(LanguageUtil.getTimeDescription(request, DLFileEntryConstants.LOCK_EXPIRATION_TIME)) %>" key="you-now-have-a-lock-on-this-document" translateArguments="<%= false %>" />
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -238,7 +226,7 @@ if (portletTitleBasedNavigation) {
 			</c:if>
 		</div>
 	</div>
-</div>
+</clay:container-fluid>
 
 <c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() && dlAdminDisplayContext.isVersioningStrategyOverridable() %>">
 
@@ -261,20 +249,9 @@ if (portletTitleBasedNavigation) {
 	) {
 		var namespace = '<portlet:namespace />';
 
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					destroyOnHide: true,
-					modal: true,
-					width: 680,
-				},
-				id: namespace + 'selectFolder',
-				title:
-					'<liferay-ui:message arguments="<%= 1 %>" key="select-destination-folder-for-x-items" translateArguments="<%= false %>" />',
-				uri: '<%= selectFolderURL.toString() %>',
-			},
-			function(event) {
+		Liferay.Util.openSelectionModal({
+			id: namespace + 'selectFolder',
+			onSelect: function (selectedItem) {
 				var form = document.getElementById(namespace + 'fm');
 
 				if (parameterName && parameterValue) {
@@ -287,11 +264,16 @@ if (portletTitleBasedNavigation) {
 				form.setAttribute('enctype', 'multipart/form-data');
 
 				form.elements[namespace + 'cmd'].value = 'move';
-				form.elements[namespace + 'newFolderId'].value = event.folderid;
+				form.elements[namespace + 'newFolderId'].value =
+					selectedItem.folderid;
 
 				submitForm(form, actionUrl, false);
-			}
-		);
+			},
+			selectEventName: namespace + 'selectFolder',
+			title:
+				'<liferay-ui:message arguments="<%= 1 %>" key="select-destination-folder-for-x-items" translateArguments="<%= false %>" />',
+			url: '<%= selectFolderURL.toString() %>',
+		});
 	}
 </aui:script>
 
@@ -310,7 +292,7 @@ if (addPortletBreadcrumbEntries) {
 		);
 
 		if (openContextualSidebarButton) {
-			openContextualSidebarButton.addEventListener('click', function(event) {
+			openContextualSidebarButton.addEventListener('click', function (event) {
 				event.currentTarget.classList.toggle('active');
 
 				document

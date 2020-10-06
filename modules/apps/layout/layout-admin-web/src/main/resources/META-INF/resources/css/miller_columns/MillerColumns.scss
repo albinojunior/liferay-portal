@@ -21,7 +21,7 @@
 	}
 
 	@include media-breakpoint-up(md) {
-		height: calc(100vh - 384px);
+		height: calc(100vh - 284px);
 		min-height: 10rem;
 		overflow-y: scroll;
 	}
@@ -31,11 +31,15 @@
 	border-bottom: 1px solid $gray-300;
 	cursor: pointer;
 	height: 4.25rem;
-	padding: 1rem 0.5rem;
+	padding: 1rem;
 	position: relative;
 
-	&.active {
+	&--active {
 		background-color: $light-l1;
+
+		&.miller-columns-item.autofit-row {
+			margin-top: 1px;
+		}
 	}
 
 	&.dragging {
@@ -55,7 +59,7 @@
 	}
 
 	&.drop-element {
-		box-shadow: inset 0 0 0 0.125rem $white, inset 0 0 0 0.25rem $primary;
+		box-shadow: inset 0 0 0 0.125rem $primary;
 	}
 
 	.custom-checkbox .custom-control-label {
@@ -69,16 +73,15 @@
 
 	.miller-columns-item-actions,
 	.miller-columns-item-quick-action {
+		padding: 0 0.25rem;
 		z-index: 2;
-
-		&:last-child {
-			margin-right: 16px;
-		}
 	}
 
 	.miller-columns-item-drag-handler {
-		color: $gray-400;
+		color: $gray-500;
 		cursor: move;
+		font-size: 1.375rem;
+		top: 2px;
 		z-index: 2;
 	}
 
@@ -93,14 +96,35 @@
 		z-index: 1;
 
 		&:focus {
-			box-shadow: inset 0 0 0 0.125rem $white,
-				inset 0 0 0 0.25rem $primary-l1;
+			box-shadow: inset 0 0 0 0.125rem $primary-l1;
 			outline: 0;
+		}
+	}
+
+	.miller-columns-item-child-indicator {
+		color: $gray-500;
+		padding: 0 0 0 0.5rem;
+		top: 2px;
+	}
+
+	.list-group-title .text-truncate {
+		z-index: 2;
+	}
+
+	.list-group-subtitle .label {
+		flex-shrink: 2;
+
+		.label-item {
+			display: block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 	}
 }
 
-.show-quick-actions-on-hover .miller-columns-item:not(.active) {
+.show-quick-actions-on-hover
+	.miller-columns-item:not(.miller-columns-item--active) {
 	&:hover {
 		.miller-columns-item-quick-action {
 			display: flex;

@@ -71,6 +71,20 @@ public class KnowledgeBaseAttachmentSerDes {
 			sb.append("\"");
 		}
 
+		if (knowledgeBaseAttachment.getContentValue() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"contentValue\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(knowledgeBaseAttachment.getContentValue()));
+
+			sb.append("\"");
+		}
+
 		if (knowledgeBaseAttachment.getEncodingFormat() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -163,6 +177,15 @@ public class KnowledgeBaseAttachmentSerDes {
 				String.valueOf(knowledgeBaseAttachment.getContentUrl()));
 		}
 
+		if (knowledgeBaseAttachment.getContentValue() == null) {
+			map.put("contentValue", null);
+		}
+		else {
+			map.put(
+				"contentValue",
+				String.valueOf(knowledgeBaseAttachment.getContentValue()));
+		}
+
 		if (knowledgeBaseAttachment.getEncodingFormat() == null) {
 			map.put("encodingFormat", null);
 		}
@@ -232,6 +255,12 @@ public class KnowledgeBaseAttachmentSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "contentValue")) {
+				if (jsonParserFieldValue != null) {
+					knowledgeBaseAttachment.setContentValue(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "encodingFormat")) {
 				if (jsonParserFieldValue != null) {
 					knowledgeBaseAttachment.setEncodingFormat(
@@ -262,9 +291,8 @@ public class KnowledgeBaseAttachmentSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -320,10 +348,13 @@ public class KnowledgeBaseAttachmentSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

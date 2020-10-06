@@ -35,9 +35,16 @@ if (Validator.isNotNull(redirect)) {
 	portletURL.setParameter("redirect", redirect);
 }
 
-if (Validator.isNotNull(backURL)) {
-	portletURL.setParameter("backURL", backURL);
+if (Validator.isNull(backURL)) {
+	PortletURL viewOrganizationsURL = liferayPortletResponse.createRenderURL();
+
+	viewOrganizationsURL.setParameter("toolbarItem", "view-all-organizations");
+	viewOrganizationsURL.setParameter("usersListView", UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS);
+
+	backURL = viewOrganizationsURL.toString();
 }
+
+portletURL.setParameter("backURL", backURL);
 
 if (organization != null) {
 	portletURL.setParameter("organizationId", String.valueOf(organizationId));
@@ -66,7 +73,6 @@ renderResponse.setTitle(headerTitle);
 	containerWrapperCssClass="container-fluid container-fluid-max-xl container-form-lg"
 	context="<%= organization %>"
 	headerContainerCssClass=""
-	inverted="<%= layout.isTypeControlPanel() %>"
 	key="<%= UserScreenNavigationEntryConstants.SCREEN_NAVIGATION_KEY_ORGANIZATIONS %>"
 	menubarCssClass="menubar menubar-transparent menubar-vertical-expand-lg"
 	navCssClass="col-lg-3"

@@ -34,16 +34,18 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 /**
  * @author Brian Wing Shun Chan
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class LayoutRevisionUADAnonymizerTest
 	extends BaseUADAnonymizerTestCase<LayoutRevision>
-	implements WhenHasStatusByUserIdField {
+	implements WhenHasStatusByUserIdField<LayoutRevision> {
 
 	@ClassRule
 	@Rule
@@ -102,7 +104,7 @@ public class LayoutRevisionUADAnonymizerTest
 	}
 
 	@Override
-	protected UADAnonymizer getUADAnonymizer() {
+	protected UADAnonymizer<LayoutRevision> getUADAnonymizer() {
 		return _uadAnonymizer;
 	}
 
@@ -148,7 +150,7 @@ public class LayoutRevisionUADAnonymizerTest
 	private LayoutSetBranchLocalService _layoutSetBranchLocalService;
 
 	@Inject(filter = "component.name=*.LayoutRevisionUADAnonymizer")
-	private UADAnonymizer _uadAnonymizer;
+	private UADAnonymizer<LayoutRevision> _uadAnonymizer;
 
 	@Inject
 	private UserLocalService _userLocalService;

@@ -14,39 +14,33 @@
 
 import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 
-import {localizeField} from '../../../util/fieldSupport.es';
+import {getParentFieldSet, localizeField} from '../../../util/fieldSupport.es';
 
 const handleFieldClicked = (props, state, event) => {
-	const {columnIndex, pageIndex, rowIndex} = event;
+	let {fieldName} = event;
+	const {activePage} = event;
 	const {pages} = state;
 
-	const fieldProperties = FormSupport.getField(
-		pages,
-		pageIndex,
-		rowIndex,
-		columnIndex
-	);
+	const parentFieldSet = getParentFieldSet(pages, fieldName);
+
+	if (parentFieldSet) {
+		fieldName = parentFieldSet.fieldName;
+	}
+
+	const fieldProperties = FormSupport.findFieldByFieldName(pages, fieldName);
 	const {settingsContext} = fieldProperties;
 	const visitor = new PagesVisitor(settingsContext.pages);
 
 	const focusedField = {
 		...fieldProperties,
-		columnIndex,
-		pageIndex,
-		rowIndex,
 		settingsContext: {
 			...settingsContext,
-			pages: visitor.mapFields(field => {
+			currentPage: activePage,
+			pages: visitor.mapFields((field) => {
 				const {fieldName} = field;
 				const {defaultLanguageId, editingLanguageId} = props;
 
-				if (fieldName === 'name') {
-					field.visible = true;
-				}
-				else if (fieldName === 'label') {
-					field.type = 'text';
-				}
-				else if (fieldName === 'validation') {
+				if (fieldName === 'validation') {
 					field = {
 						...field,
 						validation: {
@@ -66,12 +60,8 @@ const handleFieldClicked = (props, state, event) => {
 	};
 
 	return {
-		focusedField: {
-			...focusedField,
-			columnIndex,
-			pageIndex,
-			rowIndex,
-		},
+		activePage,
+		focusedField,
 		previousFocusedField: focusedField,
 	};
 };

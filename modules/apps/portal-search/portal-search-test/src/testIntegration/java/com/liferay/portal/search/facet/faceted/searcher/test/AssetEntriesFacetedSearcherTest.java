@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -153,12 +152,9 @@ public class AssetEntriesFacetedSearcherTest
 	protected void addFileEntry(String title, User user, Group group)
 		throws Exception {
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(group.getGroupId());
-
 		FileEntry fileEntry = DLAppTestUtil.addFileEntryWithWorkflow(
 			user.getUserId(), group.getGroupId(), 0, StringPool.BLANK, title,
-			true, serviceContext);
+			true, ServiceContextTestUtil.getServiceContext(group.getGroupId()));
 
 		_fileEntries.add(fileEntry);
 	}
@@ -192,12 +188,12 @@ public class AssetEntriesFacetedSearcherTest
 	}
 
 	protected void assertEntryClassNames(
-		List<String> entryclassnames, Hits hits, Facet facet,
+		List<String> entryclassNames, Hits hits, Facet facet,
 		SearchContext searchContext) {
 
 		DocumentsAssert.assertValuesIgnoreRelevance(
 			(String)searchContext.getAttribute("queryString"), hits.getDocs(),
-			facet.getFieldName(), entryclassnames);
+			facet.getFieldName(), entryclassNames);
 	}
 
 	protected Facet createFacet(SearchContext searchContext) {

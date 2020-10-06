@@ -18,8 +18,11 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 
 /**
- * @author Raymond Augé
+ * @author     Raymond Augé
+ * @deprecated As of Athanasius (7.3.x), replaced by {@link
+ *             com.liferay.exportimport.kernel.staging.constants.StagingConstants}
  */
+@Deprecated
 public class StagingConstants {
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(

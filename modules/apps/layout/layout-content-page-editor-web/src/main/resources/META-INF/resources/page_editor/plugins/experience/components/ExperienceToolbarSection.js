@@ -20,21 +20,22 @@ import {useDispatch, useSelector} from '../../../app/store/index';
 import ExperienceSelector from './ExperienceSelector';
 
 // TODO: show how to colocate CSS with plugins (may use loaders)
+
 export default function ExperienceToolbarSection({selectId}) {
 	const availableSegmentsExperiences = useSelector(
-		state => state.availableSegmentsExperiences
+		(state) => state.availableSegmentsExperiences
 	);
 	const dispatch = useDispatch();
 
 	const segmentsExperienceId = useSelector(
-		state => state.segmentsExperienceId
+		(state) => state.segmentsExperienceId
 	);
 
 	const experiences = useMemo(
 		() =>
 			Object.values(availableSegmentsExperiences)
 				.sort((a, b) => b.priority - a.priority)
-				.map(experience => {
+				.map((experience) => {
 					const segmentsEntryName =
 						config.availableSegmentsEntries[
 							experience.segmentsEntryId
@@ -51,7 +52,7 @@ export default function ExperienceToolbarSection({selectId}) {
 		() => Object.values(config.availableSegmentsEntries),
 		[]
 	).filter(
-		segment => segment.segmentsEntryId !== config.defaultSegmentsEntryId
+		(segment) => segment.segmentsEntryId !== config.defaultSegmentsEntryId
 	);
 
 	const selectedExperience =
@@ -68,7 +69,7 @@ export default function ExperienceToolbarSection({selectId}) {
 
 	return (
 		<div className="mr-2 page-editor__toolbar-experience">
-			<label className="mr-2" htmlFor={selectId}>
+			<label className="d-lg-block d-none mr-2" htmlFor={selectId}>
 				{Liferay.Language.get('experience')}
 			</label>
 
@@ -76,8 +77,8 @@ export default function ExperienceToolbarSection({selectId}) {
 				editSegmentsEntryURL={config.editSegmentsEntryURL}
 				experiences={experiences}
 				segments={segments}
-				selectedExperience={selectedExperience}
 				selectId={selectId}
+				selectedExperience={selectedExperience}
 			/>
 		</div>
 	);

@@ -370,78 +370,75 @@ public class MailManager {
 	}
 
 	public JSONObject getDefaultAccountsJSONObject() {
-		JSONObject gmailAccountJSONObject = JSONUtil.put(
-			"address", "@gmail.com"
-		).put(
-			"descriptionLanguageKey",
-			"please-enable-imap-in-you-gmail-settings-for-mail-to-work"
-		).put(
-			"folderPrefix", ""
-		).put(
-			"hideSettings", true
-		).put(
-			"incomingHostName", "imap.gmail.com"
-		).put(
-			"incomingPort", 993
-		).put(
-			"incomingSecure", true
-		).put(
-			"outgoingHostName", "smtp.gmail.com"
-		).put(
-			"outgoingPort", 465
-		).put(
-			"outgoingSecure", true
-		).put(
-			"protocol", "imap"
-		).put(
-			"titleLanguageKey", "gmail-account"
-		).put(
-			"useLocalPartAsLogin", true
-		);
-
-		JSONObject customMailAccontJSONObject = JSONUtil.put(
-			"address", ""
-		).put(
-			"descriptionLanguageKey", ""
-		).put(
-			"folderPrefix", ""
-		).put(
-			"hideSettings", false
-		).put(
-			"incomingHostName", ""
-		).put(
-			"incomingPort", 110
-		).put(
-			"incomingSecure", false
-		).put(
-			"outgoingHostName", ""
-		).put(
-			"outgoingPort", 25
-		).put(
-			"outgoingSecure", false
-		).put(
-			"protocol", "imap"
-		).put(
-			"titleLanguageKey", "custom-mail-account"
-		).put(
-			"useLocalPartAsLogin", false
-		);
-
 		return JSONUtil.put(
 			"accounts",
 			JSONUtil.putAll(
-				gmailAccountJSONObject, customMailAccontJSONObject));
+				JSONUtil.put(
+					"address", "@gmail.com"
+				).put(
+					"descriptionLanguageKey",
+					"please-enable-imap-in-you-gmail-settings-for-mail-to-work"
+				).put(
+					"folderPrefix", ""
+				).put(
+					"hideSettings", true
+				).put(
+					"incomingHostName", "imap.gmail.com"
+				).put(
+					"incomingPort", 993
+				).put(
+					"incomingSecure", true
+				).put(
+					"outgoingHostName", "smtp.gmail.com"
+				).put(
+					"outgoingPort", 465
+				).put(
+					"outgoingSecure", true
+				).put(
+					"protocol", "imap"
+				).put(
+					"titleLanguageKey", "gmail-account"
+				).put(
+					"useLocalPartAsLogin", true
+				),
+				JSONUtil.put(
+					"address", ""
+				).put(
+					"descriptionLanguageKey", ""
+				).put(
+					"folderPrefix", ""
+				).put(
+					"hideSettings", false
+				).put(
+					"incomingHostName", ""
+				).put(
+					"incomingPort", 110
+				).put(
+					"incomingSecure", false
+				).put(
+					"outgoingHostName", ""
+				).put(
+					"outgoingPort", 25
+				).put(
+					"outgoingSecure", false
+				).put(
+					"protocol", "imap"
+				).put(
+					"titleLanguageKey", "custom-mail-account"
+				).put(
+					"useLocalPartAsLogin", false
+				)));
 	}
 
 	public List<Folder> getFolders(
 			long accountId, boolean includeRequiredFolders,
-			boolean includeNonRequiredFolders)
+			boolean includeNonrequiredFolders)
 		throws PortalException {
 
 		List<Folder> folders = FolderLocalServiceUtil.getFolders(accountId);
 
 		List<Folder> requiredFolders = new ArrayList<>();
-		List<Folder> nonRequiredFolders = new ArrayList<>();
+		List<Folder> nonrequiredFolders = new ArrayList<>();
 
 		Account account = AccountLocalServiceUtil.getAccount(accountId);
 
@@ -454,19 +451,19 @@ public class MailManager {
 				requiredFolders.add(folder);
 			}
 			else {
-				nonRequiredFolders.add(folder);
+				nonrequiredFolders.add(folder);
 			}
 		}
 
-		if (includeRequiredFolders && includeNonRequiredFolders) {
-			requiredFolders.addAll(nonRequiredFolders);
+		if (includeRequiredFolders && includeNonrequiredFolders) {
+			requiredFolders.addAll(nonrequiredFolders);
 
 			// Required folders at front of list
 
 			return requiredFolders;
 		}
-		else if (includeNonRequiredFolders) {
-			return nonRequiredFolders;
+		else if (includeNonrequiredFolders) {
+			return nonrequiredFolders;
 		}
 
 		return requiredFolders;
@@ -523,11 +520,10 @@ public class MailManager {
 
 		Message message = messages.get(0);
 
-		List<Attachment> attachments =
-			AttachmentLocalServiceUtil.getAttachments(message.getMessageId());
-
 		return new MessageDisplay(
-			message, attachments, messagesDisplay.getMessageCount());
+			message,
+			AttachmentLocalServiceUtil.getAttachments(message.getMessageId()),
+			messagesDisplay.getMessageCount());
 	}
 
 	public MessagesDisplay getMessagesDisplay(

@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -44,7 +45,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.junit.After;
@@ -169,6 +169,14 @@ public class DepotAppCustomizationPersistenceTest {
 		_persistence.countByDepotEntryId(RandomTestUtil.nextLong());
 
 		_persistence.countByDepotEntryId(0L);
+	}
+
+	@Test
+	public void testCountByD_E() throws Exception {
+		_persistence.countByD_E(
+			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
+
+		_persistence.countByD_E(0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -456,21 +464,77 @@ public class DepotAppCustomizationPersistenceTest {
 
 		_persistence.clearCache();
 
-		DepotAppCustomization existingDepotAppCustomization =
+		_assertOriginalValues(
 			_persistence.findByPrimaryKey(
-				newDepotAppCustomization.getPrimaryKey());
+				newDepotAppCustomization.getPrimaryKey()));
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		DepotAppCustomization newDepotAppCustomization =
+			addDepotAppCustomization();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			DepotAppCustomization.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"depotAppCustomizationId",
+				newDepotAppCustomization.getDepotAppCustomizationId()));
+
+		List<DepotAppCustomization> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(
+		DepotAppCustomization depotAppCustomization) {
 
 		Assert.assertEquals(
-			Long.valueOf(existingDepotAppCustomization.getDepotEntryId()),
+			Long.valueOf(depotAppCustomization.getDepotEntryId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingDepotAppCustomization, "getOriginalDepotEntryId",
-				new Class<?>[0]));
-		Assert.assertTrue(
-			Objects.equals(
-				existingDepotAppCustomization.getPortletId(),
-				ReflectionTestUtil.invoke(
-					existingDepotAppCustomization, "getOriginalPortletId",
-					new Class<?>[0])));
+				depotAppCustomization, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "depotEntryId"));
+		Assert.assertEquals(
+			Boolean.valueOf(depotAppCustomization.getEnabled()),
+			ReflectionTestUtil.<Boolean>invoke(
+				depotAppCustomization, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "enabled"));
+
+		Assert.assertEquals(
+			Long.valueOf(depotAppCustomization.getDepotEntryId()),
+			ReflectionTestUtil.<Long>invoke(
+				depotAppCustomization, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "depotEntryId"));
+		Assert.assertEquals(
+			depotAppCustomization.getPortletId(),
+			ReflectionTestUtil.invoke(
+				depotAppCustomization, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "portletId"));
 	}
 
 	protected DepotAppCustomization addDepotAppCustomization()

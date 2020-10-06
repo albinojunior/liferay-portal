@@ -105,15 +105,20 @@ public class AssetEntryItemSelectorView
 		AssetEntryItemSelectorCriterion assetEntryItemSelectorCriterion,
 		ServletRequest servletRequest) {
 
+		HttpServletRequest httpServletRequest =
+			(HttpServletRequest)servletRequest;
+
 		return new DynamicServletRequest(
-			(HttpServletRequest)servletRequest,
+			httpServletRequest,
 			HashMapBuilder.put(
 				"groupId",
 				_toStringArray(
 					_getGroupId(
 						assetEntryItemSelectorCriterion, servletRequest))
 			).put(
-				"multipleSelection", _toStringArray(true)
+				"multipleSelection",
+				_toStringArray(
+					!assetEntryItemSelectorCriterion.isSingleSelect())
 			).put(
 				"selectedGroupIds",
 				_toStringArray(

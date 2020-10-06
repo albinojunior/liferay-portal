@@ -150,33 +150,65 @@ public class LayoutRevisionModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.LayoutRevision"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean ENTITY_CACHE_ENABLED = true;
 
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.LayoutRevision"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean FINDER_CACHE_ENABLED = true;
 
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.LayoutRevision"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean COLUMN_BITMASK_ENABLED = true;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long HEAD_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long LAYOUTBRANCHID_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long LAYOUTSETBRANCHID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long PARENTLAYOUTREVISIONID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long PLID_COLUMN_BITMASK = 16L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long STATUS_COLUMN_BITMASK = 32L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long MODIFIEDDATE_COLUMN_BITMASK = 64L;
 
 	/**
@@ -184,7 +216,9 @@ public class LayoutRevisionModelImpl
 	 *
 	 * @param soapModel the soap model instance to convert
 	 * @return the normal model instance
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static LayoutRevision toModel(LayoutRevisionSoap soapModel) {
 		if (soapModel == null) {
 			return null;
@@ -230,7 +264,9 @@ public class LayoutRevisionModelImpl
 	 *
 	 * @param soapModels the soap model instances to convert
 	 * @return the normal model instances
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
+	@Deprecated
 	public static List<LayoutRevision> toModels(
 		LayoutRevisionSoap[] soapModels) {
 
@@ -303,9 +339,6 @@ public class LayoutRevisionModelImpl
 				attributeName,
 				attributeGetterFunction.apply((LayoutRevision)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -533,6 +566,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
 	}
 
@@ -544,6 +581,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setLayoutRevisionId(long layoutRevisionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_layoutRevisionId = layoutRevisionId;
 	}
 
@@ -555,6 +596,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setGroupId(long groupId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_groupId = groupId;
 	}
 
@@ -566,6 +611,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_companyId = companyId;
 	}
 
@@ -577,6 +626,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setUserId(long userId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userId = userId;
 	}
 
@@ -609,6 +662,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setUserName(String userName) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_userName = userName;
 	}
 
@@ -620,6 +677,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setCreateDate(Date createDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_createDate = createDate;
 	}
 
@@ -637,7 +698,9 @@ public class LayoutRevisionModelImpl
 	public void setModifiedDate(Date modifiedDate) {
 		_setModifiedDate = true;
 
-		_columnBitmask = -1L;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
 
 		_modifiedDate = modifiedDate;
 	}
@@ -650,19 +713,21 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setLayoutSetBranchId(long layoutSetBranchId) {
-		_columnBitmask |= LAYOUTSETBRANCHID_COLUMN_BITMASK;
-
-		if (!_setOriginalLayoutSetBranchId) {
-			_setOriginalLayoutSetBranchId = true;
-
-			_originalLayoutSetBranchId = _layoutSetBranchId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_layoutSetBranchId = layoutSetBranchId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalLayoutSetBranchId() {
-		return _originalLayoutSetBranchId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("layoutSetBranchId"));
 	}
 
 	@JSON
@@ -673,19 +738,21 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setLayoutBranchId(long layoutBranchId) {
-		_columnBitmask |= LAYOUTBRANCHID_COLUMN_BITMASK;
-
-		if (!_setOriginalLayoutBranchId) {
-			_setOriginalLayoutBranchId = true;
-
-			_originalLayoutBranchId = _layoutBranchId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_layoutBranchId = layoutBranchId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalLayoutBranchId() {
-		return _originalLayoutBranchId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("layoutBranchId"));
 	}
 
 	@JSON
@@ -696,19 +763,21 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setParentLayoutRevisionId(long parentLayoutRevisionId) {
-		_columnBitmask |= PARENTLAYOUTREVISIONID_COLUMN_BITMASK;
-
-		if (!_setOriginalParentLayoutRevisionId) {
-			_setOriginalParentLayoutRevisionId = true;
-
-			_originalParentLayoutRevisionId = _parentLayoutRevisionId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_parentLayoutRevisionId = parentLayoutRevisionId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalParentLayoutRevisionId() {
-		return _originalParentLayoutRevisionId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("parentLayoutRevisionId"));
 	}
 
 	@JSON
@@ -725,19 +794,21 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setHead(boolean head) {
-		_columnBitmask |= HEAD_COLUMN_BITMASK;
-
-		if (!_setOriginalHead) {
-			_setOriginalHead = true;
-
-			_originalHead = _head;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_head = head;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public boolean getOriginalHead() {
-		return _originalHead;
+		return GetterUtil.getBoolean(
+			this.<Boolean>getColumnOriginalValue("head"));
 	}
 
 	@JSON
@@ -754,6 +825,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setMajor(boolean major) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_major = major;
 	}
 
@@ -765,19 +840,20 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setPlid(long plid) {
-		_columnBitmask |= PLID_COLUMN_BITMASK;
-
-		if (!_setOriginalPlid) {
-			_setOriginalPlid = true;
-
-			_originalPlid = _plid;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_plid = plid;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalPlid() {
-		return _originalPlid;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("plid"));
 	}
 
 	@JSON
@@ -794,6 +870,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setPrivateLayout(boolean privateLayout) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_privateLayout = privateLayout;
 	}
 
@@ -853,6 +933,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setName(String name) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_name = name;
 	}
 
@@ -956,6 +1040,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setTitle(String title) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_title = title;
 	}
 
@@ -1061,6 +1149,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setDescription(String description) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_description = description;
 	}
 
@@ -1169,6 +1261,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setKeywords(String keywords) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_keywords = keywords;
 	}
 
@@ -1277,6 +1373,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setRobots(String robots) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_robots = robots;
 	}
 
@@ -1340,6 +1440,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setTypeSettings(String typeSettings) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_typeSettings = typeSettings;
 	}
 
@@ -1351,6 +1455,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setIconImageId(long iconImageId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_iconImageId = iconImageId;
 	}
 
@@ -1367,6 +1475,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setThemeId(String themeId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_themeId = themeId;
 	}
 
@@ -1383,6 +1495,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setColorSchemeId(String colorSchemeId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_colorSchemeId = colorSchemeId;
 	}
 
@@ -1399,6 +1515,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setCss(String css) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_css = css;
 	}
 
@@ -1410,19 +1530,21 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setStatus(int status) {
-		_columnBitmask |= STATUS_COLUMN_BITMASK;
-
-		if (!_setOriginalStatus) {
-			_setOriginalStatus = true;
-
-			_originalStatus = _status;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_status = status;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public int getOriginalStatus() {
-		return _originalStatus;
+		return GetterUtil.getInteger(
+			this.<Integer>getColumnOriginalValue("status"));
 	}
 
 	@JSON
@@ -1433,6 +1555,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setStatusByUserId(long statusByUserId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_statusByUserId = statusByUserId;
 	}
 
@@ -1465,6 +1591,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setStatusByUserName(String statusByUserName) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_statusByUserName = statusByUserName;
 	}
 
@@ -1476,6 +1606,10 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void setStatusDate(Date statusDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_statusDate = statusDate;
 	}
 
@@ -1560,6 +1694,24 @@ public class LayoutRevisionModelImpl
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -1797,16 +1949,16 @@ public class LayoutRevisionModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof LayoutRevision)) {
+		if (!(object instanceof LayoutRevision)) {
 			return false;
 		}
 
-		LayoutRevision layoutRevision = (LayoutRevision)obj;
+		LayoutRevision layoutRevision = (LayoutRevision)object;
 
 		long primaryKey = layoutRevision.getPrimaryKey();
 
@@ -1823,11 +1975,19 @@ public class LayoutRevisionModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
 		return ENTITY_CACHE_ENABLED;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
 		return FINDER_CACHE_ENABLED;
@@ -1835,39 +1995,11 @@ public class LayoutRevisionModelImpl
 
 	@Override
 	public void resetOriginalValues() {
-		LayoutRevisionModelImpl layoutRevisionModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		layoutRevisionModelImpl._setModifiedDate = false;
+		_setModifiedDate = false;
 
-		layoutRevisionModelImpl._originalLayoutSetBranchId =
-			layoutRevisionModelImpl._layoutSetBranchId;
-
-		layoutRevisionModelImpl._setOriginalLayoutSetBranchId = false;
-
-		layoutRevisionModelImpl._originalLayoutBranchId =
-			layoutRevisionModelImpl._layoutBranchId;
-
-		layoutRevisionModelImpl._setOriginalLayoutBranchId = false;
-
-		layoutRevisionModelImpl._originalParentLayoutRevisionId =
-			layoutRevisionModelImpl._parentLayoutRevisionId;
-
-		layoutRevisionModelImpl._setOriginalParentLayoutRevisionId = false;
-
-		layoutRevisionModelImpl._originalHead = layoutRevisionModelImpl._head;
-
-		layoutRevisionModelImpl._setOriginalHead = false;
-
-		layoutRevisionModelImpl._originalPlid = layoutRevisionModelImpl._plid;
-
-		layoutRevisionModelImpl._setOriginalPlid = false;
-
-		layoutRevisionModelImpl._originalStatus =
-			layoutRevisionModelImpl._status;
-
-		layoutRevisionModelImpl._setOriginalStatus = false;
-
-		layoutRevisionModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -2030,7 +2162,7 @@ public class LayoutRevisionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -2062,7 +2194,7 @@ public class LayoutRevisionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -2104,21 +2236,11 @@ public class LayoutRevisionModelImpl
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _layoutSetBranchId;
-	private long _originalLayoutSetBranchId;
-	private boolean _setOriginalLayoutSetBranchId;
 	private long _layoutBranchId;
-	private long _originalLayoutBranchId;
-	private boolean _setOriginalLayoutBranchId;
 	private long _parentLayoutRevisionId;
-	private long _originalParentLayoutRevisionId;
-	private boolean _setOriginalParentLayoutRevisionId;
 	private boolean _head;
-	private boolean _originalHead;
-	private boolean _setOriginalHead;
 	private boolean _major;
 	private long _plid;
-	private long _originalPlid;
-	private boolean _setOriginalPlid;
 	private boolean _privateLayout;
 	private String _name;
 	private String _nameCurrentLanguageId;
@@ -2136,11 +2258,141 @@ public class LayoutRevisionModelImpl
 	private String _colorSchemeId;
 	private String _css;
 	private int _status;
-	private int _originalStatus;
-	private boolean _setOriginalStatus;
 	private long _statusByUserId;
 	private String _statusByUserName;
 	private Date _statusDate;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<LayoutRevision, Object> function =
+			_attributeGetterFunctions.get(columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((LayoutRevision)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("layoutRevisionId", _layoutRevisionId);
+		_columnOriginalValues.put("groupId", _groupId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("userId", _userId);
+		_columnOriginalValues.put("userName", _userName);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put("layoutSetBranchId", _layoutSetBranchId);
+		_columnOriginalValues.put("layoutBranchId", _layoutBranchId);
+		_columnOriginalValues.put(
+			"parentLayoutRevisionId", _parentLayoutRevisionId);
+		_columnOriginalValues.put("head", _head);
+		_columnOriginalValues.put("major", _major);
+		_columnOriginalValues.put("plid", _plid);
+		_columnOriginalValues.put("privateLayout", _privateLayout);
+		_columnOriginalValues.put("name", _name);
+		_columnOriginalValues.put("title", _title);
+		_columnOriginalValues.put("description", _description);
+		_columnOriginalValues.put("keywords", _keywords);
+		_columnOriginalValues.put("robots", _robots);
+		_columnOriginalValues.put("typeSettings", _typeSettings);
+		_columnOriginalValues.put("iconImageId", _iconImageId);
+		_columnOriginalValues.put("themeId", _themeId);
+		_columnOriginalValues.put("colorSchemeId", _colorSchemeId);
+		_columnOriginalValues.put("css", _css);
+		_columnOriginalValues.put("status", _status);
+		_columnOriginalValues.put("statusByUserId", _statusByUserId);
+		_columnOriginalValues.put("statusByUserName", _statusByUserName);
+		_columnOriginalValues.put("statusDate", _statusDate);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("layoutRevisionId", 2L);
+
+		columnBitmasks.put("groupId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("userId", 16L);
+
+		columnBitmasks.put("userName", 32L);
+
+		columnBitmasks.put("createDate", 64L);
+
+		columnBitmasks.put("modifiedDate", 128L);
+
+		columnBitmasks.put("layoutSetBranchId", 256L);
+
+		columnBitmasks.put("layoutBranchId", 512L);
+
+		columnBitmasks.put("parentLayoutRevisionId", 1024L);
+
+		columnBitmasks.put("head", 2048L);
+
+		columnBitmasks.put("major", 4096L);
+
+		columnBitmasks.put("plid", 8192L);
+
+		columnBitmasks.put("privateLayout", 16384L);
+
+		columnBitmasks.put("name", 32768L);
+
+		columnBitmasks.put("title", 65536L);
+
+		columnBitmasks.put("description", 131072L);
+
+		columnBitmasks.put("keywords", 262144L);
+
+		columnBitmasks.put("robots", 524288L);
+
+		columnBitmasks.put("typeSettings", 1048576L);
+
+		columnBitmasks.put("iconImageId", 2097152L);
+
+		columnBitmasks.put("themeId", 4194304L);
+
+		columnBitmasks.put("colorSchemeId", 8388608L);
+
+		columnBitmasks.put("css", 16777216L);
+
+		columnBitmasks.put("status", 33554432L);
+
+		columnBitmasks.put("statusByUserId", 67108864L);
+
+		columnBitmasks.put("statusByUserName", 134217728L);
+
+		columnBitmasks.put("statusDate", 268435456L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private LayoutRevision _escapedModel;
 

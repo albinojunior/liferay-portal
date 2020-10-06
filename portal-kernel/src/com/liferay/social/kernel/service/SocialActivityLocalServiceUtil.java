@@ -117,6 +117,10 @@ public class SocialActivityLocalServiceUtil {
 	/**
 	 * Adds the social activity to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivity the social activity
 	 * @return the social activity that was added
 	 */
@@ -271,6 +275,10 @@ public class SocialActivityLocalServiceUtil {
 	/**
 	 * Deletes the social activity with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param activityId the primary key of the social activity
 	 * @return the social activity that was removed
 	 * @throws PortalException if a social activity with the primary key could not be found
@@ -284,6 +292,10 @@ public class SocialActivityLocalServiceUtil {
 
 	/**
 	 * Deletes the social activity from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param socialActivity the social activity
 	 * @return the social activity that was removed
@@ -309,6 +321,12 @@ public class SocialActivityLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().deleteUserActivities(userId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -415,23 +433,22 @@ public class SocialActivityLocalServiceUtil {
 	}
 
 	/**
-	 * Returns a range of all the activities done on assets identified by the
-	 * class name ID.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end -
-	 * start</code> instances. <code>start</code> and <code>end</code> are not
-	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
-	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
-	 * result set.
-	 * </p>
-	 *
 	 * @param classNameId the target asset's class name ID
 	 * @param start the lower bound of the range of results
 	 * @param end the upper bound of the range of results (not inclusive)
 	 * @return the range of matching activities
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getActivities(long, String, int, int)}  Returns a range of
+	 all the activities done on assets identified by the class
+	 name ID.  <p> Useful when paginating results. Returns a
+	 maximum of <code>end - start</code> instances.
+	 <code>start</code> and <code>end</code> are not primary keys,
+	 they are indexes in the result set. Thus, <code>0</code>
+	 refers to the first result in the set. Setting both
+	 <code>start</code> and <code>end</code> to {@link
+	 QueryUtil#ALL_POS} will return the full result set.</p>
 	 */
+	@Deprecated
 	public static java.util.List<com.liferay.social.kernel.model.SocialActivity>
 		getActivities(long classNameId, int start, int end) {
 
@@ -469,6 +486,31 @@ public class SocialActivityLocalServiceUtil {
 	}
 
 	/**
+	 * Returns a range of all the activities done on assets identified by the
+	 * company ID and class name.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end -
+	 * start</code> instances. <code>start</code> and <code>end</code> are not
+	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
+	 * refers to the first result in the set. Setting both <code>start</code>
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
+	 * result set.
+	 * </p>
+	 *
+	 * @param companyId the primary key of the company
+	 * @param className the target asset's class name
+	 * @param start the lower bound of the range of results
+	 * @param end the upper bound of the range of results (not inclusive)
+	 * @return the range of matching activities
+	 */
+	public static java.util.List<com.liferay.social.kernel.model.SocialActivity>
+		getActivities(long companyId, String className, int start, int end) {
+
+		return getService().getActivities(companyId, className, start, end);
+	}
+
+	/**
 	 * Returns a range of all the activities done on the asset identified by the
 	 * class name and the class primary key that are mirrors of the activity
 	 * identified by the mirror activity ID.
@@ -499,23 +541,22 @@ public class SocialActivityLocalServiceUtil {
 	}
 
 	/**
-	 * Returns a range of all the activities done on assets identified by the
-	 * class name.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end -
-	 * start</code> instances. <code>start</code> and <code>end</code> are not
-	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
-	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
-	 * result set.
-	 * </p>
-	 *
 	 * @param className the target asset's class name
 	 * @param start the lower bound of the range of results
 	 * @param end the upper bound of the range of results (not inclusive)
 	 * @return the range of matching activities
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getActivities(long, String, int, int)}  Returns a range of
+	 all the activities done on assets identified by the class
+	 name.  <p> Useful when paginating results. Returns a maximum
+	 of <code>end - start</code> instances. <code>start</code> and
+	 <code>end</code> are not primary keys, they are indexes in
+	 the result set. Thus, <code>0</code> refers to the first
+	 result in the set. Setting both <code>start</code> and
+	 <code>end</code> to {@link QueryUtil#ALL_POS} will return the
+	 full result set.</p>
 	 */
+	@Deprecated
 	public static java.util.List<com.liferay.social.kernel.model.SocialActivity>
 		getActivities(String className, int start, int end) {
 
@@ -523,12 +564,12 @@ public class SocialActivityLocalServiceUtil {
 	}
 
 	/**
-	 * Returns the number of activities done on assets identified by the class
-	 * name ID.
-	 *
 	 * @param classNameId the target asset's class name ID
 	 * @return the number of matching activities
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getActivitiesCount(long, String)}
 	 */
+	@Deprecated
 	public static int getActivitiesCount(long classNameId) {
 		return getService().getActivitiesCount(classNameId);
 	}
@@ -560,6 +601,18 @@ public class SocialActivityLocalServiceUtil {
 	}
 
 	/**
+	 * Returns the number of activities done on assets identified by company ID
+	 * and class name.
+	 *
+	 * @param companyId the primary key of the company
+	 * @param className the target asset's class name
+	 * @return the number of matching activities
+	 */
+	public static int getActivitiesCount(long companyId, String className) {
+		return getService().getActivitiesCount(companyId, className);
+	}
+
+	/**
 	 * Returns the number of activities done on the asset identified by the
 	 * class name and class primary key that are mirrors of the activity
 	 * identified by the mirror activity ID.
@@ -577,11 +630,12 @@ public class SocialActivityLocalServiceUtil {
 	}
 
 	/**
-	 * Returns the number of activities done on assets identified by class name.
-	 *
 	 * @param className the target asset's class name
 	 * @return the number of matching activities
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getActivitiesCount(long, String)}
 	 */
+	@Deprecated
 	public static int getActivitiesCount(String className) {
 		return getService().getActivitiesCount(className);
 	}
@@ -1060,6 +1114,10 @@ public class SocialActivityLocalServiceUtil {
 
 	/**
 	 * Updates the social activity in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param socialActivity the social activity
 	 * @return the social activity that was updated

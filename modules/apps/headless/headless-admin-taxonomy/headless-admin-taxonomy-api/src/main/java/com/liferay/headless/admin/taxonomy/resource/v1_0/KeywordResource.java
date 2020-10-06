@@ -17,9 +17,13 @@ package com.liferay.headless.admin.taxonomy.resource.v1_0;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.Keyword;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.Locale;
 
 import javax.annotation.Generated;
 
@@ -43,8 +47,24 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface KeywordResource {
 
+	public static Builder builder() {
+		return FactoryHolder.factory.create();
+	}
+
+	public Page<Keyword> getAssetLibraryKeywordsPage(
+			Long assetLibraryId, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
+		throws Exception;
+
+	public Keyword postAssetLibraryKeyword(Long assetLibraryId, Keyword keyword)
+		throws Exception;
+
+	public Response postAssetLibraryKeywordBatch(
+			Long assetLibraryId, String callbackURL, Object object)
+		throws Exception;
+
 	public Page<Keyword> getKeywordsRankedPage(
-			Long siteId, Pagination pagination)
+			Long siteId, String search, Pagination pagination)
 		throws Exception;
 
 	public void deleteKeyword(Long keywordId) throws Exception;
@@ -91,5 +111,38 @@ public interface KeywordResource {
 
 	public void setContextUser(
 		com.liferay.portal.kernel.model.User contextUser);
+
+	public void setGroupLocalService(GroupLocalService groupLocalService);
+
+	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public static class FactoryHolder {
+
+		public static volatile Factory factory;
+
+	}
+
+	@ProviderType
+	public interface Builder {
+
+		public KeywordResource build();
+
+		public Builder checkPermissions(boolean checkPermissions);
+
+		public Builder httpServletRequest(
+			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
+
+		public Builder user(com.liferay.portal.kernel.model.User user);
+
+	}
+
+	@ProviderType
+	public interface Factory {
+
+		public Builder create();
+
+	}
 
 }

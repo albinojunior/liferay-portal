@@ -20,10 +20,12 @@ import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.FragmentEntryProcessor;
 import com.liferay.fragment.processor.FragmentEntryProcessorContext;
+import com.liferay.info.type.WebImage;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -123,13 +125,7 @@ public class BackgroundImageFragmentEntryProcessor
 				Map<String, Object> fieldValues = fieldValuesOptional.orElse(
 					new HashMap<>());
 
-				Object fieldValue = fieldValues.get(mappedField);
-
-				if (fieldValue instanceof JSONObject) {
-					JSONObject fieldValueJSONObject = (JSONObject)fieldValue;
-
-					value = fieldValueJSONObject.getString("url");
-				}
+				value = _getImageURL(fieldValues.get(mappedField));
 			}
 
 			if (_fragmentEntryProcessorHelper.isMapped(
@@ -141,27 +137,18 @@ public class BackgroundImageFragmentEntryProcessor
 						fragmentEntryProcessorContext);
 
 				if (fieldValue != null) {
-					if (fieldValue instanceof JSONObject) {
-						JSONObject fieldValueJSONObject =
-							(JSONObject)fieldValue;
-
-						value = fieldValueJSONObject.getString("url");
-					}
-					else {
-						value = String.valueOf(fieldValue);
-					}
+					value = _getImageURL(fieldValue);
 				}
 			}
 
 			if (Validator.isNull(value)) {
 				value = _fragmentEntryProcessorHelper.getEditableValue(
 					editableValueJSONObject,
-					fragmentEntryProcessorContext.getLocale(),
-					fragmentEntryProcessorContext.getSegmentsExperienceIds());
+					fragmentEntryProcessorContext.getLocale());
 			}
 
 			if (Validator.isNotNull(value)) {
-				if (value.startsWith(StringPool.OPEN_CURLY_BRACE)) {
+				if (JSONUtil.isValid(value)) {
 					JSONObject valueJSONObject =
 						JSONFactoryUtil.createJSONObject(value);
 
@@ -237,6 +224,22 @@ public class BackgroundImageFragmentEntryProcessor
 		document.outputSettings(outputSettings);
 
 		return document;
+	}
+
+	private String _getImageURL(Object fieldValue) {
+		if (fieldValue instanceof JSONObject) {
+			JSONObject fieldValueJSONObject = (JSONObject)fieldValue;
+
+			return fieldValueJSONObject.getString("url");
+		}
+
+		if (fieldValue instanceof WebImage) {
+			WebImage webImage = (WebImage)fieldValue;
+
+			return String.valueOf(webImage.toJSONObject());
+		}
+
+		return String.valueOf(fieldValue);
 	}
 
 	@Reference

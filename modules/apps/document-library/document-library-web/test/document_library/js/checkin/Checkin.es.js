@@ -36,7 +36,7 @@ function _renderCheckinComponent({checkedOut = true} = {}) {
 		<Checkin
 			checkedOut={checkedOut}
 			dlVersionNumberIncreaseValues={dlVersionNumberIncreaseValues}
-			portletNamespace="portletNamespace"
+			portletNamespace="_portletNamespace_"
 		/>,
 		{
 			baseElement: document.body,
@@ -49,7 +49,7 @@ describe('Checkin', () => {
 	Liferay.component = (id, component) => {
 		components[id] = component;
 	};
-	Liferay.componentReady = id => Promise.resolve(components[id]);
+	Liferay.componentReady = (id) => Promise.resolve(components[id]);
 	afterEach(cleanup);
 
 	describe('when the file is checked out', () => {

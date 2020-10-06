@@ -17,18 +17,21 @@ package com.liferay.account.admin.web.internal.dao.search;
 import com.liferay.account.admin.web.internal.display.AccountEntryDisplay;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalServiceUtil;
+import com.liferay.account.service.AccountEntryServiceUtil;
 import com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletURLUtil;
+import com.liferay.portal.kernel.search.BaseModelSearchResult;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,13 +40,50 @@ import java.util.Objects;
  */
 public class AccountEntryDisplaySearchContainerFactory {
 
-	public static SearchContainer create(
+	public static SearchContainer<AccountEntryDisplay> create(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse) {
 
-		SearchContainer accountEntryDisplaySearchContainer =
-			new SearchContainer(
-				liferayPortletRequest, liferayPortletResponse.createRenderURL(),
+		return _create(
+			liferayPortletRequest, liferayPortletResponse,
+			new LinkedHashMap<>(), true);
+	}
+
+	public static SearchContainer<AccountEntryDisplay> createWithAccountGroupId(
+		long accountGroupId, LiferayPortletRequest liferayPortletRequest,
+		LiferayPortletResponse liferayPortletResponse) {
+
+		return _create(
+			liferayPortletRequest, liferayPortletResponse,
+			LinkedHashMapBuilder.<String, Object>put(
+				"accountGroupIds", new long[] {accountGroupId}
+			).build(),
+			false);
+	}
+
+	public static SearchContainer<AccountEntryDisplay> createWithUserId(
+		long userId, LiferayPortletRequest liferayPortletRequest,
+		LiferayPortletResponse liferayPortletResponse) {
+
+		return _create(
+			liferayPortletRequest, liferayPortletResponse,
+			LinkedHashMapBuilder.<String, Object>put(
+				"accountUserIds", new long[] {userId}
+			).build(),
+			false);
+	}
+
+	private static SearchContainer<AccountEntryDisplay> _create(
+		LiferayPortletRequest liferayPortletRequest,
+		LiferayPortletResponse liferayPortletResponse,
+		LinkedHashMap<String, Object> params,
+		boolean filterManageableAccountEntries) {
+
+		SearchContainer<AccountEntryDisplay>
+			accountEntryDisplaySearchContainer = new SearchContainer(
+				liferayPortletRequest,
+				PortletURLUtil.getCurrent(
+					liferayPortletRequest, liferayPortletResponse),
 				null, "no-accounts-were-found");
 
 		accountEntryDisplaySearchContainer.setId("accountEntries");
@@ -58,47 +98,49 @@ public class AccountEntryDisplaySearchContainerFactory {
 
 		accountEntryDisplaySearchContainer.setOrderByType(orderByType);
 
-		accountEntryDisplaySearchContainer.setOrderByComparator(
-			_getOrderByComparator(orderByCol, orderByType));
-
 		accountEntryDisplaySearchContainer.setRowChecker(
 			new EmptyOnClickRowChecker(liferayPortletResponse));
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)liferayPortletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
+		String keywords = ParamUtil.getString(
+			liferayPortletRequest, "keywords");
 
 		String navigation = ParamUtil.getString(
 			liferayPortletRequest, "navigation", "active");
 
-		List<AccountEntry> accountEntries =
-			AccountEntryLocalServiceUtil.getAccountEntries(
-				themeDisplay.getCompanyId(), _getStatus(navigation),
+		params.put("status", _getStatus(navigation));
+
+		String type = ParamUtil.getString(liferayPortletRequest, "type");
+
+		if (Validator.isNotNull(type) && !type.equals("all")) {
+			params.put("type", type);
+		}
+
+		BaseModelSearchResult<AccountEntry> baseModelSearchResult;
+
+		if (filterManageableAccountEntries) {
+			baseModelSearchResult = AccountEntryServiceUtil.search(
+				keywords, params, accountEntryDisplaySearchContainer.getStart(),
+				accountEntryDisplaySearchContainer.getDelta(), orderByCol,
+				_isReverseOrder(orderByType));
+		}
+		else {
+			baseModelSearchResult = AccountEntryLocalServiceUtil.search(
+				CompanyThreadLocal.getCompanyId(), keywords, params,
 				accountEntryDisplaySearchContainer.getStart(),
-				accountEntryDisplaySearchContainer.getEnd(),
-				accountEntryDisplaySearchContainer.getOrderByComparator());
+				accountEntryDisplaySearchContainer.getDelta(), orderByCol,
+				_isReverseOrder(orderByType));
+		}
 
 		List<AccountEntryDisplay> accountEntryDisplays =
-			TransformUtil.transform(accountEntries, AccountEntryDisplay::of);
+			TransformUtil.transform(
+				baseModelSearchResult.getBaseModels(), AccountEntryDisplay::of);
 
 		accountEntryDisplaySearchContainer.setResults(accountEntryDisplays);
 
 		accountEntryDisplaySearchContainer.setTotal(
-			AccountEntryLocalServiceUtil.getAccountEntriesCount(
-				themeDisplay.getCompanyId(), _getStatus(navigation)));
+			baseModelSearchResult.getLength());
 
 		return accountEntryDisplaySearchContainer;
-	}
-
-	private static OrderByComparator _getOrderByComparator(
-		String orderByCol, String orderByType) {
-
-		if (Objects.equals(orderByCol, "name")) {
-			return OrderByComparatorFactoryUtil.create(
-				"AccountEntry", orderByCol, Objects.equals(orderByType, "asc"));
-		}
-
-		return null;
 	}
 
 	private static int _getStatus(String navigation) {
@@ -107,6 +149,14 @@ public class AccountEntryDisplaySearchContainerFactory {
 		}
 
 		return WorkflowConstants.STATUS_APPROVED;
+	}
+
+	private static boolean _isReverseOrder(String orderByType) {
+		if (Objects.equals(orderByType, "desc")) {
+			return true;
+		}
+
+		return false;
 	}
 
 }

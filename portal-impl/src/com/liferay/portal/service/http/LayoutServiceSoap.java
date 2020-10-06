@@ -61,8 +61,10 @@ import java.util.Map;
  *
  * @author Brian Wing Shun Chan
  * @see LayoutServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class LayoutServiceSoap {
 
 	/**
@@ -1074,6 +1076,49 @@ public class LayoutServiceSoap {
 	}
 
 	public static com.liferay.portal.kernel.model.LayoutSoap[] getLayouts(
+			long groupId, boolean privateLayout, String type, int start,
+			int end)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.portal.kernel.model.Layout> returnValue =
+				LayoutServiceUtil.getLayouts(
+					groupId, privateLayout, type, start, end);
+
+			return com.liferay.portal.kernel.model.LayoutSoap.toSoapModels(
+				returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.kernel.model.LayoutSoap[] getLayouts(
+			long groupId, boolean privateLayout, String keywords,
+			String[] types, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.portal.kernel.model.Layout> orderByComparator)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.portal.kernel.model.Layout> returnValue =
+				LayoutServiceUtil.getLayouts(
+					groupId, privateLayout, keywords, types, start, end,
+					orderByComparator);
+
+			return com.liferay.portal.kernel.model.LayoutSoap.toSoapModels(
+				returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.kernel.model.LayoutSoap[] getLayouts(
 			long groupId, String type)
 		throws RemoteException {
 
@@ -1150,6 +1195,41 @@ public class LayoutServiceSoap {
 		try {
 			int returnValue = LayoutServiceUtil.getLayoutsCount(
 				groupId, privateLayout, parentLayoutId, priority);
+
+			return returnValue;
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static int getLayoutsCount(
+			long groupId, boolean privateLayout, String type)
+		throws RemoteException {
+
+		try {
+			int returnValue = LayoutServiceUtil.getLayoutsCount(
+				groupId, privateLayout, type);
+
+			return returnValue;
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static int getLayoutsCount(
+			long groupId, boolean privateLayout, String keywords,
+			String[] types)
+		throws RemoteException {
+
+		try {
+			int returnValue = LayoutServiceUtil.getLayoutsCount(
+				groupId, privateLayout, keywords, types);
 
 			return returnValue;
 		}
@@ -1357,11 +1437,101 @@ public class LayoutServiceSoap {
 	 * @param hasIconImage if the layout has a custom icon image
 	 * @param iconBytes the byte array of the layout's new icon image
 	 * @param masterLayoutPlid the primary key of the master layout
+	 * @param styleBookEntryId the primary key of the style book entry
 	 * @param serviceContext the service context to be applied. Can set the
 	 modification date and expando bridge attributes for the layout.
 	 * @return the updated layout
 	 * @throws PortalException if a portal exception occurred
 	 */
+	public static com.liferay.portal.kernel.model.LayoutSoap updateLayout(
+			long groupId, boolean privateLayout, long layoutId,
+			long parentLayoutId, String[] localeNamesMapLanguageIds,
+			String[] localeNamesMapValues, String[] localeTitlesMapLanguageIds,
+			String[] localeTitlesMapValues, String[] descriptionMapLanguageIds,
+			String[] descriptionMapValues, String[] keywordsMapLanguageIds,
+			String[] keywordsMapValues, String[] robotsMapLanguageIds,
+			String[] robotsMapValues, String type, boolean hidden,
+			String[] friendlyURLMapLanguageIds, String[] friendlyURLMapValues,
+			boolean hasIconImage, byte[] iconBytes, long masterLayoutPlid,
+			long styleBookEntryId,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws RemoteException {
+
+		try {
+			Map<Locale, String> localeNamesMap =
+				LocalizationUtil.getLocalizationMap(
+					localeNamesMapLanguageIds, localeNamesMapValues);
+			Map<Locale, String> localeTitlesMap =
+				LocalizationUtil.getLocalizationMap(
+					localeTitlesMapLanguageIds, localeTitlesMapValues);
+			Map<Locale, String> descriptionMap =
+				LocalizationUtil.getLocalizationMap(
+					descriptionMapLanguageIds, descriptionMapValues);
+			Map<Locale, String> keywordsMap =
+				LocalizationUtil.getLocalizationMap(
+					keywordsMapLanguageIds, keywordsMapValues);
+			Map<Locale, String> robotsMap = LocalizationUtil.getLocalizationMap(
+				robotsMapLanguageIds, robotsMapValues);
+			Map<Locale, String> friendlyURLMap =
+				LocalizationUtil.getLocalizationMap(
+					friendlyURLMapLanguageIds, friendlyURLMapValues);
+
+			com.liferay.portal.kernel.model.Layout returnValue =
+				LayoutServiceUtil.updateLayout(
+					groupId, privateLayout, layoutId, parentLayoutId,
+					localeNamesMap, localeTitlesMap, descriptionMap,
+					keywordsMap, robotsMap, type, hidden, friendlyURLMap,
+					hasIconImage, iconBytes, masterLayoutPlid, styleBookEntryId,
+					serviceContext);
+
+			return com.liferay.portal.kernel.model.LayoutSoap.toSoapModel(
+				returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	/**
+	 * Updates the layout with additional parameters.
+	 *
+	 * @param groupId the primary key of the group
+	 * @param privateLayout whether the layout is private to the group
+	 * @param layoutId the layout ID of the layout
+	 * @param parentLayoutId the layout ID of the layout's new parent
+	 layout
+	 * @param localeNamesMap the layout's locales and localized names
+	 * @param localeTitlesMap the layout's locales and localized titles
+	 * @param descriptionMap the locales and localized descriptions to
+	 merge (optionally <code>null</code>)
+	 * @param keywordsMap the locales and localized keywords to merge
+	 (optionally <code>null</code>)
+	 * @param robotsMap the locales and localized robots to merge
+	 (optionally <code>null</code>)
+	 * @param type the layout's new type (optionally {@link
+	 LayoutConstants#TYPE_PORTLET})
+	 * @param hidden whether the layout is hidden
+	 * @param friendlyURLMap the layout's locales and localized friendly
+	 URLs. To see how the URL is normalized when accessed see
+	 {@link
+	 com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil#normalize(
+	 String)}.
+	 * @param hasIconImage if the layout has a custom icon image
+	 * @param iconBytes the byte array of the layout's new icon image
+	 * @param masterLayoutPlid the primary key of the master layout
+	 * @param serviceContext the service context to be applied. Can set the
+	 modification date and expando bridge attributes for the
+	 layout.
+	 * @return the updated layout
+	 * @throws PortalException if a portal exception occurred
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateLayout(long, boolean, long, long, Map, Map, Map, Map,
+	 Map, String, boolean, Map, boolean, byte[], long, long,
+	 ServiceContext)}
+	 */
+	@Deprecated
 	public static com.liferay.portal.kernel.model.LayoutSoap updateLayout(
 			long groupId, boolean privateLayout, long layoutId,
 			long parentLayoutId, String[] localeNamesMapLanguageIds,

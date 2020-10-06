@@ -59,8 +59,8 @@ public class SourceFormatterCheckUtil {
 
 			Properties properties = entry.getValue();
 
-			for (Object obj : properties.keySet()) {
-				String key = (String)obj;
+			for (Object object : properties.keySet()) {
+				String key = (String)object;
 
 				String attributeName = null;
 
@@ -110,8 +110,8 @@ public class SourceFormatterCheckUtil {
 
 			Properties properties = entry.getValue();
 
-			for (Object obj : properties.keySet()) {
-				String key = (String)obj;
+			for (Object object : properties.keySet()) {
+				String key = (String)object;
 
 				if (!ArrayUtil.contains(keys, key)) {
 					continue;
@@ -148,8 +148,8 @@ public class SourceFormatterCheckUtil {
 
 			Properties properties = entry.getValue();
 
-			for (Object obj : properties.keySet()) {
-				String key = (String)obj;
+			for (Object object : properties.keySet()) {
+				String key = (String)object;
 
 				if (!key.endsWith(".excludes")) {
 					continue;
@@ -203,10 +203,10 @@ public class SourceFormatterCheckUtil {
 		boolean cacheValue = true;
 		String closestPropertiesFileLocation = null;
 
-		Iterator<String> keys = jsonObject.keys();
+		Iterator<String> iterator = jsonObject.keys();
 
-		while (keys.hasNext()) {
-			String fileLocation = keys.next();
+		while (iterator.hasNext()) {
+			String fileLocation = iterator.next();
 
 			String curValue = _getJSONObjectValue(
 				jsonObject.getJSONObject(fileLocation), key);
@@ -280,10 +280,10 @@ public class SourceFormatterCheckUtil {
 
 		boolean cacheValues = true;
 
-		Iterator<String> keys = jsonObject.keys();
+		Iterator<String> iterator = jsonObject.keys();
 
-		while (keys.hasNext()) {
-			String fileLocation = keys.next();
+		while (iterator.hasNext()) {
+			String fileLocation = iterator.next();
 
 			List<String> curValues = _getJSONObjectValues(
 				jsonObject.getJSONObject(fileLocation), key);

@@ -30,6 +30,7 @@ import com.liferay.journal.service.persistence.JournalArticleResourcePersistence
 import com.liferay.journal.service.persistence.JournalFolderFinder;
 import com.liferay.journal.service.persistence.JournalFolderPersistence;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -58,6 +59,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -96,6 +98,10 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	/**
 	 * Adds the journal article to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalArticleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalArticle the journal article
 	 * @return the journal article that was added
 	 */
@@ -122,6 +128,10 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	/**
 	 * Deletes the journal article with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalArticleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param id the primary key of the journal article
 	 * @return the journal article that was removed
 	 * @throws PortalException if a journal article with the primary key could not be found
@@ -135,6 +145,10 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	/**
 	 * Deletes the journal article from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalArticleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param journalArticle the journal article
 	 * @return the journal article that was removed
 	 */
@@ -142,6 +156,11 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	@Override
 	public JournalArticle deleteJournalArticle(JournalArticle journalArticle) {
 		return journalArticlePersistence.remove(journalArticle);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return journalArticlePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -482,6 +501,10 @@ public abstract class JournalArticleLocalServiceBaseImpl
 			(JournalArticle)persistedModel);
 	}
 
+	public BasePersistence<JournalArticle> getBasePersistence() {
+		return journalArticlePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -577,6 +600,10 @@ public abstract class JournalArticleLocalServiceBaseImpl
 
 	/**
 	 * Updates the journal article in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect JournalArticleLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param journalArticle the journal article
 	 * @return the journal article that was updated

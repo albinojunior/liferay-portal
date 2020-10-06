@@ -12,440 +12,572 @@
  * details.
  */
 
-/* eslint-disable react/no-string-refs */
-
-import '../FieldBase/FieldBase.es';
-
-import '../Text/Text.es';
-
-import './SelectRegister.soy';
-
-import './SingleSelectedOption.soy';
-
-import 'clay-dropdown';
-
-import 'clay-icon';
-
-import 'clay-label';
-import Component from 'metal-component';
-import dom from 'metal-dom';
-import {EventHandler} from 'metal-events';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
-
-import {setJSONArrayValue} from '../util/setters.es';
-import templates from './Select.soy';
-
-class Select extends Component {
-	addValue(value) {
-		const currentValue = this._getArrayValue(this.value);
-		const newValue = [...currentValue];
-
-		if (value) {
-			newValue.push(value);
-		}
-
-		return newValue;
-	}
-
-	attached() {
-		this._eventHandler = new EventHandler();
-
-		this._eventHandler.add(
-			dom.on(document, 'click', this._handleDocumentClicked.bind(this))
-		);
-	}
-
-	deleteValue(value) {
-		const currentValue = this._getArrayValue(this.value);
-
-		return currentValue.filter(v => v !== value);
-	}
-
-	disposeInternal() {
-		super.disposeInternal();
-
-		this._eventHandler.removeAllListeners();
-	}
-
-	prepareStateForRender(state) {
-		const {predefinedValue, value} = state;
-		const {fixedOptions, multiple, options} = this;
-		const predefinedValueArray = this._getArrayValue(predefinedValue);
-		let valueArray = this._getArrayValue(value);
-
-		valueArray = this._isEmptyArray(valueArray)
-			? predefinedValueArray
-			: valueArray;
-
-		valueArray = valueArray.filter((value, index) => {
-			return multiple ? true : index === 0;
-		});
-
-		const emptyOption = {
-			label: Liferay.Language.get('choose-an-option'),
-			value: '',
-		};
-
-		let newOptions = [...options]
-			.map((option, index) => {
-				return {
-					...this._prepareOption(option, valueArray),
-					separator:
-						fixedOptions.length > 0 && index === options.length - 1,
-				};
-			})
-			.concat(
-				fixedOptions.map(option =>
-					this._prepareOption(option, valueArray)
-				)
-			)
-			.filter(({value}) => value !== '');
-
-		if (!multiple) {
-			newOptions = [emptyOption, ...newOptions];
-		}
-
-		return {
-			...state,
-			options: newOptions,
-			value: valueArray.filter(value =>
-				newOptions.some(option => value === option.value)
-			),
-		};
-	}
-
-	setValue(value) {
-		const newValue = [];
-
-		if (value) {
-			newValue.push(value);
-		}
-
-		return newValue;
-	}
-
-	_getArrayValue(value) {
-		let newValue = value || '';
-
-		if (!Array.isArray(newValue)) {
-			newValue = [newValue];
-		}
-
-		return newValue;
-	}
-
-	_handleDocumentClicked({target}) {
-		const {base} = this.refs;
-		const {dropdown} = base.refs;
-
-		if (dropdown) {
-			const {menu} = dropdown.refs.portal.refs;
-			const {expanded} = this;
-
-			if (
-				expanded &&
-				!this.element.contains(target) &&
-				!dropdown.element.contains(target) &&
-				!menu.contains(target)
-			) {
-				this.setState({
-					expanded: false,
-				});
-			}
-		}
-	}
-
-	_handleExpandedChanged({newVal}) {
-		if (newVal) {
-			this.emit('fieldFocused', {
-				fieldInstance: this,
-				originalEvent: window.event,
-			});
-		}
-		else {
-			this.emit('fieldBlurred', {
-				fieldInstance: this,
-				originalEvent: window.event,
-			});
-		}
-
-		this.expanded = newVal;
-	}
-
-	_handleItemClicked({data, preventDefault}) {
-		const {multiple} = this;
-		const currentValue = this._getArrayValue(this.value);
-		const itemValue = data.item.value;
-
-		let newValue;
-
-		if (multiple) {
-			if (currentValue.includes(itemValue)) {
-				newValue = this.deleteValue(itemValue);
-
-				if (document.activeElement) {
-					document.activeElement.blur();
-				}
-			}
-			else {
-				newValue = this.addValue(itemValue);
-			}
-		}
-		else {
-			newValue = this.setValue(itemValue);
-		}
-
-		preventDefault();
-
-		this.setState(
-			{
-				expanded: multiple,
-				value: newValue,
-			},
-			() =>
-				this.emit('fieldEdited', {
-					fieldInstance: this,
-					value: newValue,
-				})
-		);
-	}
-
-	_handleLabelClosed({preventDefault, stopPropagation, target}) {
-		const {value} = target.data;
-
-		preventDefault();
-		stopPropagation();
-
-		const newValue = this.deleteValue(value);
-
-		this.setState(
-			{
-				value: newValue,
-			},
-			() =>
-				this.emit('fieldEdited', {
-					fieldInstance: this,
-					value: newValue,
-				})
-		);
-	}
-
-	_isEmptyArray(array) {
-		return array.some(value => value !== '') === false;
-	}
-
-	_prepareOption(option, valueArray) {
-		const {multiple} = this;
-		const included = valueArray.includes(option.value);
-
-		return {
-			...option,
-			active: !multiple && included,
-			checked: multiple && included,
-			type: multiple ? 'checkbox' : 'item',
-		};
-	}
-
-	_setDataSourceType(value) {
-		if (Array.isArray(value)) {
-			return value[value.length - 1];
-		}
-
-		return value;
-	}
-}
-
-Select.STATE = {
-	/**
-	 * @default 'manual'
-	 * @memberof Select
-	 * @type {?(string|undefined)}
-	 */
-
-	dataSourceType: Config.oneOfType([Config.string(), Config.array()])
-		.setter('_setDataSourceType')
-		.value('manual'),
-
-	/**
-	 * @default 'string'
-	 * @memberof Select
-	 * @type {?(string|undefined)}
-	 */
-
-	dataType: Config.string().value('string'),
-
-	/**
-	 * @default false
-	 * @memberof Select
-	 * @type {?(boolean|undefined)}
-	 */
-
-	evaluable: Config.bool().value(false),
-
-	/**
-	 * @default false
-	 * @memberof Select
-	 * @type {?bool}
-	 */
-
-	expanded: Config.bool()
-		.internal()
-		.value(false),
-
-	/**
-	 * @default undefined
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default []
-	 * @memberof Select
-	 * @type {?array<object>}
-	 */
-
-	fixedOptions: Config.arrayOf(
-		Config.shapeOf({
-			active: Config.bool().value(false),
-			disabled: Config.bool().value(false),
-			id: Config.string(),
-			inline: Config.bool().value(false),
-			label: Config.string(),
-			name: Config.string(),
-			showLabel: Config.bool().value(true),
-			value: Config.string(),
-		})
-	).value([]),
-
-	/**
-	 * @default undefined
-	 * @memberof Select
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof Select
-	 * @type {?(string|undefined)}
-	 */
-
-	multiple: Config.bool(),
-
-	/**
-	 * @default []
-	 * @memberof Select
-	 * @type {?array<object>}
-	 */
-
-	options: Config.arrayOf(
-		Config.shapeOf({
-			active: Config.bool().value(false),
-			disabled: Config.bool().value(false),
-			id: Config.string(),
-			inline: Config.bool().value(false),
-			label: Config.string(),
-			name: Config.string(),
-			showLabel: Config.bool().value(true),
-			value: Config.string(),
-		})
-	).value([]),
-
-	/**
-	 * @default Choose an Option
-	 * @memberof Select
-	 * @type {?string}
-	 */
-
-	placeholder: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof Select
-	 * @type {?string}
-	 */
-
-	predefinedValue: Config.oneOfType([
-		Config.array(),
-		Config.object(),
-		Config.string(),
-	])
-		.setter(setJSONArrayValue)
-		.value([]),
-
-	/**
-	 * @default false
-	 * @memberof Select
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool(),
-
-	/**
-	 * @default false
-	 * @memberof Select
-	 * @type {?bool}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default false
-	 * @memberof Select
-	 * @type {?bool}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @memberof Select
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	type: Config.string().value('select'),
-
-	/**
-	 * @default undefined
-	 * @memberof Select
-	 * @type {?(string|undefined)}
-	 */
-
-	value: Config.oneOfType([
-		Config.array(),
-		Config.object(),
-		Config.string(),
-	]).setter(setJSONArrayValue),
+import ClayDropDown from '@clayui/drop-down';
+import {ClayCheckbox} from '@clayui/form';
+import React, {forwardRef, useEffect, useMemo, useRef, useState} from 'react';
+
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
+import {useSyncValue} from '../hooks/useSyncValue.es';
+import HiddenSelectInput from './HiddenSelectInput.es';
+import VisibleSelectInput from './VisibleSelectInput.es';
+
+/**
+ * Mapping to be used to match keyCodes
+ * returned from keydown events.
+ */
+const KEYCODES = {
+	ARROW_DOWN: 40,
+	ARROW_UP: 38,
+	ENTER: 13,
+	SHIFT: 16,
+	SPACE: 32,
+	TAB: 9,
 };
 
-Soy.register(Select, templates);
+/**
+ * Maximum number of items to be shown without the Search bar
+ */
+const MAX_ITEMS = 11;
 
-export default Select;
+/**
+ * Appends a new value on the current value state
+ * @param options {Object}
+ * @param options.value {Array|String}
+ * @param options.valueToBeAppended {Array|String}
+ * @returns {Array}
+ */
+function appendValue({value, valueToBeAppended}) {
+	const currentValue = toArray(value);
+	const newValue = [...currentValue];
+
+	if (value) {
+		newValue.push(valueToBeAppended);
+	}
+
+	return newValue;
+}
+
+/**
+ * Removes a value from the value array.
+ * @param options {Object}
+ * @param options.value {Array|String}
+ * @param options.valueToBeRemoved {Array|String}
+ * @returns {Array}
+ */
+function removeValue({value, valueToBeRemoved}) {
+	const currentValue = toArray(value);
+
+	return currentValue.filter((v) => v !== valueToBeRemoved);
+}
+
+/**
+ * Wraps the given argument into an array.
+ * @param value {Array|String}
+ */
+function toArray(value = '') {
+	let newValue = value;
+
+	if (!Array.isArray(newValue)) {
+		newValue = [newValue];
+	}
+
+	return newValue;
+}
+
+function normalizeValue({
+	multiple,
+	normalizedOptions,
+	predefinedValueArray,
+	valueArray,
+}) {
+	const assertValue = valueArray.length ? valueArray : predefinedValueArray;
+
+	const valueWithoutMultiple = assertValue.filter((_, index) => {
+		return multiple ? true : index === 0;
+	});
+
+	return valueWithoutMultiple.filter((value) =>
+		normalizedOptions.some((option) => value === option.value)
+	);
+}
+
+/**
+ * Some parameters on each option
+ * needs to be prepared in case of
+ * multiple selected values(when the value state is an array).
+ */
+function assertOptionParameters({multiple, option, valueArray}) {
+	const included = valueArray.includes(option.value);
+
+	return {
+		...option,
+		active: !multiple && included,
+		checked: multiple && included,
+		type: multiple ? 'checkbox' : 'item',
+	};
+}
+
+function normalizeOptions({fixedOptions, multiple, options, valueArray}) {
+	const emptyOption = {
+		label: Liferay.Language.get('choose-an-option'),
+		value: null,
+	};
+
+	const newOptions = [
+		...options.map((option, index) => ({
+			...assertOptionParameters({multiple, option, valueArray}),
+			separator:
+				Array.isArray(fixedOptions) &&
+				fixedOptions.length > 0 &&
+				index === options.length - 1,
+		})),
+		...fixedOptions.map((option) =>
+			assertOptionParameters({multiple, option, valueArray})
+		),
+	].filter(({value}) => value !== '');
+
+	if (!multiple) {
+		return [emptyOption, ...newOptions];
+	}
+
+	return newOptions;
+}
+
+function handleDropdownItemClick({currentValue, multiple, option}) {
+	const itemValue = option.value;
+
+	let newValue;
+
+	if (multiple) {
+		if (currentValue.includes(itemValue)) {
+			newValue = removeValue({
+				value: currentValue,
+				valueToBeRemoved: itemValue,
+			});
+		}
+		else {
+			newValue = appendValue({
+				value: currentValue,
+				valueToBeAppended: itemValue,
+			});
+		}
+	}
+	else if (itemValue === null) {
+		newValue = [];
+	}
+	else {
+		newValue = [itemValue];
+	}
+
+	return newValue;
+}
+
+const DropdownItem = ({
+	currentValue,
+	expand,
+	index,
+	multiple,
+	onSelect,
+	option,
+	options,
+}) => (
+	<>
+		<ClayDropDown.Item
+			active={expand && currentValue === option.label}
+			data-testid={`dropdownItem-${index}`}
+			label={option.label}
+			onClick={(event) => {
+				event.preventDefault();
+				event.stopPropagation();
+
+				onSelect({
+					currentValue,
+					event,
+					multiple,
+					option,
+				});
+			}}
+			value={options.value}
+		>
+			{multiple ? (
+				<ClayCheckbox
+					aria-label={option.label}
+					checked={currentValue.includes(option.value)}
+					data-testid={`labelItem-${option.value}`}
+					label={option.label}
+					onChange={(event) => {
+						onSelect({
+							currentValue,
+							event,
+							multiple,
+							option,
+						});
+					}}
+				/>
+			) : (
+				option.label
+			)}
+		</ClayDropDown.Item>
+
+		{option && option.separator && <ClayDropDown.Divider />}
+	</>
+);
+
+const DropdownList = ({
+	currentValue,
+	expand,
+	handleSelect,
+	multiple,
+	options,
+}) => (
+	<ClayDropDown.ItemList>
+		{options.map((option, index) => (
+			<DropdownItem
+				currentValue={currentValue}
+				expand={expand}
+				index={index}
+				key={`${option.value}-${index}`}
+				multiple={multiple}
+				onSelect={handleSelect}
+				option={option}
+				options={options}
+			/>
+		))}
+	</ClayDropDown.ItemList>
+);
+
+const DropdownListWithSearch = ({
+	currentValue,
+	expand,
+	handleSelect,
+	multiple,
+	options,
+}) => {
+	const [query, setQuery] = useState('');
+	const [filteredOptions, setFilteredOptions] = useState([]);
+
+	const emptyOption = {
+		label: Liferay.Language.get('choose-an-option'),
+		value: null,
+	};
+
+	useEffect(() => {
+		const result = options.filter(
+			(option) =>
+				option.value &&
+				option.label.toLowerCase().includes(query.toLowerCase())
+		);
+
+		setFilteredOptions([emptyOption, ...result]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [options, query]);
+
+	return (
+		<>
+			<ClayDropDown.Search
+				onChange={(event) => setQuery(event.target.value)}
+				value={query}
+			/>
+			{filteredOptions.length > 1 ? (
+				<DropdownList
+					currentValue={currentValue}
+					expand={expand}
+					handleSelect={handleSelect}
+					multiple={multiple}
+					options={filteredOptions}
+				/>
+			) : (
+				<div className="dropdown-section text-muted">
+					{Liferay.Language.get('empty-list')}
+				</div>
+			)}
+		</>
+	);
+};
+
+const Trigger = forwardRef(
+	(
+		{
+			onCloseButtonClicked,
+			onTriggerClicked,
+			onTriggerKeyDown,
+			readOnly,
+			value,
+			...otherProps
+		},
+		ref
+	) => {
+		return (
+			<>
+				{!readOnly && (
+					<HiddenSelectInput value={value} {...otherProps} />
+				)}
+				<VisibleSelectInput
+					onClick={onTriggerClicked}
+					onCloseButtonClicked={onCloseButtonClicked}
+					onKeyDown={onTriggerKeyDown}
+					readOnly={readOnly}
+					ref={ref}
+					value={value}
+					{...otherProps}
+				/>
+			</>
+		);
+	}
+);
+
+const Select = ({
+	multiple,
+	onCloseButtonClicked,
+	onDropdownItemClicked,
+	onExpand,
+	options,
+	predefinedValue,
+	readOnly,
+	value,
+	...otherProps
+}) => {
+	const menuElementRef = useRef(null);
+	const triggerElementRef = useRef(null);
+
+	const [currentValue, setCurrentValue] = useSyncValue(value, false);
+	const [expand, setExpand] = useState(false);
+
+	const handleFocus = (event, direction) => {
+		const target = event.target;
+		const focusabledElements = event.currentTarget.querySelectorAll(
+			'button'
+		);
+		const targetIndex = [...focusabledElements].findIndex(
+			(current) => current === target
+		);
+
+		let nextElement;
+
+		if (direction) {
+			nextElement = focusabledElements[targetIndex - 1];
+		}
+		else {
+			nextElement = focusabledElements[targetIndex + 1];
+		}
+
+		if (nextElement) {
+			event.preventDefault();
+			event.stopPropagation();
+			nextElement.focus();
+		}
+		else if (targetIndex === 0 && direction) {
+			event.preventDefault();
+			event.stopPropagation();
+			menuElementRef.current.focus();
+		}
+	};
+
+	const handleSelect = ({currentValue, event, multiple, option}) => {
+		const newValue = handleDropdownItemClick({
+			currentValue,
+			multiple,
+			option,
+		});
+
+		setCurrentValue(newValue);
+
+		onDropdownItemClicked({event, value: newValue});
+
+		if (!multiple) {
+			setExpand(false);
+
+			onExpand({event, expand: false});
+
+			triggerElementRef.current.firstChild.focus();
+		}
+	};
+
+	return (
+		<>
+			<Trigger
+				multiple={multiple}
+				onCloseButtonClicked={({event, value}) => {
+					const newValue = removeValue({
+						value: currentValue,
+						valueToBeRemoved: value,
+					});
+
+					setCurrentValue(newValue);
+
+					onCloseButtonClicked({event, value: newValue});
+				}}
+				onTriggerClicked={(event) => {
+					if (readOnly) {
+						return;
+					}
+
+					setExpand(!expand);
+					onExpand({event, expand: !expand});
+
+					if (expand) {
+						triggerElementRef.current.firstChild.focus();
+					}
+				}}
+				onTriggerKeyDown={(event) => {
+					if (
+						(event.keyCode === KEYCODES.TAB ||
+							event.keyCode === KEYCODES.ARROW_DOWN) &&
+						!event.shiftKey &&
+						expand
+					) {
+						event.preventDefault();
+						event.stopPropagation();
+
+						const firstElement = menuElementRef.current.querySelector(
+							'button'
+						);
+
+						firstElement.focus();
+					}
+
+					if (
+						event.keyCode === KEYCODES.ENTER ||
+						(event.keyCode === KEYCODES.SPACE && !event.shiftKey)
+					) {
+						event.preventDefault();
+						event.stopPropagation();
+
+						setExpand(!expand);
+
+						onExpand({event, expand: !expand});
+
+						if (expand) {
+							triggerElementRef.current.firstChild.focus();
+						}
+					}
+				}}
+				options={options}
+				predefinedValue={predefinedValue}
+				readOnly={readOnly}
+				ref={triggerElementRef}
+				value={currentValue}
+				{...otherProps}
+			/>
+			<ClayDropDown.Menu
+				active={expand}
+				alignElementRef={triggerElementRef}
+				className="ddm-btn-full ddm-select-dropdown"
+				onKeyDown={(event) => {
+					switch (event.keyCode) {
+						case KEYCODES.ARROW_DOWN:
+							handleFocus(event, false);
+							break;
+						case KEYCODES.ARROW_UP:
+							handleFocus(event, true);
+							break;
+						case KEYCODES.TAB:
+							handleFocus(event, event.shiftKey);
+							break;
+						default:
+							break;
+					}
+				}}
+				onSetActive={setExpand}
+				ref={menuElementRef}
+			>
+				{options.length > MAX_ITEMS ? (
+					<DropdownListWithSearch
+						currentValue={currentValue}
+						expand={expand}
+						handleSelect={handleSelect}
+						multiple={multiple}
+						options={options}
+					/>
+				) : (
+					<DropdownList
+						currentValue={currentValue}
+						expand={expand}
+						handleSelect={handleSelect}
+						multiple={multiple}
+						options={options}
+					/>
+				)}
+			</ClayDropDown.Menu>
+		</>
+	);
+};
+
+const Main = ({
+	fixedOptions = [],
+	label,
+	localizedValue = {},
+	multiple,
+	name,
+	onBlur = () => {},
+	onChange,
+	onFocus = () => {},
+	options = [],
+	predefinedValue = [],
+	readOnly = false,
+	value = [],
+	...otherProps
+}) => {
+	const predefinedValueArray = toArray(predefinedValue);
+	const valueArray = toArray(value);
+
+	const normalizedOptions = useMemo(
+		() =>
+			normalizeOptions({
+				fixedOptions,
+				multiple,
+				options,
+				valueArray,
+			}),
+		[fixedOptions, multiple, options, valueArray]
+	);
+
+	value = useMemo(
+		() =>
+			normalizeValue({
+				multiple,
+				normalizedOptions,
+				predefinedValueArray,
+				valueArray,
+			}),
+		[multiple, normalizedOptions, predefinedValueArray, valueArray]
+	);
+
+	return (
+		<FieldBase
+			label={label}
+			localizedValue={localizedValue}
+			name={name}
+			readOnly={readOnly}
+			{...otherProps}
+		>
+			<Select
+				multiple={multiple}
+				name={name}
+				onCloseButtonClicked={({event, value}) =>
+					onChange(event, value)
+				}
+				onDropdownItemClicked={({event, value}) =>
+					onChange(event, value)
+				}
+				onExpand={({event, expand}) => {
+					if (expand) {
+						onFocus(event);
+					}
+					else {
+						onBlur(event);
+					}
+				}}
+				options={normalizedOptions}
+				predefinedValue={predefinedValueArray}
+				readOnly={readOnly}
+				value={value}
+				{...otherProps}
+			/>
+		</FieldBase>
+	);
+};
+
+Main.displayName = 'Select';
+
+export default Main;

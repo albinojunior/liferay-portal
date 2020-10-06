@@ -40,12 +40,30 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 		return _sortMethodCalls(fileName, content);
 	}
 
-	private String _getSortedCodeBlock(String codeBlock, String methodCall) {
-		String previousParameters = null;
-		String previousPutOrSetParameterName = null;
+	private String _getMethodCall(String content, int start) {
+		int end = start;
 
-		PutOrSetParameterNameComparator putOrSetParameterNameComparator =
-			new PutOrSetParameterNameComparator();
+		while (true) {
+			end = content.indexOf(");\n", end + 1);
+
+			if (end == -1) {
+				return null;
+			}
+
+			String methodCall = content.substring(start, end + 3);
+
+			if (getLevel(methodCall) == 0) {
+				return methodCall;
+			}
+		}
+	}
+
+	private String _getSortedCodeBlock(String codeBlock, String methodCall) {
+		String previousParameterName = null;
+		String previousParameters = null;
+
+		ParameterNameComparator parameterNameComparator =
+			new ParameterNameComparator();
 
 		int x = 0;
 
@@ -89,11 +107,11 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 			List<String> parametersList = JavaSourceUtil.splitParameters(
 				parameters);
 
-			String putOrSetParameterName = parametersList.get(0);
+			String parameterName = parametersList.get(0);
 
-			if (previousPutOrSetParameterName != null) {
-				int compare = putOrSetParameterNameComparator.compare(
-					previousPutOrSetParameterName, putOrSetParameterName);
+			if (previousParameterName != null) {
+				int compare = parameterNameComparator.compare(
+					previousParameterName, parameterName);
 
 				if (compare > 0) {
 					String sortedCodeBlock = StringUtil.replaceFirst(
@@ -104,8 +122,8 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 				}
 			}
 
+			previousParameterName = parameterName;
 			previousParameters = parameters;
-			previousPutOrSetParameterName = putOrSetParameterName;
 		}
 	}
 
@@ -218,8 +236,8 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 
 		Matcher matcher = pattern.matcher(content);
 
-		PutOrSetParameterNameComparator putOrSetParameterNameComparator =
-			new PutOrSetParameterNameComparator();
+		ParameterNameComparator parameterNameComparator =
+			new ParameterNameComparator();
 
 		while (matcher.find()) {
 			if (!_isAllowedVariableType(
@@ -228,8 +246,8 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 				continue;
 			}
 
+			String previousParameterName = null;
 			String previousParameters = null;
-			String previousPutOrSetParameterName = null;
 
 			int x = matcher.end() - 1;
 
@@ -259,11 +277,11 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 					break;
 				}
 
-				String putOrSetParameterName = parametersList.get(0);
+				String parameterName = parametersList.get(0);
 
-				if (previousPutOrSetParameterName != null) {
-					int compare = putOrSetParameterNameComparator.compare(
-						previousPutOrSetParameterName, putOrSetParameterName);
+				if (previousParameterName != null) {
+					int compare = parameterNameComparator.compare(
+						previousParameterName, parameterName);
 
 					if (compare > 0) {
 						String codeBlock = content.substring(
@@ -286,8 +304,8 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 					break;
 				}
 
+				previousParameterName = parameterName;
 				previousParameters = parameters;
-				previousPutOrSetParameterName = putOrSetParameterName;
 
 				x = content.indexOf("(", y + 1);
 			}
@@ -301,18 +319,67 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 			content, "put", 2, "ConcurrentHashMapBuilder", "HashMapBuilder",
 			"JSONObject", "JSONUtil", "SoyContext", "TreeMapBuilder");
 
-		content = _sortMethodCalls(
+		content = _sortMethodCallsByMethodName(
+			content, "DropdownItem", "LabelItem", "NavigationItem");
+
+		content = _sortMethodCallsByParameter(
 			fileName, content, "add", "ConcurrentSkipListSet", "HashSet",
 			"TreeSet");
-		content = _sortMethodCalls(
+		content = _sortMethodCallsByParameter(
 			fileName, content, "put", "ConcurrentHashMap", "HashMap",
 			"JSONObject", "SortedMap", "TreeMap");
-		content = _sortMethodCalls(fileName, content, "setAttribute");
+		content = _sortMethodCallsByParameter(
+			fileName, content, "setAttribute");
 
 		return content;
 	}
 
-	private String _sortMethodCalls(
+	private String _sortMethodCallsByMethodName(
+		String content, String... variableTypeNames) {
+
+		MethodCallComparator methodCallComparator = new MethodCallComparator();
+
+		for (String variableTypeName : variableTypeNames) {
+			Pattern pattern = Pattern.compile(
+				"\n(\t+\\w*" + variableTypeName + "\\.)(\\w+)\\(",
+				Pattern.CASE_INSENSITIVE);
+
+			Matcher matcher = pattern.matcher(content);
+
+			while (matcher.find()) {
+				String methodCall1 = _getMethodCall(content, matcher.start(1));
+
+				if (methodCall1 == null) {
+					continue;
+				}
+
+				int x = matcher.start(1) + methodCall1.length();
+
+				String followingContent = content.substring(x);
+
+				if (!followingContent.startsWith(matcher.group(1))) {
+					continue;
+				}
+
+				String methodCall2 = _getMethodCall(content, x);
+
+				if ((methodCall2 != null) &&
+					(methodCallComparator.compare(methodCall1, methodCall2) >
+						0)) {
+
+					content = StringUtil.replaceFirst(
+						content, methodCall2, methodCall1, matcher.start());
+
+					return StringUtil.replaceFirst(
+						content, methodCall1, methodCall2, matcher.start());
+				}
+			}
+		}
+
+		return content;
+	}
+
+	private String _sortMethodCallsByParameter(
 		String fileName, String content, String methodName,
 		String... variableTypeNames) {
 
@@ -357,25 +424,49 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 		return content;
 	}
 
-	private class PutOrSetParameterNameComparator
-		extends NaturalOrderStringComparator {
+	private class MethodCallComparator extends ParameterNameComparator {
 
 		@Override
-		public int compare(
-			String putOrSetParameterName1, String putOrSetParameterName2) {
+		public int compare(String methodCall1, String methodCall2) {
+			String methodName1 = _getMethodName(methodCall1);
+			String methodName2 = _getMethodName(methodCall2);
 
+			if (!methodName1.equals(methodName2)) {
+				return methodName1.compareTo(methodName2);
+			}
+
+			List<String> parameterList1 = JavaSourceUtil.getParameterList(
+				methodCall1);
+			List<String> parameterList2 = JavaSourceUtil.getParameterList(
+				methodCall2);
+
+			return super.compare(parameterList1.get(0), parameterList2.get(0));
+		}
+
+		private String _getMethodName(String methodCall) {
+			int x = methodCall.indexOf(CharPool.PERIOD);
+			int y = methodCall.indexOf(CharPool.OPEN_PARENTHESIS);
+
+			return methodCall.substring(x + 1, y);
+		}
+
+	}
+
+	private class ParameterNameComparator extends NaturalOrderStringComparator {
+
+		@Override
+		public int compare(String parameterName1, String parameterName2) {
 			Matcher matcher = _multipleLineConstantPattern.matcher(
-				putOrSetParameterName1);
+				parameterName1);
 
-			putOrSetParameterName1 = matcher.replaceAll(".");
+			parameterName1 = matcher.replaceAll(".");
 
-			matcher = _multipleLineConstantPattern.matcher(
-				putOrSetParameterName2);
+			matcher = _multipleLineConstantPattern.matcher(parameterName2);
 
-			putOrSetParameterName2 = matcher.replaceAll(".");
+			parameterName2 = matcher.replaceAll(".");
 
-			String strippedParameterName1 = stripQuotes(putOrSetParameterName1);
-			String strippedParameterName2 = stripQuotes(putOrSetParameterName2);
+			String strippedParameterName1 = stripQuotes(parameterName1);
+			String strippedParameterName2 = stripQuotes(parameterName2);
 
 			if (strippedParameterName1.contains(StringPool.OPEN_PARENTHESIS) ||
 				strippedParameterName2.contains(StringPool.OPEN_PARENTHESIS)) {
@@ -383,36 +474,33 @@ public class MethodCallsOrderCheck extends BaseFileCheck {
 				return 0;
 			}
 
-			matcher = _multipleLineParameterNamePattern.matcher(
-				putOrSetParameterName1);
+			matcher = _multipleLineParameterNamePattern.matcher(parameterName1);
 
 			if (matcher.find()) {
-				putOrSetParameterName1 = matcher.replaceAll(StringPool.BLANK);
+				parameterName1 = matcher.replaceAll(StringPool.BLANK);
 			}
 
-			matcher = _multipleLineParameterNamePattern.matcher(
-				putOrSetParameterName2);
+			matcher = _multipleLineParameterNamePattern.matcher(parameterName2);
 
 			if (matcher.find()) {
-				putOrSetParameterName2 = matcher.replaceAll(StringPool.BLANK);
+				parameterName2 = matcher.replaceAll(StringPool.BLANK);
 			}
 
-			if (putOrSetParameterName1.matches("\".*\"") &&
-				putOrSetParameterName2.matches("\".*\"")) {
+			if (parameterName1.matches("\".*\"") &&
+				parameterName2.matches("\".*\"")) {
 
-				String strippedQuotes1 = putOrSetParameterName1.substring(
-					1, putOrSetParameterName1.length() - 1);
-				String strippedQuotes2 = putOrSetParameterName2.substring(
-					1, putOrSetParameterName2.length() - 1);
+				String strippedQuotes1 = parameterName1.substring(
+					1, parameterName1.length() - 1);
+				String strippedQuotes2 = parameterName2.substring(
+					1, parameterName2.length() - 1);
 
 				return super.compare(strippedQuotes1, strippedQuotes2);
 			}
 
-			int value = super.compare(
-				putOrSetParameterName1, putOrSetParameterName2);
+			int value = super.compare(parameterName1, parameterName2);
 
-			if (putOrSetParameterName1.startsWith(StringPool.QUOTE) ^
-				putOrSetParameterName2.startsWith(StringPool.QUOTE)) {
+			if (parameterName1.startsWith(StringPool.QUOTE) ^
+				parameterName2.startsWith(StringPool.QUOTE)) {
 
 				return -value;
 			}

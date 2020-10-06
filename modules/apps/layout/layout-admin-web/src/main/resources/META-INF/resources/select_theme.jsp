@@ -50,9 +50,9 @@ SelectThemeDisplayContext selectThemeDisplayContext = new SelectThemeDisplayCont
 			<%
 			PluginPackage selPluginPackage = theme.getPluginPackage();
 
-			Map<String, Object> data = new HashMap<String, Object>();
-
-			data.put("themeid", theme.getThemeId());
+			Map<String, Object> data = HashMapBuilder.<String, Object>put(
+				"themeid", theme.getThemeId()
+			).build();
 			%>
 
 			<c:choose>
@@ -121,10 +121,3 @@ SelectThemeDisplayContext selectThemeDisplayContext = new SelectThemeDisplayCont
 		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<aui:script>
-	Liferay.Util.selectEntityHandler(
-		'#<portlet:namespace />selectThemeFm',
-		'<%= HtmlUtil.escapeJS(selectThemeDisplayContext.getEventName()) %>'
-	);
-</aui:script>

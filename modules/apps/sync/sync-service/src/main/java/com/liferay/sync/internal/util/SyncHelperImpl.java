@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
+import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.Digester;
@@ -211,13 +212,12 @@ public class SyncHelperImpl implements SyncHelper {
 			throwableMessage = rootCauseThrowable.toString();
 		}
 
-		JSONObject rootCauseJSONObject = JSONUtil.put(
-			"message", throwableMessage
-		).put(
-			"type", ClassUtil.getClassName(rootCauseThrowable)
-		);
-
-		sb.append(rootCauseJSONObject);
+		sb.append(
+			JSONUtil.put(
+				"message", throwableMessage
+			).put(
+				"type", ClassUtil.getClassName(rootCauseThrowable)
+			));
 
 		return StringUtil.unquote(sb.toString());
 	}
@@ -264,7 +264,7 @@ public class SyncHelperImpl implements SyncHelper {
 			new JcaX509v3CertificateBuilder(
 				x500Name, new BigInteger(64, new SecureRandom()),
 				new Date(System.currentTimeMillis() - Time.YEAR),
-				new Date(System.currentTimeMillis() + Time.YEAR * 1000),
+				new Date(System.currentTimeMillis() + (Time.YEAR * 1000)),
 				x500Name, keyPair.getPublic());
 
 		PrivateKey privateKey = keyPair.getPrivate();
@@ -344,8 +344,6 @@ public class SyncHelperImpl implements SyncHelper {
 	public File getFileDelta(File sourceFile, File targetFile)
 		throws PortalException {
 
-		File deltaFile = null;
-
 		File checksumsFile = FileUtil.createTempFile();
 
 		try (FileInputStream sourceFileInputStream = new FileInputStream(
@@ -367,7 +365,7 @@ public class SyncHelperImpl implements SyncHelper {
 			throw new PortalException(exception);
 		}
 
-		deltaFile = FileUtil.createTempFile();
+		File deltaFile = FileUtil.createTempFile();
 
 		try (FileInputStream targetFileInputStream = new FileInputStream(
 				targetFile);
@@ -518,7 +516,22 @@ public class SyncHelperImpl implements SyncHelper {
 			serviceContext.getModelPermissions();
 
 		if (modelPermissions == null) {
-			modelPermissions = new ModelPermissions();
+			if (folder) {
+				modelPermissions = ModelPermissionsFactory.create(
+					Folder.class.getName());
+			}
+			else {
+				modelPermissions = ModelPermissionsFactory.create(
+					FileEntry.class.getName());
+			}
+		}
+		else {
+			if (folder) {
+				modelPermissions.setResourceName(Folder.class.getName());
+			}
+			else {
+				modelPermissions.setResourceName(FileEntry.class.getName());
+			}
 		}
 
 		modelPermissions.addRolePermissions(

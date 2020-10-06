@@ -12,36 +12,9 @@
  * details.
  */
 
-AUI.add(
-	'liferay-address',
-	() => {
-		if (!Liferay.Address) {
-			Liferay.Address = {
-				getCountries(callback) {
-					Liferay.Service(
-						'/country/get-countries',
-						{
-							active: true,
-						},
-						callback
-					);
-				},
-
-				getRegions(callback, selectKey) {
-					Liferay.Service(
-						'/region/get-regions',
-						{
-							active: true,
-							countryId: Number(selectKey),
-						},
-						callback
-					);
-				},
-			};
-		}
-	},
-	'',
-	{
-		requires: [],
-	}
-);
+/**
+ * @deprecated As of Athanasius (7.3.x), replaced by `Liferay.Address`
+ */
+AUI.add('liferay-address', () => {}, '', {
+	requires: [],
+});

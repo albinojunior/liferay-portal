@@ -50,7 +50,7 @@ public class SamlIdpSsoSessionImpl extends SamlIdpSsoSessionBaseImpl {
 			Date createDate = getCreateDate();
 
 			long expirationTime =
-				createDate.getTime() + samlIdpSessionMaximumAge * Time.SECOND;
+				createDate.getTime() + (samlIdpSessionMaximumAge * Time.SECOND);
 
 			if (System.currentTimeMillis() > expirationTime) {
 				return true;
@@ -66,7 +66,7 @@ public class SamlIdpSsoSessionImpl extends SamlIdpSsoSessionBaseImpl {
 		Date modifiedDate = getModifiedDate();
 
 		long expirationTime =
-			modifiedDate.getTime() + samlIdpSessionTimeout * Time.SECOND;
+			modifiedDate.getTime() + (samlIdpSessionTimeout * Time.SECOND);
 
 		if (System.currentTimeMillis() > expirationTime) {
 			return true;

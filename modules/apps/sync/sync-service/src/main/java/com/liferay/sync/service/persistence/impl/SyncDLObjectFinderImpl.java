@@ -179,7 +179,7 @@ public class SyncDLObjectFinderImpl
 	}
 
 	protected String getTypePKsSQL(long[] typePKs) {
-		StringBundler sb = new StringBundler(typePKs.length * 4 + 1);
+		StringBundler sb = new StringBundler((typePKs.length * 4) + 1);
 
 		sb.append("primKey IN (");
 

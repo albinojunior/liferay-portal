@@ -11,7 +11,7 @@
 
 const filterConstants = {
 	assignee: {
-		key: 'assigneeUserIds',
+		key: 'assigneeIds',
 		pinned: false,
 		title: Liferay.Language.get('assignee'),
 	},
@@ -21,7 +21,7 @@ const filterConstants = {
 		title: Liferay.Language.get('process-status'),
 	},
 	processStep: {
-		key: 'taskKeys',
+		key: 'taskNames',
 		pinned: false,
 		title: Liferay.Language.get('process-step'),
 	},

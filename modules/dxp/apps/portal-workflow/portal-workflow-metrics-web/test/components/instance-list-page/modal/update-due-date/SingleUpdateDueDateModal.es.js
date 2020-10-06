@@ -12,22 +12,41 @@
 import {fireEvent, render} from '@testing-library/react';
 import React, {useState} from 'react';
 
-import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalContext.es';
-import {SingleUpdateDueDateModal} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/update-due-date/SingleUpdateDueDateModal.es';
-import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
+import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPageProvider.es';
+import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalProvider.es';
+import SingleUpdateDueDateModal from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/update-due-date/SingleUpdateDueDateModal.es';
 import ToasterProvider from '../../../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
 import {MockRouter} from '../../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
 const ContainerMock = ({children}) => {
+	const selectedInstance = {
+		assetTitle: 'Blog1',
+		assetType: 'Blogs Entry',
+		assignees: [{id: 2, name: 'Test Test'}],
+		id: 1,
+		status: 'In Progress',
+		taskNames: ['Review'],
+	};
 	const [updateDueDate, setUpdateDueDate] = useState({
-		visible: true,
+		comment: undefined,
+		dueDate: undefined,
 	});
 
 	return (
-		<InstanceListContext.Provider value={{setSelectedItems: jest.fn()}}>
-			<ModalContext.Provider value={{setUpdateDueDate, updateDueDate}}>
+		<InstanceListContext.Provider
+			value={{
+				selectedInstance,
+			}}
+		>
+			<ModalContext.Provider
+				value={{
+					setUpdateDueDate,
+					updateDueDate,
+					visibleModal: 'updateDueDate',
+				}}
+			>
 				<ToasterProvider>{children}</ToasterProvider>
 			</ModalContext.Provider>
 		</InstanceListContext.Provider>
@@ -52,7 +71,7 @@ describe('The SingleUpdateDueDateModal component should', () => {
 
 	beforeAll(() => {
 		const renderResult = render(
-			<MockRouter client={clientMock}>
+			<MockRouter client={clientMock} isAmPm>
 				<SingleUpdateDueDateModal />
 			</MockRouter>,
 			{
@@ -71,9 +90,7 @@ describe('The SingleUpdateDueDateModal component should', () => {
 
 		expect(alertError).toHaveTextContent('your-request-has-failed');
 		expect(retryBtn).toHaveTextContent('retry');
-		expect(emptyState.children[0]).toHaveTextContent(
-			'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-		);
+		expect(emptyState).toHaveTextContent('unable-to-retrieve-data');
 
 		fireEvent.click(retryBtn);
 	});
@@ -86,14 +103,14 @@ describe('The SingleUpdateDueDateModal component should', () => {
 		const timeInput = getByTestId('timeInput');
 
 		expect(dateInput.value).toBe('02/01/2020');
-		expect(timeInput.value).toBe('10:00');
+		expect(timeInput.value).toBe('10:00 AM');
 		expect(commentInput.value).toBe('');
 
 		expect(cancelBtn).not.toHaveAttribute('disabled');
 		expect(doneBtn).toHaveAttribute('disabled');
 
 		const newDate = '01/01';
-		const newTime = '12:00 PM';
+		const newTime = '12:00';
 
 		fireEvent.change(dateInput, {target: {value: newDate}});
 		fireEvent.change(timeInput, {target: {value: newTime}});
@@ -104,7 +121,7 @@ describe('The SingleUpdateDueDateModal component should', () => {
 		expect(doneBtn).toHaveAttribute('disabled');
 
 		fireEvent.change(dateInput, {target: {value: `${newDate}/2020`}});
-		fireEvent.change(timeInput, {target: {value: '10:00'}});
+		fireEvent.change(timeInput, {target: {value: '10:00 PM'}});
 
 		expect(dateInput.parentNode).not.toHaveClass('has-error');
 		expect(timeInput.parentNode).not.toHaveClass('has-error');

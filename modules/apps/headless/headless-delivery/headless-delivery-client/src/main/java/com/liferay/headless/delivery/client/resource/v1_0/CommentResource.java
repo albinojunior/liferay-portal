@@ -22,6 +22,7 @@ import com.liferay.headless.delivery.client.problem.Problem;
 import com.liferay.headless.delivery.client.serdes.v1_0.CommentSerDes;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -41,13 +42,13 @@ public interface CommentResource {
 	}
 
 	public Page<Comment> getBlogPostingCommentsPage(
-			Long blogPostingId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long blogPostingId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getBlogPostingCommentsPageHttpResponse(
-			Long blogPostingId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long blogPostingId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public Comment postBlogPostingComment(Long blogPostingId, Comment comment)
@@ -96,13 +97,13 @@ public interface CommentResource {
 		throws Exception;
 
 	public Page<Comment> getCommentCommentsPage(
-			Long parentCommentId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long parentCommentId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getCommentCommentsPageHttpResponse(
-			Long parentCommentId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long parentCommentId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public Comment postCommentComment(Long parentCommentId, Comment comment)
@@ -113,13 +114,13 @@ public interface CommentResource {
 		throws Exception;
 
 	public Page<Comment> getDocumentCommentsPage(
-			Long documentId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long documentId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getDocumentCommentsPageHttpResponse(
-			Long documentId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long documentId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public Comment postDocumentComment(Long documentId, Comment comment)
@@ -138,13 +139,14 @@ public interface CommentResource {
 		throws Exception;
 
 	public Page<Comment> getStructuredContentCommentsPage(
-			Long structuredContentId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long structuredContentId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			getStructuredContentCommentsPageHttpResponse(
-				Long structuredContentId, String search, String filterString,
+				Long structuredContentId, String search,
+				List<String> aggregations, String filterString,
 				Pagination pagination, String sortString)
 		throws Exception;
 
@@ -210,8 +212,8 @@ public interface CommentResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -221,14 +223,14 @@ public interface CommentResource {
 	public static class CommentResourceImpl implements CommentResource {
 
 		public Page<Comment> getBlogPostingCommentsPage(
-				Long blogPostingId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long blogPostingId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getBlogPostingCommentsPageHttpResponse(
-					blogPostingId, search, filterString, pagination,
-					sortString);
+					blogPostingId, search, aggregations, filterString,
+					pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -251,8 +253,8 @@ public interface CommentResource {
 		}
 
 		public HttpInvoker.HttpResponse getBlogPostingCommentsPageHttpResponse(
-				Long blogPostingId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long blogPostingId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -735,14 +737,14 @@ public interface CommentResource {
 		}
 
 		public Page<Comment> getCommentCommentsPage(
-				Long parentCommentId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long parentCommentId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getCommentCommentsPageHttpResponse(
-					parentCommentId, search, filterString, pagination,
-					sortString);
+					parentCommentId, search, aggregations, filterString,
+					pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -765,8 +767,8 @@ public interface CommentResource {
 		}
 
 		public HttpInvoker.HttpResponse getCommentCommentsPageHttpResponse(
-				Long parentCommentId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long parentCommentId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -887,13 +889,14 @@ public interface CommentResource {
 		}
 
 		public Page<Comment> getDocumentCommentsPage(
-				Long documentId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long documentId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getDocumentCommentsPageHttpResponse(
-					documentId, search, filterString, pagination, sortString);
+					documentId, search, aggregations, filterString, pagination,
+					sortString);
 
 			String content = httpResponse.getContent();
 
@@ -916,8 +919,8 @@ public interface CommentResource {
 		}
 
 		public HttpInvoker.HttpResponse getDocumentCommentsPageHttpResponse(
-				Long documentId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long documentId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1099,14 +1102,15 @@ public interface CommentResource {
 		}
 
 		public Page<Comment> getStructuredContentCommentsPage(
-				Long structuredContentId, String search, String filterString,
+				Long structuredContentId, String search,
+				List<String> aggregations, String filterString,
 				Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getStructuredContentCommentsPageHttpResponse(
-					structuredContentId, search, filterString, pagination,
-					sortString);
+					structuredContentId, search, aggregations, filterString,
+					pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -1131,8 +1135,8 @@ public interface CommentResource {
 		public HttpInvoker.HttpResponse
 				getStructuredContentCommentsPageHttpResponse(
 					Long structuredContentId, String search,
-					String filterString, Pagination pagination,
-					String sortString)
+					List<String> aggregations, String filterString,
+					Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();

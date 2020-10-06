@@ -14,24 +14,26 @@
 
 package com.liferay.dynamic.data.mapping.internal.upgrade.v1_1_0;
 
+import com.liferay.dynamic.data.mapping.internal.util.ExpressionParameterValueExtractor;
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeRequest;
-import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeResponse;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializerSerializeResponse;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.util.DDMFormDeserializeUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -54,16 +56,9 @@ public class UpgradeDDMStructure extends UpgradeProcess {
 		upgradeDDMStructureVersionDefinition();
 	}
 
-	protected String updateDefinition(String definition) {
-		DDMFormDeserializerDeserializeRequest.Builder deserializerBuilder =
-			DDMFormDeserializerDeserializeRequest.Builder.newBuilder(
-				definition);
-
-		DDMFormDeserializerDeserializeResponse
-			ddmFormDeserializerDeserializeResponse =
-				_ddmFormDeserializer.deserialize(deserializerBuilder.build());
-
-		DDMForm ddmForm = ddmFormDeserializerDeserializeResponse.getDDMForm();
+	protected String updateDefinition(String definition) throws Exception {
+		DDMForm ddmForm = DDMFormDeserializeUtil.deserialize(
+			_ddmFormDeserializer, definition);
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(true);
@@ -78,9 +73,12 @@ public class UpgradeDDMStructure extends UpgradeProcess {
 				continue;
 			}
 
+			visibilityExpression = _convertExpression(visibilityExpression);
+
 			DDMFormRule ddmFormRule = new DDMFormRule(
-				visibilityExpression,
-				"setVisible('" + ddmFormField.getName() + "', true)");
+				Arrays.asList(
+					"setVisible('" + ddmFormField.getName() + "', true)"),
+				visibilityExpression);
 
 			ddmFormRules.add(ddmFormRule);
 
@@ -161,6 +159,34 @@ public class UpgradeDDMStructure extends UpgradeProcess {
 				ps2.executeBatch();
 			}
 		}
+	}
+
+	private String _convertExpression(String visibilityExpression) {
+		List<String> parameterValues =
+			ExpressionParameterValueExtractor.extractParameterValues(
+				visibilityExpression);
+
+		for (String parameterValue : parameterValues) {
+			if (Validator.isNull(parameterValue) ||
+				Validator.isNumber(parameterValue) ||
+				StringUtil.startsWith(parameterValue, StringPool.QUOTE)) {
+
+				continue;
+			}
+
+			StringBundler sb = new StringBundler(5);
+
+			sb.append("getValue(");
+			sb.append(StringPool.APOSTROPHE);
+			sb.append(parameterValue);
+			sb.append(StringPool.APOSTROPHE);
+			sb.append(")");
+
+			visibilityExpression = StringUtil.replace(
+				visibilityExpression, parameterValue, sb.toString());
+		}
+
+		return visibilityExpression;
 	}
 
 	private final DDMFormDeserializer _ddmFormDeserializer;

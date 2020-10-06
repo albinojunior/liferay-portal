@@ -17,13 +17,13 @@ import {AppContext} from '../../../components/AppContext.es';
 import {useRouter} from '../../hooks/useRouter.es';
 
 const PaginationBar = ({
-	routing = true,
 	page,
 	pageBuffer,
 	pageSize,
 	totalCount,
 	setPage = () => {},
 	setPageSize = () => {},
+	withoutRouting,
 }) => {
 	const {deltaValues} = useContext(AppContext);
 	const {
@@ -32,7 +32,7 @@ const PaginationBar = ({
 		match: {params, path},
 	} = useRouter();
 
-	const deltas = useMemo(() => deltaValues.map(label => ({label})), [
+	const deltas = useMemo(() => deltaValues.map((label) => ({label})), [
 		deltaValues,
 	]);
 
@@ -48,8 +48,8 @@ const PaginationBar = ({
 	);
 
 	const handleChangePageSize = useCallback(
-		newPageSize => {
-			if (routing) {
+		(newPageSize) => {
+			if (!withoutRouting) {
 				const pathname = pathToRegexp.compile(path)({
 					...params,
 					page: 1,
@@ -68,8 +68,8 @@ const PaginationBar = ({
 	);
 
 	const handleChangePage = useCallback(
-		newPage => {
-			if (routing) {
+		(newPage) => {
+			if (!withoutRouting) {
 				const pathname = pathToRegexp.compile(path)({
 					...params,
 					page: newPage,
@@ -89,18 +89,16 @@ const PaginationBar = ({
 		return <></>;
 	}
 
-	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
-
 	return (
 		<ClayPaginationBarWithBasicItems
 			activeDelta={Number(pageSize)}
 			activePage={Number(page)}
+			className="mt-2"
 			deltas={deltas}
 			ellipsisBuffer={pageBuffer}
 			labels={labels}
 			onDeltaChange={handleChangePageSize}
 			onPageChange={handleChangePage}
-			spritemap={spritemap}
 			totalItems={Number(totalCount)}
 		/>
 	);

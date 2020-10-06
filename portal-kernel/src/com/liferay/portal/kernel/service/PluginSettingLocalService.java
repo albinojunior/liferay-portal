@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -56,11 +57,15 @@ public interface PluginSettingLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link PluginSettingLocalServiceUtil} to access the plugin setting local service. Add custom service methods to <code>com.liferay.portal.service.impl.PluginSettingLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.PluginSettingLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the plugin setting local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link PluginSettingLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the plugin setting to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pluginSetting the plugin setting
 	 * @return the plugin setting that was added
@@ -68,6 +73,7 @@ public interface PluginSettingLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public PluginSetting addPluginSetting(PluginSetting pluginSetting);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public void checkPermission(long userId, String pluginId, String pluginType)
 		throws PortalException;
 
@@ -96,6 +102,10 @@ public interface PluginSettingLocalService
 	/**
 	 * Deletes the plugin setting with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pluginSettingId the primary key of the plugin setting
 	 * @return the plugin setting that was removed
 	 * @throws PortalException if a plugin setting with the primary key could not be found
@@ -107,11 +117,18 @@ public interface PluginSettingLocalService
 	/**
 	 * Deletes the plugin setting from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pluginSetting the plugin setting
 	 * @return the plugin setting that was removed
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public PluginSetting deletePluginSetting(PluginSetting pluginSetting);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -185,7 +202,7 @@ public interface PluginSettingLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	@Transactional(enabled = false)
 	public PluginSetting getDefaultPluginSetting();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -253,6 +270,10 @@ public interface PluginSettingLocalService
 
 	/**
 	 * Updates the plugin setting in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pluginSetting the plugin setting
 	 * @return the plugin setting that was updated

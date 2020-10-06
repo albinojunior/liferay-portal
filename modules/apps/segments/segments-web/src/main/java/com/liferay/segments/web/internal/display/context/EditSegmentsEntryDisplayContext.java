@@ -242,7 +242,7 @@ public class EditSegmentsEntryDisplayContext {
 		).build();
 	}
 
-	private Map<String, String> _getAvailableLocales() throws PortalException {
+	private Map<String, String> _getAvailableLocales() throws Exception {
 		Map<String, String> availableLocales = new HashMap<>();
 
 		for (Locale availableLocale :
@@ -258,7 +258,7 @@ public class EditSegmentsEntryDisplayContext {
 		return availableLocales;
 	}
 
-	private JSONArray _getContributorsJSONArray() throws PortalException {
+	private JSONArray _getContributorsJSONArray() throws Exception {
 		List<SegmentsCriteriaContributor> segmentsCriteriaContributors =
 			_getSegmentsCriteriaContributors();
 
@@ -270,29 +270,28 @@ public class EditSegmentsEntryDisplayContext {
 			Criteria.Criterion criterion =
 				segmentsCriteriaContributor.getCriterion(_getCriteria());
 
-			JSONObject contributorJSONObject = JSONUtil.put(
-				"conjunctionId", _getCriterionConjunction(criterion)
-			).put(
-				"conjunctionInputId",
-				_renderResponse.getNamespace() + "criterionConjunction" +
-					segmentsCriteriaContributor.getKey()
-			).put(
-				"initialQuery", _getCriterionFilterString(criterion)
-			).put(
-				"inputId",
-				_renderResponse.getNamespace() + "criterionFilter" +
-					segmentsCriteriaContributor.getKey()
-			).put(
-				"propertyKey", segmentsCriteriaContributor.getKey()
-			);
-
-			contributorsJSONArray.put(contributorJSONObject);
+			contributorsJSONArray.put(
+				JSONUtil.put(
+					"conjunctionId", _getCriterionConjunction(criterion)
+				).put(
+					"conjunctionInputId",
+					_renderResponse.getNamespace() + "criterionConjunction" +
+						segmentsCriteriaContributor.getKey()
+				).put(
+					"initialQuery", _getCriterionFilterString(criterion)
+				).put(
+					"inputId",
+					_renderResponse.getNamespace() + "criterionFilter" +
+						segmentsCriteriaContributor.getKey()
+				).put(
+					"propertyKey", segmentsCriteriaContributor.getKey()
+				));
 		}
 
 		return contributorsJSONArray;
 	}
 
-	private Criteria _getCriteria() throws PortalException {
+	private Criteria _getCriteria() throws Exception {
 		SegmentsEntry segmentsEntry = _getSegmentsEntry();
 
 		if ((segmentsEntry == null) ||
@@ -320,7 +319,7 @@ public class EditSegmentsEntryDisplayContext {
 		return criterion.getFilterString();
 	}
 
-	private String _getDefaultLanguageId() throws PortalException {
+	private String _getDefaultLanguageId() throws Exception {
 		Locale siteDefaultLocale = null;
 
 		try {
@@ -348,9 +347,7 @@ public class EditSegmentsEntryDisplayContext {
 			_themeDisplay.getScopeGroupId());
 	}
 
-	private JSONObject _getInitialSegmentsNameJSONObject()
-		throws PortalException {
-
+	private JSONObject _getInitialSegmentsNameJSONObject() throws Exception {
 		SegmentsEntry segmentsEntry = _getSegmentsEntry();
 
 		if (segmentsEntry == null) {
@@ -375,36 +372,36 @@ public class EditSegmentsEntryDisplayContext {
 		return portletURL.toString();
 	}
 
-	private JSONArray _getPropertyGroupsJSONArray() throws PortalException {
+	private JSONArray _getPropertyGroupsJSONArray() throws Exception {
 		List<SegmentsCriteriaContributor> segmentsCriteriaContributors =
 			_getSegmentsCriteriaContributors();
 
-		JSONArray jsonContributorsArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonContributorsJSONArray = JSONFactoryUtil.createJSONArray();
 
 		for (SegmentsCriteriaContributor segmentsCriteriaContributor :
 				segmentsCriteriaContributors) {
 
-			JSONObject jsonContributorObject = JSONUtil.put(
-				"entityName", segmentsCriteriaContributor.getEntityName()
-			).put(
-				"name", segmentsCriteriaContributor.getLabel(_locale)
-			).put(
-				"properties",
-				JSONFactoryUtil.createJSONArray(
-					JSONFactoryUtil.looseSerializeDeep(
-						segmentsCriteriaContributor.getFields(_renderRequest)))
-			).put(
-				"propertyKey", segmentsCriteriaContributor.getKey()
-			);
-
-			jsonContributorsArray.put(jsonContributorObject);
+			jsonContributorsJSONArray.put(
+				JSONUtil.put(
+					"entityName", segmentsCriteriaContributor.getEntityName()
+				).put(
+					"name", segmentsCriteriaContributor.getLabel(_locale)
+				).put(
+					"properties",
+					JSONFactoryUtil.createJSONArray(
+						JSONFactoryUtil.looseSerializeDeep(
+							segmentsCriteriaContributor.getFields(
+								_renderRequest)))
+				).put(
+					"propertyKey", segmentsCriteriaContributor.getKey()
+				));
 		}
 
-		return jsonContributorsArray;
+		return jsonContributorsJSONArray;
 	}
 
 	private List<SegmentsCriteriaContributor> _getSegmentsCriteriaContributors()
-		throws PortalException {
+		throws Exception {
 
 		return _segmentsCriteriaContributorRegistry.
 			getSegmentsCriteriaContributors(getType());
@@ -457,7 +454,7 @@ public class EditSegmentsEntryDisplayContext {
 		return resourceURL.toString();
 	}
 
-	private String _getSource() throws PortalException {
+	private String _getSource() throws Exception {
 		SegmentsEntry segmentsEntry = _getSegmentsEntry();
 
 		if (segmentsEntry != null) {
@@ -469,7 +466,7 @@ public class EditSegmentsEntryDisplayContext {
 			SegmentsEntryConstants.SOURCE_DEFAULT);
 	}
 
-	private boolean _hasUpdatePermission() throws PortalException {
+	private boolean _hasUpdatePermission() throws Exception {
 		SegmentsEntry segmentsEntry = _getSegmentsEntry();
 
 		if (segmentsEntry != null) {
@@ -481,7 +478,7 @@ public class EditSegmentsEntryDisplayContext {
 		return true;
 	}
 
-	private boolean _isInitialSegmentActive() throws PortalException {
+	private boolean _isInitialSegmentActive() throws Exception {
 		SegmentsEntry segmentsEntry = _getSegmentsEntry();
 
 		if (segmentsEntry != null) {

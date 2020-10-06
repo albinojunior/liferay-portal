@@ -54,6 +54,10 @@ public class PowwowMeetingLocalServiceUtil {
 	/**
 	 * Adds the powwow meeting to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param powwowMeeting the powwow meeting
 	 * @return the powwow meeting that was added
 	 */
@@ -105,6 +109,10 @@ public class PowwowMeetingLocalServiceUtil {
 	/**
 	 * Deletes the powwow meeting with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param powwowMeetingId the primary key of the powwow meeting
 	 * @return the powwow meeting that was removed
 	 * @throws PortalException if a powwow meeting with the primary key could not be found
@@ -118,6 +126,10 @@ public class PowwowMeetingLocalServiceUtil {
 
 	/**
 	 * Deletes the powwow meeting from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param powwowMeeting the powwow meeting
 	 * @return the powwow meeting that was removed
@@ -247,7 +259,7 @@ public class PowwowMeetingLocalServiceUtil {
 		getParticipantPowwowMeetings(
 			long userId, int[] statuses, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				orderByComparator) {
+				<com.liferay.powwow.model.PowwowMeeting> orderByComparator) {
 
 		return getService().getParticipantPowwowMeetings(
 			userId, statuses, start, end, orderByComparator);
@@ -309,9 +321,11 @@ public class PowwowMeetingLocalServiceUtil {
 	public static java.util.List<com.liferay.powwow.model.PowwowMeeting>
 		getPowwowMeetings(
 			long groupId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator obc) {
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.powwow.model.PowwowMeeting> orderByComparator) {
 
-		return getService().getPowwowMeetings(groupId, start, end, obc);
+		return getService().getPowwowMeetings(
+			groupId, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.powwow.model.PowwowMeeting>
@@ -372,6 +386,10 @@ public class PowwowMeetingLocalServiceUtil {
 
 	/**
 	 * Updates the powwow meeting in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PowwowMeetingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param powwowMeeting the powwow meeting
 	 * @return the powwow meeting that was updated

@@ -37,17 +37,17 @@ public class DDMStructureVersionCacheModel
 	implements CacheModel<DDMStructureVersion>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof DDMStructureVersionCacheModel)) {
+		if (!(object instanceof DDMStructureVersionCacheModel)) {
 			return false;
 		}
 
 		DDMStructureVersionCacheModel ddmStructureVersionCacheModel =
-			(DDMStructureVersionCacheModel)obj;
+			(DDMStructureVersionCacheModel)object;
 
 		if ((structureVersionId ==
 				ddmStructureVersionCacheModel.structureVersionId) &&
@@ -238,8 +238,8 @@ public class DDMStructureVersionCacheModel
 
 		parentStructureId = objectInput.readLong();
 		name = objectInput.readUTF();
-		description = objectInput.readUTF();
-		definition = objectInput.readUTF();
+		description = (String)objectInput.readObject();
+		definition = (String)objectInput.readObject();
 		storageType = objectInput.readUTF();
 
 		type = objectInput.readInt();
@@ -297,17 +297,17 @@ public class DDMStructureVersionCacheModel
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(description);
+			objectOutput.writeObject(description);
 		}
 
 		if (definition == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(definition);
+			objectOutput.writeObject(definition);
 		}
 
 		if (storageType == null) {

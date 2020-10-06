@@ -16,7 +16,7 @@
 
 <%@ include file="/init.jsp" %>
 
-<div class="sheet sheet-lg" id="<portlet:namespace/>connectedApp">
+<div class="sheet sheet-lg" id="<portlet:namespace />connectedApp">
 	<div class="sheet-header">
 		<h2 class="sheet-title">
 			<liferay-ui:message key="apps" />
@@ -46,32 +46,31 @@
 			for (ConnectedApp connectedApp : connectedApps) {
 			%>
 
-				<div class="autofit-padded-no-gutters-x autofit-row autofit-row-center mb-3">
-					<div class="autofit-col">
+				<clay:content-row
+					cssClass="mb-3"
+					noGutters="x"
+					verticalAlign="center"
+				>
+					<clay:content-col>
 						<img class="icon-monospaced" src="<%= HtmlUtil.escapeAttribute(connectedApp.getImageURL()) %>" />
-					</div>
+					</clay:content-col>
 
-					<div class="autofit-col autofit-col-expand">
+					<clay:content-col
+						expand="<%= true %>"
+					>
 						<%= HtmlUtil.escape(connectedApp.getName(locale)) %>
-					</div>
+					</clay:content-col>
 
-					<div class="autofit-col">
-
-						<%
-						Map<String, String> data = new HashMap<>();
-
-						data.put("key", connectedApp.getKey());
-						%>
-
+					<clay:content-col>
 						<clay:button
-							data="<%= data %>"
-							elementClasses="btn-secondary"
-							label='<%= LanguageUtil.get(resourceBundle, "revoke") %>'
-							size="sm"
+							data-key="<%= connectedApp.getKey() %>"
+							displayType="secondary"
+							label="revoke"
+							small="<%= true %>"
 							type="submit"
 						/>
-					</div>
-				</div>
+					</clay:content-col>
+				</clay:content-row>
 
 			<%
 			}
@@ -88,14 +87,14 @@
 
 <aui:script require="metal-dom/src/dom as dom">
 	var connectedAppKeyInput = document.querySelector(
-		'[name=<portlet:namespace/>connectedAppKey]'
+		'[name=<portlet:namespace />connectedAppKey]'
 	);
 
 	dom.delegate(
-		document.getElementById('<portlet:namespace/>connectedApp'),
+		document.getElementById('<portlet:namespace />connectedApp'),
 		'click',
 		'[data-key]',
-		function(event) {
+		function (event) {
 			connectedAppKeyInput.setAttribute('value', event.target.dataset.key);
 		}
 	);

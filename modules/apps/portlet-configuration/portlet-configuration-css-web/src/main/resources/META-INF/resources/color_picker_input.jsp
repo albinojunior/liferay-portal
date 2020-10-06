@@ -45,17 +45,17 @@ String name = ParamUtil.getString(request, "name");
 		</div>
 	</div>
 
-	<%
-	Map<String, Object> data = new HashMap<>();
-
-	data.put("color", color);
-	data.put("label", label);
-	data.put("name", name);
-	%>
-
 	<react:component
-		data="<%= data %>"
 		module="js/ColorPickerInput.es"
+		props='<%=
+			HashMapBuilder.<String, Object>put(
+				"color", color
+			).put(
+				"label", label
+			).put(
+				"name", name
+			).build()
+		%>'
 		servletContext="<%= application %>"
 	/>
 </div>

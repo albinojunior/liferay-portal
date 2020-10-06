@@ -25,6 +25,8 @@ import com.liferay.asset.kernel.service.persistence.AssetVocabularyPersistence;
 import com.liferay.expando.kernel.service.persistence.ExpandoRowPersistence;
 import com.liferay.exportimport.kernel.service.persistence.ExportImportConfigurationFinder;
 import com.liferay.exportimport.kernel.service.persistence.ExportImportConfigurationPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -47,6 +49,7 @@ import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.persistence.AccountPersistence;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.CompanyPersistence;
 import com.liferay.portal.kernel.service.persistence.GroupFinder;
@@ -78,6 +81,7 @@ import com.liferay.portal.kernel.service.persistence.UserGroupRoleFinder;
 import com.liferay.portal.kernel.service.persistence.UserGroupRolePersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.service.persistence.WorkflowDefinitionLinkPersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -116,6 +120,10 @@ public abstract class GroupLocalServiceBaseImpl
 	/**
 	 * Adds the group to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param group the group
 	 * @return the group that was added
 	 */
@@ -142,6 +150,10 @@ public abstract class GroupLocalServiceBaseImpl
 	/**
 	 * Deletes the group with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param groupId the primary key of the group
 	 * @return the group that was removed
 	 * @throws PortalException if a group with the primary key could not be found
@@ -155,6 +167,10 @@ public abstract class GroupLocalServiceBaseImpl
 	/**
 	 * Deletes the group from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param group the group
 	 * @return the group that was removed
 	 * @throws PortalException
@@ -163,6 +179,11 @@ public abstract class GroupLocalServiceBaseImpl
 	@Override
 	public Group deleteGroup(Group group) throws PortalException {
 		return groupPersistence.remove(group);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return groupPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -338,6 +359,10 @@ public abstract class GroupLocalServiceBaseImpl
 		return groupLocalService.deleteGroup((Group)persistedModel);
 	}
 
+	public BasePersistence<Group> getBasePersistence() {
+		return groupPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -391,6 +416,10 @@ public abstract class GroupLocalServiceBaseImpl
 
 	/**
 	 * Updates the group in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect GroupLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param group the group
 	 * @return the group that was updated
@@ -2655,8 +2684,22 @@ public abstract class GroupLocalServiceBaseImpl
 		return GroupLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<Group> getCTPersistence() {
+		return groupPersistence;
+	}
+
+	@Override
+	public Class<Group> getModelClass() {
 		return Group.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<Group>, R, E> updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(groupPersistence);
 	}
 
 	protected String getModelClassName() {

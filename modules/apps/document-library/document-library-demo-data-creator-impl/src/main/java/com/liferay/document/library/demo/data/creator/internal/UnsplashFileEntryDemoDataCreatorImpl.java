@@ -54,9 +54,7 @@ public class UnsplashFileEntryDemoDataCreatorImpl
 	public FileEntry create(long userId, long folderId)
 		throws IOException, PortalException {
 
-		UUID uuid = UUID.randomUUID();
-
-		String sourceFileName = uuid.toString() + ".jpeg";
+		String sourceFileName = String.valueOf(UUID.randomUUID()) + ".jpeg";
 
 		return create(userId, folderId, sourceFileName);
 	}
@@ -96,11 +94,7 @@ public class UnsplashFileEntryDemoDataCreatorImpl
 	private byte[] _getBytes() throws IOException, PortalException {
 		URL url = _getNextUrl();
 
-		InputStream inputStream = null;
-
-		try {
-			inputStream = url.openStream();
-
+		try (InputStream inputStream = url.openStream()) {
 			return FileUtil.getBytes(inputStream);
 		}
 		catch (IOException ioException) {
@@ -116,11 +110,6 @@ public class UnsplashFileEntryDemoDataCreatorImpl
 			}
 			catch (Exception exception) {
 				throw new PortalException(exception);
-			}
-		}
-		finally {
-			if (inputStream != null) {
-				inputStream.close();
 			}
 		}
 	}

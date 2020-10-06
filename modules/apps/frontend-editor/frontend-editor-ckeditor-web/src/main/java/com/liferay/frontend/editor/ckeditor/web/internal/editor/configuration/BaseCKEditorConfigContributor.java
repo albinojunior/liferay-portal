@@ -56,7 +56,12 @@ public class BaseCKEditorConfigContributor extends BaseEditorConfigContributor {
 				HtmlUtil.escape(
 					PortalUtil.getStaticResourceURL(
 						themeDisplay.getRequest(),
-						themeDisplay.getPathThemeCss() + "/main.css")))
+						themeDisplay.getPathThemeCss() + "/main.css")),
+				HtmlUtil.escape(
+					PortalUtil.getStaticResourceURL(
+						themeDisplay.getRequest(),
+						"/o/frontend-editor-ckeditor-web/ckeditor/skins" +
+							"/moono-lexicon/editor.css")))
 		).put(
 			"contentsLangDirection",
 			HtmlUtil.escapeJS(
@@ -98,7 +103,8 @@ public class BaseCKEditorConfigContributor extends BaseEditorConfigContributor {
 
 		return GetterUtil.getBoolean(
 			inputEditorTaglibAttributes.get(
-				CKEditorConstants.ATTRIBUTE_NAMESPACE + ":showSource"));
+				CKEditorConstants.ATTRIBUTE_NAMESPACE + ":showSource"),
+			true);
 	}
 
 }

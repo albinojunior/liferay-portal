@@ -17,9 +17,9 @@
 <%@ include file="/shared_assets/init.jsp" %>
 
 <%
-AssetRenderer assetRenderer = (AssetRenderer)renderRequest.getAttribute(AssetRenderer.class.getName());
+AssetRenderer<?> assetRenderer = (AssetRenderer<?>)renderRequest.getAttribute(AssetRenderer.class.getName());
 
-AssetRendererFactory assetRendererFactory = assetRenderer.getAssetRendererFactory();
+AssetRendererFactory<?> assetRendererFactory = assetRenderer.getAssetRendererFactory();
 
 AssetEntry assetEntry = assetRendererFactory.getAssetEntry(assetRendererFactory.getClassName(), assetRenderer.getClassPK());
 
@@ -48,14 +48,19 @@ else {
 %>
 
 <div class="tbar upper-tbar">
-	<div class="container-fluid container-fluid-max-xl">
+	<clay:container-fluid>
 		<ul class="tbar-nav">
 			<c:if test="<%= !scopeGroup.equals(themeDisplay.getControlPanelGroup()) %>">
 				<li class="d-none d-sm-flex tbar-item">
 					<clay:link
-						elementClasses="btn btn-monospaced btn-outline-borderless btn-outline-secondary btn-sm"
+						borderless="<%= true %>"
+						displayType="secondary"
 						href="<%= redirect %>"
 						icon="angle-left"
+						monospaced="<%= true %>"
+						outline="<%= true %>"
+						small="<%= true %>"
+						type="button"
 					/>
 				</li>
 			</c:if>
@@ -73,7 +78,7 @@ else {
 				/>
 			</li>
 		</ul>
-	</div>
+	</clay:container-fluid>
 </div>
 
 <liferay-util:buffer
@@ -95,7 +100,7 @@ else {
 	</c:if>
 </liferay-util:buffer>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<c:choose>
 		<c:when test="<%= scopeGroup.equals(themeDisplay.getControlPanelGroup()) %>">
 			<aui:fieldset-group markupView="lexicon">
@@ -108,4 +113,4 @@ else {
 			<%= assetContent %>
 		</c:otherwise>
 	</c:choose>
-</div>
+</clay:container-fluid>

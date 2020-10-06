@@ -14,6 +14,7 @@
 
 package com.liferay.sync.service;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -59,7 +60,7 @@ public interface SyncDLObjectLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link SyncDLObjectLocalServiceUtil} to access the sync dl object local service. Add custom service methods to <code>com.liferay.sync.service.impl.SyncDLObjectLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.sync.service.impl.SyncDLObjectLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the sync dl object local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link SyncDLObjectLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public SyncDLObject addSyncDLObject(
 			long companyId, long userId, String userName, long modifiedTime,
@@ -73,6 +74,10 @@ public interface SyncDLObjectLocalService
 
 	/**
 	 * Adds the sync dl object to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLObjectLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param syncDLObject the sync dl object
 	 * @return the sync dl object that was added
@@ -105,6 +110,10 @@ public interface SyncDLObjectLocalService
 	/**
 	 * Deletes the sync dl object with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLObjectLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param syncDLObjectId the primary key of the sync dl object
 	 * @return the sync dl object that was removed
 	 * @throws PortalException if a sync dl object with the primary key could not be found
@@ -116,6 +125,10 @@ public interface SyncDLObjectLocalService
 	/**
 	 * Deletes the sync dl object from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLObjectLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param syncDLObject the sync dl object
 	 * @return the sync dl object that was removed
 	 */
@@ -123,6 +136,9 @@ public interface SyncDLObjectLocalService
 	public SyncDLObject deleteSyncDLObject(SyncDLObject syncDLObject);
 
 	public void deleteSyncDLObjects(String version, String type);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -268,6 +284,10 @@ public interface SyncDLObjectLocalService
 
 	/**
 	 * Updates the sync dl object in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SyncDLObjectLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param syncDLObject the sync dl object
 	 * @return the sync dl object that was updated

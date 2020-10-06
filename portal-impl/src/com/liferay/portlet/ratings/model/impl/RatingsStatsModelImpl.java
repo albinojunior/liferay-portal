@@ -66,6 +66,7 @@ public class RatingsStatsModelImpl
 	public static final String TABLE_NAME = "RatingsStats";
 
 	public static final Object[][] TABLE_COLUMNS = {
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"statsId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
 		{"classNameId", Types.BIGINT}, {"classPK", Types.BIGINT},
@@ -77,6 +78,8 @@ public class RatingsStatsModelImpl
 		new HashMap<String, Integer>();
 
 	static {
+		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("statsId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
@@ -89,7 +92,7 @@ public class RatingsStatsModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table RatingsStats (statsId LONG not null primary key,companyId LONG,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,totalEntries INTEGER,totalScore DOUBLE,averageScore DOUBLE)";
+		"create table RatingsStats (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,statsId LONG not null,companyId LONG,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,totalEntries INTEGER,totalScore DOUBLE,averageScore DOUBLE,primary key (statsId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table RatingsStats";
 
@@ -105,25 +108,41 @@ public class RatingsStatsModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.entity.cache.enabled.com.liferay.ratings.kernel.model.RatingsStats"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean ENTITY_CACHE_ENABLED = true;
 
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.finder.cache.enabled.com.liferay.ratings.kernel.model.RatingsStats"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean FINDER_CACHE_ENABLED = true;
 
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.column.bitmask.enabled.com.liferay.ratings.kernel.model.RatingsStats"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean COLUMN_BITMASK_ENABLED = true;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CLASSNAMEID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long CLASSPK_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long STATSID_COLUMN_BITMASK = 4L;
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
@@ -181,9 +200,6 @@ public class RatingsStatsModelImpl
 				attributeName,
 				attributeGetterFunction.apply((RatingsStats)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -257,6 +273,16 @@ public class RatingsStatsModelImpl
 		Map<String, BiConsumer<RatingsStats, ?>> attributeSetterBiConsumers =
 			new LinkedHashMap<String, BiConsumer<RatingsStats, ?>>();
 
+		attributeGetterFunctions.put(
+			"mvccVersion", RatingsStats::getMvccVersion);
+		attributeSetterBiConsumers.put(
+			"mvccVersion",
+			(BiConsumer<RatingsStats, Long>)RatingsStats::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", RatingsStats::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<RatingsStats, Long>)RatingsStats::setCtCollectionId);
 		attributeGetterFunctions.put("statsId", RatingsStats::getStatsId);
 		attributeSetterBiConsumers.put(
 			"statsId",
@@ -305,12 +331,44 @@ public class RatingsStatsModelImpl
 	}
 
 	@Override
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
+	}
+
+	@Override
 	public long getStatsId() {
 		return _statsId;
 	}
 
 	@Override
 	public void setStatsId(long statsId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_statsId = statsId;
 	}
 
@@ -321,6 +379,10 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_companyId = companyId;
 	}
 
@@ -331,6 +393,10 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setCreateDate(Date createDate) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_createDate = createDate;
 	}
 
@@ -346,6 +412,10 @@ public class RatingsStatsModelImpl
 	@Override
 	public void setModifiedDate(Date modifiedDate) {
 		_setModifiedDate = true;
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
 
 		_modifiedDate = modifiedDate;
 	}
@@ -377,19 +447,21 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setClassNameId(long classNameId) {
-		_columnBitmask |= CLASSNAMEID_COLUMN_BITMASK;
-
-		if (!_setOriginalClassNameId) {
-			_setOriginalClassNameId = true;
-
-			_originalClassNameId = _classNameId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_classNameId = classNameId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalClassNameId() {
-		return _originalClassNameId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("classNameId"));
 	}
 
 	@Override
@@ -399,19 +471,20 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setClassPK(long classPK) {
-		_columnBitmask |= CLASSPK_COLUMN_BITMASK;
-
-		if (!_setOriginalClassPK) {
-			_setOriginalClassPK = true;
-
-			_originalClassPK = _classPK;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_classPK = classPK;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalClassPK() {
-		return _originalClassPK;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("classPK"));
 	}
 
 	@Override
@@ -421,6 +494,10 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setTotalEntries(int totalEntries) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_totalEntries = totalEntries;
 	}
 
@@ -431,6 +508,10 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setTotalScore(double totalScore) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_totalScore = totalScore;
 	}
 
@@ -441,10 +522,32 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void setAverageScore(double averageScore) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_averageScore = averageScore;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -480,6 +583,8 @@ public class RatingsStatsModelImpl
 	public Object clone() {
 		RatingsStatsImpl ratingsStatsImpl = new RatingsStatsImpl();
 
+		ratingsStatsImpl.setMvccVersion(getMvccVersion());
+		ratingsStatsImpl.setCtCollectionId(getCtCollectionId());
 		ratingsStatsImpl.setStatsId(getStatsId());
 		ratingsStatsImpl.setCompanyId(getCompanyId());
 		ratingsStatsImpl.setCreateDate(getCreateDate());
@@ -511,16 +616,16 @@ public class RatingsStatsModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof RatingsStats)) {
+		if (!(object instanceof RatingsStats)) {
 			return false;
 		}
 
-		RatingsStats ratingsStats = (RatingsStats)obj;
+		RatingsStats ratingsStats = (RatingsStats)object;
 
 		long primaryKey = ratingsStats.getPrimaryKey();
 
@@ -537,11 +642,19 @@ public class RatingsStatsModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
 		return ENTITY_CACHE_ENABLED;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
 		return FINDER_CACHE_ENABLED;
@@ -549,26 +662,21 @@ public class RatingsStatsModelImpl
 
 	@Override
 	public void resetOriginalValues() {
-		RatingsStatsModelImpl ratingsStatsModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		ratingsStatsModelImpl._setModifiedDate = false;
+		_setModifiedDate = false;
 
-		ratingsStatsModelImpl._originalClassNameId =
-			ratingsStatsModelImpl._classNameId;
-
-		ratingsStatsModelImpl._setOriginalClassNameId = false;
-
-		ratingsStatsModelImpl._originalClassPK = ratingsStatsModelImpl._classPK;
-
-		ratingsStatsModelImpl._setOriginalClassPK = false;
-
-		ratingsStatsModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
 	public CacheModel<RatingsStats> toCacheModel() {
 		RatingsStatsCacheModel ratingsStatsCacheModel =
 			new RatingsStatsCacheModel();
+
+		ratingsStatsCacheModel.mvccVersion = getMvccVersion();
+
+		ratingsStatsCacheModel.ctCollectionId = getCtCollectionId();
 
 		ratingsStatsCacheModel.statsId = getStatsId();
 
@@ -611,7 +719,7 @@ public class RatingsStatsModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -643,7 +751,7 @@ public class RatingsStatsModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -675,20 +783,95 @@ public class RatingsStatsModelImpl
 
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _statsId;
 	private long _companyId;
 	private Date _createDate;
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _classNameId;
-	private long _originalClassNameId;
-	private boolean _setOriginalClassNameId;
 	private long _classPK;
-	private long _originalClassPK;
-	private boolean _setOriginalClassPK;
 	private int _totalEntries;
 	private double _totalScore;
 	private double _averageScore;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<RatingsStats, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((RatingsStats)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
+		_columnOriginalValues.put("statsId", _statsId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("createDate", _createDate);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put("classNameId", _classNameId);
+		_columnOriginalValues.put("classPK", _classPK);
+		_columnOriginalValues.put("totalEntries", _totalEntries);
+		_columnOriginalValues.put("totalScore", _totalScore);
+		_columnOriginalValues.put("averageScore", _averageScore);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("ctCollectionId", 2L);
+
+		columnBitmasks.put("statsId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("createDate", 16L);
+
+		columnBitmasks.put("modifiedDate", 32L);
+
+		columnBitmasks.put("classNameId", 64L);
+
+		columnBitmasks.put("classPK", 128L);
+
+		columnBitmasks.put("totalEntries", 256L);
+
+		columnBitmasks.put("totalScore", 512L);
+
+		columnBitmasks.put("averageScore", 1024L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private RatingsStats _escapedModel;
 

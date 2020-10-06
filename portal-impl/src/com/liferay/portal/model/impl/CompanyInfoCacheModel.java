@@ -35,17 +35,17 @@ public class CompanyInfoCacheModel
 	implements CacheModel<CompanyInfo>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof CompanyInfoCacheModel)) {
+		if (!(object instanceof CompanyInfoCacheModel)) {
 			return false;
 		}
 
 		CompanyInfoCacheModel companyInfoCacheModel =
-			(CompanyInfoCacheModel)obj;
+			(CompanyInfoCacheModel)object;
 
 		if ((companyInfoId == companyInfoCacheModel.companyInfoId) &&
 			(mvccVersion == companyInfoCacheModel.mvccVersion)) {
@@ -111,13 +111,15 @@ public class CompanyInfoCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		companyInfoId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
-		key = objectInput.readUTF();
+		key = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -129,10 +131,10 @@ public class CompanyInfoCacheModel
 		objectOutput.writeLong(companyId);
 
 		if (key == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(key);
+			objectOutput.writeObject(key);
 		}
 	}
 

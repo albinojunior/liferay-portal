@@ -18,14 +18,17 @@ import com.liferay.gradle.plugins.node.internal.util.FileUtil;
 import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gradle.api.tasks.CacheableTask;
+
 /**
  * @author Peter Shin
+ * @author David Truong
  */
+@CacheableTask
 public class YarnInstallTask extends ExecutePackageManagerTask {
 
 	@Override
@@ -60,7 +63,7 @@ public class YarnInstallTask extends ExecutePackageManagerTask {
 		return completeArgs;
 	}
 
-	private void _createYarnrcFile(File yarnrcFile) throws IOException {
+	private void _createYarnrcFile(File yarnrcFile) throws Exception {
 		List<String> contents = new ArrayList<>(2);
 
 		contents.add("disable-self-update-check true");
@@ -71,9 +74,7 @@ public class YarnInstallTask extends ExecutePackageManagerTask {
 	}
 
 	private File _getYarnrcFile() {
-		File scriptFile = getScriptFile();
-
-		return new File(scriptFile.getParentFile(), ".yarnrc");
+		return new File(getWorkingDir(), ".yarnrc");
 	}
 
 	private Object _frozenLockFile;

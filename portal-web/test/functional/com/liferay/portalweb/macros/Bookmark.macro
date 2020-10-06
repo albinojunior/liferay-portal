@@ -288,13 +288,12 @@ definition {
 			menuItem = "Move to Recycle Bin",
 			rowEntry = "${bookmarkName}");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.emptyCP();
@@ -369,7 +368,7 @@ definition {
 			locator1 = "Button#SELECT",
 			value1 = "Select");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		var key_folderName = "${folderName2}";
 
@@ -421,7 +420,7 @@ definition {
 			locator1 = "Button#SELECT",
 			value1 = "Select");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertClick(
 			locator1 = "Button#CHOOSE_THIS_FOLDER",
@@ -447,7 +446,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Bookmarks");
 
 		var key_assetName = "${bookmarkName}";
@@ -462,7 +460,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Bookmarks");
 
 		var key_assetName = "${bookmarkName}";
@@ -475,7 +472,7 @@ definition {
 			menuItem = "Move to Recycle Bin",
 			rowEntry = "${bookmarkName}");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 		AssertTextNotPresent(
 			locator1 = "Bookmarks#BOOKMARKS_TABLE_URL",
@@ -487,7 +484,7 @@ definition {
 			menuItem = "Move to Recycle Bin",
 			rowEntry = "${bookmarkName}");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 	}
 
 	macro searchNullCP {
@@ -509,7 +506,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Bookmarks");
 
 		if (IsElementNotPresent(locator1 = "Message#EMPTY_INFO")) {
@@ -517,7 +513,7 @@ definition {
 
 			Click(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
 
-			AssertElementPresent(locator1 = "Message#SUCCESS");
+			VerifyElementPresent(locator1 = "Message#SUCCESS");
 
 			AssertElementPresent(locator1 = "Message#EMPTY_INFO");
 		}
@@ -526,7 +522,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.emptyCP();
@@ -553,7 +548,7 @@ definition {
 		AssetPublisherPortlet.clickAssetTitle(assetTitle = "${bookmarkName}");
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "APAsset#ASSET_TITLE_HEADER",
+			locator1 = "AP#ASSET_ABSTRACT_TITLE",
 			value1 = "${bookmarkName}");
 
 		Click(locator1 = "AP#ASSET_ABSTRACT_BOOKMARK_DETAIL_LINK");

@@ -23,14 +23,17 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.portal.service.http.UserGroupRoleServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class UserGroupRoleSoap implements Serializable {
 
 	public static UserGroupRoleSoap toSoapModel(UserGroupRole model) {
 		UserGroupRoleSoap soapModel = new UserGroupRoleSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUserGroupRoleId(model.getUserGroupRoleId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
@@ -97,6 +100,14 @@ public class UserGroupRoleSoap implements Serializable {
 		_mvccVersion = mvccVersion;
 	}
 
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getUserGroupRoleId() {
 		return _userGroupRoleId;
 	}
@@ -138,6 +149,7 @@ public class UserGroupRoleSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _userGroupRoleId;
 	private long _companyId;
 	private long _userId;

@@ -13,12 +13,13 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import getCN from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {DndProvider} from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import {HTML5Backend} from 'react-dnd-html5-backend';
 
 import {
 	conjunctionShape,
@@ -65,7 +66,7 @@ class ContributorBuilder extends React.Component {
 		const {contributors, propertyGroups} = props;
 
 		const firstContributorNotEmpty = contributors.find(
-			contributor => contributor.query !== ''
+			(contributor) => contributor.query !== ''
 		);
 
 		const propertyKey = firstContributorNotEmpty
@@ -123,9 +124,9 @@ class ContributorBuilder extends React.Component {
 
 					<div className="criteria-builder-section-main">
 						<div className="contributor-container">
-							<div className="container-fluid container-fluid-max-xl">
+							<ClayLayout.ContainerFluid>
 								<div className="content-wrapper">
-									<div className="sheet">
+									<ClayLayout.Sheet>
 										<div className="d-flex flex-wrap justify-content-between mb-4">
 											<h2 className="mb-2 sheet-title">
 												{Liferay.Language.get(
@@ -186,7 +187,7 @@ class ContributorBuilder extends React.Component {
 											)}
 
 										{contributors
-											.filter(criteria => {
+											.filter((criteria) => {
 												const editingCriteria =
 													editingId ===
 														criteria.propertyKey &&
@@ -259,9 +260,9 @@ class ContributorBuilder extends React.Component {
 													</React.Fragment>
 												);
 											})}
-									</div>
+									</ClayLayout.Sheet>
 								</div>
-							</div>
+							</ClayLayout.ContainerFluid>
 						</div>
 					</div>
 				</div>

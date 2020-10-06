@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.portlet.PortletContainerException;
 import com.liferay.portal.kernel.portlet.PortletContainerUtil;
 import com.liferay.portal.kernel.portlet.PortletJSONUtil;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
@@ -88,10 +87,6 @@ public class TemplateProcessor implements ColumnProcessor {
 
 	public Map<Integer, List<PortletRenderer>> getPortletRenderers() {
 		return _portletRenderers;
-	}
-
-	public boolean isPortletAjaxRender() {
-		return _portletAjaxRender;
 	}
 
 	@Override
@@ -318,9 +313,9 @@ public class TemplateProcessor implements ColumnProcessor {
 	private String _processColumn(
 			String columnId, String classNames,
 			LayoutTypePortlet layoutTypePortlet, List<Portlet> portlets)
-		throws PortletContainerException {
+		throws Exception {
 
-		StringBundler sb = new StringBundler(portlets.size() * 3 + 11);
+		StringBundler sb = new StringBundler((portlets.size() * 3) + 11);
 
 		sb.append("<div class=\"");
 

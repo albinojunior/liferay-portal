@@ -12,7 +12,7 @@
  * details.
  */
 
-(function() {
+(function () {
 	AUI().applyConfig({
 		groups: {
 			dl: {
@@ -41,7 +41,6 @@
 						path: 'main.js',
 						requires: [
 							'document-library-upload',
-							'liferay-message',
 							'liferay-portlet-base',
 						],
 					},

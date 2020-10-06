@@ -14,24 +14,22 @@
 
 package com.liferay.layout.page.template.admin.web.internal.servlet.taglib.clay;
 
-import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
-import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.asset.kernel.model.ClassType;
-import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.frontend.taglib.clay.servlet.taglib.soy.BaseBaseClayCard;
 import com.liferay.frontend.taglib.clay.servlet.taglib.soy.VerticalCard;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.display.contributor.InfoDisplayContributor;
-import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
+import com.liferay.info.item.InfoItemClassDetails;
+import com.liferay.info.item.InfoItemFormVariation;
+import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.provider.InfoItemDetailsProvider;
+import com.liferay.info.item.provider.InfoItemFormVariationsProvider;
 import com.liferay.layout.page.template.admin.web.internal.constants.LayoutPageTemplateAdminWebKeys;
 import com.liferay.layout.page.template.admin.web.internal.servlet.taglib.util.DisplayPageActionDropdownItemsProvider;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.RowChecker;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -43,6 +41,8 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.portlet.RenderRequest;
@@ -63,12 +63,15 @@ public class DisplayPageVerticalCard
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 
-		_infoDisplayContributorTracker =
-			(InfoDisplayContributorTracker)renderRequest.getAttribute(
-				InfoDisplayWebKeys.INFO_DISPLAY_CONTRIBUTOR_TRACKER);
+		_infoItemServiceTracker =
+			(InfoItemServiceTracker)renderRequest.getAttribute(
+				InfoDisplayWebKeys.INFO_ITEM_SERVICE_TRACKER);
 		_layoutPageTemplateEntry = (LayoutPageTemplateEntry)baseModel;
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		_draftLayout = LayoutLocalServiceUtil.fetchDraftLayout(
+			_layoutPageTemplateEntry.getPlid());
 	}
 
 	@Override
@@ -98,14 +101,8 @@ public class DisplayPageVerticalCard
 	@Override
 	public String getHref() {
 		try {
-			Layout layout = LayoutLocalServiceUtil.fetchLayout(
-				_layoutPageTemplateEntry.getPlid());
-
-			Layout draftLayout = LayoutLocalServiceUtil.fetchLayout(
-				PortalUtil.getClassNameId(Layout.class), layout.getPlid());
-
 			String layoutFullURL = PortalUtil.getLayoutFullURL(
-				draftLayout, _themeDisplay);
+				_draftLayout, _themeDisplay);
 
 			layoutFullURL = HttpUtil.setParameter(
 				layoutFullURL, "p_l_mode", Constants.EDIT);
@@ -131,9 +128,12 @@ public class DisplayPageVerticalCard
 
 	@Override
 	public List<LabelItem> getLabels() {
+		if (_draftLayout == null) {
+			return Collections.emptyList();
+		}
+
 		return LabelItemListBuilder.add(
-			labelItem -> labelItem.setStatus(
-				_layoutPageTemplateEntry.getStatus())
+			labelItem -> labelItem.setStatus(_draftLayout.getStatus())
 		).build();
 	}
 
@@ -179,40 +179,53 @@ public class DisplayPageVerticalCard
 		return HtmlUtil.escape(_layoutPageTemplateEntry.getName());
 	}
 
-	private String _getSubtypeLabel() throws PortalException {
-		AssetRendererFactory assetRendererFactory =
-			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
+	private String _getSubtypeLabel() {
+		InfoItemFormVariationsProvider infoItemFormVariationsProvider =
+			_infoItemServiceTracker.getFirstInfoItemService(
+				InfoItemFormVariationsProvider.class,
 				_layoutPageTemplateEntry.getClassName());
 
-		if ((assetRendererFactory == null) ||
-			(_layoutPageTemplateEntry.getClassTypeId() <= 0)) {
+		if (infoItemFormVariationsProvider != null) {
+			Collection<InfoItemFormVariation> infoItemFormVariations =
+				infoItemFormVariationsProvider.getInfoItemFormVariations(
+					_layoutPageTemplateEntry.getGroupId());
 
-			return StringPool.BLANK;
+			for (InfoItemFormVariation infoItemFormVariation :
+					infoItemFormVariations) {
+
+				String key = infoItemFormVariation.getKey();
+
+				if (key.equals(
+						String.valueOf(
+							_layoutPageTemplateEntry.getClassTypeId()))) {
+
+					return infoItemFormVariation.getLabel(
+						_themeDisplay.getLocale());
+				}
+			}
 		}
 
-		ClassTypeReader classTypeReader =
-			assetRendererFactory.getClassTypeReader();
-
-		ClassType classType = classTypeReader.getClassType(
-			_layoutPageTemplateEntry.getClassTypeId(),
-			_themeDisplay.getLocale());
-
-		return classType.getName();
+		return StringPool.BLANK;
 	}
 
 	private String _getTypeLabel() {
-		InfoDisplayContributor infoDisplayContributor =
-			_infoDisplayContributorTracker.getInfoDisplayContributor(
+		InfoItemDetailsProvider<?> infoItemDetailsProvider =
+			_infoItemServiceTracker.getFirstInfoItemService(
+				InfoItemDetailsProvider.class,
 				_layoutPageTemplateEntry.getClassName());
 
-		if (infoDisplayContributor == null) {
+		if (infoItemDetailsProvider == null) {
 			return StringPool.BLANK;
 		}
 
-		return infoDisplayContributor.getLabel(_themeDisplay.getLocale());
+		InfoItemClassDetails infoItemClassDetails =
+			infoItemDetailsProvider.getInfoItemClassDetails();
+
+		return infoItemClassDetails.getLabel(_themeDisplay.getLocale());
 	}
 
-	private final InfoDisplayContributorTracker _infoDisplayContributorTracker;
+	private final Layout _draftLayout;
+	private final InfoItemServiceTracker _infoItemServiceTracker;
 	private final LayoutPageTemplateEntry _layoutPageTemplateEntry;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;

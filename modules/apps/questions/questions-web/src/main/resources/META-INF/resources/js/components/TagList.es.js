@@ -14,18 +14,29 @@
 
 import ClayLabel from '@clayui/label';
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
 
-export default ({tags = []}) => (
-	<ul className="question-list stretched-link-layer">
-		{tags.map(tag => (
-			<li key={tag}>
-				<ClayLabel displayType="secondary">
-					<Link key={tag} to={`/questions/tag/${tag}`}>
-						{tag}
-					</Link>
-				</ClayLabel>
-			</li>
-		))}
-	</ul>
-);
+import Link from '../components/Link.es';
+
+export default withRouter(({tags = [], sectionTitle = ''}) => {
+	if (tags.length) {
+		tags = [...tags].sort();
+	}
+
+	return (
+		<ul className="c-mb-0 d-flex flex-wrap list-unstyled stretched-link-layer">
+			{tags.map((tag) => (
+				<li key={tag}>
+					<ClayLabel displayType="secondary">
+						<Link
+							key={tag}
+							to={`/questions/${sectionTitle}/tag/${tag}`}
+						>
+							{tag}
+						</Link>
+					</ClayLabel>
+				</li>
+			))}
+		</ul>
+	);
+});

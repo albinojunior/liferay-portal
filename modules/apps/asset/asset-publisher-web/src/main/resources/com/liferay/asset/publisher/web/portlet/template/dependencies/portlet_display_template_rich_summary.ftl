@@ -64,14 +64,9 @@
 	<#if getterUtil.getBoolean(enableComments) && assetRenderer.isCommentable()>
 		<br />
 
-		<#assign discussionURL = renderResponse.createActionURL() />
-
-		${discussionURL.setParameter("javax.portlet.action", "invokeTaglibDiscussion")}
-
 		<@liferay_comment["discussion"]
 			className=entry.getClassName()
 			classPK=entry.getClassPK()
-			formAction=discussionURL?string
 			formName="fm" + entry.getClassPK()
 			ratingsEnabled=getterUtil.getBoolean(enableCommentRatings)
 			redirect=currentURL
@@ -162,7 +157,7 @@
 			icon="print"
 			markupView="lexicon"
 			message="print"
-			url="javascript:Liferay.Util.openWindow({id:'" + renderResponse.getNamespace() + "printAsset', title: '" + languageUtil.format(locale, "print-x-x", ["hide-accessible", entryTitle], false) + "', uri: '" + htmlUtil.escapeURL(printURL.toString()) + "'});"
+			url="javascript:Liferay.Util.openModal({headerHTML: '" + languageUtil.format(locale, "print-x-x", ["hide-accessible", entryTitle], false) + "', id:'" + renderResponse.getNamespace() + "printAsset', url: '" + htmlUtil.escapeURL(printURL.toString()) + "'});"
 		/>
 	</#if>
 </#macro>

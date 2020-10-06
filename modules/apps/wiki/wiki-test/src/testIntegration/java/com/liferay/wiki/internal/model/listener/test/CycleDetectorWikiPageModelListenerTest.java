@@ -24,9 +24,9 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.wiki.constants.WikiPageConstants;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
-import com.liferay.wiki.model.WikiPageConstants;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.wiki.test.util.WikiTestUtil;
 
@@ -87,12 +87,10 @@ public class CycleDetectorWikiPageModelListenerTest {
 			Assert.fail();
 		}
 		catch (RuntimeException runtimeException) {
-			String message = runtimeException.getMessage();
-
 			Assert.assertEquals(
 				"Unable to update wiki page Title3 because a cycle was " +
 					"detected",
-				message);
+				runtimeException.getMessage());
 		}
 
 		try {
@@ -107,11 +105,9 @@ public class CycleDetectorWikiPageModelListenerTest {
 			Assert.fail();
 		}
 		catch (RuntimeException runtimeException) {
-			String message = runtimeException.getMessage();
-
 			Assert.assertEquals(
 				"Unable to update wiki page Other because a cycle was detected",
-				message);
+				runtimeException.getMessage());
 		}
 	}
 
@@ -131,12 +127,10 @@ public class CycleDetectorWikiPageModelListenerTest {
 			Assert.fail();
 		}
 		catch (RuntimeException runtimeException) {
-			String message = runtimeException.getMessage();
-
 			Assert.assertEquals(
 				"Unable to create wiki page " + title +
 					" because a cycle was detected",
-				message);
+				runtimeException.getMessage());
 		}
 	}
 
@@ -154,11 +148,9 @@ public class CycleDetectorWikiPageModelListenerTest {
 			Assert.fail();
 		}
 		catch (RuntimeException runtimeException) {
-			String message = runtimeException.getMessage();
-
 			Assert.assertEquals(
 				"Unable to update wiki page Title because a cycle was detected",
-				message);
+				runtimeException.getMessage());
 		}
 
 		try {
@@ -173,12 +165,10 @@ public class CycleDetectorWikiPageModelListenerTest {
 			Assert.fail();
 		}
 		catch (RuntimeException runtimeException) {
-			String message = runtimeException.getMessage();
-
 			Assert.assertEquals(
 				"Unable to update wiki page Other Title because a cycle was " +
 					"detected",
-				message);
+				runtimeException.getMessage());
 		}
 	}
 

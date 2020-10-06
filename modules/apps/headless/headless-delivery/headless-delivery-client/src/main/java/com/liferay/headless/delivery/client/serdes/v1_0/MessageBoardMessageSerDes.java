@@ -198,6 +198,20 @@ public class MessageBoardMessageSerDes {
 			sb.append("\"");
 		}
 
+		if (messageBoardMessage.getFriendlyUrlPath() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"friendlyUrlPath\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(messageBoardMessage.getFriendlyUrlPath()));
+
+			sb.append("\"");
+		}
+
 		if (messageBoardMessage.getHeadline() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -449,15 +463,25 @@ public class MessageBoardMessageSerDes {
 				String.valueOf(messageBoardMessage.getCustomFields()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(
-				messageBoardMessage.getDateCreated()));
+		if (messageBoardMessage.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(
+					messageBoardMessage.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(
-				messageBoardMessage.getDateModified()));
+		if (messageBoardMessage.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(
+					messageBoardMessage.getDateModified()));
+		}
 
 		if (messageBoardMessage.getEncodingFormat() == null) {
 			map.put("encodingFormat", null);
@@ -466,6 +490,15 @@ public class MessageBoardMessageSerDes {
 			map.put(
 				"encodingFormat",
 				String.valueOf(messageBoardMessage.getEncodingFormat()));
+		}
+
+		if (messageBoardMessage.getFriendlyUrlPath() == null) {
+			map.put("friendlyUrlPath", null);
+		}
+		else {
+			map.put(
+				"friendlyUrlPath",
+				String.valueOf(messageBoardMessage.getFriendlyUrlPath()));
 		}
 
 		if (messageBoardMessage.getHeadline() == null) {
@@ -672,6 +705,12 @@ public class MessageBoardMessageSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "friendlyUrlPath")) {
+				if (jsonParserFieldValue != null) {
+					messageBoardMessage.setFriendlyUrlPath(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "headline")) {
 				if (jsonParserFieldValue != null) {
 					messageBoardMessage.setHeadline(
@@ -768,9 +807,8 @@ public class MessageBoardMessageSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -826,10 +864,13 @@ public class MessageBoardMessageSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

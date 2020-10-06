@@ -24,8 +24,10 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class WorkflowDefinitionLinkSoap implements Serializable {
 
 	public static WorkflowDefinitionLinkSoap toSoapModel(
@@ -34,6 +36,7 @@ public class WorkflowDefinitionLinkSoap implements Serializable {
 		WorkflowDefinitionLinkSoap soapModel = new WorkflowDefinitionLinkSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setWorkflowDefinitionLinkId(
 			model.getWorkflowDefinitionLinkId());
 		soapModel.setGroupId(model.getGroupId());
@@ -116,6 +119,14 @@ public class WorkflowDefinitionLinkSoap implements Serializable {
 
 	public void setMvccVersion(long mvccVersion) {
 		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public long getWorkflowDefinitionLinkId() {
@@ -215,6 +226,7 @@ public class WorkflowDefinitionLinkSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _workflowDefinitionLinkId;
 	private long _groupId;
 	private long _companyId;

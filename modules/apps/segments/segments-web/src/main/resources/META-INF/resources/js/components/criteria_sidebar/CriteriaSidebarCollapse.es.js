@@ -52,8 +52,14 @@ function getDefaultValue(property) {
 	else if (type === PROPERTY_TYPES.BOOLEAN) {
 		defaultValue = 'true';
 	}
+	else if (type === PROPERTY_TYPES.INTEGER && options && options.length) {
+		defaultValue = options[0].value;
+	}
 	else if (type === PROPERTY_TYPES.INTEGER) {
 		defaultValue = 0;
+	}
+	else if (type === PROPERTY_TYPES.DOUBLE && options && options.length) {
+		defaultValue = options[0].value;
 	}
 	else if (type === PROPERTY_TYPES.DOUBLE) {
 		defaultValue = '0.00';
@@ -66,7 +72,7 @@ function getDefaultValue(property) {
  * Filters properties by label
  */
 function filterProperties(properties, searchValue) {
-	return properties.filter(property => {
+	return properties.filter((property) => {
 		const propertyLabel = property.label.toLowerCase();
 
 		return propertyLabel.indexOf(searchValue.toLowerCase()) !== -1;
@@ -83,7 +89,7 @@ const CriteriaSidebarCollapse = ({
 
 	return (
 		<ul className="list-unstyled sidebar-collapse-groups">
-			{propertyGroups.map(propertyGroup => {
+			{propertyGroups.map((propertyGroup) => {
 				const key = propertyGroup.propertyKey;
 
 				const active = key === propertyKey;

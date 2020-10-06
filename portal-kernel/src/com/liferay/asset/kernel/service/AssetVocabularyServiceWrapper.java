@@ -38,6 +38,20 @@ public class AssetVocabularyServiceWrapper
 			long groupId, String title,
 			java.util.Map<java.util.Locale, String> titleMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings, int visibilityType,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyService.addVocabulary(
+			groupId, title, titleMap, descriptionMap, settings, visibilityType,
+			serviceContext);
+	}
+
+	@Override
+	public AssetVocabulary addVocabulary(
+			long groupId, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
 			String settings,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -54,6 +68,20 @@ public class AssetVocabularyServiceWrapper
 
 		return _assetVocabularyService.addVocabulary(
 			groupId, title, serviceContext);
+	}
+
+	@Override
+	public AssetVocabulary addVocabulary(
+			long groupId, String name, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyService.addVocabulary(
+			groupId, name, title, titleMap, descriptionMap, settings,
+			serviceContext);
 	}
 
 	@Override
@@ -123,29 +151,39 @@ public class AssetVocabularyServiceWrapper
 	public java.util.List<AssetVocabulary> getGroupVocabularies(
 			long groupId, boolean createDefaultVocabulary, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary>
-				obc)
+				orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetVocabularyService.getGroupVocabularies(
-			groupId, createDefaultVocabulary, start, end, obc);
+			groupId, createDefaultVocabulary, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<AssetVocabulary> getGroupVocabularies(
+		long groupId, int visibilityType) {
+
+		return _assetVocabularyService.getGroupVocabularies(
+			groupId, visibilityType);
 	}
 
 	@Override
 	public java.util.List<AssetVocabulary> getGroupVocabularies(
 		long groupId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary> obc) {
+		com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary>
+			orderByComparator) {
 
 		return _assetVocabularyService.getGroupVocabularies(
-			groupId, start, end, obc);
+			groupId, start, end, orderByComparator);
 	}
 
 	@Override
 	public java.util.List<AssetVocabulary> getGroupVocabularies(
 		long groupId, String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary> obc) {
+		com.liferay.portal.kernel.util.OrderByComparator<AssetVocabulary>
+			orderByComparator) {
 
 		return _assetVocabularyService.getGroupVocabularies(
-			groupId, name, start, end, obc);
+			groupId, name, start, end, orderByComparator);
 	}
 
 	@Override
@@ -153,6 +191,14 @@ public class AssetVocabularyServiceWrapper
 		long[] groupIds) {
 
 		return _assetVocabularyService.getGroupVocabularies(groupIds);
+	}
+
+	@Override
+	public java.util.List<AssetVocabulary> getGroupVocabularies(
+		long[] groupIds, int[] visibilityTypes) {
+
+		return _assetVocabularyService.getGroupVocabularies(
+			groupIds, visibilityTypes);
 	}
 
 	@Override
@@ -176,11 +222,11 @@ public class AssetVocabularyServiceWrapper
 				long groupId, String name, int start, int end,
 				boolean addDefaultVocabulary,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<AssetVocabulary> obc)
+					<AssetVocabulary> orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetVocabularyService.getGroupVocabulariesDisplay(
-			groupId, name, start, end, addDefaultVocabulary, obc);
+			groupId, name, start, end, addDefaultVocabulary, orderByComparator);
 	}
 
 	@Override
@@ -188,11 +234,11 @@ public class AssetVocabularyServiceWrapper
 			getGroupVocabulariesDisplay(
 				long groupId, String name, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					<AssetVocabulary> obc)
+					<AssetVocabulary> orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetVocabularyService.getGroupVocabulariesDisplay(
-			groupId, name, start, end, obc);
+			groupId, name, start, end, orderByComparator);
 	}
 
 	/**
@@ -236,6 +282,28 @@ public class AssetVocabularyServiceWrapper
 
 	@Override
 	public AssetVocabulary updateVocabulary(
+			long vocabularyId, java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyService.updateVocabulary(
+			vocabularyId, titleMap, descriptionMap, settings);
+	}
+
+	@Override
+	public AssetVocabulary updateVocabulary(
+			long vocabularyId, java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings, int visibilityType)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyService.updateVocabulary(
+			vocabularyId, titleMap, descriptionMap, settings, visibilityType);
+	}
+
+	@Override
+	public AssetVocabulary updateVocabulary(
 			long vocabularyId, String title,
 			java.util.Map<java.util.Locale, String> titleMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -245,6 +313,20 @@ public class AssetVocabularyServiceWrapper
 
 		return _assetVocabularyService.updateVocabulary(
 			vocabularyId, title, titleMap, descriptionMap, settings,
+			serviceContext);
+	}
+
+	@Override
+	public AssetVocabulary updateVocabulary(
+			long vocabularyId, String name, String title,
+			java.util.Map<java.util.Locale, String> titleMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			String settings,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetVocabularyService.updateVocabulary(
+			vocabularyId, name, title, titleMap, descriptionMap, settings,
 			serviceContext);
 	}
 

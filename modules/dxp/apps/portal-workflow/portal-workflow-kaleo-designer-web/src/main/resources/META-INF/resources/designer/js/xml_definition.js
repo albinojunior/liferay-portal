@@ -11,7 +11,7 @@
 
 AUI.add(
 	'liferay-kaleo-designer-xml-definition',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var isNumber = Lang.isNumber;
@@ -27,6 +27,7 @@ AUI.add(
 		];
 
 		var STR_BLANK = '';
+		var XMLUtil = Liferay.XMLUtil;
 
 		var XMLDefinition = A.Component.create({
 			ATTRS: {
@@ -48,11 +49,11 @@ AUI.add(
 
 				xmlNamespace: {
 					value: {
-						xmlns: 'urn:liferay.com:liferay-workflow_7.1.0',
+						xmlns: 'urn:liferay.com:liferay-workflow_7.3.0',
 						'xmlns:xsi':
 							'http://www.w3.org/2001/XMLSchema-instance',
 						'xsi:schemaLocation':
-							'urn:liferay.com:liferay-workflow_7.1.0 http://www.liferay.com/dtd/liferay-workflow-definition_7_1_0.xsd',
+							'urn:liferay.com:liferay-workflow_7.3.0 http://www.liferay.com/dtd/liferay-workflow-definition_7_3_0.xsd',
 					},
 				},
 			},
@@ -419,7 +420,7 @@ AUI.add(
 				forEachField(fn) {
 					var instance = this;
 
-					COL_TYPES_FIELD.forEach(item => {
+					COL_TYPES_FIELD.forEach((item) => {
 						var fieldData = instance.translate(item);
 
 						if (fn && !fieldData.error) {
@@ -451,7 +452,9 @@ AUI.add(
 
 					var val = instance._sanitizeDefinitionXML(config.value);
 
-					instance.definitionDoc = A.DataType.XML.parse(val);
+					if (!val || XMLUtil.validateDefinition(val)) {
+						instance.definitionDoc = A.DataType.XML.parse(val);
+					}
 
 					var metadata = instance.getDefinitionMetadata();
 
@@ -500,7 +503,7 @@ AUI.add(
 			'aui-component',
 			'dataschema-xml',
 			'datatype-xml',
-			'liferay-kaleo-designer-utils',
+			'liferay-kaleo-designer-xml-util',
 		],
 	}
 );

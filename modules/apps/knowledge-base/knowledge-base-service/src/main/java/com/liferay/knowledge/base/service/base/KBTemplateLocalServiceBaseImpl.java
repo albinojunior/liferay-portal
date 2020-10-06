@@ -27,6 +27,7 @@ import com.liferay.knowledge.base.service.persistence.KBCommentPersistence;
 import com.liferay.knowledge.base.service.persistence.KBFolderFinder;
 import com.liferay.knowledge.base.service.persistence.KBFolderPersistence;
 import com.liferay.knowledge.base.service.persistence.KBTemplatePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -47,6 +48,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -83,6 +85,10 @@ public abstract class KBTemplateLocalServiceBaseImpl
 	/**
 	 * Adds the kb template to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbTemplate the kb template
 	 * @return the kb template that was added
 	 */
@@ -109,6 +115,10 @@ public abstract class KBTemplateLocalServiceBaseImpl
 	/**
 	 * Deletes the kb template with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbTemplateId the primary key of the kb template
 	 * @return the kb template that was removed
 	 * @throws PortalException if a kb template with the primary key could not be found
@@ -124,6 +134,10 @@ public abstract class KBTemplateLocalServiceBaseImpl
 	/**
 	 * Deletes the kb template from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kbTemplate the kb template
 	 * @return the kb template that was removed
 	 * @throws PortalException
@@ -134,6 +148,11 @@ public abstract class KBTemplateLocalServiceBaseImpl
 		throws PortalException {
 
 		return kbTemplatePersistence.remove(kbTemplate);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return kbTemplatePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -385,6 +404,10 @@ public abstract class KBTemplateLocalServiceBaseImpl
 			(KBTemplate)persistedModel);
 	}
 
+	public BasePersistence<KBTemplate> getBasePersistence() {
+		return kbTemplatePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -471,6 +494,10 @@ public abstract class KBTemplateLocalServiceBaseImpl
 
 	/**
 	 * Updates the kb template in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KBTemplateLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kbTemplate the kb template
 	 * @return the kb template that was updated

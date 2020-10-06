@@ -13,13 +13,14 @@
  */
 
 export {default as addFragmentComposition} from './addFragmentComposition';
-export {default as addFragmentEntryLink} from './addFragmentEntryLink';
+export {default as addFragmentEntryLinks} from './addFragmentEntryLinks';
 export {default as addFragmentEntryLinkComment} from './addFragmentEntryLinkComment';
 export {default as addMappedInfoItem} from './addMappedInfoItem';
 export {default as deleteFragmentEntryLinkComment} from './deleteFragmentEntryLinkComment';
 export {default as editFragmentEntryLinkComment} from './editFragmentEntryLinkComment';
 export {default as loadReducer} from './loadReducer';
 export {default as switchSidebarPanel} from './switchSidebarPanel';
+export {default as switchViewportSize} from './switchViewportSize';
 export {default as toggleShowResolvedComments} from './toggleShowResolvedComments';
 export {default as unloadReducer} from './unloadReducer';
 export {default as updateColSize} from './updateColSize';

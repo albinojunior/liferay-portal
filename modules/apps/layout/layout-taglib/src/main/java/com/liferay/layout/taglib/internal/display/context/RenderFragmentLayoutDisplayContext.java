@@ -14,14 +14,10 @@
 
 package com.liferay.layout.taglib.internal.display.context;
 
-import com.liferay.asset.display.page.constants.AssetDisplayPageWebKeys;
-import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.display.contributor.InfoDisplayContributor;
-import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
-import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
+import com.liferay.layout.adaptive.media.LayoutAdaptiveMediaProcessor;
+import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -32,13 +28,11 @@ import com.liferay.portal.kernel.portlet.PortletJSONUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,119 +50,17 @@ public class RenderFragmentLayoutDisplayContext {
 		_httpServletRequest = httpServletRequest;
 		_httpServletResponse = httpServletResponse;
 
-		_infoDisplayContributorTracker =
-			(InfoDisplayContributorTracker)httpServletRequest.getAttribute(
-				InfoDisplayWebKeys.INFO_DISPLAY_CONTRIBUTOR_TRACKER);
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 	}
 
-	public String getBackgroundImage(JSONObject rowConfigJSONObject)
-		throws PortalException {
-
-		if (rowConfigJSONObject == null) {
-			return StringPool.BLANK;
-		}
-
-		JSONObject backgroundImageJSONObject =
-			rowConfigJSONObject.getJSONObject("backgroundImage");
-
-		if (backgroundImageJSONObject == null) {
-			return rowConfigJSONObject.getString(
-				"backgroundImage", StringPool.BLANK);
-		}
-
-		String mappedField = backgroundImageJSONObject.getString("mappedField");
-
-		if (Validator.isNotNull(mappedField)) {
-			InfoDisplayObjectProvider infoDisplayObjectProvider =
-				(InfoDisplayObjectProvider)_httpServletRequest.getAttribute(
-					AssetDisplayPageWebKeys.INFO_DISPLAY_OBJECT_PROVIDER);
-
-			if ((_infoDisplayContributorTracker != null) &&
-				(infoDisplayObjectProvider != null)) {
-
-				InfoDisplayContributor infoDisplayContributor =
-					_infoDisplayContributorTracker.getInfoDisplayContributor(
-						PortalUtil.getClassName(
-							infoDisplayObjectProvider.getClassNameId()));
-
-				if (infoDisplayContributor != null) {
-					Object object =
-						infoDisplayContributor.getInfoDisplayFieldValue(
-							infoDisplayObjectProvider.getDisplayObject(),
-							mappedField, LocaleUtil.getDefault());
-
-					if (object instanceof JSONObject) {
-						JSONObject fieldValueJSONObject = (JSONObject)object;
-
-						return fieldValueJSONObject.getString(
-							"url", StringPool.BLANK);
-					}
-				}
-			}
-		}
-
-		String fieldId = backgroundImageJSONObject.getString("fieldId");
-
-		if (Validator.isNotNull(fieldId)) {
-			long classNameId = backgroundImageJSONObject.getLong("classNameId");
-			long classPK = backgroundImageJSONObject.getLong("classPK");
-
-			if ((classNameId != 0L) && (classPK != 0L)) {
-				InfoDisplayContributor infoDisplayContributor =
-					_infoDisplayContributorTracker.getInfoDisplayContributor(
-						PortalUtil.getClassName(classNameId));
-
-				if (infoDisplayContributor != null) {
-					InfoDisplayObjectProvider infoDisplayObjectProvider =
-						infoDisplayContributor.getInfoDisplayObjectProvider(
-							classPK);
-
-					if (infoDisplayObjectProvider != null) {
-						Object object =
-							infoDisplayContributor.getInfoDisplayFieldValue(
-								infoDisplayObjectProvider.getDisplayObject(),
-								fieldId, LocaleUtil.getDefault());
-
-						if (object instanceof JSONObject) {
-							JSONObject fieldValueJSONObject =
-								(JSONObject)object;
-
-							return fieldValueJSONObject.getString(
-								"url", StringPool.BLANK);
-						}
-					}
-				}
-			}
-		}
-
-		String backgroundImageURL = backgroundImageJSONObject.getString("url");
-
-		if (Validator.isNotNull(backgroundImageURL)) {
-			return backgroundImageURL;
-		}
-
-		return StringPool.BLANK;
-	}
-
-	public String getPortletPaths() {
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)_httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
+	public String getPortletFooterPaths() {
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
 		PipingServletResponse pipingServletResponse = new PipingServletResponse(
 			_httpServletResponse, unsyncStringWriter);
 
-		List<PortletPreferences> portletPreferencesList =
-			PortletPreferencesLocalServiceUtil.getPortletPreferences(
-				PortletKeys.PREFS_OWNER_ID_DEFAULT,
-				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, themeDisplay.getPlid());
-
-		for (PortletPreferences portletPreferences : portletPreferencesList) {
-			Portlet portlet = PortletLocalServiceUtil.getPortletById(
-				themeDisplay.getCompanyId(), portletPreferences.getPortletId());
-
+		for (Portlet portlet : _getPortlets()) {
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 			try {
@@ -177,13 +69,11 @@ public class RenderFragmentLayoutDisplayContext {
 
 				PortletJSONUtil.writeHeaderPaths(
 					pipingServletResponse, jsonObject);
-
-				PortletJSONUtil.writeFooterPaths(
-					pipingServletResponse, jsonObject);
 			}
 			catch (Exception exception) {
 				_log.error(
-					"Unable to write portlet paths " + portlet.getPortletId(),
+					"Unable to write portlet footer paths " +
+						portlet.getPortletId(),
 					exception);
 			}
 		}
@@ -191,11 +81,78 @@ public class RenderFragmentLayoutDisplayContext {
 		return unsyncStringWriter.toString();
 	}
 
+	public String getPortletHeaderPaths() {
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+
+		PipingServletResponse pipingServletResponse = new PipingServletResponse(
+			_httpServletResponse, unsyncStringWriter);
+
+		for (Portlet portlet : _getPortlets()) {
+			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+			try {
+				PortletJSONUtil.populatePortletJSONObject(
+					_httpServletRequest, StringPool.BLANK, portlet, jsonObject);
+
+				PortletJSONUtil.writeFooterPaths(
+					pipingServletResponse, jsonObject);
+			}
+			catch (Exception exception) {
+				_log.error(
+					"Unable to write portlet header paths " +
+						portlet.getPortletId(),
+					exception);
+			}
+		}
+
+		return unsyncStringWriter.toString();
+	}
+
+	public String processAMImages(String content) {
+		LayoutAdaptiveMediaProcessor layoutAdaptiveMediaProcessor =
+			ServletContextUtil.getLayoutAdaptiveMediaProcessor();
+
+		return layoutAdaptiveMediaProcessor.processAdaptiveMediaContent(
+			content);
+	}
+
+	private List<Portlet> _getPortlets() {
+		if (_portlets != null) {
+			return _portlets;
+		}
+
+		_portlets = new ArrayList<>();
+
+		List<PortletPreferences> portletPreferencesList =
+			PortletPreferencesLocalServiceUtil.getPortletPreferences(
+				PortletKeys.PREFS_OWNER_ID_DEFAULT,
+				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, _themeDisplay.getPlid());
+
+		for (PortletPreferences portletPreferences : portletPreferencesList) {
+			Portlet portlet = PortletLocalServiceUtil.getPortletById(
+				_themeDisplay.getCompanyId(),
+				portletPreferences.getPortletId());
+
+			if (portlet == null) {
+				continue;
+			}
+
+			if (!portlet.isActive() || portlet.isUndeployedPortlet()) {
+				continue;
+			}
+
+			_portlets.add(portlet);
+		}
+
+		return _portlets;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		RenderFragmentLayoutDisplayContext.class);
 
 	private final HttpServletRequest _httpServletRequest;
 	private final HttpServletResponse _httpServletResponse;
-	private final InfoDisplayContributorTracker _infoDisplayContributorTracker;
+	private List<Portlet> _portlets;
+	private final ThemeDisplay _themeDisplay;
 
 }

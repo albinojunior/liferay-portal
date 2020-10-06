@@ -46,7 +46,7 @@ String userTokenName = tokenConfiguration.userTokenName();
 		</aui:select>
 	</aui:fieldset>
 
-	<aui:fieldset id='<%= renderResponse.getNamespace() + "authenticationCookies" %>'>
+	<aui:fieldset id='<%= liferayPortletResponse.getNamespace() + "authenticationCookies" %>'>
 
 		<%
 		if (authenticationCookies == null) {
@@ -76,7 +76,7 @@ String userTokenName = tokenConfiguration.userTokenName();
 	</aui:fieldset>
 </aui:fieldset>
 
-<aui:script use="liferay-auto-fields,liferay-dynamic-select">
+<aui:script use="liferay-auto-fields">
 	new Liferay.AutoFields({
 		contentBox: '#<portlet:namespace />authenticationCookies',
 		fieldIndexes:

@@ -17,6 +17,7 @@ package com.liferay.layout.internal.util;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.layout.admin.kernel.util.Sitemap;
 import com.liferay.layout.admin.kernel.util.SitemapURLProvider;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -81,9 +82,21 @@ public class LayoutSitemapURLProvider implements SitemapURLProvider {
 				continue;
 			}
 
-			List<Layout> layouts = _layoutService.getLayouts(
+			int start = QueryUtil.ALL_POS;
+			int end = QueryUtil.ALL_POS;
+
+			int count = _layoutService.getLayoutsCount(
 				layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
 				entry.getKey());
+
+			if (count > Sitemap.MAXIMUM_ENTRIES) {
+				start = count - Sitemap.MAXIMUM_ENTRIES;
+				end = count;
+			}
+
+			List<Layout> layouts = _layoutService.getLayouts(
+				layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
+				entry.getKey(), start, end);
 
 			for (Layout layout : layouts) {
 				visitLayout(element, layout, themeDisplay);
@@ -95,11 +108,15 @@ public class LayoutSitemapURLProvider implements SitemapURLProvider {
 			Element element, Layout layout, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		UnicodeProperties typeSettingsProperties =
+		if (layout.isSystem()) {
+			return;
+		}
+
+		UnicodeProperties typeSettingsUnicodeProperties =
 			layout.getTypeSettingsProperties();
 
 		if (!GetterUtil.getBoolean(
-				typeSettingsProperties.getProperty(
+				typeSettingsUnicodeProperties.getProperty(
 					LayoutTypePortletConstants.SITEMAP_INCLUDE),
 				true)) {
 
@@ -116,7 +133,7 @@ public class LayoutSitemapURLProvider implements SitemapURLProvider {
 
 		for (String alternateURL : alternateURLs.values()) {
 			_sitemap.addURLElement(
-				element, alternateURL, typeSettingsProperties,
+				element, alternateURL, typeSettingsUnicodeProperties,
 				layout.getModifiedDate(), layoutFullURL, alternateURLs);
 		}
 	}

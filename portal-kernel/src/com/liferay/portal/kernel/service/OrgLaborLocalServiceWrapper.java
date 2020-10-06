@@ -47,6 +47,10 @@ public class OrgLaborLocalServiceWrapper
 	/**
 	 * Adds the org labor to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param orgLabor the org labor
 	 * @return the org labor that was added
 	 */
@@ -84,6 +88,10 @@ public class OrgLaborLocalServiceWrapper
 	/**
 	 * Deletes the org labor with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param orgLaborId the primary key of the org labor
 	 * @return the org labor that was removed
 	 * @throws PortalException if a org labor with the primary key could not be found
@@ -98,6 +106,10 @@ public class OrgLaborLocalServiceWrapper
 
 	/**
 	 * Deletes the org labor from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param orgLabor the org labor
 	 * @return the org labor that was removed
@@ -118,6 +130,11 @@ public class OrgLaborLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _orgLaborLocalService.deletePersistedModel(persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _orgLaborLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -317,6 +334,10 @@ public class OrgLaborLocalServiceWrapper
 
 	/**
 	 * Updates the org labor in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OrgLaborLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param orgLabor the org labor
 	 * @return the org labor that was updated

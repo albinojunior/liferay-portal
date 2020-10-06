@@ -15,12 +15,18 @@
 package com.liferay.app.builder.internal.search.spi.model.index.contributor;
 
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.model.AppBuilderAppDeployment;
+import com.liferay.app.builder.service.AppBuilderAppDeploymentLocalService;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Gabriel Albuquerque
@@ -35,8 +41,24 @@ public class AppBuilderAppModelDocumentContributor
 
 	@Override
 	public void contribute(Document document, AppBuilderApp appBuilderApp) {
+		document.addKeyword("active", appBuilderApp.isActive());
+		document.addKeyword(
+			"ddlRecordSetId", appBuilderApp.getDdlRecordSetId());
 		document.addKeyword(
 			"ddmStructureId", appBuilderApp.getDdmStructureId());
+		document.addKeyword(
+			"deploymentTypes",
+			Stream.of(
+				_appBuilderAppDeploymentLocalService.
+					getAppBuilderAppDeployments(
+						appBuilderApp.getAppBuilderAppId())
+			).flatMap(
+				List::stream
+			).map(
+				AppBuilderAppDeployment::getType
+			).toArray(
+				String[]::new
+			));
 
 		String[] languageIds = getLanguageIds(
 			appBuilderApp.getDefaultLanguageId(), appBuilderApp.getName());
@@ -54,6 +76,7 @@ public class AppBuilderAppModelDocumentContributor
 				appBuilderApp.getDefaultLanguageId(),
 				appBuilderApp.getGroupId()),
 			true, true);
+		document.addKeyword("scope", appBuilderApp.getScope());
 	}
 
 	protected String[] getLanguageIds(
@@ -68,5 +91,9 @@ public class AppBuilderAppModelDocumentContributor
 
 		return languageIds;
 	}
+
+	@Reference
+	private AppBuilderAppDeploymentLocalService
+		_appBuilderAppDeploymentLocalService;
 
 }

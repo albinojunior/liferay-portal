@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class WikiPageAttachment implements Cloneable {
 
+	public static WikiPageAttachment toDTO(String json) {
+		return WikiPageAttachmentSerDes.toDTO(json);
+	}
+
 	public String getContentUrl() {
 		return contentUrl;
 	}
@@ -48,6 +52,27 @@ public class WikiPageAttachment implements Cloneable {
 	}
 
 	protected String contentUrl;
+
+	public String getContentValue() {
+		return contentValue;
+	}
+
+	public void setContentValue(String contentValue) {
+		this.contentValue = contentValue;
+	}
+
+	public void setContentValue(
+		UnsafeSupplier<String, Exception> contentValueUnsafeSupplier) {
+
+		try {
+			contentValue = contentValueUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String contentValue;
 
 	public String getEncodingFormat() {
 		return encodingFormat;

@@ -18,8 +18,11 @@ import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayoutColumn;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayoutPage;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayoutRow;
+import com.liferay.data.engine.rest.client.dto.v2_0.DataRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+
+import java.util.HashMap;
 
 /**
  * @author Leonardo Barros
@@ -32,9 +35,10 @@ public class DataLayoutTestUtil {
 		DataLayout dataLayout = new DataLayout() {
 			{
 				dataLayoutKey = RandomTestUtil.randomString();
+				dataRules = new DataRule[0];
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
-				id = RandomTestUtil.randomLong();
+				description = new HashMap<>();
 				paginationMode = "wizard";
 			}
 		};

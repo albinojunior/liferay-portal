@@ -46,7 +46,6 @@ import org.apache.tika.detect.Detector;
 import org.apache.tika.io.CloseShieldInputStream;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypesReaderMetKeys;
 
 import org.w3c.dom.Document;
@@ -79,12 +78,12 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 
 		ClassLoader classLoader = clazz.getClassLoader();
 
-		URL customMimeTypesUrl = classLoader.getResource(
+		URL customMimeTypesURL = classLoader.getResource(
 			"tika/custom-mimetypes.xml");
 
 		try {
 			read(url.openStream(), _extensionsMap);
-			read(customMimeTypesUrl.openStream(), _customExtensionsMap);
+			read(customMimeTypesURL.openStream(), _customExtensionsMap);
 		}
 		catch (Exception exception) {
 			_log.error("Unable to populate extensions map", exception);
@@ -133,10 +132,8 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 				metadata.set(
 					Metadata.RESOURCE_NAME_KEY, HtmlUtil.escapeURL(fileName));
 
-				MediaType mediaType = _detector.detect(
-					tikaInputStream, metadata);
-
-				contentType = mediaType.toString();
+				contentType = String.valueOf(
+					_detector.detect(tikaInputStream, metadata));
 			}
 
 			if (contentType.contains("tika")) {
@@ -181,9 +178,7 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 				metadata.set(
 					Metadata.RESOURCE_NAME_KEY, HtmlUtil.escapeURL(fileName));
 
-				MediaType mediaType = _detector.detect(null, metadata);
-
-				contentType = mediaType.toString();
+				contentType = String.valueOf(_detector.detect(null, metadata));
 			}
 
 			if (!contentType.contains("tika")) {
@@ -244,7 +239,7 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 	}
 
 	protected void read(
-			InputStream stream, Map<String, Set<String>> extensionsMap)
+			InputStream inputStream, Map<String, Set<String>> extensionsMap)
 		throws Exception {
 
 		DocumentBuilderFactory documentBuilderFactory =
@@ -253,7 +248,7 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 		DocumentBuilder documentBuilder =
 			documentBuilderFactory.newDocumentBuilder();
 
-		Document document = documentBuilder.parse(new InputSource(stream));
+		Document document = documentBuilder.parse(new InputSource(inputStream));
 
 		Element element = document.getDocumentElement();
 

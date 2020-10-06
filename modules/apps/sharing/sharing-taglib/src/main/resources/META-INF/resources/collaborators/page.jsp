@@ -22,9 +22,9 @@
 	<link href="<%= PortalUtil.getStaticResourceURL(request, application.getContextPath() + "/collaborators/css/main.css") %>" rel="stylesheet" type="text/css" />
 </liferay-util:html-top>
 
-<div class="collaborators" id="<portlet:namespace/>collaborators-root">
+<div class="collaborators" id="<portlet:namespace />collaborators-root">
 	<react:component
-		data='<%= (Map<String, Object>)request.getAttribute("liferay-sharing:collaborators:data") %>'
 		module="collaborators/js/index.es"
+		props='<%= (Map<String, Object>)request.getAttribute("liferay-sharing:collaborators:data") %>'
 	/>
 </div>

@@ -110,7 +110,7 @@ redirectURL.setParameter("privateLayout", String.valueOf(privateLayout));
 response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<c:if test='<%= SessionMessages.contains(renderRequest, "requestProcessed") %>'>
 
 		<%
@@ -124,7 +124,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 		</c:if>
 	</c:if>
 
-	<aui:form action='<%= portletURL.toString() + "&etag=0&strip=0" %>' cssClass="lfr-export-dialog" method="post" name="publishPagesFm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "publishPages();" %>'>
+	<aui:form action='<%= portletURL.toString() + "&etag=0&strip=0" %>' cssClass="lfr-export-dialog" method="post" name="publishPagesFm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "publishPages();" %>'>
 		<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= cmd %>" />
 		<aui:input name="originalCmd" type="hidden" value="<%= cmd %>" />
 		<aui:input name="tabs1" type="hidden" value="<%= tabs1 %>" />
@@ -190,7 +190,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 
 		<div id="<portlet:namespace />publishOptions">
 			<div class="export-dialog-tree">
-				<div class="container-fluid-1280">
+				<clay:container-fluid>
 
 					<%
 					String taskExecutorClassName = localPublishing ? BackgroundTaskExecutorNames.LAYOUT_STAGING_BACKGROUND_TASK_EXECUTOR : BackgroundTaskExecutorNames.LAYOUT_REMOTE_STAGING_BACKGROUND_TASK_EXECUTOR;
@@ -239,11 +239,11 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 						</aui:fieldset>
 
 						<aui:fieldset cssClass="options-group">
-							<div class="sheet-section">
+							<clay:sheet-section>
 								<h3 class="sheet-subtitle"><liferay-ui:message key="date" /></h3>
 
 								<%@ include file="/publish/publish_layouts_scheduler.jspf" %>
-							</div>
+							</clay:sheet-section>
 						</aui:fieldset>
 
 						<liferay-staging:deletions
@@ -289,11 +289,11 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 							</aui:fieldset>
 						</c:if>
 					</aui:fieldset-group>
-				</div>
+				</clay:container-fluid>
 			</div>
 
 			<aui:button-row>
-				<aui:button id="addButton" onClick='<%= renderResponse.getNamespace() + "schedulePublishEvent();" %>' value="add-event" />
+				<aui:button id="addButton" onClick='<%= liferayPortletResponse.getNamespace() + "schedulePublishEvent();" %>' value="add-event" />
 
 				<aui:button id="publishButton" type="submit" value="<%= LanguageUtil.get(request, publishMessageKey) %>" />
 
@@ -303,7 +303,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 			</aui:button-row>
 		</div>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
 	function <portlet:namespace />publishPages() {

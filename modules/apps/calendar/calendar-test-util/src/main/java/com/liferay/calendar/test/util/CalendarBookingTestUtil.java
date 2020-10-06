@@ -14,9 +14,9 @@
 
 package com.liferay.calendar.test.util;
 
+import com.liferay.calendar.constants.CalendarBookingConstants;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
-import com.liferay.calendar.model.CalendarBookingConstants;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.notification.NotificationType;
 import com.liferay.calendar.recurrence.Recurrence;
@@ -210,7 +210,7 @@ public class CalendarBookingTestUtil {
 
 		long startTime = System.currentTimeMillis();
 
-		long endTime = startTime + Time.HOUR * 10;
+		long endTime = startTime + (Time.HOUR * 10);
 
 		return addMasterCalendarBooking(
 			user, calendar, childCalendarIds, startTime, endTime,
@@ -480,10 +480,11 @@ public class CalendarBookingTestUtil {
 			Map<Locale, String> titleMap, ServiceContext serviceContext)
 		throws PortalException {
 
-		long endTime = calendarBooking.getEndTime() + Time.DAY * instanceIndex;
+		long endTime =
+			calendarBooking.getEndTime() + (Time.DAY * instanceIndex);
 
 		long startTime =
-			calendarBooking.getStartTime() + Time.DAY * instanceIndex;
+			calendarBooking.getStartTime() + (Time.DAY * instanceIndex);
 
 		return CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
 			calendarBooking.getUserId(), calendarBooking.getCalendarBookingId(),
@@ -513,10 +514,11 @@ public class CalendarBookingTestUtil {
 			Map<Locale, String> titleMap, ServiceContext serviceContext)
 		throws PortalException {
 
-		long endTime = calendarBooking.getEndTime() + Time.DAY * instanceIndex;
+		long endTime =
+			calendarBooking.getEndTime() + (Time.DAY * instanceIndex);
 
 		long startTime =
-			calendarBooking.getStartTime() + Time.DAY * instanceIndex;
+			calendarBooking.getStartTime() + (Time.DAY * instanceIndex);
 
 		return CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
 			calendarBooking.getUserId(), calendarBooking.getCalendarBookingId(),

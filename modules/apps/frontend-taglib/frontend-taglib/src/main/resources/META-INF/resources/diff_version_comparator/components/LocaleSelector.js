@@ -24,11 +24,11 @@ export default function LocaleSelector({
 	return (
 		<ClayForm.Group>
 			<ClaySelect
-				name={`_${portletNamespace}_languageId`}
+				name={`${portletNamespace}languageId`}
 				onChange={onChange}
 				value={selectedLanguageId}
 			>
-				{locales.map(locale => (
+				{locales.map((locale) => (
 					<ClaySelect.Option
 						key={locale.languageId}
 						label={locale.displayName}

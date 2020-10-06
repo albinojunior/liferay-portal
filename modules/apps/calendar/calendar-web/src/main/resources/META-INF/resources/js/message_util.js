@@ -14,9 +14,8 @@
 
 AUI.add(
 	'liferay-calendar-message-util',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
-		var LString = Lang.String;
 
 		var STR_BLANK = '';
 
@@ -102,7 +101,7 @@ AUI.add(
 							Liferay.Language.get(
 								'you-are-about-to-make-changes-that-will-only-affect-your-calendar-x'
 							),
-							[LString.escapeHTML(data.calendarName)]
+							[Liferay.Util.escapeHTML(data.calendarName)]
 						),
 						'</p>',
 					].join(STR_BLANK);
@@ -124,7 +123,7 @@ AUI.add(
 			confirm(message, yesButtonLabel, noButtonLabel, yesFn, noFn) {
 				var confirmationPanel;
 
-				var getButtonConfig = function(label, callback) {
+				var getButtonConfig = function (label, callback) {
 					return {
 						label,
 						on: {
@@ -210,86 +209,39 @@ AUI.add(
 				queue.run();
 			},
 
-			showAlert(container, message) {
-				new A.Alert({
-					animated: true,
-					bodyContent: message,
-					closeable: true,
-					cssClass: 'alert-success',
-					destroyOnHide: true,
-					duration: 1,
-				}).render(container);
+			showAlert(containerId, message) {
+				Liferay.Util.openToast({
+					containerId,
+					message,
+					type: 'success',
+				});
 			},
 
 			showErrorMessage(container, errorMessage) {
-				var instance = this;
-
-				var alert = instance._alert;
-
-				if (alert) {
-					alert.destroy();
-				}
-
-				alert = new Liferay.Alert({
-					closeable: true,
-					delay: {
-						hide: 3000,
-						show: 0,
-					},
-					icon: 'exclamation-full',
+				Liferay.Util.openToast({
+					container,
 					message: errorMessage,
 					type: 'danger',
 				});
-
-				if (!alert.get('rendered')) {
-					alert.render(container);
-				}
-
-				alert.show();
-
-				instance._alert = alert;
 			},
 
 			showSuccessMessage(container, message) {
-				var instance = this;
-
 				if (!message) {
 					message = Liferay.Language.get(
 						'your-request-completed-successfully'
 					);
 				}
 
-				var alert = instance._alert;
-
-				if (alert) {
-					alert._alertsContainer._node.innerHTML = '';
-
-					alert.destroy();
-				}
-
-				alert = new Liferay.Alert({
-					closeable: true,
-					delay: {
-						hide: 3000,
-						show: 0,
-					},
-					icon: 'check',
+				Liferay.Util.openToast({
+					container,
 					message,
 					type: 'success',
 				});
-
-				if (!alert.get('rendered')) {
-					alert.render(container);
-				}
-
-				alert.show();
-
-				instance._alert = alert;
 			},
 		};
 	},
 	'',
 	{
-		requires: ['aui-alert', 'liferay-alert', 'liferay-util-window'],
+		requires: ['liferay-util-window'],
 	}
 );

@@ -26,10 +26,10 @@ import com.liferay.dynamic.data.mapping.test.util.search.TestOrderHelper;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
 import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
+import com.liferay.journal.constants.JournalArticleConstants;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.service.JournalArticleServiceUtil;
 import com.liferay.journal.service.JournalFolderServiceUtil;
@@ -158,7 +158,7 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 
 		JournalArticle article = JournalTestUtil.addArticle(
 			group.getGroupId(), JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			JournalArticleConstants.CLASSNAME_ID_DEFAULT, articleId, false,
+			JournalArticleConstants.CLASS_NAME_ID_DEFAULT, articleId, false,
 			keywordsMap, keywordsMap, keywordsMap, null,
 			LocaleUtil.getDefault(), null, true, true, serviceContext);
 
@@ -238,6 +238,7 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 		testOrderHelper.testOrderByDDMNumberField();
 	}
 
+	@Ignore
 	@Test
 	public void testOrderByDDMNumberFieldRepeatable() throws Exception {
 		TestOrderHelper testOrderHelper =
@@ -304,7 +305,8 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 
 		searchContext.setSorts(sort);
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(JournalArticle.class);
+		Indexer<JournalArticle> indexer = IndexerRegistryUtil.getIndexer(
+			JournalArticle.class);
 
 		searchContext.setAttribute(Field.CONTENT, "some test");
 
@@ -334,7 +336,8 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 
 		searchContext.setSorts(sort);
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(JournalArticle.class);
+		Indexer<JournalArticle> indexer = IndexerRegistryUtil.getIndexer(
+			JournalArticle.class);
 
 		searchContext.setAttribute(Field.CONTENT, "test");
 
@@ -357,7 +360,6 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 			String.valueOf(article2.getResourcePrimKey()));
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchAttachments() throws Exception {
@@ -628,11 +630,10 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 				fieldValues.length);
 
 			for (String fieldValue : fieldValues) {
-				Map<Locale, String> map = HashMapBuilder.put(
-					LocaleUtil.US, fieldValue
-				).build();
-
-				contents.add(map);
+				contents.add(
+					HashMapBuilder.put(
+						LocaleUtil.US, fieldValue
+					).build());
 			}
 
 			String content = DDMStructureTestUtil.getSampleStructuredContent(

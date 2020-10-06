@@ -12,6 +12,7 @@
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import React, {useMemo} from 'react';
 
+import HeaderKebab from '../../shared/components/header/HeaderKebab.es';
 import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import ResultsBar from '../../shared/components/results-bar/ResultsBar.es';
 import {parse} from '../../shared/components/router/queryString.es';
@@ -24,9 +25,7 @@ const Header = ({page, pageSize, search, sort, totalCount}) => {
 	return (
 		<>
 			<ClayManagementToolbar className="mb-0">
-				<div className="navbar-form-autofit">
-					<SearchField disabled={!search && totalCount === 0} />
-				</div>
+				<SearchField disabled={!search && totalCount === 0} />
 			</ClayManagementToolbar>
 
 			{search && (
@@ -49,9 +48,7 @@ const Header = ({page, pageSize, search, sort, totalCount}) => {
 
 const ProcessListPage = ({history, query, routeParams}) => {
 	if (history.location.pathname === '/') {
-		history.replace(
-			`/processes/20/1/${encodeURIComponent('overdueInstanceCount:desc')}`
-		);
+		history.replace(`/processes/20/1/overdueInstanceCount:desc`);
 	}
 
 	usePageTitle(Liferay.Language.get('metrics'));
@@ -64,7 +61,7 @@ const ProcessListPage = ({history, query, routeParams}) => {
 			title: search,
 			...routeParams,
 		},
-		url: '/processes',
+		url: '/processes/metrics',
 	});
 
 	const promises = useMemo(() => {
@@ -77,13 +74,21 @@ const ProcessListPage = ({history, query, routeParams}) => {
 
 	return (
 		<PromisesResolver promises={promises}>
+			<HeaderKebab
+				kebabItems={[
+					{
+						label: Liferay.Language.get('settings'),
+						link: `/settings/indexes`,
+					},
+				]}
+			/>
 			<ProcessListPage.Header
 				search={search}
 				totalCount={data.totalCount}
 				{...routeParams}
 			/>
 
-			<ProcessListPage.Body data={data} search={search} />
+			<ProcessListPage.Body {...data} filtered={search} />
 		</PromisesResolver>
 	);
 };

@@ -23,9 +23,9 @@ boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
 
 <aui:form cssClass="lfr-export-dialog" method="post" name="fm1">
 	<div class="lfr-dynamic-uploader">
-		<div class="container-fluid-1280">
+		<clay:container-fluid>
 			<div class="lfr-upload-container" id="<portlet:namespace />fileUpload"></div>
-		</div>
+		</clay:container-fluid>
 	</div>
 
 	<%
@@ -37,7 +37,7 @@ boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
 	</aui:button-row>
 
 	<%
-	Date expirationDate = new Date(System.currentTimeMillis() + PropsValues.SESSION_TIMEOUT * Time.MINUTE);
+	Date expirationDate = new Date(System.currentTimeMillis() + (PropsValues.SESSION_TIMEOUT * Time.MINUTE));
 
 	Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class.getName(), user.getUserId(), TicketConstants.TYPE_IMPERSONATE, null, expirationDate, new ServiceContext());
 	%>
@@ -90,11 +90,11 @@ boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
 
 		var continueButton = A.one('#<portlet:namespace />continueButton');
 
-		liferayUpload._uploader.on('alluploadscomplete', function(event) {
+		liferayUpload._uploader.on('alluploadscomplete', function (event) {
 			toggleContinueButton();
 		});
 
-		Liferay.on('tempFileRemoved', function(event) {
+		Liferay.on('tempFileRemoved', function (event) {
 			toggleContinueButton();
 		});
 
@@ -116,7 +116,7 @@ boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
 <aui:script use="aui-base,aui-io-plugin-deprecated,aui-loading-mask-deprecated,io">
 	var form = A.one('#<portlet:namespace />fm1');
 
-	form.on('submit', function(event) {
+	form.on('submit', function (event) {
 		event.halt();
 
 		var exportImportOptions = A.one(

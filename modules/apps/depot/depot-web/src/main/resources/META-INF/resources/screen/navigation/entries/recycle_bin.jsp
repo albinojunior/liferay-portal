@@ -29,7 +29,7 @@ int trashEntriesMaxAge = PropertiesParamUtil.getInteger(typeSettingsProperties, 
 %>
 
 <liferay-frontend:fieldset
-	collapsible="true"
+	collapsible="<%= true %>"
 	cssClass="panel-group-flush"
 	label='<%= LanguageUtil.get(request, "recycle-bin") %>'
 >
@@ -49,7 +49,7 @@ int trashEntriesMaxAge = PropertiesParamUtil.getInteger(typeSettingsProperties, 
 		if (trashEnabledCheckbox) {
 			var trashEnabledDefault = trashEnabledCheckbox.checked;
 
-			trashEnabledCheckbox.addEventListener('change', function(event) {
+			trashEnabledCheckbox.addEventListener('change', function (event) {
 				var trashEnabled = trashEnabledCheckbox.checked;
 
 				if (!trashEnabled && trashEnabledDefault) {

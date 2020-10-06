@@ -11,45 +11,54 @@
 
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
 import React, {useMemo, useState} from 'react';
 
-import Icon from '../Icon.es';
 import Portal from '../portal/Portal.es';
-import {ChildLink} from '../router/routerWrapper.es';
+import ChildLink from '../router/ChildLink.es';
 
 const HeaderKebab = ({kebabItems = []}) => {
 	const [active, setActive] = useState(false);
 
-	const container = useMemo(
-		() =>
-			document.querySelector('.user-control-group div.control-menu-icon'),
-		[]
-	);
+	const container = useMemo(() => {
+		const nav = document.querySelector(
+			'.user-control-group ul.control-menu-nav'
+		);
+
+		return nav ? nav.lastElementChild : null;
+	}, []);
 
 	if (!kebabItems.length) {
 		return null;
 	}
 
 	return (
-		<Portal container={container} replace>
-			<ClayDropDown
-				active={active}
-				onActiveChange={setActive}
-				trigger={
-					<ClayButton
-						className="component-action"
-						data-testid="headerKebabButton"
-						displayType="unstyled"
-						monospaced
-					>
-						<Icon iconName="ellipsis-v" />
-					</ClayButton>
-				}
-			>
-				{kebabItems.map((kebabItem, index) => (
-					<HeaderKebab.Item {...kebabItem} key={index} />
-				))}
-			</ClayDropDown>
+		<Portal
+			className="control-menu-nav-item"
+			container={container}
+			elementId="headerKebab"
+			position="before"
+		>
+			<div className="control-menu-icon">
+				<ClayDropDown
+					active={active}
+					onActiveChange={setActive}
+					trigger={
+						<ClayButton
+							className="component-action"
+							data-testid="headerKebabButton"
+							displayType="unstyled"
+							monospaced
+						>
+							<ClayIcon symbol="ellipsis-v" />
+						</ClayButton>
+					}
+				>
+					{kebabItems.map((kebabItem, index) => (
+						<HeaderKebab.Item {...kebabItem} key={index} />
+					))}
+				</ClayDropDown>
+			</div>
 		</Portal>
 	);
 };

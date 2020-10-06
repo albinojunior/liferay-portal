@@ -34,13 +34,18 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormValuesTestUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
@@ -51,8 +56,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -99,7 +102,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 )
 @RunWith(PowerMockRunner.class)
 @SuppressStaticInitializationFor(
-	"com.liferay.portal.kernel.util.ResourceBundleLoaderUtil"
+	"com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil"
 )
 public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 
@@ -222,7 +225,7 @@ public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
 
 		ddmForm.addDDMFormRule(
-			new DDMFormRule("TRUE", Arrays.asList("jumpPage(0, 2)")));
+			new DDMFormRule(Arrays.asList("jumpPage(0, 2)"), "TRUE"));
 
 		ddmForm.addDDMFormField(
 			DDMFormTestUtil.createDDMFormField(
@@ -940,7 +943,9 @@ public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 
 		DDMFormPagesTemplateContextFactory ddmFormPagesTemplateContextFactory =
 			new DDMFormPagesTemplateContextFactory(
-				ddmForm, ddmFormLayout, ddmFormRenderingContext);
+				ddmForm, ddmFormLayout, ddmFormRenderingContext,
+				_ddmStructureLayoutLocalService, _ddmStructureLocalService,
+				new JSONFactoryImpl());
 
 		ddmFormPagesTemplateContextFactory.setDDMFormEvaluator(
 			getDDMFormEvaluator());
@@ -1186,6 +1191,12 @@ public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 
 	@Mock
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
+
+	@Mock
+	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
+
+	@Mock
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	private HttpServletRequest _httpServletRequest;
 

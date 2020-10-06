@@ -37,17 +37,17 @@ public class FragmentEntryLinkCacheModel
 	implements CacheModel<FragmentEntryLink>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof FragmentEntryLinkCacheModel)) {
+		if (!(object instanceof FragmentEntryLinkCacheModel)) {
 			return false;
 		}
 
 		FragmentEntryLinkCacheModel fragmentEntryLinkCacheModel =
-			(FragmentEntryLinkCacheModel)obj;
+			(FragmentEntryLinkCacheModel)object;
 
 		if ((fragmentEntryLinkId ==
 				fragmentEntryLinkCacheModel.fragmentEntryLinkId) &&
@@ -78,10 +78,12 @@ public class FragmentEntryLinkCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(47);
+		StringBundler sb = new StringBundler(53);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", fragmentEntryLinkId=");
@@ -102,10 +104,14 @@ public class FragmentEntryLinkCacheModel
 		sb.append(originalFragmentEntryLinkId);
 		sb.append(", fragmentEntryId=");
 		sb.append(fragmentEntryId);
+		sb.append(", segmentsExperienceId=");
+		sb.append(segmentsExperienceId);
 		sb.append(", classNameId=");
 		sb.append(classNameId);
 		sb.append(", classPK=");
 		sb.append(classPK);
+		sb.append(", plid=");
+		sb.append(plid);
 		sb.append(", css=");
 		sb.append(css);
 		sb.append(", html=");
@@ -137,6 +143,7 @@ public class FragmentEntryLinkCacheModel
 			new FragmentEntryLinkImpl();
 
 		fragmentEntryLinkImpl.setMvccVersion(mvccVersion);
+		fragmentEntryLinkImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			fragmentEntryLinkImpl.setUuid("");
@@ -174,8 +181,10 @@ public class FragmentEntryLinkCacheModel
 		fragmentEntryLinkImpl.setOriginalFragmentEntryLinkId(
 			originalFragmentEntryLinkId);
 		fragmentEntryLinkImpl.setFragmentEntryId(fragmentEntryId);
+		fragmentEntryLinkImpl.setSegmentsExperienceId(segmentsExperienceId);
 		fragmentEntryLinkImpl.setClassNameId(classNameId);
 		fragmentEntryLinkImpl.setClassPK(classPK);
+		fragmentEntryLinkImpl.setPlid(plid);
 
 		if (css == null) {
 			fragmentEntryLinkImpl.setCss("");
@@ -249,8 +258,12 @@ public class FragmentEntryLinkCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		fragmentEntryLinkId = objectInput.readLong();
@@ -268,14 +281,18 @@ public class FragmentEntryLinkCacheModel
 
 		fragmentEntryId = objectInput.readLong();
 
+		segmentsExperienceId = objectInput.readLong();
+
 		classNameId = objectInput.readLong();
 
 		classPK = objectInput.readLong();
-		css = objectInput.readUTF();
-		html = objectInput.readUTF();
-		js = objectInput.readUTF();
-		configuration = objectInput.readUTF();
-		editableValues = objectInput.readUTF();
+
+		plid = objectInput.readLong();
+		css = (String)objectInput.readObject();
+		html = (String)objectInput.readObject();
+		js = (String)objectInput.readObject();
+		configuration = (String)objectInput.readObject();
+		editableValues = (String)objectInput.readObject();
 		namespace = objectInput.readUTF();
 
 		position = objectInput.readInt();
@@ -287,6 +304,8 @@ public class FragmentEntryLinkCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -317,43 +336,47 @@ public class FragmentEntryLinkCacheModel
 
 		objectOutput.writeLong(fragmentEntryId);
 
+		objectOutput.writeLong(segmentsExperienceId);
+
 		objectOutput.writeLong(classNameId);
 
 		objectOutput.writeLong(classPK);
 
+		objectOutput.writeLong(plid);
+
 		if (css == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(css);
+			objectOutput.writeObject(css);
 		}
 
 		if (html == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(html);
+			objectOutput.writeObject(html);
 		}
 
 		if (js == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(js);
+			objectOutput.writeObject(js);
 		}
 
 		if (configuration == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(configuration);
+			objectOutput.writeObject(configuration);
 		}
 
 		if (editableValues == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(editableValues);
+			objectOutput.writeObject(editableValues);
 		}
 
 		if (namespace == null) {
@@ -377,6 +400,7 @@ public class FragmentEntryLinkCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long fragmentEntryLinkId;
 	public long groupId;
@@ -387,8 +411,10 @@ public class FragmentEntryLinkCacheModel
 	public long modifiedDate;
 	public long originalFragmentEntryLinkId;
 	public long fragmentEntryId;
+	public long segmentsExperienceId;
 	public long classNameId;
 	public long classPK;
+	public long plid;
 	public String css;
 	public String html;
 	public String js;

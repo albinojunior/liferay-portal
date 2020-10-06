@@ -15,9 +15,12 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.source.formatter.util.FileUtil;
 
 import java.io.IOException;
+
+import java.util.Objects;
 
 import org.json.JSONObject;
 
@@ -55,31 +58,37 @@ public class JSONPackageJSONCheck extends BaseFileCheck {
 
 		JSONObject jsonObject = new JSONObject(content);
 
-		_checkIncorrectEntry(fileName, jsonObject, "devDependencies");
-
 		if (jsonObject.isNull("scripts")) {
 			return content;
 		}
 
 		JSONObject scriptsJSONObject = jsonObject.getJSONObject("scripts");
 
-		if (absolutePath.contains("/modules/apps/frontend-theme")) {
+		if (!scriptsJSONObject.isNull("build") &&
+			Objects.equals(
+				scriptsJSONObject.get("build"), "liferay-npm-bundler")) {
+
+			return content;
+		}
+
+		_checkIncorrectEntry(fileName, jsonObject, "devDependencies");
+
+		if (absolutePath.endsWith("frontend-theme-admin") ||
+			absolutePath.endsWith("frontend-theme-classic") ||
+			absolutePath.endsWith("frontend-theme-styled") ||
+			absolutePath.endsWith("frontend-theme-unstyled")) {
+
 			_checkScript(
-				fileName, scriptsJSONObject, "build",
-				"liferay-npm-scripts theme build", false);
+				fileName, scriptsJSONObject, "build", false, "theme build");
 		}
 		else {
 			_checkScript(
-				fileName, scriptsJSONObject, "build",
-				"liferay-npm-scripts build", false);
+				fileName, scriptsJSONObject, "build", false, "build",
+				"webpack");
 		}
 
-		_checkScript(
-			fileName, scriptsJSONObject, "checkFormat",
-			"liferay-npm-scripts check", true);
-		_checkScript(
-			fileName, scriptsJSONObject, "format", "liferay-npm-scripts fix",
-			true);
+		_checkScript(fileName, scriptsJSONObject, "checkFormat", true, "check");
+		_checkScript(fileName, scriptsJSONObject, "format", true, "fix");
 
 		return content;
 	}
@@ -94,7 +103,7 @@ public class JSONPackageJSONCheck extends BaseFileCheck {
 
 	private void _checkScript(
 		String fileName, JSONObject scriptsJSONObject, String key,
-		String expectedValue, boolean requiredScript) {
+		boolean requiredScript, String... allowedValues) {
 
 		if (scriptsJSONObject.isNull(key)) {
 			if (requiredScript) {
@@ -107,13 +116,39 @@ public class JSONPackageJSONCheck extends BaseFileCheck {
 
 		String value = scriptsJSONObject.getString(key);
 
-		if (!value.contains(expectedValue)) {
+		for (String allowedValue : allowedValues) {
+			if (value.endsWith(StringPool.SPACE + allowedValue)) {
+				return;
+			}
+		}
+
+		if (allowedValues.length == 1) {
 			addMessage(
 				fileName,
 				StringBundler.concat(
 					"Value '", value, "' for entry '", key,
-					"' does not contain '", expectedValue, "'"));
+					"' should end with '", allowedValues[0], "'"));
+
+			return;
 		}
+
+		StringBundler sb = new StringBundler((allowedValues.length * 3) + 5);
+
+		sb.append("Value '");
+		sb.append(value);
+		sb.append("' for entry '");
+		sb.append(key);
+		sb.append("' should end with one of the following values: ");
+
+		for (String allowedValue : allowedValues) {
+			sb.append(StringPool.APOSTROPHE);
+			sb.append(allowedValue);
+			sb.append("', ");
+		}
+
+		sb.setIndex(sb.index() - 1);
+
+		addMessage(fileName, sb.toString());
 	}
 
 }

@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see TrashEntryServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class TrashEntryServiceSoap {
 
 	/**
@@ -171,20 +173,21 @@ public class TrashEntryServiceSoap {
 	 * @param start the lower bound of the range of trash entries to return
 	 * @param end the upper bound of the range of trash entries to return (not
 	 inclusive)
-	 * @param obc the comparator to order the trash entries (optionally
-	 <code>null</code>)
+	 * @param orderByComparator the comparator to order the trash entries
+	 (optionally <code>null</code>)
 	 * @return the range of matching trash entries ordered by comparator
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 */
 	public static com.liferay.trash.model.TrashEntryList getEntries(
 			long groupId, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.trash.model.TrashEntry> obc)
+				<com.liferay.trash.model.TrashEntry> orderByComparator)
 		throws RemoteException {
 
 		try {
 			com.liferay.trash.model.TrashEntryList returnValue =
-				TrashEntryServiceUtil.getEntries(groupId, start, end, obc);
+				TrashEntryServiceUtil.getEntries(
+					groupId, start, end, orderByComparator);
 
 			return returnValue;
 		}
@@ -221,21 +224,21 @@ public class TrashEntryServiceSoap {
 	 * @param start the lower bound of the range of trash entries to return
 	 * @param end the upper bound of the range of trash entries to return (not
 	 inclusive)
-	 * @param obc the comparator to order the trash entries (optionally
-	 <code>null</code>)
+	 * @param orderByComparator the comparator to order the trash entries
+	 (optionally <code>null</code>)
 	 * @return the range of matching trash entries ordered by comparator
-	 <code>obc</code>
+	 <code>orderByComparator</code>
 	 */
 	public static com.liferay.trash.model.TrashEntryList getEntries(
 			long groupId, String className, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.trash.model.TrashEntry> obc)
+				<com.liferay.trash.model.TrashEntry> orderByComparator)
 		throws RemoteException {
 
 		try {
 			com.liferay.trash.model.TrashEntryList returnValue =
 				TrashEntryServiceUtil.getEntries(
-					groupId, className, start, end, obc);
+					groupId, className, start, end, orderByComparator);
 
 			return returnValue;
 		}

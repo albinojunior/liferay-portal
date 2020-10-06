@@ -15,12 +15,12 @@
 import dom from 'metal-dom';
 import {Drag} from 'metal-drag-drop';
 import Component from 'metal-jsx';
-import Position from 'metal-position';
-import {Config} from 'metal-state';
 
-import {focusedFieldStructure, pageStructure} from '../../util/config.es';
+import formBuilderProps from './props.es';
 
-const withResizeableColumns = ChildComponent => {
+const MAX_COLUMNS = 12;
+
+const withResizeableColumns = (ChildComponent) => {
 	class ResizeableColumns extends Component {
 		attached() {
 			this._createResizeDrag();
@@ -34,38 +34,18 @@ const withResizeableColumns = ChildComponent => {
 			}
 		}
 
-		isResizeEnabled() {
-			const {defaultLanguageId, editingLanguageId} = this.props;
-
-			return defaultLanguageId === editingLanguageId;
-		}
-
 		render() {
 			return (
-				<div class={this.isResizeEnabled() ? 'resizeable' : ''}>
-					{this.renderResizeReferences()}
-
+				<div class="resizeable">
 					<ChildComponent {...this.props} />
 				</div>
 			);
 		}
 
-		renderResizeReferences() {
-			return [...Array(12)].map((element, index) => {
-				return (
-					<div
-						class="ddm-resize-column"
-						data-resize-column={index}
-						key={index}
-						ref={`resizeColumn${index}`}
-					/>
-				);
-			});
-		}
-
 		_createResizeDrag() {
 			this._resizeDrag = new Drag({
 				axis: 'x',
+				container: this.element,
 				sources: '.resizeable .ddm-resize-handle',
 				useShim: true,
 			});
@@ -92,6 +72,8 @@ const withResizeableColumns = ChildComponent => {
 			if (parentElement) {
 				parentElement.classList.remove('dragging');
 			}
+
+			this._currentRow = null;
 		}
 
 		_handleDragStart() {
@@ -99,34 +81,39 @@ const withResizeableColumns = ChildComponent => {
 		}
 
 		_handleDragMove(event) {
-			const columnNodes = Object.keys(this.refs)
-				.filter(key => key.indexOf('resizeColumn') === 0)
-				.map(key => this.refs[key]);
-			const {source, x} = event;
+			const {source} = event;
 			const {store} = this.context;
 
-			const container = dom.closest(source, '.ddm-field-container');
+			if (!this._currentRow) {
+				this._currentRow = dom.closest(source, '.row');
+			}
+
+			const container = this._currentRow.querySelector(
+				[
+					'.col-ddm',
+					`[data-ddm-field-column="${source.dataset.ddmFieldColumn}"]`,
+					`[data-ddm-field-page="${source.dataset.ddmFieldPage}"]`,
+					`[data-ddm-field-row="${source.dataset.ddmFieldRow}"]`,
+					'> .ddm-field-container',
+				].join('')
+			);
 
 			if (container) {
 				container.classList.add('dragging');
 			}
 
-			let distance = Infinity;
-			let nearest;
+			let column = Math.floor(
+				((event.x - this._currentRow.getBoundingClientRect().left) *
+					(MAX_COLUMNS * 10)) /
+					this._currentRow.clientWidth /
+					10
+			);
 
-			columnNodes.forEach(node => {
-				const region = Position.getRegion(node);
+			if (column > MAX_COLUMNS - 1) {
+				column = MAX_COLUMNS - 1;
+			}
 
-				const currentDistance = Math.abs(x - region.left);
-
-				if (currentDistance < distance) {
-					distance = currentDistance;
-					nearest = node;
-				}
-			});
-
-			if (nearest) {
-				const column = Number(nearest.dataset.resizeColumn);
+			if (column >= 0) {
 				const direction = source.classList.contains(
 					'ddm-resize-handle-left'
 				)
@@ -138,6 +125,7 @@ const withResizeableColumns = ChildComponent => {
 
 					store.emit('columnResized', {
 						column,
+						container,
 						direction,
 						source,
 					});
@@ -147,123 +135,7 @@ const withResizeableColumns = ChildComponent => {
 	}
 
 	ResizeableColumns.PROPS = {
-		/**
-		 * @default
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?number}
-		 */
-
-		activePage: Config.number().value(0),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		defaultLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		editingLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		fieldSetDefinitionURL: Config.string(),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldSets: Config.array().value([]),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldTypes: Config.array().value([]),
-
-		/**
-		 * @default {}
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?object}
-		 */
-
-		focusedField: focusedFieldStructure.value({}),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?array<object>}
-		 */
-
-		pages: Config.arrayOf(pageStructure).value([]),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		paginationMode: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		portletNamespace: Config.string().required(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {!string}
-		 */
-
-		spritemap: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {object}
-		 */
-
-		successPageSettings: Config.shapeOf({
-			body: Config.object(),
-			enabled: Config.bool(),
-			title: Config.object(),
-		}).value({}),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		view: Config.string(),
+		...formBuilderProps,
 	};
 
 	return ResizeableColumns;

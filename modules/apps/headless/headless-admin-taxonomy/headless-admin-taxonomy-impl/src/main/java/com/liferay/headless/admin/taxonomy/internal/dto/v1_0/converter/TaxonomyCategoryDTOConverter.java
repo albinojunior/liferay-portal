@@ -24,7 +24,6 @@ import com.liferay.headless.admin.taxonomy.dto.v1_0.ParentTaxonomyCategory;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.ParentTaxonomyVocabulary;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyCategory;
 import com.liferay.headless.admin.taxonomy.internal.dto.v1_0.util.CreatorUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -88,27 +87,28 @@ public class TaxonomyCategoryDTOConverter
 	private TaxonomyCategory _toTaxonomyCategory(
 			DTOConverterContext dtoConverterContext,
 			AssetCategory assetCategory)
-		throws PortalException {
+		throws Exception {
 
 		return new TaxonomyCategory() {
 			{
+				actions = dtoConverterContext.getActions();
 				availableLanguages = LocaleUtil.toW3cLanguageIds(
 					assetCategory.getAvailableLanguageIds());
 				creator = CreatorUtil.toCreator(
 					_portal,
-					_userLocalService.getUserById(assetCategory.getUserId()));
+					_userLocalService.fetchUser(assetCategory.getUserId()));
 				dateCreated = assetCategory.getCreateDate();
 				dateModified = assetCategory.getModifiedDate();
 				description = assetCategory.getDescription(
 					dtoConverterContext.getLocale());
-				description_i18n = LocalizedMapUtil.getLocalizedMap(
+				description_i18n = LocalizedMapUtil.getI18nMap(
 					dtoConverterContext.isAcceptAllLanguages(),
 					assetCategory.getDescriptionMap());
 				externalReferenceCode =
 					assetCategory.getExternalReferenceCode();
 				id = String.valueOf(assetCategory.getCategoryId());
 				name = assetCategory.getTitle(dtoConverterContext.getLocale());
-				name_i18n = LocalizedMapUtil.getLocalizedMap(
+				name_i18n = LocalizedMapUtil.getI18nMap(
 					dtoConverterContext.isAcceptAllLanguages(),
 					assetCategory.getTitleMap());
 				numberOfTaxonomyCategories =
@@ -128,7 +128,8 @@ public class TaxonomyCategoryDTOConverter
 									_assetVocabularyService.getVocabulary(
 										assetCategory.getVocabularyId());
 
-								return assetVocabulary.getName();
+								return assetVocabulary.getTitle(
+									dtoConverterContext.getLocale());
 							});
 					}
 				};

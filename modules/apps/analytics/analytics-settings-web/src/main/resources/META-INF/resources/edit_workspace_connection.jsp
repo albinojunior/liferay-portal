@@ -37,7 +37,7 @@ if (analyticsConfiguration != null) {
 		totalContactsSelected = analyticsUsersManager.getCompanyUsersCount(themeDisplay.getCompanyId());
 	}
 	else {
-		String[] syncedOrganizationIds = analyticsConfiguration.syncedOrganizationIds();
+		String[] syncedOrganizationIds = GetterUtil.getStringValues(analyticsConfiguration.syncedOrganizationIds());
 
 		long[] syncedOrganizationIdsLong = new long[syncedOrganizationIds.length];
 
@@ -45,7 +45,7 @@ if (analyticsConfiguration != null) {
 			syncedOrganizationIdsLong[i] = GetterUtil.getLong(syncedOrganizationIds[i]);
 		}
 
-		String[] syncedUserGroupIds = analyticsConfiguration.syncedUserGroupIds();
+		String[] syncedUserGroupIds = GetterUtil.getStringValues(analyticsConfiguration.syncedUserGroupIds());
 
 		long[] syncedUserGroupIdsLong = new long[syncedUserGroupIds.length];
 
@@ -58,34 +58,14 @@ if (analyticsConfiguration != null) {
 }
 %>
 
-<portlet:actionURL name="/analytics/edit_workspace_connection" var="editWorkspaceConnectionURL" />
+<portlet:actionURL name="/analytics_settings/edit_workspace_connection" var="editWorkspaceConnectionURL" />
 
-<div class="sheet sheet-lg">
-	<c:if test="<%= AnalyticsSettingsUtil.isAnalyticsEnabledWithOAuth(themeDisplay.getCompanyId()) %>">
-		<aui:alert type="warning">
-			<div class="mb-2">
-				<liferay-ui:message key="this-dxp-instance-is-already-connected-with-oauth" />
-
-				<strong>
-					<a href="https://help.liferay.com/hc/articles/360038812191-Setup-a-DXP-Data-Source-using-Token-based-Connection">
-						<liferay-ui:message key="read-about-using-the-new-token-based-connection-here" />
-					</a>
-				</strong>
-			</div>
-
-			<div>
-				<liferay-ui:message key="you-will-be-able-to-upgrade-to-the-new-token-based-connection" />
-			</div>
-		</aui:alert>
-	</c:if>
-
-	<h2 class="autofit-row">
-		<span class="autofit-col autofit-col-expand">
-			<liferay-ui:message key="connect-analytics-cloud" />
-		</span>
+<clay:sheet>
+	<h2>
+		<liferay-ui:message key="connect-analytics-cloud" />
 	</h2>
 
-	<aui:form action="<%= editWorkspaceConnectionURL %>" data-senna-off="true" method="post" name="fm" onSubmit='<%= renderResponse.getNamespace() + "confirmation(event);" %>'>
+	<aui:form action="<%= editWorkspaceConnectionURL %>" data-senna-off="true" method="post" name="fm" onSubmit='<%= liferayPortletResponse.getNamespace() + "confirmation(event);" %>'>
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 
 		<c:if test="<%= connected %>">
@@ -94,7 +74,7 @@ if (analyticsConfiguration != null) {
 
 		<aui:fieldset>
 			<c:if test="<%= !connected %>">
-				<aui:input autocomplete="off" label="analytics-cloud-token" name="token" oninput='<%= renderResponse.getNamespace() + "validateTokenButton();" %>' placeholder="paste-token-here" value="<%= token %>" wrapperCssClass="mb-1" />
+				<aui:input autocomplete="off" label="analytics-cloud-token" name="token" oninput='<%= liferayPortletResponse.getNamespace() + "validateTokenButton();" %>' placeholder="paste-token-here" value="<%= token %>" wrapperCssClass="mb-1" />
 
 				<div class="form-text">
 					<liferay-ui:message key="analytics-cloud-token-help" />
@@ -177,7 +157,7 @@ if (analyticsConfiguration != null) {
 			<aui:button disabled="<%= !connected %>" href="<%= selectSitesURL.toString() %>" primary="<%= true %>" value="select-sites" />
 		</aui:button-row>
 	</aui:fieldset>
-</div>
+</clay:sheet>
 
 <script>
 	function <portlet:namespace />confirmation(event) {

@@ -14,8 +14,7 @@
 
 package com.liferay.journal.internal.util;
 
-import com.liferay.change.tracking.constants.CTConstants;
-import com.liferay.change.tracking.listener.CTEventListener;
+import com.liferay.change.tracking.spi.listener.CTEventListener;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleDisplay;
@@ -102,8 +101,8 @@ public class JournalContentImpl
 					ClusterInvokeAcceptor.class, this, _clearArticleCacheMethod,
 					new Object[] {groupId, articleId, ddmTemplateKey});
 			}
-			catch (Throwable t) {
-				ReflectionUtil.throwException(t);
+			catch (Throwable throwable) {
+				ReflectionUtil.throwException(throwable);
 			}
 		}
 	}
@@ -118,8 +117,8 @@ public class JournalContentImpl
 					ClusterInvokeAcceptor.class, this,
 					_clearTemplateCacheMethod, new Object[] {ddmTemplateKey});
 			}
-			catch (Throwable t) {
-				ReflectionUtil.throwException(t);
+			catch (Throwable throwable) {
+				ReflectionUtil.throwException(throwable);
 			}
 		}
 	}
@@ -249,9 +248,9 @@ public class JournalContentImpl
 
 		JournalArticleDisplay articleDisplay = null;
 
-		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
+		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
 
-		if (ctCollectionId == CTConstants.CT_COLLECTION_ID_PRODUCTION) {
+		if (productionMode) {
 			articleDisplay = _portalCache.get(journalContentKey);
 		}
 
@@ -264,9 +263,7 @@ public class JournalContentImpl
 				lifecycleRender) {
 
 				try {
-					if (ctCollectionId ==
-							CTConstants.CT_COLLECTION_ID_PRODUCTION) {
-
+					if (productionMode) {
 						_portalCache.put(journalContentKey, articleDisplay);
 					}
 				}
@@ -556,8 +553,8 @@ public class JournalContentImpl
 	private static class JournalContentKey implements Serializable {
 
 		@Override
-		public boolean equals(Object obj) {
-			JournalContentKey journalContentKey = (JournalContentKey)obj;
+		public boolean equals(Object object) {
+			JournalContentKey journalContentKey = (JournalContentKey)object;
 
 			if ((journalContentKey._groupId == _groupId) &&
 				Objects.equals(journalContentKey._articleId, _articleId) &&

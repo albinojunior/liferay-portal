@@ -32,7 +32,10 @@ import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
+import com.liferay.portal.kernel.resource.manager.ClassLoaderResourceManager;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.settings.LocationVariableResolver;
+import com.liferay.portal.kernel.settings.SettingsLocatorHelper;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -95,22 +98,23 @@ public class EditConfigurationMVCRenderCommand implements MVCRenderCommand {
 			configurationModel = configurationModels.get(factoryPid);
 		}
 
-		if ((configurationModel != null) &&
-			!configurationModel.isCompanyFactory()) {
-
+		if (configurationModel != null) {
 			Configuration configuration =
 				_configurationModelRetriever.getConfiguration(
 					pid, configurationScopeDisplayContext.getScope(),
 					configurationScopeDisplayContext.getScopePK());
 
-			configurationModel = new ConfigurationModel(
-				configurationModel.getExtendedObjectClassDefinition(),
-				configuration, configurationModel.getBundleSymbolicName(),
-				configurationModel.getBundleLocation(),
-				configurationModel.isFactory());
-		}
+			if (configurationModel.isFactory() && pid.equals(factoryPid)) {
+				configuration = null;
+			}
 
-		if (configurationModel != null) {
+			configurationModel = new ConfigurationModel(
+				configurationModel.getBundleLocation(),
+				configurationModel.getBundleSymbolicName(),
+				configurationModel.getClassLoader(), configuration,
+				configurationModel.getExtendedObjectClassDefinition(),
+				configurationModel.isFactory());
+
 			ConfigurationCategoryMenuDisplay configurationCategoryMenuDisplay =
 				_configurationEntryRetriever.
 					getConfigurationCategoryMenuDisplay(
@@ -156,10 +160,17 @@ public class EditConfigurationMVCRenderCommand implements MVCRenderCommand {
 				ConfigurationAdminWebKeys.CONFIGURATION_MODEL,
 				configurationModel);
 
+			LocationVariableResolver locationVariableResolver =
+				new LocationVariableResolver(
+					new ClassLoaderResourceManager(
+						configurationModel.getClassLoader()),
+					_settingsLocatorHelper);
+
 			DDMFormRendererHelper ddmFormRendererHelper =
 				new DDMFormRendererHelper(
 					renderRequest, renderResponse, configurationModel,
-					_ddmFormRenderer, _resourceBundleLoaderProvider);
+					_ddmFormRenderer, locationVariableResolver,
+					_resourceBundleLoaderProvider);
 
 			renderRequest.setAttribute(
 				ConfigurationAdminWebKeys.CONFIGURATION_MODEL_FORM_HTML,
@@ -199,7 +210,7 @@ public class EditConfigurationMVCRenderCommand implements MVCRenderCommand {
 	private ServiceTrackerMap<String, List<ConfigurationMenuItem>>
 		_configurationMenuItemsServiceTrackerMap;
 
-	@Reference
+	@Reference(target = "(filter.visibility=*)")
 	private ConfigurationModelRetriever _configurationModelRetriever;
 
 	@Reference
@@ -210,5 +221,8 @@ public class EditConfigurationMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private ResourceBundleLoaderProvider _resourceBundleLoaderProvider;
+
+	@Reference
+	private SettingsLocatorHelper _settingsLocatorHelper;
 
 }

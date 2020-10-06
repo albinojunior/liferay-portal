@@ -41,6 +41,10 @@ public class PollsQuestionLocalServiceUtil {
 	/**
 	 * Adds the polls question to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was added
 	 */
@@ -138,6 +142,10 @@ public class PollsQuestionLocalServiceUtil {
 	/**
 	 * Deletes the polls question with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param questionId the primary key of the polls question
 	 * @return the polls question that was removed
 	 * @throws PortalException if a polls question with the primary key could not be found
@@ -151,6 +159,10 @@ public class PollsQuestionLocalServiceUtil {
 
 	/**
 	 * Deletes the polls question from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was removed
@@ -178,6 +190,12 @@ public class PollsQuestionLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		getService().deleteQuestions(groupId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -437,6 +455,14 @@ public class PollsQuestionLocalServiceUtil {
 	}
 
 	public static java.util.List<com.liferay.polls.model.PollsQuestion> search(
+		long groupId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator
+			<com.liferay.polls.model.PollsQuestion> orderByComparator) {
+
+		return getService().search(groupId, start, end, orderByComparator);
+	}
+
+	public static java.util.List<com.liferay.polls.model.PollsQuestion> search(
 		long companyId, long[] groupIds, String keywords, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator
 			<com.liferay.polls.model.PollsQuestion> orderByComparator) {
@@ -456,6 +482,10 @@ public class PollsQuestionLocalServiceUtil {
 			orderByComparator);
 	}
 
+	public static int searchCount(long groupId) {
+		return getService().searchCount(groupId);
+	}
+
 	public static int searchCount(
 		long companyId, long[] groupIds, String keywords) {
 
@@ -472,6 +502,10 @@ public class PollsQuestionLocalServiceUtil {
 
 	/**
 	 * Updates the polls question in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was updated

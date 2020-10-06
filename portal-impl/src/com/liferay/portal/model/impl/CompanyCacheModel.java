@@ -35,16 +35,16 @@ public class CompanyCacheModel
 	implements CacheModel<Company>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof CompanyCacheModel)) {
+		if (!(object instanceof CompanyCacheModel)) {
 			return false;
 		}
 
-		CompanyCacheModel companyCacheModel = (CompanyCacheModel)obj;
+		CompanyCacheModel companyCacheModel = (CompanyCacheModel)object;
 
 		if ((companyId == companyCacheModel.companyId) &&
 			(mvccVersion == companyCacheModel.mvccVersion)) {
@@ -137,11 +137,7 @@ public class CompanyCacheModel
 
 		companyImpl.resetOriginalValues();
 
-		companyImpl.setCompanyInfo(_companyInfo);
-
 		companyImpl.setCompanySecurityBag(_companySecurityBag);
-
-		companyImpl.setKeyObj(_keyObj);
 
 		companyImpl.setVirtualHostname(_virtualHostname);
 
@@ -169,12 +165,8 @@ public class CompanyCacheModel
 
 		active = objectInput.readBoolean();
 
-		_companyInfo =
-			(com.liferay.portal.kernel.model.CompanyInfo)
-				objectInput.readObject();
 		_companySecurityBag =
 			(CompanyImpl.CompanySecurityBag)objectInput.readObject();
-		_keyObj = (java.security.Key)objectInput.readObject();
 		_virtualHostname = (String)objectInput.readObject();
 	}
 
@@ -215,9 +207,7 @@ public class CompanyCacheModel
 
 		objectOutput.writeBoolean(active);
 
-		objectOutput.writeObject(_companyInfo);
 		objectOutput.writeObject(_companySecurityBag);
-		objectOutput.writeObject(_keyObj);
 		objectOutput.writeObject(_virtualHostname);
 	}
 
@@ -231,9 +221,7 @@ public class CompanyCacheModel
 	public boolean system;
 	public int maxUsers;
 	public boolean active;
-	public com.liferay.portal.kernel.model.CompanyInfo _companyInfo;
 	public CompanyImpl.CompanySecurityBag _companySecurityBag;
-	public java.security.Key _keyObj;
 	public String _virtualHostname;
 
 }

@@ -15,7 +15,6 @@
 package com.liferay.sharing.document.library.internal.model.listener;
 
 import com.liferay.document.library.kernel.model.DLFileEntry;
-import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
@@ -31,14 +30,17 @@ import org.osgi.service.component.annotations.Reference;
 public class DLFileEntryModelListener extends BaseModelListener<DLFileEntry> {
 
 	@Override
-	public void onBeforeRemove(DLFileEntry dlFileEntry)
-		throws ModelListenerException {
-
+	public void onBeforeRemove(DLFileEntry dlFileEntry) {
 		long classNameId = _classNameLocalService.getClassNameId(
 			DLFileEntry.class.getName());
 
-		_sharingEntryLocalService.deleteSharingEntries(
+		int count = _sharingEntryLocalService.getSharingEntriesCount(
 			classNameId, dlFileEntry.getFileEntryId());
+
+		if (count > 0) {
+			_sharingEntryLocalService.deleteSharingEntries(
+				classNameId, dlFileEntry.getFileEntryId());
+		}
 	}
 
 	@Reference

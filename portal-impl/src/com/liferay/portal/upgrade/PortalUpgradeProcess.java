@@ -67,12 +67,12 @@ public class PortalUpgradeProcess extends UpgradeProcess {
 		NavigableSet<Version> reverseSchemaVersions =
 			_upgradeProcesses.descendingKeySet();
 
-		Iterator<Version> itr = reverseSchemaVersions.iterator();
+		Iterator<Version> iterator = reverseSchemaVersions.iterator();
 
-		Version requiredSchemaVersion = itr.next();
+		Version requiredSchemaVersion = iterator.next();
 
-		while (itr.hasNext()) {
-			Version nextSchemaVersion = itr.next();
+		while (iterator.hasNext()) {
+			Version nextSchemaVersion = iterator.next();
 
 			if ((requiredSchemaVersion.getMajor() !=
 					nextSchemaVersion.getMajor()) ||
@@ -156,8 +156,8 @@ public class PortalUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private static void _initializeSchemaVersion(Connection connection)
-		throws SQLException {
+	private void _initializeSchemaVersion(Connection connection)
+		throws Exception {
 
 		try (PreparedStatement ps = connection.prepareStatement(
 				"update Release_ set schemaVersion = ? where " +

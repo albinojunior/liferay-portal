@@ -94,10 +94,9 @@ public class OrganizationMembershipPolicyRolesTest
 
 		userGroupRoles.add(userGroupRole);
 
-		User user = UserLocalServiceUtil.getUser(userIds[0]);
-
 		MembershipPolicyTestUtil.updateUser(
-			user, null, null, null, null, userGroupRoles);
+			UserLocalServiceUtil.getUser(userIds[0]), null, null, null, null,
+			userGroupRoles);
 	}
 
 	@Test(expected = MembershipPolicyException.class)
@@ -124,10 +123,9 @@ public class OrganizationMembershipPolicyRolesTest
 
 		userGroupRoles.add(userGroupRole);
 
-		User user = UserLocalServiceUtil.getUser(userIds[0]);
-
 		MembershipPolicyTestUtil.updateUser(
-			user, null, null, null, null, userGroupRoles);
+			UserLocalServiceUtil.getUser(userIds[0]), null, null, null, null,
+			userGroupRoles);
 
 		Assert.assertTrue(isPropagateRoles());
 	}
@@ -190,10 +188,10 @@ public class OrganizationMembershipPolicyRolesTest
 		List<UserGroupRole> initialUserGroupRoles =
 			UserGroupRoleLocalServiceUtil.getUserGroupRoles(user.getUserId());
 
-		List<UserGroupRole> emptyNonAbstractList = new ArrayList<>();
+		List<UserGroupRole> emptyNonabstractList = new ArrayList<>();
 
 		MembershipPolicyTestUtil.updateUser(
-			user, null, null, null, null, emptyNonAbstractList);
+			user, null, null, null, null, emptyNonabstractList);
 
 		List<UserGroupRole> currentUserGroupRoles =
 			UserGroupRoleLocalServiceUtil.getUserGroupRoles(user.getUserId());

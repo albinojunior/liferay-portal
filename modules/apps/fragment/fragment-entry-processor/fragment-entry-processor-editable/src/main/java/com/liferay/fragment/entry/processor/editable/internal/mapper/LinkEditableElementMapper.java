@@ -15,10 +15,12 @@
 package com.liferay.fragment.entry.processor.editable.internal.mapper;
 
 import com.liferay.fragment.entry.processor.editable.mapper.EditableElementMapper;
+import com.liferay.fragment.entry.processor.editable.parser.util.EditableElementParserUtil;
 import com.liferay.fragment.entry.processor.helper.FragmentEntryProcessorHelper;
 import com.liferay.fragment.processor.FragmentEntryProcessorContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -50,26 +52,52 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 		boolean assetDisplayPage =
 			_fragmentEntryProcessorHelper.isAssetDisplayPage(
 				fragmentEntryProcessorContext.getMode());
-
+		boolean collectionMapped =
+			_fragmentEntryProcessorHelper.isMappedCollection(configJSONObject);
 		boolean mapped = _fragmentEntryProcessorHelper.isMapped(
 			configJSONObject);
 
-		if (Validator.isNull(href) && !assetDisplayPage && !mapped) {
+		if (Validator.isNull(href) && !assetDisplayPage && !collectionMapped &&
+			!mapped) {
+
 			return;
+		}
+
+		if (collectionMapped) {
+			href = GetterUtil.getString(
+				_fragmentEntryProcessorHelper.getMappedCollectionValue(
+					configJSONObject, fragmentEntryProcessorContext));
+		}
+		else if (mapped) {
+			href = GetterUtil.getString(
+				_fragmentEntryProcessorHelper.getMappedValue(
+					configJSONObject, new HashMap<>(),
+					fragmentEntryProcessorContext));
 		}
 
 		Element linkElement = new Element("a");
 
 		Elements elements = element.children();
 
-		Element firstChild = elements.first();
+		Element firstChildElement = elements.first();
+
+		boolean processEditableTag = false;
+
+		if (StringUtil.equalsIgnoreCase(element.tagName(), "a")) {
+			linkElement = element;
+		}
+		else if (StringUtil.equalsIgnoreCase(
+					element.tagName(), "lfr-editable")) {
+
+			processEditableTag = true;
+		}
 
 		boolean replaceLink = false;
 
-		if ((firstChild != null) &&
-			StringUtil.equalsIgnoreCase(firstChild.tagName(), "a")) {
+		if ((firstChildElement != null) && processEditableTag &&
+			StringUtil.equalsIgnoreCase(firstChildElement.tagName(), "a")) {
 
-			linkElement = firstChild;
+			linkElement = firstChildElement;
 			replaceLink = true;
 		}
 
@@ -79,36 +107,60 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 
 		String mappedField = configJSONObject.getString("mappedField");
 
-		if (mapped) {
-			Object fieldValue = _fragmentEntryProcessorHelper.getMappedValue(
-				configJSONObject, new HashMap<>(),
-				fragmentEntryProcessorContext);
-
-			if (fieldValue == null) {
-				return;
-			}
-
-			linkElement.attr("href", fieldValue.toString());
-
-			linkElement.html(replaceLink ? firstChild.html() : element.html());
-
-			element.html(linkElement.outerHtml());
-		}
-		else if (Validator.isNotNull(href)) {
+		if (Validator.isNotNull(href)) {
 			linkElement.attr("href", href);
 
-			linkElement.html(replaceLink ? firstChild.html() : element.html());
+			_replaceLinkContent(
+				element, firstChildElement, linkElement, replaceLink);
 
-			element.html(linkElement.outerHtml());
+			if (((linkElement != element) || processEditableTag) &&
+				Validator.isNotNull(element.html())) {
+
+				element.html(linkElement.outerHtml());
+			}
+			else if ((linkElement != element) &&
+					 Validator.isNull(element.html())) {
+
+				element.replaceWith(linkElement);
+			}
 		}
 		else if (assetDisplayPage && Validator.isNotNull(mappedField)) {
 			linkElement.attr("href", "${" + mappedField + "}");
 
-			linkElement.html(replaceLink ? firstChild.html() : element.html());
+			_replaceLinkContent(
+				element, firstChildElement, linkElement, replaceLink);
 
-			element.html(
-				_fragmentEntryProcessorHelper.processTemplate(
-					linkElement.outerHtml(), fragmentEntryProcessorContext));
+			if (processEditableTag) {
+				element.html(
+					_fragmentEntryProcessorHelper.processTemplate(
+						linkElement.outerHtml(),
+						fragmentEntryProcessorContext));
+			}
+			else {
+				element.replaceWith(
+					EditableElementParserUtil.getDocumentBody(
+						_fragmentEntryProcessorHelper.processTemplate(
+							linkElement.outerHtml(),
+							fragmentEntryProcessorContext)));
+			}
+		}
+	}
+
+	private void _replaceLinkContent(
+		Element element, Element firstChildElement, Element linkElement,
+		boolean replaceLink) {
+
+		if (replaceLink && Validator.isNull(firstChildElement.html())) {
+			linkElement.html(firstChildElement.outerHtml());
+		}
+		else if (replaceLink && Validator.isNotNull(firstChildElement.html())) {
+			linkElement.html(firstChildElement.html());
+		}
+		else if (Validator.isNull(element.html())) {
+			linkElement.html(element.outerHtml());
+		}
+		else {
+			linkElement.html(element.html());
 		}
 	}
 

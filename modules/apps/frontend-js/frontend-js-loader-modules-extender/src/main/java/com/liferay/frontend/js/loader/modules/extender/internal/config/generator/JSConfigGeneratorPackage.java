@@ -58,9 +58,7 @@ public class JSConfigGeneratorPackage {
 		_bundle = bundle;
 		_contextPath = contextPath;
 
-		Version version = _bundle.getVersion();
-
-		String jsVersion = version.toString();
+		String jsVersion = String.valueOf(_bundle.getVersion());
 
 		int index = jsVersion.indexOf(".hotfix");
 
@@ -302,9 +300,7 @@ public class JSConfigGeneratorPackage {
 	protected String removeEnclosingCurlyBraces(JSONObject jsonObject) {
 		String json = jsonObject.toString();
 
-		json = json.substring(1, json.length() - 1);
-
-		return json;
+		return json.substring(1, json.length() - 1);
 	}
 
 	protected void urlToConfiguration(URL url, BundleWiring bundleWiring) {

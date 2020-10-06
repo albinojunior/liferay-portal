@@ -15,9 +15,9 @@
 package com.liferay.bookmarks.search.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.bookmarks.constants.BookmarksFolderConstants;
 import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.model.BookmarksFolder;
-import com.liferay.bookmarks.model.BookmarksFolderConstants;
 import com.liferay.bookmarks.service.BookmarksEntryServiceUtil;
 import com.liferay.bookmarks.service.BookmarksFolderServiceUtil;
 import com.liferay.bookmarks.test.util.BookmarksTestUtil;
@@ -36,7 +36,6 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,61 +59,51 @@ public class BookmarksEntrySearchTest extends BaseSearchTestCase {
 		super.setUp();
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testLocalizedSearch() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchAttachments() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchByDDMStructureField() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchComments() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchCommentsByKeywords() throws Exception {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchExpireAllVersions() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchExpireLatestVersion() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchStatus() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchVersions() {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testSearchWithinDDMStructure() {

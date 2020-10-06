@@ -13,11 +13,11 @@ import React, {useMemo, useState} from 'react';
 
 import Panel from '../../../shared/components/Panel.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
-import {useFetch} from '../../../shared/hooks/useFetch.es';
+import Tabs from '../../../shared/components/tabs/Tabs.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
+import {usePost} from '../../../shared/hooks/usePost.es';
 import ProcessStepFilter from '../../filter/ProcessStepFilter.es';
 import {Body} from './WorkloadByAssigneeCardBody.es';
-import Tabs from './WorkloadByAssigneeCardTabs.es';
 
 const Header = ({processId}) => (
 	<>
@@ -49,32 +49,59 @@ const Header = ({processId}) => (
 const WorkloadByAssigneeCard = ({routeParams}) => {
 	const {processId} = routeParams;
 	const [currentTab, setCurrentTab] = useState('overdue');
-
 	const filterKeys = ['processStep'];
-	const {filterValues} = useFilter({filterKeys});
 
-	const params = getParams(currentTab, filterValues.taskKeys);
-	const {data, fetchData} = useFetch({
-		params,
-		url: `/processes/${processId}/assignee-users`,
+	const {
+		filterValues: {taskNames: [taskName] = ['allSteps']},
+	} = useFilter({filterKeys});
+
+	const sort = useMemo(() => {
+		const items = {
+			onTime: 'onTimeTaskCount:desc',
+			overdue: 'overdueTaskCount:desc',
+			total: 'taskCount:desc',
+		};
+
+		return items[currentTab];
+	}, [currentTab]);
+
+	const taskNames = taskName !== 'allSteps' ? [taskName] : undefined;
+
+	const {data, postData} = usePost({
+		body: {taskNames},
+		params: {
+			page: 1,
+			pageSize: 10,
+			sort,
+		},
+		url: `/processes/${processId}/assignees/metrics`,
 	});
 
-	const promises = useMemo(() => [fetchData()], [fetchData]);
+	const promises = useMemo(() => [postData()], [postData]);
+
+	const tabs = [
+		{name: Liferay.Language.get('overdue'), tabKey: 'overdue'},
+		{name: Liferay.Language.get('on-time'), tabKey: 'onTime'},
+		{name: Liferay.Language.get('total'), tabKey: 'total'},
+	];
 
 	return (
 		<PromisesResolver promises={promises}>
 			<Panel elementClasses="workload-by-assignee-card">
 				<WorkloadByAssigneeCard.Header processId={processId} />
 
-				<WorkloadByAssigneeCard.Tabs
-					currentTab={currentTab}
-					setCurrentTab={setCurrentTab}
-				/>
+				<div className="border-bottom">
+					<Tabs
+						currentTab={currentTab}
+						setCurrentTab={setCurrentTab}
+						tabs={tabs}
+					/>
+				</div>
 
 				<WorkloadByAssigneeCard.Body
 					currentTab={currentTab}
-					data={data}
-					processStepKey={params.taskKeys}
+					{...data}
+					processStepKey={taskNames && taskName}
 					{...routeParams}
 				/>
 			</Panel>
@@ -82,35 +109,7 @@ const WorkloadByAssigneeCard = ({routeParams}) => {
 	);
 };
 
-const getParams = (currentTab, taskKeys) => {
-	const params = {
-		page: 1,
-		pageSize: 10,
-	};
-
-	if (taskKeys && taskKeys.length) {
-		const key = taskKeys[0];
-
-		if (key !== 'allSteps') {
-			params.taskKeys = key;
-		}
-	}
-
-	if (currentTab === 'overdue') {
-		params.sort = 'overdueTaskCount:desc';
-	}
-	else if (currentTab === 'onTime') {
-		params.sort = 'onTimeTaskCount:desc';
-	}
-	else {
-		params.sort = 'taskCount:desc';
-	}
-
-	return params;
-};
-
 WorkloadByAssigneeCard.Body = Body;
 WorkloadByAssigneeCard.Header = Header;
-WorkloadByAssigneeCard.Tabs = Tabs;
 
 export default WorkloadByAssigneeCard;

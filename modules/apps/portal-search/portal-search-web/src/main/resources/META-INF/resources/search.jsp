@@ -37,13 +37,13 @@ String format = ParamUtil.getString(request, SearchPortletParameterNames.FORMAT)
 	<aui:input name="<%= SearchContainer.DEFAULT_CUR_PARAM %>" type="hidden" value="<%= ParamUtil.getInteger(request, SearchContainer.DEFAULT_CUR_PARAM, SearchContainer.DEFAULT_CUR) %>" />
 	<aui:input name="format" type="hidden" value="<%= format %>" />
 
-	<aui:fieldset id='<%= renderResponse.getNamespace() + "searchContainer" %>'>
+	<aui:fieldset id='<%= liferayPortletResponse.getNamespace() + "searchContainer" %>'>
 		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" inlineField="<%= true %>" label="" name="keywords" size="30" title="search" value="<%= HtmlUtil.escape(searchDisplayContext.getKeywords()) %>" />
 		<aui:input name="scope" type="hidden" value="<%= searchDisplayContext.getSearchScopeParameterString() %>" />
 		<aui:input name="useAdvancedSearchSyntax" type="hidden" value="<%= searchDisplayContext.isUseAdvancedSearchSyntax() %>" />
 
-		<aui:field-wrapper inlineField="<%= true %>">
-			<aui:button icon="icon-search" onClick='<%= renderResponse.getNamespace() + "search();" %>' type="submit" value="search" />
+		<aui:field-wrapper cssClass="search-button-field-wrapper" inlineField="<%= true %>">
+			<aui:button icon="icon-search" onClick='<%= liferayPortletResponse.getNamespace() + "search();" %>' type="submit" value="search" />
 		</aui:field-wrapper>
 	</aui:fieldset>
 
@@ -83,7 +83,7 @@ PortalUtil.setPageKeywords(pageKeywords, request);
 	var keywordsInput = document.getElementById('<portlet:namespace />keywords');
 
 	if (keywordsInput) {
-		keywordsInput.addEventListener('keydown', function(event) {
+		keywordsInput.addEventListener('keydown', function (event) {
 			if (event.keyCode === 13) {
 				<portlet:namespace />search();
 			}

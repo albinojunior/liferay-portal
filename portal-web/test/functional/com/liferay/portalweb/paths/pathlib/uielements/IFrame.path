@@ -14,13 +14,38 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_DOMAIN</td>
+	<td>//iframe[@title='Add Domain']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ADD_USERS_TO_ASSET_LIBRARY</td>
+	<td>//iframe[@title='Assign Users to This Asset Library']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ADD_USERS_TO_SITE</td>
+	<td>//iframe[@title='Assign Users to This Site']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSIGN_USER</td>
+	<td>//div[contains(.,'Assign User')]//iframe</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CONFIGURATION</td>
-	<td>//div[contains(@class,'dialog-iframe-bd')]/iframe[contains(@src,'portlet_configuration')]</td>
+	<td>//div[contains(@class,'modal-body')]/iframe[contains(@src,'portlet_configuration')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>CONFIGURATION_DIALOG</td>
-	<td>//iframe[contains(@id,'configurationIframeDialog')]</td>
+	<td>//div[contains(@class,'modal-body')]/iframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONFIRM_PASSWORD</td>
+	<td>//iframe[@title='Confirm Password']</td>
 	<td></td>
 </tr>
 <tr>
@@ -49,13 +74,28 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ELASTICSEARCH_MONITORING</td>
+	<td>//iframe[contains(@id,'MonitoringPortlet')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EMBEDDED_IFRAME</td>
 	<td>//iframe[@id='embeddedIframe']</td>
 	<td></td>
 </tr>
 <tr>
+	<td>EMBEDDED_VIDEO_IFRAME</td>
+	<td>//iframe[contains(@src,'embed')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>GOOGLE_DOC</td>
 	<td>//iframe[contains(@class,'google-docs')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>IFRAME</td>
+	<td>//iframe</td>
 	<td></td>
 </tr>
 <tr>
@@ -80,7 +120,22 @@
 </tr>
 <tr>
 	<td>METADATA_SETS_IFRAME</td>
-	<td>//iframe[contains(@class,'dialog-iframe-node ')]</td>
+	<td>//div[contains(@class,'modal-body')]/iframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MODAL_BODY</td>
+	<td>//div[contains(@class,'modal-body')]/iframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MODAL_ANY</td>
+	<td>//iframe[contains(@title,'${key_title}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_EDITOR_GLOBAL_CONTEXT_IFRAME</td>
+	<td>//iframe[contains(@class,'page-editor__global-context-iframe')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -134,6 +189,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SELECT_ACCOUNTS</td>
+	<td>//iframe[@title='Select Accounts']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_DEPOT_ROLE</td>
+	<td>//iframe[contains(@id,'selectDepotRole_iframe_')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SELECT_MEDIA_GALLERY_VIDEO</td>
 	<td>//iframe[@class='image-viewer-base-image']</td>
 	<td></td>
@@ -141,6 +206,11 @@
 <tr>
 	<td>SELECT_ORGANIZATION_ROLE</td>
 	<td>//iframe[contains(@id,'selectOrganizationRole_iframe_')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_PUBLICATION</td>
+	<td>//iframe[contains(@id,'selectChangeList_iframe')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -159,13 +229,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SELECT_USER_GROUP</td>
+	<td>//iframe[@title='Select User Group']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SELECT_USER_SITES</td>
 	<td>//iframe[contains(@id,'selectSite_iframe_')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SELECT_STRUCTURE_FIELD</td>
-	<td>//div[contains(@class,'dialog-iframe-bd')]/iframe[contains(@src,'select_structure_field')]</td>
+	<td>//iframe[contains(@title,'Select Structure Field')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -174,13 +249,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>WEB_APPLICATION</td>
-	<td>//iframe[contains(@id,'WebApplicationFrame')]</td>
+	<td>VALID_DOMAINS</td>
+	<td>//iframe[@title='Valid Domains']</td>
 	<td></td>
 </tr>
 <tr>
-	<td>XPACK_MONITORING</td>
-	<td>//iframe[contains(@id,'XPackMonitoringPortlet')]</td>
+	<td>WEB_APPLICATION</td>
+	<td>//iframe[contains(@id,'WebApplicationFrame')]</td>
 	<td></td>
 </tr>
 </tbody>

@@ -32,7 +32,7 @@ public class DQLConjunction extends DQLJunction {
 
 		List<DQLCriterion> dqlCriterions = list();
 
-		StringBundler sb = new StringBundler(dqlCriterions.size() * 2 + 1);
+		StringBundler sb = new StringBundler((dqlCriterions.size() * 2) + 1);
 
 		if (dqlCriterions.size() > 1) {
 			sb.append(StringPool.OPEN_PARENTHESIS);

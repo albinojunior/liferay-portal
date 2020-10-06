@@ -12,305 +12,306 @@
  * details.
  */
 
-import '../FieldBase/FieldBase.es';
-
-import './DocumentLibraryRegister.soy';
-
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
+import ClayCard from '@clayui/card';
+import {ClayInput} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
+import {usePage} from 'dynamic-data-mapping-form-renderer';
 import {
 	ItemSelectorDialog,
 	createActionURL,
 	createPortletURL,
 } from 'frontend-js-web';
-import Component from 'metal-component';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+import React, {useMemo, useState} from 'react';
 
-import templates from './DocumentLibrary.soy';
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
-class DocumentLibrary extends Component {
-	prepareStateForRender(state) {
-		let {fileEntryTitle = '', fileEntryURL = ''} = state;
-		const {value} = state;
+function getDocumentLibrarySelectorURL({
+	groupId,
+	itemSelectorAuthToken,
+	portletNamespace,
+}) {
+	const criterionJSON = {
+		desiredItemSelectorReturnTypes:
+			'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
+	};
 
-		if (value) {
-			try {
-				const fileEntry = JSON.parse(value);
+	const uploadCriterionJSON = {
+		URL: getUploadURL(),
+		desiredItemSelectorReturnTypes:
+			'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
+	};
 
-				fileEntryTitle = fileEntry.title;
+	const documentLibrarySelectorParameters = {
+		'0_json': JSON.stringify(criterionJSON),
+		'1_json': JSON.stringify(criterionJSON),
+		'2_json': JSON.stringify(uploadCriterionJSON),
+		criteria:
+			'com.liferay.item.selector.criteria.file.criterion.FileItemSelectorCriterion',
+		doAsGroupId: groupId,
+		itemSelectedEventName: `${portletNamespace}selectDocumentLibrary`,
+		p_p_auth: itemSelectorAuthToken,
+		p_p_id: Liferay.PortletKeys.ITEM_SELECTOR,
+		p_p_mode: 'view',
+		p_p_state: 'pop_up',
+		refererGroupId: groupId,
+	};
 
-				if (fileEntry.url) {
-					fileEntryURL = fileEntry.url;
-				}
-			}
-			catch (e) {
-				console.warn('Unable to parse JSON', value);
+	const documentLibrarySelectorURL = createPortletURL(
+		themeDisplay.getLayoutRelativeControlPanelURL(),
+		documentLibrarySelectorParameters
+	);
+
+	return documentLibrarySelectorURL.toString();
+}
+
+function getUploadURL() {
+	const uploadParameters = {
+		cmd: 'add_temp',
+		'javax.portlet.action': '/document_library/upload_file_entry',
+		p_auth: Liferay.authToken,
+		p_p_id: Liferay.PortletKeys.DOCUMENT_LIBRARY,
+	};
+
+	const uploadURL = createActionURL(
+		themeDisplay.getLayoutRelativeURL(),
+		uploadParameters
+	);
+
+	return uploadURL.toString();
+}
+
+const CardItem = ({fileEntryTitle, fileEntryURL}) => {
+	return (
+		<ClayCard horizontal>
+			<ClayCard.Body>
+				<div className="card-col-content card-col-gutters">
+					<h4 className="text-truncate" title={fileEntryTitle}>
+						{fileEntryTitle}
+					</h4>
+				</div>
+
+				<div className="card-col-field">
+					<a download={fileEntryTitle} href={fileEntryURL}>
+						<ClayIcon symbol="download" />
+					</a>
+				</div>
+			</ClayCard.Body>
+		</ClayCard>
+	);
+};
+
+function transformFileEntryProperties({fileEntryTitle, fileEntryURL, value}) {
+	if (value && typeof value === 'string') {
+		try {
+			const fileEntry = JSON.parse(value);
+
+			fileEntryTitle = fileEntry.title;
+
+			if (fileEntry.url) {
+				fileEntryURL = fileEntry.url;
 			}
 		}
-
-		return {
-			...state,
-			fileEntryTitle,
-			fileEntryURL,
-			value,
-		};
+		catch (e) {
+			console.warn('Unable to parse JSON', value);
+		}
 	}
 
-	getDocumentLibrarySelectorURL() {
-		const {itemSelectorAuthToken} = this.initialConfig_;
-		const {portletNamespace} = this;
+	return [fileEntryTitle, fileEntryURL];
+}
 
-		const criterionJSON = {
-			desiredItemSelectorReturnTypes:
-				'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
-		};
+const DocumentLibrary = ({
+	fileEntryTitle = '',
+	fileEntryURL = '',
+	id,
+	name,
+	onClearButtonClicked,
+	onSelectButtonClicked,
+	placeholder,
+	readOnly,
+	value,
+}) => {
+	const [transformedFileEntryTitle, transformedFileEntryURL] = useMemo(
+		() =>
+			transformFileEntryProperties({
+				fileEntryTitle,
+				fileEntryURL,
+				value,
+			}),
+		[fileEntryTitle, fileEntryURL, value]
+	);
 
-		const uploadCriterionJSON = {
-			URL: this.getUploadURL(),
-			desiredItemSelectorReturnTypes:
-				'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
-		};
+	return (
+		<div className="liferay-ddm-form-field-document-library">
+			{transformedFileEntryURL && readOnly ? (
+				<CardItem
+					fileEntryTitle={transformedFileEntryTitle}
+					fileEntryURL={transformedFileEntryURL}
+				/>
+			) : (
+				<ClayInput.Group>
+					<ClayInput.GroupItem prepend>
+						<ClayInput
+							aria-label={Liferay.Language.get('file')}
+							className="field"
+							disabled
+							id={`${name}inputFile`}
+							value={transformedFileEntryTitle || ''}
+						/>
+					</ClayInput.GroupItem>
 
-		const documentLibrarySelectorParameters = {
-			'0_json': JSON.stringify(criterionJSON),
-			'1_json': JSON.stringify(criterionJSON),
-			'2_json': JSON.stringify(uploadCriterionJSON),
-			criteria:
-				'com.liferay.item.selector.criteria.file.criterion.FileItemSelectorCriterion',
-			doAsGroupId: themeDisplay.getScopeGroupId(),
-			itemSelectedEventName: `${portletNamespace}selectDocumentLibrary`,
-			p_p_auth: itemSelectorAuthToken,
-			p_p_id: Liferay.PortletKeys.ITEM_SELECTOR,
-			p_p_mode: 'view',
-			p_p_state: 'pop_up',
-			refererGroupId: themeDisplay.getScopeGroupId(),
-		};
+					<ClayInput.GroupItem append shrink>
+						<ClayButton
+							className="select-button"
+							disabled={readOnly}
+							displayType="secondary"
+							onClick={onSelectButtonClicked}
+						>
+							<span className="lfr-btn-label">
+								{Liferay.Language.get('select')}
+							</span>
+						</ClayButton>
+					</ClayInput.GroupItem>
 
-		const documentLibrarySelectorURL = createPortletURL(
-			themeDisplay.getLayoutRelativeControlPanelURL(),
-			documentLibrarySelectorParameters
-		);
+					{transformedFileEntryTitle && (
+						<ClayInput.GroupItem append shrink>
+							<ClayButtonWithIcon
+								aria-label={Liferay.Language.get(
+									'unselect-file'
+								)}
+								className="clear-button"
+								displayType="secondary"
+								onClick={onClearButtonClicked}
+								symbol="times"
+							/>
+						</ClayInput.GroupItem>
+					)}
+				</ClayInput.Group>
+			)}
 
-		return documentLibrarySelectorURL.toString();
-	}
+			<ClayInput
+				id={id ? id : name}
+				name={name}
+				placeholder={placeholder}
+				type="hidden"
+				value={value || ''}
+			/>
+		</div>
+	);
+};
 
-	getUploadURL() {
-		const uploadParameters = {
-			cmd: 'add_temp',
-			'javax.portlet.action': '/document_library/upload_file_entry',
-			p_auth: Liferay.authToken,
-			p_p_id: Liferay.PortletKeys.DOCUMENT_LIBRARY,
-		};
+const Main = ({
+	displayErrors,
+	errorMessage,
+	fileEntryTitle,
+	fileEntryURL,
+	groupId,
+	id,
+	itemSelectorAuthToken,
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	placeholder,
+	readOnly,
+	valid,
+	value = '{}',
+	...otherProps
+}) => {
+	const {portletNamespace} = usePage();
+	const [currentValue, setCurrentValue] = useState(value);
 
-		const uploadURL = createActionURL(
-			themeDisplay.getLayoutRelativeURL(),
-			uploadParameters
-		);
+	const getErrorMessages = (errorMessage, isSignedIn) => {
+		const errorMessages = [errorMessage];
 
-		return uploadURL.toString();
-	}
+		if (!isSignedIn) {
+			errorMessages.push(
+				Liferay.Language.get(
+					'you-need-to-be-signed-in-to-edit-this-field'
+				)
+			);
+		}
 
-	_handleClearButtonClicked() {
-		this.setState(
-			{
-				value: '{}',
-			},
-			() => {
-				this.emit('fieldEdited', {
-					fieldInstance: this,
-					value: '{}',
-				});
-			}
-		);
-	}
+		return errorMessages.join(' ');
+	};
 
-	_handleFieldChanged(event) {
-		var selectedItem = event.selectedItem;
+	const handleVisibleChange = (event) => {
+		if (event.selectedItem) {
+			onFocus({}, event);
+		}
+		else {
+			onBlur({}, event);
+		}
+	};
+
+	const handleSelectButtonClicked = ({
+		itemSelectorAuthToken,
+		portletNamespace,
+	}) => {
+		const itemSelectorDialog = new ItemSelectorDialog({
+			eventName: `${portletNamespace}selectDocumentLibrary`,
+			singleSelect: true,
+			url: getDocumentLibrarySelectorURL({
+				groupId,
+				itemSelectorAuthToken,
+				portletNamespace,
+			}),
+		});
+
+		itemSelectorDialog.on('selectedItemChange', handleFieldChanged);
+		itemSelectorDialog.on('visibleChange', handleVisibleChange);
+
+		itemSelectorDialog.open();
+	};
+
+	const handleFieldChanged = (event) => {
+		const selectedItem = event.selectedItem;
 
 		if (selectedItem) {
 			const {value} = selectedItem;
 
-			this.setState(
-				{
-					value,
-				},
-				() => {
-					this.emit('fieldEdited', {
-						fieldInstance: this,
-						originalEvent: event,
-						value,
-					});
+			setCurrentValue(value);
+
+			onChange(event, value);
+		}
+	};
+
+	const isSignedIn = Liferay.ThemeDisplay.isSignedIn();
+
+	return (
+		<FieldBase
+			{...otherProps}
+			displayErrors={isSignedIn ? displayErrors : true}
+			errorMessage={getErrorMessages(errorMessage, isSignedIn)}
+			id={id}
+			name={name}
+			readOnly={isSignedIn ? readOnly : true}
+			valid={isSignedIn ? valid : false}
+		>
+			<DocumentLibrary
+				fileEntryTitle={fileEntryTitle}
+				fileEntryURL={fileEntryURL}
+				id={id}
+				name={name}
+				onClearButtonClicked={(event) => {
+					setCurrentValue(null);
+
+					onChange(event, '{}');
+				}}
+				onSelectButtonClicked={() =>
+					handleSelectButtonClicked({
+						itemSelectorAuthToken,
+						portletNamespace,
+					})
 				}
-			);
-		}
-	}
-
-	_handleSelectButtonClicked() {
-		var {portletNamespace} = this;
-
-		const itemSelectorDialog = new ItemSelectorDialog({
-			eventName: `${portletNamespace}selectDocumentLibrary`,
-			singleSelect: true,
-			url: this.getDocumentLibrarySelectorURL(),
-		});
-
-		itemSelectorDialog.on(
-			'selectedItemChange',
-			this._handleFieldChanged.bind(this)
-		);
-		itemSelectorDialog.on(
-			'visibleChange',
-			this._handleVisibleChange.bind(this)
-		);
-
-		itemSelectorDialog.open();
-	}
-
-	_handleVisibleChange(event) {
-		if (event.selectedItem) {
-			this.emit('fieldFocused', {
-				fieldInstance: this,
-				originalEvent: event,
-			});
-		}
-		else {
-			this.emit('fieldBlurred', {
-				fieldInstance: this,
-				originalEvent: event,
-			});
-		}
-	}
-}
-
-DocumentLibrary.STATE = {
-	/**
-	 * @default 'string'
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	dataType: Config.string().value('date'),
-
-	/**
-	 * @default false
-	 * @memberof DocumentLibrary
-	 * @type {?bool}
-	 */
-
-	evaluable: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	id: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	name: Config.string().required(),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	placeholder: Config.string(),
-
-	/**
-	 * @default false
-	 * @memberof DocumentLibrary
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool(),
-
-	/**
-	 * @default false
-	 * @memberof DocumentLibrary
-	 * @type {?(bool|undefined)}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @memberof DocumentLibrary
-	 * @type {?(bool|undefined)}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	tooltip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	type: Config.string().value('document_library'),
-
-	/**
-	 * @default undefined
-	 * @memberof DocumentLibrary
-	 * @type {?(string|undefined)}
-	 */
-
-	value: Config.oneOfType([Config.object(), Config.string()]),
+				placeholder={placeholder}
+				readOnly={isSignedIn ? readOnly : true}
+				value={currentValue || ''}
+			/>
+		</FieldBase>
+	);
 };
 
-Soy.register(DocumentLibrary, templates);
+Main.displayName = 'DocumentLibrary';
 
-export default DocumentLibrary;
+export default Main;

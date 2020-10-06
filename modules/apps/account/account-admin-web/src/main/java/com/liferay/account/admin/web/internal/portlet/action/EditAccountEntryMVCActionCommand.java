@@ -14,25 +14,30 @@
 
 package com.liferay.account.admin.web.internal.portlet.action;
 
+import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.constants.AccountPortletKeys;
-import com.liferay.account.exception.AccountEntryDomainsException;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+
+import java.util.Objects;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -59,16 +64,27 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		long parentAccountEntryId = ParamUtil.getInteger(
-			actionRequest, "parentAccountEntryId");
 		String name = ParamUtil.getString(actionRequest, "name");
 		String description = ParamUtil.getString(actionRequest, "description");
-		String domains = ParamUtil.getString(actionRequest, "domains");
+		String[] domains = new String[0];
+		String taxIdNumber = ParamUtil.getString(actionRequest, "taxIdNumber");
+
+		String type = ParamUtil.getString(
+			actionRequest, "type",
+			AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS);
+
+		if (Objects.equals(
+				AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS, type)) {
+
+			domains = ParamUtil.getStringValues(actionRequest, "domains");
+		}
 
 		return _accountEntryLocalService.addAccountEntry(
-			themeDisplay.getUserId(), parentAccountEntryId, name, description,
-			StringUtil.split(domains), _getLogoBytes(actionRequest),
-			_getStatus(actionRequest));
+			themeDisplay.getUserId(), AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
+			name, description, domains, _getLogoBytes(actionRequest),
+			taxIdNumber, type, _getStatus(actionRequest),
+			ServiceContextFactory.getInstance(
+				AccountEntry.class.getName(), actionRequest));
 	}
 
 	@Override
@@ -104,9 +120,6 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 
 				mvcPath = "/account_entries_admin/error.jsp";
 			}
-			else if (exception instanceof AccountEntryDomainsException) {
-				SessionErrors.add(actionRequest, exception.getClass());
-			}
 			else {
 				throw exception;
 			}
@@ -121,17 +134,39 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 		long accountEntryId = ParamUtil.getLong(
 			actionRequest, "accountEntryId");
 
-		long parentAccountEntryId = ParamUtil.getInteger(
-			actionRequest, "parentAccountEntryId");
+		AccountEntry accountEntry = _accountEntryLocalService.getAccountEntry(
+			accountEntryId);
+
 		String name = ParamUtil.getString(actionRequest, "name");
 		String description = ParamUtil.getString(actionRequest, "description");
 		boolean deleteLogo = ParamUtil.getBoolean(actionRequest, "deleteLogo");
-		String domains = ParamUtil.getString(actionRequest, "domains");
+		String[] domains = ParamUtil.getStringValues(actionRequest, "domains");
+		String taxIdNumber = ParamUtil.getString(actionRequest, "taxIdNumber");
 
-		_accountEntryLocalService.updateAccountEntry(
-			accountEntryId, parentAccountEntryId, name, description, deleteLogo,
-			StringUtil.split(domains), _getLogoBytes(actionRequest),
-			_getStatus(actionRequest));
+		accountEntry = _accountEntryLocalService.updateAccountEntry(
+			accountEntryId, accountEntry.getParentAccountEntryId(), name,
+			description, deleteLogo, domains, _getLogoBytes(actionRequest),
+			taxIdNumber, _getStatus(actionRequest),
+			ServiceContextFactory.getInstance(
+				AccountEntry.class.getName(), actionRequest));
+
+		if (Objects.equals(
+				AccountConstants.ACCOUNT_ENTRY_TYPE_PERSON,
+				accountEntry.getType())) {
+
+			long personAccountEntryUserId = ParamUtil.getLong(
+				actionRequest, "personAccountEntryUserId");
+
+			_accountEntryUserRelLocalService.setPersonTypeAccountEntryUser(
+				accountEntryId, personAccountEntryUserId);
+		}
+		else {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Skipping user updates for business account entry: " +
+						accountEntryId);
+			}
+		}
 	}
 
 	private byte[] _getLogoBytes(ActionRequest actionRequest) throws Exception {
@@ -156,8 +191,14 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 		return WorkflowConstants.STATUS_INACTIVE;
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		EditAccountEntryMVCActionCommand.class);
+
 	@Reference
 	private AccountEntryLocalService _accountEntryLocalService;
+
+	@Reference
+	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;

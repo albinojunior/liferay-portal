@@ -153,7 +153,7 @@ public class SamlIdpSpConnectionLocalServiceImpl
 	@Override
 	public List<SamlIdpSpConnection> getSamlIdpSpConnections(
 		long companyId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<SamlIdpSpConnection> orderByComparator) {
 
 		return samlIdpSpConnectionPersistence.findByCompanyId(
 			companyId, start, end, orderByComparator);
@@ -203,8 +203,8 @@ public class SamlIdpSpConnectionLocalServiceImpl
 				"Unable to parse SAML metadata from " + metadataUrl, exception);
 		}
 
-		samlIdpSpConnection.setMetadataUpdatedDate(new Date());
 		samlIdpSpConnection.setMetadataXml(metadataXml);
+		samlIdpSpConnection.setMetadataUpdatedDate(new Date());
 
 		samlIdpSpConnectionPersistence.update(samlIdpSpConnection);
 	}
@@ -278,8 +278,8 @@ public class SamlIdpSpConnectionLocalServiceImpl
 		}
 
 		if (Validator.isNotNull(metadataXml)) {
-			samlIdpSpConnection.setMetadataUpdatedDate(now);
 			samlIdpSpConnection.setMetadataXml(metadataXml);
+			samlIdpSpConnection.setMetadataUpdatedDate(now);
 		}
 
 		samlIdpSpConnection.setName(name);

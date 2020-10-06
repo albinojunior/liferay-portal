@@ -14,6 +14,8 @@
 
 package com.liferay.subscription.service.base;
 
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +35,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -72,6 +77,10 @@ public abstract class SubscriptionLocalServiceBaseImpl
 	/**
 	 * Adds the subscription to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param subscription the subscription
 	 * @return the subscription that was added
 	 */
@@ -98,6 +107,10 @@ public abstract class SubscriptionLocalServiceBaseImpl
 	/**
 	 * Deletes the subscription with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param subscriptionId the primary key of the subscription
 	 * @return the subscription that was removed
 	 * @throws PortalException if a subscription with the primary key could not be found
@@ -113,6 +126,10 @@ public abstract class SubscriptionLocalServiceBaseImpl
 	/**
 	 * Deletes the subscription from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param subscription the subscription
 	 * @return the subscription that was removed
 	 * @throws PortalException
@@ -123,6 +140,11 @@ public abstract class SubscriptionLocalServiceBaseImpl
 		throws PortalException {
 
 		return subscriptionPersistence.remove(subscription);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return subscriptionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -294,6 +316,10 @@ public abstract class SubscriptionLocalServiceBaseImpl
 			(Subscription)persistedModel);
 	}
 
+	public BasePersistence<Subscription> getBasePersistence() {
+		return subscriptionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -333,6 +359,10 @@ public abstract class SubscriptionLocalServiceBaseImpl
 	/**
 	 * Updates the subscription in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SubscriptionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param subscription the subscription
 	 * @return the subscription that was updated
 	 */
@@ -346,7 +376,7 @@ public abstract class SubscriptionLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			SubscriptionLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -365,8 +395,23 @@ public abstract class SubscriptionLocalServiceBaseImpl
 		return SubscriptionLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<Subscription> getCTPersistence() {
+		return subscriptionPersistence;
+	}
+
+	@Override
+	public Class<Subscription> getModelClass() {
 		return Subscription.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<Subscription>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(subscriptionPersistence);
 	}
 
 	protected String getModelClassName() {

@@ -35,18 +35,48 @@ import java.io.InputStream;
  */
 public class DataDefinitionTestUtil {
 
-	public static DataDefinition addDataDefinition(long groupId)
+	public static DataDefinition addDataDefinition(
+			DataDefinition dataDefinition, Long groupId)
 		throws Exception {
 
 		DataDefinitionResource.Builder builder =
 			DataDefinitionResource.builder();
 
-		DataDefinitionResource dataDefinitionResource = builder.locale(
+		DataDefinitionResource dataDefinitionResource = builder.authentication(
+			"test@liferay.com", "test"
+		).locale(
 			LocaleUtil.getDefault()
 		).build();
 
 		return dataDefinitionResource.postSiteDataDefinitionByContentType(
-			groupId, "app-builder", _randomDataDefinition(groupId));
+			groupId, "app-builder", dataDefinition);
+	}
+
+	public static DataDefinition addDataDefinition(long groupId)
+		throws Exception {
+
+		return addDataDefinition(_randomDataDefinition(groupId), groupId);
+	}
+
+	public static DataDefinition addDataDefinitionWithDataLayout(long groupId)
+		throws Exception {
+
+		DataDefinition dataDefinition = DataDefinition.toDTO(
+			read("data-definition-basic.json"));
+
+		dataDefinition.setSiteId(groupId);
+
+		DataDefinitionResource.Builder builder =
+			DataDefinitionResource.builder();
+
+		DataDefinitionResource dataDefinitionResource = builder.authentication(
+			"test@liferay.com", "test"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
+		return dataDefinitionResource.postSiteDataDefinitionByContentType(
+			groupId, "app-builder", dataDefinition);
 	}
 
 	public static DDMStructure addDDMStructure(Group group) throws Exception {
@@ -60,8 +90,17 @@ public class DataDefinitionTestUtil {
 			PortalUtil.getClassNameId(
 				"com.liferay.app.builder.model.AppBuilderApp"),
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			_read("test-structured-content-structure.json"),
+			read("test-structured-content-structure.json"),
 			StorageType.JSON.getValue());
+	}
+
+	public static String read(String fileName) throws Exception {
+		Class<?> clazz = DataDefinitionTestUtil.class;
+
+		InputStream inputStream = clazz.getResourceAsStream(
+			"dependencies/" + fileName);
+
+		return StringUtil.read(inputStream);
 	}
 
 	private static DataDefinition _randomDataDefinition(long groupId)
@@ -78,11 +117,15 @@ public class DataDefinitionTestUtil {
 							).build();
 							fieldType = "text";
 							label = HashMapBuilder.<String, Object>put(
-								"label", RandomTestUtil.randomString()
+								"en_US", RandomTestUtil.randomString()
+							).put(
+								"pt_BR", RandomTestUtil.randomString()
 							).build();
 							name = RandomTestUtil.randomString();
 							tip = HashMapBuilder.<String, Object>put(
-								"tip", RandomTestUtil.randomString()
+								"en_US", RandomTestUtil.randomString()
+							).put(
+								"pt_BR", RandomTestUtil.randomString()
 							).build();
 						}
 					}
@@ -104,15 +147,6 @@ public class DataDefinitionTestUtil {
 			).build());
 
 		return dataDefinition;
-	}
-
-	private static String _read(String fileName) throws Exception {
-		Class<?> clazz = DataDefinitionTestUtil.class;
-
-		InputStream inputStream = clazz.getResourceAsStream(
-			"dependencies/" + fileName);
-
-		return StringUtil.read(inputStream);
 	}
 
 }

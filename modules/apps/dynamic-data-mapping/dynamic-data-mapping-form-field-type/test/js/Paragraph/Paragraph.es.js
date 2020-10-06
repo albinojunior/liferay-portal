@@ -12,9 +12,12 @@
  * details.
  */
 
+import {act, cleanup, render} from '@testing-library/react';
+import {PageProvider} from 'dynamic-data-mapping-form-renderer';
+import React from 'react';
+
 import Paragraph from '../../../src/main/resources/META-INF/resources/Paragraph/Paragraph.es';
 
-let component;
 const spritemap = 'icons.svg';
 
 const defaultParagraphConfig = {
@@ -22,89 +25,141 @@ const defaultParagraphConfig = {
 	spritemap,
 };
 
+const ParagraphWithProvider = (props) => (
+	<PageProvider value={{editingLanguageId: 'en_US'}}>
+		<Paragraph {...props} />
+	</PageProvider>
+);
+
 describe('Field Paragraph', () => {
-	afterEach(() => {
-		if (component) {
-			component.dispose();
-		}
+	// eslint-disable-next-line no-console
+	const originalWarn = console.warn;
+
+	beforeAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = (...args) => {
+			if (/DataProvider: Trying/.test(args[0])) {
+				return;
+			}
+			originalWarn.call(console, ...args);
+		};
+	});
+
+	afterAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = originalWarn;
+	});
+
+	afterEach(cleanup);
+
+	beforeEach(() => {
+		jest.useFakeTimers();
+		fetch.mockResponseOnce(JSON.stringify({}));
 	});
 
 	it('is readOnly', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			readOnly: true,
+		const {container} = render(
+			<ParagraphWithProvider {...defaultParagraphConfig} readOnly />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has an id', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			id: 'ID',
+		const {container} = render(
+			<ParagraphWithProvider {...defaultParagraphConfig} id="Id" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a label', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			label: 'label',
+		const {container} = render(
+			<ParagraphWithProvider {...defaultParagraphConfig} label="label" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a placeholder', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			placeholder: 'Placeholder',
+		const {container} = render(
+			<ParagraphWithProvider
+				{...defaultParagraphConfig}
+				placeholder="Placeholder"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is not required', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			required: false,
+		const {container} = render(
+			<ParagraphWithProvider
+				{...defaultParagraphConfig}
+				required={false}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('renders Label if showLabel is true', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			label: 'text',
-			showLabel: true,
+		const {container} = render(
+			<ParagraphWithProvider
+				{...defaultParagraphConfig}
+				label="text"
+				showLabel
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
-	});
-
-	it('has a spritemap', () => {
-		component = new Paragraph(defaultParagraphConfig);
-
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a value', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			value: 'value',
+		const {container} = render(
+			<ParagraphWithProvider {...defaultParagraphConfig} value="value" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a key', () => {
-		component = new Paragraph({
-			...defaultParagraphConfig,
-			key: 'key',
+		const {container} = render(
+			<ParagraphWithProvider {...defaultParagraphConfig} key="key" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 });

@@ -35,29 +35,15 @@ definition {
 	@description = "This is a test for LPS-97184. Invalid fragment configuration cannot be published and offers useful advice."
 	@priority = "4"
 	test AddInvalidConfiguration {
-		property test.name.skip.portal.instance = "FragmentsConfiguration#AddInvalidConfiguration";
-
 		FragmentsAdmin.addFragment(fragmentName = "Fragment Name");
 
 		FragmentsEditor.gotoConfigurationTab();
 
+		Pause(locator1 = "3000");
+
 		FragmentsEditor.typeFileContent(fileName = "fragment_configuration_invalid.json");
 
 		FragmentsEditor.gotoCodeTab();
-
-		task ("Assert there is an error message in the fragment editor preview") {
-			SelectFrame.selectFrameNoLoading(locator1 = "FragmentEditor#PREVIEW_IFRAME");
-
-			Alert.viewErrorMessage(errorMessage = "Fragment configuration is invalid.");
-
-			Alert.viewErrorMessage(errorMessage = "/fieldSets/0/fields/0: required key [defaultValue] not found");
-
-			Alert.viewErrorMessage(errorMessage = "fieldSets/0/fields/0/typeOptions: required key [validValues] not found");
-
-			Alert.viewErrorMessage(errorMessage = "/fieldSets/0/fields/0/typeOptions: extraneous key [values] is not permitted");
-
-			SelectFrame.selectFrameTop();
-		}
 
 		task ("Publish the fragment and assert there is an error message") {
 			Button.clickPublish();
@@ -69,15 +55,17 @@ definition {
 	@description = "This is a test for LPS-97184. Valid fragment configuration can be published."
 	@priority = "4"
 	test AddValidConfiguration {
-		property test.name.skip.portal.instance = "FragmentsConfiguration#AddValidConfiguration";
-
 		FragmentsAdmin.addFragment(fragmentName = "Fragment Name");
 
 		FragmentsEditor.gotoConfigurationTab();
 
+		Pause(locator1 = "3000");
+
 		FragmentsEditor.typeFileContent(fileName = "fragment_configuration.json");
 
 		FragmentsEditor.gotoCodeTab();
+
+		Pause(locator1 = "3000");
 
 		FragmentsEditor.typeFileContent(fileName = "fragment_configuration.html");
 

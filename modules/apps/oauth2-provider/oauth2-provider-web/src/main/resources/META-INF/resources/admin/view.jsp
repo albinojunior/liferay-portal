@@ -30,7 +30,7 @@ String displayStyle = oAuth2ApplicationsManagementToolbarDisplayContext.getDispl
 	disabled="<%= oAuth2ApplicationsCount == 0 %>"
 	filterDropdownItems="<%= oAuth2ApplicationsManagementToolbarDisplayContext.getFilterDropdownItems() %>"
 	itemsTotal="<%= oAuth2ApplicationsCount %>"
-	namespace="<%= renderResponse.getNamespace() %>"
+	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	searchContainerId="oAuth2ApplicationsSearchContainer"
 	selectable="<%= true %>"
 	showCreationMenu="<%= oAuth2AdminPortletDisplayContext.hasAddApplicationPermission() %>"
@@ -40,7 +40,9 @@ String displayStyle = oAuth2ApplicationsManagementToolbarDisplayContext.getDispl
 	viewTypeItems="<%= oAuth2ApplicationsManagementToolbarDisplayContext.getViewTypes() %>"
 />
 
-<div class="closed container-fluid-1280">
+<clay:container-fluid
+	cssClass="closed"
+>
 	<aui:form action="<%= currentURLObj %>" method="get" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 		<aui:input name="oAuth2ApplicationIds" type="hidden" />
@@ -144,7 +146,7 @@ String displayStyle = oAuth2ApplicationsManagementToolbarDisplayContext.getDispl
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <script>
 	function <portlet:namespace />deleteOAuth2Applications() {

@@ -239,9 +239,14 @@ public class WorkflowLogSerDes {
 			map.put("commentLog", String.valueOf(workflowLog.getCommentLog()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(workflowLog.getDateCreated()));
+		if (workflowLog.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(workflowLog.getDateCreated()));
+		}
 
 		if (workflowLog.getId() == null) {
 			map.put("id", null);
@@ -403,9 +408,8 @@ public class WorkflowLogSerDes {
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -461,10 +465,13 @@ public class WorkflowLogSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

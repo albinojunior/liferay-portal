@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -171,6 +172,26 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 		Collections.sort(moduleDirsList);
 
 		return moduleDirsList;
+	}
+
+	public List<File> getModulePullSubrepoDirs() {
+		List<File> moduleSubrepoDirs = new ArrayList<>();
+
+		List<File> gitrepoFiles = JenkinsResultsParserUtil.findFiles(
+			new File(getWorkingDirectory(), "modules"), "\\.gitrepo");
+
+		for (File gitrepoFile : gitrepoFiles) {
+			Properties gitrepoProperties =
+				JenkinsResultsParserUtil.getProperties(gitrepoFile);
+
+			String mode = gitrepoProperties.getProperty("mode", "push");
+
+			if (mode.equals("pull")) {
+				moduleSubrepoDirs.add(gitrepoFile.getParentFile());
+			}
+		}
+
+		return moduleSubrepoDirs;
 	}
 
 	public List<File> getNPMTestModuleDirsList() throws IOException {

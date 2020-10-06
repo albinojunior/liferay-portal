@@ -73,6 +73,12 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
+		LexiconEntry.changeDisplayStyle(displayStyle = "Cards");
+
+		AssertVisible(
+			key_dmDocumentTitle = "DM Document Title 1",
+			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_SHARED");
+
 		DMDocumentSharing.addDocumentWithOnlyOwnerPermissions(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentFile = "Document_1.png",
@@ -87,6 +93,12 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
+		LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+		AssertVisible(
+			key_dmDocumentTitle = "DM Document Title 2",
+			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_SHARED");
+
 		DMDocumentSharing.addDocumentWithOnlyOwnerPermissions(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentFile = "Document_1.odt",
@@ -98,6 +110,14 @@ definition {
 			sharingPermissions = "Comment",
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "table");
+
+		AssertVisible(
+			key_dmDocumentTitle = "DM Document Title 3",
+			locator1 = "DocumentsAndMedia#TABLE_DOCUMENT_SHARED");
 
 		User.logoutPG();
 
@@ -191,7 +211,7 @@ definition {
 	@description = "This test asserts only one entry displays in a user's Shared Content app when multiple users share the same document to him."
 	@priority = "4"
 	test AssertSingleEntry {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -270,6 +290,8 @@ definition {
 
 		UserBar.gotoDropdownItem(dropdownItem = "Shared Content");
 
+		DMDocumentSharing.viewSharedFlag();
+
 		var key_contentTitle = "DM Document Title";
 
 		AssertTextEquals(
@@ -300,8 +322,8 @@ definition {
 
 		Navigator.openSpecificURL(url = "${portalURL}");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
@@ -312,8 +334,8 @@ definition {
 
 		Navigator.openURL();
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Virtual Instances");
 
@@ -321,7 +343,7 @@ definition {
 			mailDomain = "gmail.com",
 			virtualHost = "localhost");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -332,7 +354,7 @@ definition {
 			userLastName = "userln1",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -374,7 +396,7 @@ definition {
 			locator1 = "Sharing#EMAIL_VIEW_DOCUMENT_BUTTON",
 			value1 = "View Document");
 
-		SelectWindow(locator1 = "title=- ${siteName}");
+		SelectWindow(locator1 = "title=- Control Panel - ${siteName}");
 
 		DMDocumentSharing.viewDocumentViaSharedContent(
 			contentSharingPermission = "View",
@@ -419,6 +441,8 @@ definition {
 	@description = "This test covers LPS-94294. It ensures that sharing a document to a user, and changing its sharing permissions via Manage Collaborators. This test also covers permissions and making sure users only have access to sharing permissions assigned to him."
 	@priority = "5"
 	test ManageCollaborators {
+		property portal.acceptance = "true";
+
 		DMDocumentSharing.addDocumentWithOnlyOwnerPermissions(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentFile = "Document_1.doc",
@@ -632,6 +656,8 @@ definition {
 	@description = "This test covers LPS-94585. It ensures that users can share via Shared Content app."
 	@priority = "5"
 	test ShareViaSharedContent {
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
 		JSONUser.addUser(
 			userEmailAddress = "userea2@liferay.com",
 			userFirstName = "userfn2",
@@ -679,7 +705,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -714,19 +740,19 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
 
-		User.UnassignRegularRoleCP(
+		User.unassignRegularRoleCP(
 			regularRoleName = "Administrator",
 			userScreenName = "usersn");
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
-			portlet = "Memberships");
+			portlet = "Memberships",
+			site = "${siteName}");
 
 		Site.assignUserAsMemberCP(
 			userFirstName = "userfn",
@@ -772,6 +798,8 @@ definition {
 	@description = "This test share an content to a user and disable the sharing option. This test asserts that a collaborator without sharing permissions will not be able to share this content."
 	@priority = "5"
 	test ShareWithNoSharingPermissions {
+		property portal.acceptance = "true";
+
 		JSONUser.addUser(
 			userEmailAddress = "userea1@liferay.com",
 			userFirstName = "userfn1",

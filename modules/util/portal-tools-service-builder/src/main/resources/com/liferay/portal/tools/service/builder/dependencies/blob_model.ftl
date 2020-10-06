@@ -22,7 +22,7 @@ public class ${entity.name}${column.methodName}BlobModel {
 		<#assign
 			pkEntityMethodName = entity.PKClassName
 			pkEntityType = entity.PKClassName
-			pkEntityVarName = entity.PKVarName
+			pkEntityVariableName = entity.PKVariableName
 		/>
 
 	<#else>
@@ -31,29 +31,29 @@ public class ${entity.name}${column.methodName}BlobModel {
 
 			pkEntityMethodName = pkEntityColumn.methodName
 			pkEntityType = pkEntityColumn.type
-			pkEntityVarName = pkEntityColumn.name
+			pkEntityVariableName = pkEntityColumn.name
 		/>
 	</#if>
 
 	public ${entity.name}${column.methodName}BlobModel(
-		${pkEntityType} ${pkEntityVarName}) {
+		${pkEntityType} ${pkEntityVariableName}) {
 
-		_${pkEntityVarName} = ${pkEntityVarName};
+		_${pkEntityVariableName} = ${pkEntityVariableName};
 	}
 
 	public ${entity.name}${column.methodName}BlobModel(
-		${pkEntityType} ${pkEntityVarName}, Blob ${column.name}Blob) {
+		${pkEntityType} ${pkEntityVariableName}, Blob ${column.name}Blob) {
 
-		_${pkEntityVarName} = ${pkEntityVarName};
+		_${pkEntityVariableName} = ${pkEntityVariableName};
 		_${column.name}Blob = ${column.name}Blob;
 	}
 
 	public ${pkEntityType} get${pkEntityMethodName}() {
-		return _${pkEntityVarName};
+		return _${pkEntityVariableName};
 	}
 
-	public void set${pkEntityMethodName}(${pkEntityType} ${pkEntityVarName}) {
-		_${pkEntityVarName} = ${pkEntityVarName};
+	public void set${pkEntityMethodName}(${pkEntityType} ${pkEntityVariableName}) {
+		_${pkEntityVariableName} = ${pkEntityVariableName};
 	}
 
 	public Blob get${column.methodName}Blob() {
@@ -64,7 +64,7 @@ public class ${entity.name}${column.methodName}BlobModel {
 		_${column.name}Blob = ${column.name}Blob;
 	}
 
-	private ${pkEntityType} _${pkEntityVarName};
+	private ${pkEntityType} _${pkEntityVariableName};
 
 	private Blob _${column.name}Blob;
 

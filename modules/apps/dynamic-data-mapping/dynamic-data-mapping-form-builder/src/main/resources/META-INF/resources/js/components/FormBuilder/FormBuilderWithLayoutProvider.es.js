@@ -19,6 +19,7 @@ import {Config} from 'metal-state';
 import LayoutProvider from '../LayoutProvider/LayoutProvider.es';
 import {FormBuilderBase} from './FormBuilder.es';
 import withActionableFields from './withActionableFields.es';
+import withClickableFields from './withClickableFields.es';
 import withEditablePageHeader from './withEditablePageHeader.es';
 import withMoveableFields from './withMoveableFields.es';
 import withMultiplePages from './withMultiplePages.es';
@@ -32,17 +33,18 @@ import withResizeableColumns from './withResizeableColumns.es';
 
 class FormBuilderWithLayoutProvider extends Component {
 	render() {
-		const {formBuilderProps, layoutProviderProps, singlePage} = this.props;
+		const {formBuilderProps, layoutProviderProps} = this.props;
 
 		const LProvider = LayoutProvider;
 
 		const composeList = [
 			withActionableFields,
+			withClickableFields,
 			withMoveableFields,
 			withResizeableColumns,
 		];
 
-		if (!singlePage) {
+		if (layoutProviderProps.allowMultiplePages) {
 			composeList.push(withMultiplePages);
 			composeList.push(withEditablePageHeader);
 		}

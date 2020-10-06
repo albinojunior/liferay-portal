@@ -14,7 +14,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
 			portlet = "Segments");
 
 		LexiconEntry.gotoAdd();
@@ -33,14 +32,16 @@ definition {
 	tearDown {
 		var testPortalInstance = PropsUtil.get("test.portal.instance");
 
+		Navigator.openURL();
+
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
 		}
 		else {
 			ProductMenu.gotoPortlet(
 				category = "People",
-				panel = "Site Administration",
-				portlet = "Segments");
+				portlet = "Segments",
+				site = "Guest");
 
 			if (IsElementPresent(locator1 = "Segmentation#SEGMENT_LIST")) {
 				Segmentation.tearDown();
@@ -71,22 +72,24 @@ definition {
 	@description = "Validate if the user can edit a segment with Organization Tag"
 	@priority = "5"
 	test EditSegmentUserByOrganizationTag {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
 
-		User.addCPWithTag(
+		User.addCP(
 			userEmailAddress = "OrganizationTag@liferay.com",
 			userFirstName = "OrganizationTag",
 			userLastName = "OrganizationTag",
 			userScreenName = "OrganizationTag",
 			userTag = "organizationtagtest");
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
-			portlet = "Segments");
+			portlet = "Segments",
+			site = "Guest");
 
 		while (IsElementPresent(locator1 = "Segmentation#SEGMENT_LIST")) {
 			Segmentation.editSegment();
@@ -104,7 +107,7 @@ definition {
 
 		Button.clickSave();
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -137,6 +140,8 @@ definition {
 	@description = "Validate if the user can edit a segment with Properties Session URL"
 	@priority = "5"
 	test EditSegmentUserBySessionURL {
+		property portal.acceptance = "true";
+
 		while (IsElementPresent(locator1 = "Segmentation#SEGMENT_LIST")) {
 			Segmentation.editSegment();
 		}
@@ -157,22 +162,24 @@ definition {
 	@description = "Validate if the user can edit a segment with User Tag"
 	@priority = "5"
 	test EditSegmentUserByUserTag {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
 
-		User.addCPWithTag(
+		User.addCP(
 			userEmailAddress = "Tag@liferay.com",
 			userFirstName = "UserTag",
 			userLastName = "UserTag",
 			userScreenName = "UserTag",
 			userTag = "tagtest");
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "People",
-			panel = "Site Administration",
-			portlet = "Segments");
+			portlet = "Segments",
+			site = "Guest");
 
 		while (IsElementPresent(locator1 = "Segmentation#SEGMENT_LIST")) {
 			Segmentation.editSegment();
@@ -188,7 +195,7 @@ definition {
 
 		Button.clickSave();
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");

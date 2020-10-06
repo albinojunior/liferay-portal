@@ -18,6 +18,7 @@ import com.liferay.headless.batch.engine.dto.v1_0.ExportTask;
 import com.liferay.headless.batch.engine.resource.v1_0.ExportTaskResource;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -73,7 +74,8 @@ public abstract class BaseExportTaskResourceImpl implements ExportTaskResource {
 			@Parameter(in = ParameterIn.PATH, name = "className"),
 			@Parameter(in = ParameterIn.PATH, name = "contentType"),
 			@Parameter(in = ParameterIn.QUERY, name = "callbackURL"),
-			@Parameter(in = ParameterIn.QUERY, name = "fieldNames")
+			@Parameter(in = ParameterIn.QUERY, name = "fieldNames"),
+			@Parameter(in = ParameterIn.QUERY, name = "taskItemDelegateName")
 		}
 	)
 	@Path("/export-task/{className}/{contentType}")
@@ -87,7 +89,9 @@ public abstract class BaseExportTaskResourceImpl implements ExportTaskResource {
 			@Parameter(hidden = true) @QueryParam("callbackURL") String
 				callbackURL,
 			@Parameter(hidden = true) @QueryParam("fieldNames") String
-				fieldNames)
+				fieldNames,
+			@Parameter(hidden = true) @QueryParam("taskItemDelegateName") String
+				taskItemDelegateName)
 		throws Exception {
 
 		return new ExportTask();
@@ -171,6 +175,14 @@ public abstract class BaseExportTaskResourceImpl implements ExportTaskResource {
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -180,12 +192,21 @@ public abstract class BaseExportTaskResourceImpl implements ExportTaskResource {
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -193,11 +214,7 @@ public abstract class BaseExportTaskResourceImpl implements ExportTaskResource {
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(
-		ExportTask exportTask, ExportTask existingExportTask) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

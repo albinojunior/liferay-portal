@@ -14,27 +14,33 @@
 
 package com.liferay.data.engine.rest.internal.resource.v2_0;
 
+import com.liferay.data.engine.constants.DataActionKeys;
+import com.liferay.data.engine.content.type.DataDefinitionContentType;
+import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecordCollection;
-import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
 import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataRecordCollectionUtil;
 import com.liferay.data.engine.rest.internal.security.permission.resource.DataDefinitionModelResourcePermission;
 import com.liferay.data.engine.rest.internal.security.permission.resource.DataRecordCollectionModelResourcePermission;
 import com.liferay.data.engine.rest.resource.v2_0.DataRecordCollectionResource;
-import com.liferay.data.engine.spi.resource.SPIDataRecordCollectionResource;
+import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.ResourceAction;
+import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ResourceLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -43,8 +49,14 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.permission.ModelPermissionsUtil;
 import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.permission.PermissionUtil;
+import com.liferay.portal.vulcan.util.SearchUtil;
+import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.validation.ValidationException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -68,18 +80,17 @@ public class DataRecordCollectionResourceImpl
 			PermissionThreadLocal.getPermissionChecker(),
 			dataRecordCollectionId, ActionKeys.DELETE);
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
-
-		spiDataRecordCollectionResource.deleteDataRecordCollection(
-			dataRecordCollectionId);
+		_deleteDataRecordCollection(dataRecordCollectionId);
 	}
 
 	@Override
 	public DataRecordCollection getDataDefinitionDataRecordCollection(
 			Long dataDefinitionId)
 		throws Exception {
+
+		_dataDefinitionModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+			ActionKeys.VIEW);
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
 			dataDefinitionId);
@@ -95,11 +106,11 @@ public class DataRecordCollectionResourceImpl
 				Long dataDefinitionId, String keywords, Pagination pagination)
 		throws Exception {
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
+		_dataDefinitionModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+			ActionKeys.VIEW);
 
-		return spiDataRecordCollectionResource.getDataRecordCollections(
+		return _getDataRecordCollections(
 			dataDefinitionId, keywords,
 			contextAcceptLanguage.getPreferredLocale(), pagination);
 	}
@@ -113,12 +124,7 @@ public class DataRecordCollectionResourceImpl
 			PermissionThreadLocal.getPermissionChecker(),
 			dataRecordCollectionId, ActionKeys.VIEW);
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
-
-		return spiDataRecordCollectionResource.getDataRecordCollection(
-			dataRecordCollectionId);
+		return _getDataRecordCollection(dataRecordCollectionId);
 	}
 
 	@Override
@@ -156,13 +162,8 @@ public class DataRecordCollectionResourceImpl
 			Long dataRecordCollectionId, String roleNames)
 		throws Exception {
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
-
-		DataRecordCollection dataRecordCollection =
-			spiDataRecordCollectionResource.getDataRecordCollection(
-				dataRecordCollectionId);
+		DataRecordCollection dataRecordCollection = _getDataRecordCollection(
+			dataRecordCollectionId);
 
 		_dataDefinitionModelResourcePermission.check(
 			PermissionThreadLocal.getPermissionChecker(),
@@ -188,12 +189,14 @@ public class DataRecordCollectionResourceImpl
 				Long siteId, String dataRecordCollectionKey)
 		throws Exception {
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
+			siteId, dataRecordCollectionKey);
 
-		return spiDataRecordCollectionResource.getSiteDataRecordCollection(
-			dataRecordCollectionKey, siteId);
+		_dataRecordCollectionModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			ddlRecordSet.getRecordSetId(), ActionKeys.VIEW);
+
+		return _getSiteDataRecordCollection(dataRecordCollectionKey, siteId);
 	}
 
 	@Override
@@ -215,11 +218,7 @@ public class DataRecordCollectionResourceImpl
 			dataRecordCollectionKey = ddmStructure.getStructureKey();
 		}
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
-
-		return spiDataRecordCollectionResource.addDataRecordCollection(
+		return _addDataRecordCollection(
 			dataDefinitionId, dataRecordCollectionKey,
 			dataRecordCollection.getDescription(),
 			dataRecordCollection.getName());
@@ -235,11 +234,7 @@ public class DataRecordCollectionResourceImpl
 			PermissionThreadLocal.getPermissionChecker(),
 			dataRecordCollectionId, ActionKeys.UPDATE);
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
-
-		return spiDataRecordCollectionResource.updateDataRecordCollection(
+		return _updateDataRecordCollection(
 			dataRecordCollectionId, dataRecordCollection.getDescription(),
 			dataRecordCollection.getName());
 	}
@@ -249,13 +244,8 @@ public class DataRecordCollectionResourceImpl
 			Long dataRecordCollectionId, Permission[] permissions)
 		throws Exception {
 
-		SPIDataRecordCollectionResource<DataRecordCollection>
-			spiDataRecordCollectionResource =
-				_getSPIDataRecordCollectionResource();
-
-		DataRecordCollection dataRecordCollection =
-			spiDataRecordCollectionResource.getDataRecordCollection(
-				dataRecordCollectionId);
+		DataRecordCollection dataRecordCollection = _getDataRecordCollection(
+			dataRecordCollectionId);
 
 		_dataDefinitionModelResourcePermission.check(
 			PermissionThreadLocal.getPermissionChecker(),
@@ -292,8 +282,102 @@ public class DataRecordCollectionResourceImpl
 		return _getResourceName(ddlRecordSet);
 	}
 
+	private DataRecordCollection _addDataRecordCollection(
+			long dataDefinitionId, String dataRecordCollectionKey,
+			Map<String, Object> description, Map<String, Object> name)
+		throws Exception {
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.addRecordSet(
+			PrincipalThreadLocal.getUserId(), ddmStructure.getGroupId(),
+			dataDefinitionId, dataRecordCollectionKey,
+			LocalizedValueUtil.toLocaleStringMap(name),
+			LocalizedValueUtil.toLocaleStringMap(description), 0,
+			DDLRecordSetConstants.SCOPE_DATA_ENGINE, serviceContext);
+
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddmStructure)) {
+			_resourceLocalService.addModelResources(
+				ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
+				PrincipalThreadLocal.getUserId(),
+				_getResourceName(ddlRecordSet), ddlRecordSet.getPrimaryKey(),
+				serviceContext.getModelPermissions());
+		}
+
+		return DataRecordCollectionUtil.toDataRecordCollection(ddlRecordSet);
+	}
+
+	private void _deleteDataRecordCollection(Long dataRecordCollectionId)
+		throws Exception {
+
+		_ddlRecordSetLocalService.deleteRecordSet(dataRecordCollectionId);
+	}
+
+	private DataRecordCollection _getDataRecordCollection(
+			long dataRecordCollectionId)
+		throws Exception {
+
+		return DataRecordCollectionUtil.toDataRecordCollection(
+			_ddlRecordSetLocalService.getRecordSet(dataRecordCollectionId));
+	}
+
+	private Page<DataRecordCollection> _getDataRecordCollections(
+			long dataDefinitionId, String keywords, Locale locale,
+			Pagination pagination)
+		throws Exception {
+
+		if (pagination.getPageSize() > 250) {
+			throw new ValidationException(
+				LanguageUtil.format(
+					locale, "page-size-is-greater-than-x", 250));
+		}
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				TransformUtil.transform(
+					_ddlRecordSetLocalService.search(
+						ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
+						keywords, DDLRecordSetConstants.SCOPE_DATA_ENGINE,
+						pagination.getStartPosition(),
+						pagination.getEndPosition(), null),
+					DataRecordCollectionUtil::toDataRecordCollection),
+				pagination,
+				_ddlRecordSetLocalService.searchCount(
+					ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
+					keywords, DDLRecordSetConstants.SCOPE_DATA_ENGINE));
+		}
+
+		return SearchUtil.search(
+			booleanQuery -> {
+			},
+			null, DDLRecordSet.class, keywords, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				searchContext.setAttribute(Field.DESCRIPTION, keywords);
+				searchContext.setAttribute(Field.NAME, keywords);
+				searchContext.setAttribute(
+					"DDMStructureId", ddmStructure.getStructureId());
+				searchContext.setAttribute(
+					"scope", DDLRecordSetConstants.SCOPE_DATA_ENGINE);
+				searchContext.setCompanyId(ddmStructure.getCompanyId());
+				searchContext.setGroupIds(
+					new long[] {ddmStructure.getGroupId()});
+			},
+			document -> DataRecordCollectionUtil.toDataRecordCollection(
+				_ddlRecordSetLocalService.getRecordSet(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
+			null);
+	}
+
 	private String _getResourceName(DDLRecordSet ddlRecordSet)
-		throws PortalException {
+		throws Exception {
 
 		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
 
@@ -302,13 +386,45 @@ public class DataRecordCollectionResourceImpl
 			DDLRecordSet.class.getName());
 	}
 
-	private SPIDataRecordCollectionResource<DataRecordCollection>
-		_getSPIDataRecordCollectionResource() {
+	private DataRecordCollection _getSiteDataRecordCollection(
+			String dataRecordCollectionKey, long siteId)
+		throws Exception {
 
-		return new SPIDataRecordCollectionResource<>(
-			_ddlRecordSetLocalService, _ddmStructureLocalService, _portal,
-			_resourceLocalService,
-			DataRecordCollectionUtil::toDataRecordCollection);
+		return DataRecordCollectionUtil.toDataRecordCollection(
+			_ddlRecordSetLocalService.getRecordSet(
+				siteId, dataRecordCollectionKey));
+	}
+
+	private boolean _isDataRecordCollectionPermissionCheckingEnabled(
+			DDMStructure ddmStructure)
+		throws Exception {
+
+		DataDefinitionContentType dataDefinitionContentType =
+			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
+				ddmStructure.getClassNameId());
+
+		return dataDefinitionContentType.
+			isDataRecordCollectionPermissionCheckingEnabled();
+	}
+
+	private DataRecordCollection _updateDataRecordCollection(
+			long dataRecordCollectionId, Map<String, Object> description,
+			Map<String, Object> name)
+		throws Exception {
+
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
+			dataRecordCollectionId);
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setUserId(PrincipalThreadLocal.getUserId());
+
+		return DataRecordCollectionUtil.toDataRecordCollection(
+			_ddlRecordSetLocalService.updateRecordSet(
+				dataRecordCollectionId, ddlRecordSet.getDDMStructureId(),
+				LocalizedValueUtil.toLocaleStringMap(name),
+				LocalizedValueUtil.toLocaleStringMap(description), 0,
+				serviceContext));
 	}
 
 	@Reference

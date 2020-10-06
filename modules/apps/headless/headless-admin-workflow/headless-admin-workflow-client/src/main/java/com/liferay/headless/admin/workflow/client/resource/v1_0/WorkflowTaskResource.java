@@ -14,15 +14,17 @@
 
 package com.liferay.headless.admin.workflow.client.resource.v1_0;
 
+import com.liferay.headless.admin.workflow.client.dto.v1_0.ChangeTransition;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTask;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTaskAssignToMe;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTaskAssignToRole;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTaskAssignToUser;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTasksBulkSelection;
 import com.liferay.headless.admin.workflow.client.http.HttpInvoker;
 import com.liferay.headless.admin.workflow.client.pagination.Page;
 import com.liferay.headless.admin.workflow.client.pagination.Pagination;
 import com.liferay.headless.admin.workflow.client.problem.Problem;
 import com.liferay.headless.admin.workflow.client.serdes.v1_0.WorkflowTaskSerDes;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -77,34 +79,22 @@ public interface WorkflowTaskResource {
 				Pagination pagination)
 		throws Exception;
 
-	public Page<WorkflowTask> getWorkflowTasksPage(
-			Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-			String[] assetTypes, Long[] assigneeIds, Boolean completed,
-			java.util.Date dateDueEnd, java.util.Date dateDueStart,
-			Boolean searchByRoles, Boolean searchByUserRoles,
-			String[] taskNames, Long workflowDefinitionId,
-			Long[] workflowInstanceIds, Pagination pagination,
-			String sortString)
+	public Page<WorkflowTask> postWorkflowTasksPage(
+			Pagination pagination, String sortString,
+			WorkflowTasksBulkSelection workflowTasksBulkSelection)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse getWorkflowTasksPageHttpResponse(
-			Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-			String[] assetTypes, Long[] assigneeIds, Boolean completed,
-			java.util.Date dateDueEnd, java.util.Date dateDueStart,
-			Boolean searchByRoles, Boolean searchByUserRoles,
-			String[] taskNames, Long workflowDefinitionId,
-			Long[] workflowInstanceIds, Pagination pagination,
-			String sortString)
+	public HttpInvoker.HttpResponse postWorkflowTasksPageHttpResponse(
+			Pagination pagination, String sortString,
+			WorkflowTasksBulkSelection workflowTasksBulkSelection)
 		throws Exception;
 
 	public void patchWorkflowTaskAssignToUser(
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
+			WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse patchWorkflowTaskAssignToUserHttpResponse(
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
+			WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
 		throws Exception;
 
 	public Page<WorkflowTask> getWorkflowTasksAssignedToMePage(
@@ -152,14 +142,12 @@ public interface WorkflowTaskResource {
 		throws Exception;
 
 	public void patchWorkflowTaskChangeTransition(
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				ChangeTransition[] changeTransitions)
+			ChangeTransition[] changeTransitions)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			patchWorkflowTaskChangeTransitionHttpResponse(
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					ChangeTransition[] changeTransitions)
+				ChangeTransition[] changeTransitions)
 		throws Exception;
 
 	public Page<WorkflowTask> getWorkflowTasksSubmittingUserPage(
@@ -171,6 +159,14 @@ public interface WorkflowTaskResource {
 				Long creatorId, Pagination pagination)
 		throws Exception;
 
+	public void patchWorkflowTaskUpdateDueDate(
+			WorkflowTaskAssignToMe[] workflowTaskAssignToMes)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse patchWorkflowTaskUpdateDueDateHttpResponse(
+			WorkflowTaskAssignToMe[] workflowTaskAssignToMes)
+		throws Exception;
+
 	public WorkflowTask getWorkflowTask(Long workflowTaskId) throws Exception;
 
 	public HttpInvoker.HttpResponse getWorkflowTaskHttpResponse(
@@ -178,55 +174,43 @@ public interface WorkflowTaskResource {
 		throws Exception;
 
 	public WorkflowTask postWorkflowTaskAssignToMe(
-			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToMe workflowTaskAssignToMe)
+			Long workflowTaskId, WorkflowTaskAssignToMe workflowTaskAssignToMe)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postWorkflowTaskAssignToMeHttpResponse(
-			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToMe workflowTaskAssignToMe)
+			Long workflowTaskId, WorkflowTaskAssignToMe workflowTaskAssignToMe)
 		throws Exception;
 
 	public WorkflowTask postWorkflowTaskAssignToRole(
 			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToRole workflowTaskAssignToRole)
+			WorkflowTaskAssignToRole workflowTaskAssignToRole)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postWorkflowTaskAssignToRoleHttpResponse(
 			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToRole workflowTaskAssignToRole)
+			WorkflowTaskAssignToRole workflowTaskAssignToRole)
 		throws Exception;
 
 	public WorkflowTask postWorkflowTaskAssignToUser(
 			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToUser workflowTaskAssignToUser)
+			WorkflowTaskAssignToUser workflowTaskAssignToUser)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postWorkflowTaskAssignToUserHttpResponse(
 			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToUser workflowTaskAssignToUser)
+			WorkflowTaskAssignToUser workflowTaskAssignToUser)
 		throws Exception;
 
 	public WorkflowTask postWorkflowTaskChangeTransition(
-			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.ChangeTransition
-				changeTransition)
+			Long workflowTaskId, ChangeTransition changeTransition)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			postWorkflowTaskChangeTransitionHttpResponse(
-				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					ChangeTransition changeTransition)
+				Long workflowTaskId, ChangeTransition changeTransition)
 		throws Exception;
 
-	public String getWorkflowTaskHasAssignableUsers(Long workflowTaskId)
+	public Boolean getWorkflowTaskHasAssignableUsers(Long workflowTaskId)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
@@ -234,15 +218,11 @@ public interface WorkflowTaskResource {
 		throws Exception;
 
 	public WorkflowTask postWorkflowTaskUpdateDueDate(
-			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToMe workflowTaskAssignToMe)
+			Long workflowTaskId, WorkflowTaskAssignToMe workflowTaskAssignToMe)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postWorkflowTaskUpdateDueDateHttpResponse(
-			Long workflowTaskId,
-			com.liferay.headless.admin.workflow.client.dto.v1_0.
-				WorkflowTaskAssignToMe workflowTaskAssignToMe)
+			Long workflowTaskId, WorkflowTaskAssignToMe workflowTaskAssignToMe)
 		throws Exception;
 
 	public static class Builder {
@@ -290,8 +270,8 @@ public interface WorkflowTaskResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -544,23 +524,14 @@ public interface WorkflowTaskResource {
 			return httpInvoker.invoke();
 		}
 
-		public Page<WorkflowTask> getWorkflowTasksPage(
-				Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-				String[] assetTypes, Long[] assigneeIds, Boolean completed,
-				java.util.Date dateDueEnd, java.util.Date dateDueStart,
-				Boolean searchByRoles, Boolean searchByUserRoles,
-				String[] taskNames, Long workflowDefinitionId,
-				Long[] workflowInstanceIds, Pagination pagination,
-				String sortString)
+		public Page<WorkflowTask> postWorkflowTasksPage(
+				Pagination pagination, String sortString,
+				WorkflowTasksBulkSelection workflowTasksBulkSelection)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				getWorkflowTasksPageHttpResponse(
-					andOperator, assetPrimaryKeys, assetTitle, assetTypes,
-					assigneeIds, completed, dateDueEnd, dateDueStart,
-					searchByRoles, searchByUserRoles, taskNames,
-					workflowDefinitionId, workflowInstanceIds, pagination,
-					sortString);
+				postWorkflowTasksPageHttpResponse(
+					pagination, sortString, workflowTasksBulkSelection);
 
 			String content = httpResponse.getContent();
 
@@ -582,17 +553,15 @@ public interface WorkflowTaskResource {
 			}
 		}
 
-		public HttpInvoker.HttpResponse getWorkflowTasksPageHttpResponse(
-				Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-				String[] assetTypes, Long[] assigneeIds, Boolean completed,
-				java.util.Date dateDueEnd, java.util.Date dateDueStart,
-				Boolean searchByRoles, Boolean searchByUserRoles,
-				String[] taskNames, Long workflowDefinitionId,
-				Long[] workflowInstanceIds, Pagination pagination,
-				String sortString)
+		public HttpInvoker.HttpResponse postWorkflowTasksPageHttpResponse(
+				Pagination pagination, String sortString,
+				WorkflowTasksBulkSelection workflowTasksBulkSelection)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				workflowTasksBulkSelection.toString(), "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -611,87 +580,7 @@ public interface WorkflowTaskResource {
 				httpInvoker.parameter(entry.getKey(), entry.getValue());
 			}
 
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-			if (andOperator != null) {
-				httpInvoker.parameter(
-					"andOperator", String.valueOf(andOperator));
-			}
-
-			if (assetPrimaryKeys != null) {
-				for (int i = 0; i < assetPrimaryKeys.length; i++) {
-					httpInvoker.parameter(
-						"assetPrimaryKeys",
-						String.valueOf(assetPrimaryKeys[i]));
-				}
-			}
-
-			if (assetTitle != null) {
-				httpInvoker.parameter("assetTitle", String.valueOf(assetTitle));
-			}
-
-			if (assetTypes != null) {
-				for (int i = 0; i < assetTypes.length; i++) {
-					httpInvoker.parameter(
-						"assetTypes", String.valueOf(assetTypes[i]));
-				}
-			}
-
-			if (assigneeIds != null) {
-				for (int i = 0; i < assigneeIds.length; i++) {
-					httpInvoker.parameter(
-						"assigneeIds", String.valueOf(assigneeIds[i]));
-				}
-			}
-
-			if (completed != null) {
-				httpInvoker.parameter("completed", String.valueOf(completed));
-			}
-
-			if (dateDueEnd != null) {
-				httpInvoker.parameter(
-					"dateDueEnd", liferayToJSONDateFormat.format(dateDueEnd));
-			}
-
-			if (dateDueStart != null) {
-				httpInvoker.parameter(
-					"dateDueStart",
-					liferayToJSONDateFormat.format(dateDueStart));
-			}
-
-			if (searchByRoles != null) {
-				httpInvoker.parameter(
-					"searchByRoles", String.valueOf(searchByRoles));
-			}
-
-			if (searchByUserRoles != null) {
-				httpInvoker.parameter(
-					"searchByUserRoles", String.valueOf(searchByUserRoles));
-			}
-
-			if (taskNames != null) {
-				for (int i = 0; i < taskNames.length; i++) {
-					httpInvoker.parameter(
-						"taskNames", String.valueOf(taskNames[i]));
-				}
-			}
-
-			if (workflowDefinitionId != null) {
-				httpInvoker.parameter(
-					"workflowDefinitionId",
-					String.valueOf(workflowDefinitionId));
-			}
-
-			if (workflowInstanceIds != null) {
-				for (int i = 0; i < workflowInstanceIds.length; i++) {
-					httpInvoker.parameter(
-						"workflowInstanceIds",
-						String.valueOf(workflowInstanceIds[i]));
-				}
-			}
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
 
 			if (pagination != null) {
 				httpInvoker.parameter(
@@ -716,8 +605,7 @@ public interface WorkflowTaskResource {
 		}
 
 		public void patchWorkflowTaskAssignToUser(
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
+				WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -746,8 +634,7 @@ public interface WorkflowTaskResource {
 
 		public HttpInvoker.HttpResponse
 				patchWorkflowTaskAssignToUserHttpResponse(
-					com.liferay.headless.admin.workflow.client.dto.v1_0.
-						WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
+					WorkflowTaskAssignToUser[] workflowTaskAssignToUsers)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1163,8 +1050,7 @@ public interface WorkflowTaskResource {
 		}
 
 		public void patchWorkflowTaskChangeTransition(
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					ChangeTransition[] changeTransitions)
+				ChangeTransition[] changeTransitions)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1193,8 +1079,7 @@ public interface WorkflowTaskResource {
 
 		public HttpInvoker.HttpResponse
 				patchWorkflowTaskChangeTransitionHttpResponse(
-					com.liferay.headless.admin.workflow.client.dto.v1_0.
-						ChangeTransition[] changeTransitions)
+					ChangeTransition[] changeTransitions)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1315,6 +1200,81 @@ public interface WorkflowTaskResource {
 			return httpInvoker.invoke();
 		}
 
+		public void patchWorkflowTaskUpdateDueDate(
+				WorkflowTaskAssignToMe[] workflowTaskAssignToMes)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				patchWorkflowTaskUpdateDueDateHttpResponse(
+					workflowTaskAssignToMes);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				patchWorkflowTaskUpdateDueDateHttpResponse(
+					WorkflowTaskAssignToMe[] workflowTaskAssignToMes)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				Stream.of(
+					workflowTaskAssignToMes
+				).map(
+					value -> String.valueOf(value)
+				).collect(
+					Collectors.toList()
+				).toString(),
+				"application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PATCH);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/headless-admin-workflow/v1.0/workflow-tasks/update-due-date");
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
 		public WorkflowTask getWorkflowTask(Long workflowTaskId)
 			throws Exception {
 
@@ -1380,8 +1340,7 @@ public interface WorkflowTaskResource {
 
 		public WorkflowTask postWorkflowTaskAssignToMe(
 				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					WorkflowTaskAssignToMe workflowTaskAssignToMe)
+				WorkflowTaskAssignToMe workflowTaskAssignToMe)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1410,8 +1369,7 @@ public interface WorkflowTaskResource {
 
 		public HttpInvoker.HttpResponse postWorkflowTaskAssignToMeHttpResponse(
 				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					WorkflowTaskAssignToMe workflowTaskAssignToMe)
+				WorkflowTaskAssignToMe workflowTaskAssignToMe)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1452,8 +1410,7 @@ public interface WorkflowTaskResource {
 
 		public WorkflowTask postWorkflowTaskAssignToRole(
 				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					WorkflowTaskAssignToRole workflowTaskAssignToRole)
+				WorkflowTaskAssignToRole workflowTaskAssignToRole)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1483,8 +1440,7 @@ public interface WorkflowTaskResource {
 		public HttpInvoker.HttpResponse
 				postWorkflowTaskAssignToRoleHttpResponse(
 					Long workflowTaskId,
-					com.liferay.headless.admin.workflow.client.dto.v1_0.
-						WorkflowTaskAssignToRole workflowTaskAssignToRole)
+					WorkflowTaskAssignToRole workflowTaskAssignToRole)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1525,8 +1481,7 @@ public interface WorkflowTaskResource {
 
 		public WorkflowTask postWorkflowTaskAssignToUser(
 				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					WorkflowTaskAssignToUser workflowTaskAssignToUser)
+				WorkflowTaskAssignToUser workflowTaskAssignToUser)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1556,8 +1511,7 @@ public interface WorkflowTaskResource {
 		public HttpInvoker.HttpResponse
 				postWorkflowTaskAssignToUserHttpResponse(
 					Long workflowTaskId,
-					com.liferay.headless.admin.workflow.client.dto.v1_0.
-						WorkflowTaskAssignToUser workflowTaskAssignToUser)
+					WorkflowTaskAssignToUser workflowTaskAssignToUser)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1597,9 +1551,7 @@ public interface WorkflowTaskResource {
 		}
 
 		public WorkflowTask postWorkflowTaskChangeTransition(
-				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					ChangeTransition changeTransition)
+				Long workflowTaskId, ChangeTransition changeTransition)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1628,9 +1580,7 @@ public interface WorkflowTaskResource {
 
 		public HttpInvoker.HttpResponse
 				postWorkflowTaskChangeTransitionHttpResponse(
-					Long workflowTaskId,
-					com.liferay.headless.admin.workflow.client.dto.v1_0.
-						ChangeTransition changeTransition)
+					Long workflowTaskId, ChangeTransition changeTransition)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1668,7 +1618,7 @@ public interface WorkflowTaskResource {
 			return httpInvoker.invoke();
 		}
 
-		public String getWorkflowTaskHasAssignableUsers(Long workflowTaskId)
+		public Boolean getWorkflowTaskHasAssignableUsers(Long workflowTaskId)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1683,7 +1633,7 @@ public interface WorkflowTaskResource {
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
 			try {
-				return content;
+				return Boolean.valueOf(content);
 			}
 			catch (Exception e) {
 				_logger.log(
@@ -1734,8 +1684,7 @@ public interface WorkflowTaskResource {
 
 		public WorkflowTask postWorkflowTaskUpdateDueDate(
 				Long workflowTaskId,
-				com.liferay.headless.admin.workflow.client.dto.v1_0.
-					WorkflowTaskAssignToMe workflowTaskAssignToMe)
+				WorkflowTaskAssignToMe workflowTaskAssignToMe)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -1765,8 +1714,7 @@ public interface WorkflowTaskResource {
 		public HttpInvoker.HttpResponse
 				postWorkflowTaskUpdateDueDateHttpResponse(
 					Long workflowTaskId,
-					com.liferay.headless.admin.workflow.client.dto.v1_0.
-						WorkflowTaskAssignToMe workflowTaskAssignToMe)
+					WorkflowTaskAssignToMe workflowTaskAssignToMe)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();

@@ -35,17 +35,17 @@ public class TrashVersionCacheModel
 	implements CacheModel<TrashVersion>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof TrashVersionCacheModel)) {
+		if (!(object instanceof TrashVersionCacheModel)) {
 			return false;
 		}
 
 		TrashVersionCacheModel trashVersionCacheModel =
-			(TrashVersionCacheModel)obj;
+			(TrashVersionCacheModel)object;
 
 		if ((versionId == trashVersionCacheModel.versionId) &&
 			(mvccVersion == trashVersionCacheModel.mvccVersion)) {
@@ -75,10 +75,12 @@ public class TrashVersionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(17);
+		StringBundler sb = new StringBundler(19);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", versionId=");
 		sb.append(versionId);
 		sb.append(", companyId=");
@@ -103,6 +105,7 @@ public class TrashVersionCacheModel
 		TrashVersionImpl trashVersionImpl = new TrashVersionImpl();
 
 		trashVersionImpl.setMvccVersion(mvccVersion);
+		trashVersionImpl.setCtCollectionId(ctCollectionId);
 		trashVersionImpl.setVersionId(versionId);
 		trashVersionImpl.setCompanyId(companyId);
 		trashVersionImpl.setEntryId(entryId);
@@ -124,8 +127,12 @@ public class TrashVersionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 
 		versionId = objectInput.readLong();
 
@@ -136,7 +143,7 @@ public class TrashVersionCacheModel
 		classNameId = objectInput.readLong();
 
 		classPK = objectInput.readLong();
-		typeSettings = objectInput.readUTF();
+		typeSettings = (String)objectInput.readObject();
 
 		status = objectInput.readInt();
 	}
@@ -144,6 +151,8 @@ public class TrashVersionCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		objectOutput.writeLong(versionId);
 
@@ -156,16 +165,17 @@ public class TrashVersionCacheModel
 		objectOutput.writeLong(classPK);
 
 		if (typeSettings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(typeSettings);
+			objectOutput.writeObject(typeSettings);
 		}
 
 		objectOutput.writeInt(status);
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public long versionId;
 	public long companyId;
 	public long entryId;

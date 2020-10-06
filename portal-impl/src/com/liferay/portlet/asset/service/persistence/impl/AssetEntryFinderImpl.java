@@ -72,10 +72,10 @@ public class AssetEntryFinderImpl
 
 			SQLQuery sqlQuery = buildAssetQuerySQL(entryQuery, true, session);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -113,6 +113,10 @@ public class AssetEntryFinderImpl
 		}
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public double findPriorityByC_C(long classNameId, long classPK) {
 		Session session = null;
@@ -131,10 +135,10 @@ public class AssetEntryFinderImpl
 			queryPos.add(classNameId);
 			queryPos.add(classPK);
 
-			Iterator<Double> itr = sqlQuery.iterate();
+			Iterator<Double> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Double priority = itr.next();
+			if (iterator.hasNext()) {
+				Double priority = iterator.next();
 
 				if (priority != null) {
 					return priority;

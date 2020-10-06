@@ -94,15 +94,15 @@ public class OpenIdConnectMetadataFactoryImpl
 			throw new OpenIdConnectServiceException.ProviderException(
 				StringBundler.concat(
 					"Invalid subject types ", StringUtil.merge(subjectTypes),
-					"for OpenId Connect provider ", _providerName, ": ",
+					"for OpenId Connect provider \"", _providerName, "\": ",
 					parseException.getMessage()),
 				parseException);
 		}
 		catch (URISyntaxException uriSyntaxException) {
 			throw new OpenIdConnectServiceException.ProviderException(
 				StringBundler.concat(
-					"Invalid URLs for OpenId Connect provider ", _providerName,
-					": ", uriSyntaxException.getMessage()),
+					"Invalid URLs for OpenId Connect provider \"",
+					_providerName, "\": ", uriSyntaxException.getMessage()),
 				uriSyntaxException);
 		}
 	}
@@ -144,7 +144,8 @@ public class OpenIdConnectMetadataFactoryImpl
 		if (_oidcProviderMetadata == null) {
 			if (_log.isInfoEnabled()) {
 				_log.info(
-					"Refreshing new OpenId Connect provider " + _providerName);
+					"Refreshing new OpenId Connect provider \"" +
+						_providerName + "\"");
 			}
 
 			return true;
@@ -157,8 +158,8 @@ public class OpenIdConnectMetadataFactoryImpl
 
 			if (_log.isInfoEnabled()) {
 				_log.info(
-					"Refreshing stale OpenId Connect provider " +
-						_providerName);
+					"Refreshing stale OpenId Connect provider \"" +
+						_providerName + "\"");
 			}
 
 			return true;
@@ -195,8 +196,8 @@ public class OpenIdConnectMetadataFactoryImpl
 		catch (IOException | ParseException exception) {
 			throw new OpenIdConnectServiceException.ProviderException(
 				StringBundler.concat(
-					"Unable to get metadata for OpenId Connect provider ",
-					_providerName, " from ", _discoveryEndPointURL, ": ",
+					"Unable to get metadata for OpenId Connect provider \"",
+					_providerName, "\" from ", _discoveryEndPointURL, ": ",
 					exception.getMessage()),
 				exception);
 		}

@@ -14,11 +14,11 @@
 
 package com.liferay.portal.kernel.backgroundtask.display;
 
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatus;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -142,12 +142,20 @@ public abstract class BaseBackgroundTaskDisplay
 	}
 
 	protected long getBackgroundTaskStatusAttributeLong(String attributeKey) {
+		if (!hasBackgroundTaskStatus()) {
+			return 0;
+		}
+
 		return GetterUtil.getLong(
 			backgroundTaskStatus.getAttribute(attributeKey));
 	}
 
 	protected String getBackgroundTaskStatusAttributeString(
 		String attributeKey) {
+
+		if (!hasBackgroundTaskStatus()) {
+			return StringPool.BLANK;
+		}
 
 		return GetterUtil.getString(
 			backgroundTaskStatus.getAttribute(attributeKey));

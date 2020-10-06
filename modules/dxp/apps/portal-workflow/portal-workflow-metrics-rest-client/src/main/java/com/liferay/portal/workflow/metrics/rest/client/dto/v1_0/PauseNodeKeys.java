@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PauseNodeKeys implements Cloneable {
 
+	public static PauseNodeKeys toDTO(String json) {
+		return PauseNodeKeysSerDes.toDTO(json);
+	}
+
 	public NodeKey[] getNodeKeys() {
 		return nodeKeys;
 	}

@@ -66,7 +66,7 @@ public class AopMethodInvocationImpl implements AopMethodInvocation {
 
 		Class<?>[] parameterTypes = _method.getParameterTypes();
 
-		StringBundler sb = new StringBundler(parameterTypes.length * 2 + 6);
+		StringBundler sb = new StringBundler((parameterTypes.length * 2) + 6);
 
 		Class<?> declaringClass = _method.getDeclaringClass();
 

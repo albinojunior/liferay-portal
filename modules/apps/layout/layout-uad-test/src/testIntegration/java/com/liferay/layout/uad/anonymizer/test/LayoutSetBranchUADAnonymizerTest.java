@@ -33,12 +33,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 /**
  * @author Brian Wing Shun Chan
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class LayoutSetBranchUADAnonymizerTest
 	extends BaseUADAnonymizerTestCase<LayoutSetBranch> {
@@ -73,7 +75,7 @@ public class LayoutSetBranchUADAnonymizerTest
 	}
 
 	@Override
-	protected UADAnonymizer getUADAnonymizer() {
+	protected UADAnonymizer<LayoutSetBranch> getUADAnonymizer() {
 		return _uadAnonymizer;
 	}
 
@@ -113,6 +115,6 @@ public class LayoutSetBranchUADAnonymizerTest
 	private final List<LayoutSetBranch> _layoutSetBranchs = new ArrayList<>();
 
 	@Inject(filter = "component.name=*.LayoutSetBranchUADAnonymizer")
-	private UADAnonymizer _uadAnonymizer;
+	private UADAnonymizer<LayoutSetBranch> _uadAnonymizer;
 
 }

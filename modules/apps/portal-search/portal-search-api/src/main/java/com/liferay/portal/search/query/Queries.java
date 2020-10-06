@@ -20,6 +20,7 @@ import com.liferay.portal.search.geolocation.Shape;
 import com.liferay.portal.search.script.Script;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -104,6 +105,9 @@ public interface Queries {
 	public MoreLikeThisQuery moreLikeThis(String... likeTexts);
 
 	public MoreLikeThisQuery moreLikeThis(String[] fields, String... likeTexts);
+
+	public MultiMatchQuery multiMatch(
+		Object value, Map<String, Float> fieldsBoosts);
 
 	public MultiMatchQuery multiMatch(Object value, Set<String> fields);
 

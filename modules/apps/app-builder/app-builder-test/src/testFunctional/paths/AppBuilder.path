@@ -47,7 +47,7 @@
 </tr>
 <tr>
 	<td>VERTICAL_ELLIPSIS_BUTTON</td>
-	<td>//tr[contains(@data-testid,'item')][descendant::a[contains(.,'${key_itemName}')]]//button[contains(@class,'dropdown-toggle')]</td>
+	<td>//*[contains(.,'${key_itemName}')]/ancestor::tr//button[contains(@class,'dropdown-toggle')]</td>
 	<td></td>
 </tr>
 
@@ -202,6 +202,18 @@
 	<td></td>
 </tr>
 
+<tr>
+	<td>PRODUCT_MENU_SITE_DROPDOWN_OPTION</td>
+	<td>//span[text()='${key_dropdownOption}']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>DEPLOY_BUTTON</td>
+	<td>//button[contains(@class,'btn-primary') and contains(text(),'Deploy')]</td>
+	<td></td>
+</tr>
+
 <!--CONTROL_PANEL-->
 <tr>
 	<td>CUSTOM_PORTLET</td>
@@ -230,7 +242,7 @@
 
 <tr>
 	<td>VALIDATE_SEARCH_RESULTS_BAR</td>
-	<td>//div[contains(.,'Results')]//li[@class='tbar-item tbar-item-expand']</td>
+	<td>//span[contains(.,'Results') and @class='text-truncate']</td>
 	<td></td>
 </tr>
 
@@ -242,7 +254,7 @@
 
 <tr>
 	<td>VALIDATE_LIST_TITLE_NAME_AT_ROW</td>
-	<td>//tr[@data-testid='item'][${key_RowNumber}]//a</td>
+	<td>//tr[${key_RowNumber}]//a</td>
 	<td></td>
 </tr>
 
@@ -259,8 +271,68 @@
 </tr>
 
 <tr>
+	<td>CHOOSE_FILTER_BY_AUTHOR_ME</td>
+	<td>//span[text()='Me']//ancestor::label//input</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>CHOOSE_APP_SEARCH_FILTER_BY_OPTION</td>
+	<td>//span[contains(text(),'${key_FilterOption}')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>CHOOSE_APP_SEARCH_FILTER_BY_STATUS</td>
+	<td>//span[contains(text(),'${key_FilterOption}')]//ancestor::label//input</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>CHOOSE_FILTER_BY_DEPLOYMENT_TYPE</td>
+	<td>//span[contains(text(),'${key_itemName}')]//ancestor::label//input</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>CLEAR_FILTER</td>
+	<td>//button[contains(@class,'close')]</td>
+	<td></td>
+</tr>
+
+<tr>
 	<td>FILTER_LIST_ASCEND_AND_DESCEND_BUTTON</td>
 	<td>//*[contains(@class,'lexicon-icon-order-arrow')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_FILTER_BY_DEPLOYMENT_TYPE</td>
+	<td>//li[contains(text(),'Filter by Deployment Type')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_FILTER_BY_STATUS</td>
+	<td>//li[contains(text(),'Filter by Status')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_FILTER_BY_AUTHOR</td>
+	<td>//li[contains(text(),'Filter by Author')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_FILTER_BY_ORDER</td>
+	<td>//li[contains(text(),'Order by')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_FILTER_BY_STATUS_ANY</td>
+	<td>//input[@type='radio' and @checked]</td>
 	<td></td>
 </tr>
 
@@ -294,6 +366,22 @@
 	<td>//td[contains(@class,'text-left')]//p[text()='${key_roleTitle}']/parent::td/following-sibling::td//input[@name='VIEW_DATA_RECORD']</td>
 	<td></td>
 </tr>
+
+<!-- NAVBAR -->
+<tr>
+	<td>NAVBAR</td>
+	<td>//div[contains(@class,'navbar-collapse')]</td>
+	<td></td>
+</tr>
+
+<!--HOMEPAGE_TABLE_VIEW-->
+
+<tr>
+	<td>FIELD_LABEL_IN_TABLE</td>
+	<td>//*[contains(.,'(Table View)')]//thead//tr//th[contains(text(),'${key_fieldLabel}')]</td>
+	<td></td>
+</tr>
+
 
 </tbody>
 </table>

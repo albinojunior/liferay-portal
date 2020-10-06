@@ -41,13 +41,13 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -100,12 +100,11 @@ public class MBMessageIndexerLocalizedTest {
 
 		Document document = _search(searchTerm, LocaleUtil.JAPAN);
 
-		Map<String, String> titleStrings = HashMapBuilder.put(
-			Field.CONTENT + "_ja_JP", "諸行無常"
-		).build();
-
 		FieldValuesAssert.assertFieldValues(
-			titleStrings, Field.CONTENT + "_ja_JP", document, searchTerm);
+			HashMapBuilder.put(
+				Field.CONTENT + "_ja_JP", "諸行無常"
+			).build(),
+			Field.CONTENT + "_ja_JP", document, searchTerm);
 	}
 
 	@Test
@@ -126,13 +125,15 @@ public class MBMessageIndexerLocalizedTest {
 
 		Document document = _search(searchTerm, LocaleUtil.JAPAN);
 
-		Map<String, String> titleStrings = HashMapBuilder.put(
-			Field.TITLE + "_ja_JP", "東京都"
-		).build();
-
 		FieldValuesAssert.assertFieldValues(
-			titleStrings, Field.TITLE + "_ja_JP", document, searchTerm);
+			HashMapBuilder.put(
+				Field.TITLE + "_ja_JP", "東京都"
+			).build(),
+			Field.TITLE + "_ja_JP", document, searchTerm);
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	private SearchContext _getSearchContext(String searchTerm, Locale locale)
 		throws Exception {

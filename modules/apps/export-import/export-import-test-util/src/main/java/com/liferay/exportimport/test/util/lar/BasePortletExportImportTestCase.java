@@ -19,15 +19,15 @@ import com.liferay.asset.kernel.model.AssetLink;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetLinkLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.kernel.DDMTemplate;
-import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationParameterMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
+import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
-import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleConstants;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManagerUtil;
+import com.liferay.exportimport.kernel.lifecycle.constants.ExportImportLifecycleConstants;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceUtil;
 import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
@@ -130,18 +130,16 @@ public abstract class BasePortletExportImportTestCase
 
 		Assert.assertNotNull(importedStagedModel);
 
-		Map<String, String[]> exportParameterMap = LinkedHashMapBuilder.put(
-			PortletDataHandlerKeys.DELETIONS,
-			new String[] {Boolean.TRUE.toString()}
-		).build();
-
-		Map<String, String[]> importParameterMap = LinkedHashMapBuilder.put(
-			PortletDataHandlerKeys.DELETIONS,
-			new String[] {Boolean.TRUE.toString()}
-		).build();
-
 		exportImportPortlet(
-			getPortletId(), exportParameterMap, importParameterMap);
+			getPortletId(),
+			LinkedHashMapBuilder.put(
+				PortletDataHandlerKeys.DELETIONS,
+				new String[] {Boolean.TRUE.toString()}
+			).build(),
+			LinkedHashMapBuilder.put(
+				PortletDataHandlerKeys.DELETIONS,
+				new String[] {Boolean.TRUE.toString()}
+			).build());
 
 		try {
 			importedStagedModel = getStagedModel(
@@ -582,7 +580,7 @@ public abstract class BasePortletExportImportTestCase
 
 		if (scopeType.equals("layout")) {
 			preferenceMap.put(
-				"lfrScopeLayoutUuid", new String[] {this.layout.getUuid()});
+				"lfrScopeLayoutUuid", new String[] {layout.getUuid()});
 		}
 
 		preferenceMap.put("lfrScopeType", new String[] {scopeType});

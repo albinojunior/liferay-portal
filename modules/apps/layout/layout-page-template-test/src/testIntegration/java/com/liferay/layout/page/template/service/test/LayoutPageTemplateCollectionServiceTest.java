@@ -193,13 +193,14 @@ public class LayoutPageTemplateCollectionServiceTest {
 					_group.getGroupId(), "Layout Page Template Collection 2",
 					null, serviceContext);
 
-		long[] layoutPageTemplateCollections = {
-			layoutPageTemplateCollection1.getLayoutPageTemplateCollectionId(),
-			layoutPageTemplateCollection2.getLayoutPageTemplateCollectionId()
-		};
-
 		_layoutPageTemplateCollectionService.
-			deleteLayoutPageTemplateCollections(layoutPageTemplateCollections);
+			deleteLayoutPageTemplateCollections(
+				new long[] {
+					layoutPageTemplateCollection1.
+						getLayoutPageTemplateCollectionId(),
+					layoutPageTemplateCollection2.
+						getLayoutPageTemplateCollectionId()
+				});
 
 		Assert.assertNull(
 			_layoutPageTemplateCollectionService.
@@ -271,7 +272,7 @@ public class LayoutPageTemplateCollectionServiceTest {
 					group.getGroupId(), "AC Page Template Collection", null,
 					serviceContext);
 
-			OrderByComparator orderByComparator =
+			OrderByComparator<LayoutPageTemplateCollection> orderByComparator =
 				new LayoutPageTemplateCollectionNameComparator(true);
 
 			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
@@ -366,7 +367,7 @@ public class LayoutPageTemplateCollectionServiceTest {
 					group.getGroupId(), "AC Theme Collection", null,
 					serviceContext);
 
-			OrderByComparator orderByComparator =
+			OrderByComparator<LayoutPageTemplateCollection> orderByComparator =
 				new LayoutPageTemplateCollectionNameComparator(true);
 
 			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =

@@ -248,11 +248,6 @@ public class VerifyProcessTrackerOSGiCommands {
 		List<VerifyProcess> verifyProcesses = getVerifyProcesses(
 			verifyProcessTrackerMap, verifyProcessName);
 
-		boolean indexReadOnly = indexStatusManager.isIndexReadOnly();
-
-		indexStatusManager.setIndexReadOnly(
-			_verifyProcessTrackerConfiguration.indexReadOnly());
-
 		NotificationThreadLocal.setEnabled(false);
 		StagingAdvicesThreadLocal.setEnabled(false);
 		WorkflowThreadLocal.setEnabled(false);
@@ -306,14 +301,13 @@ public class VerifyProcessTrackerOSGiCommands {
 				_registerMarkerObject(verifyProcessName);
 			}
 			else {
-				release.setState(ReleaseConstants.STATE_VERIFY_FAILURE);
 				release.setVerified(false);
+				release.setState(ReleaseConstants.STATE_VERIFY_FAILURE);
 
 				releaseLocalService.updateRelease(release);
 			}
 		}
 		finally {
-			indexStatusManager.setIndexReadOnly(indexReadOnly);
 			NotificationThreadLocal.setEnabled(true);
 			StagingAdvicesThreadLocal.setEnabled(true);
 			WorkflowThreadLocal.setEnabled(true);

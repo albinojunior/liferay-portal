@@ -228,6 +228,10 @@ public interface Portal {
 		ThemeDisplay themeDisplay, String url, boolean typeControlPanel,
 		boolean doAsUser);
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public void addUserLocaleOptionsMessage(
 		HttpServletRequest httpServletRequest);
 
@@ -998,6 +1002,11 @@ public interface Portal {
 
 	public long[] getSharedContentSiteGroupIds(
 			long companyId, long groupId, long userId)
+		throws PortalException;
+
+	public String getSiteAdminURL(
+			String portalURL, Group group, String ppid,
+			Map<String, String[]> params)
 		throws PortalException;
 
 	public String getSiteAdminURL(

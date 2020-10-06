@@ -17,9 +17,9 @@ package com.liferay.journal.content.web.internal.portlet.toolbar.contributor;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.journal.constants.JournalConstants;
 import com.liferay.journal.constants.JournalContentPortletKeys;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.content.web.internal.configuration.JournalContentPortletInstanceConfiguration;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalFolderService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -123,18 +122,17 @@ public class JournalContentPortletToolbarContributor
 
 			URLMenuItem urlMenuItem = new URLMenuItem();
 
-			Map<String, Object> data = HashMapBuilder.<String, Object>put(
-				"id",
-				HtmlUtil.escape(portletDisplay.getNamespace()) + "editAsset"
-			).put(
-				"title",
-				HtmlUtil.escape(
-					LanguageUtil.format(
-						themeDisplay.getLocale(), "new-x",
-						ddmStructure.getName(themeDisplay.getLocale())))
-			).build();
-
-			urlMenuItem.setData(data);
+			urlMenuItem.setData(
+				HashMapBuilder.<String, Object>put(
+					"id",
+					HtmlUtil.escape(portletDisplay.getNamespace()) + "editAsset"
+				).put(
+					"title",
+					HtmlUtil.escape(
+						LanguageUtil.format(
+							themeDisplay.getLocale(), "new-x",
+							ddmStructure.getName(themeDisplay.getLocale())))
+				).build());
 
 			String label = ddmStructure.getUnambiguousName(
 				ddmStructures, themeDisplay.getScopeGroupId(),

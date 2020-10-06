@@ -24,11 +24,6 @@
 		padding: 7px 10px;
 	}
 
-	.company-logo {
-		border-width: 0;
-		width: 100px;
-	}
-
 	.email-user-add .password-changed-notification {
 		display: none;
 	}
@@ -288,6 +283,10 @@
 		padding: 0.7em;
 	}
 
+	.task-content-author {
+		padding-top: 1em;
+	}
+
 	.task-content-actions {
 		float: right;
 
@@ -310,6 +309,11 @@
 	.metadata-author {
 		font-weight: bold;
 		margin-right: 10px;
+
+		img,
+		svg {
+			vertical-align: baseline;
+		}
 	}
 
 	.metadata-entry {
@@ -336,7 +340,7 @@
 	margin-bottom: 0;
 }
 
-.dialog-iframe-popup.task-dialog {
+.portal-popup.task-dialog {
 	background-color: transparent;
 }
 

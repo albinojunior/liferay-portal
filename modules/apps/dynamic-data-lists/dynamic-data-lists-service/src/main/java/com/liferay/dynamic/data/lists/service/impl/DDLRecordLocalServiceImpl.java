@@ -15,17 +15,18 @@
 package com.liferay.dynamic.data.lists.service.impl;
 
 import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.dynamic.data.lists.constants.DDLRecordConstants;
+import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.exception.NoSuchRecordException;
 import com.liferay.dynamic.data.lists.exception.RecordGroupIdException;
 import com.liferay.dynamic.data.lists.model.DDLFormRecord;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
-import com.liferay.dynamic.data.lists.model.DDLRecordConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
-import com.liferay.dynamic.data.lists.model.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordVersion;
 import com.liferay.dynamic.data.lists.service.DDLRecordVersionLocalService;
 import com.liferay.dynamic.data.lists.service.base.DDLRecordLocalServiceBaseImpl;
 import com.liferay.dynamic.data.lists.util.DDL;
+import com.liferay.dynamic.data.lists.util.comparator.DDLRecordIdComparator;
 import com.liferay.dynamic.data.mapping.exception.StorageException;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
@@ -182,11 +183,27 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 		return record;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DDLRecord addRecord(
 			long userId, long groupId, long ddmStorageId, long ddlRecordSetId,
 			ServiceContext serviceContext)
+		throws PortalException {
+
+		return addRecord(
+			userId, groupId, ddmStorageId, ddlRecordSetId, null, 0,
+			serviceContext);
+	}
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public DDLRecord addRecord(
+			long userId, long groupId, long ddmStorageId, long ddlRecordSetId,
+			String className, long classPK, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Record
@@ -212,6 +229,8 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 		record.setDDMStorageId(ddmStorageId);
 		record.setRecordSetId(ddlRecordSetId);
 		record.setRecordSetVersion(ddlRecordSet.getVersion());
+		record.setClassName(className);
+		record.setClassPK(classPK);
 		record.setVersion(DDLRecordConstants.VERSION_DEFAULT);
 		record.setDisplayIndex(0);
 
@@ -307,6 +326,12 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 		for (DDLRecord record : records) {
 			ddlRecordLocalService.deleteRecord(record);
 		}
+	}
+
+	@Override
+	public DDLRecord fetchFirstRecord(String className, long classPK) {
+		return ddlRecordPersistence.fetchByC_C_First(
+			className, classPK, new DDLRecordIdComparator(true));
 	}
 
 	/**
@@ -463,10 +488,10 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 	@Override
 	public List<DDLRecord> getRecords(
 		long recordSetId, int start, int end,
-		OrderByComparator<DDLRecord> obc) {
+		OrderByComparator<DDLRecord> orderByComparator) {
 
 		return ddlRecordPersistence.findByRecordSetId(
-			recordSetId, start, end, obc);
+			recordSetId, start, end, orderByComparator);
 	}
 
 	/**
@@ -484,10 +509,10 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 	@Override
 	public List<DDLRecord> getRecords(
 		long recordSetId, long userId, int start, int end,
-		OrderByComparator<DDLRecord> obc) {
+		OrderByComparator<DDLRecord> orderByComparator) {
 
 		return ddlRecordPersistence.findByR_U(
-			recordSetId, userId, start, end, obc);
+			recordSetId, userId, start, end, orderByComparator);
 	}
 
 	@Override
@@ -811,9 +836,7 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 
 		record.setVersion(version);
 
-		record = ddlRecordPersistence.update(record);
-
-		return record;
+		return ddlRecordPersistence.update(record);
 	}
 
 	/**
@@ -859,13 +882,12 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 				record.getVersion(), recordVersion.getVersion());
 
 			if (compare <= 0) {
+				record.setVersionUserId(recordVersion.getUserId());
+				record.setVersionUserName(recordVersion.getUserName());
 				record.setDDMStorageId(recordVersion.getDDMStorageId());
 				record.setRecordSetId(recordVersion.getRecordSetId());
 				record.setVersion(recordVersion.getVersion());
 				record.setDisplayIndex(recordVersion.getDisplayIndex());
-				record.setVersion(recordVersion.getVersion());
-				record.setVersionUserId(recordVersion.getUserId());
-				record.setVersionUserName(recordVersion.getUserName());
 
 				record = ddlRecordPersistence.update(record);
 			}
@@ -1110,7 +1132,7 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 
 		if (fieldsDisplayField == null) {
 			StringBundler fieldsDisplayFieldSB = new StringBundler(
-				fieldsMap.size() * 4 - 1);
+				(fieldsMap.size() * 4) - 1);
 
 			for (String fieldName : fields.getNames()) {
 				fieldsDisplayFieldSB.append(fieldName);

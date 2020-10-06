@@ -69,11 +69,10 @@ definition {
 
 		SelectFrameTop();
 
-		Navigator.gotoSitePage(
-			pageName = "Web Content Display Page",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Web Content Display Page",
+			widgetName = "Web Content Display");
 
 		Navigator.gotoSitePage(
 			pageName = "Web Content Display Page",
@@ -268,34 +267,48 @@ definition {
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "WC WebContent Title");
 
+		AssertTextEquals(
+			locator1 = "TextInput#TITLE",
+			value1 = "WC WebContent Title");
+
+		FormFields.viewTextValue(
+			fieldName = "Text",
+			fieldValue = "Text");
+
+		FormFields.viewTextMultilineValue(
+			fieldName = "TextBox",
+			fieldValue = "Text Box");
+
 		PortletEntry.changeLocale(locale = "es-ES");
 
 		WebContent.addCP(webContentTitle = "Title Spanish");
 
-		FormFields.editText(
+		AssertTextEquals(
+			locator1 = "TextInput#TITLE",
+			value1 = "Title Spanish");
+
+		Type(
+			key_fieldName = "Text",
+			locator1 = "TextInput#DDM",
+			value1 = "Text Spanish");
+
+		FormFields.viewTextValue(
 			fieldName = "Text",
 			fieldValue = "Text Spanish");
 
-		FormFields.editTextMultiline(
+		FormFields.viewTextMultilineValue(
 			fieldName = "TextBox",
-			fieldValue = "Text Box Spanish");
+			fieldValue = "Text Box");
 
-		PortletEntry.publish();
-
-		WebContentNavigator.gotoEditCP(webContentTitle = "WC WebContent Title");
-
-		WebContent.viewUnlocalizableTextBox(
-			editLocalizedTextBox = "Text Box Unlocalized",
-			localizedText = "Text Spanish",
-			localizedTextBox = "Text Box",
-			localizedTitle = "Title Spanish",
-			webContentTextBox = "Text Box",
-			webContentTitle = "WC WebContent Title");
+		AssertNotEditable(
+			key_fieldName = "TextBox",
+			locator1 = "DDMField#TEXT_BOX");
 	}
 
 	@description = "This is a use case for LPS-69560."
 	@priority = "5"
 	test AddStructureWithWebContentAndGeolocationFields {
+		property portal.acceptance = "true";
 		property testray.component.names = "Web Content Administration";
 
 		JSONWebcontent.addWebContent(
@@ -394,11 +407,10 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Web Content Display Page");
 
-		Navigator.gotoSitePage(
-			pageName = "Web Content Display Page",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Web Content Display Page",
+			widgetName = "Web Content Display");
 
 		Navigator.gotoSitePage(
 			pageName = "Web Content Display Page",
@@ -470,6 +482,7 @@ definition {
 
 	@priority = "3"
 	test AddWebContentWithGlobalStructureAndEditedDefaultValues {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property testray.component.names = "Web Content Administration";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "global");
@@ -510,32 +523,25 @@ definition {
 			editSubstructureFieldNames = "Text",
 			substructureName = "Global Structure");
 
-		User.openUsersAdmin();
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "test1@liferay.com",
 			userFirstName = "test1",
 			userLastName = "test1",
 			userScreenName = "test1test");
 
-		User.openUsersAdmin();
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "test1@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "test1@liferay.com",
-			userScreenName = "test1test");
+		JSONUser.addUserToSite(
+			groupName = "Test Site Name",
+			userEmailAddress = "test1@liferay.com");
 
-		Site.openSiteMembershipsAdmin(siteURLKey = "test-site-name");
-
-		Site.assignUserAsMemberCP(
-			userFirstName = "test1",
-			userLastName = "test1",
-			userScreenName = "test1test");
-
-		Site.openSiteMembershipsAdmin(siteURLKey = "test-site-name");
-
-		Site.assignSiteRoleCP(
-			resourceName = "test1 test1",
-			roleTitle = "Site Administrator");
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Site Administrator",
+			userEmailAddress = "test1@liferay.com");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "test1@liferay.com",
@@ -604,17 +610,18 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Test Page");
 
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page",
+			widgetName = "Web Content Display");
+
 		Navigator.gotoSitePage(
 			pageName = "Test Page",
 			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
 
 		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Test Site Name");
+		IFrame.closeFrame();
 
 		WebContentDisplayPortlet.viewImageFieldViaWCD();
 	}
@@ -668,17 +675,18 @@ definition {
 				groupName = "Test Site Name",
 				layoutName = "Test Page");
 
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page",
+				widgetName = "Web Content Display");
+
 			Navigator.gotoSitePage(
 				pageName = "Test Page",
 				siteName = "Test Site Name");
-
-			Portlet.addPG(portletName = "Web Content Display");
 
 			WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
 
-			Navigator.gotoSitePage(
-				pageName = "Test Page",
-				siteName = "Test Site Name");
+			IFrame.closeFrame();
 
 			AssertTextEquals(
 				locator1 = "//div[@data-analytics-asset-title='WC WebContent Title']//dt",
@@ -831,11 +839,10 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Web Content Display Page");
 
-		Navigator.gotoSitePage(
-			pageName = "Web Content Display Page",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Web Content Display Page",
+			widgetName = "Web Content Display");
 
 		Navigator.gotoSitePage(
 			pageName = "Web Content Display Page",
@@ -866,6 +873,7 @@ definition {
 
 	@priority = "5"
 	test EditContentWithTitleAndAllFieldsNull {
+		property portal.acceptance = "true";
 		property testray.component.names = "Training,Web Content Administration";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -950,11 +958,10 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Web Content Display Page");
 
-		Navigator.gotoSitePage(
-			pageName = "Web Content Display Page",
-			siteName = "Test Site Name");
-
-		Portlet.addPG(portletName = "Web Content Display");
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Web Content Display Page",
+			widgetName = "Web Content Display");
 
 		Navigator.gotoSitePage(
 			pageName = "Web Content Display Page",
@@ -1062,11 +1069,10 @@ definition {
 	test ResetStructureDefaultValues {
 		property testray.component.names = "Web Content Administration";
 
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "test-site-name");
-
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
-			entryTitle = "Blogs Entry Title");
+			entryTitle = "Blogs Entry Title",
+			groupName = "Test Site Name");
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1117,7 +1123,7 @@ definition {
 		RelatedAssets.selectAsset(
 			assetTitle = "Blogs Entry Title",
 			assetType = "Blogs Entry",
-			scopeSite = "Test Site Name");
+			scopeSite = "Everywhere");
 
 		SelectFrame(value1 = "relative=top");
 
@@ -1131,7 +1137,10 @@ definition {
 
 		Button.clickPublish();
 
-		Alert.viewRequiredField();
+		AssertTextEquals.assertPartialText(
+			key_fieldName = "Text",
+			locator1 = "TextInput#SPECIFIC_FIELD_REQUIRED_ALERT",
+			value1 = "This field is required.");
 	}
 
 	@priority = "4"
@@ -1354,10 +1363,6 @@ definition {
 
 		WebContent.addNullCP(webContentContent = "WC WebContent Content");
 
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContentNavigator.gotoAddCP();
-
 		WebContent.addCP(
 			webContentContent = "WC WebContent Content",
 			webContentTitle = "WC WebContent Title");
@@ -1372,12 +1377,7 @@ definition {
 
 		WebContent.editNullCP(
 			webContentContent = "WC WebContent Content",
-			webContentContentEdit = "WC WebContent Content",
-			webContentTitle = "WC WebContent Title");
-
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContentNavigator.gotoEditCP(webContentTitle = "Untitled");
+			webContentContentEdit = "WC WebContent Content");
 
 		WebContent.editCP(
 			webContentContentEdit = "WC WebContent Content Edit",
@@ -1389,8 +1389,6 @@ definition {
 		Navigator.gotoNavItem(navItem = "Templates");
 
 		WebContentTemplates.addNullCP();
-
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 

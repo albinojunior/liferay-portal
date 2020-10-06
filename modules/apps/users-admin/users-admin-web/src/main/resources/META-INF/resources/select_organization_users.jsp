@@ -38,7 +38,7 @@ SelectOrganizationUsersManagementToolbarDisplayContext selectOrganizationUsersMa
 
 PortletURL portletURL = selectOrganizationUsersManagementToolbarDisplayContext.getPortletURL();
 
-SearchContainer userSearchContainer = selectOrganizationUsersManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<User> userSearchContainer = selectOrganizationUsersManagementToolbarDisplayContext.getSearchContainer();
 %>
 
 <liferay-ui:membership-policy-error />
@@ -131,7 +131,7 @@ SearchContainer userSearchContainer = selectOrganizationUsersManagementToolbarDi
 <aui:script use="liferay-search-container">
 	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace />users');
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		var selectedItems = event.elements.allSelectedElements;
 
 		var result = {};

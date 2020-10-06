@@ -15,9 +15,9 @@
 package com.liferay.dynamic.data.mapping.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
-import com.liferay.dynamic.data.mapping.model.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateServiceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.ArrayList;
@@ -358,10 +359,9 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 			structure.getStructureId(), StringUtil.randomString(),
 			WorkflowConstants.STATUS_ANY);
 
-		long[] groupIds = {group.getGroupId(), _group.getGroupId()};
-
 		List<DDMTemplate> ddmTemplates = DDMTemplateServiceUtil.search(
-			TestPropsValues.getCompanyId(), groupIds,
+			TestPropsValues.getCompanyId(),
+			new long[] {group.getGroupId(), _group.getGroupId()},
 			new long[] {_structureClassNameId},
 			new long[] {structure.getStructureId()}, _recordSetClassNameId,
 			StringPool.BLANK, DDMTemplateConstants.TEMPLATE_TYPE_FORM,
@@ -438,10 +438,9 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 			_recordSetClassNameId, null, StringUtil.randomString(), description,
 			type, mode, language, script, WorkflowConstants.STATUS_ANY);
 
-		long[] groupIds = {group.getGroupId(), _group.getGroupId()};
-
 		List<DDMTemplate> templates = DDMTemplateServiceUtil.search(
-			TestPropsValues.getCompanyId(), groupIds,
+			TestPropsValues.getCompanyId(),
+			new long[] {group.getGroupId(), _group.getGroupId()},
 			new long[] {_structureClassNameId},
 			new long[] {structure.getStructureId()}, _recordSetClassNameId,
 			name, description, type, mode, language,
@@ -479,10 +478,9 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 			_recordSetClassNameId, null, StringUtil.randomString(), description,
 			type, mode, language, script, WorkflowConstants.STATUS_ANY);
 
-		long[] groupIds = {group.getGroupId(), _group.getGroupId()};
-
 		int count = DDMTemplateServiceUtil.searchCount(
-			TestPropsValues.getCompanyId(), groupIds,
+			TestPropsValues.getCompanyId(),
+			new long[] {group.getGroupId(), _group.getGroupId()},
 			new long[] {_structureClassNameId},
 			new long[] {structure.getStructureId()}, _recordSetClassNameId,
 			StringUtil.randomString(), description, type, mode, language,
@@ -593,10 +591,9 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 			_recordSetClassNameId, null, StringUtil.randomString(), description,
 			type, mode, language, script, WorkflowConstants.STATUS_ANY);
 
-		long[] groupIds = {group.getGroupId(), _group.getGroupId()};
-
 		int count = DDMTemplateServiceUtil.searchCount(
-			TestPropsValues.getCompanyId(), groupIds,
+			TestPropsValues.getCompanyId(),
+			new long[] {group.getGroupId(), _group.getGroupId()},
 			new long[] {_structureClassNameId},
 			new long[] {structure.getStructureId()}, _recordSetClassNameId,
 			name, description, type, mode, language,
@@ -604,6 +601,9 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 		Assert.assertEquals(3, count);
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	protected void setUpPermissionThreadLocal() throws Exception {
 		_originalPermissionChecker =

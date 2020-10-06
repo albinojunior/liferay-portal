@@ -14,8 +14,8 @@ definition {
 			Navigator.openSpecificURL(url = "${idpURL}");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
 			panel = "Control Panel",
 			portlet = "SAML Admin");
 
@@ -52,8 +52,8 @@ definition {
 
 		Navigator.openSpecificURL(url = "${spURL}");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
 			panel = "Control Panel",
 			portlet = "SAML Admin");
 
@@ -100,8 +100,8 @@ definition {
 				userEmailAddress = "test@liferay.com");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
 			panel = "Control Panel",
 			portlet = "SAML Admin");
 
@@ -132,8 +132,8 @@ definition {
 				userEmailAddress = "test@liferay.com");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
 			panel = "Control Panel",
 			portlet = "SAML Admin");
 
@@ -153,7 +153,7 @@ definition {
 	macro executeIdPInitiatedSSO {
 
 		if ("${autoLogin}" == "true") {
-			Navigator.openSpecificURL(url = "${idpInitiatedSSOURL}");
+			Open.openNoError(locator1 = "${idpInitiatedSSOURL}");
 
 			AssertElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE");
 		}
@@ -165,7 +165,7 @@ definition {
 				userEmailAddress = "${userEmailAddress}");
 		}
 
-		Pause(locator1 = "2000");
+		Pause(locator1 = "1000");
 
 		AssertLocation.assertPartialLocation(value1 = "${spURL}");
 	}
@@ -187,7 +187,7 @@ definition {
 				userEmailAddress = "test@liferay.com");
 		}
 
-		Pause(locator1 = "2000");
+		Pause(locator1 = "1000");
 
 		AssertLocation.assertPartialLocation(value1 = "${specificURL}");
 	}

@@ -16,21 +16,16 @@ import {ClayModalProvider} from '@clayui/modal';
 import React from 'react';
 
 import {AppContextProvider} from '../../AppContext.es';
-import {ToastContextProvider} from '../../components/toast/ToastContext.es';
 import EditFormView from './EditFormView.es';
 
-const EditFormViewApp = ({basePortletURL, ...props}) => {
+const EditFormViewApp = ({basePortletURL, ...otherProps}) => {
 	return (
 		<AppContextProvider basePortletURL={basePortletURL}>
-			<ToastContextProvider>
-				<ClayModalProvider>
-					<EditFormView {...props} />
-				</ClayModalProvider>
-			</ToastContextProvider>
+			<ClayModalProvider>
+				<EditFormView {...otherProps} />
+			</ClayModalProvider>
 		</AppContextProvider>
 	);
 };
 
-export default function(props) {
-	return <EditFormViewApp {...props} />;
-}
+export default EditFormViewApp;

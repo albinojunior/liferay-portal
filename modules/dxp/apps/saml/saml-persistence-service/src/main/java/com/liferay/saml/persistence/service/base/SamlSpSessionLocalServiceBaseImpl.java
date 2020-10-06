@@ -14,6 +14,7 @@
 
 package com.liferay.saml.persistence.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -78,6 +80,10 @@ public abstract class SamlSpSessionLocalServiceBaseImpl
 	/**
 	 * Adds the saml sp session to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpSession the saml sp session
 	 * @return the saml sp session that was added
 	 */
@@ -104,6 +110,10 @@ public abstract class SamlSpSessionLocalServiceBaseImpl
 	/**
 	 * Deletes the saml sp session with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpSessionId the primary key of the saml sp session
 	 * @return the saml sp session that was removed
 	 * @throws PortalException if a saml sp session with the primary key could not be found
@@ -119,6 +129,10 @@ public abstract class SamlSpSessionLocalServiceBaseImpl
 	/**
 	 * Deletes the saml sp session from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpSession the saml sp session
 	 * @return the saml sp session that was removed
 	 */
@@ -126,6 +140,11 @@ public abstract class SamlSpSessionLocalServiceBaseImpl
 	@Override
 	public SamlSpSession deleteSamlSpSession(SamlSpSession samlSpSession) {
 		return samlSpSessionPersistence.remove(samlSpSession);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return samlSpSessionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -297,6 +316,10 @@ public abstract class SamlSpSessionLocalServiceBaseImpl
 			(SamlSpSession)persistedModel);
 	}
 
+	public BasePersistence<SamlSpSession> getBasePersistence() {
+		return samlSpSessionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -335,6 +358,10 @@ public abstract class SamlSpSessionLocalServiceBaseImpl
 
 	/**
 	 * Updates the saml sp session in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param samlSpSession the saml sp session
 	 * @return the saml sp session that was updated

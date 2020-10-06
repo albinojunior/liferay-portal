@@ -25,6 +25,7 @@ page import="com.liferay.petra.string.StringPool" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.bean.BeanPropertiesUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.ResultRow" %><%@
+page import="com.liferay.portal.kernel.exception.NoSuchRoleException" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.util.DateUtil" %><%@
@@ -35,12 +36,12 @@ page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.kernel.uuid.PortalUUIDUtil" %><%@
 page import="com.liferay.portal.kernel.workflow.RequiredWorkflowDefinitionException" %><%@
+page import="com.liferay.portal.kernel.workflow.WorkflowConstants" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowDefinition" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowDefinitionFileException" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowDefinitionTitleException" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowException" %><%@
 page import="com.liferay.portal.workflow.exception.IncompleteWorkflowInstancesException" %><%@
-page import="com.liferay.portal.workflow.web.internal.constants.WorkflowDefinitionConstants" %><%@
 page import="com.liferay.portal.workflow.web.internal.dao.search.WorkflowDefinitionResultRowSplitter" %><%@
 page import="com.liferay.portal.workflow.web.internal.display.context.WorkflowDefinitionDisplayContext" %><%@
 page import="com.liferay.portal.workflow.web.internal.search.WorkflowDefinitionDisplayTerms" %><%@
@@ -73,7 +74,7 @@ else {
 <%@ include file="/definition/init-ext.jsp" %>
 
 <aui:script use="liferay-workflow-web">
-	window.<portlet:namespace/>confirmDeleteDefinition = function(deleteURL) {
+	window.<portlet:namespace />confirmDeleteDefinition = function (deleteURL) {
 		var message =
 			'<%= LanguageUtil.get(request, "a-deleted-workflow-cannot-be-recovered") %>';
 		var title = '<%= LanguageUtil.get(request, "delete-workflow-question") %>';

@@ -43,7 +43,7 @@ definition {
 	@description = "This test covers LPS-95501. It asserts added wiki attachment file via item selector."
 	@priority = "4"
 	test ActivateInitialStagingWithAttachment {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -82,7 +82,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
 			portlet = "Staging");
 
 		Staging.activateStagingCP(
@@ -128,7 +127,7 @@ definition {
 
 		MenuItem.click(menuItem = "Configuration");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertClick(
 			locator1 = "Configuration#NAVIGATION_PAGE_ADDED_EMAIL",
@@ -178,7 +177,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPrivatePage(pageName = "Research Projects");
@@ -197,7 +195,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Wiki");
 
 		LAR.importPortlet(
@@ -222,7 +219,11 @@ definition {
 
 	@priority = "4"
 	test NavigationPortletSmoke {
-		Navigator.openURL(pageName = "Wiki Test Page");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Navigation Test Page");
+
+		Navigator.gotoPage(pageName = "Navigation Test Page");
 
 		Portlet.addPG(portletName = "Tree Menu");
 
@@ -232,93 +233,7 @@ definition {
 	}
 
 	@priority = "5"
-	test RateAndEditPageComment {
-		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
-
-		WikiNavigator.gotoNode(wikiNodeName = "Main");
-
-		WikiPage.addCP(
-			wikiPageContent = "Wiki Page Content 1",
-			wikiPageTitle = "Wiki Page 1");
-
-		Navigator.gotoPage(pageName = "Wiki Test Page");
-
-		WikiNavigator.gotoAllPagesPG();
-
-		WikiTable.viewEntry(
-			draftStatus = "APPROVED",
-			wikiPageTitle = "Wiki Page 1");
-
-		WikiNavigator.gotoEntryViaPGTable(wikiPageTitle = "Wiki Page 1");
-
-		WikiEntry.viewPageContentBody(wikiPageContent = "Wiki Page Content 1");
-
-		WikiPage.addComment(entryComment = "Wiki Page Comment");
-
-		Ratings.rate(ratingResult = "Thumb Up");
-
-		WikiPage.editComment(
-			entryComment = "Wiki Page Comment",
-			entryCommentEdit = "Wiki Page Comment Edited");
-
-		Navigator.gotoPage(pageName = "Wiki Test Page");
-
-		WikiNavigator.gotoAllPagesPG();
-
-		WikiNavigator.gotoEntryViaPGTable(wikiPageTitle = "Wiki Page 1");
-
-		WikiPage.viewCommentPG(
-			entryComment = "Wiki Page Comment Edited",
-			wikiPageTitle = "Wiki Page 1");
-
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
-			voteCount = "1");
-
-		Ratings.viewRating(
-			ratingResult = "Thumb Down",
-			voteCount = "0");
-	}
-
-	@priority = "5"
-	test RatePage {
-		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
-
-		WikiNavigator.gotoNode(wikiNodeName = "Main");
-
-		WikiPage.addCP(
-			wikiPageContent = "Wiki Page Content 1",
-			wikiPageTitle = "Wiki Page 1");
-
-		Navigator.gotoPage(pageName = "Wiki Test Page");
-
-		WikiNavigator.gotoAllPagesPG();
-
-		WikiTable.viewEntry(
-			draftStatus = "APPROVED",
-			wikiPageTitle = "Wiki Page 1");
-
-		WikiNavigator.gotoEntryViaPGTable(wikiPageTitle = "Wiki Page 1");
-
-		WikiEntry.viewPageContentBody(wikiPageContent = "Wiki Page Content 1");
-
-		WikiPage.rate4StarsPG(wikiPageTitle = "Wiki Page 1");
-
-		Navigator.gotoPage(pageName = "Wiki Test Page");
-
-		WikiNavigator.gotoAllPagesPG();
-
-		WikiNavigator.gotoEntryViaPGTable(wikiPageTitle = "Wiki Page 1");
-
-		WikiEntry.viewPageContentBody(wikiPageContent = "Wiki Page Content 1");
-
-		WikiPage.viewRate4StarsPG(wikiPageTitle = "Wiki Page 1");
-	}
-
-	@priority = "5"
 	test RestoreDeletedFrontPage {
-		property portal.acceptance = "true";
-
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -341,7 +256,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Recycle Bin",
-			panel = "Site Administration",
 			portlet = "Recycle Bin");
 
 		RecycleBin.viewCP(
@@ -462,10 +376,6 @@ definition {
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
 		WikiPage.editFrontPagePG(wikiPageContentEdit = '''<script>alert(123);</script>''');
-
-		AssertClick(
-			locator1 = "Link#EDIT",
-			value1 = "Edit");
 
 		AssertAlertNotPresent();
 

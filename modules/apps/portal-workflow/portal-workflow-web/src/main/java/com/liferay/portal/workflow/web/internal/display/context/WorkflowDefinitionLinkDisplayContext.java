@@ -26,11 +26,13 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -40,7 +42,6 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -50,6 +51,7 @@ import com.liferay.portal.kernel.workflow.WorkflowDefinitionManagerUtil;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.comparator.WorkflowComparatorFactoryUtil;
+import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.constants.WorkflowPortletKeys;
 import com.liferay.portal.workflow.constants.WorkflowWebKeys;
 import com.liferay.portal.workflow.web.internal.constants.WorkflowDefinitionLinkResourcesConstants;
@@ -60,6 +62,7 @@ import com.liferay.portal.workflow.web.internal.search.WorkflowDefinitionLinkSea
 import com.liferay.portal.workflow.web.internal.util.WorkflowDefinitionLinkPortletUtil;
 import com.liferay.portal.workflow.web.internal.util.filter.WorkflowDefinitionLinkSearchEntryLabelPredicate;
 import com.liferay.portal.workflow.web.internal.util.filter.WorkflowDefinitionLinkSearchEntryResourcePredicate;
+import com.liferay.portal.workflow.web.internal.util.filter.WorkflowDefinitionScopePredicate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -164,19 +167,13 @@ public class WorkflowDefinitionLinkDisplayContext {
 		return DropdownItemListBuilder.addGroup(
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
-					new DropdownItemList() {
-						{
-							add(
-								_getOrderByDropdownItem(
-									"resource",
-									_getCurrentOrder(httpServletRequest)));
-
-							add(
-								_getOrderByDropdownItem(
-									"workflow",
-									_getCurrentOrder(httpServletRequest)));
-						}
-					});
+					DropdownItemListBuilder.add(
+						_getOrderByDropdownItem(
+							"resource", _getCurrentOrder(httpServletRequest))
+					).add(
+						_getOrderByDropdownItem(
+							"workflow", _getCurrentOrder(httpServletRequest))
+					).build());
 				dropdownGroupItem.setLabel(
 					LanguageUtil.get(
 						_workflowDefinitionLinkRequestHelper.getRequest(),
@@ -410,7 +407,8 @@ public class WorkflowDefinitionLinkDisplayContext {
 	}
 
 	public int getTotalItems() throws PortalException {
-		SearchContainer searchContainer = getSearchContainer();
+		SearchContainer<WorkflowDefinitionLinkSearchEntry> searchContainer =
+			getSearchContainer();
 
 		return searchContainer.getTotal();
 	}
@@ -426,10 +424,20 @@ public class WorkflowDefinitionLinkDisplayContext {
 	public List<WorkflowDefinition> getWorkflowDefinitions()
 		throws PortalException {
 
-		return WorkflowDefinitionManagerUtil.getActiveWorkflowDefinitions(
-			_workflowDefinitionLinkRequestHelper.getCompanyId(),
-			QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-			WorkflowComparatorFactoryUtil.getDefinitionNameComparator(true));
+		if (_workflowDefinitions != null) {
+			return _workflowDefinitions;
+		}
+
+		_workflowDefinitions = ListUtil.filter(
+			WorkflowDefinitionManagerUtil.getActiveWorkflowDefinitions(
+				_workflowDefinitionLinkRequestHelper.getCompanyId(),
+				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				WorkflowComparatorFactoryUtil.getDefinitionNameComparator(
+					true)),
+			new WorkflowDefinitionScopePredicate(
+				WorkflowDefinitionConstants.SCOPE_ALL));
+
+		return _workflowDefinitions;
 	}
 
 	public String getWorkflowDefinitionValue(
@@ -550,7 +558,9 @@ public class WorkflowDefinitionLinkDisplayContext {
 		List<WorkflowDefinitionLinkSearchEntry>
 			workflowDefinitionLinkSearchEntries = new ArrayList<>();
 
-		for (WorkflowHandler<?> workflowHandler : getWorkflowHandlers()) {
+		for (WorkflowHandler<?> workflowHandler :
+				getWorkflowHandlers(themeDisplay.getScopeGroup())) {
+
 			WorkflowDefinitionLinkSearchEntry
 				workflowDefinitionLinkSearchEntry =
 					createWorkflowDefinitionLinkSearchEntry(
@@ -641,7 +651,7 @@ public class WorkflowDefinitionLinkDisplayContext {
 		}
 	}
 
-	protected List<WorkflowHandler<?>> getWorkflowHandlers() {
+	protected List<WorkflowHandler<?>> getWorkflowHandlers(Group group) {
 		List<WorkflowHandler<?>> workflowHandlers = null;
 
 		if (isControlPanelPortlet()) {
@@ -653,7 +663,9 @@ public class WorkflowDefinitionLinkDisplayContext {
 				WorkflowHandlerRegistryUtil.getScopeableWorkflowHandlers();
 		}
 
-		return ListUtil.filter(workflowHandlers, WorkflowHandler::isVisible);
+		return ListUtil.filter(
+			workflowHandlers,
+			workflowHandler -> workflowHandler.isVisible(group));
 	}
 
 	private String _getCurrentOrder(HttpServletRequest httpServletRequest) {
@@ -688,5 +700,6 @@ public class WorkflowDefinitionLinkDisplayContext {
 		_workflowDefinitionLinkLocalService;
 	private final WorkflowDefinitionLinkRequestHelper
 		_workflowDefinitionLinkRequestHelper;
+	private List<WorkflowDefinition> _workflowDefinitions;
 
 }

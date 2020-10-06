@@ -16,7 +16,6 @@ package com.liferay.headless.admin.user.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.admin.user.client.dto.v1_0.Organization;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
@@ -25,14 +24,15 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.test.rule.SynchronousMailTestRule;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 /**
@@ -40,6 +40,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
+
+	@ClassRule
+	@Rule
+	public static final SynchronousMailTestRule synchronousMailTestRule =
+		SynchronousMailTestRule.INSTANCE;
 
 	@Before
 	@Override
@@ -54,12 +59,6 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 	public void tearDown() {
 		_deleteOrganizations(_childOrganizations);
 		_deleteOrganizations(_organizations);
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLDeleteOrganization() {
 	}
 
 	@Override
@@ -117,7 +116,7 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 	protected Organization testGraphQLOrganization_addOrganization()
 		throws Exception {
 
-		return testGetOrganization_addOrganization();
+		return _toOrganization(_addOrganization(randomOrganization(), "0"));
 	}
 
 	@Override
@@ -144,7 +143,7 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 
 	private com.liferay.portal.kernel.model.Organization _addOrganization(
 			Organization organization, String parentOrganizationId)
-		throws PortalException {
+		throws Exception {
 
 		com.liferay.portal.kernel.model.Organization
 			serviceBuilderOrganization =

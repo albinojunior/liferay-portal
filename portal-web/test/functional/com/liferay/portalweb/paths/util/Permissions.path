@@ -30,8 +30,8 @@
 </tr>
 <!--CONFIGURATION_PERMISSIONS-->
 <tr>
-	<td>CONFIGURATION_PERMISSIONS_TEAM_ROLE_NAME</td>
-	<td>//tr[contains(.,'${key_teamName}')]/td[1]</td>
+	<td>CONFIGURATION_PERMISSIONS_ROLE_NAME</td>
+	<td>//tr[contains(.,'${key_roleName}')]/td[1]</td>
 	<td></td>
 </tr>
 <tr>
@@ -57,6 +57,11 @@
 <tr>
 	<td>CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX</td>
 	<td>//input[@id='${key_roleTitle}_ACTION_VIEW']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONFIGURATION_PERMISSIONS_ACCESS_CHECKBOX</td>
+	<td>//input[@id='${key_roleTitle}_ACTION_ACCESS']</td>
 	<td></td>
 </tr>
 <tr>

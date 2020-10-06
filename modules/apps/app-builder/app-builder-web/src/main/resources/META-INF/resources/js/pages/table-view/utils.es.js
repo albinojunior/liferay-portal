@@ -12,9 +12,12 @@
  * details.
  */
 
+import {DataDefinitionUtils} from 'data-engine-taglib';
 import dom from 'metal-dom';
 
-export const getColumnIndex = node => {
+import {addItem, updateItem} from '../../utils/client.es';
+
+export const getColumnIndex = (node) => {
 	const rowNode = dom.closest(node, 'tr');
 
 	if (!rowNode) {
@@ -46,8 +49,24 @@ export const getColumnNode = (container, index) => {
 	);
 };
 
-export const getColumns = container => {
+export const getColumns = (container) => {
 	return container.querySelectorAll(`table tbody > tr:first-of-type > td`);
+};
+
+export const getFieldLabel = (dataDefinition, editingLanguageId, fieldName) => {
+	const field = DataDefinitionUtils.getDataDefinitionField(
+		dataDefinition,
+		fieldName
+	);
+
+	if (field) {
+		return (
+			field.label[editingLanguageId] ||
+			field.label[dataDefinition.defaultLanguageId]
+		);
+	}
+
+	return fieldName;
 };
 
 export const getFieldTypeLabel = (fieldTypes, fieldType) => {
@@ -58,4 +77,52 @@ export const getFieldTypeLabel = (fieldTypes, fieldType) => {
 	}
 
 	return fieldType;
+};
+
+export const getDestructuredFields = (dataDefinition, dataListView) => {
+	const {fieldNames} = dataListView;
+	const fields = [];
+
+	fieldNames.forEach((fieldName) => {
+		dataDefinition.dataDefinitionFields.forEach((dataDefinitionField) => {
+			const {name, nestedDataDefinitionFields} = dataDefinitionField;
+
+			if (nestedDataDefinitionFields.length) {
+				const nested = nestedDataDefinitionFields.find(
+					({name: nestedName}) => nestedName === fieldName
+				);
+
+				if (nested) {
+					fields.push(nested);
+				}
+			}
+			else if (name === fieldName) {
+				fields.push(dataDefinitionField);
+			}
+		});
+	});
+
+	return fields;
+};
+
+export const getTableViewTitle = ({id}) => {
+	if (id) {
+		return Liferay.Language.get('edit-table-view');
+	}
+
+	return Liferay.Language.get('new-table-view');
+};
+
+export const saveTableView = (dataDefinition, dataListView) => {
+	if (dataListView.id) {
+		return updateItem({
+			endpoint: `/o/data-engine/v2.0/data-list-views/${dataListView.id}`,
+			item: dataListView,
+		});
+	}
+
+	return addItem(
+		`/o/data-engine/v2.0/data-definitions/${dataDefinition.id}/data-list-views`,
+		dataListView
+	);
 };

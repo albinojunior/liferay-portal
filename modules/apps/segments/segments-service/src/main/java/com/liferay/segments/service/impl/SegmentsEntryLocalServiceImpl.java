@@ -15,9 +15,10 @@
 package com.liferay.segments.service.impl;
 
 import com.liferay.portal.aop.AopService;
-import com.liferay.portal.background.task.constants.BackgroundTaskContextMapConstants;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
@@ -49,7 +51,7 @@ import com.liferay.segments.criteria.CriteriaSerializer;
 import com.liferay.segments.exception.RequiredSegmentsEntryException;
 import com.liferay.segments.exception.SegmentsEntryKeyException;
 import com.liferay.segments.exception.SegmentsEntryNameException;
-import com.liferay.segments.internal.background.task.SegmentsEntryRelIndexerBackgroundTaskExecutor;
+import com.liferay.segments.internal.constants.SegmentsDestinationNames;
 import com.liferay.segments.internal.criteria.contributor.SegmentsEntrySegmentsCriteriaContributor;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.service.SegmentsEntryRelLocalService;
@@ -429,7 +431,7 @@ public class SegmentsEntryLocalServiceImpl
 		segmentsEntry.setDescriptionMap(descriptionMap);
 		segmentsEntry.setActive(active);
 		segmentsEntry.setCriteria(criteria);
-		segmentsEntry.setSource(getSource(criteria, null));
+		segmentsEntry.setSource(getSource(criteria, segmentsEntry.getSource()));
 
 		segmentsEntry = segmentsEntryPersistence.update(segmentsEntry);
 
@@ -524,10 +526,16 @@ public class SegmentsEntryLocalServiceImpl
 		if (Validator.isNotNull(criteria)) {
 			Criteria criteriaObj = CriteriaSerializer.deserialize(criteria);
 
-			if (Validator.isNotNull(
-					criteriaObj.getFilterString(Criteria.Type.REFERRED))) {
+			String referredFilterString = criteriaObj.getFilterString(
+				Criteria.Type.REFERRED);
 
+			if (Validator.isNotNull(referredFilterString)) {
 				return SegmentsEntryConstants.SOURCE_REFERRED;
+			}
+			else if (SegmentsEntryConstants.SOURCE_REFERRED.equals(source) &&
+					 Validator.isNull(referredFilterString)) {
+
+				return SegmentsEntryConstants.SOURCE_DEFAULT;
 			}
 		}
 
@@ -584,39 +592,41 @@ public class SegmentsEntryLocalServiceImpl
 			Criteria.Criterion criterion = criteria.getCriterion(
 				SegmentsEntrySegmentsCriteriaContributor.KEY);
 
-			String filterString = criterion.getFilterString();
+			if (criterion != null) {
+				String filterString = criterion.getFilterString();
 
-			if (Validator.isNotNull(filterString) &&
-				filterString.contains(
-					String.valueOf(segmentsEntry.getSegmentsEntryId()))) {
+				if (Validator.isNotNull(filterString) &&
+					filterString.contains(
+						String.valueOf(segmentsEntry.getSegmentsEntryId()))) {
 
-				_reindexSegmentsEntryRels(referredSegmentsEntry);
+					_reindexSegmentsEntryRels(referredSegmentsEntry);
+				}
 			}
 		}
 	}
 
-	private void _reindexSegmentsEntryRels(SegmentsEntry segmentsEntry)
-		throws PortalException {
+	private void _reindexSegmentsEntryRels(SegmentsEntry segmentsEntry) {
+		TransactionCommitCallbackUtil.registerCallback(
+			() -> {
+				Message message = new Message();
 
-		Map<String, Serializable> taskContextMap =
-			HashMapBuilder.<String, Serializable>put(
-				BackgroundTaskContextMapConstants.DELETE_ON_SUCCESS, true
-			).put(
-				"segmentsEntryId", segmentsEntry.getSegmentsEntryId()
-			).put(
-				"type", segmentsEntry.getType()
-			).build();
+				message.put("companyId", segmentsEntry.getCompanyId());
+				message.put(
+					"segmentsEntryId", segmentsEntry.getSegmentsEntryId());
+				message.put("type", segmentsEntry.getType());
 
-		_backgroundTaskManager.addBackgroundTask(
-			segmentsEntry.getUserId(), segmentsEntry.getGroupId(),
-			SegmentsEntryRelIndexerBackgroundTaskExecutor.getBackgroundTaskName(
-				segmentsEntry.getSegmentsEntryId()),
-			SegmentsEntryRelIndexerBackgroundTaskExecutor.class.getName(),
-			taskContextMap, new ServiceContext());
+				_messageBus.sendMessage(
+					SegmentsDestinationNames.SEGMENTS_ENTRY_REINDEX, message);
+
+				return null;
+			});
 	}
 
 	@Reference
 	private BackgroundTaskManager _backgroundTaskManager;
+
+	@Reference
+	private MessageBus _messageBus;
 
 	@Reference
 	private Portal _portal;

@@ -20,7 +20,7 @@ import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountRole;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountRoleLocalService;
-import com.liferay.account.service.test.AccountEntryTestUtil;
+import com.liferay.account.service.test.util.AccountEntryTestUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.RequiredRoleException;
@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,11 +58,6 @@ public class RoleModelListenerTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
-
-	@Before
-	public void setUp() throws Exception {
-		_company = CompanyTestUtil.addCompany();
-	}
 
 	@Test
 	public void testAddAccountScopedRole() throws Exception {
@@ -108,6 +102,8 @@ public class RoleModelListenerTest {
 
 	@Test
 	public void testDeleteCompany() throws Exception {
+		_company = CompanyTestUtil.addCompany();
+
 		List<Long> requiredRoleIds = Stream.of(
 			AccountRoleConstants.REQUIRED_ROLE_NAMES
 		).map(
@@ -130,6 +126,8 @@ public class RoleModelListenerTest {
 
 	@Test
 	public void testDeleteDefaultAccountRole() throws Exception {
+		_company = CompanyTestUtil.addCompany();
+
 		for (String requiredRoleName :
 				AccountRoleConstants.REQUIRED_ROLE_NAMES) {
 

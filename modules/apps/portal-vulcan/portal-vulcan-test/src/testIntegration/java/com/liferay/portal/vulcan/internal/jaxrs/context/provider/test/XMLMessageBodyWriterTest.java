@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.vulcan.internal.test.util.URLConnectionUtil;
@@ -29,7 +28,6 @@ import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceRegistration;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import java.net.URLConnection;
@@ -37,7 +35,6 @@ import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -62,18 +59,18 @@ public class XMLMessageBodyWriterTest {
 	public void setUp() {
 		Registry registry = RegistryUtil.getRegistry();
 
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-			"liferay.auth.verifier", true
-		).put(
-			"liferay.oauth2", false
-		).put(
-			"osgi.jaxrs.application.base", "/test-vulcan"
-		).put(
-			"osgi.jaxrs.extension.select", "(osgi.jaxrs.name=Liferay.Vulcan)"
-		).build();
-
 		_serviceRegistration = registry.registerService(
-			Application.class, new TestApplication(), properties);
+			Application.class, new TestApplication(),
+			HashMapBuilder.<String, Object>put(
+				"liferay.auth.verifier", true
+			).put(
+				"liferay.oauth2", false
+			).put(
+				"osgi.jaxrs.application.base", "/test-vulcan"
+			).put(
+				"osgi.jaxrs.extension.select",
+				"(osgi.jaxrs.name=Liferay.Vulcan)"
+			).build());
 	}
 
 	@After
@@ -189,9 +186,7 @@ public class XMLMessageBodyWriterTest {
 
 	}
 
-	private Document _getDocument(String urlString)
-		throws DocumentException, IOException {
-
+	private Document _getDocument(String urlString) throws Exception {
 		URLConnection urlConnection = URLConnectionUtil.createURLConnection(
 			urlString);
 

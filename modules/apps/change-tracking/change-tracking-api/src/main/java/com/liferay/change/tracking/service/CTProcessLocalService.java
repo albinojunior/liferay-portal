@@ -15,6 +15,7 @@
 package com.liferay.change.tracking.service;
 
 import com.liferay.change.tracking.model.CTProcess;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -58,11 +59,15 @@ public interface CTProcessLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link CTProcessLocalServiceUtil} to access the ct process local service. Add custom service methods to <code>com.liferay.change.tracking.service.impl.CTProcessLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.change.tracking.service.impl.CTProcessLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the ct process local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link CTProcessLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the ct process to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctProcess the ct process
 	 * @return the ct process that was added
@@ -91,6 +96,10 @@ public interface CTProcessLocalService
 	/**
 	 * Deletes the ct process from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctProcess the ct process
 	 * @return the ct process that was removed
 	 */
@@ -99,6 +108,10 @@ public interface CTProcessLocalService
 
 	/**
 	 * Deletes the ct process with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctProcessId the primary key of the ct process
 	 * @return the ct process that was removed
@@ -113,6 +126,9 @@ public interface CTProcessLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -216,11 +232,6 @@ public interface CTProcessLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<CTProcess> getCTProcesses(long ctCollectionId);
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CTProcess> getCTProcesses(
-		long companyId, long userId, String keywords, int status, int start,
-		int end, OrderByComparator<CTProcess> orderByComparator);
-
 	/**
 	 * Returns the number of ct processes.
 	 *
@@ -249,6 +260,10 @@ public interface CTProcessLocalService
 
 	/**
 	 * Updates the ct process in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctProcess the ct process
 	 * @return the ct process that was updated

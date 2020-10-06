@@ -96,6 +96,7 @@ import com.liferay.portal.struts.TilesUtil;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.URI;
 import java.net.URL;
 
 import java.util.Collections;
@@ -188,7 +189,7 @@ public class TemplateContextHelper {
 		Map<String, Object> helperUtilities = new HashMap<>();
 
 		populateCommonHelperUtilities(helperUtilities);
-		populateExtraHelperUtilities(helperUtilities);
+		populateExtraHelperUtilities(helperUtilities, restricted);
 
 		if (restricted) {
 			Set<String> restrictedVariables = getRestrictedVariables();
@@ -863,7 +864,16 @@ public class TemplateContextHelper {
 		}
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #populateExtraHelperUtilities(Map, boolean)}
+	 */
+	@Deprecated
 	protected void populateExtraHelperUtilities(Map<String, Object> variables) {
+	}
+
+	protected void populateExtraHelperUtilities(
+		Map<String, Object> variables, boolean restricted) {
 	}
 
 	protected void prepareTiles(
@@ -1048,6 +1058,11 @@ public class TemplateContextHelper {
 		}
 
 		@Override
+		public String getQueryString(HttpServletRequest httpServletRequest) {
+			return _http.getQueryString(httpServletRequest);
+		}
+
+		@Override
 		public String getQueryString(String url) {
 			return _http.getQueryString(url);
 		}
@@ -1055,6 +1070,11 @@ public class TemplateContextHelper {
 		@Override
 		public String getRequestURL(HttpServletRequest httpServletRequest) {
 			return _http.getRequestURL(httpServletRequest);
+		}
+
+		@Override
+		public URI getURI(String uriString) {
+			return _http.getURI(uriString);
 		}
 
 		@Override
@@ -1070,6 +1090,11 @@ public class TemplateContextHelper {
 		@Override
 		public boolean hasProxyConfig() {
 			return _http.hasProxyConfig();
+		}
+
+		@Override
+		public boolean isForwarded(HttpServletRequest httpServletRequest) {
+			return _http.isForwarded(httpServletRequest);
 		}
 
 		@Override

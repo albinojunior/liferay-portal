@@ -118,7 +118,7 @@ public abstract class SettingsConfigurationAction
 			themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroupId(),
 			layout, portletResource, ActionKeys.CONFIGURATION);
 
-		UnicodeProperties properties = PropertiesParamUtil.getProperties(
+		UnicodeProperties unicodeProperties = PropertiesParamUtil.getProperties(
 			actionRequest, _parameterNamePrefix);
 
 		Settings settings = getSettings(actionRequest);
@@ -126,7 +126,7 @@ public abstract class SettingsConfigurationAction
 		ModifiableSettings modifiableSettings =
 			settings.getModifiableSettings();
 
-		for (Map.Entry<String, String> entry : properties.entrySet()) {
+		for (Map.Entry<String, String> entry : unicodeProperties.entrySet()) {
 			String name = entry.getKey();
 			String value = entry.getValue();
 
@@ -321,24 +321,24 @@ public abstract class SettingsConfigurationAction
 
 		boolean emailEnabled = GetterUtil.getBoolean(
 			getParameter(actionRequest, emailParam + "Enabled"));
-		String emailSubject = null;
-		String emailBody = null;
+
+		if (!emailEnabled) {
+			return;
+		}
 
 		String languageId = LocaleUtil.toLanguageId(
 			LocaleUtil.getSiteDefault());
 
-		emailSubject = getLocalizedParameter(
+		String emailSubject = getLocalizedParameter(
 			actionRequest, emailParam + "Subject", languageId);
-		emailBody = getLocalizedParameter(
+		String emailBody = getLocalizedParameter(
 			actionRequest, emailParam + "Body", languageId);
 
-		if (emailEnabled) {
-			if (Validator.isNull(emailSubject)) {
-				SessionErrors.add(actionRequest, emailParam + "Subject");
-			}
-			else if (Validator.isNull(emailBody)) {
-				SessionErrors.add(actionRequest, emailParam + "Body");
-			}
+		if (Validator.isNull(emailSubject)) {
+			SessionErrors.add(actionRequest, emailParam + "Subject");
+		}
+		else if (Validator.isNull(emailBody)) {
+			SessionErrors.add(actionRequest, emailParam + "Body");
 		}
 	}
 

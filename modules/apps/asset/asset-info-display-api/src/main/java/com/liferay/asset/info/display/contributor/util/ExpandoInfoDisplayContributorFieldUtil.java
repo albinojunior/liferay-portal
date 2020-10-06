@@ -32,19 +32,19 @@ import java.util.List;
 @Deprecated
 public class ExpandoInfoDisplayContributorFieldUtil {
 
-	public static List<InfoDisplayContributorField>
+	public static List<InfoDisplayContributorField<?>>
 		getInfoDisplayContributorFields(String className) {
 
-		List<InfoDisplayContributorField> infoDisplayContributorFields =
+		List<InfoDisplayContributorField<?>> infoDisplayContributorFields =
 			new ArrayList<>();
 
 		ExpandoBridge expandoBridge = ExpandoBridgeFactoryUtil.getExpandoBridge(
 			CompanyThreadLocal.getCompanyId(), className, 0L);
 
-		Enumeration<String> attributeNames = expandoBridge.getAttributeNames();
+		Enumeration<String> enumeration = expandoBridge.getAttributeNames();
 
-		while (attributeNames.hasMoreElements()) {
-			String attributeName = attributeNames.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String attributeName = enumeration.nextElement();
 
 			infoDisplayContributorFields.add(
 				new ExpandoInfoDisplayContributorField(

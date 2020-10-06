@@ -39,6 +39,10 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.ratings.kernel.service.RatingsStatsLocalService;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
+import java.util.Optional;
+
+import javax.ws.rs.core.UriInfo;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -64,7 +68,7 @@ public class MessageBoardMessageDTOConverter
 		MBMessage mbMessage = _mbMessageService.getMessage(
 			(Long)dtoConverterContext.getId());
 
-		User user = _userLocalService.getUserById(mbMessage.getUserId());
+		User user = _userLocalService.fetchUser(mbMessage.getUserId());
 
 		return new MessageBoardMessage() {
 			{
@@ -81,6 +85,7 @@ public class MessageBoardMessageDTOConverter
 				dateCreated = mbMessage.getCreateDate();
 				dateModified = mbMessage.getModifiedDate();
 				encodingFormat = mbMessage.getFormat();
+				friendlyUrlPath = mbMessage.getUrlSubject();
 				headline = mbMessage.getSubject();
 				id = mbMessage.getMessageId();
 				keywords = ListUtil.toArray(
@@ -88,6 +93,7 @@ public class MessageBoardMessageDTOConverter
 						MBMessage.class.getName(), mbMessage.getMessageId()),
 					AssetTag.NAME_ACCESSOR);
 				messageBoardSectionId = mbMessage.getCategoryId();
+				messageBoardThreadId = mbMessage.getThreadId();
 				numberOfMessageBoardAttachments =
 					mbMessage.getAttachmentsFileEntriesCount();
 				numberOfMessageBoardMessages =
@@ -111,7 +117,9 @@ public class MessageBoardMessageDTOConverter
 							return null;
 						}
 
-						return CreatorUtil.toCreator(_portal, user);
+						return CreatorUtil.toCreator(
+							_portal, dtoConverterContext.getUriInfoOptional(),
+							user);
 					});
 				setCreatorStatistics(
 					() -> {
@@ -121,10 +129,14 @@ public class MessageBoardMessageDTOConverter
 							return null;
 						}
 
+						Optional<UriInfo> uriInfoOptional =
+							dtoConverterContext.getUriInfoOptional();
+
 						return CreatorStatisticsUtil.toCreatorStatistics(
-							_mbStatsUserLocalService,
+							mbMessage.getGroupId(),
 							String.valueOf(dtoConverterContext.getLocale()),
-							user);
+							_mbStatsUserLocalService,
+							uriInfoOptional.orElse(null), user);
 					});
 				setParentMessageBoardMessageId(
 					() -> {

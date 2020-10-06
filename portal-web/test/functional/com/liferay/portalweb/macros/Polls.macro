@@ -183,7 +183,7 @@ definition {
 	macro addPollPG {
 		Click(locator1 = "Polls#ADD_NEW_POLL");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconEntry.gotoAdd();
 
@@ -207,8 +207,8 @@ definition {
 	macro DeletePollCP {
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Polls");
+			portlet = "Polls",
+			site = "${site}");
 
 		Click(
 			key_pollsQuestionTitle = "${pollsQuestionTitle}",
@@ -228,7 +228,7 @@ definition {
 
 		Click(locator1 = "Polls#SELECT_QUESTION");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Select(
 			locator1 = "Polls#TITLE_DROPDOWN_SELECT",
@@ -248,7 +248,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Polls");
 
 		while (IsElementPresent(locator1 = "Polls#POLLS_TABLE_ACTIONS_GENERIC")) {

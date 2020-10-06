@@ -29,22 +29,29 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 if (message.isAnonymous() || thread.isInTrash()) {
 	showRecentPosts = false;
 }
+
+User messageUser = UserLocalServiceUtil.fetchUser(message.getUserId());
 %>
 
 <a id="<portlet:namespace />message_<%= message.getMessageId() %>"></a>
 
 <div class="card panel">
 	<div class="panel-heading">
-		<div class="autofit-padded autofit-row card-body">
-			<div class="autofit-col">
+		<clay:content-row
+			cssClass="card-body"
+			padded="<%= true %>"
+		>
+			<clay:content-col>
 				<div class="list-group-card-icon">
 					<liferay-ui:user-portrait
 						userId="<%= !message.isAnonymous() ? message.getUserId() : 0 %>"
 					/>
 				</div>
-			</div>
+			</clay:content-col>
 
-			<div class="autofit-col autofit-col-expand">
+			<clay:content-col
+				expand="<%= true %>"
+			>
 
 				<%
 				String messageUserName = "anonymous";
@@ -95,8 +102,6 @@ if (message.isAnonymous() || thread.isInTrash()) {
 				if (!message.isAnonymous()) {
 					ranks = MBStatsUserLocalServiceUtil.getUserRank(themeDisplay.getSiteGroupId(), themeDisplay.getLanguageId(), message.getUserId());
 				}
-
-				User messageUser = UserLocalServiceUtil.fetchUser(message.getUserId());
 				%>
 
 				<c:if test="<%= (messageUser != null) && !messageUser.isDefaultUser() %>">
@@ -159,7 +164,7 @@ if (message.isAnonymous() || thread.isInTrash()) {
 					<div class="social-interaction">
 						<c:if test="<%= enableRatings %>">
 							<div id="<portlet:namespace />mbRatings">
-								<liferay-ui:ratings
+								<liferay-ratings:ratings
 									className="<%= MBMessage.class.getName() %>"
 									classPK="<%= message.getMessageId() %>"
 									inTrash="<%= message.isInTrash() %>"
@@ -181,9 +186,9 @@ if (message.isAnonymous() || thread.isInTrash()) {
 						</c:if>
 					</div>
 				</c:if>
-			</div>
+			</clay:content-col>
 
-			<div class="autofit-col">
+			<clay:content-col>
 				<c:if test="<%= editable %>">
 
 					<%
@@ -383,8 +388,8 @@ if (message.isAnonymous() || thread.isInTrash()) {
 						</liferay-ui:icon-menu>
 					</c:if>
 				</c:if>
-			</div>
-		</div>
+			</clay:content-col>
+		</clay:content-row>
 	</div>
 
 	<div class="divider"></div>

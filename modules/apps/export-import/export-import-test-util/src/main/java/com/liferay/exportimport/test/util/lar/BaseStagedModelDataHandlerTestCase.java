@@ -92,14 +92,18 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 	@Before
 	public void setUp() throws Exception {
 		liveGroup = GroupTestUtil.addGroup();
+
 		stagingGroup = GroupTestUtil.addGroup();
+
+		stagingGroup.setLiveGroupId(liveGroup.getGroupId());
+
+		stagingGroup = GroupLocalServiceUtil.updateGroup(stagingGroup);
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(stagingGroup.getGroupId());
-
-		ServiceContextThreadLocal.pushServiceContext(serviceContext);
+		ServiceContextThreadLocal.pushServiceContext(
+			ServiceContextTestUtil.getServiceContext(
+				stagingGroup.getGroupId()));
 	}
 
 	@After
@@ -129,7 +133,7 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		AssetTag assetTag = AssetTestUtil.addTag(stagingGroup.getGroupId());
 
-		assetEntry = AssetEntryLocalServiceUtil.updateEntry(
+		AssetEntryLocalServiceUtil.updateEntry(
 			TestPropsValues.getUserId(), stagingGroup.getGroupId(),
 			assetEntry.getCreateDate(), assetEntry.getModifiedDate(),
 			assetEntry.getClassName(), assetEntry.getClassPK(),
@@ -1127,10 +1131,7 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 	protected Element missingReferencesElement;
 	protected PortletDataContext portletDataContext;
 	protected Element rootElement;
-
-	@DeleteAfterTestRun
 	protected Group stagingGroup;
-
 	protected UserIdStrategy userIdStrategy;
 	protected ZipReader zipReader;
 	protected ZipWriter zipWriter;

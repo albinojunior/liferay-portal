@@ -64,7 +64,7 @@ public class LiferayOSGiPortalCompatDefaultsPlugin
 		"transformImportedFiles";
 
 	@Override
-	protected void configureDefaults(
+	protected void applyPluginDefaults(
 		Project project, LiferayOSGiDefaultsPlugin liferayOSGiDefaultsPlugin) {
 
 		File portalRootDir = GradleUtil.getRootDir(
@@ -117,7 +117,7 @@ public class LiferayOSGiPortalCompatDefaultsPlugin
 		GradleUtil.addDependency(
 			project, BYTECODE_TRANSFORMER_CONFIGURATION_NAME, "com.liferay",
 			"com.liferay.portal.tools.portal.compat.bytecode.transformer",
-			"1.0.2");
+			"1.0.3");
 	}
 
 	@SuppressWarnings("serial")
@@ -194,7 +194,7 @@ public class LiferayOSGiPortalCompatDefaultsPlugin
 				"Portal Compat Bytecode Transformer.");
 		javaExec.setMain(
 			"com.liferay.portal.tools.portal.compat.bytecode.transformer." +
-				"PortalCompactBytecodeTransformer");
+				"PortalCompatBytecodeTransformer");
 
 		javaExec.systemProperty(
 			"classes.dir",

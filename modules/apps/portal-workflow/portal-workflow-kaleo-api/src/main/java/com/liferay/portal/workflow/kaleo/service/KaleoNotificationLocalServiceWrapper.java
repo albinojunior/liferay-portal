@@ -36,6 +36,10 @@ public class KaleoNotificationLocalServiceWrapper
 	/**
 	 * Adds the kaleo notification to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNotificationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoNotification the kaleo notification
 	 * @return the kaleo notification that was added
 	 */
@@ -53,15 +57,17 @@ public class KaleoNotificationLocalServiceWrapper
 	public com.liferay.portal.workflow.kaleo.model.KaleoNotification
 			addKaleoNotification(
 				String kaleoClassName, long kaleoClassPK,
-				long kaleoDefinitionVersionId, String kaleoNodeName,
+				long kaleoDefinitionId, long kaleoDefinitionVersionId,
+				String kaleoNodeName,
 				com.liferay.portal.workflow.kaleo.definition.Notification
 					notification,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kaleoNotificationLocalService.addKaleoNotification(
-			kaleoClassName, kaleoClassPK, kaleoDefinitionVersionId,
-			kaleoNodeName, notification, serviceContext);
+			kaleoClassName, kaleoClassPK, kaleoDefinitionId,
+			kaleoDefinitionVersionId, kaleoNodeName, notification,
+			serviceContext);
 	}
 
 	/**
@@ -108,6 +114,10 @@ public class KaleoNotificationLocalServiceWrapper
 	/**
 	 * Deletes the kaleo notification from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNotificationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoNotification the kaleo notification
 	 * @return the kaleo notification that was removed
 	 */
@@ -123,6 +133,10 @@ public class KaleoNotificationLocalServiceWrapper
 
 	/**
 	 * Deletes the kaleo notification with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNotificationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoNotificationId the primary key of the kaleo notification
 	 * @return the kaleo notification that was removed
@@ -147,6 +161,11 @@ public class KaleoNotificationLocalServiceWrapper
 
 		return _kaleoNotificationLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _kaleoNotificationLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -351,6 +370,10 @@ public class KaleoNotificationLocalServiceWrapper
 
 	/**
 	 * Updates the kaleo notification in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoNotificationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoNotification the kaleo notification
 	 * @return the kaleo notification that was updated

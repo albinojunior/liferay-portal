@@ -21,19 +21,18 @@ BaseWikiEngine baseWikiEngine = BaseWikiEngine.getBaseWikiEngine(request);
 
 WikiNode node = BaseWikiEngine.getWikiNode(request);
 WikiPage wikiPage = BaseWikiEngine.getWikiPage(request);
-
-String content = BeanParamUtil.getString(wikiPage, request, "content");
 %>
 
 <div class="wiki-page-editor">
 	<%@ include file="/editor_config.jspf" %>
 
-	<liferay-ui:input-editor
+	<liferay-editor:editor
 		configParams="<%= configParams %>"
-		contents="<%= content %>"
+		contents='<%= BeanParamUtil.getString(wikiPage, request, "content") %>'
 		editorName="<%= baseWikiEngine.getEditorName() %>"
 		fileBrowserParams="<%= fileBrowserParams %>"
 		name="contentEditor"
+		placeholder="content"
 		toolbarSet="<%= baseWikiEngine.getToolbarSet() %>"
 	/>
 
@@ -41,7 +40,7 @@ String content = BeanParamUtil.getString(wikiPage, request, "content");
 
 	<c:if test="<%= baseWikiEngine.isHelpPageDefined() %>">
 		<div align="right">
-			<a href="javascript:;" id="<%= renderResponse.getNamespace() + "toggle_id_wiki_editor_help" %>"><liferay-ui:message key="show-syntax-help" /> &raquo;</a>
+			<a href="javascript:;" id="<%= liferayPortletResponse.getNamespace() + "toggle_id_wiki_editor_help" %>"><liferay-ui:message key="show-syntax-help" /> &raquo;</a>
 		</div>
 
 		<%
@@ -51,10 +50,10 @@ String content = BeanParamUtil.getString(wikiPage, request, "content");
 
 		<aui:script use="liferay-util-window">
 			var helpPageLink = A.one(
-				'#<%= renderResponse.getNamespace() + "toggle_id_wiki_editor_help" %>'
+				'#<%= liferayPortletResponse.getNamespace() + "toggle_id_wiki_editor_help" %>'
 			);
 
-			helpPageLink.on('click', function(event) {
+			helpPageLink.on('click', function (event) {
 				event.preventDefault();
 
 				var helpPageDialog = Liferay.Util.Window.getWindow({

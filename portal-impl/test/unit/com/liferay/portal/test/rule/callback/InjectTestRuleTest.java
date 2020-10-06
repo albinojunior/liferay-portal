@@ -25,7 +25,6 @@ import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
@@ -98,13 +97,14 @@ public class InjectTestRuleTest {
 
 		InjectTestBag injectTestBag = null;
 
-		UnsyncByteArrayOutputStream ubaos = ConsoleTestUtil.hijackStdOut();
+		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
+			ConsoleTestUtil.hijackStdOut();
 
 		try {
 			Thread registerThread = new Thread(
 				() -> {
 					while (true) {
-						String stdOut = ubaos.toString();
+						String stdOut = unsyncByteArrayOutputStream.toString();
 
 						if (!stdOut.contains(
 								"Waiting for service " +
@@ -131,7 +131,7 @@ public class InjectTestRuleTest {
 			registerThread.join();
 		}
 		finally {
-			ConsoleTestUtil.restoreStdOut(ubaos);
+			ConsoleTestUtil.restoreStdOut(unsyncByteArrayOutputStream);
 		}
 
 		Assert.assertSame(service1, TestCase2._service1);
@@ -190,11 +190,11 @@ public class InjectTestRuleTest {
 
 		Service3 service3b = new Service3();
 
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-			"inject.test.rule.test", true
-		).build();
-
-		registry.registerService(Service3.class, service3b, properties);
+		registry.registerService(
+			Service3.class, service3b,
+			HashMapBuilder.<String, Object>put(
+				"inject.test.rule.test", true
+			).build());
 
 		injectTestBag.injectFields();
 

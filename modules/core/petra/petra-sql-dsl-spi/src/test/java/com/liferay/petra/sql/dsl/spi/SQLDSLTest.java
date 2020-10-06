@@ -46,6 +46,7 @@ import com.liferay.petra.sql.dsl.spi.expression.NullExpression;
 import com.liferay.petra.sql.dsl.spi.expression.Operand;
 import com.liferay.petra.sql.dsl.spi.expression.Scalar;
 import com.liferay.petra.sql.dsl.spi.expression.ScalarList;
+import com.liferay.petra.sql.dsl.spi.expression.TableStar;
 import com.liferay.petra.sql.dsl.spi.expression.step.CaseWhenThen;
 import com.liferay.petra.sql.dsl.spi.expression.step.ElseEnd;
 import com.liferay.petra.sql.dsl.spi.expression.step.WhenThen;
@@ -122,6 +123,7 @@ public class SQLDSLTest {
 				assertClasses.add(Select.class);
 				assertClasses.add(SetOperation.class);
 				assertClasses.add(SetOperationType.class);
+				assertClasses.add(TableStar.class);
 				assertClasses.add(WhenThen.class);
 				assertClasses.add(Where.class);
 			}
@@ -155,6 +157,29 @@ public class SQLDSLTest {
 	}
 
 	@Test
+	public void testASTNodeListenerOrder() {
+		DSLQuery dslQuery = DSLQueryFactoryUtil.select(
+		).from(
+			MainExampleTable.INSTANCE
+		);
+
+		StringBundler sb = new StringBundler();
+
+		dslQuery.toSQL(
+			sb::append,
+			astNode -> {
+				if (astNode instanceof Select) {
+					Assert.assertEquals("", sb.toString());
+				}
+				else if (astNode instanceof From) {
+					Assert.assertEquals("select * ", sb.toString());
+				}
+			});
+
+		Assert.assertEquals("select * from MainExample", sb.toString());
+	}
+
+	@Test
 	public void testBaseASTNode() {
 		FromStep fromStep = DSLQueryFactoryUtil.select();
 
@@ -162,26 +187,26 @@ public class SQLDSLTest {
 
 		Assert.assertSame(fromStep, from.getChild());
 
-		OrderBy orderBy = new OrderBy(
+		OrderBy orderBy1 = new OrderBy(
 			from,
 			new OrderByExpression[] {
 				MainExampleTable.INSTANCE.mainExampleId.ascending()
 			});
 
-		Assert.assertSame(from, orderBy.getChild());
+		Assert.assertSame(from, orderBy1.getChild());
 
 		Assert.assertEquals(
 			"select * from MainExample order by MainExample.mainExampleId asc",
-			orderBy.toString());
+			orderBy1.toString());
 
 		JoinStep joinStep = from.innerJoinON(
 			ReferenceExampleTable.INSTANCE,
 			ReferenceExampleTable.INSTANCE.mainExampleId.eq(
 				MainExampleTable.INSTANCE.mainExampleId));
 
-		OrderBy orderBy2 = orderBy.withNewChild(joinStep);
+		OrderBy orderBy2 = orderBy1.withNewChild(joinStep);
 
-		Assert.assertNotSame(orderBy, orderBy2);
+		Assert.assertNotSame(orderBy1, orderBy2);
 
 		Assert.assertEquals(
 			"select * from MainExample inner join ReferenceExample on " +
@@ -213,9 +238,8 @@ public class SQLDSLTest {
 			Assert.fail();
 		}
 		catch (RuntimeException runtimeException) {
-			Throwable cause = runtimeException.getCause();
-
-			Assert.assertSame(cloneNotSupportedException, cause);
+			Assert.assertSame(
+				cloneNotSupportedException, runtimeException.getCause());
 		}
 	}
 
@@ -1011,18 +1035,13 @@ public class SQLDSLTest {
 		FromStep fromStep = DSLQueryFactoryUtil.select(
 			MainExampleTable.INSTANCE);
 
-		Assert.assertEquals(
-			"select MainExample.description, MainExample.flag, " +
-				"MainExample.mainExampleId, MainExample.name",
-			fromStep.toString());
+		Assert.assertEquals("select MainExample.*", fromStep.toString());
 
 		fromStep = DSLQueryFactoryUtil.selectDistinct(
 			MainExampleTable.INSTANCE);
 
 		Assert.assertEquals(
-			"select distinct MainExample.description, MainExample.flag, " +
-				"MainExample.mainExampleId, MainExample.name",
-			fromStep.toString());
+			"select distinct MainExample.*", fromStep.toString());
 	}
 
 	@Test
@@ -1130,11 +1149,9 @@ public class SQLDSLTest {
 				"MainExample.mainExampleId desc"),
 			orderBy.toSQL(defaultASTNodeListener));
 
-		String[] tableNames = defaultASTNodeListener.getTableNames();
-
 		Assert.assertArrayEquals(
 			new String[] {MainExampleTable.INSTANCE.getTableName()},
-			tableNames);
+			defaultASTNodeListener.getTableNames());
 
 		Assert.assertEquals(
 			Arrays.asList("test", 0L),
@@ -1278,6 +1295,15 @@ public class SQLDSLTest {
 			Assert.assertSame(
 				UnsupportedOperationException.class, exception.getClass());
 		}
+	}
+
+	@Test
+	public void testTableStar() {
+		TableStar tableStar = new TableStar(MainExampleTable.INSTANCE);
+
+		Assert.assertSame(MainExampleTable.INSTANCE, tableStar.getTable());
+
+		Assert.assertEquals("MainExample.*", tableStar.toString());
 	}
 
 	@Test

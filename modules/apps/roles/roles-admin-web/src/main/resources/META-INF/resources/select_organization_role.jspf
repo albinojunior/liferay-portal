@@ -18,7 +18,6 @@
 String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
 int step = ParamUtil.getInteger(request, "step", 1);
 String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectOrganizationRole");
-String syncEntitiesEventName = ParamUtil.getString(request, "syncEntitiesEventName", liferayPortletResponse.getNamespace() + "syncOrganizationRoles");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
@@ -38,7 +37,9 @@ if (step == 1) {
 	if (organizations.size() == 1) {
 		step = 2;
 
-		uniqueOrganizationId = organizations.get(0).getOrganizationId();
+		Organization organization = organizations.get(0);
+
+		uniqueOrganizationId = organization.getOrganizationId();
 	}
 }
 
@@ -55,7 +56,7 @@ if (step == 2) {
 	selectedOrganization = OrganizationServiceUtil.getOrganization(organizationId);
 }
 
-SearchContainer roleSearchContainer = null;
+SearchContainer<Role> roleSearchContainer = null;
 
 if (selectedOrganization == null) {
 	roleSearchContainer = selectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles);
@@ -114,7 +115,7 @@ else {
 					/>
 
 					<liferay-ui:search-container-column-text
-						name="roleType"
+						name="type"
 						orderable="<%= true %>"
 						value="<%= LanguageUtil.get(request, organization.getType()) %>"
 					/>
@@ -137,13 +138,13 @@ else {
 					<liferay-ui:search-container-column-text>
 
 						<%
-						Map<String, Object> data = new HashMap<String, Object>();
-
 						Group group = organization.getGroup();
 
-						data.put("groupid", group.getGroupId());
-
-						data.put("organizationid", organization.getOrganizationId());
+						Map<String, Object> data = HashMapBuilder.<String, Object>put(
+							"groupid", group.getGroupId()
+						).put(
+							"organizationid", organization.getOrganizationId()
+						).build();
 						%>
 
 						<aui:button cssClass="organization-selector-button" data="<%= data %>" value="choose" />
@@ -158,7 +159,7 @@ else {
 			<aui:script require="metal-dom/src/dom as dom">
 				var form = document.<portlet:namespace />selectOrganizationRoleFm;
 
-				dom.delegate(form, 'click', '.organization-selector-button', function(event) {
+				dom.delegate(form, 'click', '.organization-selector-button', function (event) {
 					Liferay.Util.postForm(form, {
 						data: {
 							organizationId: event.delegateTarget.dataset.organizationid,
@@ -218,14 +219,21 @@ else {
 						<c:if test="<%= Validator.isNull(p_u_i_d) || OrganizationMembershipPolicyUtil.isRoleAllowed((selUser != null) ? selUser.getUserId() : 0, selectedOrganization.getOrganizationId(), role.getRoleId()) %>">
 
 							<%
-							Map<String, Object> data = new HashMap<String, Object>();
+							Group selectedOrganizationGroup = selectedOrganization.getGroup();
 
-							data.put("entityid", role.getRoleId());
-							data.put("entityname", role.getTitle(locale));
-							data.put("groupdescriptivename", selectedOrganization.getGroup().getDescriptiveName(locale));
-							data.put("groupid", selectedOrganization.getGroupId());
-							data.put("iconcssclass", RolesAdminUtil.getIconCssClass(role));
-							data.put("searchcontainername", "organizationRoles");
+							Map<String, Object> data = HashMapBuilder.<String, Object>put(
+								"entityid", role.getRoleId()
+							).put(
+								"entityname", role.getTitle(locale)
+							).put(
+								"groupdescriptivename", selectedOrganizationGroup.getDescriptiveName(locale)
+							).put(
+								"groupid", selectedOrganization.getGroupId()
+							).put(
+								"iconcssclass", RolesAdminUtil.getIconCssClass(role)
+							).put(
+								"searchcontainername", "organizationRoles"
+							).build();
 
 							boolean disabled = false;
 
@@ -252,18 +260,3 @@ else {
 		</c:when>
 	</c:choose>
 </aui:form>
-
-<aui:script use="aui-base">
-	var Util = Liferay.Util;
-
-	var openingLiferay = Util.getOpener().Liferay;
-
-	openingLiferay.fire('<%= HtmlUtil.escape(syncEntitiesEventName) %>', {
-		selectors: A.all('.selector-button'),
-	});
-
-	Util.selectEntityHandler(
-		'#<portlet:namespace />selectOrganizationRoleFm',
-		'<%= HtmlUtil.escapeJS(eventName) %>'
-	);
-</aui:script>

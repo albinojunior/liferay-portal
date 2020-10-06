@@ -75,6 +75,20 @@ public class StructuredContentFolderSerDes {
 			sb.append(_toJSON(structuredContentFolder.getActions()));
 		}
 
+		if (structuredContentFolder.getAssetLibraryKey() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraryKey\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(structuredContentFolder.getAssetLibraryKey()));
+
+			sb.append("\"");
+		}
+
 		if (structuredContentFolder.getCreator() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -284,6 +298,15 @@ public class StructuredContentFolderSerDes {
 				String.valueOf(structuredContentFolder.getActions()));
 		}
 
+		if (structuredContentFolder.getAssetLibraryKey() == null) {
+			map.put("assetLibraryKey", null);
+		}
+		else {
+			map.put(
+				"assetLibraryKey",
+				String.valueOf(structuredContentFolder.getAssetLibraryKey()));
+		}
+
 		if (structuredContentFolder.getCreator() == null) {
 			map.put("creator", null);
 		}
@@ -302,15 +325,25 @@ public class StructuredContentFolderSerDes {
 				String.valueOf(structuredContentFolder.getCustomFields()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(
-				structuredContentFolder.getDateCreated()));
+		if (structuredContentFolder.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(
+					structuredContentFolder.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(
-				structuredContentFolder.getDateModified()));
+		if (structuredContentFolder.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(
+					structuredContentFolder.getDateModified()));
+		}
 
 		if (structuredContentFolder.getDescription() == null) {
 			map.put("description", null);
@@ -425,6 +458,12 @@ public class StructuredContentFolderSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "assetLibraryKey")) {
+				if (jsonParserFieldValue != null) {
+					structuredContentFolder.setAssetLibraryKey(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "creator")) {
 				if (jsonParserFieldValue != null) {
 					structuredContentFolder.setCreator(
@@ -518,9 +557,8 @@ public class StructuredContentFolderSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -576,10 +614,13 @@ public class StructuredContentFolderSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

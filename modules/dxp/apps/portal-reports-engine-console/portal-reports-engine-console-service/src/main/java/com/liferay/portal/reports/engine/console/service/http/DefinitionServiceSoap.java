@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see DefinitionServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class DefinitionServiceSoap {
 
 	public static com.liferay.portal.reports.engine.console.model.DefinitionSoap
@@ -105,7 +107,8 @@ public class DefinitionServiceSoap {
 					String sourceId, String reportName, boolean andSearch,
 					int start, int end,
 					com.liferay.portal.kernel.util.OrderByComparator
-						orderByComparator)
+						<com.liferay.portal.reports.engine.console.model.
+							Definition> orderByComparator)
 			throws RemoteException {
 
 		try {

@@ -14,9 +14,9 @@
 
 package com.liferay.depot.web.internal.display.context;
 
+import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -74,6 +74,7 @@ public class DepotAdminMembershipsDisplayContextTest {
 		DepotAdminMembershipsDisplayContext
 			depotAdminMembershipsDisplayContext =
 				new DepotAdminMembershipsDisplayContext(
+					Mockito.mock(ItemSelector.class),
 					_getLiferayPortletRequest(
 						new ThemeDisplayBuilder().withPermissionChecker(
 							getPermissionCheckerWithCompanyAdmin()
@@ -101,6 +102,7 @@ public class DepotAdminMembershipsDisplayContextTest {
 		DepotAdminMembershipsDisplayContext
 			depotAdminMembershipsDisplayContext =
 				new DepotAdminMembershipsDisplayContext(
+					Mockito.mock(ItemSelector.class),
 					_getLiferayPortletRequest(
 						new ThemeDisplayBuilder().withPermissionChecker(
 							getPermissionCheckerWithNoCompanyAdminAndAssignMember()
@@ -128,6 +130,7 @@ public class DepotAdminMembershipsDisplayContextTest {
 		DepotAdminMembershipsDisplayContext
 			depotAdminMembershipsDisplayContext =
 				new DepotAdminMembershipsDisplayContext(
+					Mockito.mock(ItemSelector.class),
 					_getLiferayPortletRequest(
 						new ThemeDisplayBuilder().withPermissionChecker(
 							getPermissionCheckerWithNoCompanyAdminAndNoAssignMember()
@@ -153,6 +156,7 @@ public class DepotAdminMembershipsDisplayContextTest {
 		DepotAdminMembershipsDisplayContext
 			depotAdminMembershipsDisplayContext =
 				new DepotAdminMembershipsDisplayContext(
+					Mockito.mock(ItemSelector.class),
 					_getLiferayPortletRequest(
 						new ThemeDisplayBuilder().build()),
 					null);
@@ -178,6 +182,7 @@ public class DepotAdminMembershipsDisplayContextTest {
 		DepotAdminMembershipsDisplayContext
 			depotAdminMembershipsDisplayContext =
 				new DepotAdminMembershipsDisplayContext(
+					Mockito.mock(ItemSelector.class),
 					_getLiferayPortletRequest(
 						new ThemeDisplayBuilder().withPermissionChecker(
 							getPermissionCheckerWithCompanyAdmin()
@@ -199,6 +204,7 @@ public class DepotAdminMembershipsDisplayContextTest {
 		DepotAdminMembershipsDisplayContext
 			depotAdminMembershipsDisplayContext =
 				new DepotAdminMembershipsDisplayContext(
+					Mockito.mock(ItemSelector.class),
 					_getLiferayPortletRequest(
 						new ThemeDisplayBuilder().withPermissionChecker(
 							getPermissionCheckerWithCompanyAdmin()
@@ -219,9 +225,9 @@ public class DepotAdminMembershipsDisplayContextTest {
 		);
 
 		Mockito.when(
-			group.getType()
+			group.isDepot()
 		).thenReturn(
-			GroupConstants.TYPE_DEPOT
+			true
 		);
 
 		return group;

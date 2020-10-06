@@ -17,6 +17,8 @@ package com.liferay.portal.vulcan.internal.jaxrs.feature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
 
+import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.document.library.kernel.util.DLValidator;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -28,11 +30,13 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
+import com.liferay.portal.vulcan.internal.configuration.util.ConfigurationUtil;
 import com.liferay.portal.vulcan.internal.jaxrs.container.request.filter.ContextContainerRequestFilter;
 import com.liferay.portal.vulcan.internal.jaxrs.container.request.filter.LogContainerRequestFilter;
 import com.liferay.portal.vulcan.internal.jaxrs.container.request.filter.NestedFieldsContainerRequestFilter;
 import com.liferay.portal.vulcan.internal.jaxrs.container.request.filter.TransactionContainerRequestFilter;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.AcceptLanguageContextProvider;
+import com.liferay.portal.vulcan.internal.jaxrs.context.provider.AggregationContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.CompanyContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.FieldsQueryParamContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.FilterContextProvider;
@@ -49,6 +53,7 @@ import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.InvalidFormatEx
 import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.JsonMappingExceptionMapper;
 import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.JsonParseExceptionMapper;
 import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.NoSuchModelExceptionMapper;
+import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.NotAcceptableExceptionMapper;
 import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.PortalExceptionMapper;
 import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.PrincipalExceptionMapper;
 import com.liferay.portal.vulcan.internal.jaxrs.exception.mapper.UnrecognizedPropertyExceptionMapper;
@@ -61,7 +66,9 @@ import com.liferay.portal.vulcan.internal.jaxrs.message.body.XMLMessageBodyReade
 import com.liferay.portal.vulcan.internal.jaxrs.message.body.XMLMessageBodyWriter;
 import com.liferay.portal.vulcan.internal.jaxrs.param.converter.provider.SiteParamConverterProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.validation.BeanValidationInterceptor;
+import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.EntityExtensionWriterInterceptor;
 import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.NestedFieldsWriterInterceptor;
+import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.PageEntityExtensionWriterInterceptor;
 import com.liferay.portal.vulcan.internal.param.converter.provider.DateParamConverterProvider;
 
 import javax.ws.rs.core.Feature;
@@ -69,6 +76,7 @@ import javax.ws.rs.core.FeatureContext;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -96,6 +104,7 @@ public class VulcanFeature implements Feature {
 	@Override
 	public boolean configure(FeatureContext featureContext) {
 		featureContext.register(BeanValidationInterceptor.class);
+		featureContext.register(EntityExtensionWriterInterceptor.class);
 		featureContext.register(ExceptionMapper.class);
 		featureContext.register(DateParamConverterProvider.class);
 		featureContext.register(FieldsQueryParamContextProvider.class);
@@ -108,10 +117,11 @@ public class VulcanFeature implements Feature {
 		featureContext.register(InvalidFilterExceptionMapper.class);
 		featureContext.register(InvalidFormatExceptionMapper.class);
 		featureContext.register(LogContainerRequestFilter.class);
-		featureContext.register(MultipartBodyMessageBodyReader.class);
 		featureContext.register(NestedFieldsContainerRequestFilter.class);
 		featureContext.register(NoSuchModelExceptionMapper.class);
+		featureContext.register(NotAcceptableExceptionMapper.class);
 		featureContext.register(ObjectMapperContextResolver.class);
+		featureContext.register(PageEntityExtensionWriterInterceptor.class);
 		featureContext.register(PaginationContextProvider.class);
 		featureContext.register(PortalExceptionMapper.class);
 		featureContext.register(PrincipalExceptionMapper.class);
@@ -127,9 +137,12 @@ public class VulcanFeature implements Feature {
 
 		featureContext.register(
 			new AcceptLanguageContextProvider(_language, _portal));
+		featureContext.register(
+			new AggregationContextProvider(_language, _portal));
 		featureContext.register(new CompanyContextProvider(_portal));
 		featureContext.register(
 			new ContextContainerRequestFilter(
+				ConfigurationUtil.getConfigurations(_configurationAdmin),
 				_groupLocalService, _language, _portal,
 				_resourceActionLocalService, _resourcePermissionLocalService,
 				_roleLocalService, _getScopeChecker(),
@@ -137,6 +150,9 @@ public class VulcanFeature implements Feature {
 		featureContext.register(
 			new FilterContextProvider(
 				_expressionConvert, _filterParserProvider, _language, _portal));
+		featureContext.register(
+			new MultipartBodyMessageBodyReader(
+				_dlValidator.getMaxAllowableSize()));
 
 		_nestedFieldsWriterInterceptor = new NestedFieldsWriterInterceptor(
 			_bundleContext);
@@ -144,7 +160,8 @@ public class VulcanFeature implements Feature {
 		featureContext.register(_nestedFieldsWriterInterceptor);
 
 		featureContext.register(
-			new SiteParamConverterProvider(_groupLocalService));
+			new SiteParamConverterProvider(
+				_depotEntryLocalService, _groupLocalService));
 
 		featureContext.register(
 			new SortContextProvider(_language, _portal, _sortParserProvider));
@@ -178,6 +195,15 @@ public class VulcanFeature implements Feature {
 	}
 
 	private BundleContext _bundleContext;
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private DepotEntryLocalService _depotEntryLocalService;
+
+	@Reference
+	private DLValidator _dlValidator;
 
 	@Reference(
 		target = "(result.class.name=com.liferay.portal.kernel.search.filter.Filter)"

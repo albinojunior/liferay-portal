@@ -42,22 +42,21 @@ String previewURL = DLURLHelperUtil.getPreviewURL(fileVersion.getFileEntry(), fi
 	<c:when test="<%= Objects.equals(fileVersion.getMimeType(), ContentTypes.IMAGE_SVG_XML) %>">
 		<div class="preview-file">
 			<div class="preview-file-container preview-file-max-height">
-				<img class="preview-file-image-vectorial" src="<%= previewURL %>" />
+				<img alt="<%= fileVersion.getDescription() %>" class="preview-file-image-vectorial" src="<%= previewURL %>" />
 			</div>
 		</div>
 	</c:when>
 	<c:otherwise>
-
-		<%
-		Map<String, Object> data = HashMapBuilder.<String, Object>put(
-			"imageURL", previewURL
-		).build();
-		%>
-
-		<div id="<%= renderResponse.getNamespace() + randomNamespace + "previewImage" %>">
+		<div id="<portlet:namespace /><%= randomNamespace %>previewImage">
 			<react:component
-				data="<%= data %>"
 				module="preview/js/ImagePreviewer.es"
+				props='<%=
+					HashMapBuilder.<String, Object>put(
+						"alt", fileVersion.getDescription()
+					).put(
+						"imageURL", previewURL
+					).build()
+				%>'
 			/>
 		</div>
 	</c:otherwise>

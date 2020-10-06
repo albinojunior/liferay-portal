@@ -12,43 +12,124 @@
  * details.
  */
 
-import {FormSupport} from 'dynamic-data-mapping-form-renderer';
+import {PagesVisitor} from 'dynamic-data-mapping-form-renderer/js/util/visitors.es';
 
-import {updateFocusedField} from '../util/focusedField.es';
+import {getField} from '../../../util/fieldSupport.es';
 import {updateRulesReferences} from '../util/rules.es';
+import {
+	updateField,
+	updateSettingsContextProperty,
+} from '../util/settingsContext.es';
 
-export const updatePages = (pages, oldFieldProperties, newFieldProperties) => {
-	const {fieldName} = oldFieldProperties;
+export const updatePages = (props, pages, previousFieldName, newField) => {
+	let parentFieldName;
+	const visitor = new PagesVisitor(pages);
 
-	return FormSupport.updateField(pages, fieldName, newFieldProperties);
+	const {fieldName: newFieldName} = newField;
+
+	let newPages = visitor.mapFields(
+		(field, fieldIndex, columnIndex, rowIndex, pageIndex, parentField) => {
+			if (field.fieldName === previousFieldName) {
+				if (parentField) {
+					parentFieldName = parentField.fieldName;
+				}
+
+				return newField;
+			}
+
+			return field;
+		},
+		true,
+		true
+	);
+
+	if (parentFieldName && previousFieldName !== newFieldName) {
+		visitor.setPages(newPages);
+
+		newPages = visitor.mapFields(
+			(field) => {
+				if (parentFieldName === field.fieldName) {
+					const visitor = new PagesVisitor([
+						{
+							rows: field.rows || [],
+						},
+					]);
+					const layout = visitor.mapColumns((column) => {
+						return {
+							...column,
+							fields: column.fields.map((fieldName) => {
+								if (fieldName === previousFieldName) {
+									return newFieldName;
+								}
+
+								return fieldName;
+							}),
+						};
+					});
+					const {rows} = layout[0];
+
+					return {
+						...field,
+						rows,
+						settingsContext: updateSettingsContextProperty(
+							props.editingLanguageId,
+							field.settingsContext,
+							'rows',
+							rows
+						),
+					};
+				}
+
+				return field;
+			},
+			true,
+			true
+		);
+	}
+
+	return newPages;
 };
 
-export const updateField = (props, state, fieldName, fieldValue) => {
-	const {focusedField, pages, rules} = state;
-	const updatedFocusedField = updateFocusedField(
+export const updateState = (props, state, propertyName, propertyValue) => {
+	const {activePage, focusedField, pages, rules} = state;
+	const {fieldName: previousFocusedFieldName} = focusedField;
+	const newFocusedField = updateField(
 		props,
-		state,
-		fieldName,
-		fieldValue
+		focusedField,
+		propertyName,
+		propertyValue
+	);
+
+	const newPages = updatePages(
+		props,
+		pages,
+		previousFocusedFieldName,
+		newFocusedField
 	);
 
 	return {
-		focusedField: updatedFocusedField,
-		pages: updatePages(pages, focusedField, updatedFocusedField),
+		activePage,
+		focusedField: newFocusedField,
+		pages: newPages,
 		rules: updateRulesReferences(
 			rules || [],
 			focusedField,
-			updatedFocusedField
+			newFocusedField
 		),
 	};
 };
 
 export const handleFieldEdited = (props, state, event) => {
-	const {propertyName, propertyValue} = event;
+	const {fieldName, propertyName, propertyValue} = event;
 	let newState = {};
 
 	if (propertyName !== 'name' || propertyValue !== '') {
-		newState = updateField(props, state, propertyName, propertyValue);
+		state = {
+			...state,
+			...(fieldName && {focusedField: getField(state.pages, fieldName)}),
+		};
+
+		newState = updateState(props, state, propertyName, propertyValue);
 	}
 
 	return newState;

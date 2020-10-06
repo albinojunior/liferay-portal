@@ -17,11 +17,12 @@ package com.liferay.portal.kernel.upgrade;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
-import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
 import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.sql.PreparedStatement;
@@ -37,6 +38,21 @@ import java.util.Set;
  */
 public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #upgradeLocalizedColumn(ResourceBundleLoader, Class, String,
+	 *             String, String, String, long[])}
+	 */
+	@Deprecated
+	protected void upgradeLocalizedColumn(
+			com.liferay.portal.kernel.util.ResourceBundleLoader
+				resourceBundleLoader,
+			Class<?> tableClass, String columnName, String originalContent,
+			String localizationMapKey, String localizationXMLKey,
+			long[] companyIds)
+		throws SQLException {
+	}
+
 	protected void upgradeLocalizedColumn(
 			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
 			String columnName, String originalContent,
@@ -47,7 +63,7 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 		Class<?> clazz = getClass();
 
 		resourceBundleLoader = new AggregateResourceBundleLoader(
-			ResourceBundleUtil.getResourceBundleLoader(
+			new ClassResourceBundleLoader(
 				"content.Language", clazz.getClassLoader()),
 			resourceBundleLoader);
 

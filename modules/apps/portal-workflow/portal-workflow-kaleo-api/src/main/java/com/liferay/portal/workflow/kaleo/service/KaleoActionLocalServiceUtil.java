@@ -41,6 +41,10 @@ public class KaleoActionLocalServiceUtil {
 	/**
 	 * Adds the kaleo action to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoAction the kaleo action
 	 * @return the kaleo action that was added
 	 */
@@ -54,14 +58,15 @@ public class KaleoActionLocalServiceUtil {
 	public static com.liferay.portal.workflow.kaleo.model.KaleoAction
 			addKaleoAction(
 				String kaleoClassName, long kaleoClassPK,
-				long kaleoDefinitionVersionId, String kaleoNodeName,
+				long kaleoDefinitionId, long kaleoDefinitionVersionId,
+				String kaleoNodeName,
 				com.liferay.portal.workflow.kaleo.definition.Action action,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().addKaleoAction(
-			kaleoClassName, kaleoClassPK, kaleoDefinitionVersionId,
-			kaleoNodeName, action, serviceContext);
+			kaleoClassName, kaleoClassPK, kaleoDefinitionId,
+			kaleoDefinitionVersionId, kaleoNodeName, action, serviceContext);
 	}
 
 	/**
@@ -93,6 +98,10 @@ public class KaleoActionLocalServiceUtil {
 	/**
 	 * Deletes the kaleo action from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoAction the kaleo action
 	 * @return the kaleo action that was removed
 	 */
@@ -105,6 +114,10 @@ public class KaleoActionLocalServiceUtil {
 
 	/**
 	 * Deletes the kaleo action with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoActionId the primary key of the kaleo action
 	 * @return the kaleo action that was removed
@@ -133,6 +146,12 @@ public class KaleoActionLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -343,6 +362,10 @@ public class KaleoActionLocalServiceUtil {
 
 	/**
 	 * Updates the kaleo action in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoActionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoAction the kaleo action
 	 * @return the kaleo action that was updated

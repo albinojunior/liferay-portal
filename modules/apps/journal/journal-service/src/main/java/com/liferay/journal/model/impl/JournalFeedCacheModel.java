@@ -37,17 +37,17 @@ public class JournalFeedCacheModel
 	implements CacheModel<JournalFeed>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof JournalFeedCacheModel)) {
+		if (!(object instanceof JournalFeedCacheModel)) {
 			return false;
 		}
 
 		JournalFeedCacheModel journalFeedCacheModel =
-			(JournalFeedCacheModel)obj;
+			(JournalFeedCacheModel)object;
 
 		if ((id == journalFeedCacheModel.id) &&
 			(mvccVersion == journalFeedCacheModel.mvccVersion)) {
@@ -77,10 +77,12 @@ public class JournalFeedCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(49);
+		StringBundler sb = new StringBundler(51);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", id=");
@@ -137,6 +139,7 @@ public class JournalFeedCacheModel
 		JournalFeedImpl journalFeedImpl = new JournalFeedImpl();
 
 		journalFeedImpl.setMvccVersion(mvccVersion);
+		journalFeedImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			journalFeedImpl.setUuid("");
@@ -274,6 +277,8 @@ public class JournalFeedCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		id = objectInput.readLong();
@@ -308,6 +313,8 @@ public class JournalFeedCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -425,6 +432,7 @@ public class JournalFeedCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long id;
 	public long groupId;

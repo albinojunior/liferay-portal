@@ -29,7 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Carlos Sierra Andrés
+ *
+ * @deprecated As of Athanasius (7.3.x), replaced by {@link
+ *             com.liferay.portal.kernel.resource.bundle.CacheResourceBundleLoader}
  */
+@Deprecated
 public class CacheResourceBundleLoader implements ResourceBundleLoader {
 
 	public static void clearCache() {

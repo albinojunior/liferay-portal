@@ -200,10 +200,10 @@ public class LPKGBundleTrackerCustomizer
 
 			List<String> innerBundleLocations = new ArrayList<>();
 
-			Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+			Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 
-			while (zipEntries.hasMoreElements()) {
-				ZipEntry zipEntry = zipEntries.nextElement();
+			while (enumeration.hasMoreElements()) {
+				ZipEntry zipEntry = enumeration.nextElement();
 
 				String name = zipEntry.getName();
 
@@ -351,8 +351,9 @@ public class LPKGBundleTrackerCustomizer
 				_recordTrackedBundles(bundle, innerBundleLocations);
 			}
 		}
-		catch (Throwable t) {
-			_log.error("Rollback bundle installation for " + bundles, t);
+		catch (Throwable throwable) {
+			_log.error(
+				"Rollback bundle installation for " + bundles, throwable);
 
 			for (Bundle newBundle : bundles) {
 				try {
@@ -493,34 +494,16 @@ public class LPKGBundleTrackerCustomizer
 			try {
 				_uninstallBundle(prefix, newBundle);
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				_log.error(
 					StringBundler.concat(
 						"Unable to uninstall ", newBundle,
 						" in response to uninstallation of ", bundle),
-					t);
+					throwable);
 			}
 		}
 
 		_properties.remove(bundle.getSymbolicName());
-	}
-
-	private static Properties _readMarketplaceProperties(Bundle bundle)
-		throws IOException {
-
-		URL url = bundle.getEntry("liferay-marketplace.properties");
-
-		if (url == null) {
-			return null;
-		}
-
-		try (InputStream in = url.openStream()) {
-			Properties properties = new Properties();
-
-			properties.load(in);
-
-			return properties;
-		}
 	}
 
 	private String _buildImportPackageString(Class<?>... classes) {
@@ -641,6 +624,24 @@ public class LPKGBundleTrackerCustomizer
 		bundle.uninstall();
 	}
 
+	private Properties _readMarketplaceProperties(Bundle bundle)
+		throws IOException {
+
+		URL url = bundle.getEntry("liferay-marketplace.properties");
+
+		if (url == null) {
+			return null;
+		}
+
+		try (InputStream in = url.openStream()) {
+			Properties properties = new Properties();
+
+			properties.load(in);
+
+			return properties;
+		}
+	}
+
 	private String[] _readServletContextNameAndPortalProfileNames(URL url)
 		throws IOException {
 
@@ -734,8 +735,8 @@ public class LPKGBundleTrackerCustomizer
 					trackedBundles.add(installedBundle);
 				}
 			}
-			catch (Throwable t) {
-				_log.error("Unable to uninstall LPKG " + bundle, t);
+			catch (Throwable throwable) {
+				_log.error("Unable to uninstall LPKG " + bundle, throwable);
 
 				return Collections.emptyList();
 			}

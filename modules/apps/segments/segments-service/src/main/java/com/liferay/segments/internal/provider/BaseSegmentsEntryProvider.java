@@ -76,8 +76,8 @@ public abstract class BaseSegmentsEntryProvider
 			).toArray();
 		}
 
-		ODataRetriever oDataRetriever = serviceTrackerMap.getService(
-			segmentsEntry.getType());
+		ODataRetriever<BaseModel<?>> oDataRetriever =
+			serviceTrackerMap.getService(segmentsEntry.getType());
 
 		if (oDataRetriever == null) {
 			return new long[0];
@@ -113,8 +113,8 @@ public abstract class BaseSegmentsEntryProvider
 				segmentsEntryId);
 		}
 
-		ODataRetriever oDataRetriever = serviceTrackerMap.getService(
-			segmentsEntry.getType());
+		ODataRetriever<BaseModel<?>> oDataRetriever =
+			serviceTrackerMap.getService(segmentsEntry.getType());
 
 		if (oDataRetriever == null) {
 			return 0;
@@ -214,9 +214,13 @@ public abstract class BaseSegmentsEntryProvider
 		String className, long classPK, Context context,
 		SegmentsEntry segmentsEntry, long[] segmentsEntryIds) {
 
+		String contextFilterString = getFilterString(
+			segmentsEntry, Criteria.Type.CONTEXT);
+
 		if (segmentsEntryRelLocalService.hasSegmentsEntryRel(
 				segmentsEntry.getSegmentsEntryId(),
-				portal.getClassNameId(className), classPK)) {
+				portal.getClassNameId(className), classPK) &&
+			Validator.isNull(contextFilterString)) {
 
 			return true;
 		}
@@ -228,8 +232,6 @@ public abstract class BaseSegmentsEntryProvider
 		}
 
 		Criteria.Conjunction contextConjunction = getConjunction(
-			segmentsEntry, Criteria.Type.CONTEXT);
-		String contextFilterString = getFilterString(
 			segmentsEntry, Criteria.Type.CONTEXT);
 
 		if ((context != null) && Validator.isNotNull(contextFilterString)) {
@@ -258,7 +260,8 @@ public abstract class BaseSegmentsEntryProvider
 
 		Criteria.Conjunction modelConjunction = getConjunction(
 			segmentsEntry, Criteria.Type.MODEL);
-		ODataRetriever oDataRetriever = serviceTrackerMap.getService(className);
+		ODataRetriever<BaseModel<?>> oDataRetriever =
+			serviceTrackerMap.getService(className);
 		String modelFilterString = getFilterString(
 			segmentsEntry, Criteria.Type.MODEL);
 
@@ -307,7 +310,7 @@ public abstract class BaseSegmentsEntryProvider
 	@Reference(
 		target = "(target.class.name=com.liferay.segments.context.Context)"
 	)
-	protected ODataMatcher oDataMatcher;
+	protected ODataMatcher<Context> oDataMatcher;
 
 	@Reference
 	protected Portal portal;
@@ -322,7 +325,8 @@ public abstract class BaseSegmentsEntryProvider
 	@Reference
 	protected SegmentsEntryRelLocalService segmentsEntryRelLocalService;
 
-	protected ServiceTrackerMap<String, ODataRetriever> serviceTrackerMap;
+	protected ServiceTrackerMap<String, ODataRetriever<BaseModel<?>>>
+		serviceTrackerMap;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseSegmentsEntryProvider.class);

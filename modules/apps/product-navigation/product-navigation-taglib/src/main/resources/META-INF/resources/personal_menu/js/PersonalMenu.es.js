@@ -34,8 +34,8 @@ function PersonalMenu({
 	function preloadItems() {
 		if (!preloadPromise.current) {
 			preloadPromise.current = fetch(itemsURL)
-				.then(response => response.json())
-				.then(items => setItems(items));
+				.then((response) => response.json())
+				.then((items) => setItems(items));
 		}
 	}
 
@@ -52,6 +52,7 @@ function PersonalMenu({
 					/>
 				) : (
 					<ClayButton
+						aria-label={Liferay.Language.get('personal-menu')}
 						displayType="unstyled"
 						onFocus={preloadItems}
 						onMouseOver={preloadItems}
@@ -98,6 +99,4 @@ PersonalMenu.propTypes = {
 	itemsURL: PropTypes.string,
 };
 
-export default function(props) {
-	return <PersonalMenu {...props} />;
-}
+export default PersonalMenu;

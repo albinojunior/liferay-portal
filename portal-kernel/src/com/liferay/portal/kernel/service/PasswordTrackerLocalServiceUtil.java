@@ -39,6 +39,10 @@ public class PasswordTrackerLocalServiceUtil {
 	/**
 	 * Adds the password tracker to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param passwordTracker the password tracker
 	 * @return the password tracker that was added
 	 */
@@ -74,6 +78,10 @@ public class PasswordTrackerLocalServiceUtil {
 	/**
 	 * Deletes the password tracker with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param passwordTrackerId the primary key of the password tracker
 	 * @return the password tracker that was removed
 	 * @throws PortalException if a password tracker with the primary key could not be found
@@ -87,6 +95,10 @@ public class PasswordTrackerLocalServiceUtil {
 
 	/**
 	 * Deletes the password tracker from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordTracker the password tracker
 	 * @return the password tracker that was removed
@@ -111,6 +123,12 @@ public class PasswordTrackerLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -298,6 +316,10 @@ public class PasswordTrackerLocalServiceUtil {
 
 	/**
 	 * Updates the password tracker in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PasswordTrackerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param passwordTracker the password tracker
 	 * @return the password tracker that was updated

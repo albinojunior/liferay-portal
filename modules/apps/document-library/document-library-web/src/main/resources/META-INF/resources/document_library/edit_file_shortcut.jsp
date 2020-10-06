@@ -24,7 +24,7 @@ DLEditFileShortcutDisplayContext dlEditFileShortcutDisplayContext = (DLEditFileS
 renderResponse.setTitle(dlEditFileShortcutDisplayContext.getTitle());
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<aui:form action="<%= dlEditFileShortcutDisplayContext.getEditFileShortcutURL() %>" method="post" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="fileShortcutId" type="hidden" value="<%= dlEditFileShortcutDisplayContext.getFileShortcutId() %>" />
@@ -63,48 +63,39 @@ renderResponse.setTitle(dlEditFileShortcutDisplayContext.getTitle());
 			<aui:button href="<%= redirect %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
-<aui:script require="frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
+<aui:script sandbox="<%= true %>">
 	var selectToFileEntryButton = document.getElementById(
 		'<portlet:namespace />selectToFileEntryButton'
 	);
 
-	if (selectToFileEntryButton) {
-		var itemSelectorDialog = new ItemSelectorDialog.default({
-			eventName: '<portlet:namespace />toFileEntrySelectedItem',
-			singleSelect: true,
+	selectToFileEntryButton.addEventListener('click', function (event) {
+		Liferay.Util.openSelectionModal({
+			onSelect: function (selectedItem) {
+				if (selectedItem) {
+					var itemValue = JSON.parse(selectedItem.value);
+
+					var toFileEntryId = document.getElementById(
+						'<portlet:namespace />toFileEntryId'
+					);
+
+					if (toFileEntryId) {
+						toFileEntryId.value = itemValue.fileEntryId;
+					}
+
+					var toFileEntryTitle = document.getElementById(
+						'<portlet:namespace />toFileEntryTitle'
+					);
+
+					if (toFileEntryTitle) {
+						toFileEntryTitle.value = itemValue.title;
+					}
+				}
+			},
+			selectEventName: '<portlet:namespace />toFileEntrySelectedItem',
 			title: '<liferay-ui:message arguments="file" key="select-x" />',
 			url: '<%= dlEditFileShortcutDisplayContext.getItemSelectorURL() %>',
 		});
-
-		itemSelectorDialog.on('selectedItemChange', function(event) {
-			var selectedItem = event.selectedItem;
-
-			if (selectedItem) {
-				var itemValue = JSON.parse(selectedItem.value);
-
-				var toFileEntryId = document.getElementById(
-					'<portlet:namespace />toFileEntryId'
-				);
-
-				if (toFileEntryId) {
-					toFileEntryId.value = itemValue.fileEntryId;
-				}
-
-				var toFileEntryTitle = document.getElementById(
-					'<portlet:namespace />toFileEntryTitle'
-				);
-
-				if (toFileEntryTitle) {
-					toFileEntryTitle.value = itemValue.title;
-				}
-			}
-		});
-
-		selectToFileEntryButton.addEventListener('click', function(event) {
-			event.preventDefault();
-			itemSelectorDialog.open();
-		});
-	}
+	});
 </aui:script>

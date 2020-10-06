@@ -17,7 +17,10 @@ package com.liferay.frontend.js.loader.modules.extender.internal.servlet;
 import com.liferay.frontend.js.loader.modules.extender.internal.configuration.Details;
 import com.liferay.frontend.js.loader.modules.extender.internal.resolution.BrowserModulesResolution;
 import com.liferay.frontend.js.loader.modules.extender.internal.resolution.BrowserModulesResolver;
+import com.liferay.frontend.js.loader.modules.extender.npm.NPMRegistryUpdatesListener;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -30,6 +33,7 @@ import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
@@ -50,9 +54,23 @@ import org.osgi.service.component.annotations.Reference;
 		"osgi.http.whiteboard.servlet.pattern=/js_resolve_modules",
 		"service.ranking:Integer=" + Details.MAX_VALUE_LESS_1K
 	},
-	service = {JSResolveModulesServlet.class, Servlet.class}
+	service = {
+		JSResolveModulesServlet.class, NPMRegistryUpdatesListener.class,
+		Servlet.class
+	}
 )
-public class JSResolveModulesServlet extends HttpServlet {
+public class JSResolveModulesServlet
+	extends HttpServlet implements NPMRegistryUpdatesListener {
+
+	public JSResolveModulesServlet() {
+		onAfterUpdate();
+	}
+
+	@Override
+	public void onAfterUpdate() {
+		_etag = StringBundler.concat(
+			"W/", StringPool.QUOTE, UUID.randomUUID(), StringPool.QUOTE);
+	}
 
 	@Override
 	protected void service(
@@ -60,6 +78,16 @@ public class JSResolveModulesServlet extends HttpServlet {
 			HttpServletResponse httpServletResponse)
 		throws IOException {
 
+		if (_etag.equals(
+				httpServletRequest.getHeader(HttpHeaders.IF_NONE_MATCH))) {
+
+			httpServletResponse.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+
+			return;
+		}
+
+		httpServletResponse.addHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
+		httpServletResponse.addHeader(HttpHeaders.ETAG, _etag);
 		httpServletResponse.setCharacterEncoding(StringPool.UTF8);
 		httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
 
@@ -107,5 +135,7 @@ public class JSResolveModulesServlet extends HttpServlet {
 
 	@Reference
 	private BrowserModulesResolver _browserModulesResolver;
+
+	private volatile String _etag;
 
 }

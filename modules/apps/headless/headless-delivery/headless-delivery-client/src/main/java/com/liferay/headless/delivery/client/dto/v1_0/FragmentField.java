@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class FragmentField implements Cloneable {
 
+	public static FragmentField toDTO(String json) {
+		return FragmentFieldSerDes.toDTO(json);
+	}
+
 	public String getId() {
 		return id;
 	}

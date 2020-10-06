@@ -160,7 +160,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			journalArticle
 		).getId();
 
-		AssetRenderer assetRenderer = Mockito.mock(AssetRenderer.class);
+		AssetRenderer<?> assetRenderer = Mockito.mock(AssetRenderer.class);
 
 		Mockito.doReturn(
 			journalArticle
@@ -216,7 +216,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 
 		AssetEntry assetEntry = getAssetEntry(className, classPK);
 
-		AssetRenderer assetRenderer = Mockito.mock(AssetRenderer.class);
+		AssetRenderer<?> assetRenderer = Mockito.mock(AssetRenderer.class);
 
 		Mockito.doReturn(
 			urlTitle
@@ -274,7 +274,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			dlFileEntry
 		).getFileEntryId();
 
-		AssetRenderer assetRenderer = Mockito.mock(AssetRenderer.class);
+		AssetRenderer<?> assetRenderer = Mockito.mock(AssetRenderer.class);
 
 		Mockito.doReturn(
 			dlFileEntry
@@ -282,9 +282,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			assetRenderer
 		).getAssetObject();
 
-		AssetEntry assetEntry = getAssetEntry(className, 12345);
-
-		setUpAssetEntryLocalServiceFetchUUID(assetEntry);
+		setUpAssetEntryLocalServiceFetchUUID(getAssetEntry(className, 12345));
 
 		setUpDestinationAssetRenderer(assetRenderer);
 		setUpDestinationClassName(className);
@@ -321,7 +319,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			dlFolder
 		).getFolderId();
 
-		AssetRenderer assetRenderer = Mockito.mock(AssetRenderer.class);
+		AssetRenderer<?> assetRenderer = Mockito.mock(AssetRenderer.class);
 
 		Mockito.doReturn(
 			dlFolder
@@ -329,9 +327,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			assetRenderer
 		).getAssetObject();
 
-		AssetEntry assetEntry = getAssetEntry(className, 12345);
-
-		setUpAssetEntryLocalServiceFetchUUID(assetEntry);
+		setUpAssetEntryLocalServiceFetchUUID(getAssetEntry(className, 12345));
 
 		setUpDestinationAssetRenderer(assetRenderer);
 		setUpDestinationClassName(className);
@@ -414,9 +410,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			destinationHelper
 		).getClassPK();
 
-		AssetEntry assetEntry = getAssetEntry(className, 12345);
-
-		setUpAssetEntryLocalServiceFetchUUID(assetEntry);
+		setUpAssetEntryLocalServiceFetchUUID(getAssetEntry(className, 12345));
 
 		setUpInputGroupId(groupId);
 		setUpMBMessageLocalService(messageId);
@@ -448,9 +442,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			"http://localhost:8080/web/guest/blabal?className=", className,
 			"&classPK=", classPK);
 
-		AssetEntry assetEntry = getAssetEntry(className, classPK);
-
-		setUpDestinationAssetEntry(assetEntry);
+		setUpDestinationAssetEntry(getAssetEntry(className, classPK));
 
 		assertSimilarResultsContributor(
 			urlString, expectedUID, expectedDestination);
@@ -470,9 +462,9 @@ public class SimilarResultsUidsAndDestinationsTest {
 
 		String expectedUID = "ClassNamePortlet_PORTLET_34567";
 
-		String expectedDestination =
-			"http://localhost:8080/web/guest/blabal?classNameId=" +
-				classNameId2 + "&classPK=" + classPK2;
+		String expectedDestination = StringBundler.concat(
+			"http://localhost:8080/web/guest/blabal?classNameId=", classNameId2,
+			"&classPK=", classPK2);
 
 		AssetEntry assetEntry1 = getAssetEntry(className, classPK1);
 
@@ -645,7 +637,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			wikiPage
 		).getTitle();
 
-		AssetRenderer assetRenderer = Mockito.mock(AssetRenderer.class);
+		AssetRenderer<?> assetRenderer = Mockito.mock(AssetRenderer.class);
 
 		Mockito.doReturn(
 			wikiPage
@@ -653,9 +645,7 @@ public class SimilarResultsUidsAndDestinationsTest {
 			assetRenderer
 		).getAssetObject();
 
-		AssetEntry assetEntry = getAssetEntry(className, classPK);
-
-		setUpAssetEntryLocalServiceFetchUUID(assetEntry);
+		setUpAssetEntryLocalServiceFetchUUID(getAssetEntry(className, classPK));
 
 		setUpDestinationAssetRenderer(assetRenderer);
 		setUpInputGroupId(groupId);
@@ -911,7 +901,9 @@ public class SimilarResultsUidsAndDestinationsTest {
 		).getAssetEntry();
 	}
 
-	protected void setUpDestinationAssetRenderer(AssetRenderer assetRenderer) {
+	protected void setUpDestinationAssetRenderer(
+		AssetRenderer<?> assetRenderer) {
+
 		Mockito.doReturn(
 			assetRenderer
 		).when(

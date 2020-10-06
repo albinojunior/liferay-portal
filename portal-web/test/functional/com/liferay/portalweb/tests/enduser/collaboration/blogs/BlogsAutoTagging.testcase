@@ -107,7 +107,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
 			portlet = "Staging");
 
 		Staging.activateStagingCP(siteName = "Site Name");
@@ -136,7 +135,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Navigator.gotoSitePage(
 			pageName = "Blogs Page",
@@ -154,6 +153,7 @@ definition {
 	@description = "This test ensures that when autotagging is disabled while adding a site, Blog entries will not be autotagged."
 	@priority = "5"
 	test DisableAutoTaggingForSite {
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "BlogsAutoTagging#DisableAutoTaggingForSite";
 
 		JSONGroup.addGroup(groupName = "Site AutoTag Disabled");
@@ -170,7 +170,9 @@ definition {
 
 		SitePages.openPagesAdmin(siteURLKey = "Site AutoTag Disabled");
 
-		AutoTagging.disableAutoTagging(disableAutoTaggingFor = "Settings");
+		AutoTagging.disableAutoTagging(
+			disableAutoTaggingFor = "Settings",
+			site = "Site AutoTag Disabled");
 
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-autotag-disabled");
 
@@ -250,6 +252,8 @@ definition {
 	@description = "This test asserts that a blog entry is auto tagged when OpenNLP Text Auto Tagging is enabled."
 	@priority = "5"
 	test Smoke {
+		property portal.acceptance = "true";
+
 		property test.name.skip.portal.instance = "BlogsAutoTagging#Smoke";
 
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");

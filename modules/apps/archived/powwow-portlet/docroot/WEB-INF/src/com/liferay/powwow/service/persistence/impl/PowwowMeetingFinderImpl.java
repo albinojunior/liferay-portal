@@ -78,10 +78,10 @@ public class PowwowMeetingFinderImpl
 			queryPos.add(user.getUserId());
 			queryPos.add(user.getEmailAddress());
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -101,7 +101,7 @@ public class PowwowMeetingFinderImpl
 	@Override
 	public List<PowwowMeeting> findByU_S(
 		long userId, int[] statuses, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<PowwowMeeting> orderByComparator) {
 
 		Session session = null;
 

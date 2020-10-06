@@ -24,14 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Eduardo Garcia
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class SegmentsEntryRoleSoap implements Serializable {
 
 	public static SegmentsEntryRoleSoap toSoapModel(SegmentsEntryRole model) {
 		SegmentsEntryRoleSoap soapModel = new SegmentsEntryRoleSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setSegmentsEntryRoleId(model.getSegmentsEntryRoleId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
@@ -109,6 +112,14 @@ public class SegmentsEntryRoleSoap implements Serializable {
 		_mvccVersion = mvccVersion;
 	}
 
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getSegmentsEntryRoleId() {
 		return _segmentsEntryRoleId;
 	}
@@ -174,6 +185,7 @@ public class SegmentsEntryRoleSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _segmentsEntryRoleId;
 	private long _companyId;
 	private long _userId;

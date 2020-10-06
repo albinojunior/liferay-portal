@@ -22,6 +22,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -49,6 +50,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "UserAccount")
 public class UserAccount {
+
+	public static UserAccount toDTO(String json) {
+		return ObjectMapperUtil.readValue(UserAccount.class, json);
+	}
 
 	@Schema
 	@Valid
@@ -107,7 +112,7 @@ public class UserAccount {
 	@GraphQLField(
 		description = "The user's additional name (e.g., middle name)."
 	)
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String additionalName;
 
 	@Schema(description = "The user's alias or screen name.")
@@ -135,7 +140,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's alias or screen name.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String alternateName;
 
 	@Schema(description = "The user's date of birth, in ISO 8601 format.")
@@ -163,7 +168,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's date of birth, in ISO 8601 format.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Date birthDate;
 
 	@Schema
@@ -308,7 +313,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's main email address.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String emailAddress;
 
 	@Schema(description = "The user's surname (last name).")
@@ -336,7 +341,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's surname (last name).")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String familyName;
 
 	@Schema(description = "The user's first name.")
@@ -364,7 +369,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's first name.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String givenName;
 
 	@Schema(description = "The user's title (e.g., Dr., Mr., Mrs, Ms., etc.).")
@@ -394,7 +399,7 @@ public class UserAccount {
 	@GraphQLField(
 		description = "The user's title (e.g., Dr., Mr., Mrs, Ms., etc.)."
 	)
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String honorificPrefix;
 
 	@Schema(description = "The user's suffix (e.g., II, Jr., PhD, etc.).")
@@ -422,7 +427,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's suffix (e.g., II, Jr., PhD, etc.).")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String honorificSuffix;
 
 	@Schema(description = "The user's ID.")
@@ -504,7 +509,7 @@ public class UserAccount {
 	}
 
 	@GraphQLField(description = "The user's job title.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String jobTitle;
 
 	@Schema(description = "A list of keywords describing the user.")
@@ -1101,6 +1106,16 @@ public class UserAccount {
 		return string.replaceAll("\"", "\\\\\"");
 	}
 
+	private static boolean _isArray(Object value) {
+		if (value == null) {
+			return false;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		return clazz.isArray();
+	}
+
 	private static String _toJSON(Map<String, ?> map) {
 		StringBuilder sb = new StringBuilder("{");
 
@@ -1116,9 +1131,42 @@ public class UserAccount {
 			sb.append("\"");
 			sb.append(entry.getKey());
 			sb.append("\":");
-			sb.append("\"");
-			sb.append(entry.getValue());
-			sb.append("\"");
+
+			Object value = entry.getValue();
+
+			if (_isArray(value)) {
+				sb.append("[");
+
+				Object[] valueArray = (Object[])value;
+
+				for (int i = 0; i < valueArray.length; i++) {
+					if (valueArray[i] instanceof String) {
+						sb.append("\"");
+						sb.append(valueArray[i]);
+						sb.append("\"");
+					}
+					else {
+						sb.append(valueArray[i]);
+					}
+
+					if ((i + 1) < valueArray.length) {
+						sb.append(", ");
+					}
+				}
+
+				sb.append("]");
+			}
+			else if (value instanceof Map) {
+				sb.append(_toJSON((Map<String, ?>)value));
+			}
+			else if (value instanceof String) {
+				sb.append("\"");
+				sb.append(value);
+				sb.append("\"");
+			}
+			else {
+				sb.append(value);
+			}
 
 			if (iterator.hasNext()) {
 				sb.append(",");

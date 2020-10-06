@@ -167,7 +167,7 @@ definition {
 
 		Role.definePermissionCP(
 			permissionDefinitionKey = "SITE_ADMIN_CATEGORIES_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX",
-			permissionDefinitionValue = "Access in Site Administration",
+			permissionDefinitionValue = "Access in Site and Asset Library Administration",
 			permissionNavigationKey = "SITE_ADMIN_CATEGORIES",
 			permissionNavigationValue = "Categories",
 			roleTitle = "Category Role Name",
@@ -241,7 +241,11 @@ definition {
 	test AddSubcategoryConfigureParentCategory {
 		property test.name.skip.portal.instance = "CategoriesUseCase#AddSubcategoryConfigureParentCategory";
 
-		ProductMenu.gotoPortlet(
+		JSONCategory.addVocabulary(
+			groupName = "Test Site Name",
+			title = "Vocabulary Name");
+
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -256,25 +260,25 @@ definition {
 		JSONCategory.addCategory(
 			groupName = "Test Site Name",
 			title = "Category Name",
-			vocabularyName = "Topic");
+			vocabularyName = "Vocabulary Name");
 
 		JSONCategory.addSubcategory(
 			groupName = "Test Site Name",
 			parentCategoryName = "Category Name",
 			title = "Subcategory Name",
-			vocabularyName = "Topic");
+			vocabularyName = "Vocabulary Name");
 
 		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
-		LexiconEntry.gotoEntry(rowEntry = "Topic");
+		Navigator.gotoNavNested(navNested = "Vocabulary Name");
 
 		Category.viewPath(
 			categoryName = "Category Name",
-			path = "Topic &gt; Category Name");
+			path = "Vocabulary Name &gt; Category Name");
 
 		Category.viewPath(
 			categoryName = "Subcategory Name",
-			path = "Topic &gt; Category Name &gt; Subcategory Name");
+			path = "Vocabulary Name &gt; Category Name &gt; Subcategory Name");
 	}
 
 	@priority = "3"
@@ -359,7 +363,7 @@ definition {
 
 		WebContent.addCP(webContentTitle = "WC Title");
 
-		Panel.expandPanel(panel = "Metadata");
+		Panel.expandPanel(panel = "Categorization");
 
 		AssetCategorization.addCategory(
 			categoryName = "Category Name",
@@ -369,7 +373,7 @@ definition {
 
 		WebContentNavigator.gotoAddWithStructureCP(structureName = "WC Structure Name");
 
-		Panel.expandPanel(panel = "Metadata");
+		Panel.expandPanel(panel = "Categorization");
 
 		AssertTextNotPresent(value1 = "Vocabulary Name");
 	}
@@ -380,7 +384,7 @@ definition {
 
 		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
-		LexiconEntry.gotoAdd();
+		Vocabulary.gotoAddVocabulary();
 
 		PortletEntry.inputName(name = "Vocabulary Name");
 
@@ -395,7 +399,11 @@ definition {
 			required = "true",
 			rowNumber = "2");
 
-		Button.clickSave();
+		Button.clickNoError(button = "Save");
+
+		AssertConfirm.assertPartialConfirmation(value1 = "Are you sure you want to create this vocabulary with public visibility?");
+
+		Alert.viewSuccessMessage();
 
 		JSONCategory.addCategory(
 			groupName = "Test Site Name",
@@ -418,7 +426,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.gotoPageMenuItem(
@@ -505,7 +512,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Bookmarks");
 
 		Bookmark.viewNoCategoryCP(vocabularyName = "Vocabulary Name");
@@ -654,37 +660,10 @@ definition {
 			vocabularyName = "Vocabulary Name",
 			webContentContent = "Web Content Content",
 			webContentTitle = "Web Content Title");
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
-
-		WebContent.viewCategorizationCategoryNotVisibleCP(
-			categoryNameList = "Category Name 1,Category Name 2",
-			webContentTitle = "Web Content Title");
-
-		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-		Vocabulary.editCP(
-			allowMultipleCategories = "true",
-			vocabularyName = "Vocabulary Name");
-
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContentNavigator.gotoAddCP();
-
-		WebContent.addWithMultipleCategories(
-			categoryNameList = "Category Name 1,Category Name 2",
-			vocabularyName = "Vocabulary Name",
-			webContentContent = "Web Content Content",
-			webContentTitle = "Web Content Title Multiple Categories");
-
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title Multiple Categories");
 
 		WebContent.viewCategorizationCategoryCP(
 			categoryNameList = "Category Name 1,Category Name 2",
-			webContentTitle = "Web Content Title Multiple Categories");
+			webContentTitle = "Web Content Title");
 	}
 
 	@priority = "3"
@@ -733,6 +712,7 @@ definition {
 
 	@priority = "5"
 	test ExportImportWCWithCategoryViaAP {
+		property portal.acceptance = "true";
 		property testray.component.names = "Training";
 
 		JSONLayout.addPublicLayout(
@@ -857,13 +837,26 @@ definition {
 
 	@priority = "5"
 	test ImportLAR {
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
 		property testray.component.names = "Training";
+
+		JSONGroup.addGroup(groupName = "Site Name 2");
+
+		for (var title : list "Unit 2 - Moon Minerals,Unit 3 - Ingeneous Moon Rocks,Unit 4 - Metamorphic Moon Rocks,Unit 5 - Sedimentary Moon Rocks,Unit 6 - Moon Rock Structure and Deformation,Unit 7 - Geological Structures on the Moon,Unit 8 - Moon Tectonics,Unit 9 - Nova Rocks,Unit 10 - Moon Crust Formation,Unit 11 - Evidence of Moon Rivers,Unit 12 - Geological Mapping,Unit 13 - Moon Topography,Unit 14 - Field Techniques,Unit 15 - Climate Through Moon History") {
+			JSONCategory.addVocabulary(
+				groupName = "Site Name 2",
+				siteURLKey = "site-name-2",
+				title = "${title}");
+		}
+
+		Category.openCategoriesAdmin(siteURLKey = "site-name-2");
+
+		LAR.exportPortlet(larFileName = "Moon-Rocks-Unit-Category-Hierarchy.lar");
 
 		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
-		LAR.importPortlet(
-			larFileName = "Moon-Rocks-Unit-Category-Hierarchy.lar",
-			uploadFrom = "dependencies");
+		LAR.importPortlet(larFileName = "Moon-Rocks-Unit-Category-Hierarchy.lar");
 	}
 
 	@priority = "3"
@@ -1124,64 +1117,6 @@ definition {
 		Subcategory.viewSearchResultsCP(nullResult = "true");
 	}
 
-	@priority = "4"
-	test SearchVocabulary {
-		property testray.component.names = "Categories";
-
-		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-		Vocabulary.addCP(
-			vocabularyDescription = "Sushi",
-			vocabularyName = "Food Vocab");
-
-		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-		Vocabulary.addCP(
-			vocabularyDescription = "Futbol",
-			vocabularyName = "Sport Vocab");
-
-		for (var vocabularyName : list "Food,Sport") {
-			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-			Search.searchCP(searchTerm = "${vocabularyName}");
-
-			Vocabulary.viewSearchResultsCP(vocabularyNameList = "${vocabularyName} Vocab");
-		}
-
-		for (var vocabularyDescription : list "Sushi,Futbol") {
-			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-			Search.searchCP(searchTerm = "${vocabularyDescription}");
-
-			Vocabulary.viewSearchResultsCP(vocabularyDefinitionList = "${vocabularyDescription}");
-		}
-
-		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-		Search.searchCP(searchTerm = "Vocab");
-
-		Vocabulary.viewSearchResultsCP(
-			vocabularyDefinitionList = "Sushi,Futbol",
-			vocabularyNameList = "Food Vocab,Sport Vocab");
-	}
-
-	@priority = "3"
-	test SearchVocabularyWithNullResult {
-		property testray.component.names = "Categories";
-
-		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-		Vocabulary.addCP(
-			vocabularyDescription = "Vocabulary Description",
-			vocabularyName = "Vocabulary Name");
-
-		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-		Search.searchCP(searchTerm = "Null");
-
-		Vocabulary.viewSearchResultsCP(nullResult = "true");
-	}
-
 	@Description ="This is for LPS-101409. Validate selecting multiple categories when creating page with blank template."
 	@priority ="4"
 	test SelectMultipleRequiredCategoriesWithBlankPageTemplate {
@@ -1257,7 +1192,6 @@ definition {
 		task ("Navigate to the Pages Administration") {
 			ProductMenu.gotoPortlet(
 				category = "Site Builder",
-				panel = "Site Administration",
 				portlet = "Pages");
 		}
 
@@ -1274,6 +1208,7 @@ definition {
 	@priority ="5"
 	test SelectRequiredCategoryWhenEnterPageNameWithWidgetPageTemplate {
 		property portal.acceptance = "true";
+		property portal.upstream = "true";
 		property testray.component.names = "Categories";
 
 		task ("Add a vocabulary with required for page") {
@@ -1308,7 +1243,6 @@ definition {
 		task ("Navigate to the Pages Administration") {
 			ProductMenu.gotoPortlet(
 				category = "Site Builder",
-				panel = "Site Administration",
 				portlet = "Pages");
 		}
 
@@ -1331,7 +1265,6 @@ definition {
 		task ("Navigate to the Pages Administration") {
 			ProductMenu.gotoPortlet(
 				category = "Site Builder",
-				panel = "Site Administration",
 				portlet = "Pages");
 		}
 
@@ -1415,7 +1348,11 @@ definition {
 	test ViewFlattenedTreeCategoryNavigationDisplayStyle {
 		property test.name.skip.portal.instance = "CategoriesUseCase#ViewFlattenedTreeCategoryNavigationDisplayStyle";
 
-		ProductMenu.gotoPortlet(
+		JSONCategory.addVocabulary(
+			groupName = "Test Site Name",
+			title = "Vocabulary Name");
+
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -1431,26 +1368,26 @@ definition {
 
 		Category.addCP(
 			categoryName = "Category Name",
-			vocabularyName = "Topic");
+			vocabularyName = "Vocabulary Name");
 
 		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
 		Subcategory.addCP(
 			categoryName = "Category Name",
 			subcategoryName = "Subcategory Name",
-			vocabularyName = "Topic");
+			vocabularyName = "Vocabulary Name");
 
 		Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
-		LexiconEntry.gotoEntry(rowEntry = "Topic");
+		Navigator.gotoNavNested(navNested = "Vocabulary Name");
 
 		Category.viewPath(
 			categoryName = "Category Name",
-			path = "Topic &gt; Category Name");
+			path = "Vocabulary Name &gt; Category Name");
 
 		Category.viewPath(
 			categoryName = "Subcategory Name",
-			path = "Topic &gt; Category Name &gt; Subcategory Name");
+			path = "Vocabulary Name &gt; Category Name &gt; Subcategory Name");
 	}
 
 	@priority = "3"

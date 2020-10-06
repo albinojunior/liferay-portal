@@ -14,6 +14,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import ClayLayout from '@clayui/layout';
 import {useTimeout} from 'frontend-js-react-web';
 import PropTypes from 'prop-types';
 import React, {useRef, useState} from 'react';
@@ -26,7 +27,7 @@ class AceEditor extends React.Component {
 	}
 
 	componentDidMount() {
-		AUI().use('aui-ace-editor', A => {
+		AUI().use('aui-ace-editor', (A) => {
 			const editor = new A.AceEditor({
 				boundingBox: this.container.current,
 				highlightActiveLine: false,
@@ -74,7 +75,7 @@ const FieldMappings = ({
 
 	const delay = useTimeout();
 
-	const handleCopyEditorText = event => {
+	const handleCopyEditorText = (event) => {
 		const editorTextInput = editorTextInputRef.current;
 
 		editorTextInput.focus();
@@ -97,16 +98,19 @@ const FieldMappings = ({
 	};
 
 	return (
-		<div className="container-fluid container-fluid-max-xl container-form-lg portal-search-admin-field-mappings">
-			<div className="row">
-				<div className="col-md-3">
+		<ClayLayout.ContainerFluid
+			className="portal-search-admin-field-mappings"
+			formSize="lg"
+		>
+			<ClayLayout.Row>
+				<ClayLayout.Col md="3">
 					<nav className="menubar menubar-transparent menubar-vertical-expand-lg">
 						<ul className="nav nav-nested">
 							<li className="nav-header">
 								{Liferay.Language.get('index')}
 							</li>
 
-							{fieldMappingIndexDisplayContexts.map(item => {
+							{fieldMappingIndexDisplayContexts.map((item) => {
 								return (
 									<li className="nav-item" key={item.name}>
 										<a
@@ -120,11 +124,11 @@ const FieldMappings = ({
 							})}
 						</ul>
 					</nav>
-				</div>
+				</ClayLayout.Col>
 
-				<div className="col-md-9">
-					<div className="sheet">
-						<div className="sheet-header">
+				<ClayLayout.Col md="9">
+					<ClayLayout.Sheet>
+						<ClayLayout.SheetHeader>
 							<h2 className="sheet-title">{selectedIndexName}</h2>
 
 							<div className="sheet-text">
@@ -132,9 +136,9 @@ const FieldMappings = ({
 									'a-list-of-all-field-mappings-in-this-index'
 								)}
 							</div>
-						</div>
+						</ClayLayout.SheetHeader>
 
-						<div className="sheet-section">
+						<ClayLayout.SheetSection>
 							<ClayButton
 								className="lfr-portal-tooltip"
 								displayType="secondary"
@@ -190,11 +194,12 @@ const FieldMappings = ({
 							>
 								<ClayIcon symbol="paste" />
 							</ClayButton>
-						</div>
+						</ClayLayout.SheetSection>
 
-						<div
-							className={`${theme === 'dark' &&
-								'ace_dark'} lfr-source-editor lfr-source-editor-content sheet-section`}
+						<ClayLayout.SheetSection
+							className={`${
+								theme === 'dark' && 'ace_dark'
+							} lfr-source-editor lfr-source-editor-content`}
 						>
 							<AceEditor
 								fieldMappings={fieldMappings}
@@ -206,11 +211,11 @@ const FieldMappings = ({
 									editorTextInputRef.current = editorTextInput;
 								}}
 							/>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+						</ClayLayout.SheetSection>
+					</ClayLayout.Sheet>
+				</ClayLayout.Col>
+			</ClayLayout.Row>
+		</ClayLayout.ContainerFluid>
 	);
 };
 
@@ -220,6 +225,4 @@ FieldMappings.propTypes = {
 	selectedIndexName: PropTypes.string,
 };
 
-export default function(props) {
-	return <FieldMappings {...props} />;
-}
+export default FieldMappings;

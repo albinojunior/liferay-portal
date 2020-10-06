@@ -25,10 +25,10 @@ import com.liferay.portal.rules.engine.Fact;
 import com.liferay.portal.rules.engine.Query;
 import com.liferay.portal.rules.engine.QueryType;
 import com.liferay.portal.rules.engine.RulesEngine;
-import com.liferay.portal.rules.engine.RulesEngineConstants;
 import com.liferay.portal.rules.engine.RulesEngineException;
 import com.liferay.portal.rules.engine.RulesLanguage;
 import com.liferay.portal.rules.engine.RulesResourceRetriever;
+import com.liferay.portal.rules.engine.constants.RulesEngineConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -357,10 +357,10 @@ public class RulesEngineImpl implements RulesEngine {
 
 		Map<String, String> rulesLanguageMap = new HashMap<>();
 
-		Enumeration<String> keys = properties.keys();
+		Enumeration<String> enumeration = properties.keys();
 
-		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
 
 			if (!key.startsWith("rules.engine.language.mapping")) {
 				continue;

@@ -14,7 +14,10 @@
 
 window.Liferay = window.Liferay || {};
 
-Liferay.Widget = function(options) {
+/**
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
+ */
+Liferay.Widget = function (options) {
 	options = options || {};
 
 	var height = options.height || '100%';

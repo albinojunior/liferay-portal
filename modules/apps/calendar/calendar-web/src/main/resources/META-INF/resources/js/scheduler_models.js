@@ -14,12 +14,11 @@
 
 AUI.add(
 	'liferay-scheduler-models',
-	A => {
+	(A) => {
 		var AObject = A.Object;
 
 		var DateMath = A.DataType.DateMath;
 		var Lang = A.Lang;
-		var LString = Lang.String;
 
 		var CalendarWorkflow = Liferay.CalendarWorkflow;
 
@@ -28,11 +27,11 @@ AUI.add(
 		var isObject = Lang.isObject;
 		var isValue = Lang.isValue;
 
-		var toInitialCap = A.cached(str => {
+		var toInitialCap = A.cached((str) => {
 			return str.substring(0, 1).toUpperCase() + str.substring(1);
 		});
 
-		var toInt = function(value) {
+		var toInt = function (value) {
 			return Lang.toInt(value, 10, 0);
 		};
 
@@ -40,7 +39,7 @@ AUI.add(
 
 		var CalendarUtil = Liferay.CalendarUtil;
 
-		var SchedulerModelSync = function() {};
+		var SchedulerModelSync = function () {};
 
 		SchedulerModelSync.prototype = {
 			_doRead() {
@@ -83,7 +82,7 @@ AUI.add(
 						var content = val;
 
 						if (val) {
-							content = LString.escapeHTML(val);
+							content = Liferay.Util.escapeHTML(val);
 						}
 
 						return content;
@@ -92,7 +91,7 @@ AUI.add(
 						var content = val;
 
 						if (val) {
-							content = LString.unescapeHTML(val + '');
+							content = Liferay.Util.unescapeHTML(val + '');
 						}
 
 						return content;
@@ -655,7 +654,7 @@ AUI.add(
 							CalendarWorkflow.STATUS_MAYBE,
 							CalendarWorkflow.STATUS_PENDING,
 						],
-						calendarBookings => {
+						(calendarBookings) => {
 							if (filterCalendarBookings) {
 								calendarBookings = calendarBookings.filter(
 									filterCalendarBookings

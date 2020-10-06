@@ -16,6 +16,7 @@ package com.liferay.view.count.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -25,13 +26,15 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.view.count.exception.NoSuchEntryException;
 import com.liferay.view.count.model.ViewCountEntry;
+import com.liferay.view.count.model.ViewCountEntryTable;
 import com.liferay.view.count.model.impl.ViewCountEntryImpl;
 import com.liferay.view.count.model.impl.ViewCountEntryModelImpl;
 import com.liferay.view.count.service.persistence.ViewCountEntryPK;
@@ -40,12 +43,16 @@ import com.liferay.view.count.service.persistence.impl.constants.ViewCountPersis
 
 import java.io.Serializable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -89,6 +96,8 @@ public class ViewCountEntryPersistenceImpl
 
 		setModelImplClass(ViewCountEntryImpl.class);
 		setModelPKClass(ViewCountEntryPK.class);
+
+		setTable(ViewCountEntryTable.INSTANCE);
 	}
 
 	/**
@@ -99,10 +108,8 @@ public class ViewCountEntryPersistenceImpl
 	@Override
 	public void cacheResult(ViewCountEntry viewCountEntry) {
 		entityCache.putResult(
-			entityCacheEnabled, ViewCountEntryImpl.class,
-			viewCountEntry.getPrimaryKey(), viewCountEntry);
-
-		viewCountEntry.resetOriginalValues();
+			ViewCountEntryImpl.class, viewCountEntry.getPrimaryKey(),
+			viewCountEntry);
 	}
 
 	/**
@@ -114,13 +121,10 @@ public class ViewCountEntryPersistenceImpl
 	public void cacheResult(List<ViewCountEntry> viewCountEntries) {
 		for (ViewCountEntry viewCountEntry : viewCountEntries) {
 			if (entityCache.getResult(
-					entityCacheEnabled, ViewCountEntryImpl.class,
-					viewCountEntry.getPrimaryKey()) == null) {
+					ViewCountEntryImpl.class, viewCountEntry.getPrimaryKey()) ==
+						null) {
 
 				cacheResult(viewCountEntry);
-			}
-			else {
-				viewCountEntry.resetOriginalValues();
 			}
 		}
 	}
@@ -150,23 +154,13 @@ public class ViewCountEntryPersistenceImpl
 	 */
 	@Override
 	public void clearCache(ViewCountEntry viewCountEntry) {
-		entityCache.removeResult(
-			entityCacheEnabled, ViewCountEntryImpl.class,
-			viewCountEntry.getPrimaryKey());
-
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		entityCache.removeResult(ViewCountEntryImpl.class, viewCountEntry);
 	}
 
 	@Override
 	public void clearCache(List<ViewCountEntry> viewCountEntries) {
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (ViewCountEntry viewCountEntry : viewCountEntries) {
-			entityCache.removeResult(
-				entityCacheEnabled, ViewCountEntryImpl.class,
-				viewCountEntry.getPrimaryKey());
+			entityCache.removeResult(ViewCountEntryImpl.class, viewCountEntry);
 		}
 	}
 
@@ -177,8 +171,7 @@ public class ViewCountEntryPersistenceImpl
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Serializable primaryKey : primaryKeys) {
-			entityCache.removeResult(
-				entityCacheEnabled, ViewCountEntryImpl.class, primaryKey);
+			entityCache.removeResult(ViewCountEntryImpl.class, primaryKey);
 		}
 	}
 
@@ -295,10 +288,8 @@ public class ViewCountEntryPersistenceImpl
 		try {
 			session = openSession();
 
-			if (viewCountEntry.isNew()) {
+			if (isNew) {
 				session.save(viewCountEntry);
-
-				viewCountEntry.setNew(false);
 			}
 			else {
 				viewCountEntry = (ViewCountEntry)session.merge(viewCountEntry);
@@ -311,17 +302,12 @@ public class ViewCountEntryPersistenceImpl
 			closeSession(session);
 		}
 
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		entityCache.putResult(
+			ViewCountEntryImpl.class, viewCountEntry, false, true);
 
 		if (isNew) {
-			finderCache.removeResult(_finderPathCountAll, FINDER_ARGS_EMPTY);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
+			viewCountEntry.setNew(false);
 		}
-
-		entityCache.putResult(
-			entityCacheEnabled, ViewCountEntryImpl.class,
-			viewCountEntry.getPrimaryKey(), viewCountEntry, false);
 
 		viewCountEntry.resetOriginalValues();
 
@@ -503,10 +489,6 @@ public class ViewCountEntryPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -552,9 +534,6 @@ public class ViewCountEntryPersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -594,31 +573,38 @@ public class ViewCountEntryPersistenceImpl
 	 * Initializes the view count entry persistence.
 	 */
 	@Activate
-	public void activate() {
-		ViewCountEntryModelImpl.setEntityCacheEnabled(entityCacheEnabled);
-		ViewCountEntryModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+	public void activate(BundleContext bundleContext) {
+		_bundleContext = bundleContext;
 
-		_finderPathWithPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, ViewCountEntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+		_argumentsResolverServiceRegistration = _bundleContext.registerService(
+			ArgumentsResolver.class, new ViewCountEntryModelArgumentsResolver(),
+			MapUtil.singletonDictionary(
+				"model.class.name", ViewCountEntry.class.getName()));
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, ViewCountEntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
 
-		_finderPathCountAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
+
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 	}
 
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(ViewCountEntryImpl.class.getName());
-		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 	}
 
 	@Override
@@ -627,12 +613,6 @@ public class ViewCountEntryPersistenceImpl
 		unbind = "-"
 	)
 	public void setConfiguration(Configuration configuration) {
-		super.setConfiguration(configuration);
-
-		_columnBitmaskEnabled = GetterUtil.getBoolean(
-			configuration.get(
-				"value.object.column.bitmask.enabled.com.liferay.view.count.model.ViewCountEntry"),
-			true);
 	}
 
 	@Override
@@ -653,7 +633,7 @@ public class ViewCountEntryPersistenceImpl
 		super.setSessionFactory(sessionFactory);
 	}
 
-	private boolean _columnBitmaskEnabled;
+	private BundleContext _bundleContext;
 
 	@Reference
 	protected EntityCache entityCache;
@@ -685,6 +665,107 @@ public class ViewCountEntryPersistenceImpl
 		catch (ClassNotFoundException classNotFoundException) {
 			throw new ExceptionInInitializerError(classNotFoundException);
 		}
+	}
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			_serviceRegistrations.add(
+				_bundleContext.registerService(
+					FinderPath.class, finderPath,
+					MapUtil.singletonDictionary("cache.name", cacheName)));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class ViewCountEntryModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			ViewCountEntryModelImpl viewCountEntryModelImpl =
+				(ViewCountEntryModelImpl)baseModel;
+
+			long columnBitmask = viewCountEntryModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(
+					viewCountEntryModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						viewCountEntryModelImpl.getColumnBitmask(columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(
+					viewCountEntryModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			ViewCountEntryModelImpl viewCountEntryModelImpl,
+			String[] columnNames, boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] =
+						viewCountEntryModelImpl.getColumnOriginalValue(
+							columnName);
+				}
+				else {
+					arguments[i] = viewCountEntryModelImpl.getColumnValue(
+						columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
 	}
 
 }

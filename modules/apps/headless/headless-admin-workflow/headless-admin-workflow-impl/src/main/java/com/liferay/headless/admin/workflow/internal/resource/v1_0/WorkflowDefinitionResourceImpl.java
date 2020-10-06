@@ -109,17 +109,6 @@ public class WorkflowDefinitionResourceImpl
 				GetterUtil.getInteger(version), active));
 	}
 
-	@Override
-	public WorkflowDefinition postWorkflowDefinitionUpdateTitle(
-			String name, String title, String version)
-		throws Exception {
-
-		return _toWorkflowDefinition(
-			_workflowDefinitionManager.updateTitle(
-				contextCompany.getCompanyId(), contextUser.getUserId(), name,
-				GetterUtil.getInteger(version), title));
-	}
-
 	private WorkflowDefinition _toWorkflowDefinition(
 		com.liferay.portal.kernel.workflow.WorkflowDefinition
 			workflowDefinition) {
@@ -137,7 +126,7 @@ public class WorkflowDefinitionResourceImpl
 		};
 	}
 
-	@Reference
+	@Reference(target = "(proxy.bean=false)")
 	private WorkflowDefinitionManager _workflowDefinitionManager;
 
 }

@@ -10,12 +10,13 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayIcon from '@clayui/icon';
+import ClayLayout from '@clayui/layout';
 import React, {useCallback} from 'react';
 
 import {useFilter} from '../../hooks/useFilter.es';
 import {useRouter} from '../../hooks/useRouter.es';
 import {sub} from '../../util/lang.es';
-import Icon from '../Icon.es';
 import {
 	removeFilters,
 	removeItem,
@@ -25,9 +26,9 @@ import {
 const ResultsBar = ({children}) => {
 	return (
 		<nav className="mt-0 subnav-tbar subnav-tbar-primary tbar tbar-inline-xs-down">
-			<div className="container-fluid container-fluid-max-xl">
+			<ClayLayout.ContainerFluid>
 				<ul className="tbar-nav tbar-nav-wrap">{children}</ul>
-			</div>
+			</ClayLayout.ContainerFluid>
 		</nav>
 	);
 };
@@ -37,14 +38,14 @@ const Clear = ({filters = [], filterKeys = [], withoutRouteParams}) => {
 	const routerProps = useRouter();
 
 	const handleClearAll = useCallback(() => {
-		filters.map(filter => {
-			filter.items.map(item => {
+		filters.map((filter) => {
+			filter.items.map((item) => {
 				item.active = false;
 			});
 		});
 
-		filterKeys.forEach(key => {
-			filterState[key] = undefined;
+		filterKeys.forEach((key) => {
+			delete filterState[key];
 		});
 
 		dispatch(filterState);
@@ -109,7 +110,7 @@ const FilterItem = ({filter, item, withoutRouteParams}) => {
 
 							<strong>
 								{filter.items[0].key !== 'custom'
-									? item.name
+									? item.label || item.name
 									: item.resultName}
 							</strong>
 						</div>
@@ -123,7 +124,7 @@ const FilterItem = ({filter, item, withoutRouteParams}) => {
 								displayType="unstyled"
 								onClick={removeFilter}
 							>
-								<Icon iconName="times" />
+								<ClayIcon symbol="times" />
 							</ClayButton>
 						</span>
 					)}
@@ -134,7 +135,7 @@ const FilterItem = ({filter, item, withoutRouteParams}) => {
 };
 
 const FilterItems = ({filters = [], ...props}) => {
-	return filters.map(filter =>
+	return filters.map((filter) =>
 		filter.items.map((item, index) => (
 			<FilterItem filter={filter} item={item} key={index} {...props} />
 		))

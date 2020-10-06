@@ -89,10 +89,10 @@ public class SocialActivityCounterFinderImpl
 			queryPos.add(SocialCounterPeriodUtil.getPeriodLength());
 			queryPos.add(SocialCounterPeriodUtil.getActivityDay());
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -159,10 +159,10 @@ public class SocialActivityCounterFinderImpl
 
 			activityCounters = new ArrayList<>();
 
-			Iterator<Object[]> itr = sqlQuery.iterate();
+			Iterator<Object[]> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Object[] array = itr.next();
+			while (iterator.hasNext()) {
+				Object[] array = iterator.next();
 
 				SocialActivityCounter activityCounter =
 					new SocialActivityCounterImpl();
@@ -220,10 +220,10 @@ public class SocialActivityCounterFinderImpl
 
 			List<SocialActivityCounter> activityCounters = new ArrayList<>();
 
-			Iterator<Object[]> itr = sqlQuery.iterate();
+			Iterator<Object[]> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Object[] array = itr.next();
+			while (iterator.hasNext()) {
+				Object[] array = iterator.next();
 
 				SocialActivityCounter activityCounter =
 					new SocialActivityCounterImpl();
@@ -334,7 +334,7 @@ public class SocialActivityCounterFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(names.length * 2 - 1);
+		StringBundler sb = new StringBundler((names.length * 2) - 1);
 
 		for (int i = 0; i < names.length; i++) {
 			sb.append(StringPool.QUESTION);

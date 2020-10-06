@@ -16,8 +16,9 @@ package com.liferay.mule.internal.connection.authentication;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import com.liferay.mule.internal.json.JsonNodeReader;
+import com.liferay.mule.internal.error.LiferayError;
 import com.liferay.mule.internal.oas.OASURLParser;
+import com.liferay.mule.internal.util.JsonNodeReader;
 
 import java.io.IOException;
 
@@ -26,11 +27,17 @@ import java.net.MalformedURLException;
 import java.util.concurrent.TimeoutException;
 
 import org.mule.runtime.api.util.MultiMap;
+import org.mule.runtime.core.api.util.IOUtils;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.http.api.HttpConstants;
 import org.mule.runtime.http.api.client.HttpClient;
+import org.mule.runtime.http.api.domain.entity.HttpEntity;
 import org.mule.runtime.http.api.domain.message.request.HttpRequest;
 import org.mule.runtime.http.api.domain.message.request.HttpRequestBuilder;
 import org.mule.runtime.http.api.domain.message.response.HttpResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Matija Petanjek
@@ -42,19 +49,17 @@ public class OAuth2Authentication implements HttpAuthentication {
 			String openAPISpecPath)
 		throws MalformedURLException {
 
-		_httpClient = httpClient;
-		_oAuth2AccessTokenURI = _getOAuth2AccessTokenURI(openAPISpecPath);
+		this.httpClient = httpClient;
+		oAuth2AccessTokenURI = getOAuth2AccessTokenURI(openAPISpecPath);
 
-		_queryParams.put("client_id", consumerKey);
-		_queryParams.put("client_secret", consumerSecret);
-		_queryParams.put("grant_type", "client_credentials");
+		queryParams.put("client_id", consumerKey);
+		queryParams.put("client_secret", consumerSecret);
+		queryParams.put("grant_type", "client_credentials");
 	}
 
 	@Override
-	public String getAuthorizationHeader()
-		throws IOException, TimeoutException {
-
-		JsonNode authorizationJsonNode = _getAuthorizationJsonNode();
+	public String getAuthorizationHeader() throws ModuleException {
+		JsonNode authorizationJsonNode = getAuthorizationJsonNode();
 
 		JsonNode tokenTypeJsonNode = authorizationJsonNode.get("token_type");
 		JsonNode accessTokenJsonNode = authorizationJsonNode.get(
@@ -65,34 +70,58 @@ public class OAuth2Authentication implements HttpAuthentication {
 			accessTokenJsonNode.textValue());
 	}
 
-	private JsonNode _getAuthorizationJsonNode()
-		throws IOException, TimeoutException {
-
+	private JsonNode getAuthorizationJsonNode() throws ModuleException {
 		HttpRequestBuilder httpRequestBuilder = HttpRequest.builder();
 
-		HttpResponse httpResponse = _httpClient.send(
-			httpRequestBuilder.addHeader(
-				"Content-Type", "application/x-www-form-urlencoded"
-			).method(
-				HttpConstants.Method.POST
-			).queryParams(
-				_queryParams
-			).uri(
-				_oAuth2AccessTokenURI
-			).build(),
-			10000, true, null);
+		HttpResponse httpResponse = null;
+
+		try {
+			httpResponse = httpClient.send(
+				httpRequestBuilder.addHeader(
+					"Content-Type", "application/x-www-form-urlencoded"
+				).method(
+					HttpConstants.Method.POST
+				).queryParams(
+					queryParams
+				).uri(
+					oAuth2AccessTokenURI
+				).build(),
+				10000, true, null);
+		}
+		catch (IOException ioException) {
+			logger.error(ioException.getMessage(), ioException);
+
+			throw new ModuleException(
+				ioException.getMessage(), LiferayError.EXECUTION, ioException);
+		}
+		catch (TimeoutException timeoutException) {
+			logger.error(timeoutException.getMessage(), timeoutException);
+
+			throw new ModuleException(
+				timeoutException.getMessage(), LiferayError.CONNECTION_TIMEOUT,
+				timeoutException);
+		}
 
 		if (httpResponse == null) {
-			throw new OAuth2Exception(
-				"Unresponsive authorization server's OAuth 2.0 endpoint");
+			String message =
+				"Unresponsive authorization server's OAuth 2.0 endpoint";
+
+			logger.error(message);
+
+			throw new ModuleException(message, LiferayError.OAUTH2_ERROR);
 		}
 		else if (httpResponse.getStatusCode() != 200) {
-			throw new OAuth2Exception(
-				String.format(
-					"Unable to fetch access token from authorization server. " +
-						"Request failed with status %d (%s)",
-					httpResponse.getStatusCode(),
-					httpResponse.getReasonPhrase()));
+			HttpEntity httpEntity = httpResponse.getEntity();
+
+			String message = String.format(
+				"Unable to fetch access token from authorization server. " +
+					"Request failed with status %d (%s) and message %s",
+				httpResponse.getStatusCode(), httpResponse.getReasonPhrase(),
+				IOUtils.toString(httpEntity.getContent()));
+
+			logger.error(message);
+
+			throw new ModuleException(message, LiferayError.OAUTH2_ERROR);
 		}
 
 		JsonNodeReader jsonNodeReader = new JsonNodeReader();
@@ -100,18 +129,21 @@ public class OAuth2Authentication implements HttpAuthentication {
 		return jsonNodeReader.fromHttpResponse(httpResponse);
 	}
 
-	private String _getOAuth2AccessTokenURI(String openAPISpecPath)
+	private String getOAuth2AccessTokenURI(String openAPISpecPath)
 		throws MalformedURLException {
 
 		OASURLParser oasURLParser = new OASURLParser(openAPISpecPath);
 
-		return oasURLParser.getAuthorityWithScheme() + _OAUTH2_ENDPOINT;
+		return oasURLParser.getAuthorityWithScheme() + OAUTH2_ENDPOINT;
 	}
 
-	private static final String _OAUTH2_ENDPOINT = "/o/oauth2/token";
+	private static final String OAUTH2_ENDPOINT = "/o/oauth2/token";
 
-	private final HttpClient _httpClient;
-	private final String _oAuth2AccessTokenURI;
-	private final MultiMap<String, String> _queryParams = new MultiMap<>();
+	private static final Logger logger = LoggerFactory.getLogger(
+		OAuth2Authentication.class);
+
+	private final HttpClient httpClient;
+	private final String oAuth2AccessTokenURI;
+	private final MultiMap<String, String> queryParams = new MultiMap<>();
 
 }

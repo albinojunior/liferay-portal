@@ -49,7 +49,7 @@ public abstract class BaseOAuth2PortletDisplayContext {
 		}
 
 		long oAuth2ApplicationId = ParamUtil.getLong(
-			portletRequest, "oAuth2ApplicationId", 0);
+			portletRequest, "oAuth2ApplicationId");
 
 		if (oAuth2ApplicationId > 0) {
 			oAuth2Application = oAuth2ApplicationService.getOAuth2Application(
@@ -141,6 +141,17 @@ public abstract class BaseOAuth2PortletDisplayContext {
 
 			return false;
 		}
+	}
+
+	protected BaseOAuth2PortletDisplayContext(
+		DLURLHelper dlURLHelper,
+		OAuth2ApplicationService oAuth2ApplicationService,
+		PortletRequest portletRequest, ThemeDisplay themeDisplay) {
+
+		this.dlURLHelper = dlURLHelper;
+		this.oAuth2ApplicationService = oAuth2ApplicationService;
+		this.portletRequest = portletRequest;
+		this.themeDisplay = themeDisplay;
 	}
 
 	protected DLURLHelper dlURLHelper;

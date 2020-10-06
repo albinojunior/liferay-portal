@@ -15,13 +15,20 @@
 package com.liferay.app.builder.web.internal.layout.type.controller;
 
 import com.liferay.layout.type.controller.BaseLayoutTypeControllerImpl;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
+
+import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -30,13 +37,13 @@ import javax.servlet.http.HttpServletResponse;
 public class AppPortletLayoutTypeController
 	extends BaseLayoutTypeControllerImpl {
 
-	public AppPortletLayoutTypeController() {
-	}
-
 	public AppPortletLayoutTypeController(
-		ServletContext servletContext, String appName, String portletName) {
+		ServletContext servletContext, String appName,
+		Map<Locale, String> appNameMap, String portletName) {
 
 		this.servletContext = servletContext;
+		_appName = appName;
+		_appNameMap = appNameMap;
 
 		_url = StringBundler.concat(
 			"${liferay:mainPath}/portal/layout?p_l_id=${liferay:plid}&",
@@ -89,6 +96,35 @@ public class AppPortletLayoutTypeController
 	}
 
 	@Override
+	protected void addAttributes(HttpServletRequest httpServletRequest) {
+		super.addAttributes(httpServletRequest);
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		PortalUtil.setPageTitle(
+			_appNameMap.getOrDefault(themeDisplay.getLocale(), _appName),
+			httpServletRequest);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #createServletResponse(HttpServletResponse,
+	 *             UnsyncStringWriter)}
+	 */
+	@Deprecated
+	@Override
+	protected ServletResponse createServletResponse(
+		HttpServletResponse httpServletResponse,
+		com.liferay.portal.kernel.io.unsync.UnsyncStringWriter
+			unsyncStringWriter) {
+
+		return new PipingServletResponse(
+			httpServletResponse, unsyncStringWriter);
+	}
+
+	@Override
 	protected ServletResponse createServletResponse(
 		HttpServletResponse httpServletResponse,
 		UnsyncStringWriter unsyncStringWriter) {
@@ -109,6 +145,8 @@ public class AppPortletLayoutTypeController
 
 	private static final String _VIEW_PAGE = "/layout/view.jsp";
 
-	private String _url;
+	private final String _appName;
+	private final Map<Locale, String> _appNameMap;
+	private final String _url;
 
 }

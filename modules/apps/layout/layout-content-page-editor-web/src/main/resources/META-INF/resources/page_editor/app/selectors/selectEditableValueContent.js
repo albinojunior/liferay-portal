@@ -14,7 +14,6 @@
 
 import {config} from '../config/index';
 import selectEditableValue from './selectEditableValue';
-import selectPrefixedSegmentsExperienceId from './selectPrefixedSegmentsExperienceId';
 
 export default function selectEditableValueContent(
 	state,
@@ -23,7 +22,6 @@ export default function selectEditableValueContent(
 	processorType
 ) {
 	const {languageId} = state;
-	const segmentsExperienceId = selectPrefixedSegmentsExperienceId(state);
 
 	const data = selectEditableValue(
 		state,
@@ -34,10 +32,6 @@ export default function selectEditableValueContent(
 
 	let content = data;
 
-	if (content[segmentsExperienceId]) {
-		content = content[segmentsExperienceId];
-	}
-
 	if (content[languageId]) {
 		content = content[languageId];
 	}
@@ -45,7 +39,7 @@ export default function selectEditableValueContent(
 		content = content[config.defaultLanguageId];
 	}
 
-	if (typeof content !== 'string') {
+	if (content == null || content.defaultValue) {
 		content = data.defaultValue;
 	}
 

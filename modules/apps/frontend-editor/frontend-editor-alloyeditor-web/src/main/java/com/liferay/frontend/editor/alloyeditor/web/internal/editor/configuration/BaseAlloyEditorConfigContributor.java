@@ -62,9 +62,9 @@ public abstract class BaseAlloyEditorConfigContributor
 			"disableNativeSpellChecker", Boolean.FALSE
 		).put(
 			"extraPlugins",
-			"ae_autolink,ae_dragresize,ae_addimages,ae_imagealignment," +
-				"ae_placeholder,ae_selectionregion,ae_tableresize," +
-					"ae_tabletools,ae_uicore"
+			"addimages,ae_dragresize,ae_imagealignment,ae_placeholder," +
+				"ae_selectionregion,ae_tableresize,ae_tabletools,ae_uicore," +
+					"autolink"
 		).put(
 			"imageScaleResize", "scale"
 		).put(
@@ -72,8 +72,10 @@ public abstract class BaseAlloyEditorConfigContributor
 			StringUtil.replace(getLanguageId(themeDisplay), "iw_", "he_")
 		).put(
 			"removePlugins",
-			"contextmenu,elementspath,floatingspace,image,link,liststyle," +
+			"contextmenu,elementspath,floatingspace,image2,link,liststyle," +
 				"resize,table,tabletools,toolbar"
+		).put(
+			"skin", "moono-lisa"
 		);
 
 		String namespace = GetterUtil.getString(

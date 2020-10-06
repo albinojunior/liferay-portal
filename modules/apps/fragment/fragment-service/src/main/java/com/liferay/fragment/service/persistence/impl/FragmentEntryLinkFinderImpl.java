@@ -45,8 +45,17 @@ public class FragmentEntryLinkFinderImpl
 	public static final String COUNT_BY_G_F_C =
 		FragmentEntryLinkFinder.class.getName() + ".countByG_F_C";
 
+	public static final String COUNT_BY_G_F_P =
+		FragmentEntryLinkFinder.class.getName() + ".countByG_F_P";
+
 	public static final String COUNT_BY_G_F_C_L =
 		FragmentEntryLinkFinder.class.getName() + ".countByG_F_C_L";
+
+	public static final String COUNT_BY_G_F_P_L =
+		FragmentEntryLinkFinder.class.getName() + ".countByG_F_P_L";
+
+	public static final String FIND_BY_TYPE =
+		FragmentEntryLinkFinder.class.getName() + ".findByType";
 
 	public static final String FIND_BY_G_F =
 		FragmentEntryLinkFinder.class.getName() + ".findByG_F";
@@ -54,8 +63,14 @@ public class FragmentEntryLinkFinderImpl
 	public static final String FIND_BY_G_F_C =
 		FragmentEntryLinkFinder.class.getName() + ".findByG_F_C";
 
+	public static final String FIND_BY_G_F_P =
+		FragmentEntryLinkFinder.class.getName() + ".findByG_F_P";
+
 	public static final String FIND_BY_G_F_C_L =
 		FragmentEntryLinkFinder.class.getName() + ".findByG_F_C_L";
+
+	public static final String FIND_BY_G_F_P_L =
+		FragmentEntryLinkFinder.class.getName() + ".findByG_F_P_L";
 
 	@Override
 	public int countByG_F(long groupId, long fragmentEntryId) {
@@ -75,10 +90,10 @@ public class FragmentEntryLinkFinderImpl
 			queryPos.add(groupId);
 			queryPos.add(fragmentEntryId);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -95,58 +110,49 @@ public class FragmentEntryLinkFinderImpl
 		}
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #countByG_F_P_L(long, long, int)}
+	 */
+	@Deprecated
 	@Override
 	public int countByG_F_C(
 		long groupId, long fragmentEntryId, long classNameId) {
 
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			String sql = _customSQL.get(getClass(), COUNT_BY_G_F_C);
-
-			SQLQuery sqlQuery = session.createSynchronizedSQLQuery(sql);
-
-			sqlQuery.addScalar(COUNT_COLUMN_NAME, Type.LONG);
-
-			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
-
-			queryPos.add(groupId);
-			queryPos.add(fragmentEntryId);
-			queryPos.add(classNameId);
-
-			Iterator<Long> itr = sqlQuery.iterate();
-
-			if (itr.hasNext()) {
-				Long count = itr.next();
-
-				if (count != null) {
-					return count.intValue();
-				}
-			}
-
-			return 0;
-		}
-		catch (Exception exception) {
-			throw new SystemException(exception);
-		}
-		finally {
-			closeSession(session);
-		}
+		return countByG_F_P_L(groupId, fragmentEntryId, -1);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #countByG_F_P_L(long, long, int)}
+	 */
+	@Deprecated
 	@Override
 	public int countByG_F_C_L(
 		long groupId, long fragmentEntryId, long classNameId,
 		int layoutPageTemplateEntryType) {
 
+		return countByG_F_P_L(
+			groupId, fragmentEntryId, layoutPageTemplateEntryType);
+	}
+
+	@Override
+	public int countByG_F_P_L(
+		long groupId, long fragmentEntryId, int layoutPageTemplateEntryType) {
+
 		Session session = null;
 
 		try {
 			session = openSession();
 
-			String sql = _customSQL.get(getClass(), COUNT_BY_G_F_C_L);
+			String sql = null;
+
+			if (layoutPageTemplateEntryType >= 0) {
+				sql = _customSQL.get(getClass(), COUNT_BY_G_F_P_L);
+			}
+			else {
+				sql = _customSQL.get(getClass(), COUNT_BY_G_F_P);
+			}
 
 			SQLQuery sqlQuery = session.createSynchronizedSQLQuery(sql);
 
@@ -154,15 +160,17 @@ public class FragmentEntryLinkFinderImpl
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
 
+			if (layoutPageTemplateEntryType >= 0) {
+				queryPos.add(layoutPageTemplateEntryType);
+			}
+
 			queryPos.add(groupId);
 			queryPos.add(fragmentEntryId);
-			queryPos.add(classNameId);
-			queryPos.add(layoutPageTemplateEntryType);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -170,6 +178,40 @@ public class FragmentEntryLinkFinderImpl
 			}
 
 			return 0;
+		}
+		catch (Exception exception) {
+			throw new SystemException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	public List<FragmentEntryLink> findByType(
+		int type, int start, int end,
+		OrderByComparator<FragmentEntryLink> orderByComparator) {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = _customSQL.get(getClass(), FIND_BY_TYPE);
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
+
+			SQLQuery sqlQuery = session.createSynchronizedSQLQuery(sql);
+
+			sqlQuery.addEntity(
+				"FragmentEntryLink", FragmentEntryLinkImpl.class);
+
+			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			queryPos.add(type);
+
+			return (List<FragmentEntryLink>)QueryUtil.list(
+				sqlQuery, getDialect(), start, end);
 		}
 		catch (Exception exception) {
 			throw new SystemException(exception);
@@ -214,46 +256,40 @@ public class FragmentEntryLinkFinderImpl
 		}
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #findByG_F_P_L(long, long, int, int, int, OrderByComparator)}
+	 */
+	@Deprecated
 	@Override
 	public List<FragmentEntryLink> findByG_F_C(
 		long groupId, long fragmentEntryId, long classNameId, int start,
 		int end, OrderByComparator<FragmentEntryLink> orderByComparator) {
 
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			String sql = _customSQL.get(getClass(), FIND_BY_G_F_C);
-
-			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
-
-			SQLQuery sqlQuery = session.createSynchronizedSQLQuery(sql);
-
-			sqlQuery.addEntity(
-				"FragmentEntryLink", FragmentEntryLinkImpl.class);
-
-			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
-
-			queryPos.add(groupId);
-			queryPos.add(fragmentEntryId);
-			queryPos.add(classNameId);
-
-			return (List<FragmentEntryLink>)QueryUtil.list(
-				sqlQuery, getDialect(), start, end);
-		}
-		catch (Exception exception) {
-			throw new SystemException(exception);
-		}
-		finally {
-			closeSession(session);
-		}
+		return findByG_F_P_L(
+			groupId, fragmentEntryId, -1, start, end, orderByComparator);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #findByG_F_P_L(long, long, int, int, int, OrderByComparator)}
+	 */
+	@Deprecated
 	@Override
 	public List<FragmentEntryLink> findByG_F_C_L(
 		long groupId, long fragmentEntryId, long classNameId,
 		int layoutPageTemplateEntryType, int start, int end,
+		OrderByComparator<FragmentEntryLink> orderByComparator) {
+
+		return findByG_F_P_L(
+			groupId, fragmentEntryId, layoutPageTemplateEntryType, start, end,
+			orderByComparator);
+	}
+
+	@Override
+	public List<FragmentEntryLink> findByG_F_P_L(
+		long groupId, long fragmentEntryId, int layoutPageTemplateEntryType,
+		int start, int end,
 		OrderByComparator<FragmentEntryLink> orderByComparator) {
 
 		Session session = null;
@@ -261,7 +297,14 @@ public class FragmentEntryLinkFinderImpl
 		try {
 			session = openSession();
 
-			String sql = _customSQL.get(getClass(), FIND_BY_G_F_C_L);
+			String sql = null;
+
+			if (layoutPageTemplateEntryType >= 0) {
+				sql = _customSQL.get(getClass(), FIND_BY_G_F_P_L);
+			}
+			else {
+				sql = _customSQL.get(getClass(), FIND_BY_G_F_P);
+			}
 
 			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
@@ -272,10 +315,12 @@ public class FragmentEntryLinkFinderImpl
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
 
+			if (layoutPageTemplateEntryType >= 0) {
+				queryPos.add(layoutPageTemplateEntryType);
+			}
+
 			queryPos.add(groupId);
 			queryPos.add(fragmentEntryId);
-			queryPos.add(classNameId);
-			queryPos.add(layoutPageTemplateEntryType);
 
 			return (List<FragmentEntryLink>)QueryUtil.list(
 				sqlQuery, getDialect(), start, end);

@@ -38,6 +38,7 @@ page import="com.liferay.portal.kernel.model.Layout" %><%@
 page import="com.liferay.portal.kernel.model.Portlet" %><%@
 page import="com.liferay.portal.kernel.model.PublicRenderParameter" %><%@
 page import="com.liferay.portal.kernel.model.Resource" %><%@
+page import="com.liferay.portal.kernel.model.Role" %><%@
 page import="com.liferay.portal.kernel.model.role.RoleConstants" %><%@
 page import="com.liferay.portal.kernel.portlet.ConfigurationAction" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
@@ -71,6 +72,9 @@ page import="com.liferay.portlet.configuration.web.internal.display.context.Port
 page import="com.liferay.portlet.configuration.web.internal.servlet.taglib.clay.ArchivedSettingsVerticalCard" %><%@
 page import="com.liferay.portlet.portletconfiguration.action.ActionUtil" %><%@
 page import="com.liferay.portlet.portletconfiguration.util.PublicRenderParameterConfiguration" %><%@
+page import="com.liferay.roles.admin.constants.RolesAdminWebKeys" %><%@
+page import="com.liferay.roles.admin.role.type.contributor.RoleTypeContributor" %><%@
+page import="com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider" %><%@
 page import="com.liferay.taglib.servlet.PipingServletResponse" %>
 
 <%@ page import="java.util.ArrayList" %><%@

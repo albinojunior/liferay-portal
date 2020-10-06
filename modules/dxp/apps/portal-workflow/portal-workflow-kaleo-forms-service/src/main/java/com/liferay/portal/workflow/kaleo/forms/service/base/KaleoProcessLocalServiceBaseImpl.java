@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -80,6 +82,10 @@ public abstract class KaleoProcessLocalServiceBaseImpl
 	/**
 	 * Adds the kaleo process to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoProcess the kaleo process
 	 * @return the kaleo process that was added
 	 */
@@ -106,6 +112,10 @@ public abstract class KaleoProcessLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo process with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoProcessId the primary key of the kaleo process
 	 * @return the kaleo process that was removed
 	 * @throws PortalException if a kaleo process with the primary key could not be found
@@ -121,6 +131,10 @@ public abstract class KaleoProcessLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo process from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoProcess the kaleo process
 	 * @return the kaleo process that was removed
 	 * @throws PortalException
@@ -131,6 +145,11 @@ public abstract class KaleoProcessLocalServiceBaseImpl
 		throws PortalException {
 
 		return kaleoProcessPersistence.remove(kaleoProcess);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return kaleoProcessPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -382,6 +401,10 @@ public abstract class KaleoProcessLocalServiceBaseImpl
 			(KaleoProcess)persistedModel);
 	}
 
+	public BasePersistence<KaleoProcess> getBasePersistence() {
+		return kaleoProcessPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -469,6 +492,10 @@ public abstract class KaleoProcessLocalServiceBaseImpl
 
 	/**
 	 * Updates the kaleo process in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoProcess the kaleo process
 	 * @return the kaleo process that was updated

@@ -24,6 +24,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -53,39 +54,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ExportTask")
 public class ExportTask {
 
-	@GraphQLName("ExecuteStatus")
-	public static enum ExecuteStatus {
-
-		COMPLETED("COMPLETED"), FAILED("FAILED"), INITIAL("INITIAL"),
-		STARTED("STARTED");
-
-		@JsonCreator
-		public static ExecuteStatus create(String value) {
-			for (ExecuteStatus executeStatus : values()) {
-				if (Objects.equals(executeStatus.getValue(), value)) {
-					return executeStatus;
-				}
-			}
-
-			return null;
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private ExecuteStatus(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
+	public static ExportTask toDTO(String json) {
+		return ObjectMapperUtil.readValue(ExportTask.class, json);
 	}
 
 	@Schema(
@@ -436,10 +406,55 @@ public class ExportTask {
 	)
 	public String xClassName;
 
+	@GraphQLName("ExecuteStatus")
+	public static enum ExecuteStatus {
+
+		COMPLETED("COMPLETED"), FAILED("FAILED"), INITIAL("INITIAL"),
+		STARTED("STARTED");
+
+		@JsonCreator
+		public static ExecuteStatus create(String value) {
+			for (ExecuteStatus executeStatus : values()) {
+				if (Objects.equals(executeStatus.getValue(), value)) {
+					return executeStatus;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ExecuteStatus(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);
 
 		return string.replaceAll("\"", "\\\\\"");
+	}
+
+	private static boolean _isArray(Object value) {
+		if (value == null) {
+			return false;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		return clazz.isArray();
 	}
 
 	private static String _toJSON(Map<String, ?> map) {
@@ -457,9 +472,42 @@ public class ExportTask {
 			sb.append("\"");
 			sb.append(entry.getKey());
 			sb.append("\":");
-			sb.append("\"");
-			sb.append(entry.getValue());
-			sb.append("\"");
+
+			Object value = entry.getValue();
+
+			if (_isArray(value)) {
+				sb.append("[");
+
+				Object[] valueArray = (Object[])value;
+
+				for (int i = 0; i < valueArray.length; i++) {
+					if (valueArray[i] instanceof String) {
+						sb.append("\"");
+						sb.append(valueArray[i]);
+						sb.append("\"");
+					}
+					else {
+						sb.append(valueArray[i]);
+					}
+
+					if ((i + 1) < valueArray.length) {
+						sb.append(", ");
+					}
+				}
+
+				sb.append("]");
+			}
+			else if (value instanceof Map) {
+				sb.append(_toJSON((Map<String, ?>)value));
+			}
+			else if (value instanceof String) {
+				sb.append("\"");
+				sb.append(value);
+				sb.append("\"");
+			}
+			else {
+				sb.append(value);
+			}
 
 			if (iterator.hasNext()) {
 				sb.append(",");

@@ -18,7 +18,7 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
-String backURL = HttpUtil.setParameter(currentURL, renderResponse.getNamespace() + "historyKey", "fields");
+String backURL = HttpUtil.setParameter(currentURL, liferayPortletResponse.getNamespace() + "historyKey", "fields");
 
 KaleoProcess kaleoProcess = (KaleoProcess)request.getAttribute(KaleoFormsWebKeys.KALEO_PROCESS);
 
@@ -79,7 +79,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 
 		searchContainer.setTotal(total);
 
-		results = DDMStructureServiceUtil.search(company.getCompanyId(), PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId), scopeClassNameId, displayTerms.getKeywords(), WorkflowConstants.STATUS_ANY, searchContainer.getStart(), searchContainer.getEnd(), null);
+		results = DDMStructureServiceUtil.search(company.getCompanyId(), PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId), scopeClassNameId, displayTerms.getKeywords(), WorkflowConstants.STATUS_ANY, searchContainer.getStart(), searchContainer.getEnd(), new StructureModifiedDateComparator(true));
 
 		searchContainer.setResults(results);
 		%>
@@ -99,7 +99,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 		</liferay-portlet:renderURL>
 
 		<aui:button-row>
-			<aui:button onClick='<%= "javascript:" + renderResponse.getNamespace() + "editStructure('" + LanguageUtil.format(request, "new-x", LanguageUtil.get(request, "field-set"), false) + "','" + addURL + "');" %>' primary="<%= true %>" value="add-field-set" />
+			<aui:button onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "editStructure('" + LanguageUtil.format(request, "new-x", LanguageUtil.get(request, "field-set"), false) + "','" + addURL + "');" %>' primary="<%= true %>" value="add-field-set" />
 		</aui:button-row>
 	</c:if>
 
@@ -120,11 +120,13 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 			<%
 			JSONArray definitionFieldsJSONArray = DDMUtil.getDDMFormFieldsJSONArray(structure, structure.getDefinition());
 
-			JSONObject definitionJSONObject = JSONFactoryUtil.createJSONObject();
-
-			definitionJSONObject.put("definitionFields", definitionFieldsJSONArray);
-			definitionJSONObject.put("definitionId", structure.getStructureId());
-			definitionJSONObject.put("definitionName", structure.getName(locale));
+			JSONObject definitionJSONObject = JSONUtil.put(
+				"definitionFields", definitionFieldsJSONArray
+			).put(
+				"definitionId", structure.getStructureId()
+			).put(
+				"definitionName", structure.getName(locale)
+			);
 
 			availableDefinitionsJSONArray.put(definitionJSONObject);
 			%>
@@ -162,7 +164,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 <aui:script>
 	Liferay.on(
 		'<portlet:namespace />chooseDefinition',
-		function(event) {
+		function (event) {
 			var A = AUI();
 
 			var ddmStructureId = event.ddmStructureId;
@@ -175,7 +177,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 			A.one('#<portlet:namespace />ddmStructureName').val(ddmStructureName);
 
 			var kaleoFormsAdmin = Liferay.component(
-				'<portlet:namespace/>KaleoFormsAdmin'
+				'<portlet:namespace />KaleoFormsAdmin'
 			);
 
 			kaleoFormsAdmin.saveInPortletSession(
@@ -194,7 +196,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 	Liferay.provide(
 		window,
 		'<portlet:namespace />editStructure',
-		function(title, uri) {
+		function (title, uri) {
 			var A = AUI();
 
 			var WIN = A.config.win;
@@ -216,7 +218,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 		height: 600,
 		namespace: '<portlet:namespace />',
 		on: {
-			choose: function(event) {
+			choose: function (event) {
 				Liferay.fire('<portlet:namespace />chooseDefinition', {
 					ddmStructureId: event.definitionId,
 					name: event.definitionName,
@@ -228,7 +230,7 @@ JSONArray availableDefinitionsJSONArray = JSONFactoryUtil.createJSONArray();
 
 	A.one('#p_p_id<portlet:namespace />').delegate(
 		'click',
-		function(event) {
+		function (event) {
 			var definitionId = event.target.attr('data-definition-id');
 
 			kaleoDefinitionPreview.select(definitionId);

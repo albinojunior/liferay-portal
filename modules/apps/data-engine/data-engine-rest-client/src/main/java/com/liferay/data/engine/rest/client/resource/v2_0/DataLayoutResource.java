@@ -15,6 +15,7 @@
 package com.liferay.data.engine.rest.client.resource.v2_0;
 
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
+import com.liferay.data.engine.rest.client.dto.v2_0.DataLayoutRenderingContext;
 import com.liferay.data.engine.rest.client.http.HttpInvoker;
 import com.liferay.data.engine.rest.client.pagination.Page;
 import com.liferay.data.engine.rest.client.pagination.Pagination;
@@ -39,6 +40,13 @@ public interface DataLayoutResource {
 	public static Builder builder() {
 		return new Builder();
 	}
+
+	public void deleteDataLayoutsDataDefinition(Long dataDefinitionId)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse deleteDataLayoutsDataDefinitionHttpResponse(
+			Long dataDefinitionId)
+		throws Exception;
 
 	public Page<DataLayout> getDataDefinitionDataLayoutsPage(
 			Long dataDefinitionId, String keywords, Pagination pagination,
@@ -100,6 +108,16 @@ public interface DataLayoutResource {
 			String callbackURL, Object object)
 		throws Exception;
 
+	public void postDataLayoutContext(
+			Long dataLayoutId,
+			DataLayoutRenderingContext dataLayoutRenderingContext)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse postDataLayoutContextHttpResponse(
+			Long dataLayoutId,
+			DataLayoutRenderingContext dataLayoutRenderingContext)
+		throws Exception;
+
 	public DataLayout getSiteDataLayoutByContentTypeByDataLayoutKey(
 			Long siteId, String contentType, String dataLayoutKey)
 		throws Exception;
@@ -154,8 +172,8 @@ public interface DataLayoutResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -163,6 +181,70 @@ public interface DataLayoutResource {
 	}
 
 	public static class DataLayoutResourceImpl implements DataLayoutResource {
+
+		public void deleteDataLayoutsDataDefinition(Long dataDefinitionId)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				deleteDataLayoutsDataDefinitionHttpResponse(dataDefinitionId);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				deleteDataLayoutsDataDefinitionHttpResponse(
+					Long dataDefinitionId)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.DELETE);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/data-definitions/{dataDefinitionId}/data-layouts",
+				dataDefinitionId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
 
 		public Page<DataLayout> getDataDefinitionDataLayoutsPage(
 				Long dataDefinitionId, String keywords, Pagination pagination,
@@ -670,6 +752,65 @@ public interface DataLayoutResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + "/o/data-engine/v2.0/data-layouts/batch");
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void postDataLayoutContext(
+				Long dataLayoutId,
+				DataLayoutRenderingContext dataLayoutRenderingContext)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postDataLayoutContextHttpResponse(
+					dataLayoutId, dataLayoutRenderingContext);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+		}
+
+		public HttpInvoker.HttpResponse postDataLayoutContextHttpResponse(
+				Long dataLayoutId,
+				DataLayoutRenderingContext dataLayoutRenderingContext)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				dataLayoutRenderingContext.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/data-layouts/{dataLayoutId}/context",
+				dataLayoutId);
 
 			httpInvoker.userNameAndPassword(
 				_builder._login + ":" + _builder._password);

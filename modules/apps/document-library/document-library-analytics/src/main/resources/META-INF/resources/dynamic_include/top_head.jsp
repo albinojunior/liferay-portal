@@ -36,13 +36,13 @@
 					anchor.parentElement.dataset.analyticsFileEntryId);
 
 			if (fileEntryId && match) {
-				var getParameterValue = function(parameterName) {
+				var getParameterValue = function (parameterName) {
 					var result = null;
 
 					anchor.search
 						.substr(1)
 						.split('&')
-						.forEach(function(item) {
+						.forEach(function (item) {
 							var tmp = item.split('=');
 
 							if (tmp[0] === parameterName) {
@@ -64,12 +64,15 @@
 		}
 	}
 
-	document.body.addEventListener('click', handleDownloadClick);
-
-	var onDestroyPortlet = function() {
+	var onDestroyPortlet = function () {
 		document.body.removeEventListener('click', handleDownloadClick);
-		Liferay.detach('destroyPortlet', onDestroyPortlet);
 	};
 
-	Liferay.on('destroyPortlet', onDestroyPortlet);
+	Liferay.once('destroyPortlet', onDestroyPortlet);
+
+	var onPortletReady = function () {
+		document.body.addEventListener('click', handleDownloadClick);
+	};
+
+	Liferay.once('portletReady', onPortletReady);
 </aui:script>

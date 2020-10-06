@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Histogram implements Cloneable {
 
+	public static Histogram toDTO(String json) {
+		return HistogramSerDes.toDTO(json);
+	}
+
 	public String getKey() {
 		return key;
 	}

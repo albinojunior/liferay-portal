@@ -41,6 +41,10 @@ public class AuditEventLocalServiceUtil {
 	/**
 	 * Adds the audit event to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param auditEvent the audit event
 	 * @return the audit event that was added
 	 */
@@ -84,6 +88,10 @@ public class AuditEventLocalServiceUtil {
 	/**
 	 * Deletes the audit event from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param auditEvent the audit event
 	 * @return the audit event that was removed
 	 */
@@ -97,6 +105,10 @@ public class AuditEventLocalServiceUtil {
 
 	/**
 	 * Deletes the audit event with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param auditEventId the primary key of the audit event
 	 * @return the audit event that was removed
@@ -118,6 +130,12 @@ public class AuditEventLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -261,7 +279,8 @@ public class AuditEventLocalServiceUtil {
 			getAuditEvents(
 				long companyId, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator) {
+					<com.liferay.portal.security.audit.storage.model.AuditEvent>
+						orderByComparator) {
 
 		return getService().getAuditEvents(
 			companyId, start, end, orderByComparator);
@@ -293,7 +312,8 @@ public class AuditEventLocalServiceUtil {
 				int serverPort, String sessionID, boolean andSearch, int start,
 				int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator) {
+					<com.liferay.portal.security.audit.storage.model.AuditEvent>
+						orderByComparator) {
 
 		return getService().getAuditEvents(
 			companyId, userId, userName, createDateGT, createDateLT, eventType,
@@ -355,6 +375,10 @@ public class AuditEventLocalServiceUtil {
 
 	/**
 	 * Updates the audit event in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AuditEventLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param auditEvent the audit event
 	 * @return the audit event that was updated

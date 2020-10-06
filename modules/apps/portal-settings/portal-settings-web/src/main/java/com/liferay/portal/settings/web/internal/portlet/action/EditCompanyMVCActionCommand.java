@@ -271,12 +271,13 @@ public class EditCompanyMVCActionCommand extends BaseFormMVCActionCommand {
 				companyId, Account.class.getName(), company.getAccountId());
 		}
 
-		UnicodeProperties properties = PropertiesParamUtil.getProperties(
+		UnicodeProperties unicodeProperties = PropertiesParamUtil.getProperties(
 			actionRequest, "settings--");
 
-		if (properties.containsKey(PropsKeys.ADMIN_EMAIL_FROM_ADDRESS) &&
+		if (unicodeProperties.containsKey(PropsKeys.ADMIN_EMAIL_FROM_ADDRESS) &&
 			!Validator.isEmailAddress(
-				properties.getProperty(PropsKeys.ADMIN_EMAIL_FROM_ADDRESS))) {
+				unicodeProperties.getProperty(
+					PropsKeys.ADMIN_EMAIL_FROM_ADDRESS))) {
 
 			throw new EmailAddressException();
 		}
@@ -287,16 +288,16 @@ public class EditCompanyMVCActionCommand extends BaseFormMVCActionCommand {
 		PortletPreferences portletPreferences = _prefsProps.getPreferences(
 			companyId);
 
-		Enumeration<String> names = portletPreferences.getNames();
+		Enumeration<String> enumeration = portletPreferences.getNames();
 
 		try {
-			while (names.hasMoreElements()) {
-				String name2 = names.nextElement();
+			while (enumeration.hasMoreElements()) {
+				String curName = enumeration.nextElement();
 
 				for (String discardLegacyKey : discardLegacyKeys) {
-					if (name2.startsWith(discardLegacyKey + "_")) {
-						portletPreferences.reset(name2);
-						properties.remove(name2);
+					if (curName.startsWith(discardLegacyKey + "_")) {
+						portletPreferences.reset(curName);
+						unicodeProperties.remove(curName);
 					}
 				}
 			}
@@ -311,7 +312,7 @@ public class EditCompanyMVCActionCommand extends BaseFormMVCActionCommand {
 			companyId, virtualHostname, mx, homeURL, !deleteLogo, logoBytes,
 			name, legalName, legalId, legalType, sicCode, tickerSymbol,
 			industry, type, size, languageId, timeZoneId, addresses,
-			emailAddresses, phones, websites, properties);
+			emailAddresses, phones, websites, unicodeProperties);
 
 		_portal.resetCDNHosts();
 	}
@@ -319,10 +320,11 @@ public class EditCompanyMVCActionCommand extends BaseFormMVCActionCommand {
 	private void _validateAvailableLanguages(ActionRequest actionRequest)
 		throws PortalException {
 
-		UnicodeProperties properties = PropertiesParamUtil.getProperties(
+		UnicodeProperties unicodeProperties = PropertiesParamUtil.getProperties(
 			actionRequest, "settings--");
 
-		String newLanguageIds = properties.getProperty(PropsKeys.LOCALES);
+		String newLanguageIds = unicodeProperties.getProperty(
+			PropsKeys.LOCALES);
 
 		if (Validator.isNull(newLanguageIds)) {
 			return;
@@ -379,10 +381,11 @@ public class EditCompanyMVCActionCommand extends BaseFormMVCActionCommand {
 				"you-must-choose-a-default-language");
 		}
 
-		UnicodeProperties properties = PropertiesParamUtil.getProperties(
+		UnicodeProperties unicodeProperties = PropertiesParamUtil.getProperties(
 			actionRequest, "settings--");
 
-		String newLanguageIds = properties.getProperty(PropsKeys.LOCALES);
+		String newLanguageIds = unicodeProperties.getProperty(
+			PropsKeys.LOCALES);
 
 		if (Validator.isNull(newLanguageIds) ||
 			!StringUtil.contains(

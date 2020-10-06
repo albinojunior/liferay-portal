@@ -17,14 +17,16 @@
 <%@ include file="/designer/init.jsp" %>
 
 <%
-KaleoDefinitionVersionSearch kaleoDefinitionVersionSearch = kaleoDesignerDisplayContext.getKaleoDefinitionVersionSearch();
+KaleoDefinitionVersionSearch kaleoDefinitionVersionSearch = kaleoDesignerDisplayContext.getKaleoDefinitionVersionSearch(displayedStatus);
 %>
 
 <liferay-ui:success key='<%= KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestProcessed" %>' message='<%= (String)MultiSessionMessages.get(renderRequest, KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestProcessed") %>' translateMessage="<%= false %>" />
 
 <liferay-util:include page="/designer/management_bar.jsp" servletContext="<%= application %>" />
 
-<div class="container-fluid-1280 main-content-body">
+<clay:container-fluid
+	cssClass="main-content-body"
+>
 	<liferay-ui:error exception="<%= RequiredWorkflowDefinitionException.class %>">
 		<liferay-ui:message arguments="<%= kaleoDesignerDisplayContext.getMessageArguments((RequiredWorkflowDefinitionException)errorException) %>" key="<%= kaleoDesignerDisplayContext.getMessageKey((RequiredWorkflowDefinitionException)errorException) %>" translateArguments="<%= false %>" />
 	</liferay-ui:error>
@@ -89,4 +91,4 @@ KaleoDefinitionVersionSearch kaleoDefinitionVersionSearch = kaleoDesignerDisplay
 			searchContainer="<%= kaleoDefinitionVersionSearch %>"
 		/>
 	</liferay-ui:search-container>
-</div>
+</clay:container-fluid>

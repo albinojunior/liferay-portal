@@ -19,7 +19,7 @@
 <%
 ItemSelectorUploadViewDisplayContext itemSelectorUploadViewDisplayContext = (ItemSelectorUploadViewDisplayContext)request.getAttribute(ItemSelectorUploadView.ITEM_SELECTOR_UPLOAD_VIEW_DISPLAY_CONTEXT);
 
-ItemSelectorReturnTypeResolver itemSelectorReturnTypeResolver = itemSelectorUploadViewDisplayContext.getItemSelectorReturnTypeResolver();
+ItemSelectorReturnTypeResolver<?, ?> itemSelectorReturnTypeResolver = itemSelectorUploadViewDisplayContext.getItemSelectorReturnTypeResolver();
 
 Class<?> itemSelectorReturnTypeClass = itemSelectorReturnTypeResolver.getItemSelectorReturnTypeClass();
 
@@ -31,18 +31,27 @@ if (Validator.isNotNull(namespace)) {
 	uploadURL = HttpUtil.addParameter(uploadURL, namespace + "returnType", itemSelectorReturnTypeClass.getName());
 }
 
-Map<String, Object> context = new HashMap<>();
-
-context.put("closeCaption", itemSelectorUploadViewDisplayContext.getTitle(locale));
-context.put("eventName", itemSelectorUploadViewDisplayContext.getItemSelectedEventName());
-context.put("maxFileSize", itemSelectorUploadViewDisplayContext.getMaxFileSize());
-context.put("rootNode", "#itemSelectorUploadContainer");
-context.put("uploadItemReturnType", HtmlUtil.escapeAttribute(itemSelectorReturnTypeClass.getName()));
-context.put("uploadItemURL", uploadURL);
-context.put("validExtensions", ArrayUtil.isEmpty(itemSelectorUploadViewDisplayContext.getExtensions()) ? "*" : StringUtil.merge(itemSelectorUploadViewDisplayContext.getExtensions()));
+Map<String, Object> context = HashMapBuilder.<String, Object>put(
+	"closeCaption", itemSelectorUploadViewDisplayContext.getTitle(locale)
+).put(
+	"eventName", itemSelectorUploadViewDisplayContext.getItemSelectedEventName()
+).put(
+	"maxFileSize", itemSelectorUploadViewDisplayContext.getMaxFileSize()
+).put(
+	"rootNode", "#itemSelectorUploadContainer"
+).put(
+	"uploadItemReturnType", HtmlUtil.escapeAttribute(itemSelectorReturnTypeClass.getName())
+).put(
+	"uploadItemURL", uploadURL
+).put(
+	"validExtensions", ArrayUtil.isEmpty(itemSelectorUploadViewDisplayContext.getExtensions()) ? "*" : StringUtil.merge(itemSelectorUploadViewDisplayContext.getExtensions())
+).build();
 %>
 
-<div class="container-fluid-1280 lfr-item-viewer" id="itemSelectorUploadContainer">
+<clay:container-fluid
+	cssClass="lfr-item-viewer"
+	id="itemSelectorUploadContainer"
+>
 	<div class="drop-enabled drop-zone item-selector upload-view">
 		<div id="uploadDescription">
 			<c:if test="<%= !BrowserSnifferUtil.isMobile(request) %>">
@@ -64,7 +73,7 @@ context.put("validExtensions", ArrayUtil.isEmpty(itemSelectorUploadViewDisplayCo
 	/>
 
 	<div class="item-selector-preview-container"></div>
-</div>
+</clay:container-fluid>
 
 <liferay-frontend:component
 	context="<%= context %>"

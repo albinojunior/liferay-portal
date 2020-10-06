@@ -20,7 +20,7 @@ definition {
 
 	macro addFavoriteStructure {
 		AssertTextEquals.assertPartialText(
-			locator1 = "Message#INFO",
+			locator1 = "Message#INFO_1",
 			value1 = "You can add as many as 7 favorites in your quick menu.");
 
 		Click(
@@ -67,7 +67,7 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		var key_ddlDataDefinitionName = "${parentStructureName}";
 
@@ -121,10 +121,14 @@ definition {
 
 		Button.clickSave();
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Web Content");
+		if (isSet(depotName)) {
+			DepotNavigator.openDepotWebContentAdmin(depotName = "${depotName}");
+		}
+		else {
+			ProductMenu.gotoPortlet(
+				category = "Content &amp; Data",
+				portlet = "Web Content");
+		}
 
 		Navigator.gotoNavItem(navItem = "Structures");
 
@@ -184,7 +188,7 @@ definition {
 				menuItem = "Permissions",
 				rowEntry = "${structureName}");
 
-			SelectFrame(locator1 = "IFrame#DIALOG");
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 			PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
 				addOrRemoveViewPermission = "Add",
@@ -199,7 +203,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
-			panel = "Site Administration",
 			portlet = "Web Content");
 
 		Navigator.gotoNavItem(navItem = "Structures");
@@ -275,6 +278,14 @@ definition {
 		AssertTextEquals(
 			locator1 = "WC#ADD_TO_FAVORITES",
 			value1 = "Add to Favorites (0)");
+	}
+
+	macro viewScopesViaMoreIFrame {
+		AssertTextEquals(
+			key_tableEntry = "${structureName}",
+			key_tableEntryText = "${scopeName}",
+			locator1 = "LexiconTable#TABLE_ENTRY_TEXT",
+			value1 = "${scopeName}");
 	}
 
 	macro viewStructuresViaMoreIFrame {

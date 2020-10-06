@@ -14,9 +14,13 @@
 
 package com.liferay.depot.model;
 
+import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ShardedModel;
+import com.liferay.portal.kernel.model.StagedModel;
+
+import java.util.Date;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -33,7 +37,8 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface DepotEntryGroupRelModel
-	extends BaseModel<DepotEntryGroupRel>, MVCCModel, ShardedModel {
+	extends BaseModel<DepotEntryGroupRel>, MVCCModel, ShardedModel,
+			StagedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -72,6 +77,23 @@ public interface DepotEntryGroupRelModel
 	public void setMvccVersion(long mvccVersion);
 
 	/**
+	 * Returns the uuid of this depot entry group rel.
+	 *
+	 * @return the uuid of this depot entry group rel
+	 */
+	@AutoEscape
+	@Override
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this depot entry group rel.
+	 *
+	 * @param uuid the uuid of this depot entry group rel
+	 */
+	@Override
+	public void setUuid(String uuid);
+
+	/**
 	 * Returns the depot entry group rel ID of this depot entry group rel.
 	 *
 	 * @return the depot entry group rel ID of this depot entry group rel
@@ -84,6 +106,20 @@ public interface DepotEntryGroupRelModel
 	 * @param depotEntryGroupRelId the depot entry group rel ID of this depot entry group rel
 	 */
 	public void setDepotEntryGroupRelId(long depotEntryGroupRelId);
+
+	/**
+	 * Returns the group ID of this depot entry group rel.
+	 *
+	 * @return the group ID of this depot entry group rel
+	 */
+	public long getGroupId();
+
+	/**
+	 * Sets the group ID of this depot entry group rel.
+	 *
+	 * @param groupId the group ID of this depot entry group rel
+	 */
+	public void setGroupId(long groupId);
 
 	/**
 	 * Returns the company ID of this depot entry group rel.
@@ -100,6 +136,59 @@ public interface DepotEntryGroupRelModel
 	 */
 	@Override
 	public void setCompanyId(long companyId);
+
+	/**
+	 * Returns the create date of this depot entry group rel.
+	 *
+	 * @return the create date of this depot entry group rel
+	 */
+	@Override
+	public Date getCreateDate();
+
+	/**
+	 * Sets the create date of this depot entry group rel.
+	 *
+	 * @param createDate the create date of this depot entry group rel
+	 */
+	@Override
+	public void setCreateDate(Date createDate);
+
+	/**
+	 * Returns the modified date of this depot entry group rel.
+	 *
+	 * @return the modified date of this depot entry group rel
+	 */
+	@Override
+	public Date getModifiedDate();
+
+	/**
+	 * Sets the modified date of this depot entry group rel.
+	 *
+	 * @param modifiedDate the modified date of this depot entry group rel
+	 */
+	@Override
+	public void setModifiedDate(Date modifiedDate);
+
+	/**
+	 * Returns the ddm structures available of this depot entry group rel.
+	 *
+	 * @return the ddm structures available of this depot entry group rel
+	 */
+	public boolean getDdmStructuresAvailable();
+
+	/**
+	 * Returns <code>true</code> if this depot entry group rel is ddm structures available.
+	 *
+	 * @return <code>true</code> if this depot entry group rel is ddm structures available; <code>false</code> otherwise
+	 */
+	public boolean isDdmStructuresAvailable();
+
+	/**
+	 * Sets whether this depot entry group rel is ddm structures available.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available of this depot entry group rel
+	 */
+	public void setDdmStructuresAvailable(boolean ddmStructuresAvailable);
 
 	/**
 	 * Returns the depot entry ID of this depot entry group rel.

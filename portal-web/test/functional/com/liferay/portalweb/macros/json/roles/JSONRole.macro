@@ -66,4 +66,27 @@ definition {
 			userId = "${userId}");
 	}
 
+	macro assignSiteRoleToUser {
+		Variables.assertDefined(parameterList = "${groupName},${roleTitle},${userEmailAddress}");
+
+		var groupId = JSONUserSetter.setGroupId(groupName = "${groupName}");
+
+		var roleId = JSONRoleSetter.setRoleId(name = "${roleTitle}");
+
+		var userId = JSONRoleSetter.setUserId(userEmailAddress = "${userEmailAddress}");
+
+		JSONRoleAPI._assignSiteRoleToUser(
+			groupId = "${groupId}",
+			roleId = "${roleId}",
+			userId = "${userId}");
+	}
+
+	macro deleteRole {
+		Variables.assertDefined(parameterList = "${roleTitle}");
+
+		var roleId = JSONRoleAPI._getRoleIdByName(name = "${roleTitle}");
+
+		JSONRoleAPI._deleteRoleById(roleId = "${roleId}");
+	}
+
 }

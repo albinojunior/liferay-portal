@@ -19,7 +19,6 @@ import com.liferay.portal.tools.soy.builder.commands.ReplaceSoyTranslationComman
 import com.liferay.portal.tools.soy.builder.util.FileTestUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,9 +51,7 @@ public class ReplaceSoyTranslationMojoTest
 		Assert.assertEquals(result.output, 0, result.exitCode);
 	}
 
-	private static void _preparePomXml(File projectDir, File dir)
-		throws IOException {
-
+	private void _preparePomXml(File projectDir, File dir) throws Exception {
 		String content = FileTestUtil.read(
 			ReplaceSoyTranslationMojoTest.class.getClassLoader(),
 			"com/liferay/portal/tools/soy/builder/maven/dependencies" +

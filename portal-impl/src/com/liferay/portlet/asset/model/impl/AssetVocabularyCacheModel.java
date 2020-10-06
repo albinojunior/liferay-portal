@@ -37,17 +37,17 @@ public class AssetVocabularyCacheModel
 	implements CacheModel<AssetVocabulary>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof AssetVocabularyCacheModel)) {
+		if (!(object instanceof AssetVocabularyCacheModel)) {
 			return false;
 		}
 
 		AssetVocabularyCacheModel assetVocabularyCacheModel =
-			(AssetVocabularyCacheModel)obj;
+			(AssetVocabularyCacheModel)object;
 
 		if ((vocabularyId == assetVocabularyCacheModel.vocabularyId) &&
 			(mvccVersion == assetVocabularyCacheModel.mvccVersion)) {
@@ -77,7 +77,7 @@ public class AssetVocabularyCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(33);
+		StringBundler sb = new StringBundler(35);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -109,6 +109,8 @@ public class AssetVocabularyCacheModel
 		sb.append(description);
 		sb.append(", settings=");
 		sb.append(settings);
+		sb.append(", visibilityType=");
+		sb.append(visibilityType);
 		sb.append(", lastPublishDate=");
 		sb.append(lastPublishDate);
 		sb.append("}");
@@ -191,6 +193,8 @@ public class AssetVocabularyCacheModel
 			assetVocabularyImpl.setSettings(settings);
 		}
 
+		assetVocabularyImpl.setVisibilityType(visibilityType);
+
 		if (lastPublishDate == Long.MIN_VALUE) {
 			assetVocabularyImpl.setLastPublishDate(null);
 		}
@@ -225,6 +229,8 @@ public class AssetVocabularyCacheModel
 		title = objectInput.readUTF();
 		description = objectInput.readUTF();
 		settings = objectInput.readUTF();
+
+		visibilityType = objectInput.readInt();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -294,6 +300,7 @@ public class AssetVocabularyCacheModel
 			objectOutput.writeUTF(settings);
 		}
 
+		objectOutput.writeInt(visibilityType);
 		objectOutput.writeLong(lastPublishDate);
 	}
 
@@ -312,6 +319,7 @@ public class AssetVocabularyCacheModel
 	public String title;
 	public String description;
 	public String settings;
+	public int visibilityType;
 	public long lastPublishDate;
 
 }

@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.form.evaluator;
 
 import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 
 import java.util.Locale;
@@ -30,6 +31,10 @@ public final class DDMFormEvaluatorEvaluateRequest {
 
 	public DDMForm getDDMForm() {
 		return _ddmForm;
+	}
+
+	public DDMFormLayout getDDMFormLayout() {
+		return _ddmFormLayout;
 	}
 
 	public DDMFormValues getDDMFormValues() {
@@ -48,6 +53,10 @@ public final class DDMFormEvaluatorEvaluateRequest {
 		return _userId;
 	}
 
+	public boolean isEditingFieldValue() {
+		return _editingFieldValue;
+	}
+
 	public static class Builder {
 
 		public static Builder newBuilder(
@@ -62,6 +71,19 @@ public final class DDMFormEvaluatorEvaluateRequest {
 
 		public Builder withCompanyId(long companyId) {
 			_ddmFormEvaluatorEvaluateRequest._companyId = companyId;
+
+			return this;
+		}
+
+		public Builder withDDMFormLayout(DDMFormLayout ddmFormLayout) {
+			_ddmFormEvaluatorEvaluateRequest._ddmFormLayout = ddmFormLayout;
+
+			return this;
+		}
+
+		public Builder withEditingFieldValue(boolean editingFieldValue) {
+			_ddmFormEvaluatorEvaluateRequest._editingFieldValue =
+				editingFieldValue;
 
 			return this;
 		}
@@ -97,7 +119,9 @@ public final class DDMFormEvaluatorEvaluateRequest {
 
 	private long _companyId;
 	private DDMForm _ddmForm;
+	private DDMFormLayout _ddmFormLayout;
 	private DDMFormValues _ddmFormValues;
+	private boolean _editingFieldValue;
 	private long _groupId;
 	private Locale _locale;
 	private long _userId;

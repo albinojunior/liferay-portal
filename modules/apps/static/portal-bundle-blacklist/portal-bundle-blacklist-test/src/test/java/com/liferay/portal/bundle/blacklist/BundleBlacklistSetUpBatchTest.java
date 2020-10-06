@@ -37,10 +37,12 @@ public class BundleBlacklistSetUpBatchTest {
 		Assert.assertNotNull(
 			"Missing system property \"liferay.home\"", liferayHome);
 
-		String blacklistCfgName = System.getProperty("blacklist.cfg.name");
+		String blacklistConfigName = System.getProperty(
+			"blacklist.config.name");
 
 		Assert.assertNotNull(
-			"Missing system property \"cfg.name\"", blacklistCfgName);
+			"Missing system property \"blacklist.config.name\"",
+			blacklistConfigName);
 
 		try (OutputStream outputStream = new FileOutputStream(
 				StringBundler.concat(
@@ -62,19 +64,21 @@ public class BundleBlacklistSetUpBatchTest {
 				outputStream);
 		}
 
-		StringBundler sb = new StringBundler(4);
+		StringBundler sb = new StringBundler(6);
 
 		sb.append("blacklistBundleSymbolicNames=");
+		sb.append(StringPool.QUOTE);
 		sb.append(_JAR_BUNDLE_SYMBOLIC_NAME);
 		sb.append(StringPool.COMMA);
 		sb.append(_WAR_BUNDLE_SYMBOLIC_NAME);
+		sb.append(StringPool.QUOTE);
 
-		String cfgBody = sb.toString();
+		String configBody = sb.toString();
 
 		try (OutputStream outputStream = new FileOutputStream(
-				liferayHome + "/osgi/configs/" + blacklistCfgName)) {
+				liferayHome + "/osgi/configs/" + blacklistConfigName)) {
 
-			outputStream.write(cfgBody.getBytes());
+			outputStream.write(configBody.getBytes());
 		}
 	}
 

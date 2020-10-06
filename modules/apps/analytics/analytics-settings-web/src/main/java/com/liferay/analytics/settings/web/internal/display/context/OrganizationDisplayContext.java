@@ -98,9 +98,8 @@ public class OrganizationDisplayContext {
 		PortletURL portletURL = _renderResponse.createRenderURL();
 
 		portletURL.setParameter(
-			"mvcRenderCommandName", "/view_configuration_screen");
-		portletURL.setParameter(
-			"configurationScreenKey", "synced-contacts-organizations");
+			"mvcRenderCommandName",
+			"/analytics_settings/edit_synced_contacts_organizations");
 
 		return portletURL;
 	}

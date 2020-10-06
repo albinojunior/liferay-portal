@@ -195,13 +195,23 @@ public class SegmentSerDes {
 			map.put("criteria", String.valueOf(segment.getCriteria()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(segment.getDateCreated()));
+		if (segment.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(segment.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(segment.getDateModified()));
+		if (segment.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(segment.getDateModified()));
+		}
 
 		if (segment.getId() == null) {
 			map.put("id", null);
@@ -294,9 +304,8 @@ public class SegmentSerDes {
 					segment.setSource((String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -352,10 +361,13 @@ public class SegmentSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

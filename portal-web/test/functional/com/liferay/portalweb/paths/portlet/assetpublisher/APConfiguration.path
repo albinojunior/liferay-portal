@@ -20,6 +20,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ASSET_SELECTION_INFO_LIST_PROVIDER</td>
+	<td>//input[contains(@id,'selectionStyleInfoListProvider')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ASSET_SELECTION_MANUAL</td>
 	<td>//input[contains(@id,'selectionStyleManual')]</td>
 	<td></td>
@@ -27,6 +32,12 @@
 <tr>
 	<td></td>
 	<td></td>
+	<td></td>
+</tr>
+<!--SELECT COLLECTION-->
+<tr>
+	<td>ASSET_SELECTION_ASSET_LIST_TITLE</td>
+	<td>//div[contains(@id,'assetListTitle')]</td>
 	<td></td>
 </tr>
 <!--SUBSCRIPTIONS-->
@@ -99,6 +110,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SOURCE_SCOPE_ASSET_TYPE_OPTION</td>
+	<td>//div[contains(@class,'form-group') and contains(.,'Item Type')]/select//option[normalize-space(text())='${key_assetType}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SOURCE_SCOPE_ASSET_TYPE_SELECT</td>
 	<td>//select[contains(@id,'anyAssetType')]</td>
 	<td></td>
@@ -115,7 +131,7 @@
 </tr>
 <tr>
 	<td>SOURCE_SCOPE_FIELD_FILTER_AND_VALUE</td>
-	<td>//span[@class='asset-subtypefields-message']</td>
+	<td>//span[@class='asset-subtypefields-message'][contains(.,'${key_text}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -247,6 +263,12 @@
 <tr>
 	<td>ASSET_SELECTION_MANUAL_ASSET_ENTRIES_ASSET</td>
 	<td>//a[@data-title='Select ${key_assetType}']</td>
+	<td></td>
+</tr>
+<!--COLLECTION_PROVIDER-->
+<tr>
+	<td>SELECT_COLLECTION_PROVIDER_FIELD</td>
+	<td>//select[contains(@id,'infoListProviderClassName')]</td>
 	<td></td>
 </tr>
 </tbody>

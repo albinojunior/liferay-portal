@@ -24,13 +24,17 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.message.boards.service.http.MBThreadServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class MBThreadSoap implements Serializable {
 
 	public static MBThreadSoap toSoapModel(MBThread model) {
 		MBThreadSoap soapModel = new MBThreadSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUuid(model.getUuid());
 		soapModel.setThreadId(model.getThreadId());
 		soapModel.setGroupId(model.getGroupId());
@@ -43,7 +47,6 @@ public class MBThreadSoap implements Serializable {
 		soapModel.setRootMessageId(model.getRootMessageId());
 		soapModel.setRootMessageUserId(model.getRootMessageUserId());
 		soapModel.setTitle(model.getTitle());
-		soapModel.setMessageCount(model.getMessageCount());
 		soapModel.setLastPostByUserId(model.getLastPostByUserId());
 		soapModel.setLastPostDate(model.getLastPostDate());
 		soapModel.setPriority(model.getPriority());
@@ -104,6 +107,22 @@ public class MBThreadSoap implements Serializable {
 
 	public void setPrimaryKey(long pk) {
 		setThreadId(pk);
+	}
+
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getUuid() {
@@ -202,14 +221,6 @@ public class MBThreadSoap implements Serializable {
 		_title = title;
 	}
 
-	public int getMessageCount() {
-		return _messageCount;
-	}
-
-	public void setMessageCount(int messageCount) {
-		_messageCount = messageCount;
-	}
-
 	public long getLastPostByUserId() {
 		return _lastPostByUserId;
 	}
@@ -286,6 +297,8 @@ public class MBThreadSoap implements Serializable {
 		_statusDate = statusDate;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private long _threadId;
 	private long _groupId;
@@ -298,7 +311,6 @@ public class MBThreadSoap implements Serializable {
 	private long _rootMessageId;
 	private long _rootMessageUserId;
 	private String _title;
-	private int _messageCount;
 	private long _lastPostByUserId;
 	private Date _lastPostDate;
 	private double _priority;

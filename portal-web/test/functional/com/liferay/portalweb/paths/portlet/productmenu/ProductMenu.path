@@ -19,18 +19,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>CATEGORY</td>
-	<td>xpath=(//div[@class='panel'] | //div[contains(@class,'panel-secondary')])[div[contains(@id,'ProductMenu')]/div/a[@aria-expanded='true']]//a[@data-qa-id='appGroup'][normalize-space(.//text())='${key_category}']</td>
-	<td></td>
-</tr>
-<tr>
 	<td>CATEGORY_COLLAPSED</td>
-	<td>xpath=(//div[@class='panel'] | //div[contains(@class,'panel-secondary')])[div[contains(@id,'ProductMenu')]/div/a[@aria-expanded='true']]//a[@data-qa-id='appGroup'][normalize-space(.//text())='${key_category}'][@aria-expanded='false']</td>
+	<td>//a[@aria-expanded='false' and @data-qa-id='appGroup'][normalize-space(text())='${key_category}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>CATEGORY_EXPANDED</td>
-	<td>xpath=(//div[@class='panel'] | //div[contains(@class,'panel-secondary')])[div[contains(@id,'ProductMenu')]/div/a[@aria-expanded='true']]//a[@data-qa-id='appGroup'][normalize-space(.//text())='${key_category}'][@aria-expanded='true']</td>
+	<td>//a[@aria-expanded='true' and @data-qa-id='appGroup'][normalize-space(text())='${key_category}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -65,7 +60,7 @@
 </tr>
 <tr>
 	<td>GO_TO_SITES_LINK</td>
-	<td>//a[contains(.,'Go to Site')]</td>
+	<td>//a[contains(@class,'navigation-link') and contains(.,'Home')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -120,6 +115,11 @@
 </tr>
 <!--PRODUCT_MENU_PANEL-->
 <tr>
+	<td>CHOOSE_A_SITE</td>
+	<td>//span[contains(@class,'site-name')][normalize-space(text())='Choose a Site']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PRODUCT_MENU_PANEL_SCOPE</td>
 	<td>//div[contains(@class,'scope-selector')]//span[contains(@class,'scope-name')]</td>
 	<td></td>
@@ -137,6 +137,11 @@
 <tr>
 	<td>PRODUCT_MENU_PANEL_SITE_ADMINISTRATION_SITE_NAME</td>
 	<td>//div[contains(@class,'site-name')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PRODUCT_MENU_PANEL_TIMES</td>
+	<td>//a[contains(@id,'ProductMenu')][*[name()='svg'][contains(@class,'icon-times')]]</td>
 	<td></td>
 </tr>
 </tbody>

@@ -12,165 +12,133 @@
  * details.
  */
 
-import '../FieldBase/FieldBase.es';
+import {ClayCheckbox} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
+import React, {useState} from 'react';
 
-import './CheckboxRegister.soy';
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
-import Component from 'metal-component';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+const Switcher = ({
+	checked: initialChecked,
+	disabled,
+	label,
+	name,
+	onChange,
+	required,
+	showLabel,
+	spritemap,
+}) => {
+	const [checked, setChecked] = useState(initialChecked);
 
-import templates from './Checkbox.soy';
+	return (
+		<label className="ddm-toggle-switch toggle-switch">
+			<input
+				checked={checked}
+				className="toggle-switch-check"
+				disabled={disabled}
+				name={name}
+				onChange={(event) => {
+					setChecked(event.target.checked);
+					onChange(event, event.target.checked);
+				}}
+				type="checkbox"
+				value={true}
+			/>
 
-/**
- * Checkbox.
- * @extends Component
- */
+			<span aria-hidden="true" className="toggle-switch-bar">
+				<span className="toggle-switch-handle"></span>
 
-class Checkbox extends Component {
-	handleInputChangeEvent(event) {
-		const value = event.delegateTarget.checked;
+				{(showLabel || required) && (
+					<span className="toggle-switch-text toggle-switch-text-right">
+						{showLabel && label}
 
-		this.setState({
-			value,
-		});
-
-		this.emit('fieldEdited', {
-			fieldInstance: this,
-			originalEvent: event,
-			value,
-		});
-	}
-}
-
-Soy.register(Checkbox, templates);
-
-Checkbox.STATE = {
-	/**
-	 * @default 'string'
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	dataType: Config.string().value('boolean'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?bool}
-	 */
-
-	evaluable: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Select
-	 * @type {?string}
-	 */
-
-	predefinedValue: Config.bool(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?bool}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?bool}
-	 */
-
-	showAsSwitcher: Config.bool().value(true),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?bool}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	type: Config.string().value('checkbox'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Checkbox
-	 * @type {?(bool)}
-	 */
-
-	value: Config.bool().value(true),
+						{required && (
+							<ClayIcon
+								className="reference-mark"
+								spritemap={spritemap}
+								symbol="asterisk"
+							/>
+						)}
+					</span>
+				)}
+			</span>
+		</label>
+	);
 };
 
-export default Checkbox;
+const Checkbox = ({
+	checked: initialChecked,
+	disabled,
+	label,
+	name,
+	onChange,
+	required,
+	showLabel,
+	spritemap,
+}) => {
+	const [checked, setChecked] = useState(initialChecked);
+
+	return (
+		<ClayCheckbox
+			checked={checked}
+			disabled={disabled}
+			label={showLabel && label}
+			name={name}
+			onChange={(event) => {
+				setChecked(event.target.checked);
+				onChange(event, event.target.checked);
+			}}
+		>
+			{showLabel && required && (
+				<ClayIcon
+					className="reference-mark"
+					spritemap={spritemap}
+					symbol="asterisk"
+				/>
+			)}
+		</ClayCheckbox>
+	);
+};
+
+const Main = ({
+	disabled,
+	label,
+	name,
+	onChange,
+	predefinedValue = true,
+	required,
+	showAsSwitcher = true,
+	showLabel = true,
+	spritemap,
+	value,
+	...otherProps
+}) => {
+	const Toggle = showAsSwitcher ? Switcher : Checkbox;
+
+	return (
+		<FieldBase
+			label={label}
+			name={name}
+			required={required}
+			showLabel={false}
+			spritemap={spritemap}
+			{...otherProps}
+		>
+			<Toggle
+				checked={value !== undefined ? value : predefinedValue}
+				disabled={disabled}
+				label={label}
+				name={name}
+				onChange={onChange}
+				required={required}
+				showLabel={showLabel}
+				spritemap={spritemap}
+			/>
+		</FieldBase>
+	);
+};
+
+Main.displayName = 'Checkbox';
+
+export {Main};
+export default Main;

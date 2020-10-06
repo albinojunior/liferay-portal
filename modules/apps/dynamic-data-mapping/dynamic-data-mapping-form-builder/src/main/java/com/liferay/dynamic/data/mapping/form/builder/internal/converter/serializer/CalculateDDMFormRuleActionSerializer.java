@@ -17,8 +17,11 @@ package com.liferay.dynamic.data.mapping.form.builder.internal.converter.seriali
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.CalculateDDMFormRuleAction;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.spi.converter.serializer.SPIDDMFormRuleActionSerializer;
+import com.liferay.dynamic.data.mapping.spi.converter.serializer.SPIDDMFormRuleSerializerContext;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +32,7 @@ import java.util.stream.Stream;
  * @author Leonardo Barros
  */
 public class CalculateDDMFormRuleActionSerializer
-	implements DDMFormRuleActionSerializer {
+	implements SPIDDMFormRuleActionSerializer {
 
 	public CalculateDDMFormRuleActionSerializer(
 		CalculateDDMFormRuleAction calculateDDMFormRuleAction) {
@@ -39,9 +42,13 @@ public class CalculateDDMFormRuleActionSerializer
 
 	@Override
 	public String serialize(
-		DDMFormRuleSerializerContext ddmFormRuleSerializerContext) {
+		SPIDDMFormRuleSerializerContext spiDDMFormRuleSerializerContext) {
 
-		DDMForm ddmForm = ddmFormRuleSerializerContext.getAttribute("form");
+		if (Validator.isNull(_calculateDDMFormRuleAction.getTarget())) {
+			return null;
+		}
+
+		DDMForm ddmForm = spiDDMFormRuleSerializerContext.getAttribute("form");
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(true);

@@ -181,14 +181,25 @@ public class WorkflowInstanceSerDes {
 				"completed", String.valueOf(workflowInstance.getCompleted()));
 		}
 
-		map.put(
-			"dateCompletion",
-			liferayToJSONDateFormat.format(
-				workflowInstance.getDateCompletion()));
+		if (workflowInstance.getDateCompletion() == null) {
+			map.put("dateCompletion", null);
+		}
+		else {
+			map.put(
+				"dateCompletion",
+				liferayToJSONDateFormat.format(
+					workflowInstance.getDateCompletion()));
+		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(workflowInstance.getDateCreated()));
+		if (workflowInstance.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(
+					workflowInstance.getDateCreated()));
+		}
 
 		if (workflowInstance.getId() == null) {
 			map.put("id", null);
@@ -293,9 +304,8 @@ public class WorkflowInstanceSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -351,10 +361,13 @@ public class WorkflowInstanceSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

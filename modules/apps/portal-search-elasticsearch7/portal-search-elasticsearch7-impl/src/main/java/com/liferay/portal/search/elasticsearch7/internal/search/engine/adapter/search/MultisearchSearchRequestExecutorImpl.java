@@ -82,7 +82,7 @@ public class MultisearchSearchRequestExecutorImpl
 		MultiSearchResponse multiSearchResponse = getMultiSearchResponse(
 			multiSearchRequest, multisearchSearchRequest);
 
-		Iterator<MultiSearchResponse.Item> multiSearchResponseItems =
+		Iterator<MultiSearchResponse.Item> iterator =
 			multiSearchResponse.iterator();
 
 		MultisearchSearchResponse multisearchSearchResponse =
@@ -90,9 +90,8 @@ public class MultisearchSearchRequestExecutorImpl
 
 		int counter = 0;
 
-		while (multiSearchResponseItems.hasNext()) {
-			MultiSearchResponse.Item multiSearchResponseItem =
-				multiSearchResponseItems.next();
+		while (iterator.hasNext()) {
+			MultiSearchResponse.Item multiSearchResponseItem = iterator.next();
 
 			SearchResponse searchResponse =
 				multiSearchResponseItem.getResponse();
@@ -135,7 +134,8 @@ public class MultisearchSearchRequestExecutorImpl
 
 		RestHighLevelClient restHighLevelClient =
 			_elasticsearchClientResolver.getRestHighLevelClient(
-				multisearchSearchRequest.getConnectionId(), true);
+				multisearchSearchRequest.getConnectionId(),
+				multisearchSearchRequest.isPreferLocalCluster());
 
 		try {
 			return restHighLevelClient.msearch(

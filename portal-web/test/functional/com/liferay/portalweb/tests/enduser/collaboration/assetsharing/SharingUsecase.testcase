@@ -62,15 +62,17 @@ definition {
 
 		DMDocument.enableActionsMenuOnPortlet();
 
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "Document with sharing disabled",
+			groupName = "Test Site",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
 		Navigator.gotoSitePage(
 			pageName = "Test Page",
 			siteName = "Test Site");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
-		DMDocument.addPG(
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "Document with sharing disabled");
 
 		LexiconEntry.openEntryMenu(rowEntry = "Document with sharing disabled");
 
@@ -88,8 +90,6 @@ definition {
 			locator1 = "Button#ANY");
 
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
 		Blogs.addEntry(
 			entryContent = "Blogs Entry Content",
@@ -137,15 +137,17 @@ definition {
 
 		DMDocument.enableActionsMenuOnPortlet();
 
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "Document with sharing disabled",
+			groupName = "Test Site",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
 		Navigator.gotoSitePage(
 			pageName = "Test Page",
 			siteName = "Test Site");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
-		DMDocument.addPG(
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "Document with sharing disabled");
 
 		LexiconEntry.openEntryMenu(rowEntry = "Document with sharing disabled");
 
@@ -245,7 +247,7 @@ definition {
 		ManagementBar.setFilterAndOrder(filterBy = "Asset Types");
 
 		AssertTextEquals(
-			locator1 = "Portlet#H3_MODAL_TITLE",
+			locator1 = "Portlet#MODAL_TITLE",
 			value1 = "Select Asset Type");
 
 		SelectFrame(locator1 = "IFrame#MODAL_IFRAME");
@@ -272,7 +274,7 @@ definition {
 		ManagementBar.setFilterAndOrder(filterBy = "Asset Types");
 
 		AssertTextEquals(
-			locator1 = "Portlet#H3_MODAL_TITLE",
+			locator1 = "Portlet#MODAL_TITLE",
 			value1 = "Select Asset Type");
 
 		SelectFrame(locator1 = "IFrame#MODAL_IFRAME");
@@ -317,9 +319,12 @@ definition {
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
-		DMDocument.addMultiplePG(
-			dmDocumentFileList = "Document_1.jpeg,Document_2.docx",
-			viewableBy = "Owner");
+		for (var dmDocumentFile : list "Document_1.jpeg,Document_2.docx") {
+			DMDocument.addPG(
+				dmDocumentFile = "${dmDocumentFile}",
+				dmDocumentTitle = "${dmDocumentFile}",
+				viewableBy = "Owner");
+		}
 
 		DMNavigator.gotoShare(dmDocumentTitle = "Document_1.jpeg");
 

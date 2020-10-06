@@ -27,6 +27,7 @@ import serviceFetch from '../../../../../../src/main/resources/META-INF/resource
 import {StoreAPIContextProvider} from '../../../../../../src/main/resources/META-INF/resources/page_editor/app/store/index';
 import {
 	CREATE_SEGMENTS_EXPERIENCE,
+	DELETE_SEGMENTS_EXPERIENCE,
 	UPDATE_SEGMENTS_EXPERIENCE,
 	UPDATE_SEGMENTS_EXPERIENCE_PRIORITY,
 } from '../../../../../../src/main/resources/META-INF/resources/page_editor/plugins/experience/actions';
@@ -132,6 +133,10 @@ const mockConfig = {
 };
 
 describe('ExperienceToolbarSection', () => {
+	beforeAll(() => {
+		Liferay.component = jest.fn();
+	});
+
 	afterEach(() => {
 		cleanup();
 		serviceFetch.mockReset();
@@ -190,13 +195,14 @@ describe('ExperienceToolbarSection', () => {
 				},
 			},
 		};
-		const mockDispatch = jest.fn(a => {
+		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
 				return a(mockDispatch);
 			}
 		});
 
 		const {
+			getAllByRole,
 			getByLabelText,
 			getByRole,
 			getByText,
@@ -212,15 +218,18 @@ describe('ExperienceToolbarSection', () => {
 
 		await waitForElement(() => getByRole('list'));
 
-		const experience = getByText('Experience #3');
+		expect(getByText('Experience #3')).toBeInTheDocument();
 
-		const lockIcon = within(experience).getByRole('presentation');
+		const icons = getAllByRole('presentation');
+
+		const lockIcon = icons[1];
 
 		// Hackily work around:
 		//
 		//      "TypeError: Cannot read property '_defaultView' of undefined"
 		//
 		// Caused by: https://github.com/jsdom/jsdom/issues/2499
+
 		document.activeElement.blur = () => {};
 
 		userEvent.click(lockIcon);
@@ -237,7 +246,7 @@ describe('ExperienceToolbarSection', () => {
 			})
 		);
 
-		const mockDispatch = jest.fn(a => {
+		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
 				return a(mockDispatch);
 			}
@@ -313,7 +322,7 @@ describe('ExperienceToolbarSection', () => {
 			})
 		);
 
-		const mockDispatch = jest.fn(a => {
+		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
 				return a(mockDispatch);
 			}
@@ -398,7 +407,7 @@ describe('ExperienceToolbarSection', () => {
 				return Promise.resolve([]);
 			});
 
-		const mockDispatch = jest.fn(a => {
+		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
 				return a(mockDispatch);
 			}
@@ -436,6 +445,7 @@ describe('ExperienceToolbarSection', () => {
 
 		// Grab parentElement here to work around jsdom v13 issue.
 		// "TypeError: Cannot read property '_defaultView' of undefined"
+
 		userEvent.click(getByText('save').parentElement);
 
 		await wait(() => expect(serviceFetch).toHaveBeenCalledTimes(2));
@@ -466,7 +476,7 @@ describe('ExperienceToolbarSection', () => {
 			})
 		);
 
-		const mockDispatch = jest.fn(a => {
+		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
 				return a(mockDispatch);
 			}
@@ -517,6 +527,7 @@ describe('ExperienceToolbarSection', () => {
 
 		// Grab parentElement here to work around jsdom v13 issue.
 		// "TypeError: Cannot read property '_defaultView' of undefined"
+
 		userEvent.click(getByText('save').parentElement);
 
 		await wait(() => expect(serviceFetch).toHaveBeenCalledTimes(1));
@@ -551,7 +562,7 @@ describe('ExperienceToolbarSection', () => {
 		 */
 		window.confirm = jest.fn(() => true);
 
-		const mockDispatch = jest.fn(a => {
+		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
 				return a(mockDispatch);
 			}
@@ -674,11 +685,16 @@ describe('ExperienceToolbarSection', () => {
 			expect.stringContaining(MOCK_DELETE_URL),
 			expect.objectContaining({
 				body: expect.objectContaining({
-					fragmentEntryLinkIds: '[2000]',
 					segmentsExperienceId: 'test-experience-id-01',
 				}),
 			}),
 			expect.any(Function)
+		);
+
+		expect(mockDispatch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: DELETE_SEGMENTS_EXPERIENCE,
+			})
 		);
 	});
 });

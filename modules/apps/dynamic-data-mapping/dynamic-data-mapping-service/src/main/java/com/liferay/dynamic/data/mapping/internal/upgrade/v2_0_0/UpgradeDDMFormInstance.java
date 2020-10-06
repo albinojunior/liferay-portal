@@ -15,8 +15,8 @@
 package com.liferay.dynamic.data.mapping.internal.upgrade.v2_0_0;
 
 import com.liferay.counter.kernel.service.CounterLocalService;
+import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceConstants;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
-import com.liferay.dynamic.data.mapping.model.DDMFormInstanceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -193,6 +193,8 @@ public class UpgradeDDMFormInstance extends UpgradeProcess {
 			}
 
 			ps2.executeBatch();
+
+			updateWorkflowDefinitionLink();
 		}
 	}
 
@@ -274,8 +276,7 @@ public class UpgradeDDMFormInstance extends UpgradeProcess {
 		Class<?> clazz = getClass();
 
 		_resourceActions.readAndCheck(
-			null, clazz.getClassLoader(),
-			"/META-INF/resource-actions/default.xml");
+			null, clazz.getClassLoader(), "/resource-actions/default.xml");
 	}
 
 	protected void updateDDMStructure(long ddmStructureId) throws Exception {
@@ -315,6 +316,24 @@ public class UpgradeDDMFormInstance extends UpgradeProcess {
 			ps.setLong(2, ddmStructureId);
 
 			ps.executeUpdate();
+		}
+	}
+
+	protected void updateWorkflowDefinitionLink() throws Exception {
+		try (PreparedStatement ps = connection.prepareStatement(
+				"update WorkflowDefinitionLink set classNameId = ? where " +
+					"classNameId = ?")) {
+
+			ps.setLong(
+				1,
+				_classNameLocalService.getClassNameId(
+					_CLASS_NAME_FORM_INSTANCE));
+
+			ps.setLong(
+				2,
+				_classNameLocalService.getClassNameId(_CLASS_NAME_RECORD_SET));
+
+			ps.execute();
 		}
 	}
 

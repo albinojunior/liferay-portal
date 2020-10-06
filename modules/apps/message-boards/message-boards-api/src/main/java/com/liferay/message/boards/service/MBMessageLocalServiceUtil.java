@@ -63,6 +63,10 @@ public class MBMessageLocalServiceUtil {
 	/**
 	 * Adds the message-boards message to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mbMessage the message-boards message
 	 * @return the message-boards message that was added
 	 */
@@ -224,6 +228,10 @@ public class MBMessageLocalServiceUtil {
 	/**
 	 * Deletes the message-boards message with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param messageId the primary key of the message-boards message
 	 * @return the message-boards message that was removed
 	 * @throws PortalException if a message-boards message with the primary key could not be found
@@ -237,6 +245,10 @@ public class MBMessageLocalServiceUtil {
 
 	/**
 	 * Deletes the message-boards message from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbMessage the message-boards message
 	 * @return the message-boards message that was removed
@@ -290,6 +302,12 @@ public class MBMessageLocalServiceUtil {
 
 		getService().deleteTempAttachment(
 			groupId, userId, folderName, fileName);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -403,6 +421,12 @@ public class MBMessageLocalServiceUtil {
 		return getService().fetchMBMessage(messageId);
 	}
 
+	public static com.liferay.message.boards.model.MBMessage
+		fetchMBMessageByUrlSubject(long groupId, String urlSubject) {
+
+		return getService().fetchMBMessageByUrlSubject(groupId, urlSubject);
+	}
+
 	/**
 	 * Returns the message-boards message matching the UUID and group.
 	 *
@@ -434,10 +458,11 @@ public class MBMessageLocalServiceUtil {
 		getCategoryMessages(
 			long groupId, long categoryId, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
 		return getService().getCategoryMessages(
-			groupId, categoryId, status, start, end, obc);
+			groupId, categoryId, status, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.message.boards.model.MBMessage>
@@ -480,10 +505,11 @@ public class MBMessageLocalServiceUtil {
 		getCompanyMessages(
 			long companyId, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
 		return getService().getCompanyMessages(
-			companyId, status, start, end, obc);
+			companyId, status, start, end, orderByComparator);
 	}
 
 	public static int getCompanyMessagesCount(long companyId, int status) {
@@ -564,9 +590,11 @@ public class MBMessageLocalServiceUtil {
 		getGroupMessages(
 			long groupId, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
-		return getService().getGroupMessages(groupId, status, start, end, obc);
+		return getService().getGroupMessages(
+			groupId, status, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.message.boards.model.MBMessage>
@@ -581,10 +609,11 @@ public class MBMessageLocalServiceUtil {
 		getGroupMessages(
 			long groupId, long userId, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
 		return getService().getGroupMessages(
-			groupId, userId, status, start, end, obc);
+			groupId, userId, status, start, end, orderByComparator);
 	}
 
 	public static int getGroupMessagesCount(long groupId, int status) {
@@ -856,20 +885,23 @@ public class MBMessageLocalServiceUtil {
 			long userId, long classNameId, long classPK, int status, int start,
 			int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
 		return getService().getUserDiscussionMessages(
-			userId, classNameId, classPK, status, start, end, obc);
+			userId, classNameId, classPK, status, start, end,
+			orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.message.boards.model.MBMessage>
 		getUserDiscussionMessages(
 			long userId, long[] classNameIds, int status, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
 		return getService().getUserDiscussionMessages(
-			userId, classNameIds, status, start, end, obc);
+			userId, classNameIds, status, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.message.boards.model.MBMessage>
@@ -877,10 +909,11 @@ public class MBMessageLocalServiceUtil {
 			long userId, String className, long classPK, int status, int start,
 			int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.message.boards.model.MBMessage> obc) {
+				<com.liferay.message.boards.model.MBMessage>
+					orderByComparator) {
 
 		return getService().getUserDiscussionMessages(
-			userId, className, classPK, status, start, end, obc);
+			userId, className, classPK, status, start, end, orderByComparator);
 	}
 
 	public static int getUserDiscussionMessagesCount(
@@ -972,6 +1005,10 @@ public class MBMessageLocalServiceUtil {
 
 	/**
 	 * Updates the message-boards message in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MBMessageLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mbMessage the message-boards message
 	 * @return the message-boards message that was updated

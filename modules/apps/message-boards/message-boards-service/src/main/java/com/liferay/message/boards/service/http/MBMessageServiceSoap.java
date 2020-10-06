@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see MBMessageServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class MBMessageServiceSoap {
 
 	public static com.liferay.message.boards.model.MBMessageSoap
@@ -225,6 +227,25 @@ public class MBMessageServiceSoap {
 
 		try {
 			MBMessageServiceUtil.emptyMessageAttachments(messageId);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.message.boards.model.MBMessageSoap
+			fetchMBMessageByUrlSubject(long groupId, String urlSubject)
+		throws RemoteException {
+
+		try {
+			com.liferay.message.boards.model.MBMessage returnValue =
+				MBMessageServiceUtil.fetchMBMessageByUrlSubject(
+					groupId, urlSubject);
+
+			return com.liferay.message.boards.model.MBMessageSoap.toSoapModel(
+				returnValue);
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);

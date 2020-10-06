@@ -30,19 +30,23 @@ const CustomObjectPopover = ({
 	const nameInputRef = useRef();
 	const [isAddFormView, setAddFormView] = useState(true);
 	const [hasError, setHasError] = useState(false);
+	const [isLoading, setLoading] = useState(false);
 
 	const handleSubmit = () => {
 		const name = nameInputRef.current.value;
 
 		if (validate(name)) {
-			onSubmit({isAddFormView, name});
+			setLoading(true);
+			onSubmit({isAddFormView, name}).catch(() => {
+				setLoading(false);
+			});
 		}
 		else {
 			nameInputRef.current.focus();
 		}
 	};
 
-	const validate = value => {
+	const validate = (value) => {
 		const invalid = value.trim() === '';
 
 		setHasError(invalid);
@@ -71,10 +75,12 @@ const CustomObjectPopover = ({
 			className={`${className} mw-100`}
 			content={() => (
 				<ClayForm
-					onSubmit={event => {
+					onSubmit={(event) => {
 						event.preventDefault();
 
-						handleSubmit();
+						if (!isLoading) {
+							handleSubmit();
+						}
 					}}
 				>
 					<div
@@ -93,7 +99,7 @@ const CustomObjectPopover = ({
 						<ClayInput
 							className="form-control"
 							id="customObjectNameInput"
-							onInput={({currentTarget}) =>
+							onChange={({currentTarget}) =>
 								validate(currentTarget.value)
 							}
 							ref={nameInputRef}
@@ -146,7 +152,11 @@ const CustomObjectPopover = ({
 							{Liferay.Language.get('cancel')}
 						</Button>
 
-						<Button onClick={() => handleSubmit()} small>
+						<Button
+							disabled={isLoading}
+							onClick={() => handleSubmit()}
+							small
+						>
 							{Liferay.Language.get('continue')}
 						</Button>
 					</div>

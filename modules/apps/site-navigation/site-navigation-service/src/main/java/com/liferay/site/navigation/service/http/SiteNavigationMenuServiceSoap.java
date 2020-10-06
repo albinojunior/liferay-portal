@@ -57,8 +57,10 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see SiteNavigationMenuServiceHttp
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class SiteNavigationMenuServiceSoap {
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenuSoap
@@ -186,7 +188,8 @@ public class SiteNavigationMenuServiceSoap {
 			getSiteNavigationMenus(
 				long groupId, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.site.navigation.model.SiteNavigationMenu>
+						orderByComparator)
 		throws RemoteException {
 
 		try {
@@ -209,7 +212,8 @@ public class SiteNavigationMenuServiceSoap {
 			getSiteNavigationMenus(
 				long groupId, String keywords, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.site.navigation.model.SiteNavigationMenu>
+						orderByComparator)
 		throws RemoteException {
 
 		try {
@@ -232,7 +236,8 @@ public class SiteNavigationMenuServiceSoap {
 			getSiteNavigationMenus(
 				long[] groupIds, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.site.navigation.model.SiteNavigationMenu>
+						orderByComparator)
 		throws RemoteException {
 
 		try {
@@ -255,7 +260,8 @@ public class SiteNavigationMenuServiceSoap {
 			getSiteNavigationMenus(
 				long[] groupIds, String keywords, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator)
+					<com.liferay.site.navigation.model.SiteNavigationMenu>
+						orderByComparator)
 		throws RemoteException {
 
 		try {

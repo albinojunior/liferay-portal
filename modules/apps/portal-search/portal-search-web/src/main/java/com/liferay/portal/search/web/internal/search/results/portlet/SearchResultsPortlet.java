@@ -113,6 +113,11 @@ public class SearchResultsPortlet extends MVCPortlet {
 			buildDisplayContext(
 				portletSharedSearchResponse, renderRequest, renderResponse);
 
+		if (searchResultsPortletDisplayContext.isRenderNothing()) {
+			renderRequest.setAttribute(
+				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
+		}
+
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT,
 			searchResultsPortletDisplayContext);
@@ -147,12 +152,6 @@ public class SearchResultsPortlet extends MVCPortlet {
 
 		searchResultsPortletDisplayContext.setDocuments(documents);
 
-		Optional<String> keywordsOptional =
-			portletSharedSearchResponse.getKeywordsOptional();
-
-		searchResultsPortletDisplayContext.setKeywords(
-			keywordsOptional.orElse(StringPool.BLANK));
-
 		SearchResultsPortletPreferences searchResultsPortletPreferences =
 			new SearchResultsPortletPreferencesImpl(
 				portletSharedSearchResponse.getPortletPreferences(
@@ -161,8 +160,16 @@ public class SearchResultsPortlet extends MVCPortlet {
 		SearchResponse searchResponse = getSearchResponse(
 			portletSharedSearchResponse, searchResultsPortletPreferences);
 
+		SearchRequest searchRequest = searchResponse.getRequest();
+
+		Optional<String> keywordsOptional = Optional.ofNullable(
+			searchRequest.getQueryString());
+
+		searchResultsPortletDisplayContext.setKeywords(
+			keywordsOptional.orElse(StringPool.BLANK));
+
 		searchResultsPortletDisplayContext.setRenderNothing(
-			isRenderNothing(portletSharedSearchResponse, searchResponse));
+			isRenderNothing(searchRequest));
 
 		searchResultsPortletDisplayContext.setSearchContainer(
 			buildSearchContainer(
@@ -402,30 +409,17 @@ public class SearchResultsPortlet extends MVCPortlet {
 		String urlString = portletSharedRequestHelper.getCompleteURL(
 			renderRequest);
 
-		urlString = http.removeParameter(
-			urlString, paginationStartParameterName);
-
-		return urlString;
+		return http.removeParameter(urlString, paginationStartParameterName);
 	}
 
-	protected boolean isRenderNothing(
-		PortletSharedSearchResponse portletSharedSearchResponse,
-		SearchResponse searchResponse) {
+	protected boolean isRenderNothing(SearchRequest searchRequest) {
+		if ((searchRequest.getQueryString() == null) &&
+			!searchRequest.isEmptySearchEnabled()) {
 
-		Optional<String> keywordsOptional =
-			portletSharedSearchResponse.getKeywordsOptional();
-
-		if (keywordsOptional.isPresent()) {
-			return false;
+			return true;
 		}
 
-		SearchRequest searchRequest = searchResponse.getRequest();
-
-		if (searchRequest.isEmptySearchEnabled()) {
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	protected void removeSearchResultImageContributor(

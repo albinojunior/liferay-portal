@@ -72,18 +72,20 @@ String navigation = ParamUtil.getString(request, "navigation");
 
 		<%
 		BulkSelectionRunner bulkSelectionRunner = BulkSelectionRunnerUtil.getBulkSelectionRunner();
-
-		Map<String, Object> context = new HashMap<>();
-
-		context.put("bulkComponentId", liferayPortletResponse.getNamespace() + "BulkStatus");
-		context.put("bulkInProgress", bulkSelectionRunner.isBusy(user));
-		context.put("pathModule", PortalUtil.getPathModule());
 		%>
 
 		<div>
 			<react:component
-				data="<%= context %>"
 				module="document_library/js/bulk/BulkStatus.es"
+				props='<%=
+					HashMapBuilder.<String, Object>put(
+						"bulkComponentId", liferayPortletResponse.getNamespace() + "BulkStatus"
+					).put(
+						"bulkInProgress", bulkSelectionRunner.isBusy(user)
+					).put(
+						"pathModule", PortalUtil.getPathModule()
+					).build()
+				%>'
 			/>
 		</div>
 
@@ -169,7 +171,11 @@ String navigation = ParamUtil.getString(request, "navigation");
 			uploadable = false;
 		}
 		else {
-			List<AssetVocabulary> assetVocabularies = AssetVocabularyServiceUtil.getGroupVocabularies(scopeGroupId);
+			List<AssetVocabulary> assetVocabularies = new ArrayList<>();
+
+			assetVocabularies.addAll(AssetVocabularyServiceUtil.getGroupVocabularies(PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId)));
+
+			assetVocabularies.sort(new AssetVocabularyGroupLocalizedTitleComparator(scopeGroupId, themeDisplay.getLocale(), true));
 
 			if (!assetVocabularies.isEmpty()) {
 				long classNameId = ClassNameLocalServiceUtil.getClassNameId(DLFileEntryConstants.getClassName());
@@ -269,12 +275,12 @@ String navigation = ParamUtil.getString(request, "navigation");
 						'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/document_library/select_folder" /><portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" /></portlet:renderURL>',
 					scopeGroupId: <%= scopeGroupId %>,
 					searchContainerId: 'entries',
-					trashEnabled: <%= (scopeGroupId == repositoryId) && dlTrashUtil.isTrashEnabled(scopeGroupId, repositoryId) %>,
+					trashEnabled: <%= (scopeGroupId == repositoryId) && dlTrashHelper.isTrashEnabled(scopeGroupId, repositoryId) %>,
 					uploadable: <%= uploadable %>,
 					uploadURL: '<%= uploadURL %>',
+					viewFileEntryTypeURL: '<%= viewFileEntryTypeURL %>',
 					viewFileEntryURL:
 						'<portlet:renderURL><portlet:param name="mvcRenderCommandName" value="/document_library/view_file_entry" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>',
-					viewFileEntryTypeURL: '<%= viewFileEntryTypeURL %>',
 				}),
 				{
 					destroyOnNavigate: true,
@@ -282,7 +288,7 @@ String navigation = ParamUtil.getString(request, "navigation");
 				}
 			);
 
-			var changeScopeHandles = function(event) {
+			var changeScopeHandles = function (event) {
 				documentLibrary.destroy();
 
 				Liferay.detach('changeScope', changeScopeHandles);
@@ -299,7 +305,7 @@ String navigation = ParamUtil.getString(request, "navigation");
 				<portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" />
 			</portlet:renderURL>
 
-			var editFileEntryHandler = function(event) {
+			var editFileEntryHandler = function (event) {
 				var uri = '<%= addFileEntryURL %>';
 
 				location.href = Liferay.Util.addParams(
@@ -312,48 +318,52 @@ String navigation = ParamUtil.getString(request, "navigation");
 		</aui:script>
 
 		<%
-		Map<String, Object> editTagsData = new HashMap<>();
-
-		editTagsData.put("context", Collections.singletonMap("namespace", liferayPortletResponse.getNamespace()));
-
-		Map<String, Object> editTagsProps = new HashMap<>();
-
 		long[] groupIds = PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId);
 
-		editTagsProps.put("groupIds", groupIds);
-
-		editTagsProps.put("pathModule", PortalUtil.getPathModule());
-		editTagsProps.put("repositoryId", String.valueOf(repositoryId));
-
-		editTagsData.put("props", editTagsProps);
+		Map<String, Object> editTagsProps = HashMapBuilder.<String, Object>put(
+			"groupIds", groupIds
+		).put(
+			"pathModule", PortalUtil.getPathModule()
+		).put(
+			"repositoryId", String.valueOf(repositoryId)
+		).build();
 		%>
 
 		<div>
 			<react:component
-				data="<%= editTagsData %>"
 				module="document_library/js/categorization/tags/EditTags.es"
+				props='<%=
+					HashMapBuilder.<String, Object>put(
+						"context", Collections.singletonMap("namespace", liferayPortletResponse.getNamespace())
+					).put(
+						"props", editTagsProps
+					).build()
+				%>'
 			/>
 		</div>
 
 		<%
-		Map<String, Object> editCategoriesData = new HashMap<>();
-
-		editCategoriesData.put("context", Collections.singletonMap("namespace", liferayPortletResponse.getNamespace()));
-
-		Map<String, Object> editCategoriesProps = new HashMap<>();
-
-		editCategoriesProps.put("groupIds", groupIds);
-		editCategoriesProps.put("pathModule", PortalUtil.getPathModule());
-		editCategoriesProps.put("repositoryId", String.valueOf(repositoryId));
-		editCategoriesProps.put("selectCategoriesUrl", selectCategoriesURL.toString());
-
-		editCategoriesData.put("props", editCategoriesProps);
+		Map<String, Object> editCategoriesProps = HashMapBuilder.<String, Object>put(
+			"groupIds", groupIds
+		).put(
+			"pathModule", PortalUtil.getPathModule()
+		).put(
+			"repositoryId", String.valueOf(repositoryId)
+		).put(
+			"selectCategoriesUrl", selectCategoriesURL.toString()
+		).build();
 		%>
 
 		<div>
 			<react:component
-				data="<%= editCategoriesData %>"
 				module="document_library/js/categorization/categories/EditCategories.es"
+				props='<%=
+					HashMapBuilder.<String, Object>put(
+						"context", Collections.singletonMap("namespace", liferayPortletResponse.getNamespace())
+					).put(
+						"props", editCategoriesProps
+					).build()
+				%>'
 			/>
 		</div>
 

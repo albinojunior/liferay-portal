@@ -14,6 +14,7 @@
 
 package com.liferay.portal.search.solr7.internal.search.response;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
@@ -36,6 +37,13 @@ import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
 import com.liferay.portal.search.groupby.GroupByResponse;
 import com.liferay.portal.search.groupby.GroupByResponseFactory;
+import com.liferay.portal.search.hits.SearchHit;
+import com.liferay.portal.search.hits.SearchHitBuilder;
+import com.liferay.portal.search.hits.SearchHitBuilderFactory;
+import com.liferay.portal.search.hits.SearchHits;
+import com.liferay.portal.search.hits.SearchHitsBuilder;
+import com.liferay.portal.search.hits.SearchHitsBuilderFactory;
+import com.liferay.portal.search.legacy.document.DocumentBuilderFactory;
 import com.liferay.portal.search.legacy.stats.StatsResultsTranslator;
 import com.liferay.portal.search.solr7.internal.facet.SolrFacetFieldCollector;
 import com.liferay.portal.search.solr7.internal.facet.SolrFacetQueryCollector;
@@ -49,6 +57,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
@@ -88,9 +98,7 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 
 		processSearchHits(
 			queryResponse, queryResponse.getResults(),
-			searchSearchRequest.getQuery71(), hits);
-
-		searchSearchResponse.setHits(hits);
+			searchSearchRequest.getQuery71(), hits, searchSearchResponse);
 	}
 
 	protected void addSnippets(
@@ -112,11 +120,8 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 		}
 
 		document.addText(
-			Field.SNIPPET.concat(
-				StringPool.UNDERLINE
-			).concat(
-				snippetFieldName
-			),
+			StringBundler.concat(
+				Field.SNIPPET, StringPool.UNDERLINE, snippetFieldName),
 			StringUtil.merge(list, StringPool.TRIPLE_PERIOD));
 	}
 
@@ -145,7 +150,7 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 	}
 
 	protected FacetCollector getFacetCollector(
-		Facet facet, NamedList namedList) {
+		Facet facet, NamedList<?> namedList) {
 
 		if (facet instanceof RangeFacet) {
 			return new SolrFacetQueryCollector(facet, namedList);
@@ -202,7 +207,7 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 
 	protected void processSearchHits(
 		QueryResponse queryResponse, SolrDocumentList solrDocumentList,
-		Query query, Hits hits) {
+		Query query, Hits hits, SearchSearchResponse searchSearchResponse) {
 
 		List<Document> documents = new ArrayList<>();
 		List<Float> scores = new ArrayList<>();
@@ -213,6 +218,10 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 		hits.setDocs(documents.toArray(new Document[0]));
 		hits.setQueryTerms(new String[0]);
 		hits.setScores(ArrayUtil.toFloatArray(scores));
+
+		searchSearchResponse.setHits(hits);
+
+		searchSearchResponse.setSearchHits(toSearchHits(documents));
 	}
 
 	protected Document processSolrDocument(
@@ -271,10 +280,31 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 	}
 
 	@Reference(unbind = "-")
+	protected void setDocumentBuilderFactory(
+		DocumentBuilderFactory documentBuilderFactory) {
+
+		_documentBuilderFactory = documentBuilderFactory;
+	}
+
+	@Reference(unbind = "-")
 	protected void setGroupByResponseFactory(
 		GroupByResponseFactory groupByResponseFactory) {
 
 		_groupByResponseFactory = groupByResponseFactory;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSearchHitBuilderFactory(
+		SearchHitBuilderFactory searchHitBuilderFactory) {
+
+		_searchHitBuilderFactory = searchHitBuilderFactory;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSearchHitsBuilderFactory(
+		SearchHitsBuilderFactory searchHitsBuilderFactory) {
+
+		_searchHitsBuilderFactory = searchHitsBuilderFactory;
 	}
 
 	@Reference(unbind = "-")
@@ -289,12 +319,38 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 		_statsTranslator = statsTranslator;
 	}
 
+	protected SearchHit toSearchHit(Document document) {
+		SearchHitBuilder searchHitBuilder =
+			_searchHitBuilderFactory.getSearchHitBuilder();
+
+		return searchHitBuilder.document(
+			_documentBuilderFactory.builder(
+				document
+			).build()
+		).build();
+	}
+
+	protected SearchHits toSearchHits(List<Document> documents) {
+		SearchHitsBuilder searchHitsBuilder =
+			_searchHitsBuilderFactory.getSearchHitsBuilder();
+
+		Stream<Document> stream = documents.stream();
+
+		return searchHitsBuilder.addSearchHits(
+			stream.map(
+				this::toSearchHit
+			).collect(
+				Collectors.toList()
+			)
+		).build();
+	}
+
 	protected void updateFacetCollectors(
 		QueryResponse queryResponse, SearchSearchRequest searchSearchRequest) {
 
-		NamedList namedList1 = queryResponse.getResponse();
+		NamedList<Object> namedList1 = queryResponse.getResponse();
 
-		NamedList namedList2 = (NamedList)namedList1.get("facets");
+		NamedList<?> namedList2 = (NamedList)namedList1.get("facets");
 
 		if (namedList2 == null) {
 			return;
@@ -337,7 +393,8 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 
 				processSearchHits(
 					queryResponse, group.getResult(),
-					searchSearchRequest.getQuery71(), groupedHits);
+					searchSearchRequest.getQuery71(), groupedHits,
+					searchSearchResponse);
 
 				hits.addGroupedHits(group.getGroupValue(), groupedHits);
 
@@ -378,7 +435,10 @@ public class DefaultSearchSearchResponseAssemblerHelperImpl
 
 	private static final String _VERSION_FIELD = "_version_";
 
+	private DocumentBuilderFactory _documentBuilderFactory;
 	private GroupByResponseFactory _groupByResponseFactory;
+	private SearchHitBuilderFactory _searchHitBuilderFactory;
+	private SearchHitsBuilderFactory _searchHitsBuilderFactory;
 	private StatsResultsTranslator _statsResultsTranslator;
 	private StatsTranslator _statsTranslator;
 

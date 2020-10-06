@@ -56,15 +56,16 @@ import org.osgi.service.component.annotations.Reference;
 	service = {SortFieldTranslator.class, SortVisitor.class}
 )
 public class ElasticsearchSortFieldTranslator
-	implements SortFieldTranslator<SortBuilder>, SortVisitor<SortBuilder> {
+	implements SortFieldTranslator<SortBuilder<?>>,
+			   SortVisitor<SortBuilder<?>> {
 
 	@Override
-	public SortBuilder translate(Sort sort) {
+	public SortBuilder<?> translate(Sort sort) {
 		return sort.accept(this);
 	}
 
 	@Override
-	public SortBuilder visit(FieldSort fieldSort) {
+	public SortBuilder<?> visit(FieldSort fieldSort) {
 		FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort(
 			fieldSort.getField());
 
@@ -85,24 +86,24 @@ public class ElasticsearchSortFieldTranslator
 			fieldSortBuilder.sortMode(translate(sortMode));
 		}
 
-		return fieldSortBuilder;
+		return fieldSortBuilder.unmappedType("keyword");
 	}
 
 	@Override
-	public SortBuilder visit(GeoDistanceSort geoDistanceSort) {
+	public SortBuilder<?> visit(GeoDistanceSort geoDistanceSort) {
 		List<GeoLocationPoint> geoLocationPoints =
 			geoDistanceSort.getGeoLocationPoints();
 
 		Stream<GeoLocationPoint> stream = geoLocationPoints.stream();
 
-		GeoPoint[] geoPoints = stream.map(
-			GeoLocationPointTranslator::translate
-		).toArray(
-			GeoPoint[]::new
-		);
-
 		GeoDistanceSortBuilder geoDistanceSortBuilder =
-			SortBuilders.geoDistanceSort(geoDistanceSort.getField(), geoPoints);
+			SortBuilders.geoDistanceSort(
+				geoDistanceSort.getField(),
+				stream.map(
+					GeoLocationPointTranslator::translate
+				).toArray(
+					GeoPoint[]::new
+				));
 
 		if (geoDistanceSort.getDistanceUnit() != null) {
 			geoDistanceSortBuilder.unit(
@@ -132,12 +133,12 @@ public class ElasticsearchSortFieldTranslator
 	}
 
 	@Override
-	public SortBuilder visit(ScoreSort scoreSort) {
+	public SortBuilder<?> visit(ScoreSort scoreSort) {
 		return SortBuilders.scoreSort();
 	}
 
 	@Override
-	public SortBuilder visit(ScriptSort scriptSort) {
+	public SortBuilder<?> visit(ScriptSort scriptSort) {
 		Script script = _scriptTranslator.translate(scriptSort.getScript());
 
 		ScriptSortBuilder.ScriptSortType scriptSortType =

@@ -15,8 +15,10 @@
 package com.liferay.portal.vulcan.yaml.config;
 
 /**
- * @author Peter Shin
+ * @author     Peter Shin
+ * @deprecated As of Athanasius (7.3.x)
  */
+@Deprecated
 public class ConfigYAML {
 
 	public String getApiDir() {
@@ -37,6 +39,10 @@ public class ConfigYAML {
 
 	public String getClientDir() {
 		return _clientDir;
+	}
+
+	public String getClientMavenGroupId() {
+		return _clientMavenGroupId;
 	}
 
 	public String getImplDir() {
@@ -103,6 +109,10 @@ public class ConfigYAML {
 		_clientDir = clientDir;
 	}
 
+	public void setClientMavenGroupId(String clientMavenGroupId) {
+		_clientMavenGroupId = clientMavenGroupId;
+	}
+
 	public void setForcePredictableContentApplicationXML(
 		boolean forcePredictableContentApplicationXML) {
 
@@ -160,6 +170,7 @@ public class ConfigYAML {
 	private Application _application;
 	private String _author;
 	private String _clientDir;
+	private String _clientMavenGroupId;
 	private boolean _forcePredictableContentApplicationXML = true;
 	private boolean _forcePredictableOperationId = true;
 	private boolean _forcePredictableSchemaPropertyName = true;

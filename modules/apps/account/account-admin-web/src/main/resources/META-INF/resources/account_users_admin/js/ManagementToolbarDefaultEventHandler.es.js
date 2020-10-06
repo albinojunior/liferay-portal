@@ -12,7 +12,12 @@
  * details.
  */
 
-import {DefaultEventHandler, ItemSelectorDialog} from 'frontend-js-web';
+import {
+	DefaultEventHandler,
+	createPortletURL,
+	navigate,
+	openSelectionModal,
+} from 'frontend-js-web';
 
 class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 	activateAccountUsers(itemData) {
@@ -49,7 +54,7 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 			this.ns('selectAccountEntries'),
 			Liferay.Language.get(itemData.dialogTitle),
 			itemData.accountEntriesSelectorURL,
-			selectedItems => {
+			(selectedItems) => {
 				var redirectURL = Liferay.Util.PortletURL.createPortletURL(
 					itemData.redirectURL,
 					{
@@ -64,28 +69,22 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 	}
 
 	addAccountUser(itemData) {
-		Liferay.Util.selectEntity(
-			{
-				dialog: {
-					constrain: true,
-					modal: true,
-				},
-				eventName: this.ns('addAccountUser'),
-				id: this.ns('addAccountUser'),
-				title: Liferay.Language.get(itemData.dialogTitle),
-				uri: itemData.accountEntrySelectorURL,
-			},
-			event => {
-				var addAccountUserURL = Liferay.Util.PortletURL.createPortletURL(
+		openSelectionModal({
+			id: this.ns('addAccountUser'),
+			onSelect: (selectedItem) => {
+				var addAccountUserURL = createPortletURL(
 					itemData.addAccountUserURL,
 					{
-						accountEntryId: event.accountentryid,
+						accountEntryId: selectedItem.accountentryid,
 					}
 				);
 
-				window.location.href = addAccountUserURL;
-			}
-		);
+				navigate(addAccountUserURL);
+			},
+			selectEventName: this.ns('selectAccountEntry'),
+			title: Liferay.Language.get(itemData.dialogTitle),
+			url: itemData.accountEntrySelectorURL,
+		});
 	}
 
 	_openAccountEntrySelector(
@@ -95,20 +94,18 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 		accountEntrySelectorURL,
 		callback
 	) {
-		const itemSelectorDialog = new ItemSelectorDialog({
+		openSelectionModal({
 			buttonAddLabel: dialogButtonLabel,
-			eventName: dialogEventName,
+			multiple: true,
+			onSelect: (selectedItem) => {
+				if (selectedItem) {
+					callback(selectedItem);
+				}
+			},
+			selectEventName: dialogEventName,
 			title: dialogTitle,
 			url: accountEntrySelectorURL,
 		});
-
-		itemSelectorDialog.on('selectedItemChange', event => {
-			if (event.selectedItem) {
-				callback(event.selectedItem);
-			}
-		});
-
-		itemSelectorDialog.open();
 	}
 
 	_updateAccountUsers(url) {

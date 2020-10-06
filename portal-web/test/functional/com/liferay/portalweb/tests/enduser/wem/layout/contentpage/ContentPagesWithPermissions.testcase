@@ -23,9 +23,10 @@ definition {
 		}
 
 		task ("Add a content page") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
-
-			ContentPages.addPage(pageName = "Test Content Page Name");
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
 		}
 	}
 
@@ -44,21 +45,19 @@ definition {
 
 	@description = "This is a test for LPS-103454. Content author having permission to update blog entry could see edit icon in the content page displaying the blog and could edit blog in editmode. "
 	@priority = "4"
-	test EditBlogsEntryWitheBlogEntryUpdatePermission {
+	test EditBlogsEntryWithBlogEntryUpdatePermission {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "Userfn",
 			userLastName = "Userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
 		JSONUser.addUserToSite(
 			groupName = "Test Site Name",
@@ -74,22 +73,15 @@ definition {
 			roleTitle = "Roles Siterole Name",
 			roleType = "site");
 
-		User.openUsersAdmin();
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
 
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
-
-		Navigator.openSiteURL(siteName = "Test Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Blogs");
-
-		Blogs.addEntry(
-			entryContent = "Blog Entry Content",
-			entryTitle = "Blogs Entry Title");
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title",
+			groupName = "Test Site Name");
 
 		ContentPagesNavigator.openEditContentPage(
 			pageName = "Test Content Page Name",
@@ -131,20 +123,19 @@ definition {
 	@description = "This is a test for LPS-96795. Content author having permissions to create and update web content could see edit icon in the content page displaying the web contents and could edit web content in edit mode."
 	@priority = "5"
 	test EditContentWithCreateAndUpdateWebContentPermissions {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
+
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "Userfn",
 			userLastName = "Userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
 		JSONUser.addUserToSite(
 			groupName = "Test Site Name",
@@ -196,11 +187,10 @@ definition {
 			roleTitle = "Roles Siterole Name",
 			roleType = "site");
 
-		User.openUsersAdmin();
-
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -246,27 +236,31 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Web Content Display");
+		PageEditor.addWidget(
+			portletName = "Web Content Display",
+			targetFragmentName = "Heading");
 
 		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title 2");
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Asset Publisher");
+		PageEditor.addWidget(
+			portletName = "Asset Publisher",
+			targetFragmentName = "Web Content Display");
 
 		AssetPublisherPortlet.configureManualAssetSelectionPG(
 			assetTitle = "WC WebContent Title 3",
 			assetType = "Basic Web Content");
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
-
-		ContentPages.clickPencil();
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
 		PageEditor.clickPublish();
 
@@ -293,142 +287,22 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-103454. Content author having permission to update web content could see edit icon in the content page displaying the web contents and could edit web content in editmode, but could not edit editable field "
-	@priority = "5"
-	test EditContentWitheWebContentAticleUpdatePermission {
-		JSONUser.addUser(
-			userEmailAddress = "userea@liferay.com",
-			userFirstName = "Userfn",
-			userLastName = "Userln",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		JSONUser.addUserToSite(
-			groupName = "Test Site Name",
-			userEmailAddress = "userea@liferay.com");
-
-		JSONRole.addSiteRole(
-			roleKey = "Roles Siterole Name",
-			roleTitle = "Roles Siterole Name");
-
-		Permissions.definePermissionViaJSONAPI(
-			resourceAction = "UPDATE",
-			resourceName = "com.liferay.journal.model.JournalArticle",
-			roleTitle = "Roles Siterole Name",
-			roleType = "site");
-
-		User.openUsersAdmin();
-
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
-
-		for (var webContentTitle : list "WC WebContent Title 1,WC WebContent Title 2") {
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-			WebContentNavigator.gotoAddCP();
-
-			WebContent.addCP(
-				webContentContent = "WC WebContent Content",
-				webContentTitle = "${webContentTitle}");
-
-			PortletEntry.publish();
-		}
-
-		ContentPagesNavigator.openEditContentPage(
-			pageName = "Test Content Page Name",
-			siteName = "Test Site Name");
-
-		PageEditor.addFragment(
-			collectionName = "Basic Components",
-			fragmentName = "Heading");
-
-		PageEditorMapping.gotoEditableFieldMapping(
-			fragmentName = "Heading",
-			id = "text");
-
-		PageEditorMapping.mapEditableFieldToAsset(
-			entryTitle = "WC WebContent Title 1",
-			navItem = "Web Content");
-
-		Select(
-			locator1 = "PageEditorEditableLink#FIELD",
-			value1 = "Title");
-
-		SelectFrame(value1 = "relative=top");
-
-		PageEditor.waitForAutoSave();
-
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
-
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Web Content Display");
-
-		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title 2");
-
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
-
-		ContentPages.clickPencil();
-
-		PageEditor.addFragment(
-			collectionName = "Collection Name",
-			fragmentName = "Rich Text");
-
-		PageEditor.clickPublish();
-
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "userea@liferay.com",
-			userLoginFullName = "userfn userln");
-
-		Navigator.gotoSitePage(
-			pageName = "Test Content Page Name",
-			siteName = "Test Site Name");
-
-		ContentPages.clickPencil();
-
-		for (var webContentTitle : list "WC WebContent Title 1,WC WebContent Title 2") {
-			PageEditor.gotoTab(tabName = "Contents");
-
-			LexiconEntry.gotoFragmentPageContentEllipsisMenuItem(
-				menuItem = "Edit",
-				rowEntry = "${webContentTitle}");
-
-			AssertVisible(locator1 = "WCEditWebContent#SIDEBAR");
-
-			Click(locator1 = "Button#BACK");
-		}
-
-		AssertElementNotPresent(
-			key_fragmentName = "Rich Text",
-			locator1 = "Fragment#FRAGMENT_BODY");
-	}
-
 	@description = "This is a test for LPS-96795. Content author having permissions to update web content and Update Page Content could see edit icon in the content page displaying the web contents and could edit web content in editmode."
 	@priority = "5"
 	test EditContentWithUpdateWebContentAndUpdatePageContentPermissions {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
+
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "Userfn",
 			userLastName = "Userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
 		JSONUser.addUserToSite(
 			groupName = "Test Site Name",
@@ -464,22 +338,16 @@ definition {
 			roleTitle = "Roles Siterole Name",
 			roleType = "site");
 
-		User.openUsersAdmin();
-
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
 
 		for (var webContentTitle : list "WC WebContent Title 1,WC WebContent Title 2,WC WebContent Title 3") {
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-			WebContentNavigator.gotoAddCP();
-
-			WebContent.addCP(
-				webContentContent = "WC WebContent Content",
-				webContentTitle = "${webContentTitle}");
-
-			PortletEntry.publish();
+			JSONWebcontent.addWebContent(
+				content = "WC WebContent Content",
+				groupName = "Test Site Name",
+				title = "${webContentTitle}");
 		}
 
 		ContentPagesNavigator.openEditContentPage(
@@ -506,27 +374,31 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Web Content Display");
+		PageEditor.addWidget(
+			portletName = "Web Content Display",
+			targetFragmentName = "Heading");
 
 		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title 2");
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Asset Publisher");
+		PageEditor.addWidget(
+			portletName = "Asset Publisher",
+			targetFragmentName = "Web Content Display");
 
 		AssetPublisherPortlet.configureManualAssetSelectionPG(
 			assetTitle = "WC WebContent Title 3",
 			assetType = "Basic Web Content");
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
-
-		ContentPages.clickPencil();
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
 		PageEditor.clickPublish();
 
@@ -553,9 +425,131 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-103454. Content author having permission to update web content could see edit icon in the content page displaying the web contents and could edit web content in editmode, but could not edit editable field "
+	@priority = "5"
+	test EditContentWithWebContentArticleUpdatePermission {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "Userfn",
+			userLastName = "Userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		JSONUser.addUserToSite(
+			groupName = "Test Site Name",
+			userEmailAddress = "userea@liferay.com");
+
+		JSONRole.addSiteRole(
+			roleKey = "Roles Siterole Name",
+			roleTitle = "Roles Siterole Name");
+
+		Permissions.definePermissionViaJSONAPI(
+			resourceAction = "UPDATE",
+			resourceName = "com.liferay.journal.model.JournalArticle",
+			roleTitle = "Roles Siterole Name",
+			roleType = "site");
+
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
+
+		for (var webContentTitle : list "WC WebContent Title 1,WC WebContent Title 2") {
+			JSONWebcontent.addWebContent(
+				content = "WC WebContent Content",
+				groupName = "Test Site Name",
+				title = "${webContentTitle}");
+		}
+
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
+
+		PageEditor.addFragment(
+			collectionName = "Basic Components",
+			fragmentName = "Heading");
+
+		PageEditorMapping.gotoEditableFieldMapping(
+			fragmentName = "Heading",
+			id = "text");
+
+		PageEditorMapping.mapEditableFieldToAsset(
+			entryTitle = "WC WebContent Title 1",
+			navItem = "Web Content");
+
+		Select(
+			locator1 = "PageEditorEditableLink#FIELD",
+			value1 = "Title");
+
+		SelectFrame(value1 = "relative=top");
+
+		PageEditor.waitForAutoSave();
+
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
+
+		PageEditor.addWidget(
+			portletName = "Web Content Display",
+			targetFragmentName = "Heading");
+
+		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title 2");
+
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Rich Text",
+			targetFragmentName = "Web Content Display");
+
+		PageEditor.clickPublish();
+
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "userea@liferay.com",
+			userLoginFullName = "userfn userln");
+
+		Navigator.gotoSitePage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
+
+		ContentPages.clickPencil();
+
+		for (var webContentTitle : list "WC WebContent Title 1,WC WebContent Title 2") {
+			PageEditor.gotoTab(tabName = "Contents");
+
+			LexiconEntry.gotoFragmentPageContentEllipsisMenuItem(
+				menuItem = "Edit",
+				rowEntry = "${webContentTitle}");
+
+			AssertVisible(locator1 = "WCEditWebContent#SIDEBAR");
+
+			Click(locator1 = "Button#BACK");
+		}
+
+		AssertElementNotPresent(
+			key_fragmentName = "Rich Text",
+			locator1 = "Fragment#FRAGMENT_BODY");
+	}
+
 	@description = "This is a test for LPS-105109. Content author having permissions to update page content can introduce new inline content after clicking edit icon in content page."
 	@priority = "5"
-	test EditInlineContentWithdUpdatePageContentPermission {
+	test EditInlineContentWithUpdatePageContentPermission {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
+
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
+
 		PageEditor.addFragment(
 			collectionName = "Collection Name",
 			fragmentName = "Rich Text");
@@ -568,14 +562,10 @@ definition {
 			userLastName = "Userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
 		JSONUser.addUserToSite(
 			groupName = "Test Site Name",
@@ -599,11 +589,10 @@ definition {
 				roleType = "site");
 		}
 
-		User.openUsersAdmin();
-
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -615,42 +604,49 @@ definition {
 
 		ContentPages.clickPencil();
 
-		PageEditor.editFragmentText(
-			fragmentName = "rich-text",
-			id = "rich-text",
-			text = "New editable fragment text");
+		AssertElementNotPresent(
+			key_fragmentName = "Rich Text",
+			locator1 = "Fragment#FRAGMENT_HEADER");
+
+		Click(locator1 = "//div[contains(@class,'fragment-rich-text')]/lfr-editable[contains(@id,'rich-text')]");
+
+		DoubleClick(locator1 = "//div[contains(@class,'fragment-rich-text')]/lfr-editable[contains(@id,'rich-text')]");
+
+		Type(
+			locator1 = "//div[contains(@class,'fragment-rich-text')]/lfr-editable[contains(@id,'rich-text')]//div[contains(@class,'cke_editable_inline')]",
+			value1 = "New editable fragment text");
+
+		PageEditor.waitForAutoSave();
 
 		PageEditor.clickPublish();
 
 		AssertVisible(
 			key_content = "New editable fragment text",
 			key_fragmentClass = "rich-text",
-			key_position = "1",
 			locator1 = "Fragment#FRAGMENT");
 	}
 
 	@description = "This is a test for LPS-105109. Content author having permissions to update page content can introduce new inline content after clicking edit icon in content page."
 	@priority = "5"
-	test MapInlineContentWithdUpdatePageContentPermission {
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+	test MapInlineContentWithUpdatePageContentPermission {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
 
-		WebContentNavigator.gotoAddCP();
+		JSONWebcontent.addWebContent(
+			content = "Webcontent Content",
+			groupName = "Test Site Name",
+			title = "Webcontent Title");
 
-		WebContent.addCP(
-			webContentContent = "Webcontent Content",
-			webContentTitle = "Webcontent Title");
-
-		PortletEntry.publish();
-
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
-
-		ContentPages.clickPencil();
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
 		PageEditor.addFragment(
 			collectionName = "Collection Name",
 			fragmentName = "Rich Text");
 
 		PageEditorMapping.gotoEditableFieldMapping(
+			contributed = "false",
 			fragmentName = "Rich Text",
 			id = "rich-text");
 
@@ -674,14 +670,10 @@ definition {
 			userLastName = "Userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
 		JSONUser.addUserToSite(
 			groupName = "Test Site Name",
@@ -705,11 +697,10 @@ definition {
 				roleType = "site");
 		}
 
-		User.openUsersAdmin();
-
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -721,9 +712,19 @@ definition {
 
 		ContentPages.clickPencil();
 
-		PageEditorMapping.gotoEditableFieldMapping(
-			fragmentName = "rich-text",
-			id = "rich-text");
+		AssertElementNotPresent(
+			key_fragmentName = "Rich Text",
+			locator1 = "Fragment#FRAGMENT_HEADER");
+
+		Click(locator1 = "//div[contains(@class,'fragment-rich-text')]/lfr-editable[contains(@id,'rich-text')]");
+
+		PageEditor.gotoTab(tabName = "Selection");
+
+		var key_navItem = "Mapping";
+
+		AssertClick(
+			locator1 = "PageEditor#NAV_ITEM_BUTTON",
+			value1 = "Mapping");
 
 		Select(
 			locator1 = "PageEditorEditableLink#FIELD",
@@ -738,27 +739,24 @@ definition {
 		AssertVisible(
 			key_content = "Webcontent Title",
 			key_fragmentClass = "rich-text",
-			key_position = "1",
 			locator1 = "Fragment#FRAGMENT");
 	}
 
 	@description = "This is a test for LPS-103454. When one WC displayed in multiple fields in a content page, there should be one WC entry in Contents Panel list."
 	@priority = "4"
-	test ViewContentViaContentPanelWithWebContentAticleUpdatePermission {
+	test ViewContentViaContentPanelWithWebContentArticleUpdatePermission {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "Userfn",
 			userLastName = "Userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
 		JSONUser.addUserToSite(
 			groupName = "Test Site Name",
@@ -774,17 +772,15 @@ definition {
 			roleTitle = "Roles Siterole Name",
 			roleType = "site");
 
-		User.openUsersAdmin();
+		JSONRole.assignSiteRoleToUser(
+			groupName = "Test Site Name",
+			roleTitle = "Roles Siterole Name",
+			userEmailAddress = "userea@liferay.com");
 
-		User.assignSiteRoleCP(
-			siteRoleName = "Roles Siterole Name",
-			userScreenName = "usersn");
-
-		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-		WebContent.addArticleCP(
-			webContentContent = "WC WebContent Content",
-			webContentTitle = "WC WebContent Title");
+		JSONWebcontent.addWebContent(
+			content = "WC WebContent Content",
+			groupName = "Test Site Name",
+			title = "WC WebContent Title");
 
 		ContentPagesNavigator.openEditContentPage(
 			pageName = "Test Content Page Name",
@@ -810,19 +806,23 @@ definition {
 
 		PageEditor.waitForAutoSave();
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Web Content Display");
+		PageEditor.addWidget(
+			portletName = "Web Content Display",
+			targetFragmentName = "Heading");
 
 		WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Test Content Page Name",
+			siteName = "Test Site Name");
 
-		ContentPages.clickPencil();
-
-		PageEditor.addWidget(portletName = "Asset Publisher");
+		PageEditor.addWidget(
+			portletName = "Asset Publisher",
+			targetFragmentName = "Web Content Display");
 
 		AssetPublisherPortlet.configureManualAssetSelectionPG(
 			assetTitle = "WC WebContent Title",

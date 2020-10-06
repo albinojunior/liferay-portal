@@ -21,7 +21,11 @@ import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Carlos Sierra Andrés
+ *
+ * @deprecated As of Athanasius (7.3.x), replaced by {@link
+ *             com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader}
  */
+@Deprecated
 @FunctionalInterface
 @ProviderType
 public interface ResourceBundleLoader {

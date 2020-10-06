@@ -19,8 +19,8 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Field;
-import com.liferay.dynamic.data.mapping.storage.FieldConstants;
 import com.liferay.dynamic.data.mapping.storage.Fields;
+import com.liferay.dynamic.data.mapping.storage.constants.FieldConstants;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.dynamic.data.mapping.util.DDMFieldsCounter;
 import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
@@ -63,6 +64,7 @@ import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.xml.XPath;
+import com.liferay.trash.TrashHelper;
 
 import java.io.Serializable;
 
@@ -158,8 +160,21 @@ public class JournalConverterImpl implements JournalConverter {
 		).build();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getContent(DDMStructure, Fields, long)}
+	 */
+	@Deprecated
 	@Override
 	public String getContent(DDMStructure ddmStructure, Fields ddmFields)
+		throws Exception {
+
+		return getContent(ddmStructure, ddmFields, ddmStructure.getGroupId());
+	}
+
+	@Override
+	public String getContent(
+			DDMStructure ddmStructure, Fields ddmFields, long groupId)
 		throws Exception {
 
 		Document document = SAXReaderUtil.createDocument();
@@ -169,9 +184,14 @@ public class JournalConverterImpl implements JournalConverter {
 		rootElement.addAttribute(
 			"available-locales", getAvailableLocales(ddmFields));
 
+		Locale defaultLocale = ddmFields.getDefaultLocale();
+
+		if (!LanguageUtil.isAvailableLocale(groupId, defaultLocale)) {
+			defaultLocale = LocaleUtil.getSiteDefault();
+		}
+
 		rootElement.addAttribute(
-			"default-locale",
-			LocaleUtil.toLanguageId(ddmFields.getDefaultLocale()));
+			"default-locale", LocaleUtil.toLanguageId(defaultLocale));
 
 		DDMFieldsCounter ddmFieldsCounter = new DDMFieldsCounter();
 
@@ -580,23 +600,66 @@ public class JournalConverterImpl implements JournalConverter {
 		Serializable serializable = null;
 
 		if (Objects.equals(DDMFormFieldType.DOCUMENT_LIBRARY, type)) {
+			JSONObject jsonObject = null;
+
 			try {
-				JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+				jsonObject = JSONFactoryUtil.createJSONObject(
 					dynamicContentElement.getText());
-
-				if (!ExportImportThreadLocal.isImportInProcess()) {
-					String uuid = jsonObject.getString("uuid");
-					long groupId = jsonObject.getLong("groupId");
-
-					_dlAppLocalService.getFileEntryByUuidAndGroupId(
-						uuid, groupId);
-				}
-
-				serializable = dynamicContentElement.getText();
 			}
-			catch (Exception exception) {
+			catch (JSONException jsonException) {
 				return StringPool.BLANK;
 			}
+
+			if (jsonObject == null) {
+				return StringPool.BLANK;
+			}
+
+			String uuid = jsonObject.getString("uuid");
+			long groupId = jsonObject.getLong("groupId");
+
+			if (Validator.isNull(uuid) || (groupId <= 0)) {
+				return StringPool.BLANK;
+			}
+
+			try {
+				if (!ExportImportThreadLocal.isImportInProcess()) {
+					FileEntry fileEntry =
+						_dlAppLocalService.getFileEntryByUuidAndGroupId(
+							uuid, groupId);
+
+					String title = fileEntry.getTitle();
+
+					if (fileEntry.isInTrash()) {
+						title = _trashHelper.getOriginalTitle(
+							fileEntry.getTitle());
+
+						jsonObject.put(
+							"message",
+							LanguageUtil.get(
+								_getResourceBundle(defaultLocale),
+								"the-selected-document-was-moved-to-the-" +
+									"recycle-bin"));
+					}
+
+					jsonObject.put("title", title);
+				}
+			}
+			catch (Exception exception) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						StringBundler.concat(
+							"Unable to get file entry for UUID ", uuid,
+							" and group ID ", groupId));
+				}
+
+				jsonObject.put(
+					"message",
+					LanguageUtil.get(
+						_getResourceBundle(defaultLocale),
+						"the-selected-document-was-deleted"));
+			}
+
+			serializable = jsonObject.toString();
 		}
 		else if (Objects.equals(DDMFormFieldType.JOURNAL_ARTICLE, type)) {
 			try {
@@ -630,6 +693,10 @@ public class JournalConverterImpl implements JournalConverter {
 						);
 					}
 					else {
+						if (_log.isWarnEnabled()) {
+							_log.warn("Unable to get article for  " + classPK);
+						}
+
 						jsonObject.put(
 							"message",
 							LanguageUtil.get(
@@ -1024,11 +1091,8 @@ public class JournalConverterImpl implements JournalConverter {
 			instanceId = StringUtil.randomString();
 		}
 
-		String fieldsDisplayValue = fieldName.concat(
-			DDM.INSTANCE_SEPARATOR
-		).concat(
-			instanceId
-		);
+		String fieldsDisplayValue = StringBundler.concat(
+			fieldName, DDM.INSTANCE_SEPARATOR, instanceId);
 
 		Field fieldsDisplayField = ddmFields.get(DDM.FIELDS_DISPLAY_NAME);
 
@@ -1218,5 +1282,8 @@ public class JournalConverterImpl implements JournalConverter {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private TrashHelper _trashHelper;
 
 }

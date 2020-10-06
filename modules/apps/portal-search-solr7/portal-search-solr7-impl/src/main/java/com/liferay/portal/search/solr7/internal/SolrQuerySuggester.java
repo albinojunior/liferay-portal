@@ -238,7 +238,7 @@ public class SolrQuerySuggester implements QuerySuggester {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(6 * values.length - 2);
+		StringBundler sb = new StringBundler((6 * values.length) - 2);
 
 		for (int i = 0; i < values.length; i++) {
 			sb.append(field);
@@ -256,11 +256,7 @@ public class SolrQuerySuggester implements QuerySuggester {
 	}
 
 	protected String getFilterQuery(String field, String value) {
-		return field.concat(
-			StringPool.COLON
-		).concat(
-			value
-		);
+		return StringBundler.concat(field, StringPool.COLON, value);
 	}
 
 	protected long[] getGroupIdsForSuggestions(SearchContext searchContext) {

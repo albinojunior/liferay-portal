@@ -16,34 +16,35 @@ import ClayButton from '@clayui/button';
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
-import {SearchInput} from 'data-engine-taglib';
+import {DataDefinitionUtils, SearchInput} from 'data-engine-taglib';
 import React, {useContext, useRef, useState} from 'react';
 
-import {getDataDefinitionField} from '../../utils/dataDefinition.es';
 import EditTableViewContext, {
 	REMOVE_FILTER_VALUE,
 	UPDATE_FILTER_VALUE,
 } from './EditTableViewContext.es';
 
 export const MultipleSelectFilter = ({dataDefinitionField, useFieldLabel}) => {
-	const [{dataListView}, dispatch] = useContext(EditTableViewContext);
+	const [{dataListView, editingLanguageId}, dispatch] = useContext(
+		EditTableViewContext
+	);
 
 	const {
 		customProperties: {options = {}},
 		label: fieldLabel,
 		name: fieldName,
 	} = dataDefinitionField;
-	const localizedOptions = options[themeDisplay.getLanguageId()] || [];
+	const localizedOptions = options[editingLanguageId] || [];
 
 	const values = dataListView.appliedFilters[fieldName] || [];
 
 	const [active, setActive] = useState(false);
 
-	const onClickItem = optionValue => {
+	const onClickItem = (optionValue) => {
 		let newValue;
 
 		if (values.includes(optionValue)) {
-			newValue = values.filter(item => item !== optionValue);
+			newValue = values.filter((item) => item !== optionValue);
 		}
 		else {
 			newValue = [...values, optionValue];
@@ -89,9 +90,7 @@ export const MultipleSelectFilter = ({dataDefinitionField, useFieldLabel}) => {
 	return (
 		<div className="multiple-select-filter table-view-filter">
 			{useFieldLabel ? (
-				<label>
-					{fieldLabel[themeDisplay.getLanguageId()] || fieldName}
-				</label>
+				<label>{fieldLabel[editingLanguageId] || fieldName}</label>
 			) : (
 				<label>
 					{Liferay.Language.get('filter-entries')}
@@ -134,7 +133,7 @@ export const MultipleSelectFilter = ({dataDefinitionField, useFieldLabel}) => {
 				autoBestAlign={true}
 				className="multiple-select-filter-dropdown"
 				hasRightSymbols
-				onSetActive={newVal => setActive(newVal)}
+				onSetActive={(newVal) => setActive(newVal)}
 				ref={dropdownMenuRef}
 			>
 				<ClayDropDown.ItemList className="multiple-select-filter-dropdown-items">
@@ -177,7 +176,7 @@ export const MultipleSelectFilter = ({dataDefinitionField, useFieldLabel}) => {
 						.map(({label, value}, index) => (
 							<ClayDropDown.Item
 								key={index}
-								onClick={event => {
+								onClick={(event) => {
 									event.preventDefault();
 
 									onClickItem(value);
@@ -203,7 +202,7 @@ const RENDERERS = {
 export const FilterRenderer = ({fieldName, useFieldLabel}) => {
 	const [{dataDefinition}] = useContext(EditTableViewContext);
 
-	const dataDefinitionField = getDataDefinitionField(
+	const dataDefinitionField = DataDefinitionUtils.getDataDefinitionField(
 		dataDefinition,
 		fieldName
 	);
@@ -231,7 +230,7 @@ export const TableViewFiltersList = () => {
 	] = useContext(EditTableViewContext);
 
 	const filteredFieldNames = focusedColumn
-		? fieldNames.filter(fieldName => fieldName === focusedColumn)
+		? fieldNames.filter((fieldName) => fieldName === focusedColumn)
 		: fieldNames;
 
 	return (
@@ -255,7 +254,7 @@ export const TableViewFiltersList = () => {
 				</h4>
 			)}
 
-			{filteredFieldNames.map(fieldName => (
+			{filteredFieldNames.map((fieldName) => (
 				<FilterRenderer
 					fieldName={fieldName}
 					key={fieldName}

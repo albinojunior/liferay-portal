@@ -22,9 +22,9 @@ import com.liferay.asset.publisher.util.AssetPublisherHelper;
 import com.liferay.asset.publisher.web.internal.action.AssetEntryActionRegistry;
 import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfiguration;
 import com.liferay.asset.publisher.web.internal.display.context.AssetPublisherDisplayContext;
+import com.liferay.asset.publisher.web.internal.helper.AssetPublisherWebHelper;
+import com.liferay.asset.publisher.web.internal.helper.AssetRSSHelper;
 import com.liferay.asset.publisher.web.internal.util.AssetPublisherCustomizerRegistry;
-import com.liferay.asset.publisher.web.internal.util.AssetPublisherWebUtil;
-import com.liferay.asset.publisher.web.internal.util.AssetRSSUtil;
 import com.liferay.asset.util.AssetHelper;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.storage.Field;
@@ -238,7 +238,7 @@ public class AssetPublisherPortlet extends MVCPortlet {
 					assetPublisherCustomizerRegistry.
 						getAssetPublisherCustomizer(rootPortletId),
 					assetPublisherHelper, assetPublisherWebConfiguration,
-					assetPublisherWebUtil, infoListProviderTracker,
+					assetPublisherWebHelper, infoListProviderTracker,
 					itemSelector, resourceRequest, resourceResponse,
 					resourceRequest.getPreferences());
 
@@ -246,7 +246,7 @@ public class AssetPublisherPortlet extends MVCPortlet {
 				AssetPublisherWebKeys.ASSET_PUBLISHER_DISPLAY_CONTEXT,
 				assetPublisherDisplayContext);
 
-			byte[] bytes = assetRSSUtil.getRSS(
+			byte[] bytes = assetRSSHelper.getRSS(
 				resourceRequest, resourceResponse);
 
 			outputStream.write(bytes);
@@ -262,8 +262,8 @@ public class AssetPublisherPortlet extends MVCPortlet {
 		throws IOException, PortletException {
 
 		renderRequest.setAttribute(
-			AssetPublisherWebKeys.ASSET_PUBLISHER_WEB_UTIL,
-			assetPublisherWebUtil);
+			AssetPublisherWebKeys.ASSET_PUBLISHER_WEB_HELPER,
+			assetPublisherWebHelper);
 
 		super.render(renderRequest, renderResponse);
 	}
@@ -294,7 +294,7 @@ public class AssetPublisherPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		assetPublisherWebUtil.subscribe(
+		assetPublisherWebHelper.subscribe(
 			themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroupId(),
 			themeDisplay.getPlid(), themeDisplay.getPpid());
 	}
@@ -306,7 +306,7 @@ public class AssetPublisherPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		assetPublisherWebUtil.unsubscribe(
+		assetPublisherWebHelper.unsubscribe(
 			themeDisplay.getPermissionChecker(), themeDisplay.getPlid(),
 			themeDisplay.getPpid());
 	}
@@ -336,7 +336,7 @@ public class AssetPublisherPortlet extends MVCPortlet {
 					assetPublisherCustomizerRegistry.
 						getAssetPublisherCustomizer(rootPortletId),
 					assetPublisherHelper, assetPublisherWebConfiguration,
-					assetPublisherWebUtil, infoListProviderTracker,
+					assetPublisherWebHelper, infoListProviderTracker,
 					itemSelector, renderRequest, renderResponse,
 					renderRequest.getPreferences());
 
@@ -368,9 +368,9 @@ public class AssetPublisherPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof NoSuchGroupException ||
-			cause instanceof PrincipalException) {
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof NoSuchGroupException ||
+			throwable instanceof PrincipalException) {
 
 			return true;
 		}
@@ -396,10 +396,10 @@ public class AssetPublisherPortlet extends MVCPortlet {
 	protected AssetPublisherWebConfiguration assetPublisherWebConfiguration;
 
 	@Reference
-	protected AssetPublisherWebUtil assetPublisherWebUtil;
+	protected AssetPublisherWebHelper assetPublisherWebHelper;
 
 	@Reference
-	protected AssetRSSUtil assetRSSUtil;
+	protected AssetRSSHelper assetRSSHelper;
 
 	@Reference
 	protected InfoListProviderTracker infoListProviderTracker;

@@ -13,13 +13,13 @@
  */
 
 /**
- * @deprecated As of Athanasius(7.3.x), replaced by ItemSelectorRepositoryEntryBrowser.es.js
+ * @deprecated As of Athanasius (7.3.x), replaced by ItemSelectorRepositoryEntryBrowser.es.js
  * @module liferay-item-selector-repository-entry-browser
  */
 
 AUI.add(
 	'liferay-item-selector-repository-entry-browser',
-	A => {
+	(A) => {
 		var AArray = A.Array;
 		var Lang = A.Lang;
 
@@ -378,7 +378,7 @@ AUI.add(
 					if (A.config.win.FileReader) {
 						var reader = new FileReader();
 
-						reader.addEventListener('loadend', event => {
+						reader.addEventListener('loadend', (event) => {
 							instance._showFile(file, event.target.result);
 						});
 
@@ -398,17 +398,11 @@ AUI.add(
 				_showError(message) {
 					var instance = this;
 
-					new Liferay.Alert({
-						closeable: true,
-						delay: {
-							hide: 5000,
-							show: 0,
-						},
-						duration: 250,
-						icon: 'exclamation-full',
+					Liferay.Util.openToast({
+						container: instance.rootNode,
 						message,
 						type: 'danger',
-					}).render(instance.rootNode);
+					});
 				},
 
 				_showFile(file, preview) {
@@ -545,7 +539,6 @@ AUI.add(
 	'',
 	{
 		requires: [
-			'liferay-alert',
 			'liferay-item-selector-uploader',
 			'liferay-item-viewer',
 			'liferay-portlet-base',

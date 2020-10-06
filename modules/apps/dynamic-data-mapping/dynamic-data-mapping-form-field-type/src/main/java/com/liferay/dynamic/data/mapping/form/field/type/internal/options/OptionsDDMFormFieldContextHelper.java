@@ -16,6 +16,8 @@ package com.liferay.dynamic.data.mapping.form.field.type.internal.options;
 
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -24,6 +26,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -42,21 +45,30 @@ import java.util.ResourceBundle;
 public class OptionsDDMFormFieldContextHelper {
 
 	public OptionsDDMFormFieldContextHelper(
-		JSONFactory jsonFactory, DDMFormField ddmFormField, String value) {
+		JSONFactory jsonFactory, DDMFormField ddmFormField,
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
 		_jsonFactory = jsonFactory;
-		_value = value;
 
 		_ddmForm = ddmFormField.getDDMForm();
+
+		_ddmFormFieldRenderingContext = ddmFormFieldRenderingContext;
+
+		_value = ddmFormFieldRenderingContext.getValue();
 	}
 
 	public Map<String, Object> getValue() {
 		Map<String, Object> localizedValue = new HashMap<>();
 
 		if (Validator.isNull(_value)) {
+			Locale locale = _ddmFormFieldRenderingContext.getLocale();
+
+			if (locale == null) {
+				locale = LocaleUtil.getSiteDefault();
+			}
+
 			localizedValue.put(
-				LocaleUtil.toLanguageId(_ddmForm.getDefaultLocale()),
-				createDefaultOptions());
+				LocaleUtil.toLanguageId(locale), createDefaultOptions());
 
 			return localizedValue;
 		}
@@ -64,10 +76,10 @@ public class OptionsDDMFormFieldContextHelper {
 		try {
 			JSONObject jsonObject = _jsonFactory.createJSONObject(_value);
 
-			Iterator<String> itr = jsonObject.keys();
+			Iterator<String> iterator = jsonObject.keys();
 
-			while (itr.hasNext()) {
-				String languageId = itr.next();
+			while (iterator.hasNext()) {
+				String languageId = iterator.next();
 
 				List<Object> options = createOptions(
 					jsonObject.getJSONArray(languageId));
@@ -85,13 +97,8 @@ public class OptionsDDMFormFieldContextHelper {
 	}
 
 	protected List<Object> createDefaultOptions() {
-		List<Object> options = new ArrayList<>();
-
-		String defaultOptionLabel = getDefaultOptionLabel();
-
-		options.add(createOption(defaultOptionLabel, defaultOptionLabel));
-
-		return options;
+		return ListUtil.fromArray(
+			createOption(getDefaultOptionLabel(), StringPool.BLANK));
 	}
 
 	protected Map<String, String> createOption(String label, String value) {
@@ -135,6 +142,7 @@ public class OptionsDDMFormFieldContextHelper {
 		OptionsDDMFormFieldContextHelper.class);
 
 	private final DDMForm _ddmForm;
+	private final DDMFormFieldRenderingContext _ddmFormFieldRenderingContext;
 	private final JSONFactory _jsonFactory;
 	private final String _value;
 

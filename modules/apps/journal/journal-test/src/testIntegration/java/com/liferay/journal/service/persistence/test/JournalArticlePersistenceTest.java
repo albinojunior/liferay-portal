@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -46,7 +47,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.junit.After;
@@ -532,15 +532,6 @@ public class JournalArticlePersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_DDMTK() throws Exception {
-		_persistence.countByC_DDMTK(RandomTestUtil.nextLong(), "");
-
-		_persistence.countByC_DDMTK(0L, "null");
-
-		_persistence.countByC_DDMTK(0L, (String)null);
-	}
-
-	@Test
 	public void testCountByLtD_S() throws Exception {
 		_persistence.countByLtD_S(
 			RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
@@ -685,12 +676,12 @@ public class JournalArticlePersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ED_ST() throws Exception {
-		_persistence.countByC_ED_ST(
-			RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
-			RandomTestUtil.nextInt());
+	public void testCountByG_F_C_NotST() throws Exception {
+		_persistence.countByG_F_C_NotST(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-		_persistence.countByC_ED_ST(0L, RandomTestUtil.nextDate(), 0);
+		_persistence.countByG_F_C_NotST(0L, 0L, 0L, 0);
 	}
 
 	@Test
@@ -952,50 +943,92 @@ public class JournalArticlePersistenceTest {
 
 		_persistence.clearCache();
 
-		JournalArticle existingJournalArticle = _persistence.findByPrimaryKey(
-			newJournalArticle.getPrimaryKey());
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(newJournalArticle.getPrimaryKey()));
+	}
 
-		Assert.assertTrue(
-			Objects.equals(
-				existingJournalArticle.getUuid(),
-				ReflectionTestUtil.invoke(
-					existingJournalArticle, "getOriginalUuid",
-					new Class<?>[0])));
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		JournalArticle newJournalArticle = addJournalArticle();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			JournalArticle.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq("id", newJournalArticle.getId()));
+
+		List<JournalArticle> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(JournalArticle journalArticle) {
 		Assert.assertEquals(
-			Long.valueOf(existingJournalArticle.getGroupId()),
+			journalArticle.getUuid(),
+			ReflectionTestUtil.invoke(
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "uuid_"));
+		Assert.assertEquals(
+			Long.valueOf(journalArticle.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingJournalArticle, "getOriginalGroupId", new Class<?>[0]));
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingJournalArticle.getGroupId()),
+			Long.valueOf(journalArticle.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingJournalArticle, "getOriginalGroupId", new Class<?>[0]));
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 		Assert.assertEquals(
-			Long.valueOf(existingJournalArticle.getClassNameId()),
+			Long.valueOf(journalArticle.getClassNameId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingJournalArticle, "getOriginalClassNameId",
-				new Class<?>[0]));
-		Assert.assertTrue(
-			Objects.equals(
-				existingJournalArticle.getDDMStructureKey(),
-				ReflectionTestUtil.invoke(
-					existingJournalArticle, "getOriginalDDMStructureKey",
-					new Class<?>[0])));
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "classNameId"));
+		Assert.assertEquals(
+			journalArticle.getDDMStructureKey(),
+			ReflectionTestUtil.invoke(
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "DDMStructureKey"));
 
 		Assert.assertEquals(
-			Long.valueOf(existingJournalArticle.getGroupId()),
+			Long.valueOf(journalArticle.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingJournalArticle, "getOriginalGroupId", new Class<?>[0]));
-		Assert.assertTrue(
-			Objects.equals(
-				existingJournalArticle.getArticleId(),
-				ReflectionTestUtil.invoke(
-					existingJournalArticle, "getOriginalArticleId",
-					new Class<?>[0])));
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
+		Assert.assertEquals(
+			journalArticle.getArticleId(),
+			ReflectionTestUtil.invoke(
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "articleId"));
 		AssertUtils.assertEquals(
-			existingJournalArticle.getVersion(),
+			journalArticle.getVersion(),
 			ReflectionTestUtil.<Double>invoke(
-				existingJournalArticle, "getOriginalVersion", new Class<?>[0]));
+				journalArticle, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "version"));
 	}
 
 	protected JournalArticle addJournalArticle() throws Exception {

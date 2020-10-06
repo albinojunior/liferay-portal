@@ -66,6 +66,10 @@ public class SiteNavigationMenuItemLocalServiceWrapper
 	/**
 	 * Adds the site navigation menu item to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuItemLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteNavigationMenuItem the site navigation menu item
 	 * @return the site navigation menu item that was added
 	 */
@@ -120,6 +124,10 @@ public class SiteNavigationMenuItemLocalServiceWrapper
 	/**
 	 * Deletes the site navigation menu item with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuItemLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param siteNavigationMenuItemId the primary key of the site navigation menu item
 	 * @return the site navigation menu item that was removed
 	 * @throws PortalException if a site navigation menu item with the primary key could not be found
@@ -135,6 +143,10 @@ public class SiteNavigationMenuItemLocalServiceWrapper
 
 	/**
 	 * Deletes the site navigation menu item from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuItemLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param siteNavigationMenuItem the site navigation menu item
 	 * @return the site navigation menu item that was removed
@@ -159,6 +171,11 @@ public class SiteNavigationMenuItemLocalServiceWrapper
 	public void deleteSiteNavigationMenuItemsByGroupId(long groupId) {
 		_siteNavigationMenuItemLocalService.
 			deleteSiteNavigationMenuItemsByGroupId(groupId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _siteNavigationMenuItemLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -491,6 +508,10 @@ public class SiteNavigationMenuItemLocalServiceWrapper
 
 	/**
 	 * Updates the site navigation menu item in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SiteNavigationMenuItemLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param siteNavigationMenuItem the site navigation menu item
 	 * @return the site navigation menu item that was updated

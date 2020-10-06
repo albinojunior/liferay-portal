@@ -35,17 +35,17 @@ public class PortalPreferencesCacheModel
 	implements CacheModel<PortalPreferences>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof PortalPreferencesCacheModel)) {
+		if (!(object instanceof PortalPreferencesCacheModel)) {
 			return false;
 		}
 
 		PortalPreferencesCacheModel portalPreferencesCacheModel =
-			(PortalPreferencesCacheModel)obj;
+			(PortalPreferencesCacheModel)object;
 
 		if ((portalPreferencesId ==
 				portalPreferencesCacheModel.portalPreferencesId) &&
@@ -116,7 +116,9 @@ public class PortalPreferencesCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		portalPreferencesId = objectInput.readLong();
@@ -124,7 +126,7 @@ public class PortalPreferencesCacheModel
 		ownerId = objectInput.readLong();
 
 		ownerType = objectInput.readInt();
-		preferences = objectInput.readUTF();
+		preferences = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -138,10 +140,10 @@ public class PortalPreferencesCacheModel
 		objectOutput.writeInt(ownerType);
 
 		if (preferences == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(preferences);
+			objectOutput.writeObject(preferences);
 		}
 	}
 

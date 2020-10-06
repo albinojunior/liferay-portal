@@ -122,11 +122,15 @@ public class UpgradeContentImages extends UpgradeProcess {
 					).put(
 						"groupId", fileEntry.getGroupId()
 					).put(
-						"name", fileEntry.getFileName()
+						"name",
+						dynamicContentElement.attributeValue(
+							"name", fileEntry.getFileName())
 					).put(
 						"resourcePrimKey", resourcePrimKey
 					).put(
-						"title", fileEntry.getTitle()
+						"title",
+						dynamicContentElement.attributeValue(
+							"title", fileEntry.getTitle())
 					).put(
 						"type", "journal"
 					).put(
@@ -210,7 +214,7 @@ public class UpgradeContentImages extends UpgradeProcess {
 	private FileEntry _getFileEntryById(
 			long userId, long groupId, long companyId, long resourcePrimKey,
 			String id)
-		throws PortalException {
+		throws Exception {
 
 		userId = PortalUtil.getValidUserId(companyId, userId);
 

@@ -12,254 +12,491 @@
  * details.
  */
 
-import ClayButton from '@clayui/button';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
+import ClayEmptyState from '@clayui/empty-state';
+import {ClayInput, ClaySelect} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import {ClayPaginationWithBasicItems} from '@clayui/pagination';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, {useContext, useEffect, useState} from 'react';
+import {withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
-import ArticleBodyRenderer from '../../components/ArticleBodyRenderer.es';
-import Error from '../../components/Error.es';
-import QuestionBadge from '../../components/QuestionsBadge.es';
-import SectionLabel from '../../components/SectionLabel.es';
-import TagList from '../../components/TagList.es';
-import UserIcon from '../../components/UserIcon.es';
-import {getRankedThreads, getThreads} from '../../utils/client.es';
-import {dateToInternationalHuman, normalizeRating} from '../../utils/utils.es';
+import Alert from '../../components/Alert.es';
+import Breadcrumb from '../../components/Breadcrumb.es';
+import PaginatedList from '../../components/PaginatedList.es';
+import QuestionRow from '../../components/QuestionRow.es';
+import ResultsMessage from '../../components/ResultsMessage.es';
+import SectionSubscription from '../../components/SectionSubscription.es';
+import useQueryParams from '../../hooks/useQueryParams.es';
+import {
+	getQuestionThreads,
+	getSectionByRootSection,
+	getSectionBySectionTitle,
+	getSectionsByRootSection,
+} from '../../utils/client.es';
+import {
+	getBasePath,
+	historyPushWithSlug,
+	slugToText,
+	useDebounceCallback,
+} from '../../utils/utils.es';
 
-export default ({
-	match: {
-		params: {creatorId, tag},
-	},
-	search,
-}) => {
-	const context = useContext(AppContext);
+function getFilterOptions() {
+	return [
+		{
+			label: Liferay.Language.get('latest-created'),
+			title: Liferay.Language.get(
+				'showing-questions-ordered-by-last-created-first'
+			),
+			value: 'latest-created',
+		},
+		{
+			label: Liferay.Language.get('latest-edited'),
+			title: Liferay.Language.get(
+				'showing-questions-ordered-by-last-edited-first'
+			),
+			value: 'latest-edited',
+		},
+		{
+			label: Liferay.Language.get('voted-in-the-last-week'),
+			title: Liferay.Language.get(
+				'showing-questions-that-have-at-least-one-vote-in-the-last-week-ordered-by-votes-received'
+			),
+			value: 'week',
+		},
+		{
+			label: Liferay.Language.get('voted-in-the-last-month'),
+			title: Liferay.Language.get(
+				'showing-questions-that-have-at-least-one-vote-in-the-last-month-ordered-by-votes-received'
+			),
+			value: 'month',
+		},
+		{
+			label: Liferay.Language.get('most-voted'),
+			title: Liferay.Language.get(
+				'showing-questions-that-have-at-least-one-vote-ordered-by-votes-received'
+			),
+			value: 'most-voted',
+		},
+	];
+}
 
-	const [error, setError] = useState({});
-	const [loading, setLoading] = useState(true);
-	const [page, setPage] = useState(1);
-	const [pageSize] = useState(20);
-	const [questions, setQuestions] = useState([]);
-	const [activeFilter, setActiveFilter] = useState('modified');
+export default withRouter(
+	({
+		history,
+		location,
+		match: {
+			params: {creatorId, sectionTitle, tag},
+		},
+	}) => {
+		const MAX_NUMBER_OF_QUESTIONS = 500;
+		const [
+			allowCreateTopicInRootTopic,
+			setAllowCreateTopicInRootTopic,
+		] = useState(false);
+		const [currentTag, setCurrentTag] = useState('');
+		const [error, setError] = useState({});
+		const [filter, setFilter] = useState();
+		const [loading, setLoading] = useState(true);
+		const [page, setPage] = useState(1);
+		const [pageSize, setPageSize] = useState(20);
+		const [questions, setQuestions] = useState([]);
+		const [search, setSearch] = useState('');
+		const [section, setSection] = useState({});
+		const [totalCount, setTotalCount] = useState(0);
 
-	useEffect(() => {
-		renderQuestions(loadThreads());
-	}, [creatorId, page, pageSize, search, context.siteKey, tag, loadThreads]);
+		const queryParams = useQueryParams(location);
 
-	const renderQuestions = questions => {
-		questions
-			.then(data => setQuestions(data || []))
-			.then(() => setLoading(false))
-			.catch(_ => {
-				setLoading(false);
-				setError({message: 'Loading Questions', title: 'Error'});
-			});
-	};
+		const context = useContext(AppContext);
 
-	const loadThreads = useCallback(
-		sort =>
-			getThreads({
+		const siteKey = context.siteKey;
+
+		const historyPushParser = historyPushWithSlug(history.push);
+
+		useEffect(() => {
+			setCurrentTag(tag ? slugToText(tag) : '');
+		}, [tag]);
+
+		useEffect(() => {
+			const pageNumber = queryParams.get('page') || 1;
+			setPage(isNaN(pageNumber) ? 1 : parseInt(pageNumber, 10));
+		}, [queryParams]);
+
+		useEffect(() => {
+			setPageSize(queryParams.get('pagesize') || 20);
+		}, [queryParams]);
+
+		useEffect(() => {
+			setSearch(queryParams.get('search') || '');
+		}, [queryParams]);
+
+		useEffect(() => {
+			if (
+				+context.rootTopicId === 0 &&
+				location.pathname.endsWith('/' + context.rootTopicId)
+			) {
+				getSectionsByRootSection(context.siteKey, context.rootTopicId)
+					.then(({data}) => {
+						setAllowCreateTopicInRootTopic(
+							(data.actions && data.actions.create && true) ||
+								false
+						);
+					})
+					.catch((error) => {
+						if (process.env.NODE_ENV === 'development') {
+							console.error(error);
+						}
+						setLoading(false);
+						setError({message: 'Loading Topics', title: 'Error'});
+					});
+			}
+		}, [context.rootTopicId, context.siteKey, location.pathname]);
+
+		useEffect(() => {
+			setTotalCount(
+				(filter === 'latest-edited' || !!search) &&
+					questions.totalCount > MAX_NUMBER_OF_QUESTIONS
+					? MAX_NUMBER_OF_QUESTIONS
+					: questions.totalCount
+			);
+		}, [filter, questions.totalCount, search]);
+
+		useEffect(() => {
+			if (section.id == null && !currentTag) {
+				return;
+			}
+
+			getQuestionThreads(
 				creatorId,
+				filter,
+				currentTag,
 				page,
 				pageSize,
 				search,
-				siteKey: context.siteKey,
-				sort,
-				tag,
-			}),
-		[context.siteKey, creatorId, page, pageSize, search, tag]
-	);
-
-	const hasValidAnswer = question =>
-		question.messageBoardMessages.items.filter(
-			message => message.showAsAnswer
-		).length > 0;
-
-	const filterBy = type => {
-		if (type === 'modified') {
-			setActiveFilter('modified');
-			renderQuestions(loadThreads());
-		}
-		else if (type === 'week') {
-			setActiveFilter('week');
-			const date = new Date();
-			date.setDate(date.getDate() - 7);
-
-			renderQuestions(getRankedThreads(date, page, pageSize));
-		}
-		else if (type === 'month') {
-			setActiveFilter('month');
-			const date = new Date();
-			date.setDate(date.getDate() - 31);
-
-			renderQuestions(getRankedThreads(date, page, pageSize));
-		}
-		else {
-			setActiveFilter('created');
-			renderQuestions(loadThreads('dateCreated:desc'));
-		}
-	};
-
-	return (
-		<section className="c-mt-5 c-mx-auto col-xl-10">
-			<ClayButton.Group>
-				<ClayButton
-					displayType={
-						activeFilter === 'created' ? 'primary' : 'secondary'
+				section,
+				siteKey
+			)
+				.then(({data, loading}) => {
+					setQuestions(data || []);
+					setLoading(loading);
+				})
+				.catch((error) => {
+					if (process.env.NODE_ENV === 'development') {
+						console.error(error);
 					}
-					onClick={() => filterBy('created')}
-				>
-					{Liferay.Language.get('latest-created')}
-				</ClayButton>
+					setLoading(false);
+					setError({message: 'Loading Questions', title: 'Error'});
+				});
+		}, [
+			creatorId,
+			currentTag,
+			filter,
+			page,
+			pageSize,
+			search,
+			section,
+			siteKey,
+		]);
 
-				<ClayButton
-					displayType={
-						activeFilter === 'modified' ? 'primary' : 'secondary'
-					}
-					onClick={() => filterBy('modified')}
-				>
-					{Liferay.Language.get('latest-edited')}
-				</ClayButton>
+		function buildURL(search, page, pageSize) {
+			let url = '/questions';
 
-				<ClayButton
-					displayType={
-						activeFilter === 'week' ? 'primary' : 'secondary'
-					}
-					onClick={() => filterBy('week')}
-				>
-					{Liferay.Language.get('week')}
-				</ClayButton>
+			if (sectionTitle || sectionTitle === '0') {
+				url += `/${sectionTitle}`;
+			}
 
-				<ClayButton
-					displayType={
-						activeFilter === 'month' ? 'primary' : 'secondary'
-					}
-					onClick={() => filterBy('month')}
-				>
-					{Liferay.Language.get('month')}
-				</ClayButton>
-			</ClayButton.Group>
+			if (tag) {
+				url += `/tag/${tag}`;
+			}
+			if (creatorId) {
+				url += `/creator/${creatorId}`;
+			}
+			if (search) {
+				url += `?search=${search}&`;
+			}
+			else {
+				url += '?';
+			}
 
-			{loading ? (
-				<ClayLoadingIndicator />
-			) : (
-				questions.items &&
-				questions.items.map(question => (
-					<div
-						className="c-mt-4 c-p-3 position-relative question-row text-secondary"
-						key={question.id}
-					>
-						<div className="align-items-center d-flex justify-content-between">
-							<div className={'stretched-link-layer'}>
-								<SectionLabel
-									section={question.messageBoardSection}
-								/>
-							</div>
+			url += `page=${page}&pagesize=${pageSize}`;
 
-							<ul className="question-list">
-								<li>
-									<QuestionBadge
-										symbol={
-											normalizeRating(
-												question.aggregateRating
-											) < 0
-												? 'caret-bottom'
-												: 'caret-top'
-										}
-										value={normalizeRating(
-											question.aggregateRating
-										)}
-									/>
-								</li>
+			return url;
+		}
 
-								<li>
-									<QuestionBadge
-										symbol="view"
-										value={question.viewCount}
-									/>
-								</li>
+		const changePage = (page, pageSize) => {
+			historyPushParser(buildURL(search, page, pageSize));
+		};
 
-								<li>
-									<QuestionBadge
-										className={
-											hasValidAnswer(question)
-												? 'question-badge-success'
-												: ''
-										}
-										symbol={
-											hasValidAnswer(question)
-												? 'check-circle-full'
-												: 'message'
-										}
-										value={
-											question.messageBoardMessages.items
-												.length
-										}
-									/>
-								</li>
-							</ul>
+		const [debounceCallback] = useDebounceCallback((search) => {
+			setLoading(true);
+			historyPushParser(buildURL(search, 1, 20));
+		}, 500);
+
+		useEffect(() => {
+			if (sectionTitle && sectionTitle !== '0') {
+				getSectionBySectionTitle(
+					context.siteKey,
+					slugToText(sectionTitle)
+				).then(setSection);
+			}
+			else if (sectionTitle === '0') {
+				getSectionByRootSection(context.siteKey).then(setSection);
+			}
+		}, [sectionTitle, context.siteKey]);
+
+		const filterOptions = getFilterOptions();
+
+		const navigateToNewQuestion = () => {
+			if (context.redirectToLogin && !themeDisplay.isSignedIn()) {
+				const baseURL = getBasePath();
+
+				window.location.replace(
+					`/c/portal/login?redirect=${baseURL}#/questions/${sectionTitle}/new`
+				);
+			}
+			else {
+				historyPushParser(`/questions/${sectionTitle}/new`);
+			}
+
+			return false;
+		};
+
+		return (
+			<section className="questions-section questions-section-list">
+				<Breadcrumb
+					allowCreateTopicInRootTopic={allowCreateTopicInRootTopic}
+					section={section}
+				/>
+				<div className="questions-container">
+					<div className="row">
+						<div className="c-mt-3 col col-xl-12">
+							<QuestionsNavigationBar />
 						</div>
 
-						<Link
-							className="question-title stretched-link"
-							to={'/questions/' + question.id}
-						>
-							<h2 className="c-mb-0 stretched-link-layer text-dark">
-								{question.headline}
-							</h2>
-						</Link>
+						{!!search && !loading && (
+							<ResultsMessage
+								maxNumberOfSearchResults={
+									MAX_NUMBER_OF_QUESTIONS
+								}
+								searchCriteria={search}
+								totalCount={totalCount}
+							/>
+						)}
 
-						<div className="c-mb-0 c-mt-3 stretched-link-layer text-truncate">
-							<ArticleBodyRenderer {...question} />
-						</div>
-
-						<div className="align-items-center c-mt-3 d-flex justify-content-between">
-							<div className="stretched-link-layer">
-								<Link
-									to={
-										'/questions/creator/' +
-										question.creator.id
-									}
-								>
-									<UserIcon
-										fullName={question.creator.name}
-										portraitURL={question.creator.image}
-										size="sm"
-										userId={String(question.creator.id)}
+						<div className="c-mx-auto c-px-0 col-xl-10">
+							<PaginatedList
+								activeDelta={pageSize}
+								activePage={page}
+								changeDelta={(pageSize) =>
+									changePage(page, pageSize)
+								}
+								changePage={(page) =>
+									changePage(page, pageSize)
+								}
+								data={questions}
+								emptyState={
+									!search && !filter ? (
+										<ClayEmptyState
+											description={Liferay.Language.get(
+												'there-are-no-questions-inside-this-topic-be-the-first-to-ask-something'
+											)}
+											imgSrc={
+												context.includeContextPath +
+												'/assets/empty_questions_list.png'
+											}
+											title={Liferay.Language.get(
+												'this-topic-is-empty'
+											)}
+										>
+											<ClayButton
+												displayType="primary"
+												onClick={navigateToNewQuestion}
+											>
+												{Liferay.Language.get(
+													'ask-question'
+												)}
+											</ClayButton>
+										</ClayEmptyState>
+									) : (
+										<ClayEmptyState
+											title={Liferay.Language.get(
+												'there-are-no-results'
+											)}
+										/>
+									)
+								}
+								loading={loading}
+								totalCount={totalCount}
+							>
+								{(question) => (
+									<QuestionRow
+										currentSection={sectionTitle}
+										key={question.id}
+										question={question}
+										showSectionLabel={
+											!!section.numberOfMessageBoardSections
+										}
 									/>
+								)}
+							</PaginatedList>
 
-									<strong className="c-ml-2 text-dark">
-										{question.creator.name}
-									</strong>
-								</Link>
-
-								<span className="c-ml-2 small">
-									{'- ' +
-										dateToInternationalHuman(
-											question.dateModified
-										)}
-								</span>
-							</div>
-
-							<TagList tags={question.keywords} />
+							<Alert info={error} />
 						</div>
 					</div>
-				))
-			)}
+				</div>
+			</section>
+		);
 
-			{!!questions.totalCount &&
-				questions.totalCount > questions.pageSize && (
-					<ClayPaginationWithBasicItems
-						activePage={page}
-						ellipsisBuffer={2}
-						onPageChange={setPage}
-						totalPages={Math.ceil(
-							questions.totalCount / questions.pageSize
-						)}
-					/>
-				)}
-			<Error error={error} />
-		</section>
-	);
-};
+		function QuestionsNavigationBar() {
+			return (
+				<div className="d-flex flex-column flex-xl-row justify-content-between">
+					<div className="align-items-center d-flex flex-grow-1">
+						{section &&
+							section.actions &&
+							section.actions.subscribe && (
+								<div className="c-ml-3">
+									<SectionSubscription section={section} />
+								</div>
+							)}
+					</div>
+
+					{((questions && questions.totalCount > 0) ||
+						search ||
+						filter) && (
+						<div className="c-mt-3 c-mt-xl-0 d-flex flex-column flex-grow-1 flex-md-row">
+							<ClayInput.Group className="justify-content-xl-end">
+								<ClayInput.GroupItem shrink>
+									<label
+										className="align-items-center d-inline-flex m-0 text-secondary"
+										htmlFor="questionsFilter"
+									>
+										{Liferay.Language.get('filter-by')}
+									</label>
+								</ClayInput.GroupItem>
+
+								<ClayInput.GroupItem shrink>
+									<ClaySelect
+										className="bg-transparent border-0"
+										disabled={loading}
+										id="questionsFilter"
+										onChange={(event) => {
+											setLoading(true);
+											setFilter(event.target.value);
+										}}
+										value={filter}
+									>
+										{filterOptions.map((option) => (
+											<ClaySelect.Option
+												key={option.value}
+												label={option.label}
+												title={option.title}
+												value={option.value}
+											/>
+										))}
+									</ClaySelect>
+								</ClayInput.GroupItem>
+							</ClayInput.Group>
+
+							<ClayInput.Group className="c-mt-3 c-mt-md-0">
+								<ClayInput.GroupItem>
+									<ClayInput
+										className="bg-transparent form-control input-group-inset input-group-inset-after"
+										defaultValue={
+											(search && slugToText(search)) || ''
+										}
+										disabled={
+											!search &&
+											questions &&
+											questions.items &&
+											!questions.items.length
+										}
+										onChange={(event) =>
+											debounceCallback(event.target.value)
+										}
+										placeholder={Liferay.Language.get(
+											'search'
+										)}
+										type="text"
+									/>
+
+									<ClayInput.GroupInsetItem
+										after
+										className="bg-transparent"
+										tag="span"
+									>
+										{loading && (
+											<button
+												className="btn btn-monospaced btn-unstyled"
+												type="submit"
+											>
+												<ClayLoadingIndicator
+													className="mb-0 mt-0"
+													small
+												/>
+											</button>
+										)}
+										{!loading &&
+											((!!search && (
+												<ClayButtonWithIcon
+													displayType="unstyled"
+													onClick={() => {
+														setLoading(true);
+														historyPushParser(
+															buildURL('', 1, 20)
+														);
+													}}
+													symbol="times-circle"
+													type="submit"
+												/>
+											)) || (
+												<ClayButtonWithIcon
+													displayType="unstyled"
+													symbol="search"
+													type="search"
+												/>
+											))}
+									</ClayInput.GroupInsetItem>
+								</ClayInput.GroupItem>
+
+								{sectionTitle &&
+									questions &&
+									questions.totalCount > 0 &&
+									(context.redirectToLogin ||
+										(section &&
+											section.actions &&
+											section.actions['add-thread']) ||
+										context.canCreateThread) && (
+										<ClayInput.GroupItem shrink>
+											<ClayButton
+												className="c-ml-3 d-none d-sm-block text-nowrap"
+												displayType="primary"
+												onClick={navigateToNewQuestion}
+											>
+												{Liferay.Language.get(
+													'ask-question'
+												)}
+											</ClayButton>
+
+											<ClayButton
+												className="btn-monospaced d-block d-sm-none position-fixed questions-button shadow"
+												displayType="primary"
+												onClick={navigateToNewQuestion}
+											>
+												<ClayIcon symbol="pencil" />
+
+												<span className="sr-only">
+													{Liferay.Language.get(
+														'ask-question'
+													)}
+												</span>
+											</ClayButton>
+										</ClayInput.GroupItem>
+									)}
+							</ClayInput.Group>
+						</div>
+					)}
+				</div>
+			);
+		}
+	}
+);

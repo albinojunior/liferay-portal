@@ -22,9 +22,11 @@
 taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/comment" prefix="liferay-comment" %><%@
+taglib uri="http://liferay.com/tld/editor" prefix="liferay-editor" %><%@
 taglib uri="http://liferay.com/tld/expando" prefix="liferay-expando" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
+taglib uri="http://liferay.com/tld/ratings" prefix="liferay-ratings" %><%@
 taglib uri="http://liferay.com/tld/rss" prefix="liferay-rss" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
@@ -32,10 +34,12 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
 <%@ page import="com.liferay.asset.kernel.model.AssetEntry" %><%@
+page import="com.liferay.asset.kernel.model.AssetVocabularyConstants" %><%@
 page import="com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil" %><%@
 page import="com.liferay.calendar.configuration.CalendarServiceConfigurationValues" %><%@
 page import="com.liferay.calendar.constants.CalendarActionKeys" %><%@
 page import="com.liferay.calendar.constants.CalendarConstants" %><%@
+page import="com.liferay.calendar.constants.CalendarNotificationTemplateConstants" %><%@
 page import="com.liferay.calendar.exception.CalendarBookingDurationException" %><%@
 page import="com.liferay.calendar.exception.CalendarBookingRecurrenceException" %><%@
 page import="com.liferay.calendar.exception.CalendarNameException" %><%@
@@ -46,7 +50,6 @@ page import="com.liferay.calendar.exception.NoSuchResourceException" %><%@
 page import="com.liferay.calendar.model.Calendar" %><%@
 page import="com.liferay.calendar.model.CalendarBooking" %><%@
 page import="com.liferay.calendar.model.CalendarNotificationTemplate" %><%@
-page import="com.liferay.calendar.model.CalendarNotificationTemplateConstants" %><%@
 page import="com.liferay.calendar.model.CalendarResource" %><%@
 page import="com.liferay.calendar.notification.NotificationField" %><%@
 page import="com.liferay.calendar.notification.NotificationTemplateType" %><%@
@@ -74,7 +77,7 @@ page import="com.liferay.calendar.web.internal.security.permission.resource.Cale
 page import="com.liferay.calendar.web.internal.util.CalendarResourceUtil" %><%@
 page import="com.liferay.calendar.web.internal.util.CalendarUtil" %><%@
 page import="com.liferay.calendar.web.internal.util.ColorUtil" %><%@
-page import="com.liferay.calendar.workflow.CalendarBookingWorkflowConstants" %><%@
+page import="com.liferay.calendar.workflow.constants.CalendarBookingWorkflowConstants" %><%@
 page import="com.liferay.petra.string.StringBundler" %><%@
 page import="com.liferay.petra.string.StringPool" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
@@ -127,7 +130,6 @@ page import="com.liferay.taglib.search.ResultRow" %>
 <%@ page import="java.util.ArrayList" %><%@
 page import="java.util.Arrays" %><%@
 page import="java.util.Collections" %><%@
-page import="java.util.Date" %><%@
 page import="java.util.Iterator" %><%@
 page import="java.util.List" %><%@
 page import="java.util.Objects" %><%@

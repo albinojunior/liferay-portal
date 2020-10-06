@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class Account implements Cloneable {
 
+	public static Account toDTO(String json) {
+		return AccountSerDes.toDTO(json);
+	}
+
 	public String getDescription() {
 		return description;
 	}
@@ -70,6 +74,27 @@ public class Account implements Cloneable {
 
 	protected String[] domains;
 
+	public String getExternalReferenceCode() {
+		return externalReferenceCode;
+	}
+
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		this.externalReferenceCode = externalReferenceCode;
+	}
+
+	public void setExternalReferenceCode(
+		UnsafeSupplier<String, Exception> externalReferenceCodeUnsafeSupplier) {
+
+		try {
+			externalReferenceCode = externalReferenceCodeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String externalReferenceCode;
+
 	public Long getId() {
 		return id;
 	}
@@ -107,6 +132,27 @@ public class Account implements Cloneable {
 	}
 
 	protected String name;
+
+	public Long[] getOrganizationIds() {
+		return organizationIds;
+	}
+
+	public void setOrganizationIds(Long[] organizationIds) {
+		this.organizationIds = organizationIds;
+	}
+
+	public void setOrganizationIds(
+		UnsafeSupplier<Long[], Exception> organizationIdsUnsafeSupplier) {
+
+		try {
+			organizationIds = organizationIdsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Long[] organizationIds;
 
 	public Long getParentAccountId() {
 		return parentAccountId;

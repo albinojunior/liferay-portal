@@ -12,13 +12,15 @@
  * details.
  */
 
-import moment from 'moment';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
+import useDataDefinition from '../../hooks/useDataDefinition.es';
 import {confirmDelete} from '../../utils/client.es';
+import {getLocalizedValue} from '../../utils/lang.es';
+import {fromNow} from '../../utils/time.es';
 
 const COLUMNS = [
 	{
@@ -46,11 +48,13 @@ export default ({
 		url,
 	},
 }) => {
+	const {defaultLanguageId} = useDataDefinition(dataDefinitionId);
+
 	return (
 		<ListView
 			actions={[
 				{
-					action: item =>
+					action: (item) =>
 						Promise.resolve(history.push(`${url}/${item.id}`)),
 					name: Liferay.Language.get('edit'),
 				},
@@ -63,7 +67,7 @@ export default ({
 			]}
 			addButton={() => (
 				<Button
-					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
+					className="nav-btn nav-btn-monospaced"
 					href={`${url}/add`}
 					symbol="plus"
 					tooltip={Liferay.Language.get('new-table-view')}
@@ -83,12 +87,21 @@ export default ({
 			}}
 			endpoint={`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-list-views`}
 		>
-			{item => ({
-				...item,
-				dateCreated: moment(item.dateCreated).fromNow(),
-				dateModified: moment(item.dateModified).fromNow(),
-				name: <Link to={`${url}/${item.id}`}>{item.name.en_US}</Link>,
-			})}
+			{(item) => {
+				const {dateCreated, dateModified, id, name} = item;
+
+				return {
+					...item,
+					dateCreated: fromNow(dateCreated),
+					dateModified: fromNow(dateModified),
+					id,
+					name: (
+						<Link to={`${url}/${id}`}>
+							{getLocalizedValue(defaultLanguageId, name)}
+						</Link>
+					),
+				};
+			}}
 		</ListView>
 	);
 };

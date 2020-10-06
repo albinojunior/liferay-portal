@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.portlet.PortletMode;
 import javax.portlet.PortletModeException;
@@ -80,6 +82,12 @@ public class ItemSelectorImpl implements ItemSelector {
 
 	@Override
 	public String getItemSelectedEventName(String itemSelectorURL) {
+		Matcher matcher = _itemSelectorURLPattern.matcher(itemSelectorURL);
+
+		if (matcher.find()) {
+			return matcher.group(2);
+		}
+
 		String namespace = _portal.getPortletNamespace(
 			ItemSelectorPortletKeys.ITEM_SELECTOR);
 
@@ -100,16 +108,13 @@ public class ItemSelectorImpl implements ItemSelector {
 			itemSelectorCriterionClasses.size());
 
 		for (int i = 0; i < itemSelectorCriterionClasses.size(); i++) {
-			Class<? extends ItemSelectorCriterion> itemSelectorCriterionClass =
-				itemSelectorCriterionClasses.get(i);
+			String[] values = parameters.get(i + JSON);
 
-			String countValue = String.valueOf(i);
-
-			String json = parameters.get(countValue.concat(JSON))[0];
-
-			itemSelectorCriteria.add(
-				_itemSelectionCriterionSerializer.deserialize(
-					itemSelectorCriterionClass, json));
+			if (!ArrayUtil.isEmpty(values)) {
+				itemSelectorCriteria.add(
+					_itemSelectionCriterionSerializer.deserialize(
+						itemSelectorCriterionClasses.get(i), values[0]));
+			}
 		}
 
 		return itemSelectorCriteria;
@@ -120,7 +125,7 @@ public class ItemSelectorImpl implements ItemSelector {
 		String itemSelectorURL) {
 
 		Map<String, String[]> parameters = _http.getParameterMap(
-			itemSelectorURL);
+			_http.getQueryString(itemSelectorURL));
 
 		Map<String, String[]> itemSelectorURLParameterMap = new HashMap<>();
 
@@ -136,6 +141,17 @@ public class ItemSelectorImpl implements ItemSelector {
 
 				itemSelectorURLParameterMap.put(key, entry.getValue());
 			}
+		}
+
+		Matcher matcher = _itemSelectorURLPattern.matcher(itemSelectorURL);
+
+		if (matcher.matches()) {
+			itemSelectorURLParameterMap.put(
+				PARAMETER_CRITERIA,
+				new String[] {_http.decodePath(matcher.group(1))});
+			itemSelectorURLParameterMap.put(
+				PARAMETER_ITEM_SELECTED_EVENT_NAME,
+				new String[] {matcher.group(2)});
 		}
 
 		return getItemSelectorCriteria(itemSelectorURLParameterMap);
@@ -463,6 +479,9 @@ public class ItemSelectorImpl implements ItemSelector {
 
 		return itemSelectorViewRenderer;
 	}
+
+	private static final Pattern _itemSelectorURLPattern = Pattern.compile(
+		".*select\\/([^/]+)\\/([^$?/]+).*");
 
 	@Reference
 	private Http _http;

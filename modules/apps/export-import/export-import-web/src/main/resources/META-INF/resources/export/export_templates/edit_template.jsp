@@ -82,7 +82,7 @@ portletDisplay.setURLBack(portletURL.toString());
 renderResponse.setTitle((exportImportConfiguration == null) ? LanguageUtil.get(request, "new-export-template") : exportImportConfiguration.getName());
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<portlet:actionURL name="editExportConfiguration" var="updateExportConfigurationURL">
 		<portlet:param name="mvcRenderCommandName" value="editExportConfiguration" />
 	</portlet:actionURL>
@@ -147,7 +147,7 @@ renderResponse.setTitle((exportImportConfiguration == null) ? LanguageUtil.get(r
 			<aui:button href="<%= portletURL.toString() %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script use="liferay-export-import-export-import">
 	var exportImport = new Liferay.ExportImport({
@@ -176,7 +176,7 @@ renderResponse.setTitle((exportImportConfiguration == null) ? LanguageUtil.get(r
 
 	var form = A.one('#<portlet:namespace />fm1');
 
-	form.on('submit', function(event) {
+	form.on('submit', function (event) {
 		event.halt();
 
 		var exportImport = Liferay.component(

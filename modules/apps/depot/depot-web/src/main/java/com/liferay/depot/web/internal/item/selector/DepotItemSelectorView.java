@@ -17,13 +17,13 @@ package com.liferay.depot.web.internal.item.selector;
 import com.liferay.depot.web.internal.application.controller.DepotApplicationController;
 import com.liferay.depot.web.internal.application.list.DepotPanelAppController;
 import com.liferay.depot.web.internal.util.DepotAdminGroupSearchProvider;
-import com.liferay.depot.web.internal.util.DepotSupportChecker;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorView;
 import com.liferay.item.selector.criteria.GroupItemSelectorReturnType;
 import com.liferay.item.selector.criteria.URLItemSelectorReturnType;
 import com.liferay.item.selector.criteria.UUIDItemSelectorReturnType;
 import com.liferay.item.selector.criteria.group.criterion.GroupItemSelectorCriterion;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -90,10 +90,6 @@ public class DepotItemSelectorView
 		GroupItemSelectorCriterion groupItemSelectorCriterion,
 		ThemeDisplay themeDisplay) {
 
-		if (!_depotSupportChecker.isEnabled()) {
-			return false;
-		}
-
 		if (groupItemSelectorCriterion == null) {
 			return true;
 		}
@@ -141,9 +137,6 @@ public class DepotItemSelectorView
 	private DepotPanelAppController _depotPanelAppController;
 
 	@Reference
-	private DepotSupportChecker _depotSupportChecker;
-
-	@Reference
 	private Portal _portal;
 
 	@Reference
@@ -185,8 +178,14 @@ public class DepotItemSelectorView
 
 		@Override
 		public GroupSearch getGroupSearch() {
-			return _depotAdminGroupSearchProvider.getGroupSearch(
-				getPortletRequest(), getPortletURL());
+			try {
+				return _depotAdminGroupSearchProvider.getGroupSearch(
+					_groupItemSelectorCriterion, getPortletRequest(),
+					getPortletURL());
+			}
+			catch (PortalException portalException) {
+				return ReflectionUtil.throwException(portalException);
+			}
 		}
 
 		@Override

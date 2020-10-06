@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portlet.documentlibrary.util.DLSearcher;
@@ -298,6 +299,9 @@ public class ExpandoSearchTest {
 		assertNoHits("\"ngineer\"");
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
 	protected FileEntry addDLFileEntry(String columnName, String columnValue)
 		throws Exception {
 
@@ -352,15 +356,13 @@ public class ExpandoSearchTest {
 
 	protected User addUser(ServiceContext serviceContext) throws Exception {
 		long creatorUserId = TestPropsValues.getUserId();
-		long companyId = TestPropsValues.getCompanyId();
+
 		boolean autoPassword = true;
 		String password1 = null;
 		String password2 = null;
 		boolean autoScreenName = false;
 		String screenName = RandomTestUtil.randomString();
 		String emailAddress = RandomTestUtil.randomString() + "@liferay.com";
-		long facebookId = 0;
-		String openId = null;
 		Locale locale = LocaleUtil.getDefault();
 		String firstName = RandomTestUtil.randomString();
 		String middleName = RandomTestUtil.randomString();
@@ -372,18 +374,18 @@ public class ExpandoSearchTest {
 		int birthdayDay = 1;
 		int birthdayYear = 1970;
 		String jobTitle = null;
-		long[] groupIds = {TestPropsValues.getGroupId()};
 		long[] organizationIds = null;
 		long[] roleIds = null;
 		long[] userGroupIds = null;
 		boolean sendMail = false;
 
 		User user = _userLocalService.addUser(
-			creatorUserId, companyId, autoPassword, password1, password2,
-			autoScreenName, screenName, emailAddress, facebookId, openId,
+			creatorUserId, TestPropsValues.getCompanyId(), autoPassword,
+			password1, password2, autoScreenName, screenName, emailAddress,
 			locale, firstName, middleName, lastName, prefixId, suffixId, male,
-			birthdayMonth, birthdayDay, birthdayYear, jobTitle, groupIds,
-			organizationIds, roleIds, userGroupIds, sendMail, serviceContext);
+			birthdayMonth, birthdayDay, birthdayYear, jobTitle,
+			new long[] {TestPropsValues.getGroupId()}, organizationIds, roleIds,
+			userGroupIds, sendMail, serviceContext);
 
 		_users.add(user);
 
@@ -459,17 +461,15 @@ public class ExpandoSearchTest {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext();
 
-		Map<String, Serializable> expandoBridgeAttributes =
+		serviceContext.setExpandoBridgeAttributes(
 			HashMapBuilder.<String, Serializable>put(
 				columnName, columnValue
-			).build();
-
-		serviceContext.setExpandoBridgeAttributes(expandoBridgeAttributes);
+			).build());
 
 		return serviceContext;
 	}
 
-	private static String _toString(List<String> list) {
+	private String _toString(List<String> list) {
 		List<String> sorted = new ArrayList<>(list);
 
 		Collections.sort(sorted);

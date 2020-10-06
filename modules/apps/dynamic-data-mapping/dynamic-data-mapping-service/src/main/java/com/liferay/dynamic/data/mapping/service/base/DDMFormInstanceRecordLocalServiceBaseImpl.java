@@ -26,6 +26,8 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -46,6 +48,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -83,6 +88,10 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 	/**
 	 * Adds the ddm form instance record to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceRecord the ddm form instance record
 	 * @return the ddm form instance record that was added
 	 */
@@ -113,6 +122,10 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm form instance record with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param formInstanceRecordId the primary key of the ddm form instance record
 	 * @return the ddm form instance record that was removed
 	 * @throws PortalException if a ddm form instance record with the primary key could not be found
@@ -129,6 +142,10 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm form instance record from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceRecord the ddm form instance record
 	 * @return the ddm form instance record that was removed
 	 */
@@ -138,6 +155,11 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 		DDMFormInstanceRecord ddmFormInstanceRecord) {
 
 		return ddmFormInstanceRecordPersistence.remove(ddmFormInstanceRecord);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ddmFormInstanceRecordPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -407,6 +429,10 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 			(DDMFormInstanceRecord)persistedModel);
 	}
 
+	public BasePersistence<DDMFormInstanceRecord> getBasePersistence() {
+		return ddmFormInstanceRecordPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -499,6 +525,10 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 	/**
 	 * Updates the ddm form instance record in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMFormInstanceRecordLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmFormInstanceRecord the ddm form instance record
 	 * @return the ddm form instance record that was updated
 	 */
@@ -514,7 +544,8 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			DDMFormInstanceRecordLocalService.class,
-			IdentifiableOSGiService.class, PersistedModelLocalService.class
+			IdentifiableOSGiService.class, CTService.class,
+			PersistedModelLocalService.class
 		};
 	}
 
@@ -534,8 +565,23 @@ public abstract class DDMFormInstanceRecordLocalServiceBaseImpl
 		return DDMFormInstanceRecordLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<DDMFormInstanceRecord> getCTPersistence() {
+		return ddmFormInstanceRecordPersistence;
+	}
+
+	@Override
+	public Class<DDMFormInstanceRecord> getModelClass() {
 		return DDMFormInstanceRecord.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DDMFormInstanceRecord>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(ddmFormInstanceRecordPersistence);
 	}
 
 	protected String getModelClassName() {

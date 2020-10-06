@@ -35,16 +35,16 @@ import java.util.Date;
 public class EntryCacheModel implements CacheModel<Entry>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof EntryCacheModel)) {
+		if (!(object instanceof EntryCacheModel)) {
 			return false;
 		}
 
-		EntryCacheModel entryCacheModel = (EntryCacheModel)obj;
+		EntryCacheModel entryCacheModel = (EntryCacheModel)object;
 
 		if (entryId == entryCacheModel.entryId) {
 			return true;
@@ -228,7 +228,9 @@ public class EntryCacheModel implements CacheModel<Entry>, Externalizable {
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		entryId = objectInput.readLong();
 
 		groupId = objectInput.readLong();
@@ -253,7 +255,7 @@ public class EntryCacheModel implements CacheModel<Entry>, Externalizable {
 		emailDelivery = objectInput.readUTF();
 		portletId = objectInput.readUTF();
 		pageURL = objectInput.readUTF();
-		reportParameters = objectInput.readUTF();
+		reportParameters = (String)objectInput.readObject();
 		errorMessage = objectInput.readUTF();
 		status = objectInput.readUTF();
 	}
@@ -329,10 +331,10 @@ public class EntryCacheModel implements CacheModel<Entry>, Externalizable {
 		}
 
 		if (reportParameters == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(reportParameters);
+			objectOutput.writeObject(reportParameters);
 		}
 
 		if (errorMessage == null) {

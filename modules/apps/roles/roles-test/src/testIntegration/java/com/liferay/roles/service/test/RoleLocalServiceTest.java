@@ -104,10 +104,10 @@ public class RoleLocalServiceTest {
 		_group = GroupTestUtil.addGroup();
 		_role = RoleTestUtil.addRole(RoleConstants.TYPE_SITE);
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			_group.getTypeSettingsProperties();
 
-		typeSettingsProperties.setProperty(
+		typeSettingsUnicodeProperties.setProperty(
 			"defaultSiteRoleIds", String.valueOf(_role.getRoleId()));
 
 		_groupLocalService.updateGroup(_group);
@@ -116,11 +116,12 @@ public class RoleLocalServiceTest {
 
 		_group = _groupLocalService.getGroup(_group.getGroupId());
 
-		typeSettingsProperties = _group.getTypeSettingsProperties();
+		typeSettingsUnicodeProperties = _group.getTypeSettingsProperties();
 
 		List<Long> defaultSiteRoleIds = ListUtil.fromArray(
 			StringUtil.split(
-				typeSettingsProperties.getProperty("defaultSiteRoleIds"), 0L));
+				typeSettingsUnicodeProperties.getProperty("defaultSiteRoleIds"),
+				0L));
 
 		Assert.assertFalse(defaultSiteRoleIds.contains(_role.getRoleId()));
 	}
@@ -253,6 +254,8 @@ public class RoleLocalServiceTest {
 		expectedRoles = expectedRolesStream.filter(
 			role -> !excludedRoleNames.contains(role.getName())
 		).filter(
+			role -> role.getType() != RoleConstants.TYPE_ACCOUNT
+		).filter(
 			role -> role.getType() != RoleConstants.TYPE_DEPOT
 		).filter(
 			role -> role.getType() != RoleConstants.TYPE_SITE
@@ -286,7 +289,7 @@ public class RoleLocalServiceTest {
 		actualRoles = new ArrayList(actualRoles);
 		expectedRoles = new ArrayList(expectedRoles);
 
-		Comparator roleIdComparator = new RoleRoleIdComparator();
+		Comparator<Role> roleIdComparator = new RoleRoleIdComparator();
 
 		Collections.sort(actualRoles, roleIdComparator);
 		Collections.sort(expectedRoles, roleIdComparator);

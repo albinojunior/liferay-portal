@@ -14,7 +14,10 @@
 
 package com.liferay.social.kernel.service;
 
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.social.kernel.model.SocialRelation;
 
 /**
  * Provides a wrapper for {@link SocialRelationLocalService}.
@@ -42,8 +45,7 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the social relation
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation addRelation(
-			long userId1, long userId2, int type)
+	public SocialRelation addRelation(long userId1, long userId2, int type)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialRelationLocalService.addRelation(userId1, userId2, type);
@@ -52,13 +54,15 @@ public class SocialRelationLocalServiceWrapper
 	/**
 	 * Adds the social relation to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialRelation the social relation
 	 * @return the social relation that was added
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation addSocialRelation(
-		com.liferay.social.kernel.model.SocialRelation socialRelation) {
-
+	public SocialRelation addSocialRelation(SocialRelation socialRelation) {
 		return _socialRelationLocalService.addSocialRelation(socialRelation);
 	}
 
@@ -80,9 +84,7 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the new social relation
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation createSocialRelation(
-		long relationId) {
-
+	public SocialRelation createSocialRelation(long relationId) {
 		return _socialRelationLocalService.createSocialRelation(relationId);
 	}
 
@@ -132,8 +134,7 @@ public class SocialRelationLocalServiceWrapper
 	 * @param relation the relation to be removed
 	 */
 	@Override
-	public void deleteRelation(
-			com.liferay.social.kernel.model.SocialRelation relation)
+	public void deleteRelation(SocialRelation relation)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_socialRelationLocalService.deleteRelation(relation);
@@ -165,13 +166,16 @@ public class SocialRelationLocalServiceWrapper
 	/**
 	 * Deletes the social relation with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param relationId the primary key of the social relation
 	 * @return the social relation that was removed
 	 * @throws PortalException if a social relation with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation deleteSocialRelation(
-			long relationId)
+	public SocialRelation deleteSocialRelation(long relationId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialRelationLocalService.deleteSocialRelation(relationId);
@@ -180,14 +184,21 @@ public class SocialRelationLocalServiceWrapper
 	/**
 	 * Deletes the social relation from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialRelation the social relation
 	 * @return the social relation that was removed
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation deleteSocialRelation(
-		com.liferay.social.kernel.model.SocialRelation socialRelation) {
-
+	public SocialRelation deleteSocialRelation(SocialRelation socialRelation) {
 		return _socialRelationLocalService.deleteSocialRelation(socialRelation);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _socialRelationLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -282,9 +293,7 @@ public class SocialRelationLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation fetchSocialRelation(
-		long relationId) {
-
+	public SocialRelation fetchSocialRelation(long relationId) {
 		return _socialRelationLocalService.fetchSocialRelation(relationId);
 	}
 
@@ -296,8 +305,8 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the matching social relation, or <code>null</code> if a matching social relation could not be found
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation
-		fetchSocialRelationByUuidAndCompanyId(String uuid, long companyId) {
+	public SocialRelation fetchSocialRelationByUuidAndCompanyId(
+		String uuid, long companyId) {
 
 		return _socialRelationLocalService.
 			fetchSocialRelationByUuidAndCompanyId(uuid, companyId);
@@ -338,8 +347,8 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the range of matching relations
 	 */
 	@Override
-	public java.util.List<com.liferay.social.kernel.model.SocialRelation>
-		getInverseRelations(long userId, int type, int start, int end) {
+	public java.util.List<SocialRelation> getInverseRelations(
+		long userId, int type, int start, int end) {
 
 		return _socialRelationLocalService.getInverseRelations(
 			userId, type, start, end);
@@ -387,8 +396,7 @@ public class SocialRelationLocalServiceWrapper
 	 * @return Returns the relation
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation getRelation(
-			long relationId)
+	public SocialRelation getRelation(long relationId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialRelationLocalService.getRelation(relationId);
@@ -403,8 +411,7 @@ public class SocialRelationLocalServiceWrapper
 	 * @return Returns the relation
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation getRelation(
-			long userId1, long userId2, int type)
+	public SocialRelation getRelation(long userId1, long userId2, int type)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialRelationLocalService.getRelation(userId1, userId2, type);
@@ -431,8 +438,8 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the range of relations
 	 */
 	@Override
-	public java.util.List<com.liferay.social.kernel.model.SocialRelation>
-		getRelations(long userId, int type, int start, int end) {
+	public java.util.List<SocialRelation> getRelations(
+		long userId, int type, int start, int end) {
 
 		return _socialRelationLocalService.getRelations(
 			userId, type, start, end);
@@ -458,8 +465,8 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the range of relations
 	 */
 	@Override
-	public java.util.List<com.liferay.social.kernel.model.SocialRelation>
-		getRelations(long userId1, long userId2, int start, int end) {
+	public java.util.List<SocialRelation> getRelations(
+		long userId1, long userId2, int start, int end) {
 
 		return _socialRelationLocalService.getRelations(
 			userId1, userId2, start, end);
@@ -498,8 +505,7 @@ public class SocialRelationLocalServiceWrapper
 	 * @throws PortalException if a social relation with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation getSocialRelation(
-			long relationId)
+	public SocialRelation getSocialRelation(long relationId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialRelationLocalService.getSocialRelation(relationId);
@@ -514,8 +520,8 @@ public class SocialRelationLocalServiceWrapper
 	 * @throws PortalException if a matching social relation could not be found
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation
-			getSocialRelationByUuidAndCompanyId(String uuid, long companyId)
+	public SocialRelation getSocialRelationByUuidAndCompanyId(
+			String uuid, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _socialRelationLocalService.getSocialRelationByUuidAndCompanyId(
@@ -534,8 +540,8 @@ public class SocialRelationLocalServiceWrapper
 	 * @return the range of social relations
 	 */
 	@Override
-	public java.util.List<com.liferay.social.kernel.model.SocialRelation>
-		getSocialRelations(int start, int end) {
+	public java.util.List<SocialRelation> getSocialRelations(
+		int start, int end) {
 
 		return _socialRelationLocalService.getSocialRelations(start, end);
 	}
@@ -593,14 +599,36 @@ public class SocialRelationLocalServiceWrapper
 	/**
 	 * Updates the social relation in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialRelationLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialRelation the social relation
 	 * @return the social relation that was updated
 	 */
 	@Override
-	public com.liferay.social.kernel.model.SocialRelation updateSocialRelation(
-		com.liferay.social.kernel.model.SocialRelation socialRelation) {
-
+	public SocialRelation updateSocialRelation(SocialRelation socialRelation) {
 		return _socialRelationLocalService.updateSocialRelation(socialRelation);
+	}
+
+	@Override
+	public CTPersistence<SocialRelation> getCTPersistence() {
+		return _socialRelationLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<SocialRelation> getModelClass() {
+		return _socialRelationLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SocialRelation>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return _socialRelationLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

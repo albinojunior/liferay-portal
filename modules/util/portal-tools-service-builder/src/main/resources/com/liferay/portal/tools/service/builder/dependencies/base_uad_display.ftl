@@ -31,7 +31,7 @@ public abstract class Base${entity.name}UADDisplay extends BaseModelUADDisplay<$
 
 	@Override
 	public ${entity.name} get(Serializable primaryKey) throws PortalException {
-		return ${entity.varName}LocalService.get${entity.name}(Long.valueOf(primaryKey.toString()));
+		return ${entity.variableName}LocalService.get${entity.name}(Long.valueOf(primaryKey.toString()));
 	}
 
 	@Override
@@ -46,17 +46,17 @@ public abstract class Base${entity.name}UADDisplay extends BaseModelUADDisplay<$
 
 	@Override
 	protected long doCount(DynamicQuery dynamicQuery) {
-		return ${entity.varName}LocalService.dynamicQueryCount(dynamicQuery);
+		return ${entity.variableName}LocalService.dynamicQueryCount(dynamicQuery);
 	}
 
 	@Override
 	protected DynamicQuery doGetDynamicQuery() {
-		return ${entity.varName}LocalService.dynamicQuery();
+		return ${entity.variableName}LocalService.dynamicQuery();
 	}
 
 	@Override
 	protected List<${entity.name}> doGetRange(DynamicQuery dynamicQuery, int start, int end) {
-		return ${entity.varName}LocalService.dynamicQuery(dynamicQuery, start, end);
+		return ${entity.variableName}LocalService.dynamicQuery(dynamicQuery, start, end);
 	}
 
 	@Override
@@ -65,6 +65,6 @@ public abstract class Base${entity.name}UADDisplay extends BaseModelUADDisplay<$
 	}
 
 	@Reference
-	protected ${entity.name}LocalService ${entity.varName}LocalService;
+	protected ${entity.name}LocalService ${entity.variableName}LocalService;
 
 }

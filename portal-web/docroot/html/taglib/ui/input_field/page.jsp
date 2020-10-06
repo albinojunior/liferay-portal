@@ -54,7 +54,9 @@ if (hints != null) {
 			boolean defaultBoolean = GetterUtil.DEFAULT_BOOLEAN;
 
 			if (defaultValue != null) {
-				defaultBoolean = ((Boolean)defaultValue).booleanValue();
+				Boolean defaultValueBoolean = (Boolean)defaultValue;
+
+				defaultBoolean = defaultValueBoolean.booleanValue();
 			}
 			else {
 				if (hints != null) {
@@ -213,8 +215,6 @@ if (hints != null) {
 			if (hints != null) {
 				showTime = GetterUtil.getBoolean(hints.get("show-time"), showTime);
 			}
-
-			String timeFormat = GetterUtil.getString((String)dynamicAttributes.get("timeFormat"));
 			%>
 
 			<div class="form-group-autofit">
@@ -247,20 +247,15 @@ if (hints != null) {
 							minuteParam='<%= fieldParam + "Minute" %>'
 							minuteValue="<%= minute %>"
 							name='<%= fieldParam + "Time" %>'
-							timeFormat="<%= timeFormat %>"
+							timeFormat='<%= GetterUtil.getString((String)dynamicAttributes.get("timeFormat")) %>'
 						/>
 					</div>
 				</c:if>
 			</div>
 
 			<c:if test="<%= Validator.isNotNull(dateTogglerCheckboxLabel) %>">
-
-				<%
-				String dateTogglerCheckboxName = TextFormatter.format(dateTogglerCheckboxLabel, TextFormatter.M);
-				%>
-
 				<div class="clearfix">
-					<aui:input id="<%= formName + fieldParam %>" label="<%= dateTogglerCheckboxLabel %>" name="<%= dateTogglerCheckboxName %>" type="checkbox" value="<%= disabled %>" />
+					<aui:input id="<%= formName + fieldParam %>" label="<%= dateTogglerCheckboxLabel %>" name="<%= TextFormatter.format(dateTogglerCheckboxLabel, TextFormatter.M) %>" type="checkbox" value="<%= disabled %>" />
 				</div>
 
 				<aui:script use="event-base">
@@ -497,7 +492,7 @@ if (hints != null) {
 							/>
 						</c:when>
 						<c:otherwise>
-							<input <%= !autoComplete ? "autocomplete=\"off\"" : StringPool.BLANK %> class="<%= cssClass + " lfr-input-text" %>" <%= disabled ? "disabled=\"disabled\"" : StringPool.BLANK %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(resourceBundle, placeholder) + "\"" : StringPool.BLANK %> style="<%= upperCase ? "text-transform: uppercase;" : StringPool.BLANK %>" type="<%= secret ? "password" : "text" %>" value="<%= autoEscape ? HtmlUtil.escape(value) : value %>" />
+							<input <%= !autoComplete ? "autocomplete=\"off\"" : StringPool.BLANK %> class="<%= cssClass %> lfr-input-text" <%= disabled ? "disabled=\"disabled\"" : StringPool.BLANK %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(resourceBundle, placeholder) + "\"" : StringPool.BLANK %> style="<%= upperCase ? "text-transform: uppercase;" : StringPool.BLANK %>" type="<%= secret ? "password" : "text" %>" value="<%= autoEscape ? HtmlUtil.escape(value) : value %>" />
 						</c:otherwise>
 					</c:choose>
 				</c:when>
@@ -526,7 +521,7 @@ if (hints != null) {
 							/>
 						</c:when>
 						<c:otherwise>
-							<textarea class="<%= cssClass + " lfr-textarea" %>" <%= disabled ? "disabled=\"disabled\"" : StringPool.BLANK %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" onKeyDown="<%= checkTab ? "Liferay.Util.checkTab(this); " : StringPool.BLANK %> Liferay.Util.disableEsc();" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(resourceBundle, placeholder) + "\"" : StringPool.BLANK %> style="<%= !autoSize ? "height: " + displayHeight + (Validator.isDigit(displayHeight) ? "px" : StringPool.BLANK) + ";" : StringPool.BLANK %>" wrap="soft"><%= autoEscape ? HtmlUtil.escape(value) : value %></textarea>
+							<textarea class="<%= cssClass %> lfr-textarea" <%= disabled ? "disabled=\"disabled\"" : StringPool.BLANK %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" onKeyDown="<%= checkTab ? "Liferay.Util.checkTab(this); " : StringPool.BLANK %> Liferay.Util.disableEsc();" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(resourceBundle, placeholder) + "\"" : StringPool.BLANK %> style="<%= !autoSize ? "height: " + displayHeight + (Validator.isDigit(displayHeight) ? "px" : StringPool.BLANK) + ";" : StringPool.BLANK %>" wrap="soft"><%= autoEscape ? HtmlUtil.escape(value) : value %></textarea>
 						</c:otherwise>
 					</c:choose>
 

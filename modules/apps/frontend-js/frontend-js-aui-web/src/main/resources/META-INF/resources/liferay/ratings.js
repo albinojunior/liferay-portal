@@ -12,9 +12,12 @@
  * details.
  */
 
+/**
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
+ */
 AUI.add(
 	'liferay-ratings',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var CSS_ICON_STAR = 'icon-star-on';
@@ -77,10 +80,10 @@ AUI.add(
 			},
 
 			_registerTask: A.debounce(() => {
-				buffer.forEach(item => {
+				buffer.forEach((item) => {
 					var handle = item.container.on(
 						EVENT_INTERACTIONS_RENDER,
-						event => {
+						(event) => {
 							handle.detach();
 
 							var config = item.config;
@@ -231,8 +234,8 @@ AUI.add(
 						body: Liferay.Util.objectToFormData(data),
 						method: 'POST',
 					})
-						.then(response => response.json())
-						.then(response => callback.call(instance, response));
+						.then((response) => response.json())
+						.then((response) => callback.call(instance, response));
 				},
 
 				_showScoreTooltip(event) {
@@ -251,10 +254,9 @@ AUI.add(
 						message = Liferay.Language.get('stars');
 					}
 
-					Liferay.Portal.ToolTip.show(
-						event.currentTarget,
-						stars + ' ' + message
-					);
+					var currentTarget = event.currentTarget.getDOM();
+
+					currentTarget.setAttribute('title', stars + ' ' + message);
 				},
 
 				_updateAverageScoreText(averageScore) {
@@ -414,10 +416,7 @@ AUI.add(
 						}).render();
 
 						if (instance.get(STR_INITIAL_FOCUS)) {
-							instance.ratings
-								.get('elements')
-								.item(0)
-								.focus();
+							instance.ratings.get('elements').item(0).focus();
 						}
 
 						instance._bindRatings();

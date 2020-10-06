@@ -19,7 +19,7 @@ import com.liferay.portal.kernel.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DispatchTriggerLocalService}.
  *
- * @author Alessio Antonio Rendina
+ * @author Matija Petanjek
  * @see DispatchTriggerLocalService
  * @generated
  */
@@ -36,6 +36,10 @@ public class DispatchTriggerLocalServiceWrapper
 	/**
 	 * Adds the dispatch trigger to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dispatchTrigger the dispatch trigger
 	 * @return the dispatch trigger that was added
 	 */
@@ -48,13 +52,14 @@ public class DispatchTriggerLocalServiceWrapper
 
 	@Override
 	public com.liferay.dispatch.model.DispatchTrigger addDispatchTrigger(
-			long userId, String name, boolean system, String type,
+			long userId, String name, boolean system,
 			com.liferay.portal.kernel.util.UnicodeProperties
-				typeSettingsProperties)
+				taskSettingsUnicodeProperties,
+			String taskType)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dispatchTriggerLocalService.addDispatchTrigger(
-			userId, name, system, type, typeSettingsProperties);
+			userId, name, system, taskSettingsUnicodeProperties, taskType);
 	}
 
 	/**
@@ -85,6 +90,10 @@ public class DispatchTriggerLocalServiceWrapper
 	/**
 	 * Deletes the dispatch trigger from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dispatchTrigger the dispatch trigger
 	 * @return the dispatch trigger that was removed
 	 * @throws PortalException
@@ -100,6 +109,10 @@ public class DispatchTriggerLocalServiceWrapper
 
 	/**
 	 * Deletes the dispatch trigger with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dispatchTriggerId the primary key of the dispatch trigger
 	 * @return the dispatch trigger that was removed
@@ -124,6 +137,11 @@ public class DispatchTriggerLocalServiceWrapper
 
 		return _dispatchTriggerLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _dispatchTriggerLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -340,6 +358,10 @@ public class DispatchTriggerLocalServiceWrapper
 	/**
 	 * Updates the dispatch trigger in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dispatchTrigger the dispatch trigger
 	 * @return the dispatch trigger that was updated
 	 */
@@ -370,11 +392,11 @@ public class DispatchTriggerLocalServiceWrapper
 	public com.liferay.dispatch.model.DispatchTrigger updateDispatchTrigger(
 			long dispatchTriggerId, String name,
 			com.liferay.portal.kernel.util.UnicodeProperties
-				typeSettingsProperties)
+				taskSettingsUnicodeProperties)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dispatchTriggerLocalService.updateDispatchTrigger(
-			dispatchTriggerId, name, typeSettingsProperties);
+			dispatchTriggerId, name, taskSettingsUnicodeProperties);
 	}
 
 	@Override

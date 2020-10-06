@@ -41,6 +41,10 @@ public class KaleoTaskAssignmentInstanceLocalServiceUtil {
 	/**
 	 * Adds the kaleo task assignment instance to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskAssignmentInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskAssignmentInstance the kaleo task assignment instance
 	 * @return the kaleo task assignment instance that was added
 	 */
@@ -100,6 +104,24 @@ public class KaleoTaskAssignmentInstanceLocalServiceUtil {
 
 		return getService().assignKaleoTaskAssignmentInstance(
 			kaleoTaskInstanceToken, assigneeClassName, assigneeClassPK,
+			serviceContext);
+	}
+
+	public static java.util.List
+		<com.liferay.portal.workflow.kaleo.model.KaleoTaskAssignmentInstance>
+				assignKaleoTaskAssignmentInstances(
+					com.liferay.portal.workflow.kaleo.model.
+						KaleoTaskInstanceToken kaleoTaskInstanceToken,
+					java.util.Collection
+						<com.liferay.portal.workflow.kaleo.model.
+							KaleoTaskAssignment> kaleoTaskAssignments,
+					java.util.Map<String, java.io.Serializable> workflowContext,
+					com.liferay.portal.kernel.service.ServiceContext
+						serviceContext)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().assignKaleoTaskAssignmentInstances(
+			kaleoTaskInstanceToken, kaleoTaskAssignments, workflowContext,
 			serviceContext);
 	}
 
@@ -163,6 +185,10 @@ public class KaleoTaskAssignmentInstanceLocalServiceUtil {
 	/**
 	 * Deletes the kaleo task assignment instance from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskAssignmentInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoTaskAssignmentInstance the kaleo task assignment instance
 	 * @return the kaleo task assignment instance that was removed
 	 */
@@ -178,6 +204,10 @@ public class KaleoTaskAssignmentInstanceLocalServiceUtil {
 
 	/**
 	 * Deletes the kaleo task assignment instance with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskAssignmentInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskAssignmentInstanceId the primary key of the kaleo task assignment instance
 	 * @return the kaleo task assignment instance that was removed
@@ -209,6 +239,12 @@ public class KaleoTaskAssignmentInstanceLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -422,6 +458,10 @@ public class KaleoTaskAssignmentInstanceLocalServiceUtil {
 
 	/**
 	 * Updates the kaleo task assignment instance in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoTaskAssignmentInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoTaskAssignmentInstance the kaleo task assignment instance
 	 * @return the kaleo task assignment instance that was updated

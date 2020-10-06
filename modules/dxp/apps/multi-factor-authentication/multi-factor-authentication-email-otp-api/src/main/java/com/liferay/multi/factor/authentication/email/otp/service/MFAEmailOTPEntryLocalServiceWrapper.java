@@ -45,6 +45,10 @@ public class MFAEmailOTPEntryLocalServiceWrapper
 	/**
 	 * Adds the mfa email otp entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mfaEmailOTPEntry the mfa email otp entry
 	 * @return the mfa email otp entry that was added
 	 */
@@ -89,6 +93,10 @@ public class MFAEmailOTPEntryLocalServiceWrapper
 	/**
 	 * Deletes the mfa email otp entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param mfaEmailOTPEntryId the primary key of the mfa email otp entry
 	 * @return the mfa email otp entry that was removed
 	 * @throws PortalException if a mfa email otp entry with the primary key could not be found
@@ -105,6 +113,10 @@ public class MFAEmailOTPEntryLocalServiceWrapper
 
 	/**
 	 * Deletes the mfa email otp entry from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mfaEmailOTPEntry the mfa email otp entry
 	 * @return the mfa email otp entry that was removed
@@ -130,6 +142,11 @@ public class MFAEmailOTPEntryLocalServiceWrapper
 
 		return _mfaEmailOTPEntryLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _mfaEmailOTPEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -344,6 +361,10 @@ public class MFAEmailOTPEntryLocalServiceWrapper
 
 	/**
 	 * Updates the mfa email otp entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MFAEmailOTPEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param mfaEmailOTPEntry the mfa email otp entry
 	 * @return the mfa email otp entry that was updated

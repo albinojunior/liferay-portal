@@ -81,6 +81,20 @@ public class ImageSerDes {
 			sb.append("\"");
 		}
 
+		if (image.getContentValue() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"contentValue\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(image.getContentValue()));
+
+			sb.append("\"");
+		}
+
 		if (image.getImageId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -123,6 +137,13 @@ public class ImageSerDes {
 			map.put("contentUrl", String.valueOf(image.getContentUrl()));
 		}
 
+		if (image.getContentValue() == null) {
+			map.put("contentValue", null);
+		}
+		else {
+			map.put("contentValue", String.valueOf(image.getContentValue()));
+		}
+
 		if (image.getImageId() == null) {
 			map.put("imageId", null);
 		}
@@ -160,15 +181,19 @@ public class ImageSerDes {
 					image.setContentUrl((String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "contentValue")) {
+				if (jsonParserFieldValue != null) {
+					image.setContentValue((String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "imageId")) {
 				if (jsonParserFieldValue != null) {
 					image.setImageId(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -224,10 +249,13 @@ public class ImageSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

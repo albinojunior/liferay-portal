@@ -15,26 +15,10 @@
 import fetchMock from 'fetch-mock';
 
 import AnalyticsClient from '../src/analytics';
+import {meta} from '../src/middlewares/meta';
+import {sendDummyEvents, wait} from './helpers';
 
-/**
- * Sends dummy events to test the Analytics API
- * @param {number} eventsNumber Number of events to send
- */
-function sendDummyEvents(eventsNumber = 5) {
-	for (let i = 0; i <= eventsNumber; i++) {
-		const applicationId = 'test';
-
-		const eventId = i;
-
-		const properties = {
-			a: 1,
-			b: 2,
-			c: 3,
-		};
-
-		global.Analytics.send(eventId, applicationId, properties);
-	}
-}
+const FLUSH_INTERVAL = 100;
 
 describe('Analytics MiddleWare Integration', () => {
 	let Analytics;
@@ -42,7 +26,7 @@ describe('Analytics MiddleWare Integration', () => {
 	beforeEach(() => {
 		fetchMock.mock('*', () => 200);
 
-		Analytics = AnalyticsClient.create();
+		Analytics = AnalyticsClient.create({flushInterval: FLUSH_INTERVAL});
 	});
 
 	afterEach(() => {
@@ -64,9 +48,9 @@ describe('Analytics MiddleWare Integration', () => {
 
 			Analytics.registerMiddleware(middleware);
 
-			sendDummyEvents();
+			sendDummyEvents(Analytics);
 
-			await Analytics.flush();
+			await wait(FLUSH_INTERVAL * 2);
 
 			expect(middleware).toHaveBeenCalledWith(
 				expect.objectContaining({context: expect.anything()}),
@@ -76,22 +60,10 @@ describe('Analytics MiddleWare Integration', () => {
 	});
 
 	describe('default middlewares', () => {
-		it('includes document metadata by default', async () => {
-			let body = null;
+		it('includes document metadata by default', () => {
+			const req = {};
 
-			fetchMock.restore();
-
-			fetchMock.mock('*', (url, opts) => {
-				body = JSON.parse(opts.body);
-
-				return 200;
-			});
-
-			sendDummyEvents();
-
-			await Analytics.flush();
-
-			expect(body.context).toEqual(
+			expect(meta(req).context).toEqual(
 				expect.objectContaining({
 					canonicalUrl: expect.anything(),
 					contentLanguageId: expect.anything(),

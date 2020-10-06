@@ -4,6 +4,10 @@ package ${configYAML.apiPackagePath}.client.serdes.${escapedVersion};
 	import ${configYAML.apiPackagePath}.client.constant.${escapedVersion}.${globalEnumSchemaName};
 </#list>
 
+<#list allExternalSchemas?keys as externalSchemaName>
+	import ${configYAML.apiPackagePath}.client.dto.${escapedVersion}.${externalSchemaName};
+</#list>
+
 <#list allSchemas?keys as schemaName>
 	import ${configYAML.apiPackagePath}.client.dto.${escapedVersion}.${schemaName};
 </#list>
@@ -180,23 +184,18 @@ public class ${schemaName}SerDes {
 				<#assign capitalizedPropertyName = properties[propertyName] />
 			</#if>
 
-			<#if allSchemas[properties[propertyName]]??>
-				if (${schemaVarName}.get${capitalizedPropertyName}() == null) {
-					map.put("${propertyName}", null);
-				}
-				else {
+			if (${schemaVarName}.get${capitalizedPropertyName}() == null) {
+				map.put("${propertyName}", null);
+			}
+			else {
+				<#if allSchemas[properties[propertyName]]??>
 					map.put("${propertyName}", String.valueOf(${schemaVarName}.get${capitalizedPropertyName}()));
-				}
-			<#elseif stringUtil.equals(properties[propertyName], "Date")>
-				map.put("${propertyName}", liferayToJSONDateFormat.format(${schemaVarName}.get${capitalizedPropertyName}()));
-			<#else>
-				if (${schemaVarName}.get${capitalizedPropertyName}() == null) {
-					map.put("${propertyName}", null);
-				}
-				else {
+				<#elseif stringUtil.equals(properties[propertyName], "Date")>
+					map.put("${propertyName}", liferayToJSONDateFormat.format(${schemaVarName}.get${capitalizedPropertyName}()));
+				<#else>
 					map.put("${propertyName}", String.valueOf(${schemaVarName}.get${capitalizedPropertyName}()));
-				}
-			</#if>
+				</#if>
+			}
 		</#list>
 
 		return map;
@@ -276,8 +275,8 @@ public class ${schemaName}SerDes {
 				}
 			</#list>
 
-			else {
-				throw new IllegalArgumentException("Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 	}
@@ -332,10 +331,13 @@ public class ${schemaName}SerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

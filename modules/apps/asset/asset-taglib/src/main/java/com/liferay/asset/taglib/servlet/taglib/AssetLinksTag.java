@@ -273,8 +273,8 @@ public class AssetLinksTag extends IncludeTag {
 	}
 
 	private String _getViewURL(
-			AssetEntry assetLinkEntry, AssetRenderer assetRenderer, String type,
-			LiferayPortletRequest liferayPortletRequest,
+			AssetEntry assetLinkEntry, AssetRenderer<?> assetRenderer,
+			String type, LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
 			ThemeDisplay themeDisplay)
 		throws Exception {
@@ -296,6 +296,7 @@ public class AssetLinksTag extends IncludeTag {
 
 		viewAssetURL.setParameter(
 			"assetEntryId", String.valueOf(assetLinkEntry.getEntryId()));
+		viewAssetURL.setParameter("showRelatedAssets", Boolean.TRUE.toString());
 		viewAssetURL.setParameter("type", type);
 
 		String urlTitle = assetRenderer.getUrlTitle(themeDisplay.getLocale());

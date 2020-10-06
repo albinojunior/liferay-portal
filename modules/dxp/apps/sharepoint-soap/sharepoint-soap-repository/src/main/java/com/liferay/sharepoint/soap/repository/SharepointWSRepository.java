@@ -32,6 +32,7 @@ import com.liferay.document.library.repository.external.ExtRepositorySearchResul
 import com.liferay.document.library.repository.external.cache.ConnectionBuilder;
 import com.liferay.document.library.repository.external.cache.ConnectionCache;
 import com.liferay.document.library.repository.external.search.ExtRepositoryQueryMapper;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -92,7 +93,7 @@ public class SharepointWSRepository
 
 			SharepointObject parentFolderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryParentFolderKey));
+					_toSharepointObjectId(extRepositoryParentFolderKey));
 
 			String parentFolderPath = parentFolderSharepointObject.getPath();
 
@@ -107,8 +108,7 @@ public class SharepointWSRepository
 			return new SharepointWSFileEntry(fileSharepointObject);
 		}
 		catch (SharepointException sharepointException) {
-			processSharepointObjectException(
-				sharepointException, false, filePath, title);
+			_processSharepointObjectException(false, filePath, title);
 
 			throw new SystemException(sharepointException);
 		}
@@ -131,7 +131,7 @@ public class SharepointWSRepository
 
 			SharepointObject parentFolderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryParentFolderKey));
+					_toSharepointObjectId(extRepositoryParentFolderKey));
 
 			String parentFolderPath = parentFolderSharepointObject.getPath();
 
@@ -145,8 +145,7 @@ public class SharepointWSRepository
 			return new SharepointWSFolder(folderSharepointObject);
 		}
 		catch (SharepointException sharepointException) {
-			processSharepointObjectException(
-				sharepointException, true, folderPath, name);
+			_processSharepointObjectException(true, folderPath, name);
 
 			throw new SystemException(sharepointException);
 		}
@@ -180,20 +179,17 @@ public class SharepointWSRepository
 
 			SharepointObject fileSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFileEntryKey));
+					_toSharepointObjectId(extRepositoryFileEntryKey));
 
 			String filePath = fileSharepointObject.getPath();
 
 			sharepointConnection.cancelCheckOutFile(filePath);
-		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
-		}
 
-		return null;
+			return null;
+		}
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
+		}
 	}
 
 	@Override
@@ -207,7 +203,7 @@ public class SharepointWSRepository
 
 			SharepointObject fileSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFileEntryKey));
+					_toSharepointObjectId(extRepositoryFileEntryKey));
 
 			String filePath = fileSharepointObject.getPath();
 
@@ -222,11 +218,8 @@ public class SharepointWSRepository
 
 			sharepointConnection.checkInFile(filePath, changeLog, checkInType);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -240,7 +233,7 @@ public class SharepointWSRepository
 
 			SharepointObject fileSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFileEntryKey));
+					_toSharepointObjectId(extRepositoryFileEntryKey));
 
 			String filePath = fileSharepointObject.getPath();
 
@@ -248,11 +241,8 @@ public class SharepointWSRepository
 
 			return new SharepointWSFileEntry(fileSharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -269,13 +259,13 @@ public class SharepointWSRepository
 
 			SharepointObject fileSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFileEntryKey));
+					_toSharepointObjectId(extRepositoryFileEntryKey));
 
 			String filePath = fileSharepointObject.getPath();
 
 			SharepointObject folderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(newExtRepositoryFolderKey));
+					_toSharepointObjectId(newExtRepositoryFolderKey));
 
 			String folderPath = folderSharepointObject.getPath();
 
@@ -286,14 +276,11 @@ public class SharepointWSRepository
 			SharepointObject newSharepointObject =
 				sharepointConnection.getSharepointObject(newFilePath);
 
-			return toExtRepositoryObject(
+			return _toExtRepositoryObject(
 				extRepositoryObjectType, newSharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -309,16 +296,13 @@ public class SharepointWSRepository
 
 			SharepointObject sharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryObjectKey));
+					_toSharepointObjectId(extRepositoryObjectKey));
 
 			sharepointConnection.deleteSharepointObject(
 				sharepointObject.getPath());
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -343,11 +327,8 @@ public class SharepointWSRepository
 
 			return sharepointConnection.getInputStream(fileSharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -365,11 +346,8 @@ public class SharepointWSRepository
 			return sharepointConnection.getInputStream(
 				sharepointWSFileVersion.getSharepointVersion());
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -400,11 +378,8 @@ public class SharepointWSRepository
 
 			return null;
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -454,11 +429,8 @@ public class SharepointWSRepository
 
 			return sharepointWSVersions;
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -474,7 +446,7 @@ public class SharepointWSRepository
 
 			SharepointObject sharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryObjectKey));
+					_toSharepointObjectId(extRepositoryObjectKey));
 
 			if (sharepointObject == null) {
 				if (extRepositoryObjectType == ExtRepositoryObjectType.FOLDER) {
@@ -484,14 +456,11 @@ public class SharepointWSRepository
 				throw new NoSuchFileEntryException(extRepositoryObjectKey);
 			}
 
-			return toExtRepositoryObject(
+			return _toExtRepositoryObject(
 				extRepositoryObjectType, sharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -507,12 +476,12 @@ public class SharepointWSRepository
 
 			SharepointObject folderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFolderKey));
+					_toSharepointObjectId(extRepositoryFolderKey));
 
 			String folderPath = folderSharepointObject.getPath();
 
 			SharepointConnection.ObjectTypeFilter objectTypeFilter =
-				toObjectTypeFilter(extRepositoryObjectType);
+				_toObjectTypeFilter(extRepositoryObjectType);
 
 			List<SharepointObject> sharepointObjects =
 				sharepointConnection.getSharepointObjects(
@@ -520,7 +489,7 @@ public class SharepointWSRepository
 
 			for (SharepointObject sharepointObject : sharepointObjects) {
 				if (title.equals(sharepointObject.getName())) {
-					return toExtRepositoryObject(
+					return _toExtRepositoryObject(
 						extRepositoryObjectType, sharepointObject);
 				}
 			}
@@ -531,11 +500,8 @@ public class SharepointWSRepository
 
 			throw new NoSuchFileEntryException(title);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -551,12 +517,12 @@ public class SharepointWSRepository
 
 			SharepointObject folderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFolderKey));
+					_toSharepointObjectId(extRepositoryFolderKey));
 
 			String folderPath = folderSharepointObject.getPath();
 
 			SharepointConnection.ObjectTypeFilter objectTypeFilter =
-				toObjectTypeFilter(extRepositoryObjectType);
+				_toObjectTypeFilter(extRepositoryObjectType);
 
 			List<SharepointObject> sharepointObjects =
 				sharepointConnection.getSharepointObjects(
@@ -565,7 +531,7 @@ public class SharepointWSRepository
 			List<T> extRepositoryObjects = new ArrayList<>();
 
 			for (SharepointObject sharepointObject : sharepointObjects) {
-				T extRepositoryObject = toExtRepositoryObject(
+				T extRepositoryObject = _toExtRepositoryObject(
 					extRepositoryObjectType, sharepointObject);
 
 				extRepositoryObjects.add(extRepositoryObject);
@@ -573,11 +539,8 @@ public class SharepointWSRepository
 
 			return extRepositoryObjects;
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -593,21 +556,18 @@ public class SharepointWSRepository
 
 			SharepointObject folderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFolderKey));
+					_toSharepointObjectId(extRepositoryFolderKey));
 
 			String folderPath = folderSharepointObject.getPath();
 
 			SharepointConnection.ObjectTypeFilter objectTypeFilter =
-				toObjectTypeFilter(extRepositoryObjectType);
+				_toObjectTypeFilter(extRepositoryObjectType);
 
 			return sharepointConnection.getSharepointObjectsCount(
 				folderPath, objectTypeFilter);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -636,11 +596,8 @@ public class SharepointWSRepository
 
 			return new SharepointWSFolder(parentFolderSharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -684,13 +641,13 @@ public class SharepointWSRepository
 
 			SharepointObject folderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFolderKey));
+					_toSharepointObjectId(extRepositoryFolderKey));
 
 			String folderPath = folderSharepointObject.getPath();
 
 			List<String> extRepositoryFolderKeys = new ArrayList<>();
 
-			getSubfolderKeys(folderPath, extRepositoryFolderKeys);
+			_getSubfolderKeys(folderPath, extRepositoryFolderKeys);
 
 			return extRepositoryFolderKeys;
 		}
@@ -711,21 +668,23 @@ public class SharepointWSRepository
 
 	@Override
 	public void initRepository(
-		UnicodeProperties typeSettingsProperties,
+		UnicodeProperties typeSettingsUnicodeProperties,
 		CredentialsProvider credentialsProvider) {
 
 		try {
 			_credentialsProvider = credentialsProvider;
 
-			_libraryName = typeSettingsProperties.getProperty(_LIBRARY_NAME);
+			_libraryName = typeSettingsUnicodeProperties.getProperty(
+				_LIBRARY_NAME);
 
-			_libraryPath = typeSettingsProperties.getProperty(_LIBRARY_PATH);
+			_libraryPath = typeSettingsUnicodeProperties.getProperty(
+				_LIBRARY_PATH);
 
 			if (Validator.isNull(_libraryPath)) {
 				_libraryPath = _libraryName;
 			}
 
-			String serverVersion = typeSettingsProperties.getProperty(
+			String serverVersion = typeSettingsUnicodeProperties.getProperty(
 				_SERVER_VERSION, StringPool.BLANK);
 
 			if (serverVersion.equals(_SHAREPOINT_2013_VALUE)) {
@@ -737,13 +696,14 @@ public class SharepointWSRepository
 					SharepointConnection.ServerVersion.SHAREPOINT_2010;
 			}
 
-			String siteURL = typeSettingsProperties.getProperty(_SITE_URL);
+			String siteURL = typeSettingsUnicodeProperties.getProperty(
+				_SITE_URL);
 
 			URL url = URLUtil.toURL(siteURL);
 
 			_host = url.getHost();
 			_protocol = url.getProtocol();
-			_port = getPort(url);
+			_port = _getPort(url);
 			_sitePath = url.getPath();
 
 			_connectionCache = new ConnectionCache<>(
@@ -752,7 +712,7 @@ public class SharepointWSRepository
 			SharepointConnection sharepointConnection =
 				getSharepointConnection();
 
-			pingSharepointConnection(sharepointConnection);
+			_pingSharepointConnection(sharepointConnection);
 
 			SharepointObject rootFolderSharepointObject =
 				sharepointConnection.getSharepointObject(StringPool.SLASH);
@@ -778,22 +738,22 @@ public class SharepointWSRepository
 
 			SharepointObject sharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryObjectKey));
+					_toSharepointObjectId(extRepositoryObjectKey));
 
 			String path = sharepointObject.getPath();
 
 			SharepointObject folderSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(newExtRepositoryFolderKey));
+					_toSharepointObjectId(newExtRepositoryFolderKey));
 
 			String folderPath = folderSharepointObject.getPath();
 
 			String newPath = PathUtil.buildPath(folderPath, newTitle);
 
-			validateExtension(path, newPath);
+			_validateExtension(path, newPath);
 
 			if (path.equals(newPath)) {
-				return toExtRepositoryObject(
+				return _toExtRepositoryObject(
 					extRepositoryObjectType, sharepointObject);
 			}
 
@@ -802,14 +762,11 @@ public class SharepointWSRepository
 			sharepointObject = sharepointConnection.getSharepointObject(
 				newPath);
 
-			return toExtRepositoryObject(
+			return _toExtRepositoryObject(
 				extRepositoryObjectType, sharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
@@ -822,13 +779,13 @@ public class SharepointWSRepository
 		List<ExtRepositorySearchResult<?>> extRepositorySearchResults =
 			new ArrayList<>();
 
-		List<SharepointObject> sharepointObjects = doSearch(
+		List<SharepointObject> sharepointObjects = _search(
 			searchContext, query, extRepositoryQueryMapper);
 
-		sharepointObjects = filter(searchContext, sharepointObjects);
+		sharepointObjects = _filter(searchContext, sharepointObjects);
 
 		for (SharepointObject sharepointObject : sharepointObjects) {
-			ExtRepositoryObject extRepositoryObject = toExtRepositoryObject(
+			ExtRepositoryObject extRepositoryObject = _toExtRepositoryObject(
 				ExtRepositoryObjectType.OBJECT, sharepointObject);
 
 			ExtRepositorySearchResult<?> extRepositorySearchResult =
@@ -852,7 +809,7 @@ public class SharepointWSRepository
 
 			SharepointObject fileSharepointObject =
 				sharepointConnection.getSharepointObject(
-					toSharepointObjectId(extRepositoryFileEntryKey));
+					_toSharepointObjectId(extRepositoryFileEntryKey));
 
 			String filePath = fileSharepointObject.getPath();
 
@@ -860,37 +817,12 @@ public class SharepointWSRepository
 
 			return new SharepointWSFileEntry(fileSharepointObject);
 		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-		catch (SharepointRuntimeException sharepointRuntimeException) {
-			throw new SystemException(sharepointRuntimeException);
+		catch (SharepointException | SharepointRuntimeException exception) {
+			throw new SystemException(exception);
 		}
 	}
 
-	protected List<SharepointObject> doSearch(
-			SearchContext searchContext, Query query,
-			ExtRepositoryQueryMapper extRepositoryQueryMapper)
-		throws PortalException {
-
-		try {
-			SharepointQueryBuilder sharepointQueryBuilder =
-				new SharepointQueryBuilder(
-					this, searchContext, query, extRepositoryQueryMapper);
-
-			SharepointConnection sharepointConnection =
-				getSharepointConnection();
-
-			return sharepointConnection.getSharepointObjects(
-				sharepointQueryBuilder.getQuery(),
-				sharepointQueryBuilder.getQueryOptionsList());
-		}
-		catch (SharepointException sharepointException) {
-			throw new SystemException(sharepointException);
-		}
-	}
-
-	protected List<SharepointObject> filter(
+	private List<SharepointObject> _filter(
 		SearchContext searchContext, List<SharepointObject> sharepointObjects) {
 
 		return ListUtil.subList(
@@ -898,24 +830,23 @@ public class SharepointWSRepository
 			searchContext.getEnd());
 	}
 
-	protected int getPort(URL url) {
+	private int _getPort(URL url) {
 		int port = url.getPort();
 
-		if (port == -1) {
-			String protocol = url.getProtocol();
-
-			if (protocol.equals("https")) {
-				port = 443;
-			}
-			else {
-				port = 80;
-			}
+		if (port != -1) {
+			return port;
 		}
 
-		return port;
+		String protocol = url.getProtocol();
+
+		if (protocol.equals("https")) {
+			return 443;
+		}
+
+		return 80;
 	}
 
-	protected void getSubfolderKeys(
+	private void _getSubfolderKeys(
 		String path, List<String> extRepositoryFolderKeys) {
 
 		try {
@@ -934,7 +865,7 @@ public class SharepointWSRepository
 
 				extRepositoryFolderKeys.add(extRepositoryFolderKey);
 
-				getSubfolderKeys(
+				_getSubfolderKeys(
 					folderSharepointObject.getPath(), extRepositoryFolderKeys);
 			}
 		}
@@ -943,7 +874,7 @@ public class SharepointWSRepository
 		}
 	}
 
-	protected void pingSharepointConnection(
+	private void _pingSharepointConnection(
 			SharepointConnection sharepointConnection)
 		throws SharepointException {
 
@@ -951,9 +882,8 @@ public class SharepointWSRepository
 			StringPool.SLASH, SharepointConnection.ObjectTypeFilter.FILES);
 	}
 
-	protected void processSharepointObjectException(
-			SharepointException sharepointException1, boolean folder,
-			String path, String name)
+	private void _processSharepointObjectException(
+			boolean folder, String path, String name)
 		throws PortalException {
 
 		if (path == null) {
@@ -976,14 +906,36 @@ public class SharepointWSRepository
 
 			throw new DuplicateFileEntryException(name);
 		}
-		catch (SharepointException sharepointException2) {
+		catch (SharepointException sharepointException) {
 
 			// The Sharepoint object does not exist
 
 		}
 	}
 
-	protected <T extends ExtRepositoryObject> T toExtRepositoryObject(
+	private List<SharepointObject> _search(
+			SearchContext searchContext, Query query,
+			ExtRepositoryQueryMapper extRepositoryQueryMapper)
+		throws PortalException {
+
+		try {
+			SharepointQueryBuilder sharepointQueryBuilder =
+				new SharepointQueryBuilder(
+					this, searchContext, query, extRepositoryQueryMapper);
+
+			SharepointConnection sharepointConnection =
+				getSharepointConnection();
+
+			return sharepointConnection.getSharepointObjects(
+				sharepointQueryBuilder.getQuery(),
+				sharepointQueryBuilder.getQueryOptionsList());
+		}
+		catch (SharepointException sharepointException) {
+			throw new SystemException(sharepointException);
+		}
+	}
+
+	private <T extends ExtRepositoryObject> T _toExtRepositoryObject(
 			ExtRepositoryObjectType<T> extRepositoryObjectType,
 			SharepointObject sharepointObject)
 		throws PortalException {
@@ -991,9 +943,10 @@ public class SharepointWSRepository
 		if (sharepointObject.isFile()) {
 			if (extRepositoryObjectType == ExtRepositoryObjectType.FOLDER) {
 				throw new NoSuchFolderException(
-					"Invalid external repository object type " +
-						extRepositoryObjectType + " for Sharepoint object " +
-							sharepointObject);
+					StringBundler.concat(
+						"Invalid external repository object type ",
+						extRepositoryObjectType, " for Sharepoint object ",
+						sharepointObject));
 			}
 
 			return (T)new SharepointWSFileEntry(sharepointObject);
@@ -1001,15 +954,16 @@ public class SharepointWSRepository
 
 		if (extRepositoryObjectType == ExtRepositoryObjectType.FILE) {
 			throw new NoSuchFileEntryException(
-				"Invalid external repository object type " +
-					extRepositoryObjectType + " for Sharepoint object " +
-						sharepointObject);
+				StringBundler.concat(
+					"Invalid external repository object type ",
+					extRepositoryObjectType, " for Sharepoint object ",
+					sharepointObject));
 		}
 
 		return (T)new SharepointWSFolder(sharepointObject);
 	}
 
-	protected SharepointConnection.ObjectTypeFilter toObjectTypeFilter(
+	private SharepointConnection.ObjectTypeFilter _toObjectTypeFilter(
 		ExtRepositoryObjectType<? extends ExtRepositoryObject>
 			extRepositoryObjectType) {
 
@@ -1025,11 +979,11 @@ public class SharepointWSRepository
 		return objectTypeFilter;
 	}
 
-	protected long toSharepointObjectId(String key) {
+	private long _toSharepointObjectId(String key) {
 		return GetterUtil.getLong(key);
 	}
 
-	protected void validateExtension(String oldPath, String newPath)
+	private void _validateExtension(String oldPath, String newPath)
 		throws PortalException {
 
 		String oldExtension = PathUtil.getExtension(oldPath);

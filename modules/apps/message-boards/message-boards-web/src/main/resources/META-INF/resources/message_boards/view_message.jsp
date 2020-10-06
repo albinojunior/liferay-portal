@@ -63,10 +63,7 @@ MBBreadcrumbUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
 </div>
 
 <aui:script require="metal-dom/src/all/dom as domAll">
-	Liferay.provide(window, '<portlet:namespace />addReplyToMessage', function(
-		messageId,
-		quote
-	) {
+	window['<portlet:namespace />addReplyToMessage'] = function (messageId, quote) {
 		var addQuickReplyContainer = document.querySelector(
 			'#<portlet:namespace />addReplyToMessage' + messageId + ' .panel'
 		);
@@ -98,18 +95,10 @@ MBBreadcrumbUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
 			addQuickReplyLoadingMask.classList.remove('hide');
 
 			Liferay.Util.fetch(editMessageQuickURL)
-				.then(function(response) {
+				.then(function (response) {
 					return response.text();
 				})
-				.then(function(response) {
-					var editorName =
-						'<portlet:namespace />replyMessageBody' + messageId;
-
-					if (window[editorName]) {
-						window[editorName].dispose();
-						Liferay.destroyComponent(editorName);
-					}
-
+				.then(function (response) {
 					addQuickReplyContainer.innerHTML = response;
 
 					domAll.globalEval.runScriptsInElement(addQuickReplyContainer);
@@ -125,7 +114,10 @@ MBBreadcrumbUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
 						parentMessageIdInput.value = messageId;
 					}
 
-					Liferay.componentReady(editorName).then(function(editor) {
+					var editorName =
+						'<portlet:namespace />replyMessageBody' + messageId;
+
+					Liferay.componentReady(editorName).then(function (editor) {
 						editor.focus();
 					});
 
@@ -139,7 +131,7 @@ MBBreadcrumbUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
 					);
 				});
 		}
-	});
+	};
 </aui:script>
 
 <aui:script>
@@ -152,11 +144,10 @@ MBBreadcrumbUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
 			addQuickReplyContainer.classList.add('hide');
 		}
 
-		var editorName = '<portlet:namespace />replyMessageBody' + messageId;
-
-		if (window[editorName]) {
-			window[editorName].dispose();
-		}
+		Liferay.Util.toggleDisabled(
+			'#<portlet:namespace />replyMessageButton' + messageId,
+			false
+		);
 	}
 
 	<c:if test="<%= thread.getRootMessageId() != message.getMessageId() %>">

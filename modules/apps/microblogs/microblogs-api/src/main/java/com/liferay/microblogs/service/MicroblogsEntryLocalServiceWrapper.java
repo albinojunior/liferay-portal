@@ -61,6 +61,10 @@ public class MicroblogsEntryLocalServiceWrapper
 	/**
 	 * Adds the microblogs entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MicroblogsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param microblogsEntry the microblogs entry
 	 * @return the microblogs entry that was added
 	 */
@@ -108,6 +112,10 @@ public class MicroblogsEntryLocalServiceWrapper
 	/**
 	 * Deletes the microblogs entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MicroblogsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param microblogsEntryId the primary key of the microblogs entry
 	 * @return the microblogs entry that was removed
 	 * @throws PortalException if a microblogs entry with the primary key could not be found
@@ -123,6 +131,10 @@ public class MicroblogsEntryLocalServiceWrapper
 
 	/**
 	 * Deletes the microblogs entry from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MicroblogsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param microblogsEntry the microblogs entry
 	 * @return the microblogs entry that was removed
@@ -154,6 +166,11 @@ public class MicroblogsEntryLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_microblogsEntryLocalService.deleteUserMicroblogsEntries(userId);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _microblogsEntryLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -306,10 +323,13 @@ public class MicroblogsEntryLocalServiceWrapper
 	public java.util.List<com.liferay.microblogs.model.MicroblogsEntry>
 		getMicroblogsEntries(
 			long companyId, long creatorClassNameId, int type, int start,
-			int end, com.liferay.portal.kernel.util.OrderByComparator obc) {
+			int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.microblogs.model.MicroblogsEntry>
+					orderByComparator) {
 
 		return _microblogsEntryLocalService.getMicroblogsEntries(
-			companyId, creatorClassNameId, type, start, end, obc);
+			companyId, creatorClassNameId, type, start, end, orderByComparator);
 	}
 
 	@Override
@@ -507,6 +527,10 @@ public class MicroblogsEntryLocalServiceWrapper
 
 	/**
 	 * Updates the microblogs entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect MicroblogsEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param microblogsEntry the microblogs entry
 	 * @return the microblogs entry that was updated

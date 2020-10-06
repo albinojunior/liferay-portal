@@ -14,87 +14,114 @@
 
 import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 
+import {FIELD_TYPE_FIELDSET} from '../../../util/constants.es';
 import RulesSupport from '../../RuleBuilder/RulesSupport.es';
+import {updateField} from '../util/settingsContext.es';
 
-const formatRules = (state, pages) => {
+export const removeField = (
+	props,
+	pages,
+	fieldName,
+	removeEmptyRows = true
+) => {
 	const visitor = new PagesVisitor(pages);
 
-	const rules = (state.rules || []).map(rule => {
-		const {actions, conditions} = rule;
+	const filter = (fields) =>
+		fields
+			.filter((field) => field.fieldName !== fieldName)
+			.map((field) => {
+				const nestedFields = field.nestedFields
+					? filter(field.nestedFields)
+					: [];
 
-		conditions.forEach(condition => {
-			let firstOperandFieldExists = false;
-			let secondOperandFieldExists = false;
+				field = updateField(props, field, 'nestedFields', nestedFields);
 
-			const secondOperand = condition.operands[1];
-
-			visitor.mapFields(({fieldName}) => {
-				if (condition.operands[0].value === fieldName) {
-					firstOperandFieldExists = true;
+				if (field.type !== FIELD_TYPE_FIELDSET) {
+					return {
+						...field,
+						nestedFields,
+					};
 				}
 
-				if (secondOperand && secondOperand.value === fieldName) {
-					secondOperandFieldExists = true;
+				let rows = [];
+
+				if (field.rows) {
+					const visitor = new PagesVisitor([
+						{
+							rows:
+								typeof field.rows === 'string'
+									? JSON.parse(field.rows)
+									: field.rows || [],
+						},
+					]);
+
+					const pages = visitor.mapColumns((column) => ({
+						...column,
+						fields: column.fields.filter(
+							(nestedFieldName) => fieldName !== nestedFieldName
+						),
+					}));
+
+					rows = removeEmptyRows
+						? FormSupport.removeEmptyRows(pages, 0)
+						: pages[0].rows;
+
+					field = updateField(props, field, 'rows', rows);
 				}
+
+				return {
+					...field,
+					nestedFields,
+					rows,
+				};
 			});
 
-			if (condition.operands[0].value === 'user') {
-				firstOperandFieldExists = true;
-			}
-
-			if (!firstOperandFieldExists) {
-				RulesSupport.clearAllConditionFieldValues(condition);
-			}
-
-			if (
-				!secondOperandFieldExists &&
-				secondOperand &&
-				secondOperand.type == 'field'
-			) {
-				RulesSupport.clearSecondOperandValue(condition);
-			}
-		});
-
-		return {
-			...rule,
-			actions: RulesSupport.syncActions(pages, actions),
-			conditions,
-		};
-	});
-
-	return rules;
+	return visitor.mapColumns((column) => ({
+		...column,
+		fields: filter(column.fields),
+	}));
 };
 
-const removeEmptyRow = (pages, source) => {
-	const {pageIndex, rowIndex} = source;
+export const handleFieldDeleted = (
+	props,
+	state,
+	{activePage, editRule = true, fieldName, removeEmptyRows = true}
+) => {
+	const {pages} = state;
 
-	if (!FormSupport.rowHasFields(pages, pageIndex, rowIndex)) {
-		pages = FormSupport.removeRow(pages, pageIndex, rowIndex);
+	if (activePage === undefined) {
+		activePage = state.activePage;
 	}
 
-	return pages;
-};
+	const newPages = pages.map((page, pageIndex) => {
+		if (activePage === pageIndex) {
+			const pagesWithFieldRemoved = removeField(
+				props,
+				pages,
+				fieldName,
+				removeEmptyRows
+			);
 
-export const handleFieldDeleted = (state, {indexes}) => {
-	const {columnIndex, pageIndex, rowIndex} = indexes;
-	const {pages} = state;
-	let newContext = FormSupport.removeFields(
-		pages,
-		pageIndex,
-		rowIndex,
-		columnIndex
-	);
+			return {
+				...page,
+				rows: removeEmptyRows
+					? FormSupport.removeEmptyRows(
+							pagesWithFieldRemoved,
+							pageIndex
+					  )
+					: pagesWithFieldRemoved[pageIndex].rows,
+			};
+		}
 
-	newContext = removeEmptyRow(newContext, {
-		columnIndex,
-		pageIndex,
-		rowIndex,
+		return page;
 	});
 
 	return {
 		focusedField: {},
-		pages: newContext,
-		rules: formatRules(state, newContext),
+		pages: newPages,
+		rules: editRule
+			? RulesSupport.formatRules(newPages, state.rules)
+			: state.rules,
 	};
 };
 

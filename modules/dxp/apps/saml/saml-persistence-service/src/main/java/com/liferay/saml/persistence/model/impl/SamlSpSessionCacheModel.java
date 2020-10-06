@@ -36,17 +36,17 @@ public class SamlSpSessionCacheModel
 	implements CacheModel<SamlSpSession>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SamlSpSessionCacheModel)) {
+		if (!(object instanceof SamlSpSessionCacheModel)) {
 			return false;
 		}
 
 		SamlSpSessionCacheModel samlSpSessionCacheModel =
-			(SamlSpSessionCacheModel)obj;
+			(SamlSpSessionCacheModel)object;
 
 		if (samlSpSessionId == samlSpSessionCacheModel.samlSpSessionId) {
 			return true;
@@ -201,7 +201,9 @@ public class SamlSpSessionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		samlSpSessionId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -212,7 +214,7 @@ public class SamlSpSessionCacheModel
 		modifiedDate = objectInput.readLong();
 		samlIdpEntityId = objectInput.readUTF();
 		samlSpSessionKey = objectInput.readUTF();
-		assertionXml = objectInput.readUTF();
+		assertionXml = (String)objectInput.readObject();
 		jSessionId = objectInput.readUTF();
 		nameIdFormat = objectInput.readUTF();
 		nameIdNameQualifier = objectInput.readUTF();
@@ -256,10 +258,10 @@ public class SamlSpSessionCacheModel
 		}
 
 		if (assertionXml == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(assertionXml);
+			objectOutput.writeObject(assertionXml);
 		}
 
 		if (jSessionId == null) {

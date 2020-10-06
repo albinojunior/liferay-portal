@@ -69,6 +69,20 @@ public class WikiPageAttachmentSerDes {
 			sb.append("\"");
 		}
 
+		if (wikiPageAttachment.getContentValue() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"contentValue\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(wikiPageAttachment.getContentValue()));
+
+			sb.append("\"");
+		}
+
 		if (wikiPageAttachment.getEncodingFormat() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -161,6 +175,15 @@ public class WikiPageAttachmentSerDes {
 				String.valueOf(wikiPageAttachment.getContentUrl()));
 		}
 
+		if (wikiPageAttachment.getContentValue() == null) {
+			map.put("contentValue", null);
+		}
+		else {
+			map.put(
+				"contentValue",
+				String.valueOf(wikiPageAttachment.getContentValue()));
+		}
+
 		if (wikiPageAttachment.getEncodingFormat() == null) {
 			map.put("encodingFormat", null);
 		}
@@ -229,6 +252,12 @@ public class WikiPageAttachmentSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "contentValue")) {
+				if (jsonParserFieldValue != null) {
+					wikiPageAttachment.setContentValue(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "encodingFormat")) {
 				if (jsonParserFieldValue != null) {
 					wikiPageAttachment.setEncodingFormat(
@@ -258,9 +287,8 @@ public class WikiPageAttachmentSerDes {
 					wikiPageAttachment.setTitle((String)jsonParserFieldValue);
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -316,10 +344,13 @@ public class WikiPageAttachmentSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

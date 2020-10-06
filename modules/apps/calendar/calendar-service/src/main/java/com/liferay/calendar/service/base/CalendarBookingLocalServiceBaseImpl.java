@@ -30,6 +30,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -56,6 +57,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -94,6 +96,10 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 	/**
 	 * Adds the calendar booking to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarBookingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param calendarBooking the calendar booking
 	 * @return the calendar booking that was added
 	 */
@@ -120,6 +126,10 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 	/**
 	 * Deletes the calendar booking with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarBookingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param calendarBookingId the primary key of the calendar booking
 	 * @return the calendar booking that was removed
 	 * @throws PortalException if a calendar booking with the primary key could not be found
@@ -135,6 +145,10 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 	/**
 	 * Deletes the calendar booking from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarBookingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param calendarBooking the calendar booking
 	 * @return the calendar booking that was removed
 	 * @throws PortalException
@@ -146,6 +160,11 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 		throws PortalException {
 
 		return calendarBookingPersistence.remove(calendarBooking);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return calendarBookingPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -458,6 +477,10 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 			(CalendarBooking)persistedModel);
 	}
 
+	public BasePersistence<CalendarBooking> getBasePersistence() {
+		return calendarBookingPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -545,6 +568,10 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 
 	/**
 	 * Updates the calendar booking in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarBookingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param calendarBooking the calendar booking
 	 * @return the calendar booking that was updated

@@ -22,15 +22,16 @@ export default function updateEditableValues({
 	fragmentEntryLinkId,
 	segmentsExperienceId,
 }) {
-	return dispatch => {
+	return (dispatch) =>
 		FragmentService.updateEditableValues({
 			editableValues,
 			fragmentEntryLinkId,
 			onNetworkStatus: dispatch,
 		})
-			.then(() => {
+			.then((fragmentEntryLink) => {
 				dispatch(
 					updateEditableValuesAction({
+						content: fragmentEntryLink.content,
 						editableValues,
 						fragmentEntryLinkId,
 						segmentsExperienceId,
@@ -40,7 +41,7 @@ export default function updateEditableValues({
 			.then(() => {
 				InfoItemService.getPageContents({
 					onNetworkStatus: dispatch,
-				}).then(pageContents => {
+				}).then((pageContents) => {
 					dispatch(
 						updatePageContents({
 							pageContents,
@@ -48,5 +49,4 @@ export default function updateEditableValues({
 					);
 				});
 			});
-	};
 }

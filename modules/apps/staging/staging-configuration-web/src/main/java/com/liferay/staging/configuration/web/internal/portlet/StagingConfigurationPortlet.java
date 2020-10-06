@@ -14,11 +14,13 @@
 
 package com.liferay.staging.configuration.web.internal.portlet;
 
+import com.liferay.change.tracking.model.CTPreferences;
+import com.liferay.change.tracking.service.CTPreferencesLocalService;
 import com.liferay.exportimport.kernel.service.StagingLocalService;
 import com.liferay.exportimport.kernel.staging.Staging;
-import com.liferay.exportimport.kernel.staging.StagingConstants;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
+import com.liferay.exportimport.kernel.staging.constants.StagingConstants;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
+import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.NoSuchBackgroundTaskException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -116,11 +118,23 @@ public class StagingConfigurationPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		int stagingType = ParamUtil.getInteger(actionRequest, "stagingType");
+
+		if (stagingType != StagingConstants.TYPE_NOT_STAGED) {
+			CTPreferences ctPreferences =
+				_ctPreferencesLocalService.fetchCTPreferences(
+					themeDisplay.getCompanyId(), 0);
+
+			if (ctPreferences != null) {
+				SessionErrors.add(actionRequest, "publicationsEnabled");
+
+				return;
+			}
+		}
+
 		long liveGroupId = ParamUtil.getLong(actionRequest, "liveGroupId");
 
 		Group liveGroup = _groupLocalService.getGroup(liveGroupId);
-
-		int stagingType = ParamUtil.getInteger(actionRequest, "stagingType");
 
 		boolean branchingPublic = ParamUtil.getBoolean(
 			actionRequest, "branchingPublic");
@@ -269,12 +283,12 @@ public class StagingConfigurationPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof LocaleException) {
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof LocaleException) {
 			return true;
 		}
 
-		return super.isSessionErrorException(cause);
+		return super.isSessionErrorException(throwable);
 	}
 
 	@Reference
@@ -309,6 +323,9 @@ public class StagingConfigurationPortlet extends MVCPortlet {
 
 	@Reference
 	private BackgroundTaskManager _backgroundTaskManager;
+
+	@Reference
+	private CTPreferencesLocalService _ctPreferencesLocalService;
 
 	private GroupLocalService _groupLocalService;
 

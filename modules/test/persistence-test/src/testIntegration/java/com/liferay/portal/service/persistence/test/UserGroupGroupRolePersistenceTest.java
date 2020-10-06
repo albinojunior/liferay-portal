@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.NoSuchUserGroupGroupRoleException;
 import com.liferay.portal.kernel.model.UserGroupGroupRole;
 import com.liferay.portal.kernel.service.UserGroupGroupRoleLocalServiceUtil;
@@ -124,6 +125,8 @@ public class UserGroupGroupRolePersistenceTest {
 
 		newUserGroupGroupRole.setMvccVersion(RandomTestUtil.nextLong());
 
+		newUserGroupGroupRole.setCtCollectionId(RandomTestUtil.nextLong());
+
 		newUserGroupGroupRole.setCompanyId(RandomTestUtil.nextLong());
 
 		newUserGroupGroupRole.setUserGroupId(RandomTestUtil.nextLong());
@@ -141,6 +144,9 @@ public class UserGroupGroupRolePersistenceTest {
 		Assert.assertEquals(
 			existingUserGroupGroupRole.getMvccVersion(),
 			newUserGroupGroupRole.getMvccVersion());
+		Assert.assertEquals(
+			existingUserGroupGroupRole.getCtCollectionId(),
+			newUserGroupGroupRole.getCtCollectionId());
 		Assert.assertEquals(
 			existingUserGroupGroupRole.getUserGroupGroupRoleId(),
 			newUserGroupGroupRole.getUserGroupGroupRoleId());
@@ -230,9 +236,9 @@ public class UserGroupGroupRolePersistenceTest {
 
 	protected OrderByComparator<UserGroupGroupRole> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"UserGroupGroupRole", "mvccVersion", true, "userGroupGroupRoleId",
-			true, "companyId", true, "userGroupId", true, "groupId", true,
-			"roleId", true);
+			"UserGroupGroupRole", "mvccVersion", true, "ctCollectionId", true,
+			"userGroupGroupRoleId", true, "companyId", true, "userGroupId",
+			true, "groupId", true, "roleId", true);
 	}
 
 	@Test
@@ -464,25 +470,68 @@ public class UserGroupGroupRolePersistenceTest {
 
 		_persistence.clearCache();
 
-		UserGroupGroupRole existingUserGroupGroupRole =
+		_assertOriginalValues(
 			_persistence.findByPrimaryKey(
-				newUserGroupGroupRole.getPrimaryKey());
+				newUserGroupGroupRole.getPrimaryKey()));
+	}
 
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		UserGroupGroupRole newUserGroupGroupRole = addUserGroupGroupRole();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			UserGroupGroupRole.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"userGroupGroupRoleId",
+				newUserGroupGroupRole.getUserGroupGroupRoleId()));
+
+		List<UserGroupGroupRole> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(UserGroupGroupRole userGroupGroupRole) {
 		Assert.assertEquals(
-			Long.valueOf(existingUserGroupGroupRole.getUserGroupId()),
+			Long.valueOf(userGroupGroupRole.getUserGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingUserGroupGroupRole, "getOriginalUserGroupId",
-				new Class<?>[0]));
+				userGroupGroupRole, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "userGroupId"));
 		Assert.assertEquals(
-			Long.valueOf(existingUserGroupGroupRole.getGroupId()),
+			Long.valueOf(userGroupGroupRole.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingUserGroupGroupRole, "getOriginalGroupId",
-				new Class<?>[0]));
+				userGroupGroupRole, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 		Assert.assertEquals(
-			Long.valueOf(existingUserGroupGroupRole.getRoleId()),
+			Long.valueOf(userGroupGroupRole.getRoleId()),
 			ReflectionTestUtil.<Long>invoke(
-				existingUserGroupGroupRole, "getOriginalRoleId",
-				new Class<?>[0]));
+				userGroupGroupRole, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "roleId"));
 	}
 
 	protected UserGroupGroupRole addUserGroupGroupRole() throws Exception {
@@ -491,6 +540,8 @@ public class UserGroupGroupRolePersistenceTest {
 		UserGroupGroupRole userGroupGroupRole = _persistence.create(pk);
 
 		userGroupGroupRole.setMvccVersion(RandomTestUtil.nextLong());
+
+		userGroupGroupRole.setCtCollectionId(RandomTestUtil.nextLong());
 
 		userGroupGroupRole.setCompanyId(RandomTestUtil.nextLong());
 

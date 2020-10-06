@@ -54,6 +54,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.css-class-wrapper=portlet-communities",
 		"com.liferay.portlet.icon=/icons/site_teams.png",
 		"com.liferay.portlet.preferences-owned-by-group=true",
+		"com.liferay.portlet.preferences-unique-per-layout=false",
 		"com.liferay.portlet.private-request-attributes=false",
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=50",
@@ -203,13 +204,13 @@ public class SiteTeamsPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
-		if (cause instanceof DuplicateTeamException ||
-			cause instanceof NoSuchGroupException ||
-			cause instanceof NoSuchTeamException ||
-			cause instanceof PrincipalException ||
-			cause instanceof TeamNameException ||
-			super.isSessionErrorException(cause)) {
+	protected boolean isSessionErrorException(Throwable throwable) {
+		if (throwable instanceof DuplicateTeamException ||
+			throwable instanceof NoSuchGroupException ||
+			throwable instanceof NoSuchTeamException ||
+			throwable instanceof PrincipalException ||
+			throwable instanceof TeamNameException ||
+			super.isSessionErrorException(throwable)) {
 
 			return true;
 		}

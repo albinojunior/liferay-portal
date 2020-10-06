@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.URI;
 import java.net.URL;
 
 import java.util.Map;
@@ -140,12 +141,20 @@ public class HttpUtil {
 		return getHttp().getProtocol(url);
 	}
 
+	public static String getQueryString(HttpServletRequest httpServletRequest) {
+		return getHttp().getQueryString(httpServletRequest);
+	}
+
 	public static String getQueryString(String url) {
 		return getHttp().getQueryString(url);
 	}
 
 	public static String getRequestURL(HttpServletRequest httpServletRequest) {
 		return getHttp().getRequestURL(httpServletRequest);
+	}
+
+	public static URI getURI(String uriString) {
+		return getHttp().getURI(uriString);
 	}
 
 	public static boolean hasDomain(String url) {
@@ -158,6 +167,10 @@ public class HttpUtil {
 
 	public static boolean hasProxyConfig() {
 		return getHttp().hasProxyConfig();
+	}
+
+	public static boolean isForwarded(HttpServletRequest httpServletRequest) {
+		return getHttp().isForwarded(httpServletRequest);
 	}
 
 	public static boolean isNonProxyHost(String host) {

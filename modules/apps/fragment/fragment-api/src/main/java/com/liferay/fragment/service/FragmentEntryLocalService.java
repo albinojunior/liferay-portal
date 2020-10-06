@@ -16,6 +16,10 @@ package com.liferay.fragment.service;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.model.FragmentEntryVersion;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -30,6 +34,10 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.portal.kernel.service.version.VersionService;
+import com.liferay.portal.kernel.service.version.VersionServiceListener;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -52,22 +60,29 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see FragmentEntryLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
 )
 public interface FragmentEntryLocalService
-	extends BaseLocalService, PersistedModelLocalService {
+	extends BaseLocalService, CTService<FragmentEntry>,
+			PersistedModelLocalService,
+			VersionService<FragmentEntry, FragmentEntryVersion> {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link FragmentEntryLocalServiceUtil} to access the fragment entry local service. Add custom service methods to <code>com.liferay.fragment.service.impl.FragmentEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.fragment.service.impl.FragmentEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the fragment entry local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link FragmentEntryLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the fragment entry to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param fragmentEntry the fragment entry
 	 * @return the fragment entry that was added
@@ -96,18 +111,26 @@ public interface FragmentEntryLocalService
 			int status, ServiceContext serviceContext)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public FragmentEntry checkout(
+			FragmentEntry publishedFragmentEntry, int version)
+		throws PortalException;
+
 	public FragmentEntry copyFragmentEntry(
 			long userId, long groupId, long fragmentEntryId,
 			long fragmentCollectionId, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**
-	 * Creates a new fragment entry with the primary key. Does not add the fragment entry to the database.
+	 * Creates a new fragment entry. Does not add the fragment entry to the database.
 	 *
-	 * @param fragmentEntryId the primary key for the new fragment entry
 	 * @return the new fragment entry
 	 */
+	@Override
 	@Transactional(enabled = false)
+	public FragmentEntry create();
+
 	public FragmentEntry createFragmentEntry(long fragmentEntryId);
 
 	/**
@@ -116,8 +139,22 @@ public interface FragmentEntryLocalService
 	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.DELETE)
+	@Override
+	public FragmentEntry delete(FragmentEntry publishedFragmentEntry)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.DELETE)
+	@Override
+	public FragmentEntry deleteDraft(FragmentEntry draftFragmentEntry)
+		throws PortalException;
+
 	/**
 	 * Deletes the fragment entry from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param fragmentEntry the fragment entry
 	 * @return the fragment entry that was removed
@@ -130,6 +167,10 @@ public interface FragmentEntryLocalService
 
 	/**
 	 * Deletes the fragment entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param fragmentEntryId the primary key of the fragment entry
 	 * @return the fragment entry that was removed
@@ -145,6 +186,14 @@ public interface FragmentEntryLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Override
+	public FragmentEntryVersion deleteVersion(
+			FragmentEntryVersion fragmentEntryVersion)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -212,6 +261,14 @@ public interface FragmentEntryLocalService
 	public long dynamicQueryCount(
 		DynamicQuery dynamicQuery, Projection projection);
 
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry fetchDraft(FragmentEntry fragmentEntry);
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry fetchDraft(long primaryKey);
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public FragmentEntry fetchFragmentEntry(long fragmentEntryId);
 
@@ -219,21 +276,35 @@ public interface FragmentEntryLocalService
 	public FragmentEntry fetchFragmentEntry(
 		long groupId, String fragmentEntryKey);
 
-	/**
-	 * Returns the fragment entry matching the UUID and group.
-	 *
-	 * @param uuid the fragment entry's UUID
-	 * @param groupId the primary key of the group
-	 * @return the matching fragment entry, or <code>null</code> if a matching fragment entry could not be found
-	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public FragmentEntry fetchFragmentEntryByUuidAndGroupId(
 		String uuid, long groupId);
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntryVersion fetchLatestVersion(FragmentEntry fragmentEntry);
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry fetchPublished(FragmentEntry fragmentEntry);
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry fetchPublished(long primaryKey);
 
 	public String generateFragmentEntryKey(long groupId, String name);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry getDraft(FragmentEntry fragmentEntry)
+		throws PortalException;
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntry getDraft(long primaryKey) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
@@ -274,27 +345,10 @@ public interface FragmentEntryLocalService
 		long groupId, long fragmentCollectionId, String name, int start,
 		int end, OrderByComparator<FragmentEntry> orderByComparator);
 
-	/**
-	 * Returns all the fragment entries matching the UUID and company.
-	 *
-	 * @param uuid the UUID of the fragment entries
-	 * @param companyId the primary key of the company
-	 * @return the matching fragment entries, or an empty list if no matches were found
-	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<FragmentEntry> getFragmentEntriesByUuidAndCompanyId(
 		String uuid, long companyId);
 
-	/**
-	 * Returns a range of fragment entries matching the UUID and company.
-	 *
-	 * @param uuid the UUID of the fragment entries
-	 * @param companyId the primary key of the company
-	 * @param start the lower bound of the range of fragment entries
-	 * @param end the upper bound of the range of fragment entries (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the range of matching fragment entries, or an empty list if no matches were found
-	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<FragmentEntry> getFragmentEntriesByUuidAndCompanyId(
 		String uuid, long companyId, int start, int end,
@@ -322,14 +376,6 @@ public interface FragmentEntryLocalService
 	public FragmentEntry getFragmentEntry(long fragmentEntryId)
 		throws PortalException;
 
-	/**
-	 * Returns the fragment entry matching the UUID and group.
-	 *
-	 * @param uuid the fragment entry's UUID
-	 * @param groupId the primary key of the group
-	 * @return the matching fragment entry
-	 * @throws PortalException if a matching fragment entry could not be found
-	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public FragmentEntry getFragmentEntryByUuidAndGroupId(
 			String uuid, long groupId)
@@ -358,23 +404,70 @@ public interface FragmentEntryLocalService
 			long userId, long groupId, String folderName)
 		throws PortalException;
 
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public FragmentEntryVersion getVersion(
+			FragmentEntry fragmentEntry, int version)
+		throws PortalException;
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<FragmentEntryVersion> getVersions(FragmentEntry fragmentEntry);
+
 	public FragmentEntry moveFragmentEntry(
 			long fragmentEntryId, long fragmentCollectionId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public FragmentEntry publishDraft(FragmentEntry draftFragmentEntry)
+		throws PortalException;
+
+	@Override
+	public void registerListener(
+		VersionServiceListener<FragmentEntry, FragmentEntryVersion>
+			versionServiceListener);
+
+	@Override
+	public void unregisterListener(
+		VersionServiceListener<FragmentEntry, FragmentEntryVersion>
+			versionServiceListener);
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public FragmentEntry updateDraft(FragmentEntry draftFragmentEntry)
 		throws PortalException;
 
 	/**
 	 * Updates the fragment entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect FragmentEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fragmentEntry the fragment entry
 	 * @return the fragment entry that was updated
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.REINDEX)
-	public FragmentEntry updateFragmentEntry(FragmentEntry fragmentEntry);
+	public FragmentEntry updateFragmentEntry(FragmentEntry draftFragmentEntry)
+		throws PortalException;
 
 	public FragmentEntry updateFragmentEntry(
 			long fragmentEntryId, long previewFileEntryId)
 		throws PortalException;
 
+	public FragmentEntry updateFragmentEntry(
+			long userId, long fragmentEntryId, long fragmentCollectionId,
+			String name, String css, String html, String js, boolean cacheable,
+			String configuration, long previewFileEntryId, int status)
+		throws PortalException;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateFragmentEntry(long, long, long, String, String, String, String, boolean, String, long, int)}
+	 */
+	@Deprecated
 	public FragmentEntry updateFragmentEntry(
 			long userId, long fragmentEntryId, String name, String css,
 			String html, String js, boolean cacheable, String configuration,
@@ -394,5 +487,20 @@ public interface FragmentEntryLocalService
 
 	public FragmentEntry updateFragmentEntry(long fragmentEntryId, String name)
 		throws PortalException;
+
+	@Override
+	@Transactional(enabled = false)
+	public CTPersistence<FragmentEntry> getCTPersistence();
+
+	@Override
+	@Transactional(enabled = false)
+	public Class<FragmentEntry> getModelClass();
+
+	@Override
+	@Transactional(rollbackFor = Throwable.class)
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<FragmentEntry>, R, E>
+				updateUnsafeFunction)
+		throws E;
 
 }

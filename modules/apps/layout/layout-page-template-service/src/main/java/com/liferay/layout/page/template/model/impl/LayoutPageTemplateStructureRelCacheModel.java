@@ -38,18 +38,18 @@ public class LayoutPageTemplateStructureRelCacheModel
 			   MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof LayoutPageTemplateStructureRelCacheModel)) {
+		if (!(object instanceof LayoutPageTemplateStructureRelCacheModel)) {
 			return false;
 		}
 
 		LayoutPageTemplateStructureRelCacheModel
 			layoutPageTemplateStructureRelCacheModel =
-				(LayoutPageTemplateStructureRelCacheModel)obj;
+				(LayoutPageTemplateStructureRelCacheModel)object;
 
 		if ((layoutPageTemplateStructureRelId ==
 				layoutPageTemplateStructureRelCacheModel.
@@ -82,10 +82,12 @@ public class LayoutPageTemplateStructureRelCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(25);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", layoutPageTemplateStructureRelId=");
@@ -119,6 +121,7 @@ public class LayoutPageTemplateStructureRelCacheModel
 			new LayoutPageTemplateStructureRelImpl();
 
 		layoutPageTemplateStructureRelImpl.setMvccVersion(mvccVersion);
+		layoutPageTemplateStructureRelImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			layoutPageTemplateStructureRelImpl.setUuid("");
@@ -174,8 +177,12 @@ public class LayoutPageTemplateStructureRelCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		layoutPageTemplateStructureRelId = objectInput.readLong();
@@ -192,12 +199,14 @@ public class LayoutPageTemplateStructureRelCacheModel
 		layoutPageTemplateStructureId = objectInput.readLong();
 
 		segmentsExperienceId = objectInput.readLong();
-		data = objectInput.readUTF();
+		data = (String)objectInput.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -229,14 +238,15 @@ public class LayoutPageTemplateStructureRelCacheModel
 		objectOutput.writeLong(segmentsExperienceId);
 
 		if (data == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(data);
+			objectOutput.writeObject(data);
 		}
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long layoutPageTemplateStructureRelId;
 	public long groupId;

@@ -417,6 +417,10 @@ components:
                     format: date-time
                     type: string
                     writeOnly: true
+                workflowTaskId:
+                    format: int64
+                    type: integer
+                    writeOnly: true
             type: object
         WorkflowTaskAssignToRole:
             description:
@@ -480,6 +484,14 @@ components:
                         type: object
                     type: array
             type: object
+        WorkflowTaskIds:
+            properties:
+                workflowTaskIds:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
+            type: object
         WorkflowTaskTransitions:
             properties:
                 workflowTaskTransitions:
@@ -498,9 +510,55 @@ components:
                         type: object
                     type: array
             type: object
+        WorkflowTasksBulkSelection:
+            properties:
+                andOperator:
+                    type: boolean
+                assetPrimaryKeys:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
+                assetTitle:
+                    type: string
+                assetTypes:
+                    items:
+                        type: string
+                    type: array
+                assigneeIds:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
+                completed:
+                    type: boolean
+                dateDueEnd:
+                    format: date-time
+                    type: string
+                dateDueStart:
+                    format: date-time
+                    type: string
+                searchByRoles:
+                    type: boolean
+                searchByUserRoles:
+                    type: boolean
+                workflowDefinitionId:
+                    format: int64
+                    type: integer
+                workflowInstanceIds:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
+                workflowTaskNames:
+                    items:
+                        type: string
+                    type: array
+            type: object
 info:
     description:
-        ""
+        "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
+        'com.liferay.headless.admin.workflow.client', and version '3.0.5'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -636,37 +694,6 @@ paths:
                       type: boolean
                 - in: query
                   name: name
-                  required: true
-                  schema:
-                      type: string
-                - in: query
-                  name: version
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowDefinition"
-                        application/xml:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowDefinition"
-                    description:
-                        ""
-            tags: ["WorkflowDefinition"]
-    "/workflow-definitions/update-title":
-        post:
-            operationId: postWorkflowDefinitionUpdateTitle
-            parameters:
-                - in: query
-                  name: name
-                  required: true
-                  schema:
-                      type: string
-                - in: query
-                  name: title
                   required: true
                   schema:
                       type: string
@@ -1041,77 +1068,9 @@ paths:
                         ""
             tags: ["WorkflowLog"]
     "/workflow-tasks":
-        get:
-            operationId: getWorkflowTasksPage
+        post:
+            operationId: postWorkflowTasksPage
             parameters:
-                - in: query
-                  name: andOperator
-                  schema:
-                      type: boolean
-                - in: query
-                  name: assetPrimaryKeys
-                  schema:
-                      items:
-                          format: int64
-                          type: integer
-                      type: array
-                - in: query
-                  name: assetTitle
-                  schema:
-                      type: string
-                - in: query
-                  name: assetTypes
-                  schema:
-                      items:
-                          type: string
-                      type: array
-                - in: query
-                  name: assigneeIds
-                  schema:
-                      items:
-                          format: int64
-                          type: integer
-                      type: array
-                - in: query
-                  name: completed
-                  schema:
-                      type: boolean
-                - in: query
-                  name: dateDueEnd
-                  schema:
-                      format: date-time
-                      type: string
-                - in: query
-                  name: dateDueStart
-                  schema:
-                      format: date-time
-                      type: string
-                - in: query
-                  name: searchByRoles
-                  schema:
-                      type: boolean
-                - in: query
-                  name: searchByUserRoles
-                  schema:
-                      type: boolean
-                - in: query
-                  name: taskNames
-                  schema:
-                      items:
-                          type: string
-                      type: array
-                - in: query
-                  name: workflowDefinitionId
-                  schema:
-                      format: int64
-                      type: integer
-                - in: query
-                  name: workflowInstanceIds
-                  schema:
-                      items:
-                          format: int64
-                          type: integer
-                      type: array
                 - in: query
                   name: page
                   schema:
@@ -1124,6 +1083,14 @@ paths:
                   name: sort
                   schema:
                       type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowTasksBulkSelection"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowTasksBulkSelection"
             responses:
                 200:
                     content:
@@ -1164,17 +1131,16 @@ paths:
                         ""
             tags: ["WorkflowTask"]
     "/workflow-tasks/assignable-users":
-        get:
-            operationId: getWorkflowTaskAssignableUser
-            parameters:
-                - in: query
-                  name: workflowTaskIds
-                  required: true
-                  schema:
-                      items:
-                          format: int64
-                          type: integer
-                      type: array
+        post:
+            operationId: postWorkflowTaskAssignableUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowTaskIds"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowTaskIds"
             responses:
                 200:
                     content:
@@ -1367,17 +1333,16 @@ paths:
                         ""
             tags: ["WorkflowTask"]
     "/workflow-tasks/next-transitions":
-        get:
-            operationId: getWorkflowTaskTransition
-            parameters:
-                - in: query
-                  name: workflowTaskIds
-                  required: true
-                  schema:
-                      items:
-                          format: int64
-                          type: integer
-                      type: array
+        post:
+            operationId: postWorkflowTaskTransition
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowTaskIds"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowTaskIds"
             responses:
                 200:
                     content:
@@ -1420,6 +1385,29 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/WorkflowTask"
                                 type: array
+                    description:
+                        ""
+            tags: ["WorkflowTask"]
+    "/workflow-tasks/update-due-date":
+        patch:
+            operationId: patchWorkflowTaskUpdateDueDate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/WorkflowTaskAssignToMe"
+                            type: array
+                    application/xml:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/WorkflowTaskAssignToMe"
+                            type: array
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
                     description:
                         ""
             tags: ["WorkflowTask"]

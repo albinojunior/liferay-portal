@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
@@ -52,6 +53,16 @@ public class ContentStructureResourceImpl
 	extends BaseContentStructureResourceImpl implements EntityModelResource {
 
 	@Override
+	public Page<ContentStructure> getAssetLibraryContentStructuresPage(
+			Long assetLibraryId, String search, Aggregation aggregation,
+			Filter filter, Pagination pagination, Sort[] sorts)
+		throws Exception {
+
+		return getSiteContentStructuresPage(
+			assetLibraryId, search, aggregation, filter, pagination, sorts);
+	}
+
+	@Override
 	public ContentStructure getContentStructure(Long contentStructureId)
 		throws Exception {
 
@@ -66,8 +77,8 @@ public class ContentStructureResourceImpl
 
 	@Override
 	public Page<ContentStructure> getSiteContentStructuresPage(
-			Long siteId, String search, Filter filter, Pagination pagination,
-			Sort[] sorts)
+			Long siteId, String search, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
@@ -78,6 +89,7 @@ public class ContentStructureResourceImpl
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
 				searchContext.setAttribute(
 					"searchPermissionContext", StringPool.BLANK);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
@@ -89,11 +101,9 @@ public class ContentStructureResourceImpl
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
-	private ContentStructure _toContentStructure(DDMStructure ddmStructure)
-		throws Exception {
-
+	private ContentStructure _toContentStructure(DDMStructure ddmStructure) {
 		return ContentStructureUtil.toContentStructure(
-			contextAcceptLanguage.isAcceptAllLanguages(),
+			contextAcceptLanguage.isAcceptAllLanguages(), groupLocalService,
 			contextAcceptLanguage.getPreferredLocale(), _portal,
 			_userLocalService, ddmStructure);
 	}

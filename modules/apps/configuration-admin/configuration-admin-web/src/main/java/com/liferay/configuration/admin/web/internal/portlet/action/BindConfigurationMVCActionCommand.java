@@ -35,11 +35,14 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.manager.ClassLoaderResourceManager;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.settings.LocationVariableResolver;
+import com.liferay.portal.kernel.settings.SettingsLocatorHelper;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
@@ -126,13 +129,16 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 				pid, configurationScopeDisplayContext.getScope(),
 				configurationScopeDisplayContext.getScopePK());
 
-		if (configuration != null) {
-			configurationModel = new ConfigurationModel(
-				configurationModel.getExtendedObjectClassDefinition(),
-				configuration, configurationModel.getBundleSymbolicName(),
-				configurationModel.getBundleLocation(),
-				configurationModel.isFactory());
+		if (configurationModel.isFactory() && pid.equals(factoryPid)) {
+			configuration = null;
 		}
+
+		configurationModel = new ConfigurationModel(
+			configurationModel.getBundleLocation(),
+			configurationModel.getBundleSymbolicName(),
+			configurationModel.getClassLoader(), configuration,
+			configurationModel.getExtendedObjectClassDefinition(),
+			configurationModel.isFactory());
 
 		Dictionary<String, Object> properties = null;
 
@@ -214,7 +220,7 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 
 					String pid = configurationModel.getID();
 
-					if (scoped) {
+					if (!configurationModel.isFactory() && scoped) {
 						pid = pid + ".scoped";
 					}
 
@@ -245,10 +251,10 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 						configuration.getProperties());
 			}
 
-			Enumeration<String> keys = properties.keys();
+			Enumeration<String> enumeration = properties.keys();
 
-			while (keys.hasMoreElements()) {
-				String key = keys.nextElement();
+			while (enumeration.hasMoreElements()) {
+				String key = enumeration.nextElement();
 
 				Object value = properties.get(key);
 
@@ -257,12 +263,6 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 				}
 
 				configuredProperties.put(key, value);
-			}
-
-			if (configurationModel.isCompanyFactory()) {
-				configuredProperties.put(
-					ConfigurationModel.PROPERTY_KEY_COMPANY_ID,
-					ConfigurationModel.PROPERTY_VALUE_COMPANY_ID_DEFAULT);
 			}
 
 			if (scoped) {
@@ -293,9 +293,7 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 
 				file = file.getAbsoluteFile();
 
-				URI uri = file.toURI();
-
-				String fileName = uri.toString();
+				String fileName = String.valueOf(file.toURI());
 
 				String oldFileName = (String)configuredProperties.put(
 					"felix.fileinstall.filename", fileName);
@@ -357,10 +355,16 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 		DDMFormValues ddmFormValues = getDDMFormValues(
 			actionRequest, configurationModelToDDMFormConverter.getDDMForm());
 
+		LocationVariableResolver locationVariableResolver =
+			new LocationVariableResolver(
+				new ClassLoaderResourceManager(
+					configurationModel.getClassLoader()),
+				_settingsLocatorHelper);
+
 		DDMFormValuesToPropertiesConverter ddmFormValuesToPropertiesConverter =
 			new DDMFormValuesToPropertiesConverter(
 				configurationModel, ddmFormValues, _jsonFactory,
-				themeDisplay.getLocale());
+				themeDisplay.getLocale(), locationVariableResolver);
 
 		return ddmFormValuesToPropertiesConverter.getProperties();
 	}
@@ -398,7 +402,7 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 	private ConfigurationFormRendererRetriever
 		_configurationFormRendererRetriever;
 
-	@Reference
+	@Reference(target = "(!(filter.visibility=*))")
 	private ConfigurationModelRetriever _configurationModelRetriever;
 
 	@Reference
@@ -412,5 +416,8 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 
 	@Reference
 	private ResourceBundleLoaderProvider _resourceBundleLoaderProvider;
+
+	@Reference
+	private SettingsLocatorHelper _settingsLocatorHelper;
 
 }

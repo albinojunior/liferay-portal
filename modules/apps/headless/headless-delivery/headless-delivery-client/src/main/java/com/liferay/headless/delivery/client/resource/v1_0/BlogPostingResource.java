@@ -15,6 +15,7 @@
 package com.liferay.headless.delivery.client.resource.v1_0;
 
 import com.liferay.headless.delivery.client.dto.v1_0.BlogPosting;
+import com.liferay.headless.delivery.client.dto.v1_0.Rating;
 import com.liferay.headless.delivery.client.http.HttpInvoker;
 import com.liferay.headless.delivery.client.pagination.Page;
 import com.liferay.headless.delivery.client.pagination.Pagination;
@@ -22,6 +23,7 @@ import com.liferay.headless.delivery.client.problem.Problem;
 import com.liferay.headless.delivery.client.serdes.v1_0.BlogPostingSerDes;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -88,44 +90,34 @@ public interface BlogPostingResource {
 			Long blogPostingId)
 		throws Exception;
 
-	public com.liferay.headless.delivery.client.dto.v1_0.Rating
-			getBlogPostingMyRating(Long blogPostingId)
-		throws Exception;
+	public Rating getBlogPostingMyRating(Long blogPostingId) throws Exception;
 
 	public HttpInvoker.HttpResponse getBlogPostingMyRatingHttpResponse(
 			Long blogPostingId)
 		throws Exception;
 
-	public com.liferay.headless.delivery.client.dto.v1_0.Rating
-			postBlogPostingMyRating(
-				Long blogPostingId,
-				com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+	public Rating postBlogPostingMyRating(Long blogPostingId, Rating rating)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postBlogPostingMyRatingHttpResponse(
-			Long blogPostingId,
-			com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+			Long blogPostingId, Rating rating)
 		throws Exception;
 
-	public com.liferay.headless.delivery.client.dto.v1_0.Rating
-			putBlogPostingMyRating(
-				Long blogPostingId,
-				com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+	public Rating putBlogPostingMyRating(Long blogPostingId, Rating rating)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse putBlogPostingMyRatingHttpResponse(
-			Long blogPostingId,
-			com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+			Long blogPostingId, Rating rating)
 		throws Exception;
 
 	public Page<BlogPosting> getSiteBlogPostingsPage(
-			Long siteId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long siteId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getSiteBlogPostingsPageHttpResponse(
-			Long siteId, String search, String filterString,
-			Pagination pagination, String sortString)
+			Long siteId, String search, List<String> aggregations,
+			String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public BlogPosting postSiteBlogPosting(Long siteId, BlogPosting blogPosting)
@@ -200,8 +192,8 @@ public interface BlogPostingResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "test@liferay.com";
-		private String _password = "test";
+		private String _login = "";
+		private String _password = "";
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -641,8 +633,7 @@ public interface BlogPostingResource {
 			return httpInvoker.invoke();
 		}
 
-		public com.liferay.headless.delivery.client.dto.v1_0.Rating
-				getBlogPostingMyRating(Long blogPostingId)
+		public Rating getBlogPostingMyRating(Long blogPostingId)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -706,10 +697,7 @@ public interface BlogPostingResource {
 			return httpInvoker.invoke();
 		}
 
-		public com.liferay.headless.delivery.client.dto.v1_0.Rating
-				postBlogPostingMyRating(
-					Long blogPostingId,
-					com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+		public Rating postBlogPostingMyRating(Long blogPostingId, Rating rating)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -737,8 +725,7 @@ public interface BlogPostingResource {
 		}
 
 		public HttpInvoker.HttpResponse postBlogPostingMyRatingHttpResponse(
-				Long blogPostingId,
-				com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+				Long blogPostingId, Rating rating)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -776,10 +763,7 @@ public interface BlogPostingResource {
 			return httpInvoker.invoke();
 		}
 
-		public com.liferay.headless.delivery.client.dto.v1_0.Rating
-				putBlogPostingMyRating(
-					Long blogPostingId,
-					com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+		public Rating putBlogPostingMyRating(Long blogPostingId, Rating rating)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
@@ -807,8 +791,7 @@ public interface BlogPostingResource {
 		}
 
 		public HttpInvoker.HttpResponse putBlogPostingMyRatingHttpResponse(
-				Long blogPostingId,
-				com.liferay.headless.delivery.client.dto.v1_0.Rating rating)
+				Long blogPostingId, Rating rating)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -847,13 +830,14 @@ public interface BlogPostingResource {
 		}
 
 		public Page<BlogPosting> getSiteBlogPostingsPage(
-				Long siteId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long siteId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getSiteBlogPostingsPageHttpResponse(
-					siteId, search, filterString, pagination, sortString);
+					siteId, search, aggregations, filterString, pagination,
+					sortString);
 
 			String content = httpResponse.getContent();
 
@@ -876,8 +860,8 @@ public interface BlogPostingResource {
 		}
 
 		public HttpInvoker.HttpResponse getSiteBlogPostingsPageHttpResponse(
-				Long siteId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long siteId, String search, List<String> aggregations,
+				String filterString, Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();

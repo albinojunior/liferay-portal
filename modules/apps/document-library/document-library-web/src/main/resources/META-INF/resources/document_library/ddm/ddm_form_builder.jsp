@@ -84,23 +84,16 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 
 	var availableFields;
 
-	var displayWarning = function(message) {
-		new Liferay.Notification({
-			closeable: true,
-			delay: {
-				hide: 5000,
-				show: 0,
-			},
-			duration: 500,
+	var displayWarning = function (message) {
+		Liferay.Util.openToast({
 			message: message,
-			title: Liferay.Language.get('warning'),
 			type: 'warning',
-		}).render('body');
+		});
 	};
 
 	var formEditor;
 
-	var getContentValue = function() {
+	var getContentValue = function () {
 		var content;
 
 		if (formEditor && !isViewTabActive()) {
@@ -113,7 +106,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		return content;
 	};
 
-	var getFormEditor = function() {
+	var getFormEditor = function () {
 		if (!formEditor) {
 			formEditor = new A.AceEditor({
 				boundingBox: '#<portlet:namespace />formBuilderEditor',
@@ -127,7 +120,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		return formEditor;
 	};
 
-	var isViewTabActive = function() {
+	var isViewTabActive = function () {
 		var formBuilderTab = A.one('#<portlet:namespace />formBuilderTab');
 
 		if (!formBuilderTab) {
@@ -139,7 +132,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		return !ancestor.hasClass('hide');
 	};
 
-	var reloadFormBuilderData = function(content) {
+	var reloadFormBuilderData = function (content) {
 		if (!Lang.isValue(content)) {
 			content = window.<portlet:namespace />getContentDefinition();
 		}
@@ -178,7 +171,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		}
 	};
 
-	var setEditorSize = function() {
+	var setEditorSize = function () {
 		if (!isViewTabActive()) {
 			getFormEditor().set(
 				'width',
@@ -189,7 +182,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		}
 	};
 
-	var switchToSource = function() {
+	var switchToSource = function () {
 		setEditorSize();
 
 		var content = formBuilder.getContent();
@@ -197,7 +190,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		getFormEditor().set(STR_VALUE, content);
 	};
 
-	var switchToView = function() {
+	var switchToView = function () {
 		if (formEditor) {
 			reloadFormBuilderData(formEditor.get(STR_VALUE));
 		}
@@ -232,7 +225,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 
 		portletNamespace: '<portlet:namespace />',
 		portletResourceNamespace:
-			'<%= HtmlUtil.escapeJS(renderResponse.getNamespace()) %>',
+			'<%= HtmlUtil.escapeJS(liferayPortletResponse.getNamespace()) %>',
 		readOnly: <%= ParamUtil.getBoolean(request, "formBuilderReadOnly") %>,
 		srcNode: '#<portlet:namespace />formBuilderContent',
 		translationManager: {
@@ -256,7 +249,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 		dialog.after('widthChange', setEditorSize);
 	}
 
-	var afterShowTab = function(event) {
+	var afterShowTab = function (event) {
 		if (isViewTabActive()) {
 			switchToView();
 		}
@@ -267,7 +260,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 
 	Liferay.after('showTab', afterShowTab);
 
-	var onDestroyPortlet = function(event) {
+	var onDestroyPortlet = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			Liferay.detach('showTab', afterShowTab);
 			Liferay.detach('destroyPortlet', onDestroyPortlet);
@@ -276,7 +269,7 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 			var propertyList = formBuilder.propertyList;
 
 			if (propertyList) {
-				propertyList.get('data').each(function(model) {
+				propertyList.get('data').each(function (model) {
 					var editor = model.get('editor');
 
 					if (editor) {
@@ -292,14 +285,14 @@ DLEditFileEntryTypeDisplayContext dlEditFileEntryTypeDisplayContext = (DLEditFil
 	Liferay.on('destroyPortlet', onDestroyPortlet);
 
 	window[
-		'<%= HtmlUtil.escapeJS(renderResponse.getNamespace()) %>formBuilder'
+		'<%= HtmlUtil.escapeJS(liferayPortletResponse.getNamespace()) %>formBuilder'
 	] = formBuilder;
 
 	window[
-		'<%= HtmlUtil.escapeJS(renderResponse.getNamespace()) %>getContentValue'
+		'<%= HtmlUtil.escapeJS(liferayPortletResponse.getNamespace()) %>getContentValue'
 	] = getContentValue;
 
-	Liferay.on('<portlet:namespace />saveTemplate', function(event) {
+	Liferay.on('<portlet:namespace />saveTemplate', function (event) {
 		A.one('#<portlet:namespace />scriptContent').val(getContentValue());
 	});
 

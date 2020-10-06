@@ -12,9 +12,12 @@
  * details.
  */
 
+import {act, cleanup, render} from '@testing-library/react';
+import {PageProvider} from 'dynamic-data-mapping-form-renderer';
+import React from 'react';
+
 import DocumentLibrary from '../../../src/main/resources/META-INF/resources/DocumentLibrary/DocumentLibrary.es';
 
-let component;
 const spritemap = 'icons.svg';
 
 const defaultDocumentLibraryConfig = {
@@ -22,89 +25,168 @@ const defaultDocumentLibraryConfig = {
 	spritemap,
 };
 
+const DocumentLibraryWithProvider = (props) => (
+	<PageProvider value={{editingLanguageId: 'en_US'}}>
+		<DocumentLibrary {...props} />
+	</PageProvider>
+);
+
 describe('Field DocumentLibrary', () => {
-	afterEach(() => {
-		if (component) {
-			component.dispose();
-		}
+	// eslint-disable-next-line no-console
+	const originalWarn = console.warn;
+
+	beforeAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = (...args) => {
+			if (/DataProvider: Trying/.test(args[0])) {
+				return;
+			}
+			originalWarn.call(console, ...args);
+		};
+	});
+
+	afterAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = originalWarn;
+	});
+
+	afterEach(cleanup);
+
+	beforeEach(() => {
+		jest.useFakeTimers();
+		fetch.mockResponseOnce(JSON.stringify({}));
 	});
 
 	it('is not readOnly', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			readOnly: false,
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				readOnly={false}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a helptext', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			tip: 'Type something',
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				tip="Type something"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has an id', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			id: 'ID',
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				id="ID"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a label', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			label: 'label',
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				label="label"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a placeholder', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			placeholder: 'Placeholder',
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				placeholder="Placeholder"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is not required', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			required: false,
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				required={false}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('renders Label if showLabel is true', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			label: 'text',
-			showLabel: true,
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				label="text"
+				showLabel
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a spritemap', () => {
-		component = new DocumentLibrary(defaultDocumentLibraryConfig);
+		const {container} = render(
+			<DocumentLibraryWithProvider {...defaultDocumentLibraryConfig} />
+		);
 
-		expect(component).toMatchSnapshot();
+		act(() => {
+			jest.runAllTimers();
+		});
+
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a value', () => {
-		component = new DocumentLibrary({
-			...defaultDocumentLibraryConfig,
-			value: '{"id":"123"}',
+		const {container} = render(
+			<DocumentLibraryWithProvider
+				{...defaultDocumentLibraryConfig}
+				value='{"id":"123"}'
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 });

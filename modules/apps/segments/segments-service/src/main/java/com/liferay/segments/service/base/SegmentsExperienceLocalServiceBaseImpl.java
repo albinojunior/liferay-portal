@@ -19,6 +19,8 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -41,6 +43,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -87,6 +92,10 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	/**
 	 * Adds the segments experience to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsExperience the segments experience
 	 * @return the segments experience that was added
 	 */
@@ -117,6 +126,10 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	/**
 	 * Deletes the segments experience with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsExperienceId the primary key of the segments experience
 	 * @return the segments experience that was removed
 	 * @throws PortalException if a segments experience with the primary key could not be found
@@ -133,6 +146,10 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	/**
 	 * Deletes the segments experience from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsExperience the segments experience
 	 * @return the segments experience that was removed
 	 * @throws PortalException
@@ -144,6 +161,11 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 		throws PortalException {
 
 		return segmentsExperiencePersistence.remove(segmentsExperience);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return segmentsExperiencePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -433,6 +455,10 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 			(SegmentsExperience)persistedModel);
 	}
 
+	public BasePersistence<SegmentsExperience> getBasePersistence() {
+		return segmentsExperiencePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -521,6 +547,10 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	/**
 	 * Updates the segments experience in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SegmentsExperienceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param segmentsExperience the segments experience
 	 * @return the segments experience that was updated
 	 */
@@ -536,7 +566,7 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			SegmentsExperienceLocalService.class, IdentifiableOSGiService.class,
-			PersistedModelLocalService.class
+			CTService.class, PersistedModelLocalService.class
 		};
 	}
 
@@ -556,8 +586,23 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 		return SegmentsExperienceLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<SegmentsExperience> getCTPersistence() {
+		return segmentsExperiencePersistence;
+	}
+
+	@Override
+	public Class<SegmentsExperience> getModelClass() {
 		return SegmentsExperience.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<SegmentsExperience>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(segmentsExperiencePersistence);
 	}
 
 	protected String getModelClassName() {

@@ -14,32 +14,54 @@
 
 package com.liferay.layout.page.template.util.test;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.layout.page.template.util.LayoutDataConverter;
 import com.liferay.layout.util.structure.DropZoneLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.util.FileImpl;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * @author Rubén Pulido
  */
+@RunWith(Arquillian.class)
 public class LayoutDataConverterTest {
+
+	@ClassRule
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(),
+			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() {
-		new FileUtil().setFile(new FileImpl());
+		FileUtil fileUtil = new FileUtil();
 
-		new JSONFactoryUtil().setJSONFactory(new JSONFactoryImpl());
+		fileUtil.setFile(new FileImpl());
+
+		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
+
+		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
 	}
 
 	@Test
@@ -151,7 +173,9 @@ public class LayoutDataConverterTest {
 		LayoutStructure expectedLayoutStructure = LayoutStructure.of(
 			expectedLayoutData);
 
-		Assert.assertEquals(expectedLayoutStructure, actualLayoutStructure);
+		Assert.assertEquals(
+			_objectMapper.readTree(expectedLayoutStructure.toString()),
+			_objectMapper.readTree(actualLayoutStructure.toString()));
 	}
 
 	@Test
@@ -169,7 +193,9 @@ public class LayoutDataConverterTest {
 		LayoutStructure expectedLayoutStructure = LayoutStructure.of(
 			expectedLayoutData);
 
-		Assert.assertEquals(expectedLayoutStructure, actualLayoutStructure);
+		Assert.assertEquals(
+			_objectMapper.readTree(expectedLayoutStructure.toString()),
+			_objectMapper.readTree(actualLayoutStructure.toString()));
 	}
 
 	@Test
@@ -234,12 +260,20 @@ public class LayoutDataConverterTest {
 		LayoutStructure expectedLayoutStructure = LayoutStructure.of(
 			expectedLayoutData);
 
-		Assert.assertEquals(expectedLayoutStructure, actualLayoutStructure);
+		Assert.assertEquals(
+			_objectMapper.readTree(expectedLayoutStructure.toString()),
+			_objectMapper.readTree(actualLayoutStructure.toString()));
 	}
 
 	private String _read(String fileName) throws Exception {
 		return new String(
 			FileUtil.getBytes(getClass(), "dependencies/" + fileName));
 	}
+
+	private static final ObjectMapper _objectMapper = new ObjectMapper() {
+		{
+			configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+		}
+	};
 
 }

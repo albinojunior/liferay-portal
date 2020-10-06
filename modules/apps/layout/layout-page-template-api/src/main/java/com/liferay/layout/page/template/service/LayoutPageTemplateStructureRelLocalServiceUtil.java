@@ -41,6 +41,10 @@ public class LayoutPageTemplateStructureRelLocalServiceUtil {
 	/**
 	 * Adds the layout page template structure rel to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutPageTemplateStructureRel the layout page template structure rel
 	 * @return the layout page template structure rel that was added
 	 */
@@ -98,6 +102,10 @@ public class LayoutPageTemplateStructureRelLocalServiceUtil {
 	/**
 	 * Deletes the layout page template structure rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutPageTemplateStructureRel the layout page template structure rel
 	 * @return the layout page template structure rel that was removed
 	 */
@@ -114,6 +122,10 @@ public class LayoutPageTemplateStructureRelLocalServiceUtil {
 
 	/**
 	 * Deletes the layout page template structure rel with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutPageTemplateStructureRelId the primary key of the layout page template structure rel
 	 * @return the layout page template structure rel that was removed
@@ -165,6 +177,12 @@ public class LayoutPageTemplateStructureRelLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -449,6 +467,10 @@ public class LayoutPageTemplateStructureRelLocalServiceUtil {
 
 	/**
 	 * Updates the layout page template structure rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param layoutPageTemplateStructureRel the layout page template structure rel
 	 * @return the layout page template structure rel that was updated

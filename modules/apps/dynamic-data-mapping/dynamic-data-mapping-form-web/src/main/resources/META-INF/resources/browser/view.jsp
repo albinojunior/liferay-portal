@@ -26,7 +26,7 @@
 	disabled="<%= ddmFormBrowserDisplayContext.isDisabledManagementBar() %>"
 	filterDropdownItems="<%= ddmFormBrowserDisplayContext.getFilterItemsDropdownItems() %>"
 	itemsTotal="<%= ddmFormBrowserDisplayContext.getTotalItems() %>"
-	namespace="<%= renderResponse.getNamespace() %>"
+	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	searchActionURL="<%= ddmFormBrowserDisplayContext.getSearchActionURL() %>"
 	searchContainerId="<%= ddmFormBrowserDisplayContext.getSearchContainerId() %>"
 	searchFormName="searchFm"
@@ -34,11 +34,13 @@
 	sortingURL="<%= ddmFormBrowserDisplayContext.getSortingURL() %>"
 />
 
-<div class="container-fluid-1280" id="<portlet:namespace />formContainer">
+<clay:container-fluid
+	id='<%= liferayPortletResponse.getNamespace() + "formContainer" %>'
+>
 	<aui:form action="<%= String.valueOf(ddmFormBrowserDisplayContext.getPortletURL()) %>" method="post" name="selectDDMFormFm">
 		<liferay-ui:search-container
 			id="<%= ddmFormBrowserDisplayContext.getSearchContainerId() %>"
-			searchContainer="<%= ddmFormBrowserDisplayContext.getFormInstanceSearch() %>"
+			searchContainer="<%= ddmFormBrowserDisplayContext.getDDMFormInstanceSearch() %>"
 		>
 			<liferay-ui:search-container-row
 				className="com.liferay.dynamic.data.mapping.model.DDMFormInstance"
@@ -46,20 +48,22 @@
 				keyProperty="formInstanceId"
 				modelVar="formInstance"
 			>
-
-				<%
-				Map<String, Object> data = new HashMap<>();
-
-				data.put("forminstanceid", formInstance.getFormInstanceId());
-				data.put("forminstancename", formInstance.getName(locale));
-				%>
-
 				<liferay-ui:search-container-column-text
 					cssClass="content-column title-column"
 					name="name"
 					truncate="<%= true %>"
 				>
-					<aui:a cssClass="selector-button" data="<%= data %>" href="javascript:;">
+					<aui:a
+						cssClass="selector-button"
+						data='<%=
+							HashMapBuilder.<String, Object>put(
+								"forminstanceid", formInstance.getFormInstanceId()
+							).put(
+								"forminstancename", formInstance.getName(locale)
+							).build()
+						%>'
+						href="javascript:;"
+					>
 						<%= HtmlUtil.escape(formInstance.getName(locale)) %>
 					</aui:a>
 				</liferay-ui:search-container-column-text>
@@ -84,11 +88,4 @@
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
-
-<aui:script>
-	Liferay.Util.selectEntityHandler(
-		'#<portlet:namespace />selectDDMFormFm',
-		'<%= HtmlUtil.escapeJS(ddmFormBrowserDisplayContext.getEventName()) %>'
-	);
-</aui:script>
+</clay:container-fluid>

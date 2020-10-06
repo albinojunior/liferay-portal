@@ -24,6 +24,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>STAGING_CONFIGURATION_CHECKBOX</td>
+	<td>//label[contains(.,'${key_checkboxName}')]/input[@type='checkbox']</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -32,6 +37,11 @@
 <tr>
 	<td>DATE_SCHEDULE_RADIO</td>
 	<td>//span[contains(@class,'custom-control-label-text') and contains(.,'Schedule')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DATE_SCHEDULE_START_DATE</td>
+	<td>//input[contains(@name,'_schedulerStartDate') and @placeholder='mm/dd/yyyy']</td>
 	<td></td>
 </tr>
 <tr>

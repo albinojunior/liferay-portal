@@ -69,13 +69,13 @@ public class ServiceBuilderBatchTestClassGroup
 			List<File> modulesProjectDirs) {
 
 			return new ServiceBuilderBatchTestClass(
-				new TestClassFile(
+				new File(
 					JenkinsResultsParserUtil.getCanonicalPath(moduleBaseDir)),
 				modulesDir, modulesProjectDirs);
 		}
 
 		protected ServiceBuilderBatchTestClass(
-			TestClassFile testClassFile, File modulesDir,
+			File testClassFile, File modulesDir,
 			List<File> modulesProjectDirs) {
 
 			super(testClassFile);
@@ -186,7 +186,7 @@ public class ServiceBuilderBatchTestClassGroup
 				JenkinsResultsParserUtil.getIncludedFiles(
 					null,
 					getPathMatchers(
-						"portal-tools-service-builder/**",
+						"util/portal-tools-service-builder/**",
 						portalModulesBaseDir),
 					modifiedFiles);
 

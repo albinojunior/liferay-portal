@@ -34,6 +34,10 @@ public class PluginSettingLocalServiceWrapper
 	/**
 	 * Adds the plugin setting to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pluginSetting the plugin setting
 	 * @return the plugin setting that was added
 	 */
@@ -91,6 +95,10 @@ public class PluginSettingLocalServiceWrapper
 	/**
 	 * Deletes the plugin setting with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pluginSettingId the primary key of the plugin setting
 	 * @return the plugin setting that was removed
 	 * @throws PortalException if a plugin setting with the primary key could not be found
@@ -106,6 +114,10 @@ public class PluginSettingLocalServiceWrapper
 	/**
 	 * Deletes the plugin setting from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pluginSetting the plugin setting
 	 * @return the plugin setting that was removed
 	 */
@@ -114,6 +126,11 @@ public class PluginSettingLocalServiceWrapper
 		com.liferay.portal.kernel.model.PluginSetting pluginSetting) {
 
 		return _pluginSettingLocalService.deletePluginSetting(pluginSetting);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _pluginSettingLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -327,6 +344,10 @@ public class PluginSettingLocalServiceWrapper
 
 	/**
 	 * Updates the plugin setting in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PluginSettingLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pluginSetting the plugin setting
 	 * @return the plugin setting that was updated

@@ -44,7 +44,6 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.util.comparator.UserFirstNameComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
@@ -101,15 +100,15 @@ public class InviteMembersPortlet extends MVCPortlet {
 				themeDisplay.getCompanyId(), themeDisplay.getScopeGroupId(),
 				keywords));
 
-		JSONObject optionsJSONObject = JSONUtil.put(
-			"end", end
-		).put(
-			"keywords", keywords
-		).put(
-			"start", start
-		);
-
-		jsonObject.put("options", optionsJSONObject);
+		jsonObject.put(
+			"options",
+			JSONUtil.put(
+				"end", end
+			).put(
+				"keywords", keywords
+			).put(
+				"start", start
+			));
 
 		List<User> users = _getAvailableUsers(
 			themeDisplay.getCompanyId(), themeDisplay.getScopeGroupId(),
@@ -118,19 +117,18 @@ public class InviteMembersPortlet extends MVCPortlet {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (User user : users) {
-			JSONObject userJSONObject = JSONUtil.put(
-				"hasPendingMemberRequest",
-				_memberRequestLocalService.hasPendingMemberRequest(
-					themeDisplay.getScopeGroupId(), user.getUserId())
-			).put(
-				"userEmailAddress", user.getEmailAddress()
-			).put(
-				"userFullName", user.getFullName()
-			).put(
-				"userId", user.getUserId()
-			);
-
-			jsonArray.put(userJSONObject);
+			jsonArray.put(
+				JSONUtil.put(
+					"hasPendingMemberRequest",
+					_memberRequestLocalService.hasPendingMemberRequest(
+						themeDisplay.getScopeGroupId(), user.getUserId())
+				).put(
+					"userEmailAddress", user.getEmailAddress()
+				).put(
+					"userFullName", user.getFullName()
+				).put(
+					"userId", user.getUserId()
+				));
 		}
 
 		jsonObject.put("users", jsonArray);
@@ -274,7 +272,8 @@ public class InviteMembersPortlet extends MVCPortlet {
 			long companyId, long groupId, String keywords, int start, int end)
 		throws Exception {
 
-		LinkedHashMap<String, Object> usersParams =
+		return _userLocalService.search(
+			companyId, keywords, WorkflowConstants.STATUS_APPROVED,
 			LinkedHashMapBuilder.<String, Object>put(
 				"usersInvited",
 				new CustomSQLParam(
@@ -283,10 +282,7 @@ public class InviteMembersPortlet extends MVCPortlet {
 						"com.liferay.portal.service.persistence.UserFinder." +
 							"filterByUsersGroupsGroupId"),
 					groupId)
-			).build();
-
-		return _userLocalService.search(
-			companyId, keywords, WorkflowConstants.STATUS_APPROVED, usersParams,
+			).build(),
 			start, end, new UserFirstNameComparator(true));
 	}
 
@@ -294,7 +290,8 @@ public class InviteMembersPortlet extends MVCPortlet {
 			long companyId, long groupId, String keywords)
 		throws Exception {
 
-		LinkedHashMap<String, Object> usersParams =
+		return _userLocalService.searchCount(
+			companyId, keywords, WorkflowConstants.STATUS_APPROVED,
 			LinkedHashMapBuilder.<String, Object>put(
 				"usersInvited",
 				new CustomSQLParam(
@@ -303,11 +300,7 @@ public class InviteMembersPortlet extends MVCPortlet {
 						"com.liferay.portal.service.persistence.UserFinder." +
 							"filterByUsersGroupsGroupId"),
 					groupId)
-			).build();
-
-		return _userLocalService.searchCount(
-			companyId, keywords, WorkflowConstants.STATUS_APPROVED,
-			usersParams);
+			).build());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

@@ -126,6 +126,421 @@ public class DepotEntryGroupRelUtil {
 	}
 
 	/**
+	 * Returns all the depot entry group rels where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @return the matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid(String uuid) {
+		return getPersistence().findByUuid(uuid);
+	}
+
+	/**
+	 * Returns a range of all the depot entry group rels where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @return the range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid(
+		String uuid, int start, int end) {
+
+		return getPersistence().findByUuid(uuid, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the depot entry group rels where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid(
+		String uuid, int start, int end,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().findByUuid(uuid, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the depot entry group rels where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid(
+		String uuid, int start, int end,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByUuid(
+			uuid, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first depot entry group rel in the ordered set where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByUuid_First(
+			String uuid,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUuid_First(uuid, orderByComparator);
+	}
+
+	/**
+	 * Returns the first depot entry group rel in the ordered set where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByUuid_First(
+		String uuid, OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByUuid_First(uuid, orderByComparator);
+	}
+
+	/**
+	 * Returns the last depot entry group rel in the ordered set where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByUuid_Last(
+			String uuid,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUuid_Last(uuid, orderByComparator);
+	}
+
+	/**
+	 * Returns the last depot entry group rel in the ordered set where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByUuid_Last(
+		String uuid, OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByUuid_Last(uuid, orderByComparator);
+	}
+
+	/**
+	 * Returns the depot entry group rels before and after the current depot entry group rel in the ordered set where uuid = &#63;.
+	 *
+	 * @param depotEntryGroupRelId the primary key of the current depot entry group rel
+	 * @param uuid the uuid
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a depot entry group rel with the primary key could not be found
+	 */
+	public static DepotEntryGroupRel[] findByUuid_PrevAndNext(
+			long depotEntryGroupRelId, String uuid,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUuid_PrevAndNext(
+			depotEntryGroupRelId, uuid, orderByComparator);
+	}
+
+	/**
+	 * Removes all the depot entry group rels where uuid = &#63; from the database.
+	 *
+	 * @param uuid the uuid
+	 */
+	public static void removeByUuid(String uuid) {
+		getPersistence().removeByUuid(uuid);
+	}
+
+	/**
+	 * Returns the number of depot entry group rels where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @return the number of matching depot entry group rels
+	 */
+	public static int countByUuid(String uuid) {
+		return getPersistence().countByUuid(uuid);
+	}
+
+	/**
+	 * Returns the depot entry group rel where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchEntryGroupRelException</code> if it could not be found.
+	 *
+	 * @param uuid the uuid
+	 * @param groupId the group ID
+	 * @return the matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByUUID_G(String uuid, long groupId)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUUID_G(uuid, groupId);
+	}
+
+	/**
+	 * Returns the depot entry group rel where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param uuid the uuid
+	 * @param groupId the group ID
+	 * @return the matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByUUID_G(String uuid, long groupId) {
+		return getPersistence().fetchByUUID_G(uuid, groupId);
+	}
+
+	/**
+	 * Returns the depot entry group rel where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param uuid the uuid
+	 * @param groupId the group ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByUUID_G(
+		String uuid, long groupId, boolean useFinderCache) {
+
+		return getPersistence().fetchByUUID_G(uuid, groupId, useFinderCache);
+	}
+
+	/**
+	 * Removes the depot entry group rel where uuid = &#63; and groupId = &#63; from the database.
+	 *
+	 * @param uuid the uuid
+	 * @param groupId the group ID
+	 * @return the depot entry group rel that was removed
+	 */
+	public static DepotEntryGroupRel removeByUUID_G(String uuid, long groupId)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().removeByUUID_G(uuid, groupId);
+	}
+
+	/**
+	 * Returns the number of depot entry group rels where uuid = &#63; and groupId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param groupId the group ID
+	 * @return the number of matching depot entry group rels
+	 */
+	public static int countByUUID_G(String uuid, long groupId) {
+		return getPersistence().countByUUID_G(uuid, groupId);
+	}
+
+	/**
+	 * Returns all the depot entry group rels where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @return the matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid_C(
+		String uuid, long companyId) {
+
+		return getPersistence().findByUuid_C(uuid, companyId);
+	}
+
+	/**
+	 * Returns a range of all the depot entry group rels where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @return the range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid_C(
+		String uuid, long companyId, int start, int end) {
+
+		return getPersistence().findByUuid_C(uuid, companyId, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the depot entry group rels where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid_C(
+		String uuid, long companyId, int start, int end,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().findByUuid_C(
+			uuid, companyId, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the depot entry group rels where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByUuid_C(
+		String uuid, long companyId, int start, int end,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByUuid_C(
+			uuid, companyId, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first depot entry group rel in the ordered set where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByUuid_C_First(
+			String uuid, long companyId,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUuid_C_First(
+			uuid, companyId, orderByComparator);
+	}
+
+	/**
+	 * Returns the first depot entry group rel in the ordered set where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByUuid_C_First(
+		String uuid, long companyId,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByUuid_C_First(
+			uuid, companyId, orderByComparator);
+	}
+
+	/**
+	 * Returns the last depot entry group rel in the ordered set where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByUuid_C_Last(
+			String uuid, long companyId,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUuid_C_Last(
+			uuid, companyId, orderByComparator);
+	}
+
+	/**
+	 * Returns the last depot entry group rel in the ordered set where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByUuid_C_Last(
+		String uuid, long companyId,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByUuid_C_Last(
+			uuid, companyId, orderByComparator);
+	}
+
+	/**
+	 * Returns the depot entry group rels before and after the current depot entry group rel in the ordered set where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param depotEntryGroupRelId the primary key of the current depot entry group rel
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a depot entry group rel with the primary key could not be found
+	 */
+	public static DepotEntryGroupRel[] findByUuid_C_PrevAndNext(
+			long depotEntryGroupRelId, String uuid, long companyId,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByUuid_C_PrevAndNext(
+			depotEntryGroupRelId, uuid, companyId, orderByComparator);
+	}
+
+	/**
+	 * Removes all the depot entry group rels where uuid = &#63; and companyId = &#63; from the database.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 */
+	public static void removeByUuid_C(String uuid, long companyId) {
+		getPersistence().removeByUuid_C(uuid, companyId);
+	}
+
+	/**
+	 * Returns the number of depot entry group rels where uuid = &#63; and companyId = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @return the number of matching depot entry group rels
+	 */
+	public static int countByUuid_C(String uuid, long companyId) {
+		return getPersistence().countByUuid_C(uuid, companyId);
+	}
+
+	/**
 	 * Returns all the depot entry group rels where depotEntryId = &#63;.
 	 *
 	 * @param depotEntryId the depot entry ID
@@ -471,6 +886,202 @@ public class DepotEntryGroupRelUtil {
 	 */
 	public static int countByToGroupId(long toGroupId) {
 		return getPersistence().countByToGroupId(toGroupId);
+	}
+
+	/**
+	 * Returns all the depot entry group rels where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @return the matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByDDMSA_TGI(
+		boolean ddmStructuresAvailable, long toGroupId) {
+
+		return getPersistence().findByDDMSA_TGI(
+			ddmStructuresAvailable, toGroupId);
+	}
+
+	/**
+	 * Returns a range of all the depot entry group rels where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @return the range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByDDMSA_TGI(
+		boolean ddmStructuresAvailable, long toGroupId, int start, int end) {
+
+		return getPersistence().findByDDMSA_TGI(
+			ddmStructuresAvailable, toGroupId, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the depot entry group rels where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByDDMSA_TGI(
+		boolean ddmStructuresAvailable, long toGroupId, int start, int end,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().findByDDMSA_TGI(
+			ddmStructuresAvailable, toGroupId, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the depot entry group rels where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param start the lower bound of the range of depot entry group rels
+	 * @param end the upper bound of the range of depot entry group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching depot entry group rels
+	 */
+	public static List<DepotEntryGroupRel> findByDDMSA_TGI(
+		boolean ddmStructuresAvailable, long toGroupId, int start, int end,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByDDMSA_TGI(
+			ddmStructuresAvailable, toGroupId, start, end, orderByComparator,
+			useFinderCache);
+	}
+
+	/**
+	 * Returns the first depot entry group rel in the ordered set where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByDDMSA_TGI_First(
+			boolean ddmStructuresAvailable, long toGroupId,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByDDMSA_TGI_First(
+			ddmStructuresAvailable, toGroupId, orderByComparator);
+	}
+
+	/**
+	 * Returns the first depot entry group rel in the ordered set where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByDDMSA_TGI_First(
+		boolean ddmStructuresAvailable, long toGroupId,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByDDMSA_TGI_First(
+			ddmStructuresAvailable, toGroupId, orderByComparator);
+	}
+
+	/**
+	 * Returns the last depot entry group rel in the ordered set where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel findByDDMSA_TGI_Last(
+			boolean ddmStructuresAvailable, long toGroupId,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByDDMSA_TGI_Last(
+			ddmStructuresAvailable, toGroupId, orderByComparator);
+	}
+
+	/**
+	 * Returns the last depot entry group rel in the ordered set where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry group rel, or <code>null</code> if a matching depot entry group rel could not be found
+	 */
+	public static DepotEntryGroupRel fetchByDDMSA_TGI_Last(
+		boolean ddmStructuresAvailable, long toGroupId,
+		OrderByComparator<DepotEntryGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByDDMSA_TGI_Last(
+			ddmStructuresAvailable, toGroupId, orderByComparator);
+	}
+
+	/**
+	 * Returns the depot entry group rels before and after the current depot entry group rel in the ordered set where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param depotEntryGroupRelId the primary key of the current depot entry group rel
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next depot entry group rel
+	 * @throws NoSuchEntryGroupRelException if a depot entry group rel with the primary key could not be found
+	 */
+	public static DepotEntryGroupRel[] findByDDMSA_TGI_PrevAndNext(
+			long depotEntryGroupRelId, boolean ddmStructuresAvailable,
+			long toGroupId,
+			OrderByComparator<DepotEntryGroupRel> orderByComparator)
+		throws com.liferay.depot.exception.NoSuchEntryGroupRelException {
+
+		return getPersistence().findByDDMSA_TGI_PrevAndNext(
+			depotEntryGroupRelId, ddmStructuresAvailable, toGroupId,
+			orderByComparator);
+	}
+
+	/**
+	 * Removes all the depot entry group rels where ddmStructuresAvailable = &#63; and toGroupId = &#63; from the database.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 */
+	public static void removeByDDMSA_TGI(
+		boolean ddmStructuresAvailable, long toGroupId) {
+
+		getPersistence().removeByDDMSA_TGI(ddmStructuresAvailable, toGroupId);
+	}
+
+	/**
+	 * Returns the number of depot entry group rels where ddmStructuresAvailable = &#63; and toGroupId = &#63;.
+	 *
+	 * @param ddmStructuresAvailable the ddm structures available
+	 * @param toGroupId the to group ID
+	 * @return the number of matching depot entry group rels
+	 */
+	public static int countByDDMSA_TGI(
+		boolean ddmStructuresAvailable, long toGroupId) {
+
+		return getPersistence().countByDDMSA_TGI(
+			ddmStructuresAvailable, toGroupId);
 	}
 
 	/**

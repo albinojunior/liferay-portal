@@ -13,18 +13,25 @@
  */
 
 import {FormSupport} from 'dynamic-data-mapping-form-renderer';
+import dom from 'metal-dom';
 import {DragDrop} from 'metal-drag-drop';
 import Component from 'metal-jsx';
-import {Config} from 'metal-state';
 
-import {focusedFieldStructure, pageStructure} from '../../util/config.es';
+import {
+	disableFieldDropTargets,
+	disableFieldSetDragSources,
+	disableFieldSetDropTargets,
+} from '../../util/dragAndDrop.es';
+import formBuilderProps from './props.es';
 
-const withMoveableFields = ChildComponent => {
+const withMoveableFields = (ChildComponent) => {
 	class MoveableFields extends Component {
 		createDragAndDrop() {
 			this._dragAndDrop = new DragDrop({
-				sources: '.moveable .ddm-drag',
-				targets: '.moveable .ddm-target',
+				container: this.element,
+				sources: '.moveable .ddm-drag:not([data-drag-disabled="true"])',
+				targets:
+					'.moveable .ddm-target:not([data-drop-disabled="true"])',
 				useShim: false,
 			});
 
@@ -51,22 +58,29 @@ const withMoveableFields = ChildComponent => {
 			this.disposeDragAndDrop();
 		}
 
-		isDragEnabled() {
-			const {defaultLanguageId, editingLanguageId} = this.props;
-
-			return defaultLanguageId === editingLanguageId;
-		}
-
 		render() {
 			return (
-				<div class={this.isDragEnabled() ? 'moveable' : ''}>
+				<div class="moveable">
 					<ChildComponent {...this.props} />
 				</div>
 			);
 		}
 
 		rendered() {
+			const {allowNestedFields = true, pages} = this.props;
+
+			disableFieldSetDragSources(this.element, pages);
+			disableFieldSetDropTargets(this.element, pages);
+
+			if (!allowNestedFields) {
+				disableFieldDropTargets(this.element, pages);
+			}
+
 			this._refreshDragAndDrop();
+		}
+
+		_getClosestParent(node) {
+			return dom.closest(node.parentElement, `.ddm-field-container`);
 		}
 
 		_handleDragAndDropEnd({source, target}) {
@@ -84,23 +98,42 @@ const withMoveableFields = ChildComponent => {
 			}
 
 			if (target) {
-				source.innerHTML = '';
-
-				const sourceIndexes = FormSupport.getIndexes(
-					source.parentElement.parentElement
+				const sourceFieldNode = dom.closest(
+					source,
+					'.ddm-field-container'
 				);
 
-				const targetColumn = target.parentElement;
-				const targetIndexes = FormSupport.getIndexes(targetColumn);
-
-				const addedToPlaceholder = targetColumn.parentElement.classList.contains(
-					'placeholder'
+				const sourceFieldPage = parseInt(
+					dom.closest(source, '[data-ddm-page]').dataset.ddmPage,
+					10
 				);
+
+				let targetFieldName;
+
+				if (target.classList.contains('ddm-field-container')) {
+					targetFieldName = target.dataset.fieldName;
+				}
+
+				const sourceFieldName = sourceFieldNode.dataset.fieldName;
+
+				if (sourceFieldName === targetFieldName) {
+					return;
+				}
+
+				let targetParentFieldName;
+				const targetParentFieldNode = this._getClosestParent(target);
+
+				if (targetParentFieldNode) {
+					targetParentFieldName =
+						targetParentFieldNode.dataset.fieldName;
+				}
 
 				this._handleFieldMoved({
-					addedToPlaceholder,
-					source: sourceIndexes,
-					target: targetIndexes,
+					sourceFieldName,
+					sourceFieldPage,
+					targetFieldName,
+					targetIndexes: FormSupport.getIndexes(target.parentElement),
+					targetParentFieldName,
 				});
 			}
 		}
@@ -117,9 +150,9 @@ const withMoveableFields = ChildComponent => {
 		}
 
 		_handleFieldMoved(event) {
-			const {store} = this.context;
+			const {dispatch} = this.context;
 
-			store.emit('fieldMoved', event);
+			dispatch('fieldMoved', event);
 		}
 
 		_refreshDragAndDrop() {
@@ -129,123 +162,7 @@ const withMoveableFields = ChildComponent => {
 	}
 
 	MoveableFields.PROPS = {
-		/**
-		 * @default
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?number}
-		 */
-
-		activePage: Config.number().value(0),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		defaultLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		editingLanguageId: Config.string(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		fieldSetDefinitionURL: Config.string(),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldSets: Config.array().value([]),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?(array|undefined)}
-		 */
-
-		fieldTypes: Config.array().value([]),
-
-		/**
-		 * @default {}
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?object}
-		 */
-
-		focusedField: focusedFieldStructure.value({}),
-
-		/**
-		 * @default []
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?array<object>}
-		 */
-
-		pages: Config.arrayOf(pageStructure).value([]),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		paginationMode: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		portletNamespace: Config.string().required(),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {!string}
-		 */
-
-		spritemap: Config.string().required(),
-
-		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {object}
-		 */
-
-		successPageSettings: Config.shapeOf({
-			body: Config.object(),
-			enabled: Config.bool(),
-			title: Config.object(),
-		}).value({}),
-
-		/**
-		 * @default undefined
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {?string}
-		 */
-
-		view: Config.string(),
+		...formBuilderProps,
 	};
 
 	return MoveableFields;

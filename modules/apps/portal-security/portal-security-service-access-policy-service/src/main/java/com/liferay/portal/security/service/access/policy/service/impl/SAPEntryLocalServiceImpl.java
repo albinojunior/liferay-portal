@@ -32,12 +32,12 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.service.access.policy.configuration.SAPConfiguration;
+import com.liferay.portal.security.service.access.policy.constants.SAPEntryConstants;
 import com.liferay.portal.security.service.access.policy.exception.DuplicateSAPEntryNameException;
 import com.liferay.portal.security.service.access.policy.exception.RequiredSAPEntryException;
 import com.liferay.portal.security.service.access.policy.exception.SAPEntryNameException;
 import com.liferay.portal.security.service.access.policy.exception.SAPEntryTitleException;
 import com.liferay.portal.security.service.access.policy.model.SAPEntry;
-import com.liferay.portal.security.service.access.policy.model.SAPEntryConstants;
 import com.liferay.portal.security.service.access.policy.service.base.SAPEntryLocalServiceBaseImpl;
 
 import java.util.List;
@@ -198,9 +198,11 @@ public class SAPEntryLocalServiceImpl extends SAPEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<SAPEntry> getCompanySAPEntries(
-		long companyId, int start, int end, OrderByComparator<SAPEntry> obc) {
+		long companyId, int start, int end,
+		OrderByComparator<SAPEntry> orderByComparator) {
 
-		return sapEntryPersistence.findByCompanyId(companyId, start, end, obc);
+		return sapEntryPersistence.findByCompanyId(
+			companyId, start, end, orderByComparator);
 	}
 
 	@Override
@@ -258,9 +260,7 @@ public class SAPEntryLocalServiceImpl extends SAPEntryLocalServiceBaseImpl {
 		sapEntry.setName(name);
 		sapEntry.setTitleMap(titleMap);
 
-		sapEntry = sapEntryPersistence.update(sapEntry, serviceContext);
-
-		return sapEntry;
+		return sapEntryPersistence.update(sapEntry, serviceContext);
 	}
 
 	@Activate

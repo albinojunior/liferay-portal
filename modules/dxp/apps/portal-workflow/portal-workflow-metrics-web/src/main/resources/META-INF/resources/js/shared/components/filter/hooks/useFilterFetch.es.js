@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {useCallback, useContext, useEffect} from 'react';
+import {useContext, useEffect} from 'react';
 
 import {AppContext} from '../../../../components/AppContext.es';
 import {FilterContext} from '../FilterContext.es';
@@ -22,8 +22,14 @@ import {useFilterState} from './useFilterState.es';
 
 const useFilterFetch = ({
 	filterKey,
+	labelPropertyName = 'label',
 	prefixKey,
-	requestUrl,
+	requestBody: data = {},
+	propertyKey,
+	requestMethod: method = 'get',
+	requestParams: params = {},
+	requestUrl: url,
+	staticData,
 	staticItems,
 	withoutRouteParams,
 }) => {
@@ -34,36 +40,41 @@ const useFilterFetch = ({
 		withoutRouteParams
 	);
 
-	const fetchCallback = useCallback(
-		({data = {}}) => {
-			const mergedItems = mergeItemsArray(staticItems, data.items);
-			const mappedItems = buildFilterItems(mergedItems, selectedKeys);
+	const parseResponse = ({data = {}}) => {
+		data.items.sort((current, next) =>
+			current[labelPropertyName]?.localeCompare(next[labelPropertyName])
+		);
 
-			setItems(mappedItems);
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[selectedKeys, staticItems]
-	);
+		const mergedItems = mergeItemsArray(staticItems, data.items);
+
+		const mappedItems = buildFilterItems({
+			items: mergedItems,
+			propertyKey,
+			selectedKeys,
+		});
+
+		setItems(mappedItems);
+	};
 
 	useEffect(
 		() => {
 			dispatchFilterError(filterKey, true);
 
-			client
-				.get(requestUrl)
-				.then(fetchCallback)
-				.catch(() => {
-					dispatchFilterError(filterKey);
-				});
+			if (staticData) {
+				parseResponse({data: {items: staticData}});
+			}
+			else {
+				client
+					.request({data, method, params, url})
+					.then(parseResponse)
+					.catch(() => dispatchFilterError(filterKey));
+			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
 
-	return {
-		items,
-		selectedItems,
-	};
+	return {items, selectedItems};
 };
 
 export {useFilterFetch};

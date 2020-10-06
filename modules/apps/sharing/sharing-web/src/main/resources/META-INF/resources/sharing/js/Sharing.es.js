@@ -32,21 +32,20 @@ function filterDuplicateItems(items) {
 	return items.filter(
 		(item, index) =>
 			items.findIndex(
-				newItem =>
+				(newItem) =>
 					newItem.value.toLowerCase() === item.value.toLowerCase()
 			) === index
 	);
 }
 
 const Sharing = ({
+	autocompleteUserURL,
 	classNameId,
 	classPK,
-	dialogId,
 	portletNamespace,
 	shareActionURL,
 	sharingEntryPermissionDisplayActionId,
 	sharingEntryPermissionDisplays,
-	sharingUserAutocompleteURL,
 	sharingVerifyEmailAddressURL,
 }) => {
 	const [emailAddressErrorMessages, setEmailAddressErrorMessages] = useState(
@@ -59,11 +58,9 @@ const Sharing = ({
 	const emailValidationInProgress = useRef(false);
 
 	const closeDialog = () => {
-		const sharingDialog = Liferay.Util.getWindow(dialogId);
-
-		if (sharingDialog && sharingDialog.hide) {
-			sharingDialog.hide();
-		}
+		Liferay.Util.getOpener().Liferay.fire('closeModal', {
+			id: 'sharingDialog',
+		});
 	};
 
 	const showNotification = (message, error) => {
@@ -81,7 +78,7 @@ const Sharing = ({
 		parentOpenToast(openToastParams);
 	};
 
-	const handleSubmit = event => {
+	const handleSubmit = (event) => {
 		event.preventDefault();
 
 		const data = {
@@ -100,50 +97,42 @@ const Sharing = ({
 			body: formData,
 			method: 'POST',
 		})
-			.then(response => {
+			.then((response) => {
 				const jsonResponse = response.json();
 
 				return response.ok
 					? jsonResponse
-					: jsonResponse.then(json => {
+					: jsonResponse.then((json) => {
 							const error = new Error(
 								json.errorMessage || response.statusText
 							);
 							throw Object.assign(error, {response});
 					  });
 			})
-			.then(response => {
+			.then((response) => {
 				parent.Liferay.fire('sharing:changed', {
 					classNameId,
 					classPK,
 				});
 				showNotification(response.successMessage);
 			})
-			.catch(error => {
+			.catch((error) => {
 				showNotification(error.message, true);
 			});
 	};
 
-	const onModalClose = () => {
-		const sharingDialog = Liferay.Util.getWindow(dialogId);
-
-		if (sharingDialog && sharingDialog.hide) {
-			sharingDialog.hide();
-		}
-	};
-
-	const isEmailAddressValid = email => {
+	const isEmailAddressValid = (email) => {
 		const emailRegex = /.+@.+\..+/i;
 
 		return emailRegex.test(email);
 	};
 
 	const handleItemsChange = useCallback(
-		items => {
+		(items) => {
 			emailValidationInProgress.current = true;
 
 			Promise.all(
-				items.map(item => {
+				items.map((item) => {
 					if (
 						item.id ||
 						selectedItems.some(({value}) => item.value === value)
@@ -169,7 +158,7 @@ const Sharing = ({
 						}),
 						method: 'POST',
 					})
-						.then(response => response.json())
+						.then((response) => response.json())
 						.then(({userExists}) => ({
 							error: !userExists
 								? Liferay.Util.sub(
@@ -182,7 +171,7 @@ const Sharing = ({
 							item,
 						}));
 				})
-			).then(results => {
+			).then((results) => {
 				emailValidationInProgress.current = false;
 
 				const erroredResults = results.filter(({error}) => !!error);
@@ -211,7 +200,7 @@ const Sharing = ({
 		[portletNamespace, selectedItems, sharingVerifyEmailAddressURL]
 	);
 
-	const handleChange = useCallback(value => {
+	const handleChange = useCallback((value) => {
 		if (!emailValidationInProgress.current) {
 			setMultiSelectValue(value);
 		}
@@ -228,7 +217,7 @@ const Sharing = ({
 		fetchRetry: {
 			attempts: 0,
 		},
-		link: multiSelectValue ? sharingUserAutocompleteURL : undefined,
+		link: autocompleteUserURL,
 		variables: {
 			[`${portletNamespace}query`]: multiSelectValue,
 		},
@@ -263,7 +252,7 @@ const Sharing = ({
 								)}
 								sourceItems={
 									multiSelectValue && users
-										? users.map(user => {
+										? users.map((user) => {
 												return {
 													emailAddress:
 														user.emailAddress,
@@ -289,7 +278,7 @@ const Sharing = ({
 							{emailAddressErrorMessages.length > 0 && (
 								<ClayForm.FeedbackGroup>
 									{emailAddressErrorMessages.map(
-										emailAddressErrorMessage => (
+										(emailAddressErrorMessage) => (
 											<ClayForm.FeedbackItem
 												key={emailAddressErrorMessage}
 											>
@@ -310,7 +299,9 @@ const Sharing = ({
 							'allow-the-item-to-be-shared-with-other-users'
 						)}
 						name={`${portletNamespace}shareable`}
-						onChange={() => setAllowSharingChecked(allow => !allow)}
+						onChange={() =>
+							setAllowSharingChecked((allow) => !allow)
+						}
 					/>
 				</ClayForm.Group>
 
@@ -321,12 +312,12 @@ const Sharing = ({
 				<ClayForm.Group>
 					<ClayRadioGroup
 						name={`${portletNamespace}sharingEntryPermissionDisplayActionId`}
-						onSelectedValueChange={permission =>
+						onSelectedValueChange={(permission) =>
 							setSharingPermission(permission)
 						}
 						selectedValue={sharingPermission}
 					>
-						{sharingEntryPermissionDisplays.map(display => (
+						{sharingEntryPermissionDisplays.map((display) => (
 							<ClayRadio
 								checked={
 									sharingEntryPermissionDisplayActionId ===
@@ -355,7 +346,7 @@ const Sharing = ({
 					<ClayButton.Group spaced>
 						<ClayButton
 							displayType="secondary"
-							onClick={onModalClose}
+							onClick={closeDialog}
 						>
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
@@ -373,7 +364,7 @@ const Sharing = ({
 const SharingAutocomplete = ({onItemClick = () => {}, sourceItems}) => {
 	return (
 		<ClayDropDown.ItemList>
-			{sourceItems.map(item => (
+			{sourceItems.map((item) => (
 				<ClayDropDown.Item
 					key={item.id}
 					onClick={() => onItemClick(item)}
@@ -411,6 +402,4 @@ const SharingAutocomplete = ({onItemClick = () => {}, sourceItems}) => {
 	);
 };
 
-export default function(props) {
-	return <Sharing {...props} />;
-}
+export default Sharing;

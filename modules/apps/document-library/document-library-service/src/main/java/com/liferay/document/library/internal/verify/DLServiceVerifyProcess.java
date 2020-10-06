@@ -27,6 +27,7 @@ import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.change.tracking.store.CTStoreFactory;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
@@ -211,12 +212,11 @@ public class DLServiceVerifyProcess extends VerifyProcess {
 
 	protected void checkMimeTypes() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			String[] mimeTypes = {
-				ContentTypes.APPLICATION_OCTET_STREAM,
-				_MS_OFFICE_2010_TEXT_XML_UTF8
-			};
-
-			checkFileVersionMimeTypes(mimeTypes);
+			checkFileVersionMimeTypes(
+				new String[] {
+					ContentTypes.APPLICATION_OCTET_STREAM,
+					_MS_OFFICE_2010_TEXT_XML_UTF8
+				});
 
 			if (_log.isDebugEnabled()) {
 				_log.debug("Fixed file entries with invalid mime types");
@@ -376,6 +376,9 @@ public class DLServiceVerifyProcess extends VerifyProcess {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DLServiceVerifyProcess.class);
+
+	@Reference
+	private CTStoreFactory _ctStoreFactory;
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;

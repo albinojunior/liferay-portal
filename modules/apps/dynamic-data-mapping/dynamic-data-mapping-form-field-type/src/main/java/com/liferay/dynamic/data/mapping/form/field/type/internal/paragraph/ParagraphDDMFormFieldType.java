@@ -31,8 +31,7 @@ import org.osgi.service.component.annotations.Component;
 		"ddm.form.field.type.group=interface",
 		"ddm.form.field.type.icon=paragraph",
 		"ddm.form.field.type.label=paragraph-field-type-label",
-		"ddm.form.field.type.name=paragraph",
-		"ddm.form.field.type.scope=app-builder,forms"
+		"ddm.form.field.type.name=paragraph", "ddm.form.field.type.scope=forms"
 	},
 	service = DDMFormFieldType.class
 )

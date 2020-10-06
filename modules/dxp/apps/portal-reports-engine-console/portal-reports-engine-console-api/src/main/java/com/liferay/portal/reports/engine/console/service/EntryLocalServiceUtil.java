@@ -41,6 +41,10 @@ public class EntryLocalServiceUtil {
 	/**
 	 * Adds the entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param entry the entry
 	 * @return the entry that was added
 	 */
@@ -116,6 +120,10 @@ public class EntryLocalServiceUtil {
 	/**
 	 * Deletes the entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param entry the entry
 	 * @return the entry that was removed
 	 * @throws PortalException
@@ -130,6 +138,10 @@ public class EntryLocalServiceUtil {
 
 	/**
 	 * Deletes the entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param entryId the primary key of the entry
 	 * @return the entry that was removed
@@ -151,6 +163,12 @@ public class EntryLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -286,7 +304,8 @@ public class EntryLocalServiceUtil {
 			java.util.Date createDateGT, java.util.Date createDateLT,
 			boolean andSearch, int start, int end,
 			com.liferay.portal.kernel.util.OrderByComparator
-				orderByComparator) {
+				<com.liferay.portal.reports.engine.console.model.Entry>
+					orderByComparator) {
 
 		return getService().getEntries(
 			groupId, definitionName, userName, createDateGT, createDateLT,
@@ -369,6 +388,10 @@ public class EntryLocalServiceUtil {
 
 	/**
 	 * Updates the entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param entry the entry
 	 * @return the entry that was updated

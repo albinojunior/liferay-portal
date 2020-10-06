@@ -110,7 +110,7 @@ public class WikiPageImpl extends WikiPageBaseImpl {
 
 	@Override
 	public List<FileEntry> getAttachmentsFileEntries(
-			int start, int end, OrderByComparator obc)
+			int start, int end, OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
 		long attachmentsFolderId = getAttachmentsFolderId();
@@ -121,14 +121,13 @@ public class WikiPageImpl extends WikiPageBaseImpl {
 
 		return PortletFileRepositoryUtil.getPortletFileEntries(
 			getGroupId(), attachmentsFolderId,
-			WorkflowConstants.STATUS_APPROVED, start, end,
-			(OrderByComparator<FileEntry>)obc);
+			WorkflowConstants.STATUS_APPROVED, start, end, orderByComparator);
 	}
 
 	@Override
 	public List<FileEntry> getAttachmentsFileEntries(
 			String[] mimeTypes, int start, int end,
-			OrderByComparator<FileEntry> obc)
+			OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
 		long attachmentsFolderId = getAttachmentsFolderId();
@@ -139,7 +138,7 @@ public class WikiPageImpl extends WikiPageBaseImpl {
 
 		return PortletFileRepositoryUtil.getPortletFileEntries(
 			getGroupId(), attachmentsFolderId, mimeTypes,
-			WorkflowConstants.STATUS_APPROVED, start, end, obc);
+			WorkflowConstants.STATUS_APPROVED, start, end, orderByComparator);
 	}
 
 	@Override
@@ -273,7 +272,11 @@ public class WikiPageImpl extends WikiPageBaseImpl {
 
 	@Override
 	public long getNodeAttachmentsFolderId() {
-		WikiNode node = getNode();
+		WikiNode node = WikiNodeLocalServiceUtil.fetchWikiNode(getNodeId());
+
+		if (node == null) {
+			return 0;
+		}
 
 		return node.getAttachmentsFolderId();
 	}

@@ -15,6 +15,7 @@
 package com.liferay.knowledge.base.internal.exportimport.data.handler.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.test.util.lar.BaseStagedModelDataHandlerTestCase;
 import com.liferay.knowledge.base.constants.KBArticleConstants;
 import com.liferay.knowledge.base.constants.KBFolderConstants;
@@ -25,6 +26,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -43,6 +45,34 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class KBArticleStagedModelDataHandlerTest
 	extends BaseStagedModelDataHandlerTestCase {
+
+	@Test
+	public void testExportedKBArticleClassNameIdEqualsZero() throws Exception {
+		Map<String, List<StagedModel>> dependentStagedModelsMap =
+			addDependentStagedModelsMap(stagingGroup);
+
+		StagedModel stagedModel = addStagedModel(
+			stagingGroup, dependentStagedModelsMap);
+
+		exportImportStagedModel(stagedModel);
+
+		KBArticle kbArticle = (KBArticle)stagedModel;
+
+		initExport();
+
+		StagedModelDataHandlerUtil.exportStagedModel(
+			portletDataContext, kbArticle);
+
+		initImport();
+
+		KBArticle exportedKBArticle = (KBArticle)readExportedStagedModel(
+			kbArticle);
+
+		Assert.assertEquals(
+			0L,
+			(long)ReflectionTestUtil.getFieldValue(
+				exportedKBArticle, "_classNameId"));
+	}
 
 	@Test
 	public void testMovingKBArticleUpdatesParentResourcePrimKey()
@@ -133,7 +163,7 @@ public class KBArticleStagedModelDataHandlerTest
 	private KBArticle _addKBArticle(
 			long parentResourcePrimKey, long parentResourceClassNameId,
 			ServiceContext serviceContext)
-		throws PortalException {
+		throws Exception {
 
 		return KBArticleLocalServiceUtil.addKBArticle(
 			serviceContext.getUserId(), parentResourceClassNameId,
@@ -142,9 +172,7 @@ public class KBArticleStagedModelDataHandlerTest
 			StringUtil.randomString(), null, null, null, serviceContext);
 	}
 
-	private ServiceContext _createServiceContext(Group group)
-		throws PortalException {
-
+	private ServiceContext _createServiceContext(Group group) throws Exception {
 		return ServiceContextTestUtil.getServiceContext(group.getGroupId());
 	}
 

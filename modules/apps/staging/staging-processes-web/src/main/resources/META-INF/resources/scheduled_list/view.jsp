@@ -16,6 +16,12 @@
 
 <%@ include file="/init.jsp" %>
 
-<div class="container-fluid-1280" id="<portlet:namespace />scheduledProcessesContainer">
+<clay:container-fluid
+	id='<%= liferayPortletResponse.getNamespace() + "scheduledProcessesContainer" %>'
+>
+	<liferay-ui:breadcrumb
+		showLayout="<%= false %>"
+	/>
+
 	<liferay-util:include page="/scheduled_list/scheduled_publish_processes.jsp" servletContext="<%= application %>" />
-</div>
+</clay:container-fluid>

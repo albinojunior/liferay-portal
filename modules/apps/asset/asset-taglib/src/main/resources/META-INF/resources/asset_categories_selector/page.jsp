@@ -19,13 +19,11 @@
 <%
 Map<String, Object> data = (Map<String, Object>)request.getAttribute("liferay-asset:asset-categories-selector:data");
 
-String id = (String)data.get("id");
-String inputName = (String)data.get("inputName");
 List<Map<String, Object>> vocabularies = (List<Map<String, Object>>)data.get("vocabularies");
 %>
 
 <div>
-	<div id="<%= id %>">
+	<div id="<%= (String)data.get("id") %>">
 
 		<%
 		for (Map<String, Object> vocabulary : vocabularies) {
@@ -38,15 +36,7 @@ List<Map<String, Object>> vocabularies = (List<Map<String, Object>>)data.get("vo
 						<label>
 							<%= vocabulary.get("title") %>
 
-							<c:if test='<%= Validator.isNotNull(vocabulary.get("group")) %>'>
-								<%= StringPool.BLANK + "(" + vocabulary.get("group") + ")" %>
-							</c:if>
-
-							<%
-							boolean required = GetterUtil.getBoolean(vocabulary.get("required"));
-							%>
-
-							<c:if test="<%= required %>">
+							<c:if test='<%= GetterUtil.getBoolean(vocabulary.get("required")) %>'>
 								<span class="reference-mark">
 									<clay:icon
 										symbol="asterisk"
@@ -69,7 +59,7 @@ List<Map<String, Object>> vocabularies = (List<Map<String, Object>>)data.get("vo
 									List<Map<String, Object>> selectedItems = (List<Map<String, Object>>)vocabulary.get("selectedItems");
 									%>
 
-									<c:if test="<%= Validator.isNotNull(selectedItems) %>">
+									<c:if test="<%= selectedItems != null %>">
 
 										<%
 										for (Map<String, Object> selectedItem : selectedItems) {
@@ -78,11 +68,11 @@ List<Map<String, Object>> vocabularies = (List<Map<String, Object>>)data.get("vo
 										%>
 
 											<clay:label
-												closeable="<%= true %>"
+												dismissible="<%= true %>"
 												label="<%= selectedItemLabel %>"
 											/>
 
-											<input name="<%= inputName %>" type="hidden" value="<%= selectedItemValue %>" />
+											<input name="<%= (String)data.get("inputName") %>" type="hidden" value="<%= selectedItemValue %>" />
 
 										<%
 										}
@@ -111,7 +101,7 @@ List<Map<String, Object>> vocabularies = (List<Map<String, Object>>)data.get("vo
 	</div>
 
 	<react:component
-		data="<%= data %>"
 		module="asset_categories_selector/AssetCategoriesSelectorTag.es"
+		props="<%= data %>"
 	/>
 </div>

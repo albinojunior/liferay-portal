@@ -16,6 +16,7 @@ package com.liferay.source.formatter.checks.util;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -29,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,6 +149,24 @@ public class SourceUtil {
 		return ArrayUtil.toIntArray(multiLinePositions);
 	}
 
+	public static String getRootDirName(String absolutePath) {
+		while (true) {
+			int x = absolutePath.lastIndexOf(CharPool.SLASH);
+
+			if (x == -1) {
+				return StringPool.BLANK;
+			}
+
+			absolutePath = absolutePath.substring(0, x);
+
+			File file = new File(absolutePath + "/portal-impl");
+
+			if (file.exists()) {
+				return absolutePath;
+			}
+		}
+	}
+
 	public static String getTitleCase(
 		String s, boolean allowDash, String... exceptions) {
 
@@ -206,6 +226,56 @@ public class SourceUtil {
 		sb.setIndex(sb.index() - 1);
 
 		return sb.toString();
+	}
+
+	public static boolean hasTypo(String s1, String s2) {
+		if (Validator.isNull(s1) || Validator.isNull(s2) || s1.equals(s2) ||
+			(s1.charAt(0) != s2.charAt(0)) ||
+			(s1.charAt(s1.length() - 1) != s2.charAt(s2.length() - 1))) {
+
+			return false;
+		}
+
+		int min = Math.min(s1.length(), s2.length());
+		int diff = Math.abs(s1.length() - s2.length());
+
+		if ((min < 5) || (diff > 1)) {
+			return false;
+		}
+
+		int i = StringUtil.startsWithWeight(s1, s2);
+
+		s1 = s1.substring(i);
+
+		if (s1.startsWith(StringPool.UNDERLINE)) {
+			return false;
+		}
+
+		s2 = s2.substring(i);
+
+		if (s2.startsWith(StringPool.UNDERLINE)) {
+			return false;
+		}
+
+		for (int j = 1;; j++) {
+			if ((j > s1.length()) || (j > s2.length())) {
+				return true;
+			}
+
+			if (s1.charAt(s1.length() - j) != s2.charAt(s2.length() - j)) {
+				char[] chars1 = s1.toCharArray();
+				char[] chars2 = s2.toCharArray();
+
+				Arrays.sort(chars1);
+				Arrays.sort(chars2);
+
+				if (!Arrays.equals(chars1, chars2)) {
+					return false;
+				}
+
+				return true;
+			}
+		}
 	}
 
 	public static boolean isInsideMultiLines(

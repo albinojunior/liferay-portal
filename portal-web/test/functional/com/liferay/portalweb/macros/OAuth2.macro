@@ -18,7 +18,7 @@ definition {
 	}
 
 	macro addPrefixHandlerInSystemSettings {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -28,7 +28,7 @@ definition {
 			configurationName = "Bundle PrefixHandlerFactory",
 			configurationScope = "System Scope");
 
-		Click(locator1 = "Button#ADD");
+		Button.clickAdd();
 
 		FormFields.editTextMultiline(
 			fieldName = "osgi.jaxrs.name",
@@ -181,6 +181,16 @@ definition {
 		Navigator.gotoBack();
 	}
 
+	macro expandGlobalPanel {
+		var key_panel = "${globalPanel}";
+
+		if (IsElementPresent(locator1 = "OAuth2#ADMIN_GLOBAL_PANEL_COLLAPSED") && (IsVisible(locator1 = "OAuth2#ADMIN_GLOBAL_PANEL_COLLAPSED"))) {
+			Click(locator1 = "OAuth2#ADMIN_GLOBAL_PANEL_COLLAPSED");
+		}
+
+		AssertElementPresent(locator1 = "OAuth2#ADMIN_GLOBAL_PANEL_EXPANDED");
+	}
+
 	macro expandResourcePanel {
 		var key_panel = "${resourcePanel}";
 
@@ -218,7 +228,7 @@ definition {
 
 		Button.click(button = "Authorize");
 
-		Pause(locator1 = "5000");
+		Pause(locator1 = "3000");
 
 		var currentURL = selenium.getCurrentUrl();
 
@@ -323,9 +333,9 @@ definition {
 				locator1 = "Button#SELECT",
 				value1 = "Select");
 
-			SelectFrame(locator1 = "IFrame#DIALOG");
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-			Pause(locator1 = "3000");
+			Pause(locator1 = "2000");
 
 			Click(
 				key_clientCredentialsUser = "${clientCredentialsUser}",
@@ -357,7 +367,11 @@ definition {
 			locator1 = "OAuth2#ADMIN_AUTHORIZATIONS_REVOKE_BUTTON",
 			value1 = "Revoke");
 
-		AssertConfirm.waitForConfirmation(value1 = "Are you sure you want to revoke the authorization?");
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" != "safari") {
+			AssertConfirm.waitForConfirmation(value1 = "Are you sure you want to revoke the authorization?");
+		}
 
 		Alert.viewSuccessMessage();
 
@@ -462,10 +476,12 @@ definition {
 			locator1 = "OAuth2#ADMIN_TABLE_APP_DESCRIPTION",
 			value1 = "${description}");
 
-		AssertTextEquals(
-			key_tableName = "${applicationName}",
-			locator1 = "OAuth2#ADMIN_TABLE_APP_CLIENT_ID",
-			value1 = "${clientId}");
+		if (isSet(clientId)) {
+			AssertTextEquals(
+				key_tableName = "${applicationName}",
+				locator1 = "OAuth2#ADMIN_TABLE_APP_CLIENT_ID",
+				value1 = "${clientId}");
+		}
 	}
 
 	macro viewGrantedAuthViaAdmin {

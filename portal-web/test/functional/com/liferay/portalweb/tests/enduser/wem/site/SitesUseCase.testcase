@@ -34,20 +34,46 @@ definition {
 
 	@priority = "5"
 	test AddChildSiteFromImportedSiteTemplate {
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "SitesUsecase#AddChildSiteFromImportedSiteTemplate";
 		property testray.component.names = "Training";
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONOrganization.addOrganization(organizationName = "Space Program Academy of Continuing Education");
+
+		User.openUsersAdmin();
+
+		UsersAndOrganizationsNavigator.gotoOrganizations();
+
+		Suborganization.addCP(
+			orgName = "Space Program Academy of Continuing Education",
+			suborgName = "College of Agricultural Science");
+
+		User.openUsersAdmin();
+
+		UsersAndOrganizationsNavigator.gotoOrganizations();
+
+		LAR.exportPortlet(larFileName = "organizations.lar");
+
+		Suborganization.removeCP(
+			orgName = "Space Program Academy of Continuing Education",
+			subOrgName = "College of Agricultural Science");
+
+		User.openUsersAdmin();
+
+		UsersAndOrganizationsNavigator.gotoOrganizations();
+
+		Organization.deleteCP(orgName = "Space Program Academy of Continuing Education");
+
+		Organization.deleteCP(orgName = "College of Agricultural Science");
+
+		User.openUsersAdmin();
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		LAR.importPortlet(
-			larFileName = "organizations-7.0.lar",
-			portletName = "Users and Organizations",
-			uploadFrom = "dependencies");
+			larFileName = "organizations.lar",
+			portletName = "Users and Organizations");
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
@@ -55,35 +81,35 @@ definition {
 			orgName = "Space Program Academy of Continuing Education",
 			orgType = "Organization");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		Organization.addSiteCP(orgName = "College of Agricultural Science");
 
-		SitePages.openPagesAdmin(siteURLKey = "College of Agricultural Science");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplates.addCP(siteTemplateName = "Digital Class Room");
+
+		for (var pageName : list "Courses,Student Boards,Materials") {
+
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "${pageName}",
+				siteTemplateName = "Digital Class Room");
+		}
+
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+
+		LAR.exportPortlet(larFileName = "class-site-template.lar");
+
+		SiteTemplates.deleteCP(siteTemplateName = "Digital Class Room");
+
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		LAR.importPortlet(
-			larFileName = "class-site-template-7.2.lar",
+			larFileName = "class-site-template.lar",
 			portletName = "Site Templates",
-			uploadFrom = "dependencies");
+			siteTemplateName = "Digital Class Room");
 
-		SiteTemplates.viewCP(siteTemplateName = "Digital Class Room");
-
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addBlankCP(
 			membershipType = "Private",
@@ -95,10 +121,7 @@ definition {
 			selectPrivatePages = "true",
 			siteTemplate = "Digital Class Room");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addBlankCP(
 			membershipType = "Private",
@@ -130,13 +153,12 @@ definition {
 
 	@priority = "5"
 	test AddOrganizationSitesAndDeactivate {
-		property test.name.skip.portal.instance = "SitesUsecase#AddOrganizationSitesAndDeactivate";
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "SitesUseCase#AddOrganizationSitesAndDeactivate";
 		property testray.component.names = "Site Administration,Training,Users and Organizations";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "System Settings");
+		SystemSettings.openSystemSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
 			configurationCategory = "Infrastructure",
@@ -147,136 +169,82 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		SiteTemplates.addCP(siteTemplateName = "Site Template Name 1");
 
-		Organization.addCP(
-			orgName = "Organization Name 1",
-			orgType = "Organization");
+		SiteTemplates.addCP(siteTemplateName = "Site Template Name 2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONOrganization.addOrganization(organizationName = "Organization Name 1");
+
+		User.openUsersAdmin();
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		Organization.addSiteCP(
-			organizationSite = "Community Site",
-			orgName = "Organization Name 1");
+			orgName = "Organization Name 1",
+			siteTemplateName = "Site Template Name 1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		Site.openSiteSettingsAdmin(siteURLKey = "organization-name-1");
 
-		UsersAndOrganizationsNavigator.gotoOrganizations();
-
-		Organization.manageMembershipOptionsInSites(
+		Site.manageMembershipOptions(
 			allowManualMembershipManagement = "true",
 			membershipType = "Open",
-			orgName = "Organization Name 1",
 			selectMembershipType = "true");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.viewCP(
 			siteMember = "Organization",
 			siteName = "Organization Name 1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONOrganization.addOrganization(organizationName = "Organization Name 2");
 
-		Organization.addCP(
-			orgName = "Organization Name 2",
-			orgType = "Organization");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		Organization.addSiteCP(
-			organizationSite = "Intranet Site",
-			orgName = "Organization Name 2");
+			orgName = "Organization Name 2",
+			siteTemplateName = "Site Template Name 2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		Site.openSiteSettingsAdmin(siteURLKey = "organization-name-2");
 
-		UsersAndOrganizationsNavigator.gotoOrganizations();
-
-		Organization.manageMembershipOptionsInSites(
+		Site.manageMembershipOptions(
 			allowManualMembershipManagement = "true",
 			membershipType = "Open",
-			orgName = "Organization Name 2",
 			selectMembershipType = "true");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.viewCP(
 			siteMember = "Organization",
 			siteName = "Organization Name 2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		Site.assignUserSitesCP(
 			siteName = "Organization Name 1",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		Site.assignUserSitesCP(
 			siteName = "Organization Name 2",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Administrator",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		User.firstLoginPG(userEmailAddress = "userea@liferay.com");
 
@@ -284,28 +252,25 @@ definition {
 
 		Page.viewDefaultSiteTemplatePagesPG(
 			pageName = "Home",
-			siteName = "Organization Name 1",
-			siteTemplate = "Community");
+			siteName = "Organization Name 1");
 
 		Navigator.openSiteURL(siteName = "Organization Name 2");
 
 		Page.viewDefaultSiteTemplatePagesPG(
 			pageName = "Home",
-			siteName = "Organization Name 2",
-			siteTemplate = "Intranet");
+			siteName = "Organization Name 2");
 
 		Navigator.openSiteURL(siteName = "Organization Name 2");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.deactivateCP(
 			siteName = "Organization Name 2",
 			successMessage = "true");
 
-		Navigator.openSiteURL(siteName = "Organization Name 2");
+		var baseURL = PropsUtil.get("portal.url");
+
+		Navigator.openSpecificURL(url = "${baseURL}/web/organization-name-2");
 
 		Page.viewInactiveRequestMessage(resource = "site");
 
@@ -318,39 +283,28 @@ definition {
 	test MySitesDropDownDoesNotShowUserOrganizationOnTop {
 		property testray.component.names = "Site Administration,Users and Organization";
 
-		for (var siteNameListsCount : list "Site1 Name,Site2 Name,Site3 Name,Site4 Name,Site5 Name,Site6 Name,Site7 Name,Site8 Name,Site9 Name,Site10 Name") {
-			ProductMenu.gotoPortlet(
-				category = "Sites",
-				panel = "Control Panel",
-				portlet = "Sites");
+		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-			Site.addCommunityCP(siteName = "${siteNameListsCount}");
+		for (var siteNameListsCount : list "Site1 Name,Site2 Name,Site3 Name,Site4 Name,Site5 Name,Site6 Name,Site7 Name,Site8 Name,Site9 Name,Site10 Name") {
+			Site.openSitesAdmin();
+
+			Site.addCP(
+				siteName = "${siteNameListsCount}",
+				siteTemplateName = "Site Template Name",
+				siteType = "Site Template");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONOrganization.addOrganization(organizationName = "Site Organization Name");
 
-		Organization.addCP(
-			orgName = "Site Organization Name",
-			orgType = "Organization");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		Organization.addSiteCP(
-			organizationSite = "Community Site",
-			orgName = "Site Organization Name");
+			orgName = "Site Organization Name",
+			siteTemplateName = "Site Template Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
@@ -366,6 +320,7 @@ definition {
 
 	@priority = "3"
 	test OnlySiteOwnersCanAssignSiteRolesToUserGroups {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property testray.component.names = "Site Administration,User Groups";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
@@ -374,19 +329,11 @@ definition {
 			roleKey = "Roles Siterole Name",
 			roleTitle = "Roles Siterole Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		UserGroup.addCP(userGroupName = "UG UserGroup Name");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Memberships");
+		Site.openSiteMembershipsAdmin(siteURLKey = "guest");
 
 		Site.assignUserGroupAsMemberCP(userGroupName = "UG UserGroup Name");
 
@@ -394,7 +341,7 @@ definition {
 			roleKey = "Roles Regrole Name",
 			roleTitle = "Roles Regrole Name");
 
-		for (var resourceActionIndex : list "ASSIGN_MEMBERS,ASSIGN_USER_ROLES,VIEW_SITE_ADMINISTRATION") {
+		for (var resourceActionIndex : list "ASSIGN_MEMBERS,ASSIGN_USER_ROLES,VIEW_MEMBERS,VIEW_SITE_ADMINISTRATION") {
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "${resourceActionIndex}",
 				resourceName = "com.liferay.portal.kernel.model.Group",
@@ -411,65 +358,38 @@ definition {
 			resourceName = "com.liferay.portal.kernel.model.Role",
 			roleTitle = "Roles Regrole Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.editUserSiteCP(
 			siteName = "${siteName}",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
-
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Roles Regrole Name",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
 			userLoginFullName = "userfn userln");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Memberships");
+		Site.openSiteMembershipsAdmin(siteURLKey = "guest");
 
 		Site.assignSiteRoleCP(
 			resourceName = "userfn userln",
 			roleTitle = "Roles Siterole Name");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Memberships");
+		Site.openSiteMembershipsAdmin(siteURLKey = "guest");
 
 		NavItem.gotoUserGroups();
 
@@ -482,27 +402,20 @@ definition {
 
 	@priority = "4"
 	test PrivateVirtualHostUrlDoesNotRedirectUserToLoginPage {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property testray.component.names = "Site Administration";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "guest");
 
 		Site.addVirtualHostsURLCP(
 			privatePageVirtualHostURL = "www.able.com",
 			privateVirtualHosts = "true");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
-
-		SitePages.addPrivatePage(pageName = "Test Private Page");
+		JSONLayout.addPrivateLayout(
+			groupName = "Guest",
+			layoutName = "Test Private Page");
 
 		User.logoutPG();
 
@@ -514,30 +427,18 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.editUserSiteCP(
 			siteName = "${siteName}",
@@ -583,51 +484,59 @@ definition {
 
 		PortalSettings.editConfigurationUsersEmailVerificationNotificationsCP();
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Site Name");
 
-		Site.addBlankCP(siteName = "Site Name");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
 		Site.addVirtualHostsURLCP(
 			publicPageVirtualHostURL = "www.baker.com",
 			publicVirtualHosts = "true");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "Site Name");
 
 		SitePages.addPublicPage(pageName = "Site Page Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Server Administration");
+		ServerAdministration.openServerAdmin();
 
 		ServerAdministration.configureMailServerSettings(
-			userName = PropsUtil.get("email.address.1"),
-			userPassword = PropsUtil.get("email.password.1"));
+			userName = PropsUtil.get("email.address.2"),
+			userPassword = PropsUtil.get("email.password.2"));
 
 		Navigator.openSpecificURL(url = "http://www.able.com:8080/");
 
 		Navigator.openSpecificURL(url = "http://www.baker.com:8080/");
 
-		User.logoutPG();
+		User.openUsersAdmin();
 
-		User.addCreateAccountPG(
-			newPassword = "password",
-			userEmailAddress = PropsUtil.get("email.address.2"),
+		User.addCP(
+			userEmailAddress = PropsUtil.get("email.address.3"),
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
+		User.openUsersAdmin();
+
+		UserNavigator.gotoUser(userScreenName = "usersn");
+
+		UserNavigator.gotoPassword();
+
+		Type(
+			locator1 = "UsersAndOrganizationsEditUser#PASSWORD_NEW_PASSWORD_FIELD",
+			value1 = "password");
+
+		Type(
+			locator1 = "UsersAndOrganizationsEditUser#PASSWORD_ENTER_AGAIN_FIELD",
+			value1 = "password");
+
+		PortletEntry.save();
+
+		User.logoutPG();
+
 		Pause(locator1 = "30000");
 
 		Gmail.login(
-			userEmailAddress = PropsUtil.get("email.address.2"),
-			userPassword = PropsUtil.get("email.password.2"));
+			userEmailAddress = PropsUtil.get("email.address.3"),
+			userPassword = PropsUtil.get("email.password.3"));
 
 		Gmail.gotoHtmlMode();
 
@@ -647,7 +556,7 @@ definition {
 		User.signInPG(
 			emailPassword = "password",
 			emailVerification = "${emailVerification}",
-			userEmailAddress = PropsUtil.get("email.address.2"));
+			userEmailAddress = PropsUtil.get("email.address.3"));
 
 		User.firstLoginPG(
 			password = "test",
@@ -662,11 +571,11 @@ definition {
 
 		Navigator.openSpecificURL(url = "http://www.baker.com:8080/");
 
-		User.editEmailViaMyAccount(userEmailAddress = PropsUtil.get("email.address.3"));
+		User.editEmailViaMyAccount(userEmailAddress = PropsUtil.get("email.address.4"));
 
 		Gmail.logoutAndLogin(
-			userEmailAddress = PropsUtil.get("email.address.3"),
-			userPassword = PropsUtil.get("email.password.3"));
+			userEmailAddress = PropsUtil.get("email.address.4"),
+			userPassword = PropsUtil.get("email.password.4"));
 
 		Gmail.gotoHtmlMode();
 
@@ -690,54 +599,36 @@ definition {
 
 	@priority = "3"
 	test SiteFriendlyURLLayoutImporter {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property testray.component.names = "Site Administration";
 		var portalURL = PropsUtil.get("portal.url");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		UserGroup.addCP(userGroupName = "User Group Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		UserGroup.gotoAddPageCP(userGroupName = "User Group Name");
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "site Page Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		UserGroup.assignMemberCP(
 			userGroupName = "User Group Name",
@@ -755,19 +646,11 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Site Page Name");
 
-		SitePages.addPublicPage(pageName = "Site Page Name");
-
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "guest");
 
 		Site.editFriendlyURLCP(siteFriendlyURLEdit = "/liferay");
 
@@ -775,23 +658,18 @@ definition {
 
 		AssertLocation(value1 = "${portalURL}/web/liferay/site-page-name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "liferay");
 
 		Site.editFriendlyURLCP(siteFriendlyURLEdit = "/guest");
 	}
 
 	@priority = "3"
 	test SitesDeactivated {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property test.name.skip.portal.instance = "SitesUsecase#SitesDeactivated";
 		property testray.component.names = "Site Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "System Settings");
+		SystemSettings.openSystemSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
 			configurationCategory = "Infrastructure",
@@ -802,57 +680,36 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		Site.addBlankCP(siteName = "Site1 Name");
+		JSONGroup.addGroup(groupName = "Site1 Name");
+
+		Site.openSiteSettingsAdmin(siteURLKey = "site1-name");
 
 		Site.selectPageType(
 			selectPublicPages = "true",
-			siteTemplate = "Community Site");
+			siteTemplate = "Site Template Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Site2 Name");
 
-		Site.addBlankCP(siteName = "Site2 Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "site2-name");
 
 		Site.editCP(
 			siteName = "Site2 Name",
 			siteNameEdit = "Site2 Name Edit");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.editUserSiteCP(
 			siteName = "Site1 Name",
@@ -873,12 +730,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		SitePages.openPagesAdmin(siteURLKey = "Site1 Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "site1-name");
 
 		Site.inactivateCP(siteName = "Site1 Name");
 
@@ -886,7 +738,9 @@ definition {
 			password = "test",
 			userEmailAddress = "userea@liferay.com");
 
-		Navigator.openSiteURL(siteName = "Site1 Name");
+		var baseURL = PropsUtil.get("portal.url");
+
+		Navigator.openSpecificURL(url = "${baseURL}/web/site1-name");
 
 		Page.viewInactiveRequestMessage(resource = "site");
 
@@ -897,15 +751,14 @@ definition {
 
 	@priority = "4"
 	test SitesDemoSiteManagement {
-		property portal.release = "false";
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.release = "true";
 		property test.name.skip.portal.instance = "SitesUsecase#SitesDemoSiteManagement";
 		property testray.component.names = "Site Administration,Site Pages Administration";
+
 		var portalURL = PropsUtil.get("portal.url");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addBlankCP(
 			membershipTypeOption = "Open",
@@ -925,43 +778,32 @@ definition {
 
 		Site.editFriendlyURLCP(siteFriendlyURLEdit = "/russia2018");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
-
 		for (var publicPageName : list "Home,Arenas") {
-			SitePages.addPublicPage(pageName = "${publicPageName}");
+			JSONLayout.addPublicLayout(
+				groupName = "World Cup - Russia 2018",
+				layoutName = "${publicPageName}");
 		}
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
 
 		for (var childPageName : list "Arena Baltika,Zenit Arena,Kazan Arena") {
-			SitePages.addPublicChildPage(
-				childPageName = "${childPageName}",
-				parentPageName = "Arenas");
+			JSONLayout.addPublicLayout(
+				groupName = "World Cup - Russia 2018",
+				layoutName = "${childPageName}",
+				parentLayoutName = "Arenas");
 		}
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
 
 		for (var privatePageName : list "Accomodations,Maps") {
-			SitePages.addPrivatePage(pageName = "${privatePageName}");
+			JSONLayout.addPrivateLayout(
+				groupName = "World Cup - Russia 2018",
+				layoutName = "${privatePageName}");
 		}
+
+		SitePages.openPagesAdmin(siteURLKey = "russia2018");
 
 		Site.changeSiteLogo(
 			logoFile = "Document_3.png",
 			pageName = "Public Pages");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "russia2018");
 
 		Page.addJavaScript(
 			javaScript = "alert(&apos;Welcome to Russia.&apos;);",
@@ -997,46 +839,30 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		Page.addJavaScript(
 			javaScript = " ",
 			pageName = "Arenas");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		Site.assignUserSitesCP(
 			siteName = "World Cup - Russia 2018",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.assignSiteRoleCP(
 			siteRoleName = "Site Administrator",
@@ -1044,6 +870,7 @@ definition {
 
 		User.firstLoginPG(
 			password = "test",
+			samlEnabled = "true",
 			userEmailAddress = "userea@liferay.com",
 			virtualHostsURL = "www.baker.com:8080/group/russia2018");
 
@@ -1055,7 +882,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Publishing",
-			panel = "Site Administration",
 			portlet = "Export");
 
 		LexiconEntry.gotoAdd();
@@ -1074,12 +900,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
-
-		Site.addBlankCP(siteName = "Site Name");
+		JSONGroup.addGroup(groupName = "Site Name");
 
 		LAR.importSiteCP(
 			larFileName = "${larFileName}",
@@ -1099,74 +920,46 @@ definition {
 
 	@priority = "4"
 	test SiteTeamsPermissions {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property testray.component.names = "Permissions,Site Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Site Name");
 
-		Site.addBlankCP(siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "Site Name");
 
 		SitePages.addPublicPage(
 			pageName = "Blog Page Template",
 			pageTemplateName = "Blog");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea1@liferay.com",
 			userFirstName = "userfn1",
 			userLastName = "userln1",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea1@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea1@liferay.com",
-			userScreenName = "usersn1");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.editUserSiteCP(
 			siteName = "Site Name",
 			userScreenName = "usersn1");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "userea2@liferay.com",
 			userFirstName = "userfn2",
 			userLastName = "userln2",
 			userScreenName = "usersn2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea2@liferay.com");
 
-		User.editPasswordCP(
-			userEmailAddress = "userea2@liferay.com",
-			userScreenName = "usersn2");
-
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
@@ -1177,27 +970,21 @@ definition {
 
 		SitePages.openPagesAdmin(siteURLKey = "Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Teams");
+		Site.openSiteTeamsAdmin(siteURLKey = "site-name");
 
 		Team.addCP(
 			teamDescription = "Site Team Description",
 			teamName = "Site Team Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Teams");
+		Site.openSiteTeamsAdmin(siteURLKey = "site-name");
 
 		Team.assignMembersCP(
 			teamName = "Site Team Name",
 			userScreenName = "usersn1");
 
-		PermissionsInline.gotoPagePG(pageName = "Blog Page Template");
+		PermissionsInline.gotoPagePG(
+			pageName = "Blog Page Template",
+			site = "Site Name");
 
 		Role.removePermissionPG(
 			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
@@ -1207,7 +994,9 @@ definition {
 			pageName = "Blog Page Template",
 			siteName = "Site Name");
 
-		PermissionsInline.gotoPagePG(pageName = "Blog Page Template");
+		PermissionsInline.gotoPagePG(
+			pageName = "Blog Page Template",
+			site = "Site Name");
 
 		for (var permissionsInLineUncheckListsCount : list "CONTENT_PERMISSIONS_ADD_DISCUSSION_CHECKBOX,CONTENT_PERMISSIONS_VIEW_CHECKBOX") {
 			Role.removePermissionPG(
@@ -1219,7 +1008,9 @@ definition {
 			pageName = "Blog Page Template",
 			siteName = "Site Name");
 
-		PermissionsInline.gotoPagePG(pageName = "Blog Page Template");
+		PermissionsInline.gotoPagePG(
+			pageName = "Blog Page Template",
+			site = "Site Name");
 
 		for (var permissionsInLineCheckListsCount : list "ACTION_ADD_DISCUSSION,ACTION_ADD_LAYOUT,ACTION_CONFIGURE_PORTLETS,ACTION_CUSTOMIZE,ACTION_DELETE,ACTION_DELETE_DISCUSSION,ACTION_PERMISSIONS,ACTION_UPDATE,ACTION_UPDATE_DISCUSSION,ACTION_VIEW") {
 			Team.definePermissionPG(
@@ -1256,26 +1047,15 @@ definition {
 	test SiteTeamsXSS {
 		property testray.component.names = "Site Administration,XSS";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		JSONGroup.addGroup(groupName = "Site Name");
 
-		Site.addBlankCP(siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Teams");
+		Site.openSiteTeamsAdmin(siteURLKey = "site-name");
 
 		Team.addCP(
 			teamDescription = '''<script>alert(123);</script>''',
 			teamName = '''<script>alert(123);</script>''');
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
 		Site.assignDefaultSiteTeam(teamName = '''<script>alert(123);</script>''');
 
@@ -1288,6 +1068,44 @@ definition {
 		AssertHTMLSourceTextNotPresent(value1 = "${actualScript}");
 
 		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
+	}
+
+	@description = "This ensures that the custom site logo can be viewed in cards and list views."
+	@priority = "4"
+	test ViewSiteLogo {
+		property portal.upstream = "true";
+		JSONGroup.addGroup(groupName = "Site Name");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Site Name",
+			layoutName = "Site Page");
+
+		JSONGroup.addChildSite(
+			groupName = "Child SiteName",
+			parentGroupName = "Site Name");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Child SiteName",
+			layoutName = "Site Page",
+			parentGroupName = "Site Name");
+
+		Navigator.openSiteURL(siteName = "Site Name");
+
+		Site.changeSiteLogo(
+			logoFile = "Document_2.png",
+			pageName = "Public Pages");
+
+		Navigator.openSiteURL(siteName = "Child SiteName");
+
+		Site.changeSiteLogo(
+			logoFile = "Document_3.png",
+			pageName = "Public Pages");
+
+		Site.viewCustomSiteLogoInDifferentViews(site = "Site Name");
+
+		IFrame.closeFrame();
+
+		Site.viewCustomSiteLogoInDifferentViews(site = "Child SiteName");
 	}
 
 }

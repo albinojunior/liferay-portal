@@ -1,4 +1,5 @@
 = Liferay Connector
+:imagesdir: images
 
 == Overview
 The Anypoint Liferay Connector connects Liferay to other platforms and services
@@ -79,14 +80,14 @@ Enter it into the
 
 ```xml
  <liferay:config name="Liferay_Config_Catalog">
- <liferay:basic-connection _username=${username} _password=${password} openApiSpecPath="http://localhost:8080/o/headless-commerce-admin-catalog/v1.0/openapi.json"/>
+ <liferay:basic-connection username=${username} password=${password} openApiSpecPath="http://localhost:8080/o/headless-commerce-admin-catalog/v1.0/openapi.json"/>
  </liferay:config>
 ```
 
 * Configuration example using OAuth 2.0
 ```xml
  <liferay:config name="Liferay_Config_Catalog">
-    <liferay:oauth2-connection _consumerKey="${consumerKey}" _consumerSecret=${consumerSecret} penApiSpecPath="http://localhost:8080/o/headless-commerce-admin-catalog/v1.0/openapi.json"/>
+    <liferay:oauth2-connection consumerKey="${consumerKey}" consumerSecret=${consumerSecret} openApiSpecPath="http://localhost:8080/o/headless-commerce-admin-catalog/v1.0/openapi.json"/>
  </liferay:config>
 ```
 
@@ -96,23 +97,23 @@ Liferay connector!
 == Operations
 Now that you've created your Mule project and imported and configured the
 Liferay connector, you can build your Mule flows using Liferay connector
-operations. Operations *Create*, *Delete*, *Get* and *Update* resources defined
-by your OpenAPI document. Each operation implements and exposes different parts
-of the specified OpenAPI document.
+operations. Operations *Create Records*, *Delete Records*, *Get Records*, and
+*Update Records* resources defined by your OpenAPI document. Each operation
+implements and exposes different parts of the specified OpenAPI document.
 
-=== Create Operation
+=== Create Records Operation
 
 Create exposes all endpoints that are manipulated by HTTP POST.
 
 The SwaggerHub UI shows all available path parameters, request body
 structures, and all possible responses.
 
-image::/images/swaggerhub_products_post.png[The "/products" endpoint creates a new product using HTTP POST.]
+image::swaggerhub_products_post.png[The "/products" endpoint creates a new product using HTTP POST.]
 
 Once you select desired endpoint from the Endpoint selector the connector
 dynamically generates related Metadata.
 
-image::/images/anypoint_studio_products_create.png[The same endpoint is used in a flow that imports products from Salesforce into Liferay Commerce. ]
+image::anypoint_studio_products_create.png[The same endpoint is used in a flow that imports products from Salesforce into Liferay Commerce. ]
 
 Next, you define input parameters. Input parameters support all Liferay RESTful
 web services and need not be used with every endpoint:
@@ -145,91 +146,8 @@ web services and need not be used with every endpoint:
 |No
 |===
 
-=== Delete Operation
-The Delete operation exposes all endpoints that are manipulated by HTTP DELETE.
-Input parameters:
-
-[%header,cols=4*]
-|===
-|Parameter name
-|Type
-|Description
-|Required
-
-|Endpoint
-|String
-|Drop down list of available endpoints that support delete operation
-|Yes
-
-|Path Params
-|Object
-|Map with path parameter values
-|Yes (if required by endpoint)
-
-|Query Params
-|Object
-|Map with query parameter values
-|No
-|===
-
-=== Get Operation
-The Get operation exposes all endpoints that are manipulated by HTTP GET.
-Input parameters:
-
-[%header,cols=4*]
-|===
-|Parameter name
-|Type
-|Description
-|Required
-
-|Endpoint
-|String
-|Drop down list of available endpoints that support get operation
-|Yes
-
-|Path Params
-|Object
-|Map with path parameter values
-|Yes (if required by endpoint)
-
-|Query Params
-|Object
-|Map with query parameter values
-|No
-|===
-
-=== Update Operation
-The Update operation exposes all endpoints that are manipulated by HTTP PATCH.
-Input parameters:
-
-[%header,cols=4*]
-|===
-|Parameter name
-|Type
-|Description
-|Required
-
-|Endpoint
-|String
-|Drop down list of available endpoints that support update operation
-|Yes
-
-|Records
-|Object
-|Object to be updated
-|Yes
-
-|Path Params
-|Object
-|Map with path parameter values
-|Yes (if required by endpoint)
-
-|Query Params
-|Object
-|Map with query parameter values
-|No
-|===
+To see list of all available operations and related input parameters check out
+link:liferay-connector-tech-ref.adoc[Liferay Connector Technical Reference].
 
 You should use
 https://app.swaggerhub.com/organizations/liferayinc as documentation for Liferay

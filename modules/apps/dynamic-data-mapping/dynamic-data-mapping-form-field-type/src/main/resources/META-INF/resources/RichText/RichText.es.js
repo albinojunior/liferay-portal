@@ -12,161 +12,59 @@
  * details.
  */
 
-import '../FieldBase/FieldBase.es';
+import {ClassicEditor} from 'frontend-editor-ckeditor-web';
+import React from 'react';
 
-import './RichTextAdapter.soy';
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
+import {useSyncValue} from '../hooks/useSyncValue.es';
 
-import './RichTextRegister.soy';
+const RichText = ({
+	editorConfig,
+	id,
+	name,
+	onChange,
+	predefinedValue,
+	readOnly,
+	value,
+	visible,
+	...otherProps
+}) => {
+	const [currentValue, setCurrentValue] = useSyncValue(
+		value ? value : predefinedValue
+	);
 
-import './ReactRichTextAdapter.es';
+	return (
+		<FieldBase
+			{...otherProps}
+			id={id}
+			name={name}
+			readOnly={readOnly}
+			style={readOnly ? {pointerEvents: 'none'} : null}
+			visible={visible}
+		>
+			<ClassicEditor
+				contents={currentValue}
+				data={currentValue}
+				editorConfig={editorConfig.JSONObject}
+				name={name}
+				onChange={(data) => {
+					if (currentValue !== data) {
+						setCurrentValue(data);
 
-import Component from 'metal-component';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+						onChange({}, data);
+					}
+				}}
+				readOnly={readOnly}
+			/>
 
-import templates from './RichText.soy';
-
-class RichText extends Component {
-	dispatchEvent(event, name, value) {
-		this.emit(name, {
-			fieldInstance: this,
-			originalEvent: event,
-			value,
-		});
-	}
-
-	_handleOnDispatch(event) {
-		switch (event.type) {
-			case 'value':
-				this.dispatchEvent(event, 'fieldEdited', event.payload);
-				break;
-			default:
-				console.error(new TypeError(`There is no type ${event.type}`));
-				break;
-		}
-	}
-}
-
-RichText.STATE = {
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	errorMessage: Config.string(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof RichText
-	 * @type {?bool}
-	 */
-
-	evaluable: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	name: Config.string().required(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	predefinedValue: Config.string(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Text
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool().value(false),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Text
-	 * @type {?(bool|undefined)}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof Text
-	 * @type {?(bool|undefined)}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	value: Config.string(),
+			<input
+				defaultValue={currentValue}
+				id={id || name}
+				name={name}
+				type="hidden"
+			/>
+		</FieldBase>
+	);
 };
 
-Soy.register(RichText, templates);
-
-export {RichText};
 export default RichText;

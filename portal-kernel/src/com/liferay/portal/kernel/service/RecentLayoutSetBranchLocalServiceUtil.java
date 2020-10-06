@@ -47,6 +47,10 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 	/**
 	 * Adds the recent layout set branch to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutSetBranch the recent layout set branch
 	 * @return the recent layout set branch that was added
 	 */
@@ -95,6 +99,10 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 	/**
 	 * Deletes the recent layout set branch with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param recentLayoutSetBranchId the primary key of the recent layout set branch
 	 * @return the recent layout set branch that was removed
 	 * @throws PortalException if a recent layout set branch with the primary key could not be found
@@ -109,6 +117,10 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 
 	/**
 	 * Deletes the recent layout set branch from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutSetBranch the recent layout set branch
 	 * @return the recent layout set branch that was removed
@@ -127,6 +139,12 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 
 	public static void deleteUserRecentLayoutSetBranches(long userId) {
 		getService().deleteUserRecentLayoutSetBranches(userId);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -273,15 +291,15 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 	}
 
 	/**
-	 * Returns a range of all the recent layout set branchs.
+	 * Returns a range of all the recent layout set branches.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portal.model.impl.RecentLayoutSetBranchModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of recent layout set branchs
-	 * @param end the upper bound of the range of recent layout set branchs (not inclusive)
-	 * @return the range of recent layout set branchs
+	 * @param start the lower bound of the range of recent layout set branches
+	 * @param end the upper bound of the range of recent layout set branches (not inclusive)
+	 * @return the range of recent layout set branches
 	 */
 	public static java.util.List
 		<com.liferay.portal.kernel.model.RecentLayoutSetBranch>
@@ -291,9 +309,9 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 	}
 
 	/**
-	 * Returns the number of recent layout set branchs.
+	 * Returns the number of recent layout set branches.
 	 *
-	 * @return the number of recent layout set branchs
+	 * @return the number of recent layout set branches
 	 */
 	public static int getRecentLayoutSetBranchsCount() {
 		return getService().getRecentLayoutSetBranchsCount();
@@ -301,6 +319,10 @@ public class RecentLayoutSetBranchLocalServiceUtil {
 
 	/**
 	 * Updates the recent layout set branch in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect RecentLayoutSetBranchLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param recentLayoutSetBranch the recent layout set branch
 	 * @return the recent layout set branch that was updated

@@ -54,6 +54,9 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.portlet.ControlPanelEntry;
+import com.liferay.portal.kernel.resource.bundle.CacheResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.sanitizer.Sanitizer;
 import com.liferay.portal.kernel.search.IndexerPostProcessor;
 import com.liferay.portal.kernel.security.auth.AuthFailure;
@@ -92,8 +95,6 @@ import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.url.ServletContextURLContainer;
-import com.liferay.portal.kernel.util.CacheResourceBundleLoader;
-import com.liferay.portal.kernel.util.ClassResourceBundleLoader;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.InstanceFactory;
@@ -101,7 +102,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
@@ -264,9 +264,9 @@ public class HookHotDeployListener
 		try {
 			doInvokeDeploy(hotDeployEvent);
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			throwHotDeployException(
-				hotDeployEvent, "Error registering hook for ", t);
+				hotDeployEvent, "Error registering hook for ", throwable);
 		}
 	}
 
@@ -277,9 +277,9 @@ public class HookHotDeployListener
 		try {
 			doInvokeUndeploy(hotDeployEvent);
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			throwHotDeployException(
-				hotDeployEvent, "Error unregistering hook for ", t);
+				hotDeployEvent, "Error unregistering hook for ", throwable);
 		}
 	}
 
@@ -1145,14 +1145,12 @@ public class HookHotDeployListener
 				ResourceBundle resourceBundle = new LiferayResourceBundle(
 					inputStream, StringPool.UTF8);
 
-				Map<String, Object> properties =
-					HashMapBuilder.<String, Object>put(
-						"language.id", LocaleUtil.toLanguageId(locale)
-					).build();
-
 				registerService(
 					servletContextName, languagePropertiesLocation,
-					ResourceBundle.class, resourceBundle, properties);
+					ResourceBundle.class, resourceBundle,
+					HashMapBuilder.<String, Object>put(
+						"language.id", LocaleUtil.toLanguageId(locale)
+					).build());
 			}
 		}
 	}
@@ -1320,7 +1318,7 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, authTokenClassName, AuthToken.class,
-				authToken);
+				authToken, "service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(
@@ -1336,7 +1334,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, controlPanelEntryClassName,
-				ControlPanelEntry.class, controlPanelEntry);
+				ControlPanelEntry.class, controlPanelEntry, "service.ranking",
+				1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.DL_FILE_ENTRY_PROCESSORS)) {
@@ -1425,7 +1424,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, attributesTransformerClassName,
-				AttributesTransformer.class, attributesTransformer);
+				AttributesTransformer.class, attributesTransformer,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(LOCK_LISTENERS)) {
@@ -1439,7 +1439,7 @@ public class HookHotDeployListener
 
 				registerService(
 					servletContextName, lockListenerClassName,
-					LockListener.class, lockListener);
+					LockListener.class, lockListener, "service.ranking", 1000);
 			}
 		}
 
@@ -1451,7 +1451,8 @@ public class HookHotDeployListener
 				portletClassLoader, Hook.class, mailHookClassName);
 
 			registerService(
-				servletContextName, mailHookClassName, Hook.class, mailHook);
+				servletContextName, mailHookClassName, Hook.class, mailHook,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(
@@ -1469,7 +1470,7 @@ public class HookHotDeployListener
 			registerService(
 				servletContextName, organizationMembershipPolicyClassName,
 				OrganizationMembershipPolicy.class,
-				organizationMembershipPolicy);
+				organizationMembershipPolicy, "service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.MEMBERSHIP_POLICY_ROLES)) {
@@ -1483,7 +1484,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, roleMembershipPolicyClassName,
-				RoleMembershipPolicy.class, roleMembershipPolicy);
+				RoleMembershipPolicy.class, roleMembershipPolicy,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.MEMBERSHIP_POLICY_SITES)) {
@@ -1497,7 +1499,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, siteMembershipPolicyClassName,
-				SiteMembershipPolicy.class, siteMembershipPolicy);
+				SiteMembershipPolicy.class, siteMembershipPolicy,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(
@@ -1514,7 +1517,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, userGroupMembershipPolicyClassName,
-				UserGroupMembershipPolicy.class, userGroupMembershipPolicy);
+				UserGroupMembershipPolicy.class, userGroupMembershipPolicy,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.PASSWORDS_TOOLKIT)) {
@@ -1540,7 +1544,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, phoneNumberFormatClassName,
-				PhoneNumberFormat.class, phoneNumberFormat);
+				PhoneNumberFormat.class, phoneNumberFormat, "service.ranking",
+				1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.SANITIZER_IMPL)) {
@@ -1553,7 +1558,7 @@ public class HookHotDeployListener
 
 				registerService(
 					servletContextName, sanitizerClassName, Sanitizer.class,
-					sanitizer);
+					sanitizer, "service.ranking", 1000);
 			}
 		}
 
@@ -1571,7 +1576,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, emailAddressGeneratorClassName,
-				EmailAddressGenerator.class, emailAddressGenerator);
+				EmailAddressGenerator.class, emailAddressGenerator,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(
@@ -1588,7 +1594,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, emailAddressValidatorClassName,
-				EmailAddressValidator.class, emailAddressValidator);
+				EmailAddressValidator.class, emailAddressValidator,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.USERS_FULL_NAME_GENERATOR)) {
@@ -1602,7 +1609,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, fullNameGeneratorClassName,
-				FullNameGenerator.class, fullNameGenerator);
+				FullNameGenerator.class, fullNameGenerator, "service.ranking",
+				1000);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.USERS_FULL_NAME_VALIDATOR)) {
@@ -1616,7 +1624,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, fullNameValidatorClassName,
-				FullNameValidator.class, fullNameValidator);
+				FullNameValidator.class, fullNameValidator, "service.ranking",
+				1000);
 		}
 
 		if (portalProperties.containsKey(
@@ -1632,7 +1641,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, screenNameGeneratorClassName,
-				ScreenNameGenerator.class, screenNameGenerator);
+				ScreenNameGenerator.class, screenNameGenerator,
+				"service.ranking", 1000);
 		}
 
 		if (portalProperties.containsKey(
@@ -1648,7 +1658,8 @@ public class HookHotDeployListener
 
 			registerService(
 				servletContextName, screenNameValidatorClassName,
-				ScreenNameValidator.class, screenNameValidator);
+				ScreenNameValidator.class, screenNameValidator,
+				"service.ranking", 1000);
 		}
 
 		for (String tokenWhitelistName : _TOKEN_WHITELIST_NAMES) {
@@ -1779,11 +1790,9 @@ public class HookHotDeployListener
 			interfaces.add(Filter.class);
 		}
 
-		filter = (Filter)ProxyUtil.newProxyInstance(
+		return (Filter)ProxyUtil.newProxyInstance(
 			portletClassLoader, interfaces.toArray(new Class<?>[0]),
 			new ClassLoaderBeanHandler(filter, portletClassLoader));
-
-		return filter;
 	}
 
 	protected void initServletFilters(
@@ -1861,6 +1870,7 @@ public class HookHotDeployListener
 			properties.put("after-filter", filterTuple.getObject(0));
 			properties.put("before-filter", filterTuple.getObject(1));
 			properties.put("dispatcher", filterTuple.getObject(2));
+
 			properties.put("servlet-context-name", StringPool.BLANK);
 			properties.put("servlet-filter-name", servletFilterName);
 			properties.put("url-pattern", filterTuple.getObject(3));

@@ -30,6 +30,31 @@ import javax.annotation.Generated;
 @Generated("")
 public class NavigationMenuItem implements Cloneable {
 
+	public static NavigationMenuItem toDTO(String json) {
+		return NavigationMenuItemSerDes.toDTO(json);
+	}
+
+	public String[] getAvailableLanguages() {
+		return availableLanguages;
+	}
+
+	public void setAvailableLanguages(String[] availableLanguages) {
+		this.availableLanguages = availableLanguages;
+	}
+
+	public void setAvailableLanguages(
+		UnsafeSupplier<String[], Exception> availableLanguagesUnsafeSupplier) {
+
+		try {
+			availableLanguages = availableLanguagesUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String[] availableLanguages;
+
 	public Creator getCreator() {
 		return creator;
 	}
@@ -254,6 +279,27 @@ public class NavigationMenuItem implements Cloneable {
 	}
 
 	protected String url;
+
+	public Boolean getUseCustomName() {
+		return useCustomName;
+	}
+
+	public void setUseCustomName(Boolean useCustomName) {
+		this.useCustomName = useCustomName;
+	}
+
+	public void setUseCustomName(
+		UnsafeSupplier<Boolean, Exception> useCustomNameUnsafeSupplier) {
+
+		try {
+			useCustomName = useCustomNameUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean useCustomName;
 
 	@Override
 	public NavigationMenuItem clone() throws CloneNotSupportedException {

@@ -17,8 +17,8 @@ package com.liferay.mule.internal.metadata;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.liferay.mule.internal.connection.LiferayConnection;
-import com.liferay.mule.internal.json.JsonNodeReader;
-import com.liferay.mule.internal.oas.OASConstants;
+import com.liferay.mule.internal.oas.constants.OASConstants;
+import com.liferay.mule.internal.util.JsonNodeReader;
 
 import java.io.IOException;
 
@@ -35,6 +35,9 @@ import org.mule.runtime.api.metadata.MetadataKey;
 import org.mule.runtime.api.metadata.MetadataKeyBuilder;
 import org.mule.runtime.api.metadata.MetadataResolvingException;
 import org.mule.runtime.api.metadata.resolving.FailureCode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Matija Petanjek
@@ -53,17 +56,27 @@ public class MetadataKeysBuilder {
 				liferayConnectionOptional.get();
 
 			return getMetadataKeys(
-				_jsonNodeReader.fromHttpResponse(
+				jsonNodeReader.fromHttpResponse(
 					liferayConnection.getOpenAPISpec()),
 				operation);
 		}
 		catch (IOException ioException) {
+			logger.error(
+				"Unable to read OpenAPI document from Liferay Portal instance",
+				ioException);
+
 			throw new MetadataResolvingException(
-				ioException.getMessage(), FailureCode.NO_DYNAMIC_KEY_AVAILABLE);
+				ioException.getMessage(), FailureCode.NO_DYNAMIC_KEY_AVAILABLE,
+				ioException);
 		}
 		catch (TimeoutException timeoutException) {
+			logger.error(
+				"Unable to establish connection to Liferay Portal instance",
+				timeoutException);
+
 			throw new MetadataResolvingException(
-				timeoutException.getMessage(), FailureCode.CONNECTION_FAILURE);
+				timeoutException.getMessage(), FailureCode.CONNECTION_FAILURE,
+				timeoutException);
 		}
 	}
 
@@ -95,6 +108,9 @@ public class MetadataKeysBuilder {
 		return metadataKeys;
 	}
 
-	private final JsonNodeReader _jsonNodeReader = new JsonNodeReader();
+	private static final Logger logger = LoggerFactory.getLogger(
+		MetadataKeysBuilder.class);
+
+	private final JsonNodeReader jsonNodeReader = new JsonNodeReader();
 
 }

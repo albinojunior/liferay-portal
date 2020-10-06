@@ -75,14 +75,16 @@ public class EditUserOrganizationsMVCActionCommand
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(
 				User.class.getName(), actionRequest);
 
+			serviceContext.setAssetCategoryIds(null);
+			serviceContext.setAssetTagNames(null);
+
 			_userService.updateUser(
 				user.getUserId(), user.getPassword(), null, null,
 				user.isPasswordReset(), null, null, user.getScreenName(),
-				user.getEmailAddress(), user.getFacebookId(), user.getOpenId(),
-				user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
-				user.getComments(), user.getFirstName(), user.getMiddleName(),
-				user.getLastName(), contact.getPrefixId(),
-				contact.getSuffixId(), user.isMale(),
+				user.getEmailAddress(), user.getLanguageId(),
+				user.getTimeZoneId(), user.getGreeting(), user.getComments(),
+				user.getFirstName(), user.getMiddleName(), user.getLastName(),
+				contact.getPrefixId(), contact.getSuffixId(), user.isMale(),
 				birthdayCal.get(Calendar.MONTH), birthdayCal.get(Calendar.DATE),
 				birthdayCal.get(Calendar.YEAR), contact.getSmsSn(),
 				contact.getFacebookSn(), contact.getJabberSn(),

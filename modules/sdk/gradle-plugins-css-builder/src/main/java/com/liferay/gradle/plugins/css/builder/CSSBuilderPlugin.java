@@ -19,13 +19,13 @@ import com.liferay.gradle.util.GradleUtil;
 import java.io.File;
 
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.file.FileCollection;
@@ -36,9 +36,11 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.api.plugins.WarPluginConvention;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.bundling.War;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
@@ -58,8 +60,8 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		Configuration cssBuilderConfiguration = _addConfigurationCSSBuilder(
-			project);
+		_addConfigurationCSSBuilder(project);
+
 		Configuration portalCommonCSSConfiguration =
 			_addConfigurationPortalCommonCSS(project);
 
@@ -67,8 +69,7 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 
 		BuildCSSTask buildCSSTask = _addTaskBuildCSS(project, copyCSSTask);
 
-		_configureTasksBuildCSS(
-			project, cssBuilderConfiguration, portalCommonCSSConfiguration);
+		_configureTasksBuildCSS(project, portalCommonCSSConfiguration);
 
 		PluginContainer pluginContainer = project.getPlugins();
 
@@ -91,16 +92,6 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 				@Override
 				public void execute(WarPlugin warPlugin) {
 					_configureTaskWarForWarPlugin(buildCSSTask, copyCSSTask);
-				}
-
-			});
-
-		project.afterEvaluate(
-			new Action<Project>() {
-
-				@Override
-				public void execute(Project project) {
-					_configureTaskBuildCSSJvmArgs(buildCSSTask);
 				}
 
 			});
@@ -189,6 +180,18 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 		buildCSSTask.setDescription("Build CSS files.");
 		buildCSSTask.setGroup(BasePlugin.BUILD_GROUP);
 
+		TaskOutputs taskOutputs = buildCSSTask.getOutputs();
+
+		taskOutputs.upToDateWhen(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					return false;
+				}
+
+			});
+
 		return buildCSSTask;
 	}
 
@@ -237,12 +240,6 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 		return copyCSSTask;
 	}
 
-	private void _configureTaskBuildCSSClasspath(
-		BuildCSSTask buildCSSTask, FileCollection classpath) {
-
-		buildCSSTask.setClasspath(classpath);
-	}
-
 	private void _configureTaskBuildCSSImportFile(
 		BuildCSSTask buildCSSTask,
 		final Configuration portalCommonCSSConfiguration) {
@@ -256,12 +253,6 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 				}
 
 			});
-	}
-
-	private void _configureTaskBuildCSSJvmArgs(BuildCSSTask buildCSSTask) {
-		if (Objects.equals("ruby", buildCSSTask.getSassCompilerClassName())) {
-			buildCSSTask.jvmArgs("-Xss4096k");
-		}
 	}
 
 	private void _configureTaskCopyCSSForJavaPlugin(final Sync copyCSSTask) {
@@ -329,8 +320,7 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 	}
 
 	private void _configureTasksBuildCSS(
-		Project project, final Configuration cssBuilderConfiguration,
-		final Configuration portalCommonCSSConfiguration) {
+		Project project, final Configuration portalCommonCSSConfiguration) {
 
 		TaskContainer taskContainer = project.getTasks();
 
@@ -340,8 +330,6 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 
 				@Override
 				public void execute(BuildCSSTask buildCSSTask) {
-					_configureTaskBuildCSSClasspath(
-						buildCSSTask, cssBuilderConfiguration);
 					_configureTaskBuildCSSImportFile(
 						buildCSSTask, portalCommonCSSConfiguration);
 				}

@@ -72,6 +72,7 @@ public class LayoutWrapper
 		attributes.put("iconImageId", getIconImageId());
 		attributes.put("themeId", getThemeId());
 		attributes.put("colorSchemeId", getColorSchemeId());
+		attributes.put("styleBookEntryId", getStyleBookEntryId());
 		attributes.put("css", getCss());
 		attributes.put("priority", getPriority());
 		attributes.put("masterLayoutPlid", getMasterLayoutPlid());
@@ -266,6 +267,12 @@ public class LayoutWrapper
 			setColorSchemeId(colorSchemeId);
 		}
 
+		Long styleBookEntryId = (Long)attributes.get("styleBookEntryId");
+
+		if (styleBookEntryId != null) {
+			setStyleBookEntryId(styleBookEntryId);
+		}
+
 		String css = (String)attributes.get("css");
 
 		if (css != null) {
@@ -340,6 +347,11 @@ public class LayoutWrapper
 		if (statusDate != null) {
 			setStatusDate(statusDate);
 		}
+	}
+
+	@Override
+	public Layout fetchDraftLayout() {
+		return model.fetchDraftLayout();
 	}
 
 	/**
@@ -1248,6 +1260,16 @@ public class LayoutWrapper
 	@Override
 	public Date getStatusDate() {
 		return model.getStatusDate();
+	}
+
+	/**
+	 * Returns the style book entry ID of this layout.
+	 *
+	 * @return the style book entry ID of this layout
+	 */
+	@Override
+	public long getStyleBookEntryId() {
+		return model.getStyleBookEntryId();
 	}
 
 	/**
@@ -2411,6 +2433,16 @@ public class LayoutWrapper
 	}
 
 	/**
+	 * Sets the style book entry ID of this layout.
+	 *
+	 * @param styleBookEntryId the style book entry ID of this layout
+	 */
+	@Override
+	public void setStyleBookEntryId(long styleBookEntryId) {
+		model.setStyleBookEntryId(styleBookEntryId);
+	}
+
+	/**
 	 * Sets whether this layout is system.
 	 *
 	 * @param system the system of this layout
@@ -2517,9 +2549,9 @@ public class LayoutWrapper
 	@Override
 	public void setTypeSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties
-			typeSettingsProperties) {
+			typeSettingsUnicodeProperties) {
 
-		model.setTypeSettingsProperties(typeSettingsProperties);
+		model.setTypeSettingsProperties(typeSettingsUnicodeProperties);
 	}
 
 	/**

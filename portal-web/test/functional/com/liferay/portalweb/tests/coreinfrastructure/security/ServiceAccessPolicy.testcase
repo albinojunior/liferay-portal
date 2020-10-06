@@ -27,6 +27,7 @@ definition {
 	@priority = "5"
 	test ServiceAccessPolicySmoke {
 		property custom.properties = "json.service.auth.token.hosts.allowed=";
+		property custom.properties = "json.service.serialize.throwable=true";
 		property test.name.skip.portal.instance = "ServiceAccessPolicy#ServiceAccessPolicySmoke";
 
 		var companyId = JSONCompany.getCompanyId();
@@ -47,8 +48,8 @@ definition {
 			fail("FAIL! Cannot find the warning message.");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
 			panel = "Control Panel",
 			portlet = "Service Access Policy");
 
@@ -86,8 +87,8 @@ definition {
 			fail("FAIL! Cannot find the currrent user.");
 		}
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
 			panel = "Control Panel",
 			portlet = "Service Access Policy");
 

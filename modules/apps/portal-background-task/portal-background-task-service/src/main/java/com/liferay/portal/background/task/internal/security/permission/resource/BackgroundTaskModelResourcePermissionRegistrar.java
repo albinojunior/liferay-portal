@@ -44,7 +44,9 @@ public class BackgroundTaskModelResourcePermissionRegistrar {
 	protected void activate(BundleContext bundleContext) {
 		_backgroundTaskModelResourcePermissionLogics =
 			ServiceTrackerMapFactory.openSingleValueMap(
-				bundleContext, ModelResourcePermissionLogic.class,
+				bundleContext,
+				(Class<ModelResourcePermissionLogic<BackgroundTask>>)
+					(Class<?>)ModelResourcePermissionLogic.class,
 				"background.task.executor.class.name");
 
 		Dictionary<String, Object> properties = new HashMapDictionary<>();
@@ -52,7 +54,8 @@ public class BackgroundTaskModelResourcePermissionRegistrar {
 		properties.put("model.class.name", BackgroundTask.class.getName());
 
 		_serviceRegistration = bundleContext.registerService(
-			ModelResourcePermission.class,
+			(Class<ModelResourcePermission<BackgroundTask>>)
+				(Class<?>)ModelResourcePermission.class,
 			ModelResourcePermissionFactory.create(
 				BackgroundTask.class, BackgroundTask::getBackgroundTaskId,
 				_backgroundTaskLocalService::getBackgroundTask, null,
@@ -71,9 +74,11 @@ public class BackgroundTaskModelResourcePermissionRegistrar {
 	@Reference
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
 
-	private ServiceTrackerMap<String, ModelResourcePermissionLogic>
-		_backgroundTaskModelResourcePermissionLogics;
-	private ServiceRegistration<ModelResourcePermission> _serviceRegistration;
+	private ServiceTrackerMap
+		<String, ModelResourcePermissionLogic<BackgroundTask>>
+			_backgroundTaskModelResourcePermissionLogics;
+	private ServiceRegistration<ModelResourcePermission<BackgroundTask>>
+		_serviceRegistration;
 
 	private class BackgroundTaskModelResourcePermissionLogic
 		implements ModelResourcePermissionLogic<BackgroundTask> {

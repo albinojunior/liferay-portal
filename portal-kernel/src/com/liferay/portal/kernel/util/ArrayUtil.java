@@ -661,8 +661,8 @@ public class ArrayUtil {
 			return false;
 		}
 
-		for (Object obj : array) {
-			if (Objects.equals(value, obj)) {
+		for (Object object : array) {
+			if (Objects.equals(value, object)) {
 				return true;
 			}
 		}
@@ -810,8 +810,8 @@ public class ArrayUtil {
 			return false;
 		}
 
-		for (Object obj : array2) {
-			if (!contains(array1, obj)) {
+		for (Object object : array2) {
+			if (!contains(array1, object)) {
 				return false;
 			}
 		}
@@ -1315,9 +1315,9 @@ public class ArrayUtil {
 
 		List<T> list = new ArrayList<>();
 
-		for (T obj : array) {
-			if (value != obj) {
-				list.add(obj);
+		for (T object : array) {
+			if (value != object) {
+				list.add(object);
 			}
 		}
 
@@ -2076,7 +2076,7 @@ public class ArrayUtil {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(2 * array.length - 1);
+		StringBundler sb = new StringBundler((2 * array.length) - 1);
 
 		for (int i = 0; i < array.length; i++) {
 			Object bean = array[i];
@@ -2123,7 +2123,7 @@ public class ArrayUtil {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(2 * list.length - 1);
+		StringBundler sb = new StringBundler((2 * list.length) - 1);
 
 		for (int i = 0; i < list.length; i++) {
 			T bean = list[i];
@@ -2244,11 +2244,11 @@ public class ArrayUtil {
 		return newArray;
 	}
 
-	public static String[] toStringArray(JSONArray array) {
-		String[] newArray = new String[array.length()];
+	public static String[] toStringArray(JSONArray jsonArray) {
+		String[] newArray = new String[jsonArray.length()];
 
-		for (int i = 0; i < array.length(); i++) {
-			newArray[i] = array.getString(i);
+		for (int i = 0; i < jsonArray.length(); i++) {
+			newArray[i] = jsonArray.getString(i);
 		}
 
 		return newArray;

@@ -28,9 +28,9 @@ import com.liferay.asset.publisher.web.internal.action.AssetEntryActionRegistry;
 import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherPortletInstanceConfiguration;
 import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfiguration;
 import com.liferay.asset.publisher.web.internal.display.context.AssetPublisherDisplayContext;
+import com.liferay.asset.publisher.web.internal.helper.AssetPublisherWebHelper;
 import com.liferay.asset.publisher.web.internal.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.internal.util.AssetPublisherCustomizerRegistry;
-import com.liferay.asset.publisher.web.internal.util.AssetPublisherWebUtil;
 import com.liferay.asset.util.AssetHelper;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
@@ -148,7 +148,7 @@ public class AssetPublisherConfigurationAction
 				assetEntryActionRegistry, assetHelper,
 				assetListAssetEntryProvider, assetPublisherCustomizer,
 				assetPublisherHelper, assetPublisherWebConfiguration,
-				assetPublisherWebUtil, infoListProviderTracker, itemSelector,
+				assetPublisherWebHelper, infoListProviderTracker, itemSelector,
 				renderRequest, renderResponse, renderRequest.getPreferences());
 
 		httpServletRequest.setAttribute(
@@ -159,8 +159,8 @@ public class AssetPublisherConfigurationAction
 			AssetPublisherWebKeys.ASSET_PUBLISHER_HELPER, assetPublisherHelper);
 
 		httpServletRequest.setAttribute(
-			AssetPublisherWebKeys.ASSET_PUBLISHER_WEB_UTIL,
-			assetPublisherWebUtil);
+			AssetPublisherWebKeys.ASSET_PUBLISHER_WEB_HELPER,
+			assetPublisherWebHelper);
 
 		httpServletRequest.setAttribute(
 			AssetPublisherWebKeys.ITEM_SELECTOR, itemSelector);
@@ -373,7 +373,7 @@ public class AssetPublisherConfigurationAction
 			actionRequest, "assetEntryType");
 
 		for (long assetEntryId : assetEntryIds) {
-			assetPublisherWebUtil.addSelection(
+			assetPublisherWebHelper.addSelection(
 				preferences, assetEntryId, assetEntryOrder, assetEntryType);
 		}
 	}
@@ -384,7 +384,7 @@ public class AssetPublisherConfigurationAction
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		if (!assetPublisherWebUtil.isScopeIdSelectable(
+		if (!assetPublisherWebHelper.isScopeIdSelectable(
 				themeDisplay.getPermissionChecker(), scopeId,
 				themeDisplay.getCompanyGroupId(), themeDisplay.getLayout(),
 				true)) {
@@ -418,7 +418,7 @@ public class AssetPublisherConfigurationAction
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				portal.getClassName(defaultAssetTypeId));
 
-		return assetPublisherWebUtil.getClassName(assetRendererFactory);
+		return assetPublisherWebHelper.getClassName(assetRendererFactory);
 	}
 
 	protected String[] getClassTypeIds(
@@ -650,24 +650,24 @@ public class AssetPublisherConfigurationAction
 		String portletResource = ParamUtil.getString(
 			actionRequest, "portletResource");
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			layout.getTypeSettingsProperties();
 
 		if (defaultAssetPublisher) {
-			typeSettingsProperties.setProperty(
+			typeSettingsUnicodeProperties.setProperty(
 				LayoutTypePortletConstants.DEFAULT_ASSET_PUBLISHER_PORTLET_ID,
 				portletResource);
 		}
 		else {
 			String defaultAssetPublisherPortletId =
-				typeSettingsProperties.getProperty(
+				typeSettingsUnicodeProperties.getProperty(
 					LayoutTypePortletConstants.
 						DEFAULT_ASSET_PUBLISHER_PORTLET_ID);
 
 			if (Validator.isNotNull(defaultAssetPublisherPortletId) &&
 				defaultAssetPublisherPortletId.equals(portletResource)) {
 
-				typeSettingsProperties.setProperty(
+				typeSettingsUnicodeProperties.setProperty(
 					LayoutTypePortletConstants.
 						DEFAULT_ASSET_PUBLISHER_PORTLET_ID,
 					StringPool.BLANK);
@@ -834,7 +834,7 @@ public class AssetPublisherConfigurationAction
 	protected AssetPublisherWebConfiguration assetPublisherWebConfiguration;
 
 	@Reference
-	protected AssetPublisherWebUtil assetPublisherWebUtil;
+	protected AssetPublisherWebHelper assetPublisherWebHelper;
 
 	@Reference
 	protected AssetTagLocalService assetTagLocalService;

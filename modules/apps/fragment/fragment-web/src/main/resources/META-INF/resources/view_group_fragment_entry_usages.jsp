@@ -25,17 +25,18 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(groupFragmentEntryLinkDisplayContext.getRedirect());
 
 renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x", fragmentEntry.getName()));
+
+GroupFragmentEntryUsageManagementToolbarDisplayContext groupFragmentEntryUsageManagementToolbarDisplayContext = new GroupFragmentEntryUsageManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, groupFragmentEntryLinkDisplayContext.getSearchContainer());
 %>
 
-<div class="container-fluid container-fluid-max-xl container-form-lg">
-	<div class="sheet">
-		<div class="row">
-			<div class="col-lg-12">
-
-				<%
-				GroupFragmentEntryUsageManagementToolbarDisplayContext groupFragmentEntryUsageManagementToolbarDisplayContext = new GroupFragmentEntryUsageManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, groupFragmentEntryLinkDisplayContext.getSearchContainer());
-				%>
-
+<clay:container-fluid
+	cssClass="container-form-lg"
+>
+	<clay:sheet>
+		<clay:row>
+			<clay:col
+				lg="12"
+			>
 				<clay:management-toolbar
 					displayContext="<%= groupFragmentEntryUsageManagementToolbarDisplayContext %>"
 				/>
@@ -74,10 +75,10 @@ renderResponse.setTitle(LanguageUtil.format(request, "usages-and-propagation-x",
 						/>
 					</liferay-ui:search-container>
 				</aui:form>
-			</div>
-		</div>
-	</div>
-</div>
+			</clay:col>
+		</clay:row>
+	</clay:sheet>
+</clay:container-fluid>
 
 <liferay-frontend:component
 	componentId="<%= groupFragmentEntryUsageManagementToolbarDisplayContext.getDefaultEventHandler() %>"

@@ -67,9 +67,8 @@ public class UserGroupDisplayContext {
 		PortletURL portletURL = _renderResponse.createRenderURL();
 
 		portletURL.setParameter(
-			"mvcRenderCommandName", "/view_configuration_screen");
-		portletURL.setParameter(
-			"configurationScreenKey", "synced-contacts-groups");
+			"mvcRenderCommandName",
+			"/analytics_settings/edit_synced_contacts_groups");
 
 		return portletURL;
 	}

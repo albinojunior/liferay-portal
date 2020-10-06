@@ -49,6 +49,10 @@ public class SocialActivityLimitLocalServiceUtil {
 	/**
 	 * Adds the social activity limit to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was added
 	 */
@@ -96,6 +100,10 @@ public class SocialActivityLimitLocalServiceUtil {
 	/**
 	 * Deletes the social activity limit with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param activityLimitId the primary key of the social activity limit
 	 * @return the social activity limit that was removed
 	 * @throws PortalException if a social activity limit with the primary key could not be found
@@ -110,6 +118,10 @@ public class SocialActivityLimitLocalServiceUtil {
 	/**
 	 * Deletes the social activity limit from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was removed
 	 */
@@ -119,6 +131,12 @@ public class SocialActivityLimitLocalServiceUtil {
 				socialActivityLimit) {
 
 		return getService().deleteSocialActivityLimit(socialActivityLimit);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -297,6 +315,10 @@ public class SocialActivityLimitLocalServiceUtil {
 
 	/**
 	 * Updates the social activity limit in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SocialActivityLimitLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param socialActivityLimit the social activity limit
 	 * @return the social activity limit that was updated

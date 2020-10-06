@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-staging-version',
-	A => {
+	(A) => {
 		var StagingBar = Liferay.StagingBar;
 
 		var MAP_CMD_REVISION = {
@@ -38,30 +38,6 @@ AUI.add(
 				if (instance._eventHandles) {
 					A.Array.invoke(instance._eventHandles, 'detach');
 				}
-			},
-
-			_getNotification() {
-				var instance = this;
-
-				var notification = instance._notification;
-
-				if (!notification) {
-					notification = new Liferay.Notice({
-						closeText: false,
-						content: Liferay.Language.get(
-							'there-was-an-unexpected-error.-please-refresh-the-current-page'
-						),
-						noticeClass: 'hide',
-						timeout: 10000,
-						toggleText: false,
-						type: 'warning',
-						useAnimation: true,
-					});
-
-					instance._notification = notification;
-				}
-
-				return notification;
 			},
 
 			_onInit() {
@@ -109,8 +85,8 @@ AUI.add(
 							Liferay.Util.fetch(
 								instance.markAsReadyForPublicationURL
 							)
-								.then(response => response.text())
-								.then(response => {
+								.then((response) => response.text())
+								.then((response) => {
 									layoutRevisionDetails.plug(
 										A.Plugin.ParseContent
 									);
@@ -133,10 +109,10 @@ AUI.add(
 				if (layoutRevisionStatus) {
 					Liferay.after('updatedStatus', () => {
 						Liferay.Util.fetch(instance.layoutRevisionStatusURL)
-							.then(response => {
+							.then((response) => {
 								return response.text();
 							})
-							.then(response => {
+							.then((response) => {
 								layoutRevisionStatus.plug(
 									A.Plugin.ParseContent
 								);
@@ -229,8 +205,6 @@ AUI.add(
 			},
 
 			_updateRevision(cmd, layoutRevisionId, layoutSetBranchId) {
-				var instance = this;
-
 				var updateLayoutData = {
 					cmd,
 					doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
@@ -252,7 +226,15 @@ AUI.add(
 						window.location.reload();
 					})
 					.catch(() => {
-						instance._getNotification().show();
+						Liferay.Util.openToast({
+							message: Liferay.Language.get(
+								'there-was-an-unexpected-error.-please-refresh-the-current-page'
+							),
+							toastProps: {
+								autoClose: 10000,
+							},
+							type: 'warning',
+						});
 					});
 			},
 

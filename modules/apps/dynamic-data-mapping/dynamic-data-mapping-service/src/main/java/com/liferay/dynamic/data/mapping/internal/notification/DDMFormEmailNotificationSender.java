@@ -32,10 +32,10 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.mail.kernel.model.MailMessage;
 import com.liferay.mail.kernel.service.MailService;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -318,9 +318,7 @@ public class DDMFormEmailNotificationSender {
 				continue;
 			}
 
-			Map<String, Object> field = getField(ddmFormFieldValues, locale);
-
-			fields.add(field);
+			fields.add(getField(ddmFormFieldValues, locale));
 		}
 
 		return fields;
@@ -381,11 +379,13 @@ public class DDMFormEmailNotificationSender {
 			"content.Language", locale, getClass());
 	}
 
-	protected String getSiteName(long groupId, Locale locale) {
+	protected String getSiteName(long groupId, Locale locale)
+		throws PortalException {
+
 		Group siteGroup = _groupLocalService.fetchGroup(groupId);
 
 		if (siteGroup != null) {
-			return siteGroup.getName(locale);
+			return siteGroup.getDescriptiveName(locale);
 		}
 
 		return StringPool.BLANK;
@@ -427,17 +427,19 @@ public class DDMFormEmailNotificationSender {
 		String portletNamespace = _portal.getPortletNamespace(
 			DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN);
 
-		Map<String, String[]> params = HashMapBuilder.put(
-			portletNamespace.concat("mvcPath"),
-			new String[] {"/admin/view_form_instance_records.jsp"}
-		).put(
-			portletNamespace.concat("formInstanceId"),
-			new String[] {String.valueOf(ddmFormInstance.getFormInstanceId())}
-		).build();
-
 		return _portal.getSiteAdminURL(
-			themeDisplay, DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN,
-			params);
+			themeDisplay.getPortalURL(),
+			_groupLocalService.getGroup(ddmFormInstance.getGroupId()),
+			DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN,
+			HashMapBuilder.put(
+				portletNamespace.concat("mvcPath"),
+				new String[] {"/admin/view_form_instance_records.jsp"}
+			).put(
+				portletNamespace.concat("formInstanceId"),
+				new String[] {
+					String.valueOf(ddmFormInstance.getFormInstanceId())
+				}
+			).build());
 	}
 
 	protected String getViewFormURL(
@@ -449,22 +451,25 @@ public class DDMFormEmailNotificationSender {
 		String portletNamespace = _portal.getPortletNamespace(
 			DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN);
 
-		Map<String, String[]> params = HashMapBuilder.put(
-			portletNamespace.concat("mvcPath"),
-			new String[] {"/admin/view_form_instance_record.jsp"}
-		).put(
-			portletNamespace.concat("formInstanceRecordId"),
-			new String[] {
-				String.valueOf(ddmFormInstanceRecord.getFormInstanceRecordId())
-			}
-		).put(
-			portletNamespace.concat("formInstanceId"),
-			new String[] {String.valueOf(ddmFormInstance.getFormInstanceId())}
-		).build();
-
 		return _portal.getSiteAdminURL(
-			themeDisplay, DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN,
-			params);
+			themeDisplay.getPortalURL(),
+			_groupLocalService.getGroup(ddmFormInstance.getGroupId()),
+			DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN,
+			HashMapBuilder.put(
+				portletNamespace.concat("mvcPath"),
+				new String[] {"/admin/view_form_instance_record.jsp"}
+			).put(
+				portletNamespace.concat("formInstanceRecordId"),
+				new String[] {
+					String.valueOf(
+						ddmFormInstanceRecord.getFormInstanceRecordId())
+				}
+			).put(
+				portletNamespace.concat("formInstanceId"),
+				new String[] {
+					String.valueOf(ddmFormInstance.getFormInstanceId())
+				}
+			).build());
 	}
 
 	protected void populateParameters(
@@ -475,8 +480,8 @@ public class DDMFormEmailNotificationSender {
 
 		Locale locale = getLocale(ddmFormInstance);
 
-		template.put("authorName", ddmFormInstance.getUserName());
 		template.put("formName", ddmFormInstance.getName(locale));
+
 		template.put("pages", getPages(ddmFormInstance, ddmFormInstanceRecord));
 		template.put(
 			"siteName", getSiteName(ddmFormInstance.getGroupId(), locale));

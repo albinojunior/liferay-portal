@@ -14,7 +14,7 @@ exports[`SegmentEdit renders 1`] = `
       class="form-header"
     >
       <div
-        class="container-fluid container-fluid-max-xl form-header-container"
+        class="form-header-container container-fluid container-fluid-max-xl"
       >
         <div
           class="form-header-section-left"
@@ -84,11 +84,16 @@ exports[`SegmentEdit renders 1`] = `
               />
             </div>
           </div>
-          <img
-            class="source-icon"
-            data-testid="source-icon"
-            src="/dxp-icon.svg"
-          />
+          <div
+            class="align-self-center"
+          >
+            <img
+              class="lfr-portal-tooltip source-icon"
+              data-testid="source-icon"
+              src="/dxp-icon.svg"
+              title="source.dxp"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -113,7 +118,7 @@ exports[`SegmentEdit renders with edit buttons if the user has update permission
       class="form-header"
     >
       <div
-        class="container-fluid container-fluid-max-xl form-header-container"
+        class="form-header-container container-fluid container-fluid-max-xl"
       >
         <div
           class="form-header-section-left"
@@ -183,11 +188,16 @@ exports[`SegmentEdit renders with edit buttons if the user has update permission
               />
             </div>
           </div>
-          <img
-            class="source-icon"
-            data-testid="source-icon"
-            src="/dxp-icon.svg"
-          />
+          <div
+            class="align-self-center"
+          >
+            <img
+              class="lfr-portal-tooltip source-icon"
+              data-testid="source-icon"
+              src="/dxp-icon.svg"
+              title="source.dxp"
+            />
+          </div>
         </div>
         <div
           class="form-header-section-right"
@@ -292,7 +302,7 @@ exports[`SegmentEdit renders with given values 1`] = `
       class="form-header"
     >
       <div
-        class="container-fluid container-fluid-max-xl form-header-container"
+        class="form-header-container container-fluid container-fluid-max-xl"
       >
         <div
           class="form-header-section-left"
@@ -361,11 +371,16 @@ exports[`SegmentEdit renders with given values 1`] = `
               />
             </div>
           </div>
-          <img
-            class="source-icon"
-            data-testid="source-icon"
-            src="/dxp-icon.svg"
-          />
+          <div
+            class="align-self-center"
+          >
+            <img
+              class="lfr-portal-tooltip source-icon"
+              data-testid="source-icon"
+              src="/dxp-icon.svg"
+              title="source.dxp"
+            />
+          </div>
         </div>
         <div
           class="form-header-section-right"
@@ -784,7 +799,7 @@ exports[`SegmentEdit renders without edit buttons if the user does not have upda
       class="form-header"
     >
       <div
-        class="container-fluid container-fluid-max-xl form-header-container"
+        class="form-header-container container-fluid container-fluid-max-xl"
       >
         <div
           class="form-header-section-left"
@@ -854,11 +869,16 @@ exports[`SegmentEdit renders without edit buttons if the user does not have upda
               />
             </div>
           </div>
-          <img
-            class="source-icon"
-            data-testid="source-icon"
-            src="/dxp-icon.svg"
-          />
+          <div
+            class="align-self-center"
+          >
+            <img
+              class="lfr-portal-tooltip source-icon"
+              data-testid="source-icon"
+              src="/dxp-icon.svg"
+              title="source.dxp"
+            />
+          </div>
         </div>
       </div>
     </div>

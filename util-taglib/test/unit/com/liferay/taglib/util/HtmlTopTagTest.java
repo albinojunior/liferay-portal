@@ -28,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
@@ -79,7 +78,7 @@ public class HtmlTopTagTest {
 			null);
 	}
 
-	private static void _assertContainsRegex(
+	private void _assertContainsRegex(
 		String string, String containedRegex, String message) {
 
 		Pattern pattern = Pattern.compile(containedRegex);
@@ -89,7 +88,7 @@ public class HtmlTopTagTest {
 		Assert.assertTrue(message, matcher.find());
 	}
 
-	private static String _getElementAttributes(String element) {
+	private String _getElementAttributes(String element) {
 		Matcher matcher = _getElementNameAndAttributesPattern.matcher(element);
 
 		Assert.assertTrue(matcher.find());
@@ -97,7 +96,7 @@ public class HtmlTopTagTest {
 		return matcher.group(_ELEMENT_ATTRIBUTES_GROUP_INDEX);
 	}
 
-	private static String _getElementName(String element) {
+	private String _getElementName(String element) {
 		Matcher matcher = _getElementNameAndAttributesPattern.matcher(element);
 
 		Assert.assertTrue(matcher.find());
@@ -105,9 +104,9 @@ public class HtmlTopTagTest {
 		return matcher.group(_ELEMENT_NAME_GROUP_INDEX);
 	}
 
-	private static void _testDataSennaTrackAttributeAdded(
+	private void _testDataSennaTrackAttributeAdded(
 			final String element, String expectedDataSennaTrackValue)
-		throws IOException, JspException {
+		throws Exception {
 
 		HtmlTopTag htmlTopTag = new HtmlTopTag();
 

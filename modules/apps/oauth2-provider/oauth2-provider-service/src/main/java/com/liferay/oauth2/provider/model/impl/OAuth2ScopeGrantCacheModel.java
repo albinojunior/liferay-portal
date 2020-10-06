@@ -34,17 +34,17 @@ public class OAuth2ScopeGrantCacheModel
 	implements CacheModel<OAuth2ScopeGrant>, Externalizable {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof OAuth2ScopeGrantCacheModel)) {
+		if (!(object instanceof OAuth2ScopeGrantCacheModel)) {
 			return false;
 		}
 
 		OAuth2ScopeGrantCacheModel oAuth2ScopeGrantCacheModel =
-			(OAuth2ScopeGrantCacheModel)obj;
+			(OAuth2ScopeGrantCacheModel)object;
 
 		if (oAuth2ScopeGrantId ==
 				oAuth2ScopeGrantCacheModel.oAuth2ScopeGrantId) {
@@ -126,7 +126,9 @@ public class OAuth2ScopeGrantCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		oAuth2ScopeGrantId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -135,7 +137,7 @@ public class OAuth2ScopeGrantCacheModel
 		applicationName = objectInput.readUTF();
 		bundleSymbolicName = objectInput.readUTF();
 		scope = objectInput.readUTF();
-		scopeAliases = objectInput.readUTF();
+		scopeAliases = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -168,10 +170,10 @@ public class OAuth2ScopeGrantCacheModel
 		}
 
 		if (scopeAliases == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(scopeAliases);
+			objectOutput.writeObject(scopeAliases);
 		}
 	}
 

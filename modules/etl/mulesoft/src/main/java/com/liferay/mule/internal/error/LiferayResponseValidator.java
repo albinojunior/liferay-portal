@@ -14,8 +14,7 @@
 
 package com.liferay.mule.internal.error;
 
-import java.io.IOException;
-
+import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.http.api.domain.entity.HttpEntity;
 import org.mule.runtime.http.api.domain.message.response.HttpResponse;
@@ -25,24 +24,25 @@ import org.mule.runtime.http.api.domain.message.response.HttpResponse;
  */
 public class LiferayResponseValidator {
 
-	public void validate(HttpResponse httpResponse) throws IOException {
+	public void validate(HttpResponse httpResponse) throws ModuleException {
 		if (httpResponse == null) {
 			throw new ModuleException(
 				"Server returned no response", LiferayError.SERVER_ERROR);
 		}
 		else if (httpResponse.getStatusCode() >= 400) {
 			throw new ModuleException(
-				_getMessage(httpResponse),
+				getMessage(httpResponse),
 				LiferayError.fromStatus(httpResponse.getStatusCode()));
 		}
 	}
 
-	private String _getMessage(HttpResponse httpResponse) throws IOException {
+	private String getMessage(HttpResponse httpResponse) {
 		HttpEntity httpEntity = httpResponse.getEntity();
 
 		return String.format(
 			"Request failed with status: %d, and message: %s",
-			httpResponse.getStatusCode(), new String(httpEntity.getBytes()));
+			httpResponse.getStatusCode(),
+			IOUtils.toString(httpEntity.getContent()));
 	}
 
 }

@@ -14,7 +14,7 @@
 
 package com.liferay.headless.delivery.internal.resource.v1_0;
 
-import com.liferay.headless.common.spi.service.context.ServiceContextUtil;
+import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.headless.delivery.dto.v1_0.WikiNode;
 import com.liferay.headless.delivery.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.delivery.internal.odata.entity.v1_0.WikiNodeEntityModel;
@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
@@ -38,7 +39,7 @@ import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.wiki.service.WikiNodeService;
 import com.liferay.wiki.service.WikiPageService;
 
-import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -68,12 +69,16 @@ public class WikiNodeResourceImpl
 
 	@Override
 	public Page<WikiNode> getSiteWikiNodesPage(
-			Long siteId, String search, Filter filter, Pagination pagination,
-			Sort[] sorts)
+			Long siteId, String search, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
-			_getActions(siteId),
+			HashMapBuilder.put(
+				"create",
+				addAction(
+					"ADD_NODE", "postSiteWikiNode", "com.liferay.wiki", siteId)
+			).build(),
 			booleanQuery -> {
 				BooleanFilter booleanFilter =
 					booleanQuery.getPreBooleanFilter();
@@ -85,8 +90,10 @@ public class WikiNodeResourceImpl
 			filter, com.liferay.wiki.model.WikiNode.class, search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
-			searchContext -> searchContext.setCompanyId(
-				contextCompany.getCompanyId()),
+			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+			},
 			sorts,
 			document -> _toWikiNode(
 				_wikiNodeService.getNode(
@@ -105,7 +112,8 @@ public class WikiNodeResourceImpl
 		return _toWikiNode(
 			_wikiNodeService.addNode(
 				wikiNode.getName(), wikiNode.getDescription(),
-				ServiceContextUtil.createServiceContext(siteId, null)));
+				ServiceContextRequestUtil.createServiceContext(
+					siteId, contextHttpServletRequest, null)));
 	}
 
 	@Override
@@ -118,8 +126,9 @@ public class WikiNodeResourceImpl
 		return _toWikiNode(
 			_wikiNodeService.updateNode(
 				wikiNodeId, wikiNode.getName(), wikiNode.getDescription(),
-				ServiceContextUtil.createServiceContext(
+				ServiceContextRequestUtil.createServiceContext(
 					serviceBuilderWikiNode.getGroupId(),
+					contextHttpServletRequest,
 					wikiNode.getViewableByAsString())));
 	}
 
@@ -133,41 +142,27 @@ public class WikiNodeResourceImpl
 		_wikiNodeService.unsubscribeNode(wikiNodeId);
 	}
 
-	private Map<String, Map<String, String>> _getActions(
-		com.liferay.wiki.model.WikiNode wikiNode) {
-
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"delete", addAction("DELETE", wikiNode, "deleteWikiNode")
-		).put(
-			"get", addAction("VIEW", wikiNode, "getWikiNode")
-		).put(
-			"replace", addAction("UPDATE", wikiNode, "putWikiNode")
-		).put(
-			"subscribe",
-			addAction("SUBSCRIBE", wikiNode, "putWikiNodeSubscribe")
-		).put(
-			"unsubscribe",
-			addAction("SUBSCRIBE", wikiNode, "putWikiNodeUnsubscribe")
-		).build();
-	}
-
-	private Map<String, Map<String, String>> _getActions(Long siteId) {
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"create",
-			addAction(
-				"ADD_NODE", "postSiteWikiNode", "com.liferay.wiki", siteId)
-		).build();
-	}
-
 	private WikiNode _toWikiNode(com.liferay.wiki.model.WikiNode wikiNode)
 		throws Exception {
 
 		return new WikiNode() {
 			{
-				actions = _getActions(wikiNode);
+				actions = HashMapBuilder.put(
+					"delete", addAction("DELETE", wikiNode, "deleteWikiNode")
+				).put(
+					"get", addAction("VIEW", wikiNode, "getWikiNode")
+				).put(
+					"replace", addAction("UPDATE", wikiNode, "putWikiNode")
+				).put(
+					"subscribe",
+					addAction("SUBSCRIBE", wikiNode, "putWikiNodeSubscribe")
+				).put(
+					"unsubscribe",
+					addAction("SUBSCRIBE", wikiNode, "putWikiNodeUnsubscribe")
+				).build();
 				creator = CreatorUtil.toCreator(
-					_portal,
-					_userLocalService.getUserById(wikiNode.getUserId()));
+					_portal, Optional.of(contextUriInfo),
+					_userLocalService.fetchUser(wikiNode.getUserId()));
 				dateCreated = wikiNode.getCreateDate();
 				dateModified = wikiNode.getModifiedDate();
 				description = wikiNode.getDescription();

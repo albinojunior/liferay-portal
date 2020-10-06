@@ -19,8 +19,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
-import java.io.IOException;
-
 /**
  * @author Peter Shin
  */
@@ -57,14 +55,14 @@ public class LFRBuildReadmeCheck extends BaseFileCheck {
 
 	private synchronized String _getModulesReadmeMarkdownContent(
 			String absolutePath)
-		throws IOException {
+		throws Exception {
 
 		if (_modulesReadmeMarkdownContent != null) {
 			return _modulesReadmeMarkdownContent;
 		}
 
 		_modulesReadmeMarkdownContent = getPortalContent(
-			_MODULES_README_MARKDOWN_FILE_NAME, absolutePath, true);
+			_MODULES_README_MARKDOWN_FILE_NAME, absolutePath);
 
 		return _modulesReadmeMarkdownContent;
 	}

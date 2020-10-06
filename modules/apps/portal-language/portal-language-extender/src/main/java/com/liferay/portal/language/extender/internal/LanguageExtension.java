@@ -18,13 +18,13 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
-import com.liferay.portal.kernel.util.CacheResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.CacheResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -80,8 +80,8 @@ public class LanguageExtension {
 				bundleCapability.getAttributes());
 
 			Object aggregate = attributes.get("resource.bundle.aggregate");
-
 			Object baseName = attributes.get("resource.bundle.base.name");
+			Object serviceRanking = attributes.get(Constants.SERVICE_RANKING);
 
 			if (aggregate instanceof String) {
 				int aggregateId = _atomicInteger.incrementAndGet();
@@ -89,7 +89,8 @@ public class LanguageExtension {
 				ServiceTrackerResourceBundleLoader
 					serviceTrackerResourceBundleLoader =
 						new ServiceTrackerResourceBundleLoader(
-							_bundleContext, (String)aggregate, aggregateId);
+							_bundleContext, (String)aggregate, aggregateId,
+							GetterUtil.getInteger(serviceRanking));
 
 				attributes.put("aggregateId", String.valueOf(aggregateId));
 
@@ -110,8 +111,6 @@ public class LanguageExtension {
 					bundleWiring.getClassLoader(), (String)baseName,
 					GetterUtil.getBoolean(excludePortalResources));
 			}
-
-			Object serviceRanking = attributes.get(Constants.SERVICE_RANKING);
 
 			if (Validator.isNotNull(serviceRanking)) {
 				attributes.put(
@@ -148,7 +147,7 @@ public class LanguageExtension {
 		boolean excludePortalResource) {
 
 		ResourceBundleLoader resourceBundleLoader =
-			ResourceBundleUtil.getResourceBundleLoader(baseName, classLoader);
+			new ClassResourceBundleLoader(baseName, classLoader);
 
 		if (excludePortalResource) {
 			return new CacheResourceBundleLoader(resourceBundleLoader);

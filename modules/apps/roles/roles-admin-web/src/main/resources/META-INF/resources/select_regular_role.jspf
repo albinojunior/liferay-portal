@@ -17,7 +17,6 @@
 <%
 String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
 String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectRegularRole");
-String syncEntitiesEventName = ParamUtil.getString(request, "syncEntitiesEventName", liferayPortletResponse.getNamespace() + "syncRegularRoles");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
@@ -25,7 +24,7 @@ SelectRoleManagementToolbarDisplayContext selectRoleManagementToolbarDisplayCont
 
 PortletURL portletURL = selectRoleManagementToolbarDisplayContext.getPortletURL();
 
-SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles);
+SearchContainer<Role> roleSearchContainer = selectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles);
 %>
 
 <clay:management-toolbar
@@ -58,12 +57,15 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 				<c:if test="<%= Validator.isNull(p_u_i_d) || RoleMembershipPolicyUtil.isRoleAllowed((selUser != null) ? selUser.getUserId() : 0, role.getRoleId()) %>">
 
 					<%
-					Map<String, Object> data = new HashMap<String, Object>();
-
-					data.put("entityid", role.getRoleId());
-					data.put("entityname", role.getTitle(locale));
-					data.put("iconcssclass", RolesAdminUtil.getIconCssClass(role));
-					data.put("searchcontainername", "roles");
+					Map<String, Object> data = HashMapBuilder.<String, Object>put(
+						"entityid", role.getRoleId()
+					).put(
+						"entityname", role.getTitle(locale)
+					).put(
+						"iconcssclass", RolesAdminUtil.getIconCssClass(role)
+					).put(
+						"searchcontainername", "roles"
+					).build();
 
 					long[] defaultRoleIds = (selUser != null) ? selUser.getRoleIds() : new long[0];
 
@@ -84,15 +86,7 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 </aui:form>
 
 <aui:script use="aui-base">
-	var Util = Liferay.Util;
-
-	var openingLiferay = Util.getOpener().Liferay;
-
-	openingLiferay.fire('<%= HtmlUtil.escape(syncEntitiesEventName) %>', {
-		selectors: A.all('.selector-button:disabled'),
-	});
-
-	Util.selectEntityHandler(
+	Liferay.Util.selectEntityHandler(
 		'#<portlet:namespace />selectRegularRoleFm',
 		'<%= HtmlUtil.escapeJS(eventName) %>'
 	);

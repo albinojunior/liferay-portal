@@ -47,7 +47,7 @@ import org.osgi.service.component.annotations.Reference;
 	property = {
 		"javax.portlet.name=" + DepotPortletKeys.DEPOT_ADMIN,
 		"javax.portlet.name=" + DepotPortletKeys.DEPOT_SETTINGS,
-		"mvc.command.name=/depot_entry/edit"
+		"mvc.command.name=/depot/edit_depot_entry"
 	},
 	service = MVCActionCommand.class
 )
@@ -67,7 +67,7 @@ public class EditDepotEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			Group group = depotEntry.getGroup();
 
-			UnicodeProperties depotAppCustomizationProperties =
+			UnicodeProperties depotAppCustomizationUnicodeProperties =
 				PropertiesParamUtil.getProperties(
 					actionRequest, "DepotAppCustomization--");
 
@@ -77,7 +77,7 @@ public class EditDepotEntryMVCActionCommand extends BaseMVCActionCommand {
 					actionRequest, "name", group.getNameMap()),
 				LocalizationUtil.getLocalizationMap(
 					actionRequest, "description", group.getDescriptionMap()),
-				_toStringBooleanMap(depotAppCustomizationProperties),
+				_toStringBooleanMap(depotAppCustomizationUnicodeProperties),
 				PropertiesParamUtil.getProperties(
 					actionRequest, "TypeSettingsProperties--"),
 				ServiceContextFactory.getInstance(

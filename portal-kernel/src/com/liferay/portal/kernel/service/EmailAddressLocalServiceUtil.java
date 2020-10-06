@@ -39,6 +39,10 @@ public class EmailAddressLocalServiceUtil {
 	/**
 	 * Adds the email address to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param emailAddress the email address
 	 * @return the email address that was added
 	 */
@@ -83,6 +87,10 @@ public class EmailAddressLocalServiceUtil {
 	/**
 	 * Deletes the email address from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param emailAddress the email address
 	 * @return the email address that was removed
 	 */
@@ -95,6 +103,10 @@ public class EmailAddressLocalServiceUtil {
 
 	/**
 	 * Deletes the email address with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param emailAddressId the primary key of the email address
 	 * @return the email address that was removed
@@ -122,6 +134,12 @@ public class EmailAddressLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -338,6 +356,10 @@ public class EmailAddressLocalServiceUtil {
 
 	/**
 	 * Updates the email address in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect EmailAddressLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param emailAddress the email address
 	 * @return the email address that was updated

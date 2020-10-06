@@ -12,144 +12,23 @@
  * details.
  */
 
-import {Treeview} from 'frontend-js-components-web';
 import React from 'react';
 
-import {useActiveItemId} from '../../../app/components/Controls';
-import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../app/config/constants/editableFragmentEntryProcessor';
-import {LAYOUT_DATA_ITEM_TYPE_LABELS} from '../../../app/config/constants/layoutDataItemTypeLabels';
-import {LAYOUT_DATA_ITEM_TYPES} from '../../../app/config/constants/layoutDataItemTypes';
-import {PAGE_TYPES} from '../../../app/config/constants/pageTypes';
-import {config} from '../../../app/config/index';
-import {useSelector} from '../../../app/store/index';
 import SidebarPanelHeader from '../../../common/components/SidebarPanelHeader';
-import StructureTreeNode from './StructureTreeNode';
+import ItemConfiguration from './ItemConfiguration';
+import StructureTree from './StructureTree';
 
 export default function PageStructureSidebar() {
-	const activeItemId = useActiveItemId();
-
-	const fragmentEntryLinks = useSelector(state => state.fragmentEntryLinks);
-	const layoutData = useSelector(state => state.layoutData);
-	const masterLayoutData = useSelector(state => state.masterLayoutData);
-
-	const isMasterPage = config.pageType === PAGE_TYPES.master;
-
-	const getName = (item, fragmentEntryLinks) => {
-		let name;
-
-		if (item.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
-			name = fragmentEntryLinks[item.config.fragmentEntryLinkId].name;
-		}
-		else if (item.type === LAYOUT_DATA_ITEM_TYPES.container) {
-			name = LAYOUT_DATA_ITEM_TYPE_LABELS.container;
-		}
-		else if (item.type === LAYOUT_DATA_ITEM_TYPES.column) {
-			name = LAYOUT_DATA_ITEM_TYPE_LABELS.column;
-		}
-		else if (item.type === LAYOUT_DATA_ITEM_TYPES.dropZone) {
-			name = LAYOUT_DATA_ITEM_TYPE_LABELS.dropZone;
-		}
-		else if (item.type === LAYOUT_DATA_ITEM_TYPES.row) {
-			name = LAYOUT_DATA_ITEM_TYPE_LABELS.row;
-		}
-
-		return name;
-	};
-
-	const visit = (item, items) => {
-		const children = [];
-		const itemInMasterLayout =
-			masterLayoutData && Object.keys(data.items).includes(item.itemId);
-
-		if (item.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
-			const fragmentChildren =
-				fragmentEntryLinks[item.config.fragmentEntryLinkId]
-					.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR] || {};
-
-			Object.keys(fragmentChildren).forEach(editableId => {
-				const childId = `${item.config.fragmentEntryLinkId}-${editableId}`;
-
-				children.push({
-					children: [],
-					disabled: !isMasterPage && itemInMasterLayout,
-					expanded: childId === activeItemId,
-					id: childId,
-					name: editableId,
-					removable: false,
-				});
-			});
-		}
-		else {
-			item.children.forEach(childId => {
-				const childItem = items[childId];
-
-				if (
-					!isMasterPage &&
-					childItem.type === LAYOUT_DATA_ITEM_TYPES.dropZone
-				) {
-					const dropZoneChildren = visit(
-						layoutData.items[layoutData.rootItems.main],
-						layoutData.items
-					).children;
-
-					children.push(...dropZoneChildren);
-				}
-				else {
-					const child = visit(childItem, items);
-
-					children.push(child);
-				}
-			});
-		}
-		const node = {
-			children,
-			disabled: !isMasterPage && itemInMasterLayout,
-			expanded: item.itemId === activeItemId,
-			id: item.itemId,
-			name: getName(item, fragmentEntryLinks),
-			removable: !itemInMasterLayout && isRemovable(item, layoutData),
-		};
-
-		return node;
-	};
-
-	const data = masterLayoutData || layoutData;
-	const nodes = visit(data.items[data.rootItems.main], data.items).children;
-
 	return (
-		<>
+		<div className="page-editor__page-structure">
 			<SidebarPanelHeader>
-				{Liferay.Language.get('page-structure')}
+				{Liferay.Language.get('selection')}
 			</SidebarPanelHeader>
 
-			<div className="page-editor__page-structure px-4">
-				<Treeview
-					NodeComponent={StructureTreeNode}
-					nodes={nodes}
-					selectedNodeIds={[activeItemId]}
-				/>
+			<div className="page-editor__page-structure__content">
+				<StructureTree />
+				<ItemConfiguration />
 			</div>
-		</>
+		</div>
 	);
-}
-
-function isRemovable(item, layoutData) {
-	function hasDropZoneChildren(item, layoutData) {
-		return item.children.some(childId => {
-			const child = layoutData.items[childId];
-
-			return child.type === LAYOUT_DATA_ITEM_TYPES.dropZone
-				? true
-				: hasDropZoneChildren(child, layoutData);
-		});
-	}
-
-	if (
-		item.type === LAYOUT_DATA_ITEM_TYPES.dropZone ||
-		item.type === LAYOUT_DATA_ITEM_TYPES.column
-	) {
-		return false;
-	}
-
-	return !hasDropZoneChildren(item, layoutData);
 }

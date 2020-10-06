@@ -37,13 +37,13 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.test.constants.ServiceTestConstants;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceTestConstants;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -121,7 +121,8 @@ public class MBMessageServiceTest {
 
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
 			new String[] {ActionKeys.ADD_MESSAGE, ActionKeys.VIEW},
-			new String[] {ActionKeys.ADD_MESSAGE, ActionKeys.VIEW});
+			new String[] {ActionKeys.ADD_MESSAGE, ActionKeys.VIEW},
+			MBCategory.class.getName());
 
 		serviceContext.setModelPermissions(modelPermissions);
 

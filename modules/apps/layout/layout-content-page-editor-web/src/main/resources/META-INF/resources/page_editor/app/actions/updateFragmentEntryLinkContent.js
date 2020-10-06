@@ -15,10 +15,12 @@
 import {UPDATE_FRAGMENT_ENTRY_LINK_CONTENT} from './types';
 
 export default function updateFragmentEntryLinkContent({
+	collectionItemIndex,
 	content,
 	fragmentEntryLinkId,
 }) {
 	return {
+		collectionItemIndex,
 		content,
 		fragmentEntryLinkId,
 		type: UPDATE_FRAGMENT_ENTRY_LINK_CONTENT,

@@ -18,7 +18,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -53,6 +55,7 @@ public class MyProfilePersonalMenuEntry implements PersonalMenuEntry {
 		return LanguageUtil.get(locale, "my-profile");
 	}
 
+	@Override
 	public String getPortletURL(HttpServletRequest httpServletRequest)
 		throws PortalException {
 
@@ -92,14 +95,29 @@ public class MyProfilePersonalMenuEntry implements PersonalMenuEntry {
 
 	@Override
 	public boolean isShow(
-		PortletRequest portletRequest, PermissionChecker permissionChecker) {
+			PortletRequest portletRequest, PermissionChecker permissionChecker)
+		throws PortalException {
 
-		if (PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) {
-			return true;
+		if (!PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) {
+			return false;
 		}
 
-		return false;
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		if (PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED &&
+			!roleLocalService.hasUserRole(
+				themeDisplay.getUserId(), themeDisplay.getCompanyId(),
+				RoleConstants.POWER_USER, true)) {
+
+			return false;
+		}
+
+		return true;
 	}
+
+	@Reference
+	protected RoleLocalService roleLocalService;
 
 	@Reference
 	private Portal _portal;

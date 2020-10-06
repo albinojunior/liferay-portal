@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
@@ -40,7 +41,6 @@ import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.social.kernel.service.SocialActivityLocalServiceUtil;
 import com.liferay.social.kernel.service.SocialActivitySetLocalServiceUtil;
@@ -123,6 +123,8 @@ public abstract class BaseSocialActivityInterpreter
 		}
 	}
 
+	protected abstract ResourceBundleLoader acquireResourceBundleLoader();
+
 	protected String addNoSuchEntryRedirect(
 			String url, String className, long classPK,
 			ServiceContext serviceContext)
@@ -171,9 +173,8 @@ public abstract class BaseSocialActivityInterpreter
 			return null;
 		}
 
-		String body = getBody(activity, serviceContext);
-
-		return new SocialActivityFeedEntry(link, title, body);
+		return new SocialActivityFeedEntry(
+			link, title, getBody(activity, serviceContext));
 	}
 
 	protected SocialActivityFeedEntry doInterpret(
@@ -239,11 +240,9 @@ public abstract class BaseSocialActivityInterpreter
 				return HtmlUtil.escape(groupName);
 			}
 
-			groupName = StringBundler.concat(
+			return StringBundler.concat(
 				"<a class=\"group\" href=\"", groupDisplayURL, "\">",
 				HtmlUtil.escape(groupName), "</a>");
-
-			return groupName;
 		}
 		catch (Exception exception) {
 			return StringPool.BLANK;
@@ -337,7 +336,19 @@ public abstract class BaseSocialActivityInterpreter
 		return StringPool.BLANK;
 	}
 
-	protected abstract ResourceBundleLoader getResourceBundleLoader();
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #acquireResourceBundleLoader}
+	 */
+	@Deprecated
+	protected com.liferay.portal.kernel.util.ResourceBundleLoader
+		getResourceBundleLoader() {
+
+		ResourceBundleLoader resourceBundleLoader =
+			acquireResourceBundleLoader();
+
+		return locale -> resourceBundleLoader.loadResourceBundle(locale);
+	}
 
 	protected String getTitle(
 			SocialActivity activity, ServiceContext serviceContext)
@@ -355,14 +366,12 @@ public abstract class BaseSocialActivityInterpreter
 			return null;
 		}
 
-		String link = getLink(activity, serviceContext);
-
-		String entryTitle = getEntryTitle(activity, serviceContext);
-
 		Object[] titleArguments = getTitleArguments(
-			groupName, activity, link, entryTitle, serviceContext);
+			groupName, activity, getLink(activity, serviceContext),
+			getEntryTitle(activity, serviceContext), serviceContext);
 
-		ResourceBundleLoader resourceBundleLoader = getResourceBundleLoader();
+		ResourceBundleLoader resourceBundleLoader =
+			acquireResourceBundleLoader();
 
 		if (resourceBundleLoader == null) {
 			return serviceContext.translate(titlePattern, titleArguments);
@@ -380,9 +389,10 @@ public abstract class BaseSocialActivityInterpreter
 			String title, ServiceContext serviceContext)
 		throws Exception {
 
-		String userName = getUserName(activity.getUserId(), serviceContext);
-
-		return new Object[] {groupName, userName, wrapLink(link, title)};
+		return new Object[] {
+			groupName, getUserName(activity.getUserId(), serviceContext),
+			wrapLink(link, title)
+		};
 	}
 
 	protected String getTitlePattern(String groupName, SocialActivity activity)
@@ -414,11 +424,9 @@ public abstract class BaseSocialActivityInterpreter
 			String userDisplayURL = user.getDisplayURL(
 				serviceContext.getThemeDisplay());
 
-			userName = StringBundler.concat(
+			return StringBundler.concat(
 				"<a class=\"user\" href=\"", userDisplayURL, "\">",
 				HtmlUtil.escape(userName), "</a>");
-
-			return userName;
 		}
 		catch (Exception exception) {
 			return StringPool.BLANK;
@@ -504,7 +512,8 @@ public abstract class BaseSocialActivityInterpreter
 	protected String wrapLink(
 		String link, String key, ServiceContext serviceContext) {
 
-		ResourceBundleLoader resourceBundleLoader = getResourceBundleLoader();
+		ResourceBundleLoader resourceBundleLoader =
+			acquireResourceBundleLoader();
 
 		ResourceBundle resourceBundle = resourceBundleLoader.loadResourceBundle(
 			serviceContext.getLocale());

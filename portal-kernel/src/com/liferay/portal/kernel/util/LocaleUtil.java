@@ -224,7 +224,7 @@ public class LocaleUtil {
 
 		if (languageId == null) {
 			if (useDefault) {
-				return _locale;
+				return _getDefault();
 			}
 
 			return null;
@@ -236,45 +236,52 @@ public class LocaleUtil {
 			return locale;
 		}
 
-		try {
-			int pos = languageId.indexOf(CharPool.UNDERLINE);
+		if (languageId.equals("zh-Hans-CN")) {
+			languageId = "zh_CN";
+		}
+		else if (languageId.equals("zh-Hant-TW")) {
+			languageId = "zh_TW";
+		}
+		else {
+			languageId = StringUtil.replace(
+				languageId, CharPool.MINUS, CharPool.UNDERLINE);
+		}
 
-			if (pos == -1) {
-				locale = new Locale(languageId);
+		int pos = languageId.indexOf(CharPool.UNDERLINE);
+
+		if (pos == -1) {
+			locale = new Locale(languageId);
+		}
+		else {
+			String[] languageIdParts = StringUtil.split(
+				languageId, CharPool.UNDERLINE);
+
+			String languageCode = languageIdParts[0];
+			String countryCode = languageIdParts[1];
+
+			String variant = null;
+
+			if (languageIdParts.length > 2) {
+				variant = languageIdParts[2];
+			}
+
+			if (Validator.isNotNull(variant)) {
+				locale = new Locale(languageCode, countryCode, variant);
 			}
 			else {
-				String[] languageIdParts = StringUtil.split(
-					languageId, CharPool.UNDERLINE);
-
-				String languageCode = languageIdParts[0];
-				String countryCode = languageIdParts[1];
-
-				String variant = null;
-
-				if (languageIdParts.length > 2) {
-					variant = languageIdParts[2];
-				}
-
-				if (Validator.isNotNull(variant)) {
-					locale = new Locale(languageCode, countryCode, variant);
-				}
-				else {
-					locale = new Locale(languageCode, countryCode);
-				}
+				locale = new Locale(languageCode, countryCode);
 			}
-
-			if (validate && !LanguageUtil.isAvailableLocale(locale)) {
-				throw new IllegalArgumentException("Invalid locale " + locale);
-			}
-
-			_locales.put(languageId, locale);
 		}
-		catch (Exception exception) {
+
+		if (validate && !LanguageUtil.isAvailableLocale(locale)) {
 			locale = null;
 
 			if (_log.isWarnEnabled()) {
 				_log.warn(languageId + " is not a valid language id");
 			}
+		}
+		else {
+			_locales.put(languageId, locale);
 		}
 
 		if ((locale == null) && useDefault) {

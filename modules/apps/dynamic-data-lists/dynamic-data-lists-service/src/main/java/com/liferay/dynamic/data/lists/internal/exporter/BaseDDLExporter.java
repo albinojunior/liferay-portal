@@ -14,9 +14,9 @@
 
 package com.liferay.dynamic.data.lists.internal.exporter;
 
+import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.exporter.DDLExporter;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
-import com.liferay.dynamic.data.lists.model.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetVersion;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetVersionService;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
@@ -154,8 +154,7 @@ public abstract class BaseDDLExporter implements DDLExporter {
 			com.liferay.dynamic.data.mapping.render.DDMFormFieldValueRenderer
 				ddmFormFieldValueRenderer =
 					ddmFormFieldValueRendererRegistry.
-						getDDMFormFieldValueRenderer(
-							ddmFormFieldValue.getType());
+						getDDMFormFieldValueRenderer(ddmFormField.getType());
 
 			String ddmFormFieldType =
 				ddmFormFieldValueRenderer.getSupportedDDMFormFieldType();
@@ -210,17 +209,16 @@ public abstract class BaseDDLExporter implements DDLExporter {
 
 		Stream<DDMFormField> ddmFormFieldStream = ddmFormFields.stream();
 
-		ddmFormFieldStream = ddmFormFieldStream.filter(
+		return ddmFormFieldStream.filter(
 			ddmFormField -> ddmFormFieldValuesMap.containsKey(
-				ddmFormField.getName()));
-
-		Stream<DDMFormFieldRenderedValue> valueStream = ddmFormFieldStream.map(
+				ddmFormField.getName())
+		).map(
 			ddmFormField -> getDDMFormFieldRenderedValue(
-				scope, ddmFormField, ddmFormFieldValuesMap));
-
-		return valueStream.collect(
+				scope, ddmFormField, ddmFormFieldValuesMap)
+		).collect(
 			Collectors.toMap(
-				DDMFormFieldRenderedValue::getFieldName, value -> value));
+				DDMFormFieldRenderedValue::getFieldName, value -> value)
+		);
 	}
 
 	protected String getStatusMessage(int status) {

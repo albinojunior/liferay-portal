@@ -96,18 +96,37 @@ public class KaleoProcessLinkModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long KALEOPROCESSID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long WORKFLOWTASKNAME_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long KALEOPROCESSLINKID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public KaleoProcessLinkModelImpl() {
@@ -161,9 +180,6 @@ public class KaleoProcessLinkModelImpl
 				attributeName,
 				attributeGetterFunction.apply((KaleoProcessLink)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -282,6 +298,10 @@ public class KaleoProcessLinkModelImpl
 
 	@Override
 	public void setKaleoProcessLinkId(long kaleoProcessLinkId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_kaleoProcessLinkId = kaleoProcessLinkId;
 	}
 
@@ -292,6 +312,10 @@ public class KaleoProcessLinkModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_companyId = companyId;
 	}
 
@@ -302,19 +326,21 @@ public class KaleoProcessLinkModelImpl
 
 	@Override
 	public void setKaleoProcessId(long kaleoProcessId) {
-		_columnBitmask |= KALEOPROCESSID_COLUMN_BITMASK;
-
-		if (!_setOriginalKaleoProcessId) {
-			_setOriginalKaleoProcessId = true;
-
-			_originalKaleoProcessId = _kaleoProcessId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_kaleoProcessId = kaleoProcessId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalKaleoProcessId() {
-		return _originalKaleoProcessId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("kaleoProcessId"));
 	}
 
 	@Override
@@ -329,17 +355,20 @@ public class KaleoProcessLinkModelImpl
 
 	@Override
 	public void setWorkflowTaskName(String workflowTaskName) {
-		_columnBitmask |= WORKFLOWTASKNAME_COLUMN_BITMASK;
-
-		if (_originalWorkflowTaskName == null) {
-			_originalWorkflowTaskName = _workflowTaskName;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_workflowTaskName = workflowTaskName;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalWorkflowTaskName() {
-		return GetterUtil.getString(_originalWorkflowTaskName);
+		return getColumnOriginalValue("workflowTaskName");
 	}
 
 	@Override
@@ -349,10 +378,32 @@ public class KaleoProcessLinkModelImpl
 
 	@Override
 	public void setDDMTemplateId(long DDMTemplateId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_DDMTemplateId = DDMTemplateId;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -415,16 +466,16 @@ public class KaleoProcessLinkModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof KaleoProcessLink)) {
+		if (!(object instanceof KaleoProcessLink)) {
 			return false;
 		}
 
-		KaleoProcessLink kaleoProcessLink = (KaleoProcessLink)obj;
+		KaleoProcessLink kaleoProcessLink = (KaleoProcessLink)object;
 
 		long primaryKey = kaleoProcessLink.getPrimaryKey();
 
@@ -441,29 +492,29 @@ public class KaleoProcessLinkModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		KaleoProcessLinkModelImpl kaleoProcessLinkModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		kaleoProcessLinkModelImpl._originalKaleoProcessId =
-			kaleoProcessLinkModelImpl._kaleoProcessId;
-
-		kaleoProcessLinkModelImpl._setOriginalKaleoProcessId = false;
-
-		kaleoProcessLinkModelImpl._originalWorkflowTaskName =
-			kaleoProcessLinkModelImpl._workflowTaskName;
-
-		kaleoProcessLinkModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -496,7 +547,7 @@ public class KaleoProcessLinkModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -528,7 +579,7 @@ public class KaleoProcessLinkModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -560,17 +611,70 @@ public class KaleoProcessLinkModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _kaleoProcessLinkId;
 	private long _companyId;
 	private long _kaleoProcessId;
-	private long _originalKaleoProcessId;
-	private boolean _setOriginalKaleoProcessId;
 	private String _workflowTaskName;
-	private String _originalWorkflowTaskName;
 	private long _DDMTemplateId;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<KaleoProcessLink, Object> function =
+			_attributeGetterFunctions.get(columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((KaleoProcessLink)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("kaleoProcessLinkId", _kaleoProcessLinkId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("kaleoProcessId", _kaleoProcessId);
+		_columnOriginalValues.put("workflowTaskName", _workflowTaskName);
+		_columnOriginalValues.put("DDMTemplateId", _DDMTemplateId);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("kaleoProcessLinkId", 1L);
+
+		columnBitmasks.put("companyId", 2L);
+
+		columnBitmasks.put("kaleoProcessId", 4L);
+
+		columnBitmasks.put("workflowTaskName", 8L);
+
+		columnBitmasks.put("DDMTemplateId", 16L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private KaleoProcessLink _escapedModel;
 

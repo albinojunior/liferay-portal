@@ -19,6 +19,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -43,6 +44,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.PhoneLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.ListTypePersistence;
 import com.liferay.portal.kernel.service.persistence.PhonePersistence;
@@ -82,6 +84,10 @@ public abstract class PhoneLocalServiceBaseImpl
 	/**
 	 * Adds the phone to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PhoneLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param phone the phone
 	 * @return the phone that was added
 	 */
@@ -108,6 +114,10 @@ public abstract class PhoneLocalServiceBaseImpl
 	/**
 	 * Deletes the phone with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PhoneLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param phoneId the primary key of the phone
 	 * @return the phone that was removed
 	 * @throws PortalException if a phone with the primary key could not be found
@@ -121,6 +131,10 @@ public abstract class PhoneLocalServiceBaseImpl
 	/**
 	 * Deletes the phone from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PhoneLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param phone the phone
 	 * @return the phone that was removed
 	 */
@@ -128,6 +142,11 @@ public abstract class PhoneLocalServiceBaseImpl
 	@Override
 	public Phone deletePhone(Phone phone) {
 		return phonePersistence.remove(phone);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return phonePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -392,6 +411,10 @@ public abstract class PhoneLocalServiceBaseImpl
 		return phoneLocalService.deletePhone((Phone)persistedModel);
 	}
 
+	public BasePersistence<Phone> getBasePersistence() {
+		return phonePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -445,6 +468,10 @@ public abstract class PhoneLocalServiceBaseImpl
 
 	/**
 	 * Updates the phone in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PhoneLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param phone the phone
 	 * @return the phone that was updated

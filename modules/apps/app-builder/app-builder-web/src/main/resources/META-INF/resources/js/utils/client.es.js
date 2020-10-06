@@ -14,6 +14,8 @@
 
 import {fetch} from 'frontend-js-web';
 
+import {errorToast, successToast} from '../utils/toast.es';
+
 const HEADERS = {
 	Accept: 'application/json',
 	'Accept-Language': Liferay.ThemeDisplay.getBCP47LanguageId(),
@@ -23,10 +25,10 @@ const HEADERS = {
 const parseJSON = (response, resolve, reject) =>
 	response
 		.text()
-		.then(text => resolve(text ? JSON.parse(text) : {}))
-		.catch(error => reject(error));
+		.then((text) => resolve(text ? JSON.parse(text) : {}))
+		.catch((error) => reject(error));
 
-const parseResponse = response =>
+export const parseResponse = (response) =>
 	new Promise((resolve, reject) => {
 		if (response.ok) {
 			parseJSON(response, resolve, reject);
@@ -41,35 +43,49 @@ export const addItem = (endpoint, item) =>
 		body: JSON.stringify(item),
 		headers: HEADERS,
 		method: 'POST',
-	}).then(response => parseResponse(response));
+	}).then((response) => parseResponse(response));
 
-export const confirmDelete = endpoint => item =>
+export const confirmDelete = (endpoint, options = {}) => (item) =>
 	new Promise((resolve, reject) => {
-		const confirmed = confirm(
-			Liferay.Language.get('are-you-sure-you-want-to-delete-this')
-		);
+		const {
+			confirmMessage = Liferay.Language.get(
+				'are-you-sure-you-want-to-delete-this'
+			),
+			errorMessage = Liferay.Language.get(
+				'the-item-could-not-be-deleted'
+			),
+			successMessage = Liferay.Language.get(
+				'the-item-was-deleted-successfully'
+			),
+		} = options;
+
+		const confirmed = confirm(confirmMessage);
 
 		if (confirmed) {
 			deleteItem(endpoint + item.id)
 				.then(() => resolve(true))
-				.catch(error => reject(error));
+				.then(() => successToast(successMessage))
+				.catch((error) => {
+					errorToast(errorMessage);
+					reject(error);
+				});
 		}
 		else {
 			resolve(false);
 		}
 	});
 
-export const deleteItem = endpoint =>
+export const deleteItem = (endpoint) =>
 	fetch(getURL(endpoint), {
 		headers: HEADERS,
 		method: 'DELETE',
-	}).then(response => parseResponse(response));
+	}).then((response) => parseResponse(response));
 
 export const getItem = (endpoint, params) =>
 	fetch(getURL(endpoint, params), {
 		headers: HEADERS,
 		method: 'GET',
-	}).then(response => parseResponse(response));
+	}).then((response) => parseResponse(response));
 
 export const getURL = (path, params) => {
 	params = {
@@ -81,20 +97,27 @@ export const getURL = (path, params) => {
 	const uri = new URL(`${window.location.origin}${path}`);
 	const keys = Object.keys(params);
 
-	keys.forEach(key => uri.searchParams.set(key, params[key]));
+	keys.forEach((key) => {
+		if (Array.isArray(params[key])) {
+			params[key].forEach((value) => uri.searchParams.append(key, value));
+		}
+		else {
+			uri.searchParams.set(key, params[key]);
+		}
+	});
 
 	return uri.toString();
 };
 
-export const request = (endpoint, method = 'GET') =>
-	fetch(getURL(endpoint), {
+export const request = ({endpoint, method = 'GET', params = {}}) =>
+	fetch(getURL(endpoint, params), {
 		headers: HEADERS,
 		method,
-	}).then(response => parseResponse(response));
+	}).then((response) => parseResponse(response));
 
-export const updateItem = (endpoint, item, params) =>
+export const updateItem = ({endpoint, item, method = 'PUT', params = {}}) =>
 	fetch(getURL(endpoint, params), {
 		body: JSON.stringify(item),
 		headers: HEADERS,
-		method: 'PUT',
-	}).then(response => parseResponse(response));
+		method,
+	}).then((response) => parseResponse(response));

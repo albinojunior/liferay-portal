@@ -21,13 +21,16 @@ import com.liferay.depot.model.DepotEntryGroupRel;
 import com.liferay.depot.service.DepotAppCustomizationLocalService;
 import com.liferay.depot.service.base.DepotEntryLocalServiceBaseImpl;
 import com.liferay.depot.service.persistence.DepotEntryGroupRelPersistence;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.GroupKeyException;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -81,7 +84,8 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 			DepotEntry.class.getName(), depotEntry.getDepotEntryId(),
 			GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, descriptionMap,
 			GroupConstants.TYPE_DEPOT, true,
-			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false, false,
+			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
+			"/asset-library-" + depotEntry.getDepotEntryId(), false, false,
 			true, serviceContext);
 
 		_userLocalService.addGroupUsers(
@@ -122,6 +126,34 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 	}
 
 	@Override
+	public List<DepotEntry> getDepotEntryGroupRelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return depotEntryPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<DepotEntry> getGroupConnectedDepotEntries(
+			long groupId, boolean ddmStructuresAvailable, int start, int end)
+		throws PortalException {
+
+		List<DepotEntry> depotEntries = new ArrayList<>();
+
+		List<DepotEntryGroupRel> depotEntryGroupRels =
+			_depotEntryGroupRelPersistence.findByDDMSA_TGI(
+				ddmStructuresAvailable, groupId, start, end);
+
+		for (DepotEntryGroupRel depotEntryGroupRel : depotEntryGroupRels) {
+			DepotEntry depotEntry = depotEntryLocalService.getDepotEntry(
+				depotEntryGroupRel.getDepotEntryId());
+
+			depotEntries.add(depotEntry);
+		}
+
+		return depotEntries;
+	}
+
+	@Override
 	public List<DepotEntry> getGroupConnectedDepotEntries(
 			long groupId, int start, int end)
 		throws PortalException {
@@ -156,7 +188,7 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 			long depotEntryId, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap,
 			Map<String, Boolean> depotAppCustomizationMap,
-			UnicodeProperties typeSettingsProperties,
+			UnicodeProperties typeSettingsUnicodeProperties,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -173,32 +205,39 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 				depotEntryId, entry.getValue(), entry.getKey());
 		}
 
-		_validateTypeSettingsProperties(depotEntry, typeSettingsProperties);
+		_validateTypeSettingsProperties(
+			depotEntry, typeSettingsUnicodeProperties);
+
+		for (String name : nameMap.values()) {
+			_validateName(name);
+		}
 
 		Group group = _groupLocalService.getGroup(depotEntry.getGroupId());
 
-		UnicodeProperties currentTypeSettingsProperties =
+		UnicodeProperties currentTypeSettingsUnicodeProperties =
 			group.getTypeSettingsProperties();
 
 		boolean inheritLocales = GetterUtil.getBoolean(
-			currentTypeSettingsProperties.getProperty("inheritLocales"), true);
+			currentTypeSettingsUnicodeProperties.getProperty("inheritLocales"),
+			true);
 
 		inheritLocales = GetterUtil.getBoolean(
-			typeSettingsProperties.getProperty("inheritLocales"),
+			typeSettingsUnicodeProperties.getProperty("inheritLocales"),
 			inheritLocales);
 
 		if (inheritLocales) {
-			typeSettingsProperties.setProperty(
+			typeSettingsUnicodeProperties.setProperty(
 				PropsKeys.LOCALES,
 				StringUtil.merge(
 					LocaleUtil.toLanguageIds(
 						LanguageUtil.getAvailableLocales())));
 		}
 
-		currentTypeSettingsProperties.putAll(typeSettingsProperties);
+		currentTypeSettingsUnicodeProperties.putAll(
+			typeSettingsUnicodeProperties);
 
 		Locale locale = LocaleUtil.fromLanguageId(
-			currentTypeSettingsProperties.getProperty("languageId"));
+			currentTypeSettingsUnicodeProperties.getProperty("languageId"));
 
 		Optional<String> defaultNameOptional = _getDefaultNameOptional(
 			nameMap, locale);
@@ -213,7 +252,8 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 			group.isInheritContent(), group.isActive(), serviceContext);
 
 		_groupLocalService.updateGroup(
-			group.getGroupId(), currentTypeSettingsProperties.toString());
+			group.getGroupId(),
+			currentTypeSettingsUnicodeProperties.toString());
 
 		return depotEntry;
 	}
@@ -232,6 +272,19 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 			_language.get(resourceBundle, "unnamed-asset-library"));
 	}
 
+	private void _validateName(String name) throws PortalException {
+		int groupKeyMaxLength = ModelHintsUtil.getMaxLength(
+			Group.class.getName(), "name");
+
+		if (Validator.isNotNull(name) &&
+			(Validator.isNumber(name) || name.contains(StringPool.STAR) ||
+			 name.contains(_ORGANIZATION_NAME_SUFFIX) ||
+			 (name.length() > groupKeyMaxLength))) {
+
+			throw new GroupKeyException();
+		}
+	}
+
 	private void _validateNameMap(
 			Map<Locale, String> nameMap, Locale defaultLocale)
 		throws DepotEntryNameException {
@@ -244,16 +297,17 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 	}
 
 	private void _validateTypeSettingsProperties(
-			DepotEntry depotEntry, UnicodeProperties typeSettingsProperties)
+			DepotEntry depotEntry,
+			UnicodeProperties typeSettingsUnicodeProperties)
 		throws LocaleException {
 
-		if (!typeSettingsProperties.containsKey("inheritLocales")) {
+		if (!typeSettingsUnicodeProperties.containsKey("inheritLocales")) {
 			return;
 		}
 
-		if (typeSettingsProperties.containsKey(PropsKeys.LOCALES) &&
+		if (typeSettingsUnicodeProperties.containsKey(PropsKeys.LOCALES) &&
 			Validator.isNull(
-				typeSettingsProperties.getProperty(PropsKeys.LOCALES))) {
+				typeSettingsUnicodeProperties.getProperty(PropsKeys.LOCALES))) {
 
 			throw new LocaleException(
 				LocaleException.TYPE_DEFAULT,
@@ -262,10 +316,10 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 		}
 
 		boolean inheritLocales = GetterUtil.getBoolean(
-			typeSettingsProperties.getProperty("inheritLocales"));
+			typeSettingsUnicodeProperties.getProperty("inheritLocales"));
 
 		if (!inheritLocales &&
-			!typeSettingsProperties.containsKey(PropsKeys.LOCALES)) {
+			!typeSettingsUnicodeProperties.containsKey(PropsKeys.LOCALES)) {
 
 			throw new LocaleException(
 				LocaleException.TYPE_DEFAULT,
@@ -273,6 +327,8 @@ public class DepotEntryLocalServiceImpl extends DepotEntryLocalServiceBaseImpl {
 					depotEntry.getGroupId());
 		}
 	}
+
+	private static final String _ORGANIZATION_NAME_SUFFIX = " LFR_ORGANIZATION";
 
 	@Reference
 	private DepotAppCustomizationLocalService

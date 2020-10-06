@@ -14,6 +14,7 @@
 
 package com.liferay.account.internal.model.listener.test;
 
+import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountRole;
 import com.liferay.account.service.AccountEntryLocalService;
@@ -26,6 +27,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -51,31 +53,45 @@ public class CompanyModelListenerTest {
 	@Before
 	public void setUp() throws Exception {
 		_company = CompanyTestUtil.addCompany();
+
+		_defaultUser = _company.getDefaultUser();
+
+		_accountEntry = _accountEntryLocalService.addAccountEntry(
+			_defaultUser.getUserId(), 0L, RandomTestUtil.randomString(50),
+			RandomTestUtil.randomString(50), null, null, null,
+			AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+			WorkflowConstants.STATUS_APPROVED,
+			ServiceContextTestUtil.getServiceContext());
+	}
+
+	@Test
+	public void testCleanUpAccountEntries() throws Exception {
+		_deleteCompany();
+
+		Assert.assertNull(
+			_accountEntryLocalService.fetchAccountEntry(
+				_accountEntry.getAccountEntryId()));
 	}
 
 	@Test
 	public void testCleanUpAccountRoles() throws Exception {
-		User defaultUser = _company.getDefaultUser();
-
-		_accountEntry = _accountEntryLocalService.addAccountEntry(
-			defaultUser.getUserId(), 0L, RandomTestUtil.randomString(50),
-			RandomTestUtil.randomString(50), null, null,
-			WorkflowConstants.STATUS_APPROVED);
-
 		AccountRole accountRole = _accountRoleLocalService.addAccountRole(
-			defaultUser.getUserId(), _accountEntry.getAccountEntryId(),
+			_defaultUser.getUserId(), _accountEntry.getAccountEntryId(),
 			RandomTestUtil.randomString(), null, null);
 
-		_companyLocalService.deleteCompany(_company);
-
-		_company = null;
+		_deleteCompany();
 
 		Assert.assertNull(
 			_accountRoleLocalService.fetchAccountRole(
 				accountRole.getAccountRoleId()));
 	}
 
-	@DeleteAfterTestRun
+	private void _deleteCompany() throws Exception {
+		_companyLocalService.deleteCompany(_company);
+
+		_company = null;
+	}
+
 	private AccountEntry _accountEntry;
 
 	@Inject
@@ -89,5 +105,7 @@ public class CompanyModelListenerTest {
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
+
+	private User _defaultUser;
 
 }

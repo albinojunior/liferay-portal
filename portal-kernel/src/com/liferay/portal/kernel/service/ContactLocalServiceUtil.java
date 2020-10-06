@@ -39,6 +39,10 @@ public class ContactLocalServiceUtil {
 	/**
 	 * Adds the contact to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ContactLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param contact the contact
 	 * @return the contact that was added
 	 */
@@ -88,6 +92,10 @@ public class ContactLocalServiceUtil {
 	/**
 	 * Deletes the contact from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ContactLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param contact the contact
 	 * @return the contact that was removed
 	 */
@@ -99,6 +107,10 @@ public class ContactLocalServiceUtil {
 
 	/**
 	 * Deletes the contact with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ContactLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param contactId the primary key of the contact
 	 * @return the contact that was removed
@@ -120,6 +132,12 @@ public class ContactLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -311,6 +329,10 @@ public class ContactLocalServiceUtil {
 
 	/**
 	 * Updates the contact in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ContactLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param contact the contact
 	 * @return the contact that was updated

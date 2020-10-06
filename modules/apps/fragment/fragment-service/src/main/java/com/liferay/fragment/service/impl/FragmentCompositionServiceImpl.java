@@ -152,6 +152,23 @@ public class FragmentCompositionServiceImpl
 	}
 
 	@Override
+	public FragmentComposition moveFragmentComposition(
+			long fragmentCompositionId, long fragmentCollectionId)
+		throws PortalException {
+
+		FragmentComposition fragmentComposition =
+			fragmentCompositionPersistence.findByPrimaryKey(
+				fragmentCompositionId);
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), fragmentComposition.getGroupId(),
+			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return fragmentCompositionLocalService.moveFragmentComposition(
+			fragmentCompositionId, fragmentCollectionId);
+	}
+
+	@Override
 	public FragmentComposition updateFragmentComposition(
 			long fragmentCompositionId, long previewFileEntryId)
 		throws PortalException {
@@ -166,6 +183,43 @@ public class FragmentCompositionServiceImpl
 
 		return fragmentCompositionLocalService.updateFragmentComposition(
 			fragmentCompositionId, previewFileEntryId);
+	}
+
+	@Override
+	public FragmentComposition updateFragmentComposition(
+			long fragmentCompositionId, long fragmentCollectionId, String name,
+			String description, String data, long previewFileEntryId,
+			int status)
+		throws PortalException {
+
+		FragmentComposition fragmentComposition =
+			fragmentCompositionPersistence.findByPrimaryKey(
+				fragmentCompositionId);
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), fragmentComposition.getGroupId(),
+			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return fragmentCompositionLocalService.updateFragmentComposition(
+			getUserId(), fragmentCompositionId, fragmentCollectionId, name,
+			description, data, previewFileEntryId, status);
+	}
+
+	@Override
+	public FragmentComposition updateFragmentComposition(
+			long fragmentCompositionId, String name)
+		throws PortalException {
+
+		FragmentComposition fragmentComposition =
+			fragmentCompositionPersistence.findByPrimaryKey(
+				fragmentCompositionId);
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), fragmentComposition.getGroupId(),
+			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return fragmentCompositionLocalService.updateFragmentComposition(
+			fragmentCompositionId, name);
 	}
 
 	@Override

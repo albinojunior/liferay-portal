@@ -16,8 +16,9 @@ package com.liferay.layout.admin.web.internal.display.context;
 
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchContainerManagementToolbarDisplayContext;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -65,61 +66,57 @@ public class LayoutsAdminManagementToolbarDisplayContext
 
 	@Override
 	public List<DropdownItem> getActionDropdownItems() {
-		return new DropdownItemList() {
-			{
+		return DropdownItemListBuilder.add(
+			() -> {
 				LayoutConverterConfiguration layoutConverterConfiguration =
 					_layoutsAdminDisplayContext.
 						getLayoutConverterConfiguration();
 
 				if (layoutConverterConfiguration.enabled()) {
-					add(
-						dropdownItem -> {
-							dropdownItem.putData(
-								"action", "convertSelectedPages");
-
-							PortletURL convertLayoutURL =
-								liferayPortletResponse.createActionURL();
-
-							convertLayoutURL.setParameter(
-								ActionRequest.ACTION_NAME,
-								"/layout/convert_layout");
-							convertLayoutURL.setParameter(
-								"redirect", _themeDisplay.getURLCurrent());
-
-							dropdownItem.putData(
-								"convertLayoutURL",
-								convertLayoutURL.toString());
-
-							dropdownItem.setIcon("change");
-							dropdownItem.setLabel(
-								LanguageUtil.get(
-									request, "convert-to-content-page"));
-							dropdownItem.setQuickAction(true);
-						});
+					return true;
 				}
 
-				add(
-					dropdownItem -> {
-						dropdownItem.putData("action", "deleteSelectedPages");
+				return false;
+			},
+			dropdownItem -> {
+				dropdownItem.putData("action", "convertSelectedPages");
 
-						PortletURL deleteLayoutURL =
-							liferayPortletResponse.createActionURL();
+				PortletURL convertLayoutURL =
+					liferayPortletResponse.createActionURL();
 
-						deleteLayoutURL.setParameter(
-							ActionRequest.ACTION_NAME, "/layout/delete_layout");
-						deleteLayoutURL.setParameter(
-							"redirect", _themeDisplay.getURLCurrent());
+				convertLayoutURL.setParameter(
+					ActionRequest.ACTION_NAME, "/layout/convert_layout");
+				convertLayoutURL.setParameter(
+					"redirect", _themeDisplay.getURLCurrent());
 
-						dropdownItem.putData(
-							"deleteLayoutURL", deleteLayoutURL.toString());
+				dropdownItem.putData(
+					"convertLayoutURL", convertLayoutURL.toString());
 
-						dropdownItem.setIcon("times-circle");
-						dropdownItem.setLabel(
-							LanguageUtil.get(request, "delete"));
-						dropdownItem.setQuickAction(true);
-					});
+				dropdownItem.setIcon("change");
+				dropdownItem.setLabel(
+					LanguageUtil.get(request, "convert-to-content-page"));
+				dropdownItem.setQuickAction(true);
 			}
-		};
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "deleteSelectedPages");
+
+				PortletURL deleteLayoutURL =
+					liferayPortletResponse.createActionURL();
+
+				deleteLayoutURL.setParameter(
+					ActionRequest.ACTION_NAME, "/layout/delete_layout");
+				deleteLayoutURL.setParameter(
+					"redirect", _themeDisplay.getURLCurrent());
+
+				dropdownItem.putData(
+					"deleteLayoutURL", deleteLayoutURL.toString());
+
+				dropdownItem.setIcon("times-circle");
+				dropdownItem.setLabel(LanguageUtil.get(request, "delete"));
+				dropdownItem.setQuickAction(true);
+			}
+		).build();
 	}
 
 	@Override
@@ -138,45 +135,69 @@ public class LayoutsAdminManagementToolbarDisplayContext
 
 	@Override
 	public CreationMenu getCreationMenu() {
-		return new CreationMenu() {
-			{
-				long firstLayoutPageTemplateCollectionId =
+		long firstLayoutPageTemplateCollectionId =
+			_layoutsAdminDisplayContext.
+				getFirstLayoutPageTemplateCollectionId();
+		Layout selLayout = _layoutsAdminDisplayContext.getSelLayout();
+		long selPlid = _layoutsAdminDisplayContext.getSelPlid();
+
+		return CreationMenuBuilder.addPrimaryDropdownItem(
+			() ->
+				_layoutsAdminDisplayContext.isShowPublicPages() &&
+				_layoutsAdminDisplayContext.isShowAddChildPageAction(
+					selLayout) &&
+				(!_layoutsAdminDisplayContext.isPrivateLayout() ||
+				 _layoutsAdminDisplayContext.isFirstColumn() ||
+				 !_layoutsAdminDisplayContext.hasLayouts()),
+			dropdownItem -> {
+				dropdownItem.setHref(
 					_layoutsAdminDisplayContext.
-						getFirstLayoutPageTemplateCollectionId();
-				long selPlid = _layoutsAdminDisplayContext.getSelPlid();
-
-				if (_layoutsAdminDisplayContext.isShowPublicPages() &&
-					(!_layoutsAdminDisplayContext.isPrivateLayout() ||
-					 _layoutsAdminDisplayContext.isFirstColumn() ||
-					 !_layoutsAdminDisplayContext.hasLayouts())) {
-
-					addPrimaryDropdownItem(
-						dropdownItem -> {
-							dropdownItem.setHref(
-								_layoutsAdminDisplayContext.
-									getSelectLayoutPageTemplateEntryURL(
-										firstLayoutPageTemplateCollectionId,
-										selPlid, false));
-							dropdownItem.setLabel(_getLabel(false));
-						});
-				}
-
-				if (_layoutsAdminDisplayContext.isPrivateLayout() ||
-					_layoutsAdminDisplayContext.isFirstColumn() ||
-					!_layoutsAdminDisplayContext.hasLayouts()) {
-
-					addPrimaryDropdownItem(
-						dropdownItem -> {
-							dropdownItem.setHref(
-								_layoutsAdminDisplayContext.
-									getSelectLayoutPageTemplateEntryURL(
-										firstLayoutPageTemplateCollectionId,
-										selPlid, true));
-							dropdownItem.setLabel(_getLabel(true));
-						});
-				}
+						getSelectLayoutPageTemplateEntryURL(
+							firstLayoutPageTemplateCollectionId, selPlid,
+							false));
+				dropdownItem.setLabel(_getLabel(false));
 			}
-		};
+		).addPrimaryDropdownItem(
+			() ->
+				_layoutsAdminDisplayContext.isShowPublicPages() &&
+				_layoutsAdminDisplayContext.isShowAddChildPageAction(
+					selLayout) &&
+				(!_layoutsAdminDisplayContext.isPrivateLayout() ||
+				 _layoutsAdminDisplayContext.isFirstColumn() ||
+				 !_layoutsAdminDisplayContext.hasLayouts()),
+			dropdownItem -> {
+				dropdownItem.setHref(
+					_layoutsAdminDisplayContext.getSelectLayoutCollectionURL(
+						selPlid, null, false));
+				dropdownItem.setLabel(_getCollectionLayoutLabel(false));
+			}
+		).addPrimaryDropdownItem(
+			() ->
+				(_layoutsAdminDisplayContext.isShowAddChildPageAction(
+					selLayout) &&
+				 _layoutsAdminDisplayContext.isPrivateLayout()) ||
+				_layoutsAdminDisplayContext.isFirstColumn() ||
+				!_layoutsAdminDisplayContext.hasLayouts(),
+			dropdownItem -> {
+				dropdownItem.setHref(
+					_layoutsAdminDisplayContext.
+						getSelectLayoutPageTemplateEntryURL(
+							firstLayoutPageTemplateCollectionId, selPlid,
+							true));
+				dropdownItem.setLabel(_getLabel(true));
+			}
+		).addPrimaryDropdownItem(
+			() ->
+				_layoutsAdminDisplayContext.isPrivateLayout() ||
+				_layoutsAdminDisplayContext.isFirstColumn() ||
+				!_layoutsAdminDisplayContext.hasLayouts(),
+			dropdownItem -> {
+				dropdownItem.setHref(
+					_layoutsAdminDisplayContext.getSelectLayoutCollectionURL(
+						selPlid, null, true));
+				dropdownItem.setLabel(_getCollectionLayoutLabel(true));
+			}
+		).build();
 	}
 
 	@Override
@@ -242,6 +263,12 @@ public class LayoutsAdminManagementToolbarDisplayContext
 	@Override
 	public Boolean isShowCreationMenu() {
 		try {
+			CreationMenu creationMenu = getCreationMenu();
+
+			if (creationMenu.isEmpty()) {
+				return false;
+			}
+
 			return _layoutsAdminDisplayContext.isShowAddRootLayoutButton();
 		}
 		catch (PortalException portalException) {
@@ -264,6 +291,27 @@ public class LayoutsAdminManagementToolbarDisplayContext
 		}
 
 		return null;
+	}
+
+	private String _getCollectionLayoutLabel(boolean privateLayout) {
+		Layout layout = _layoutsAdminDisplayContext.getSelLayout();
+
+		if (layout != null) {
+			return LanguageUtil.format(
+				request, "add-child-collection-page-of-x",
+				layout.getName(_themeDisplay.getLocale()));
+		}
+
+		if (_isSiteTemplate()) {
+			return LanguageUtil.get(
+				request, "add-site-template-collection-page");
+		}
+
+		if (privateLayout) {
+			return LanguageUtil.get(request, "private-collection-page");
+		}
+
+		return LanguageUtil.get(request, "public-collection-page");
 	}
 
 	private String _getLabel(boolean privateLayout) {

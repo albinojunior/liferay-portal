@@ -148,13 +148,11 @@ public class WikiPageLocalServiceTest {
 
 	@Test
 	public void testAddPageWithNbspTitle() throws Exception {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
 		WikiPage page = WikiTestUtil.addPage(
 			TestPropsValues.getUserId(), _node.getNodeId(),
 			"ChildPage" + CharPool.NO_BREAK_SPACE + "1",
-			RandomTestUtil.randomString(), true, serviceContext);
+			RandomTestUtil.randomString(), true,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		Assert.assertEquals("ChildPage 1", page.getTitle());
 	}
@@ -770,7 +768,7 @@ public class WikiPageLocalServiceTest {
 		AssetVocabulary assetVocabulary = AssetTestUtil.addVocabulary(
 			_group.getGroupId());
 
-		AssetCategory defaultVersionPageAssetCategory =
+		AssetCategory defaultVersionPageAssetCategory1 =
 			AssetTestUtil.addCategory(
 				_group.getGroupId(), assetVocabulary.getVocabularyId());
 		AssetCategory defaultVersionPageAssetCategory2 =
@@ -780,7 +778,7 @@ public class WikiPageLocalServiceTest {
 		long[] defaultVersionPageAssetCategoryIds = new long[2];
 
 		defaultVersionPageAssetCategoryIds[0] =
-			defaultVersionPageAssetCategory.getCategoryId();
+			defaultVersionPageAssetCategory1.getCategoryId();
 		defaultVersionPageAssetCategoryIds[1] =
 			defaultVersionPageAssetCategory2.getCategoryId();
 
@@ -923,12 +921,10 @@ public class WikiPageLocalServiceTest {
 		WikiPage page = WikiTestUtil.addPage(
 			_group.getGroupId(), _node.getNodeId(), true);
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
 		WikiPageLocalServiceUtil.renamePage(
 			TestPropsValues.getUserId(), _node.getNodeId(), page.getTitle(),
-			page.getTitle(), true, serviceContext);
+			page.getTitle(), true,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 	}
 
 	@Test
@@ -958,12 +954,10 @@ public class WikiPageLocalServiceTest {
 		WikiPage page = WikiTestUtil.addPage(
 			_group.getGroupId(), _node.getNodeId(), true);
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
 		WikiPageLocalServiceUtil.renamePage(
 			TestPropsValues.getUserId(), _node.getNodeId(), page.getTitle(),
-			"New" + CharPool.NO_BREAK_SPACE + "Title", true, serviceContext);
+			"New" + CharPool.NO_BREAK_SPACE + "Title", true,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		WikiPageLocalServiceUtil.getPage(_node.getNodeId(), "New Title");
 	}

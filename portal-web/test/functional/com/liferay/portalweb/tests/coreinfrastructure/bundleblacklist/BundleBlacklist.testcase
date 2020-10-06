@@ -1,6 +1,8 @@
 @component-name = "portal-bundle-blacklist"
 definition {
 
+	property osgi.module.configuration.file.names = "com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config";
+	property osgi.module.configurations = "blacklistBundleSymbolicNames=";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Bundle Blacklist";
@@ -23,7 +25,7 @@ definition {
 	test BlacklistComponent {
 		property test.name.skip.portal.instance = "BundleBlacklist#BlacklistComponent";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -38,19 +40,23 @@ definition {
 			symbolicName = "com.liferay.portal.security.ldap.internal.authenticator.LDAPAuth");
 
 		AssertConsoleTextPresent(value1 = "Disabling com.liferay.portal.security.ldap.internal.authenticator.LDAPAuth from bundle com.liferay.portal.security.ldap.impl");
+
+		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Reset Default Values");
+
+		AssertConsoleTextPresent(value1 = "Enabling com.liferay.portal.security.ldap.internal.authenticator.LDAPAuth from bundle com.liferay.portal.security.ldap.impl");
 	}
 
 	@priority = "5"
-	test BlacklistModuleJar {
+	test BlacklistModuleBundleSymbolicName {
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "BundleBlacklist#BlacklistModuleJar";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -65,8 +71,19 @@ definition {
 			symbolicName = "com.liferay.gogo.shell.web");
 
 		BundleBlacklist.viewProductMenuBlacklistedModule(
-			category = "Configuration",
+			category = "System",
 			consoleText = "STOPPED com.liferay.gogo.shell.web",
+			panel = "Control Panel",
+			portlet = "Gogo Shell");
+
+		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Reset Default Values");
+
+		AssertConsoleTextPresent(value1 = "Reinstalling bundle com.liferay.gogo.shell.web");
+
+		Navigator.openURL();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 	}
@@ -77,12 +94,12 @@ definition {
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "BundleBlacklist#BlacklistModuleLPKG";
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -109,7 +126,7 @@ definition {
 			symbolicName = "${symbolicName}");
 
 		BundleBlacklist.viewProductMenuBlacklistedModule(
-			category = "Configuration",
+			category = "System",
 			consoleText = "${consoleText}",
 			panel = "Control Panel",
 			portlet = "Gogo Shell");
@@ -121,10 +138,10 @@ definition {
 
 		Page.viewCurrentTheme(
 			page = "Public Pages",
-			pageName = "Home",
+			pageName = "Search",
 			themeName = "Classic Theme");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -140,14 +157,11 @@ definition {
 
 		AssertConsoleTextPresent(value1 = "STOPPED classic-theme");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			panel = "Site Administration",
-			portlet = "Pages");
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
-			pageName = "Home");
+			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
@@ -157,11 +171,10 @@ definition {
 	}
 
 	@priority = "5"
-	test RemoveModuleFromBlacklist {
-		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "BundleBlacklist#RemoveModuleFromBlacklist";
+	test ExportBundleBlacklistConfig {
+		property test.name.skip.portal.instance = "BundleBlacklist#ExportBundleBlacklistConfig";
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "System Settings");
@@ -175,32 +188,15 @@ definition {
 			label = "Blacklist Bundle Symbolic Names",
 			symbolicName = "com.liferay.gogo.shell.web");
 
-		BundleBlacklist.viewProductMenuBlacklistedModule(
-			category = "Configuration",
-			consoleText = "STOPPED com.liferay.gogo.shell.web",
-			panel = "Control Panel",
-			portlet = "Gogo Shell");
+		SystemSettings.exportConfiguration();
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "System Settings");
+		var tempFileDirectory = selenium.getOutputDirName();
 
-		SystemSettings.gotoConfiguration(
-			configurationCategory = "Module Container",
-			configurationName = "Bundle Blacklist",
-			configurationScope = "System Scope");
+		OSGiConfig.deployOSGiConfigFile(
+			OSGiConfigFileBaseDir = "${tempFileDirectory}",
+			OSGiConfigFileName = "com.liferay.portal.bundle.blacklist.internal.BundleBlacklistConfiguration.config");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Reset Default Values");
-
-		AssertConsoleTextPresent(value1 = "STARTED com.liferay.gogo.shell.web");
-
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Gogo Shell");
+		AssertConsoleTextNotPresent(value1 = "Reinstalling bundle com.liferay.gogo.shell.web");
 	}
 
 }

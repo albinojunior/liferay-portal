@@ -15,8 +15,13 @@
 package com.liferay.fragment.web.internal.struts;
 
 import com.liferay.fragment.importer.FragmentsImporter;
+import com.liferay.fragment.importer.FragmentsImporterResultEntry;
+import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporter;
+import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporterResultEntry;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.struts.StrutsAction;
@@ -69,16 +74,67 @@ public class ImportFragmentEntriesStrutsAction implements StrutsAction {
 					"the-selected-file-is-not-a-valid-zip-file"));
 		}
 		else {
+			JSONArray fragmentEntriesImportResultJSONArray =
+				JSONFactoryUtil.createJSONArray();
+
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)httpServletRequest.getAttribute(
 					WebKeys.THEME_DISPLAY);
 
-			List<String> invalidFragmentEntryNames =
-				_fragmentsImporter.importFile(
+			List<FragmentsImporterResultEntry> fragmentsImporterResultEntries =
+				_fragmentsImporter.importFragmentEntries(
 					themeDisplay.getUserId(), groupId, 0L, file, true);
 
+			for (FragmentsImporterResultEntry fragmentsImporterResultEntry :
+					fragmentsImporterResultEntries) {
+
+				FragmentsImporterResultEntry.Status status =
+					fragmentsImporterResultEntry.getStatus();
+
+				fragmentEntriesImportResultJSONArray.put(
+					JSONUtil.put(
+						"errorMessage",
+						fragmentsImporterResultEntry.getErrorMessage()
+					).put(
+						"name", fragmentsImporterResultEntry.getName()
+					).put(
+						"status", status.getLabel()
+					));
+			}
+
 			jsonObject.put(
-				"invalidFragmentEntryNames", invalidFragmentEntryNames);
+				"fragmentEntriesImportResult",
+				fragmentEntriesImportResultJSONArray);
+
+			JSONArray pageTemplatesImportResultJSONArray =
+				JSONFactoryUtil.createJSONArray();
+
+			List<LayoutPageTemplatesImporterResultEntry>
+				layoutPageTemplatesImporterResultEntries =
+					_layoutPageTemplatesImporter.importFile(
+						themeDisplay.getUserId(), groupId, 0L, file, true);
+
+			for (LayoutPageTemplatesImporterResultEntry
+					layoutPageTemplatesImporterResultEntry :
+						layoutPageTemplatesImporterResultEntries) {
+
+				LayoutPageTemplatesImporterResultEntry.Status status =
+					layoutPageTemplatesImporterResultEntry.getStatus();
+
+				pageTemplatesImportResultJSONArray.put(
+					JSONUtil.put(
+						"errorMessage",
+						layoutPageTemplatesImporterResultEntry.getErrorMessage()
+					).put(
+						"name", layoutPageTemplatesImporterResultEntry.getName()
+					).put(
+						"status", status.getLabel()
+					));
+			}
+
+			jsonObject.put(
+				"pageTemplatesImportResult",
+				pageTemplatesImportResultJSONArray);
 		}
 
 		ServletResponseUtil.write(httpServletResponse, jsonObject.toString());
@@ -88,6 +144,9 @@ public class ImportFragmentEntriesStrutsAction implements StrutsAction {
 
 	@Reference
 	private FragmentsImporter _fragmentsImporter;
+
+	@Reference
+	private LayoutPageTemplatesImporter _layoutPageTemplatesImporter;
 
 	@Reference
 	private Portal _portal;

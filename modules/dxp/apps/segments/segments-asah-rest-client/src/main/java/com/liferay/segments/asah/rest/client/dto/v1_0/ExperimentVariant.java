@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class ExperimentVariant implements Cloneable {
 
+	public static ExperimentVariant toDTO(String json) {
+		return ExperimentVariantSerDes.toDTO(json);
+	}
+
 	public String getId() {
 		return id;
 	}

@@ -15,9 +15,9 @@
 package com.liferay.account.admin.web.internal.portlet.filter;
 
 import com.liferay.account.constants.AccountPortletKeys;
-import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.users.admin.constants.UsersAdminPortletKeys;
 
@@ -29,13 +29,14 @@ import javax.portlet.Portlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 import javax.portlet.filter.ActionFilter;
 import javax.portlet.filter.FilterChain;
 import javax.portlet.filter.FilterConfig;
 import javax.portlet.filter.PortletFilter;
 import javax.portlet.filter.RenderFilter;
-
-import javax.servlet.ServletContext;
+import javax.portlet.filter.ResourceFilter;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -49,7 +50,7 @@ import org.osgi.service.component.annotations.Reference;
 	service = PortletFilter.class
 )
 public class AccountUsersAdminPortletFilter
-	implements ActionFilter, RenderFilter {
+	implements ActionFilter, RenderFilter, ResourceFilter {
 
 	@Override
 	public void destroy() {
@@ -69,6 +70,13 @@ public class AccountUsersAdminPortletFilter
 
 			_portlet.processAction(actionRequest, actionResponse);
 
+			if (actionName.equals("/users_admin/edit_user") &&
+				!SessionErrors.isEmpty(actionRequest)) {
+
+				actionResponse.setRenderParameter(
+					"mvcPath", "/account_users_admin/edit_account_user.jsp");
+			}
+
 			return;
 		}
 
@@ -83,10 +91,8 @@ public class AccountUsersAdminPortletFilter
 
 		String mvcPath = ParamUtil.getString(renderRequest, "mvcPath");
 
-		if (Validator.isNotNull(mvcPath) && mvcPath.startsWith("/common/")) {
-			_jspRenderer.renderJSP(
-				_servletContext, _portal.getHttpServletRequest(renderRequest),
-				_portal.getHttpServletResponse(renderResponse), mvcPath);
+		if (mvcPath.startsWith("/common/") || mvcPath.startsWith("/user/")) {
+			_portlet.render(renderRequest, renderResponse);
 
 			return;
 		}
@@ -95,22 +101,32 @@ public class AccountUsersAdminPortletFilter
 	}
 
 	@Override
-	public void init(FilterConfig filterConfig) {
+	public void doFilter(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse,
+			FilterChain filterChain)
+		throws IOException, PortletException {
+
+		String resourceID = resourceRequest.getResourceID();
+
+		if (resourceID.startsWith("/users_admin/")) {
+			MVCPortlet mvcPortlet = (MVCPortlet)_portlet;
+
+			mvcPortlet.serveResource(resourceRequest, resourceResponse);
+
+			return;
+		}
+
+		filterChain.doFilter(resourceRequest, resourceResponse);
 	}
 
-	@Reference
-	private JSPRenderer _jspRenderer;
-
-	@Reference
-	private Portal _portal;
+	@Override
+	public void init(FilterConfig filterConfig) {
+	}
 
 	@Reference(
 		target = "(javax.portlet.name=" + UsersAdminPortletKeys.USERS_ADMIN + ")",
 		unbind = "-"
 	)
 	private Portlet _portlet;
-
-	@Reference(target = "(osgi.web.symbolicname=com.liferay.users.admin.web)")
-	private ServletContext _servletContext;
 
 }

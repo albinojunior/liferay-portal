@@ -17,30 +17,28 @@
 <%@ include file="/rss_settings/init.jsp" %>
 
 <%
-int delta = GetterUtil.getInteger((String)request.getAttribute("liferay-rss:rss-settings:delta"));
 String displayStyle = (String)request.getAttribute("liferay-rss:rss-settings:displayStyle");
 String[] displayStyles = (String[])request.getAttribute("liferay-rss:rss-settings:displayStyles");
-boolean enabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-rss:rss-settings:enabled"));
 String feedType = (String)request.getAttribute("liferay-rss:rss-settings:feedType");
-String name = (String)request.getAttribute("liferay-rss:rss-settings:name");
-boolean nameEnabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-rss:rss-settings:nameEnabled"));
 %>
 
 <div class="taglib-rss-settings">
-	<aui:input label="enable-rss-subscription" name="preferences--enableRss--" type="toggle-switch" value="<%= enabled %>" />
+	<aui:input label="enable-rss-subscription" name="preferences--enableRss--" type="toggle-switch" value='<%= GetterUtil.getBoolean((String)request.getAttribute("liferay-rss:rss-settings:enabled")) %>' />
 
 	<div id="<portlet:namespace />rssOptions">
-		<c:if test="<%= nameEnabled %>">
-			<aui:row>
-				<aui:col>
-					<aui:input label="rss-feed-name" name="preferences--rssName--" type="text" value="<%= name %>" />
-				</aui:col>
-			</aui:row>
+		<c:if test='<%= GetterUtil.getBoolean((String)request.getAttribute("liferay-rss:rss-settings:nameEnabled")) %>'>
+			<clay:row>
+				<clay:col>
+					<aui:input label="rss-feed-name" name="preferences--rssName--" type="text" value='<%= (String)request.getAttribute("liferay-rss:rss-settings:name") %>' />
+				</clay:col>
+			</clay:row>
 		</c:if>
 
-		<aui:row>
-			<aui:col width="<%= 33 %>">
-				<aui:select label="maximum-items-to-display" name="preferences--rssDelta--" value="<%= delta %>">
+		<clay:row>
+			<clay:col
+				md="4"
+			>
+				<aui:select label="maximum-items-to-display" name="preferences--rssDelta--" value='<%= GetterUtil.getInteger((String)request.getAttribute("liferay-rss:rss-settings:delta")) %>'>
 					<aui:option label="1" />
 					<aui:option label="2" />
 					<aui:option label="3" />
@@ -59,9 +57,11 @@ boolean nameEnabled = GetterUtil.getBoolean((String)request.getAttribute("lifera
 					<aui:option label="90" />
 					<aui:option label="100" />
 				</aui:select>
-			</aui:col>
+			</clay:col>
 
-			<aui:col width="<%= 33 %>">
+			<clay:col
+				md="4"
+			>
 				<aui:select label="display-style" name="preferences--rssDisplayStyle--">
 
 					<%
@@ -75,9 +75,11 @@ boolean nameEnabled = GetterUtil.getBoolean((String)request.getAttribute("lifera
 					%>
 
 				</aui:select>
-			</aui:col>
+			</clay:col>
 
-			<aui:col width="<%= 33 %>">
+			<clay:col
+				md="4"
+			>
 				<aui:select label="format" name="preferences--rssFeedType--">
 
 					<%
@@ -91,8 +93,8 @@ boolean nameEnabled = GetterUtil.getBoolean((String)request.getAttribute("lifera
 					%>
 
 				</aui:select>
-			</aui:col>
-		</aui:row>
+			</clay:col>
+		</clay:row>
 	</div>
 </div>
 

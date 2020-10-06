@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-staging-processes-export-import',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var ADate = A.Date;
@@ -72,7 +72,7 @@ AUI.add(
 					if (form) {
 						form.delegate(
 							STR_CLICK,
-							event => {
+							(event) => {
 								var portletId = event.currentTarget.attr(
 									'data-portletid'
 								);
@@ -103,7 +103,7 @@ AUI.add(
 					);
 
 					if (checkboxes.length > 0) {
-						document.body.addEventListener('click', event => {
+						document.body.addEventListener('click', (event) => {
 							const {id} = event.target;
 
 							if (id.includes(instance.ns('PORTLET_DATA'))) {
@@ -113,7 +113,7 @@ AUI.add(
 
 								if (controlCheckboxes.length > 0) {
 									controlCheckboxes.forEach(
-										controlCheckbox => {
+										(controlCheckbox) => {
 											if (!controlCheckbox.checked) {
 												controlCheckbox.click();
 											}
@@ -552,7 +552,7 @@ AUI.add(
 				_initLabels() {
 					var instance = this;
 
-					instance.all('.content-link').each(item => {
+					instance.all('.content-link').each((item) => {
 						instance._setContentLabels(item.attr('data-portletid'));
 					});
 
@@ -650,12 +650,12 @@ AUI.add(
 					var instance = this;
 
 					if (instance._isChecked('deletionsNode')) {
-						instance.all('.deletions').each(item => {
+						instance.all('.deletions').each((item) => {
 							item.show();
 						});
 					}
 					else {
-						instance.all('.deletions').each(item => {
+						instance.all('.deletions').each((item) => {
 							item.hide();
 						});
 					}
@@ -756,8 +756,8 @@ AUI.add(
 
 					if (processesNode && instance._processesResourceURL) {
 						Liferay.Util.fetch(instance._processesResourceURL)
-							.then(response => response.text())
-							.then(response => {
+							.then((response) => response.text())
+							.then((response) => {
 								processesNode.empty();
 
 								processesNode.plug(A.Plugin.ParseContent);
@@ -774,19 +774,13 @@ AUI.add(
 								instance._scheduleRenderProcess();
 							})
 							.catch(() => {
-								new Liferay.Notice({
-									closeText: false,
-									content:
-										Liferay.Language.get(
-											'your-request-failed-to-complete'
-										) +
-										'<button type="button" class="close">&times;</button>',
-									noticeClass: 'hide',
-									timeout: FAILURE_TIMEOUT,
-									toggleText: false,
+								Liferay.Util.openToast({
+									message: Liferay.Language.get(
+										'your-request-failed-to-complete'
+									),
+									toastProps: {autoClose: FAILURE_TIMEOUT},
 									type: 'warning',
-									useAnimation: true,
-								}).show();
+								});
 							});
 					}
 				},
@@ -802,14 +796,14 @@ AUI.add(
 				_restoreNodeHiddenState(node, state) {
 					var hiddenList = node.ancestorsByClassName(STR_HIDE);
 
-					hiddenList.each(hiddenNode => {
+					hiddenList.each((hiddenNode) => {
 						hiddenNode.removeClass(STR_HIDE);
 					});
 
 					hiddenList = state.hiddenList;
 
 					if (hiddenList !== null) {
-						hiddenList.each(node => {
+						hiddenList.each((node) => {
 							node.addClass(STR_HIDE);
 						});
 					}
@@ -826,7 +820,7 @@ AUI.add(
 						inputNodes = node.getElementsByTagName('input');
 					}
 
-					inputNodes.each(node => {
+					inputNodes.each((node) => {
 						var id = node.get('id');
 
 						var state = inputStates[id];
@@ -863,7 +857,7 @@ AUI.add(
 
 					var selectedContent = [];
 
-					inputs.each(item => {
+					inputs.each((item) => {
 						var checked = item.attr(STR_CHECKED);
 
 						if (checked) {
@@ -872,7 +866,6 @@ AUI.add(
 					});
 
 					if (
-						selectedContent.length === 0 ||
 						!instance
 							.byId('PORTLET_DATA_' + portletId)
 							.attr('checked')
@@ -993,7 +986,7 @@ AUI.add(
 						inputNodes = node.getElementsByTagName('input');
 					}
 
-					inputNodes.each(node => {
+					inputNodes.each((node) => {
 						var hiddenList = node.ancestorsByClassName(STR_HIDE);
 
 						var id = node.get('id');
@@ -1142,32 +1135,16 @@ AUI.add(
 				showNotification(dateChecker) {
 					var instance = this;
 
-					if (instance._notice) {
-						instance._notice.remove();
-					}
-
 					var message = instance._getNotificationMessage(dateChecker);
 
-					instance._notice = new Liferay.Notice({
-						animationConfig: {
-							duration: 2,
-							left: '0px',
-							top: '0px',
+					Liferay.Util.openToast({
+						message,
+						toastProps: {
+							autoClose: 10000,
+							style: {left: 0, top: 0},
+							type: 'warning',
 						},
-						closeText: false,
-						content:
-							message +
-							'<button aria-label="' +
-							Liferay.Language.get('close') +
-							'" type="button" class="close">&times;</button>',
-						noticeClass: 'hide',
-						timeout: 10000,
-						toggleText: false,
-						type: 'warning',
-						useAnimation: true,
 					});
-
-					instance._notice.show();
 				},
 			},
 		});
@@ -1183,7 +1160,6 @@ AUI.add(
 			'aui-parse-content',
 			'aui-toggler',
 			'aui-tree-view',
-			'liferay-notice',
 			'liferay-portlet-base',
 			'liferay-util-window',
 		],

@@ -26,8 +26,13 @@ import com.liferay.frontend.js.loader.modules.extender.npm.JSModule;
 import com.liferay.frontend.js.loader.modules.extender.npm.JSModuleAlias;
 import com.liferay.frontend.js.loader.modules.extender.npm.JSPackage;
 import com.liferay.frontend.js.loader.modules.extender.npm.JSPackageDependency;
+import com.liferay.frontend.js.loader.modules.extender.npm.JavaScriptAwarePortalWebResources;
 import com.liferay.frontend.js.loader.modules.extender.npm.ModuleNameUtil;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMRegistry;
+import com.liferay.frontend.js.loader.modules.extender.npm.NPMRegistryUpdate;
+import com.liferay.frontend.js.loader.modules.extender.npm.NPMRegistryUpdatesListener;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.petra.string.StringBundler;
@@ -88,6 +93,10 @@ public class NPMRegistryImpl implements NPMRegistry {
 	@Deprecated
 	@Override
 	public void addJSBundleTracker(JSBundleTracker jsBundleTracker) {
+	}
+
+	public void finishUpdate(NPMRegistryUpdate npmRegistryUpdate) {
+		_refreshJSModuleCaches(null);
 	}
 
 	@Override
@@ -264,6 +273,11 @@ public class NPMRegistryImpl implements NPMRegistry {
 		return jsPackage;
 	}
 
+	@Override
+	public NPMRegistryUpdate update() {
+		return new NPMRegistryUpdateImpl(this);
+	}
+
 	@Activate
 	protected void activate(
 		BundleContext bundleContext, Map<String, Object> properties) {
@@ -290,10 +304,20 @@ public class NPMRegistryImpl implements NPMRegistry {
 		_applyVersioning = details.applyVersioning();
 
 		_serviceTracker = _openServiceTracker();
+
+		_javaScriptAwarePortalWebResources = ServiceTrackerListFactory.open(
+			bundleContext, JavaScriptAwarePortalWebResources.class);
+
+		_npmRegistryUpdatesListeners = ServiceTrackerListFactory.open(
+			bundleContext, NPMRegistryUpdatesListener.class);
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		_npmRegistryUpdatesListeners.close();
+
+		_javaScriptAwarePortalWebResources.close();
+
 		_serviceTracker.close();
 
 		_bundleTracker.close();
@@ -426,6 +450,12 @@ public class NPMRegistryImpl implements NPMRegistry {
 	}
 
 	private void _refreshJSModuleCaches(Collection<JSBundle> jsBundles) {
+		if (jsBundles == null) {
+			Map<Bundle, JSBundle> tracked = _bundleTracker.getTracked();
+
+			jsBundles = tracked.values();
+		}
+
 		_dependencyJSPackages.clear();
 
 		Map<String, JSModule> jsModules = new HashMap<>();
@@ -479,6 +509,14 @@ public class NPMRegistryImpl implements NPMRegistry {
 		_resolvedJSModules = resolvedJSModules;
 		_resolvedJSPackages = resolvedJSPackages;
 		_exactMatchMap = exactMatchMap;
+
+		if (_npmRegistryUpdatesListeners != null) {
+			for (NPMRegistryUpdatesListener npmRegistryUpdatesListener :
+					_npmRegistryUpdatesListeners) {
+
+				npmRegistryUpdatesListener.onAfterUpdate();
+			}
+		}
 	}
 
 	private static final JSPackage _NULL_JS_PACKAGE =
@@ -496,6 +534,9 @@ public class NPMRegistryImpl implements NPMRegistry {
 		new ConcurrentHashMap<>();
 	private Map<String, String> _exactMatchMap;
 	private final Map<String, String> _globalAliases = new HashMap<>();
+	private ServiceTrackerList
+		<JavaScriptAwarePortalWebResources, JavaScriptAwarePortalWebResources>
+			_javaScriptAwarePortalWebResources;
 
 	@Reference
 	private JSBundleProcessor _jsBundleProcessor;
@@ -507,6 +548,9 @@ public class NPMRegistryImpl implements NPMRegistry {
 
 	private Map<String, JSPackage> _jsPackages = new HashMap<>();
 	private List<JSPackageVersion> _jsPackageVersions = new ArrayList<>();
+	private ServiceTrackerList
+		<NPMRegistryUpdatesListener, NPMRegistryUpdatesListener>
+			_npmRegistryUpdatesListeners;
 	private final Map<String, String> _partialMatchMap =
 		new ConcurrentHashMap<>();
 	private Map<String, JSModule> _resolvedJSModules = new HashMap<>();
@@ -553,6 +597,14 @@ public class NPMRegistryImpl implements NPMRegistry {
 				jsBundles.add(jsBundle);
 
 				_refreshJSModuleCaches(jsBundles);
+
+				for (JavaScriptAwarePortalWebResources
+						javaScriptAwarePortalWebResources :
+							_javaScriptAwarePortalWebResources) {
+
+					javaScriptAwarePortalWebResources.updateLastModifed(
+						bundle.getLastModified());
+				}
 			}
 
 			return jsBundle;
@@ -568,9 +620,7 @@ public class NPMRegistryImpl implements NPMRegistry {
 			Bundle bundle, BundleEvent bundleEvent, JSBundle jsBundle) {
 
 			if (!_activationThreadLocal.get()) {
-				Map<Bundle, JSBundle> tracked = _bundleTracker.getTracked();
-
-				_refreshJSModuleCaches(tracked.values());
+				_refreshJSModuleCaches(null);
 			}
 		}
 

@@ -101,16 +101,12 @@ public class DefinitionServiceTest {
 
 	@Test
 	public void testGetDefinitionsCountAsAdminUser() throws Exception {
-		int definitionsCount = getDefinitionsCount(_adminPermissionChecker);
-
-		Assert.assertEquals(10, definitionsCount);
+		Assert.assertEquals(10, getDefinitionsCount(_adminPermissionChecker));
 	}
 
 	@Test
 	public void testGetDefinitionsCountAsGuestUser() throws Exception {
-		int definitionsCount = getDefinitionsCount(_guestPermissionChecker);
-
-		Assert.assertEquals(5, definitionsCount);
+		Assert.assertEquals(5, getDefinitionsCount(_guestPermissionChecker));
 	}
 
 	@Test
@@ -164,7 +160,7 @@ public class DefinitionServiceTest {
 			ServiceContextTestUtil.getServiceContext();
 
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
-			_DEFINITION_GROUP_PERMISSIONS, null);
+			_DEFINITION_GROUP_PERMISSIONS, null, Definition.class.getName());
 
 		serviceContext.setModelPermissions(modelPermissions);
 
@@ -185,7 +181,8 @@ public class DefinitionServiceTest {
 		}
 
 		modelPermissions = ModelPermissionsFactory.create(
-			_DEFINITION_GROUP_PERMISSIONS, new String[] {"VIEW"});
+			_DEFINITION_GROUP_PERMISSIONS, new String[] {"VIEW"},
+			Definition.class.getName());
 
 		serviceContext.setModelPermissions(modelPermissions);
 

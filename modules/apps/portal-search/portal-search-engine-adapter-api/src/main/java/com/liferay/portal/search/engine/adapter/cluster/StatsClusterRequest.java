@@ -25,6 +25,8 @@ public class StatsClusterRequest
 
 	public StatsClusterRequest(String[] nodeIds) {
 		_nodeIds = nodeIds;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

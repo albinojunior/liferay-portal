@@ -12,14 +12,40 @@
  * details.
  */
 
-import React from 'react';
+import ClayManagementToolbar from '@clayui/management-toolbar';
+import React, {useContext, useState} from 'react';
 
-export default ({children}) => {
+import ManagementToolbarFilterAndOrder from './ManagementToolbarFilterAndOrder.es';
+import ManagementToolbarRight from './ManagementToolbarRight.es';
+import ManagementToolbarSearch from './ManagementToolbarSearch';
+import SearchContext from './SearchContext.es';
+
+export default ({addButton, columns, disabled, filters}) => {
+	const [{keywords}, dispatch] = useContext(SearchContext);
+	const [showMobile, setShowMobile] = useState(false);
+
 	return (
-		<nav className="management-bar management-bar-light navbar navbar-expand-md">
-			<div className="container-fluid container-fluid-max-xl">
-				{children}
-			</div>
-		</nav>
+		<ClayManagementToolbar>
+			<ManagementToolbarFilterAndOrder
+				columns={columns}
+				disabled={disabled}
+				filters={filters}
+			/>
+
+			<ManagementToolbarSearch
+				disabled={disabled}
+				onSubmit={(searchText) =>
+					dispatch({keywords: searchText, type: 'SEARCH'})
+				}
+				searchText={keywords}
+				setShowMobile={setShowMobile}
+				showMobile={showMobile}
+			/>
+
+			<ManagementToolbarRight
+				addButton={addButton}
+				setShowMobile={setShowMobile}
+			/>
+		</ClayManagementToolbar>
 	);
 };

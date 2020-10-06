@@ -14,11 +14,15 @@
 
 package com.liferay.fragment.web.internal.handler;
 
+import com.liferay.fragment.exception.FragmentEntryConfigurationException;
+import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.exception.FragmentEntryNameException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -41,20 +45,39 @@ public class FragmentEntryExceptionRequestHandler {
 			PortalException portalException)
 		throws Exception {
 
+		if (_log.isDebugEnabled()) {
+			_log.debug(portalException, portalException);
+		}
+
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		String errorMessage = "an-unexpected-error-occurred";
+		String errorMessage = LanguageUtil.get(
+			themeDisplay.getRequest(), "an-unexpected-error-occurred");
 
-		if (portalException instanceof FragmentEntryNameException) {
-			errorMessage = "please-enter-a-valid-name";
+		if (portalException instanceof FragmentEntryConfigurationException) {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getRequest(),
+				"please-provide-a-valid-configuration-for-the-fragment");
+		}
+		else if (portalException instanceof FragmentEntryContentException) {
+			errorMessage = portalException.getLocalizedMessage();
+		}
+		else if (portalException instanceof FragmentEntryNameException) {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getRequest(), "please-enter-a-valid-name");
+		}
+		else {
+			_log.error(portalException.getMessage());
 		}
 
-		JSONObject jsonObject = JSONUtil.put(
-			"error", LanguageUtil.get(themeDisplay.getRequest(), errorMessage));
+		JSONObject jsonObject = JSONUtil.put("error", errorMessage);
 
 		JSONPortletResponseUtil.writeJSON(
 			actionRequest, actionResponse, jsonObject);
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		FragmentEntryExceptionRequestHandler.class);
 
 }

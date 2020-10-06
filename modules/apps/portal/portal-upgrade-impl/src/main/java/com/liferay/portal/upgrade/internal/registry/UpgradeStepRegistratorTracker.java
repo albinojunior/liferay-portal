@@ -15,6 +15,7 @@
 package com.liferay.portal.upgrade.internal.registry;
 
 import com.liferay.osgi.util.ServiceTrackerFactory;
+import com.liferay.petra.lang.SafeClosable;
 import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -128,13 +129,31 @@ public class UpgradeStepRegistratorTracker {
 			List<UpgradeInfo> upgradeInfos =
 				upgradeStepRegistry.getUpgradeInfos();
 
+			if (PropsValues.UPGRADE_DATABASE_AUTO_RUN ||
+				(_releaseLocalService.fetchRelease(bundleSymbolicName) ==
+					null)) {
+
+				try {
+					_upgradeExecutor.execute(
+						bundleSymbolicName, upgradeInfos,
+						OutputStreamContainerConstants.FACTORY_NAME_DUMMY);
+				}
+				catch (Throwable throwable) {
+					_swappedLogExecutor.execute(
+						bundleSymbolicName,
+						() -> _log.error(
+							"Failed upgrade process for module ".concat(
+								bundleSymbolicName),
+							throwable),
+						null);
+				}
+			}
+
 			List<ServiceRegistration<UpgradeStep>> serviceRegistrations =
 				new ArrayList<>(upgradeInfos.size());
 
-			boolean enabled = UpgradeStepRegistratorThreadLocal.isEnabled();
-
-			try {
-				UpgradeStepRegistratorThreadLocal.setEnabled(false);
+			try (SafeClosable safeClosable =
+					UpgradeStepRegistratorThreadLocal.setEnabled(false)) {
 
 				for (UpgradeInfo upgradeInfo : upgradeInfos) {
 					Dictionary<String, Object> properties =
@@ -158,29 +177,6 @@ public class UpgradeStepRegistratorTracker {
 							properties);
 
 					serviceRegistrations.add(serviceRegistration);
-				}
-			}
-			finally {
-				UpgradeStepRegistratorThreadLocal.setEnabled(enabled);
-			}
-
-			if (PropsValues.UPGRADE_DATABASE_AUTO_RUN ||
-				(_releaseLocalService.fetchRelease(bundleSymbolicName) ==
-					null)) {
-
-				try {
-					_upgradeExecutor.execute(
-						bundleSymbolicName, upgradeInfos,
-						OutputStreamContainerConstants.FACTORY_NAME_DUMMY);
-				}
-				catch (Throwable t) {
-					_swappedLogExecutor.execute(
-						bundleSymbolicName,
-						() -> _log.error(
-							"Failed upgrade process for module ".concat(
-								bundleSymbolicName),
-							t),
-						null);
 				}
 			}
 

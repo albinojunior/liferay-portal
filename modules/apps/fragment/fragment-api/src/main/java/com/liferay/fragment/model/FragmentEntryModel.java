@@ -20,6 +20,8 @@ import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.model.StagedGroupedModel;
 import com.liferay.portal.kernel.model.WorkflowedModel;
+import com.liferay.portal.kernel.model.change.tracking.CTModel;
+import com.liferay.portal.kernel.model.version.VersionedModel;
 
 import java.util.Date;
 
@@ -38,8 +40,9 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface FragmentEntryModel
-	extends BaseModel<FragmentEntry>, MVCCModel, ShardedModel,
-			StagedGroupedModel, WorkflowedModel {
+	extends BaseModel<FragmentEntry>, CTModel<FragmentEntry>, MVCCModel,
+			ShardedModel, StagedGroupedModel,
+			VersionedModel<FragmentEntryVersion>, WorkflowedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -52,6 +55,7 @@ public interface FragmentEntryModel
 	 *
 	 * @return the primary key of this fragment entry
 	 */
+	@Override
 	public long getPrimaryKey();
 
 	/**
@@ -59,6 +63,7 @@ public interface FragmentEntryModel
 	 *
 	 * @param primaryKey the primary key of this fragment entry
 	 */
+	@Override
 	public void setPrimaryKey(long primaryKey);
 
 	/**
@@ -78,6 +83,22 @@ public interface FragmentEntryModel
 	public void setMvccVersion(long mvccVersion);
 
 	/**
+	 * Returns the ct collection ID of this fragment entry.
+	 *
+	 * @return the ct collection ID of this fragment entry
+	 */
+	@Override
+	public long getCtCollectionId();
+
+	/**
+	 * Sets the ct collection ID of this fragment entry.
+	 *
+	 * @param ctCollectionId the ct collection ID of this fragment entry
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId);
+
+	/**
 	 * Returns the uuid of this fragment entry.
 	 *
 	 * @return the uuid of this fragment entry
@@ -93,6 +114,22 @@ public interface FragmentEntryModel
 	 */
 	@Override
 	public void setUuid(String uuid);
+
+	/**
+	 * Returns the head ID of this fragment entry.
+	 *
+	 * @return the head ID of this fragment entry
+	 */
+	@Override
+	public long getHeadId();
+
+	/**
+	 * Sets the head ID of this fragment entry.
+	 *
+	 * @param headId the head ID of this fragment entry
+	 */
+	@Override
+	public void setHeadId(long headId);
 
 	/**
 	 * Returns the fragment entry ID of this fragment entry.

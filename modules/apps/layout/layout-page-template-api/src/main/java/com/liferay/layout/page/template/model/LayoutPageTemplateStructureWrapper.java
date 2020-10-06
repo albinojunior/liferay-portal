@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -47,6 +49,7 @@ public class LayoutPageTemplateStructureWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("uuid", getUuid());
 		attributes.put(
 			"layoutPageTemplateStructureId",
@@ -69,6 +72,12 @@ public class LayoutPageTemplateStructureWrapper
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
 		}
 
 		String uuid = (String)attributes.get("uuid");
@@ -183,6 +192,16 @@ public class LayoutPageTemplateStructureWrapper
 		return model.getCreateDate();
 	}
 
+	/**
+	 * Returns the ct collection ID of this layout page template structure.
+	 *
+	 * @return the ct collection ID of this layout page template structure
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
+	}
+
 	@Override
 	public String getData(long segmentsExperienceId) {
 		return model.getData(segmentsExperienceId);
@@ -233,6 +252,11 @@ public class LayoutPageTemplateStructureWrapper
 	@Override
 	public long getMvccVersion() {
 		return model.getMvccVersion();
+	}
+
+	@Override
+	public long getPlid() {
+		return model.getPlid();
 	}
 
 	/**
@@ -336,6 +360,16 @@ public class LayoutPageTemplateStructureWrapper
 	}
 
 	/**
+	 * Sets the ct collection ID of this layout page template structure.
+	 *
+	 * @param ctCollectionId the ct collection ID of this layout page template structure
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
+	}
+
+	/**
 	 * Sets the group ID of this layout page template structure.
 	 *
 	 * @param groupId the group ID of this layout page template structure
@@ -425,6 +459,20 @@ public class LayoutPageTemplateStructureWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public Map<String, Function<LayoutPageTemplateStructure, Object>>
+		getAttributeGetterFunctions() {
+
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<LayoutPageTemplateStructure, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

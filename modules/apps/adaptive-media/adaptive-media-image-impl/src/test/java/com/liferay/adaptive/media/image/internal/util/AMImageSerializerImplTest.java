@@ -60,13 +60,13 @@ public class AMImageSerializerImplTest {
 	public void testDeserialize() throws Exception {
 		JSONObject jsonObject = JSONUtil.put("uri", "http://localhost");
 
-		JSONObject attributesJSONObject = JSONUtil.put(
-			AMImageAttribute.AM_IMAGE_ATTRIBUTE_HEIGHT.getName(), "200"
-		).put(
-			AMImageAttribute.AM_IMAGE_ATTRIBUTE_WIDTH.getName(), "300"
-		);
-
-		jsonObject.put("attributes", attributesJSONObject);
+		jsonObject.put(
+			"attributes",
+			JSONUtil.put(
+				AMImageAttribute.AM_IMAGE_ATTRIBUTE_HEIGHT.getName(), "200"
+			).put(
+				AMImageAttribute.AM_IMAGE_ATTRIBUTE_WIDTH.getName(), "300"
+			));
 
 		AMImageSerializer amImageSerializer = new AMImageSerializerImpl();
 
@@ -133,14 +133,14 @@ public class AMImageSerializerImplTest {
 
 	@Test
 	public void testSerialize() throws Exception {
-		Map<String, String> properties = HashMapBuilder.put(
-			AMImageAttribute.AM_IMAGE_ATTRIBUTE_HEIGHT.getName(), "200"
-		).put(
-			AMImageAttribute.AM_IMAGE_ATTRIBUTE_WIDTH.getName(), "300"
-		).build();
-
 		AdaptiveMedia<AMImageProcessor> adaptiveMedia = new AMImage(
-			() -> null, AMImageAttributeMapping.fromProperties(properties),
+			() -> null,
+			AMImageAttributeMapping.fromProperties(
+				HashMapBuilder.put(
+					AMImageAttribute.AM_IMAGE_ATTRIBUTE_HEIGHT.getName(), "200"
+				).put(
+					AMImageAttribute.AM_IMAGE_ATTRIBUTE_WIDTH.getName(), "300"
+				).build()),
 			new URI("http://localhost"));
 
 		AMImageSerializer amImageSerializer = new AMImageSerializerImpl();

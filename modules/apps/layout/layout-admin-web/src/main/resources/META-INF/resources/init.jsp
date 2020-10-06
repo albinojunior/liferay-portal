@@ -23,14 +23,15 @@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/expando" prefix="liferay-expando" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
+taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/react" prefix="react" %><%@
 taglib uri="http://liferay.com/tld/site-navigation" prefix="liferay-site-navigation" %><%@
-taglib uri="http://liferay.com/tld/soy" prefix="soy" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.document.library.kernel.exception.FileSizeException" %><%@
+<%@ page import="com.liferay.asset.kernel.model.AssetVocabularyConstants" %><%@
+page import="com.liferay.document.library.kernel.exception.FileSizeException" %><%@
 page import="com.liferay.document.library.kernel.util.DLValidatorUtil" %><%@
 page import="com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys" %><%@
 page import="com.liferay.exportimport.kernel.staging.LayoutStagingUtil" %><%@
@@ -39,17 +40,24 @@ page import="com.liferay.layout.admin.constants.LayoutScreenNavigationEntryConst
 page import="com.liferay.layout.admin.web.internal.constants.LayoutAdminWebKeys" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsAdminDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsAdminManagementToolbarDisplayContext" %><%@
-page import="com.liferay.layout.admin.web.internal.display.context.LayoutsAdminReactDisplayContext" %><%@
+page import="com.liferay.layout.admin.web.internal.display.context.MillerColumnsDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.OrphanPortletsDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.OrphanPortletsManagementToolbarDisplayContext" %><%@
+page import="com.liferay.layout.admin.web.internal.display.context.SelectCollectionManagementToolbarDisplayContext" %><%@
+page import="com.liferay.layout.admin.web.internal.display.context.SelectLayoutCollectionDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.SelectLayoutPageTemplateEntryDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.SelectThemeDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.SelectThemeManagementToolbarDisplayContext" %><%@
+page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.CollectionProvidersVerticalCard" %><%@
+page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.CollectionsVerticalCard" %><%@
+page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.DefaultStylebookLayoutVerticalCard" %><%@
 page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectBasicTemplatesHorizontalCard" %><%@
 page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectBasicTemplatesVerticalCard" %><%@
 page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectGlobalTemplatesVerticalCard" %><%@
+page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectLayoutMasterLayoutVerticalCard" %><%@
 page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectLayoutPageTemplateEntryVerticalCard" %><%@
 page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectMasterLayoutVerticalCard" %><%@
+page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectStylebookLayoutVerticalCard" %><%@
 page import="com.liferay.layout.admin.web.internal.servlet.taglib.clay.SelectThemeVerticalCard" %><%@
 page import="com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants" %><%@
 page import="com.liferay.layout.page.template.model.LayoutPageTemplateCollection" %><%@
@@ -95,6 +103,7 @@ page import="com.liferay.portal.kernel.model.LayoutTypePortlet" %><%@
 page import="com.liferay.portal.kernel.model.Portlet" %><%@
 page import="com.liferay.portal.kernel.model.Theme" %><%@
 page import="com.liferay.portal.kernel.model.ThemeSetting" %><%@
+page import="com.liferay.portal.kernel.model.User" %><%@
 page import="com.liferay.portal.kernel.model.UserGroup" %><%@
 page import="com.liferay.portal.kernel.plugin.PluginPackage" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
@@ -114,13 +123,14 @@ page import="com.liferay.portal.kernel.service.permission.GroupPermissionUtil" %
 page import="com.liferay.portal.kernel.service.permission.LayoutPermissionUtil" %><%@
 page import="com.liferay.portal.kernel.servlet.HttpHeaders" %><%@
 page import="com.liferay.portal.kernel.servlet.ServletContextPool" %><%@
+page import="com.liferay.portal.kernel.servlet.SessionErrors" %><%@
 page import="com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorConstants" %><%@
 page import="com.liferay.portal.kernel.template.StringTemplateResource" %><%@
 page import="com.liferay.portal.kernel.util.Constants" %><%@
 page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
+page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.HttpUtil" %><%@
-page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
@@ -137,11 +147,12 @@ page import="com.liferay.portal.util.LayoutTypeControllerTracker" %><%@
 page import="com.liferay.portal.util.PropsValues" %><%@
 page import="com.liferay.segments.exception.RequiredSegmentsExperienceException" %><%@
 page import="com.liferay.site.navigation.model.SiteNavigationMenu" %><%@
-page import="com.liferay.sites.kernel.util.SitesUtil" %>
+page import="com.liferay.sites.kernel.util.SitesUtil" %><%@
+page import="com.liferay.style.book.model.StyleBookEntry" %><%@
+page import="com.liferay.style.book.service.StyleBookEntryLocalServiceUtil" %><%@
+page import="com.liferay.style.book.util.DefaultStyleBookEntryUtil" %>
 
-<%@ page import="java.util.Collections" %><%@
-page import="java.util.HashMap" %><%@
-page import="java.util.List" %><%@
+<%@ page import="java.util.List" %><%@
 page import="java.util.Locale" %><%@
 page import="java.util.Map" %><%@
 page import="java.util.Objects" %><%@

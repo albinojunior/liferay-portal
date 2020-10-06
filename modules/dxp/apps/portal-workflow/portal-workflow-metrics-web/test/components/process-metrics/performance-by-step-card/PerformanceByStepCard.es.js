@@ -9,42 +9,52 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, findByTestId, render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import PerformanceByStepCard from '../../../../src/main/resources/META-INF/resources/js/components/process-metrics/performance-by-step-card/PerformanceByStepCard.es';
+import {stringify} from '../../../../src/main/resources/META-INF/resources/js/shared/components/router/queryString.es';
 import {jsonSessionStorage} from '../../../../src/main/resources/META-INF/resources/js/shared/util/storage.es';
 import {MockRouter} from '../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const {processId, query} = {
+const {filters, processId} = {
+	filters: {
+		stepDateEnd: '2019-12-09T00:00:00Z',
+		stepDateStart: '2019-12-03T00:00:00Z',
+		stepTimeRange: ['7'],
+	},
 	processId: 12345,
-	query: '?filters.stepTimeRange%5B0%5D=7',
 };
-
 const items = [
 	{
 		breachedInstanceCount: 3,
 		breachedInstancePercentage: 30,
 		durationAvg: 10800000,
-		name: 'Review',
+		node: {
+			name: 'Review',
+		},
 	},
 	{
 		breachedInstanceCount: 7,
 		breachedInstancePercentage: 22.5806,
 		durationAvg: 475200000,
-		name: 'Update',
+		node: {
+			name: 'Update',
+		},
 	},
 	{
 		breachedInstanceCount: 0,
 		breachedInstancePercentage: 0,
 		durationAvg: 0,
-		name: 'Translate',
+		node: {
+			name: 'Translate',
+		},
 	},
 ];
 const data = {items, totalCount: items.length};
-
+const query = stringify({filters});
 const timeRangeData = {
 	items: [
 		{
@@ -66,7 +76,7 @@ const timeRangeData = {
 };
 
 describe('The performance by step card component should', () => {
-	let getAllByTestId, getByTestId;
+	let container, getAllByText, getByTestId;
 
 	beforeAll(() => {
 		jsonSessionStorage.set('timeRanges', timeRangeData);
@@ -89,25 +99,16 @@ describe('The performance by step card component should', () => {
 				{wrapper}
 			);
 
+			container = renderResult.container;
 			getByTestId = renderResult.getByTestId;
-			getAllByTestId = renderResult.getAllByTestId;
+			getAllByText = renderResult.getAllByText;
 		});
 
 		test('Be rendered with time range filter', async () => {
-			const timeRangeFilter = getByTestId('timeRangeFilter');
+			const activeItem = container.querySelector('.active');
 
-			const filterItems = await getAllByTestId('filterItem');
-
-			const activeItem = filterItems.find(item =>
-				item.className.includes('active')
-			);
-			const activeItemName = await findByTestId(
-				activeItem,
-				'filterItemName'
-			);
-
-			expect(timeRangeFilter).not.toBeNull();
-			expect(activeItemName).toHaveTextContent('Last 7 Days');
+			expect(getAllByText('Last 7 Days').length).toEqual(2);
+			expect(activeItem).toHaveTextContent('Last 7 Days');
 		});
 
 		test('Be rendered with "View All Steps" button and total "(3)"', () => {
@@ -115,7 +116,7 @@ describe('The performance by step card component should', () => {
 
 			expect(viewAllSteps).toHaveTextContent('view-all-steps (3)');
 			expect(viewAllSteps.parentNode.getAttribute('href')).toContain(
-				'filters.dateEnd=2019-12-09&filters.dateStart=2019-12-03&filters.timeRange%5B0%5D=7'
+				'filters.dateEnd=2019-12-09T00%3A00%3A00Z&filters.dateStart=2019-12-03T00%3A00%3A00Z&filters.timeRange%5B0%5D=7'
 			);
 		});
 	});

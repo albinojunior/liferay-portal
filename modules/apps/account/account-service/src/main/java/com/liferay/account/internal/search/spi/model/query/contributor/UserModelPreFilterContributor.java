@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.ExistsFilter;
 import com.liferay.portal.kernel.search.filter.TermsFilter;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.search.spi.model.query.contributor.ModelPreFilterContributor;
 import com.liferay.portal.search.spi.model.registrar.ModelSearchSettings;
 
@@ -42,28 +43,28 @@ public class UserModelPreFilterContributor
 		BooleanFilter booleanFilter, ModelSearchSettings modelSearchSettings,
 		SearchContext searchContext) {
 
-		long[] accountEntryIds = (long[])searchContext.getAttribute(
-			"accountEntryIds");
+		long[] accountEntryIds = GetterUtil.getLongValues(
+			searchContext.getAttribute("accountEntryIds"), null);
 
-		if (ArrayUtil.isNotEmpty(accountEntryIds)) {
+		if (accountEntryIds != null) {
 			if ((accountEntryIds.length == 1) &&
 				(accountEntryIds[0] == AccountConstants.ACCOUNT_ENTRY_ID_ANY)) {
 
-				ExistsFilter accountEntryIdsExistsFilter = new ExistsFilter(
-					"accountEntryIds");
+				ExistsFilter existsFilter = new ExistsFilter("accountEntryIds");
 
-				booleanFilter.add(
-					accountEntryIdsExistsFilter, BooleanClauseOccur.MUST);
+				booleanFilter.add(existsFilter, BooleanClauseOccur.MUST);
+			}
+			else if (accountEntryIds.length == 0) {
+				ExistsFilter existsFilter = new ExistsFilter("accountEntryIds");
+
+				booleanFilter.add(existsFilter, BooleanClauseOccur.MUST_NOT);
 			}
 			else {
-				TermsFilter accountEntryTermsFilter = new TermsFilter(
-					"accountEntryIds");
+				TermsFilter termsFilter = new TermsFilter("accountEntryIds");
 
-				accountEntryTermsFilter.addValues(
-					ArrayUtil.toStringArray(accountEntryIds));
+				termsFilter.addValues(ArrayUtil.toStringArray(accountEntryIds));
 
-				booleanFilter.add(
-					accountEntryTermsFilter, BooleanClauseOccur.MUST);
+				booleanFilter.add(termsFilter, BooleanClauseOccur.MUST);
 			}
 		}
 

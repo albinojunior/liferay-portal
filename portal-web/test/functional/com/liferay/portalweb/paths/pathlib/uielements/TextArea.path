@@ -15,12 +15,12 @@
 </tr>
 <tr>
 	<td>ANY</td>
-	<td>//textarea[contains(@name,'${key_text}')]</td>
+	<td>//textarea[contains(@name,'${key_text}') or contains(@title,'${key_text}')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ANY_LABELED</td>
-	<td>//label[contains(.,'${key_label}')]/following-sibling::div//textarea</td>
+	<td>//*[normalize-space(text())='${key_label}']/following-sibling::textarea</td>
 	<td></td>
 </tr>
 <tr>
@@ -54,13 +54,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>SEO_META_TAGS_DESCRIPTION</td>
-	<td>//textarea[contains(@id,'descriptionSEO')]</td>
+	<td>SEO_META_TAGS_KEYWORDS</td>
+	<td>//textarea[contains(@id,'keywords')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>SEO_META_TAGS_KEYWORDS</td>
-	<td>//textarea[contains(@id,'keywords')]</td>
+	<td>TRANSLATIONS_TARGET_TEXT_BOX_FIELD</td>
+	<td>//textarea[contains(@id,'${key_fieldName}') and (not(contains(@readonly,'true')))]</td>
 	<td></td>
 </tr>
 <tr>

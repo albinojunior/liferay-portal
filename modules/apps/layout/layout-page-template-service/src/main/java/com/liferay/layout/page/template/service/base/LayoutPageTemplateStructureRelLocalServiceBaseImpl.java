@@ -22,6 +22,8 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalService;
 import com.liferay.layout.page.template.service.persistence.LayoutPageTemplateStructureRelPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -42,6 +44,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -79,6 +84,10 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 	/**
 	 * Adds the layout page template structure rel to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutPageTemplateStructureRel the layout page template structure rel
 	 * @return the layout page template structure rel that was added
 	 */
@@ -111,6 +120,10 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 	/**
 	 * Deletes the layout page template structure rel with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutPageTemplateStructureRelId the primary key of the layout page template structure rel
 	 * @return the layout page template structure rel that was removed
 	 * @throws PortalException if a layout page template structure rel with the primary key could not be found
@@ -128,6 +141,10 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 	/**
 	 * Deletes the layout page template structure rel from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutPageTemplateStructureRel the layout page template structure rel
 	 * @return the layout page template structure rel that was removed
 	 */
@@ -138,6 +155,11 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 
 		return layoutPageTemplateStructureRelPersistence.remove(
 			layoutPageTemplateStructureRel);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return layoutPageTemplateStructureRelPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -410,6 +432,12 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 				(LayoutPageTemplateStructureRel)persistedModel);
 	}
 
+	public BasePersistence<LayoutPageTemplateStructureRel>
+		getBasePersistence() {
+
+		return layoutPageTemplateStructureRelPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -507,6 +535,10 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 	/**
 	 * Updates the layout page template structure rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect LayoutPageTemplateStructureRelLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param layoutPageTemplateStructureRel the layout page template structure rel
 	 * @return the layout page template structure rel that was updated
 	 */
@@ -523,7 +555,8 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			LayoutPageTemplateStructureRelLocalService.class,
-			IdentifiableOSGiService.class, PersistedModelLocalService.class
+			IdentifiableOSGiService.class, CTService.class,
+			PersistedModelLocalService.class
 		};
 	}
 
@@ -543,8 +576,24 @@ public abstract class LayoutPageTemplateStructureRelLocalServiceBaseImpl
 		return LayoutPageTemplateStructureRelLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<LayoutPageTemplateStructureRel> getCTPersistence() {
+		return layoutPageTemplateStructureRelPersistence;
+	}
+
+	@Override
+	public Class<LayoutPageTemplateStructureRel> getModelClass() {
 		return LayoutPageTemplateStructureRel.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<LayoutPageTemplateStructureRel>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(
+			layoutPageTemplateStructureRelPersistence);
 	}
 
 	protected String getModelClassName() {

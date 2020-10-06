@@ -17,7 +17,7 @@ package com.liferay.oauth2.provider.web.internal.display.context;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItemList;
 import com.liferay.oauth2.provider.model.OAuth2Application;
 import com.liferay.oauth2.provider.web.internal.constants.OAuth2ProviderPortletKeys;
@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.portlet.PortletURL;
 
@@ -60,9 +59,7 @@ public class OAuth2ApplicationsManagementToolbarDisplayContext
 	}
 
 	public List<DropdownItem> getActionDropdownItems() {
-		DropdownItemList dropdownItems = new DropdownItemList();
-
-		dropdownItems.add(
+		return DropdownItemListBuilder.add(
 			dropdownItem -> {
 				dropdownItem.setHref(
 					StringBundler.concat(
@@ -72,9 +69,8 @@ public class OAuth2ApplicationsManagementToolbarDisplayContext
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "delete"));
 				dropdownItem.setQuickAction(true);
-			});
-
-		return dropdownItems;
+			}
+		).build();
 	}
 
 	public CreationMenu getCreationMenu() {
@@ -113,25 +109,22 @@ public class OAuth2ApplicationsManagementToolbarDisplayContext
 	}
 
 	public List<DropdownItem> getFilterDropdownItems() {
-		return new DropdownItemList() {
-			{
-				Map<String, String> orderColumnsMap = HashMapBuilder.put(
-					"clientId", "client-id"
-				).put(
-					"createDate", "createDate"
-				).put(
-					"name", "name"
-				).build();
+		return DropdownItemListBuilder.addGroup(
+			dropdownGroupItem -> {
+				dropdownGroupItem.setDropdownItems(
+					getOrderByDropdownItems(
+						HashMapBuilder.put(
+							"clientId", "client-id"
+						).put(
+							"createDate", "createDate"
+						).put(
+							"name", "name"
+						).build()));
 
-				addGroup(
-					dropdownGroupItem -> {
-						dropdownGroupItem.setDropdownItems(
-							getOrderByDropdownItems(orderColumnsMap));
-						dropdownGroupItem.setLabel(
-							LanguageUtil.get(httpServletRequest, "order-by"));
-					});
+				dropdownGroupItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "order-by"));
 			}
-		};
+		).build();
 	}
 
 	public OrderByComparator<OAuth2Application> getOrderByComparator() {

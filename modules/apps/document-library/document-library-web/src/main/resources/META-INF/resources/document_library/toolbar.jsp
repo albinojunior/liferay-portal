@@ -16,12 +16,16 @@
 
 <%@ include file="/document_library/init.jsp" %>
 
+<%
+DLAdminManagementToolbarDisplayContext dlAdminManagementToolbarDisplayContext = dlAdminDisplayContextProvider.getDLAdminManagementToolbarDisplayContext(request, response);
+%>
+
 <clay:management-toolbar
 	actionDropdownItems="<%= dlAdminManagementToolbarDisplayContext.getActionDropdownItems() %>"
 	clearResultsURL="<%= dlAdminManagementToolbarDisplayContext.getClearResultsURL() %>"
 	componentId="<%= dlAdminManagementToolbarDisplayContext.getComponentId() %>"
 	creationMenu="<%= dlAdminManagementToolbarDisplayContext.getCreationMenu() %>"
-	defaultEventHandler='<%= renderResponse.getNamespace() + "DocumentLibrary" %>'
+	defaultEventHandler='<%= liferayPortletResponse.getNamespace() + "DocumentLibrary" %>'
 	disabled="<%= dlAdminManagementToolbarDisplayContext.isDisabled() %>"
 	filterDropdownItems="<%= dlAdminManagementToolbarDisplayContext.getFilterDropdownItems() %>"
 	filterLabelItems="<%= dlAdminManagementToolbarDisplayContext.getFilterLabelItems() %>"

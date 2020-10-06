@@ -63,10 +63,10 @@ public class VirtualHostModelImpl
 	public static final String TABLE_NAME = "VirtualHost";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"virtualHostId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"layoutSetId", Types.BIGINT},
-		{"hostname", Types.VARCHAR}, {"defaultVirtualHost", Types.BOOLEAN},
-		{"languageId", Types.VARCHAR}
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
+		{"virtualHostId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"layoutSetId", Types.BIGINT}, {"hostname", Types.VARCHAR},
+		{"defaultVirtualHost", Types.BOOLEAN}, {"languageId", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -74,6 +74,7 @@ public class VirtualHostModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("virtualHostId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("layoutSetId", Types.BIGINT);
@@ -83,7 +84,7 @@ public class VirtualHostModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table VirtualHost (mvccVersion LONG default 0 not null,virtualHostId LONG not null primary key,companyId LONG,layoutSetId LONG,hostname VARCHAR(200) null,defaultVirtualHost BOOLEAN,languageId VARCHAR(75) null)";
+		"create table VirtualHost (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,virtualHostId LONG not null,companyId LONG,layoutSetId LONG,hostname VARCHAR(200) null,defaultVirtualHost BOOLEAN,languageId VARCHAR(75) null,primary key (virtualHostId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table VirtualHost";
 
@@ -99,29 +100,53 @@ public class VirtualHostModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.VirtualHost"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean ENTITY_CACHE_ENABLED = true;
 
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.VirtualHost"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean FINDER_CACHE_ENABLED = true;
 
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.portal.util.PropsUtil.get(
-			"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.VirtualHost"),
-		true);
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
+	public static final boolean COLUMN_BITMASK_ENABLED = true;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long DEFAULTVIRTUALHOST_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long HOSTNAME_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long LAYOUTSETID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long VIRTUALHOSTID_COLUMN_BITMASK = 16L;
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
@@ -179,9 +204,6 @@ public class VirtualHostModelImpl
 				attributeName,
 				attributeGetterFunction.apply((VirtualHost)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -261,6 +283,11 @@ public class VirtualHostModelImpl
 			"mvccVersion",
 			(BiConsumer<VirtualHost, Long>)VirtualHost::setMvccVersion);
 		attributeGetterFunctions.put(
+			"ctCollectionId", VirtualHost::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<VirtualHost, Long>)VirtualHost::setCtCollectionId);
+		attributeGetterFunctions.put(
 			"virtualHostId", VirtualHost::getVirtualHostId);
 		attributeSetterBiConsumers.put(
 			"virtualHostId",
@@ -302,7 +329,25 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@Override
@@ -312,7 +357,9 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setVirtualHostId(long virtualHostId) {
-		_columnBitmask = -1L;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
 
 		_virtualHostId = virtualHostId;
 	}
@@ -324,19 +371,21 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setCompanyId(long companyId) {
-		_columnBitmask |= COMPANYID_COLUMN_BITMASK;
-
-		if (!_setOriginalCompanyId) {
-			_setOriginalCompanyId = true;
-
-			_originalCompanyId = _companyId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_companyId = companyId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalCompanyId() {
-		return _originalCompanyId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("companyId"));
 	}
 
 	@Override
@@ -346,19 +395,21 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setLayoutSetId(long layoutSetId) {
-		_columnBitmask |= LAYOUTSETID_COLUMN_BITMASK;
-
-		if (!_setOriginalLayoutSetId) {
-			_setOriginalLayoutSetId = true;
-
-			_originalLayoutSetId = _layoutSetId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_layoutSetId = layoutSetId;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalLayoutSetId() {
-		return _originalLayoutSetId;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("layoutSetId"));
 	}
 
 	@Override
@@ -373,17 +424,20 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setHostname(String hostname) {
-		_columnBitmask |= HOSTNAME_COLUMN_BITMASK;
-
-		if (_originalHostname == null) {
-			_originalHostname = _hostname;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_hostname = hostname;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public String getOriginalHostname() {
-		return GetterUtil.getString(_originalHostname);
+		return getColumnOriginalValue("hostname");
 	}
 
 	@Override
@@ -398,19 +452,21 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setDefaultVirtualHost(boolean defaultVirtualHost) {
-		_columnBitmask |= DEFAULTVIRTUALHOST_COLUMN_BITMASK;
-
-		if (!_setOriginalDefaultVirtualHost) {
-			_setOriginalDefaultVirtualHost = true;
-
-			_originalDefaultVirtualHost = _defaultVirtualHost;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_defaultVirtualHost = defaultVirtualHost;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public boolean getOriginalDefaultVirtualHost() {
-		return _originalDefaultVirtualHost;
+		return GetterUtil.getBoolean(
+			this.<Boolean>getColumnOriginalValue("defaultVirtualHost"));
 	}
 
 	@Override
@@ -425,10 +481,32 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void setLanguageId(String languageId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_languageId = languageId;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -465,6 +543,7 @@ public class VirtualHostModelImpl
 		VirtualHostImpl virtualHostImpl = new VirtualHostImpl();
 
 		virtualHostImpl.setMvccVersion(getMvccVersion());
+		virtualHostImpl.setCtCollectionId(getCtCollectionId());
 		virtualHostImpl.setVirtualHostId(getVirtualHostId());
 		virtualHostImpl.setCompanyId(getCompanyId());
 		virtualHostImpl.setLayoutSetId(getLayoutSetId());
@@ -501,16 +580,16 @@ public class VirtualHostModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof VirtualHost)) {
+		if (!(object instanceof VirtualHost)) {
 			return false;
 		}
 
-		VirtualHost virtualHost = (VirtualHost)obj;
+		VirtualHost virtualHost = (VirtualHost)object;
 
 		long primaryKey = virtualHost.getPrimaryKey();
 
@@ -527,11 +606,19 @@ public class VirtualHostModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
 		return ENTITY_CACHE_ENABLED;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
 		return FINDER_CACHE_ENABLED;
@@ -539,26 +626,9 @@ public class VirtualHostModelImpl
 
 	@Override
 	public void resetOriginalValues() {
-		VirtualHostModelImpl virtualHostModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		virtualHostModelImpl._originalCompanyId =
-			virtualHostModelImpl._companyId;
-
-		virtualHostModelImpl._setOriginalCompanyId = false;
-
-		virtualHostModelImpl._originalLayoutSetId =
-			virtualHostModelImpl._layoutSetId;
-
-		virtualHostModelImpl._setOriginalLayoutSetId = false;
-
-		virtualHostModelImpl._originalHostname = virtualHostModelImpl._hostname;
-
-		virtualHostModelImpl._originalDefaultVirtualHost =
-			virtualHostModelImpl._defaultVirtualHost;
-
-		virtualHostModelImpl._setOriginalDefaultVirtualHost = false;
-
-		virtualHostModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -567,6 +637,8 @@ public class VirtualHostModelImpl
 			new VirtualHostCacheModel();
 
 		virtualHostCacheModel.mvccVersion = getMvccVersion();
+
+		virtualHostCacheModel.ctCollectionId = getCtCollectionId();
 
 		virtualHostCacheModel.virtualHostId = getVirtualHostId();
 
@@ -601,7 +673,7 @@ public class VirtualHostModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -633,7 +705,7 @@ public class VirtualHostModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -666,19 +738,81 @@ public class VirtualHostModelImpl
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _virtualHostId;
 	private long _companyId;
-	private long _originalCompanyId;
-	private boolean _setOriginalCompanyId;
 	private long _layoutSetId;
-	private long _originalLayoutSetId;
-	private boolean _setOriginalLayoutSetId;
 	private String _hostname;
-	private String _originalHostname;
 	private boolean _defaultVirtualHost;
-	private boolean _originalDefaultVirtualHost;
-	private boolean _setOriginalDefaultVirtualHost;
 	private String _languageId;
+
+	public <T> T getColumnValue(String columnName) {
+		Function<VirtualHost, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((VirtualHost)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
+		_columnOriginalValues.put("virtualHostId", _virtualHostId);
+		_columnOriginalValues.put("companyId", _companyId);
+		_columnOriginalValues.put("layoutSetId", _layoutSetId);
+		_columnOriginalValues.put("hostname", _hostname);
+		_columnOriginalValues.put("defaultVirtualHost", _defaultVirtualHost);
+		_columnOriginalValues.put("languageId", _languageId);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("ctCollectionId", 2L);
+
+		columnBitmasks.put("virtualHostId", 4L);
+
+		columnBitmasks.put("companyId", 8L);
+
+		columnBitmasks.put("layoutSetId", 16L);
+
+		columnBitmasks.put("hostname", 32L);
+
+		columnBitmasks.put("defaultVirtualHost", 64L);
+
+		columnBitmasks.put("languageId", 128L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private VirtualHost _escapedModel;
 

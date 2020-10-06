@@ -63,8 +63,8 @@ public class JSONObjectImpl implements JSONObject {
 		_jsonObject = new org.json.JSONObject(bean);
 	}
 
-	public JSONObjectImpl(Object obj, String[] names) {
-		_jsonObject = new org.json.JSONObject(obj, names);
+	public JSONObjectImpl(Object object, String[] names) {
+		_jsonObject = new org.json.JSONObject(object, names);
 	}
 
 	public JSONObjectImpl(org.json.JSONObject jsonObject) {
@@ -267,9 +267,9 @@ public class JSONObjectImpl implements JSONObject {
 	}
 
 	@Override
-	public JSONObject put(String key, JSONArray value) {
+	public JSONObject put(String key, JSONArray jsonArray) {
 		try {
-			JSONArrayImpl jsonArrayImpl = (JSONArrayImpl)value;
+			JSONArrayImpl jsonArrayImpl = (JSONArrayImpl)jsonArray;
 
 			_jsonObject.put(key, jsonArrayImpl.getJSONArray());
 		}
@@ -283,9 +283,9 @@ public class JSONObjectImpl implements JSONObject {
 	}
 
 	@Override
-	public JSONObject put(String key, JSONObject value) {
+	public JSONObject put(String key, JSONObject jsonObject) {
 		try {
-			JSONObjectImpl jsonObjectImpl = (JSONObjectImpl)value;
+			JSONObjectImpl jsonObjectImpl = (JSONObjectImpl)jsonObject;
 
 			_jsonObject.put(key, jsonObjectImpl.getJSONObject());
 		}

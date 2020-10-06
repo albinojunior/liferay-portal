@@ -53,12 +53,12 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<portlet:actionURL name="/bookmarks/edit_entry" var="editEntryURL">
 		<portlet:param name="mvcRenderCommandName" value="/bookmarks/edit_entry" />
 	</portlet:actionURL>
 
-	<aui:form action="<%= editEntryURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveEntry();" %>'>
+	<aui:form action="<%= editEntryURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveEntry();" %>'>
 		<aui:input name="<%= Constants.CMD %>" type="hidden" />
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
@@ -104,24 +104,11 @@ renderResponse.setTitle(headerTitle);
 								);
 
 								if (<portlet:namespace />selectFolderButton) {
-									<portlet:namespace />selectFolderButton.addEventListener('click', function(
+									<portlet:namespace />selectFolderButton.addEventListener('click', function (
 										event
 									) {
-										Liferay.Util.selectEntity(
-											{
-												dialog: {
-													constrain: true,
-													destroyOnHide: true,
-													modal: true,
-													width: 680,
-												},
-												id: '<portlet:namespace />selectFolder',
-												title:
-													'<liferay-ui:message arguments="folder" key="select-x" />',
-												uri:
-													'<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/bookmarks/select_folder" /></liferay-portlet:renderURL>',
-											},
-											function(event) {
+										Liferay.Util.openSelectionModal({
+											onSelect: function (event) {
 												var folderData = {
 													idString: 'folderId',
 													idValue: event.entityid,
@@ -130,14 +117,18 @@ renderResponse.setTitle(headerTitle);
 												};
 
 												Liferay.Util.selectFolder(folderData, '<portlet:namespace />');
-											}
-										);
+											},
+											selectEventName: '<portlet:namespace />selectFolder',
+											title: '<liferay-ui:message arguments="folder" key="select-x" />',
+											url:
+												'<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/bookmarks/select_folder" /></liferay-portlet:renderURL>',
+										});
 									});
 								}
 							</aui:script>
 
 							<%
-							String taglibRemoveFolder = "Liferay.Util.removeEntitySelection('folderId', 'folderName', this, '" + renderResponse.getNamespace() + "');";
+							String taglibRemoveFolder = "Liferay.Util.removeEntitySelection('folderId', 'folderName', this, '" + liferayPortletResponse.getNamespace() + "');";
 							%>
 
 							<aui:button disabled="<%= folderId <= 0 %>" name="removeFolderButton" onClick="<%= taglibRemoveFolder %>" value="remove" />
@@ -168,6 +159,7 @@ renderResponse.setTitle(headerTitle);
 					<liferay-asset:asset-categories-selector
 						className="<%= BookmarksEntry.class.getName() %>"
 						classPK="<%= entryId %>"
+						visibilityTypes="<%= AssetVocabularyConstants.VISIBILITY_TYPES %>"
 					/>
 
 					<liferay-asset:asset-tags-selector
@@ -199,7 +191,7 @@ renderResponse.setTitle(headerTitle);
 			<aui:button href="<%= redirect %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
 	function <portlet:namespace />saveEntry() {

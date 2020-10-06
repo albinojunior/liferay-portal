@@ -17,6 +17,7 @@ package com.liferay.portlet.social.model.impl;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.social.kernel.model.SocialRequest;
 
 import java.io.Externalizable;
@@ -31,22 +32,24 @@ import java.io.ObjectOutput;
  * @generated
  */
 public class SocialRequestCacheModel
-	implements CacheModel<SocialRequest>, Externalizable {
+	implements CacheModel<SocialRequest>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SocialRequestCacheModel)) {
+		if (!(object instanceof SocialRequestCacheModel)) {
 			return false;
 		}
 
 		SocialRequestCacheModel socialRequestCacheModel =
-			(SocialRequestCacheModel)obj;
+			(SocialRequestCacheModel)object;
 
-		if (requestId == socialRequestCacheModel.requestId) {
+		if ((requestId == socialRequestCacheModel.requestId) &&
+			(mvccVersion == socialRequestCacheModel.mvccVersion)) {
+
 			return true;
 		}
 
@@ -55,14 +58,30 @@ public class SocialRequestCacheModel
 
 	@Override
 	public int hashCode() {
-		return HashUtil.hash(0, requestId);
+		int hashCode = HashUtil.hash(0, requestId);
+
+		return HashUtil.hash(hashCode, mvccVersion);
+	}
+
+	@Override
+	public long getMvccVersion() {
+		return mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		this.mvccVersion = mvccVersion;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(31);
 
-		sb.append("{uuid=");
+		sb.append("{mvccVersion=");
+		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
+		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", requestId=");
 		sb.append(requestId);
@@ -96,6 +115,9 @@ public class SocialRequestCacheModel
 	@Override
 	public SocialRequest toEntityModel() {
 		SocialRequestImpl socialRequestImpl = new SocialRequestImpl();
+
+		socialRequestImpl.setMvccVersion(mvccVersion);
+		socialRequestImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			socialRequestImpl.setUuid("");
@@ -131,6 +153,9 @@ public class SocialRequestCacheModel
 
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
+		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		requestId = objectInput.readLong();
@@ -159,6 +184,10 @@ public class SocialRequestCacheModel
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
+		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
+
 		if (uuid == null) {
 			objectOutput.writeUTF("");
 		}
@@ -196,6 +225,8 @@ public class SocialRequestCacheModel
 		objectOutput.writeInt(status);
 	}
 
+	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long requestId;
 	public long groupId;

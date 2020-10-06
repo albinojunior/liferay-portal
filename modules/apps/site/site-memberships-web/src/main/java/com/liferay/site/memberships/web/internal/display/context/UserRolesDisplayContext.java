@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.rolesadmin.search.RoleSearch;
 import com.liferay.portlet.rolesadmin.search.RoleSearchTerms;
 import com.liferay.portlet.sites.search.UserGroupRoleRoleChecker;
+import com.liferay.site.memberships.web.internal.util.DepotRolesUtil;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 
 import java.util.List;
@@ -79,7 +80,7 @@ public class UserRolesDisplayContext {
 		return _eventName;
 	}
 
-	public SearchContainer getRoleSearchSearchContainer()
+	public SearchContainer<Role> getRoleSearchSearchContainer()
 		throws PortalException {
 
 		if (_roleSearch != null) {
@@ -108,8 +109,14 @@ public class UserRolesDisplayContext {
 			new Integer[] {_getRoleType()}, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, roleSearch.getOrderByComparator());
 
-		roles = UsersAdminUtil.filterGroupRoles(
-			themeDisplay.getPermissionChecker(), _getGroupId(), roles);
+		if (group.isDepot()) {
+			roles = DepotRolesUtil.filterGroupRoles(
+				themeDisplay.getPermissionChecker(), _getGroupId(), roles);
+		}
+		else {
+			roles = UsersAdminUtil.filterGroupRoles(
+				themeDisplay.getPermissionChecker(), _getGroupId(), roles);
+		}
 
 		int rolesCount = roles.size();
 

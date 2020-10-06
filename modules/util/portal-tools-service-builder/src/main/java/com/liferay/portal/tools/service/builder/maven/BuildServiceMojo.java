@@ -120,6 +120,13 @@ public class BuildServiceMojo extends AbstractMojo {
 	/**
 	 * @parameter
 	 */
+	public void setIncubationFeatures(String incubationFeatures) {
+		_serviceBuilderArgs.setIncubationFeatures(incubationFeatures);
+	}
+
+	/**
+	 * @parameter
+	 */
 	public void setInputFileName(String inputFileName) {
 		_serviceBuilderArgs.setInputFileName(inputFileName);
 	}
@@ -251,13 +258,6 @@ public class BuildServiceMojo extends AbstractMojo {
 	 */
 	public void setTargetEntityName(String targetEntityName) {
 		_serviceBuilderArgs.setTargetEntityName(targetEntityName);
-	}
-
-	/**
-	 * @parameter
-	 */
-	public void setTargetKernelVersion(String targetKernelVersion) {
-		_serviceBuilderArgs.setTargetKernelVersion(targetKernelVersion);
 	}
 
 	/**

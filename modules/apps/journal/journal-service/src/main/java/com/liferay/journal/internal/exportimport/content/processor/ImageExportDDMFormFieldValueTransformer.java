@@ -42,9 +42,8 @@ public class ImageExportDDMFormFieldValueTransformer
 	implements DDMFormFieldValueTransformer {
 
 	public ImageExportDDMFormFieldValueTransformer(
-		String content, DLAppService dlAppService,
-		boolean exportReferencedContent, PortletDataContext portletDataContext,
-		StagedModel stagedModel) {
+		DLAppService dlAppService, boolean exportReferencedContent,
+		PortletDataContext portletDataContext, StagedModel stagedModel) {
 
 		_dlAppService = dlAppService;
 		_exportReferencedContent = exportReferencedContent;

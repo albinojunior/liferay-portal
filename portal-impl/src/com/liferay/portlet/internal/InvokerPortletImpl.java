@@ -247,10 +247,10 @@ public class InvokerPortletImpl
 
 			_portlet.init(portletConfig);
 		}
-		catch (Throwable t) {
+		catch (Throwable throwable) {
 			cleanUp();
 
-			throw t;
+			throw throwable;
 		}
 		finally {
 			if (_portletClassLoader != null) {
@@ -372,7 +372,7 @@ public class InvokerPortletImpl
 
 				response = new InvokerPortletResponse(
 					title, bufferCacheServletResponse.getString(),
-					now + Time.SECOND * _expCache.intValue());
+					now + (Time.SECOND * _expCache.intValue()));
 
 				sessionResponses.put(sessionResponseId, response);
 			}
@@ -382,7 +382,7 @@ public class InvokerPortletImpl
 				response.setTitle(title);
 
 				response.setContent(bufferCacheServletResponse.getString());
-				response.setTime(now + Time.SECOND * _expCache.intValue());
+				response.setTime(now + (Time.SECOND * _expCache.intValue()));
 			}
 			else {
 				renderResponseImpl.setTitle(response.getTitle());
@@ -573,13 +573,13 @@ public class InvokerPortletImpl
 				}
 			}
 			catch (ServletException servletException) {
-				Throwable cause = servletException.getRootCause();
+				Throwable throwable = servletException.getRootCause();
 
-				if (cause instanceof PortletException) {
-					throw (PortletException)cause;
+				if (throwable instanceof PortletException) {
+					throw (PortletException)throwable;
 				}
 
-				throw new PortletException(cause);
+				throw new PortletException(throwable);
 			}
 		}
 		else {

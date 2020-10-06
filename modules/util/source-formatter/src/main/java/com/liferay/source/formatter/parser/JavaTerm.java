@@ -50,6 +50,10 @@ public interface JavaTerm {
 
 	public boolean isAbstract();
 
+	public boolean isDefault();
+
+	public boolean isFinal();
+
 	public boolean isJavaClass();
 
 	public boolean isJavaConstructor();
@@ -59,6 +63,12 @@ public interface JavaTerm {
 	public boolean isJavaStaticBlock();
 
 	public boolean isJavaVariable();
+
+	public boolean isPrivate();
+
+	public boolean isProtected();
+
+	public boolean isPublic();
 
 	public boolean isStatic();
 

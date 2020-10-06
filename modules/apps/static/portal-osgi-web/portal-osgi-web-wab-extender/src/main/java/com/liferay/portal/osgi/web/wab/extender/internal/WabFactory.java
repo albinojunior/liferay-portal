@@ -15,6 +15,7 @@
 package com.liferay.portal.osgi.web.wab.extender.internal;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
@@ -26,6 +27,7 @@ import com.liferay.portal.profile.PortalProfile;
 
 import java.util.Dictionary;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.Bundle;
@@ -139,7 +141,21 @@ public class WabFactory
 		_bundleTracker = new BundleTracker<>(
 			bundleContext, Bundle.ACTIVE | Bundle.STARTING, this);
 
-		_bundleTracker.open();
+		FutureTask<Void> futureTask = new FutureTask<>(
+			() -> {
+				_bundleTracker.open();
+
+				return null;
+			});
+
+		Thread bundleTrackerOpenerThread = new Thread(
+			futureTask, WabFactory.class.getName() + "-BundleTrackerOpener");
+
+		bundleTrackerOpenerThread.setDaemon(true);
+
+		bundleTrackerOpenerThread.start();
+
+		DependencyManagerSyncUtil.registerSyncFuture(futureTask);
 	}
 
 	@Deactivate

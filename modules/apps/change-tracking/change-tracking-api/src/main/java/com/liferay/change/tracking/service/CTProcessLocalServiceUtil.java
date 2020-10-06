@@ -41,6 +41,10 @@ public class CTProcessLocalServiceUtil {
 	/**
 	 * Adds the ct process to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctProcess the ct process
 	 * @return the ct process that was added
 	 */
@@ -82,6 +86,10 @@ public class CTProcessLocalServiceUtil {
 	/**
 	 * Deletes the ct process from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ctProcess the ct process
 	 * @return the ct process that was removed
 	 */
@@ -93,6 +101,10 @@ public class CTProcessLocalServiceUtil {
 
 	/**
 	 * Deletes the ct process with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctProcessId the primary key of the ct process
 	 * @return the ct process that was removed
@@ -114,6 +126,12 @@ public class CTProcessLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -256,18 +274,6 @@ public class CTProcessLocalServiceUtil {
 		return getService().getCTProcesses(ctCollectionId);
 	}
 
-	public static java.util.List<com.liferay.change.tracking.model.CTProcess>
-		getCTProcesses(
-			long companyId, long userId, String keywords, int status, int start,
-			int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.change.tracking.model.CTProcess>
-					orderByComparator) {
-
-		return getService().getCTProcesses(
-			companyId, userId, keywords, status, start, end, orderByComparator);
-	}
-
 	/**
 	 * Returns the number of ct processes.
 	 *
@@ -305,6 +311,10 @@ public class CTProcessLocalServiceUtil {
 
 	/**
 	 * Updates the ct process in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CTProcessLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ctProcess the ct process
 	 * @return the ct process that was updated

@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"additionalProperties": false,
 	"definitions": {
-		"field" : {
+		"field": {
 			"additionalProperties": false,
 			"allOf": [
 				{
@@ -40,6 +40,18 @@
 					},
 					"then": {
 						"$ref": "#/definitions/fieldColorPalette"
+					}
+				},
+				{
+					"if": {
+						"properties": {
+							"type": {
+								"const": "collectionSelector"
+							}
+						}
+					},
+					"then": {
+						"$ref": "#/definitions/fieldCollectionSelector"
 					}
 				},
 				{
@@ -106,6 +118,7 @@
 					"enum": [
 						"checkbox",
 						"colorPalette",
+						"collectionSelector",
 						"itemSelector",
 						"select",
 						"text"
@@ -127,7 +140,7 @@
 		},
 		"fieldCheckbox": {
 			"properties": {
-				"defaultValue" : {
+				"defaultValue": {
 					"enum": [
 						"false",
 						"true",
@@ -142,25 +155,61 @@
 				}
 			}
 		},
-		"fieldColorPalette": {
+		"fieldCollectionSelector": {
 			"properties": {
-				"defaultValue": {
+				"typeOptions": {
 					"additionalProperties": false,
 					"properties": {
-						"cssClass": {
-							"title": "The CssClass Schema",
+						"itemSubtype": {
+							"title": "The ItemSubtype Schema",
 							"type": "string"
 						},
-						"rgbValue": {
-							"title": "The CssClass Schema",
+						"itemType": {
+							"title": "The ItemType Schema",
 							"type": "string"
 						}
 					},
-					"required": [
-						"cssClass",
-						"rgbValue"
-					],
-					"title": "The DefaultValue Schema"
+					"title": "The Typeoptions Schema",
+					"type": "object"
+				}
+			}
+		},
+		"fieldColorPalette": {
+			"properties": {
+				"defaultValue": {
+					"anyOf": [
+						{
+							"additionalProperties": false,
+							"properties": {
+								"color": {
+									"title": "The Color Schema",
+									"type": "string"
+								}
+							},
+							"required": [
+								"color"
+							],
+							"title": "The DefaultValue Schema"
+						},
+						{
+							"additionalProperties": false,
+							"properties": {
+								"cssClass": {
+									"title": "The CssClass Schema",
+									"type": "string"
+								},
+								"rgbValue": {
+									"title": "The RgbValue Schema",
+									"type": "string"
+								}
+							},
+							"required": [
+								"cssClass",
+								"rgbValue"
+							],
+							"title": "The DefaultValue Schema"
+						}
+					]
 				}
 			}
 		},
@@ -265,6 +314,14 @@
 			"$id": "#/properties/fieldSets/items",
 			"additionalProperties": false,
 			"properties": {
+				"configurationRole": {
+					"default": "",
+					"enum": [
+						"style"
+					],
+					"title": "The Configuration Role Schema",
+					"type": "string"
+				},
 				"fields": {
 					"items": {
 						"$ref": "#/definitions/field"
@@ -292,6 +349,91 @@
 						"placeholder": {
 							"title": "The Placeholder Schema",
 							"type": "string"
+						},
+						"validation": {
+							"anyOf": [
+								{
+									"additionalProperties": false,
+									"properties": {
+										"errorMessage": {
+											"title": "The ErrorMessage Schema",
+											"type": "string"
+										},
+										"max": {
+											"title": "The Max Schema",
+											"type": "number"
+										},
+										"min": {
+											"title": "The Min Schema",
+											"type": "number"
+										},
+										"type": {
+											"const": "number"
+										}
+									}
+								},
+								{
+									"additionalProperties": false,
+									"properties": {
+										"errorMessage": {
+											"title": "The ErrorMessage Schema",
+											"type": "string"
+										},
+										"maxLength": {
+											"title": "The MaxLength Schema",
+											"type": "number"
+										},
+										"minLength": {
+											"title": "The MaxLength Schema",
+											"type": "number"
+										},
+										"type": {
+											"enum": [
+												"email",
+												"url",
+												"text"
+											]
+										}
+									}
+								},
+								{
+									"additionalProperties": false,
+									"properties": {
+										"errorMessage": {
+											"title": "The ErrorMessage Schema",
+											"type": "string"
+										},
+										"regexp": {
+											"title": "The RegExp Schema",
+											"type": "string"
+										},
+										"type": {
+											"const": "pattern"
+										}
+									},
+									"required": [
+										"regexp"
+									]
+								}
+							],
+							"properties": {
+								"type": {
+									"enum": [
+										"email",
+										"number",
+										"pattern",
+										"text",
+										"url"
+									],
+									"title": "The Type Schema",
+									"type": "string"
+								}
+							},
+							"required": [
+								"type"
+							],
+							"title": "The Validation Schema",
+							"type": "object"
 						}
 					},
 					"title": "The Typeoptions Schema",

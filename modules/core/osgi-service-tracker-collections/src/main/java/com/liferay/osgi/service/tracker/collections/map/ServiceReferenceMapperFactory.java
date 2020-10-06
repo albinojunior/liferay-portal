@@ -29,36 +29,55 @@ public final class ServiceReferenceMapperFactory {
 		final BundleContext bundleContext,
 		final ServiceMapper<K, S> serviceMapper) {
 
-		return new ServiceReferenceMapper<K, S>() {
+		return (serviceReference, emitter) -> {
+			S service = bundleContext.getService(serviceReference);
 
-			@Override
-			public void map(
-				ServiceReference<S> serviceReference, Emitter<K> emitter) {
-
-				S service = bundleContext.getService(serviceReference);
-
-				try {
-					serviceMapper.map(service, emitter);
-				}
-				finally {
-					bundleContext.ungetService(serviceReference);
-				}
+			try {
+				serviceMapper.map(service, emitter);
 			}
-
+			finally {
+				bundleContext.ungetService(serviceReference);
+			}
 		};
 	}
 
 	public static <K, S> Function<BundleContext, ServiceReferenceMapper<K, S>>
-		createFromFunction(BiFunction<ServiceReference<S>, S, K> function) {
+		createFromBiFunction(BiFunction<ServiceReference<S>, S, K> biFunction) {
 
-		return b -> (serviceReference, emitter) -> {
-			S service = b.getService(serviceReference);
+		return bundleContext -> (serviceReference, emitter) -> {
+			S service = bundleContext.getService(serviceReference);
 
 			try {
-				emitter.emit(function.apply(serviceReference, service));
+				emitter.emit(biFunction.apply(serviceReference, service));
 			}
 			catch (Exception exception) {
-				b.ungetService(serviceReference);
+				bundleContext.ungetService(serviceReference);
+			}
+		};
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #createFromBiFunction(BiFunction)}
+	 */
+	@Deprecated
+	public static <K, S> Function<BundleContext, ServiceReferenceMapper<K, S>>
+		createFromFunction(BiFunction<ServiceReference<S>, S, K> biFunction) {
+
+		return createFromBiFunction(biFunction);
+	}
+
+	public static <K, S> ServiceReferenceMapper<K, S> createFromFunction(
+		BundleContext bundleContext, Function<S, K> function) {
+
+		return (serviceReference, emitter) -> {
+			S service = bundleContext.getService(serviceReference);
+
+			try {
+				emitter.emit(function.apply(service));
+			}
+			finally {
+				bundleContext.ungetService(serviceReference);
 			}
 		};
 	}

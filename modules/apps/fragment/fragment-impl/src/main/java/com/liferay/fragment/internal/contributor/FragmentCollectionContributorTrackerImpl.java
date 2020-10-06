@@ -16,6 +16,7 @@ package com.liferay.fragment.internal.contributor;
 
 import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.contributor.FragmentCollectionContributor;
+import com.liferay.fragment.contributor.FragmentCollectionContributorRegistration;
 import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
@@ -27,18 +28,21 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -147,6 +151,7 @@ public class FragmentCollectionContributorTrackerImpl
 		return fragmentEntriesMap.get(fragmentEntryKey);
 	}
 
+	@Override
 	public ResourceBundleLoader getResourceBundleLoader() {
 		Collection<FragmentCollectionContributor>
 			fragmentCollectionContributors = _serviceTrackerMap.values();
@@ -238,14 +243,46 @@ public class FragmentCollectionContributorTrackerImpl
 				fragmentEntry.getFragmentEntryKey());
 
 		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
-			fragmentEntryLink.setCss(fragmentEntry.getCss());
-			fragmentEntryLink.setHtml(fragmentEntry.getHtml());
-			fragmentEntryLink.setJs(fragmentEntry.getJs());
-			fragmentEntryLink.setConfiguration(
-				fragmentEntry.getConfiguration());
+			boolean modified = false;
 
-			_fragmentEntryLinkLocalService.updateFragmentEntryLink(
-				fragmentEntryLink);
+			if (!Objects.equals(
+					fragmentEntryLink.getCss(), fragmentEntry.getCss())) {
+
+				fragmentEntryLink.setCss(fragmentEntry.getCss());
+
+				modified = true;
+			}
+
+			if (!Objects.equals(
+					fragmentEntryLink.getHtml(), fragmentEntry.getHtml())) {
+
+				fragmentEntryLink.setHtml(fragmentEntry.getHtml());
+
+				modified = true;
+			}
+
+			if (!Objects.equals(
+					fragmentEntryLink.getJs(), fragmentEntry.getJs())) {
+
+				fragmentEntryLink.setJs(fragmentEntry.getJs());
+
+				modified = true;
+			}
+
+			if (!Objects.equals(
+					fragmentEntryLink.getConfiguration(),
+					fragmentEntry.getConfiguration())) {
+
+				fragmentEntryLink.setConfiguration(
+					fragmentEntry.getConfiguration());
+
+				modified = true;
+			}
+
+			if (modified) {
+				_fragmentEntryLinkLocalService.updateFragmentEntryLink(
+					fragmentEntryLink);
+			}
 		}
 	}
 
@@ -273,7 +310,8 @@ public class FragmentCollectionContributorTrackerImpl
 	private static final Log _log = LogFactoryUtil.getLog(
 		FragmentCollectionContributorTrackerImpl.class);
 
-	private volatile Map<String, FragmentEntry> _fragmentEntries;
+	private volatile Map<String, FragmentEntry> _fragmentEntries =
+		new ConcurrentHashMap<>();
 
 	@Reference
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
@@ -295,9 +333,29 @@ public class FragmentCollectionContributorTrackerImpl
 		public FragmentCollectionContributor addingService(
 			ServiceReference<FragmentCollectionContributor> serviceReference) {
 
-			_fragmentEntries = null;
+			FragmentCollectionContributor fragmentCollectionContributor =
+				_bundleContext.getService(serviceReference);
 
-			return _bundleContext.getService(serviceReference);
+			if (_fragmentEntries == null) {
+				_fragmentEntries = new ConcurrentHashMap<>();
+			}
+
+			_fragmentEntries.putAll(
+				_getFragmentEntries(fragmentCollectionContributor));
+
+			Dictionary<String, Object> properties = new HashMapDictionary<>();
+
+			properties.put(
+				"fragment.collection.key",
+				serviceReference.getProperty("fragment.collection.key"));
+
+			_bundleContext.registerService(
+				FragmentCollectionContributorRegistration.class,
+				new FragmentCollectionContributorRegistration() {
+				},
+				properties);
+
+			return fragmentCollectionContributor;
 		}
 
 		@Override

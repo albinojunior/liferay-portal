@@ -17,6 +17,8 @@ package com.liferay.dynamic.data.mapping.service.base;
 import com.liferay.dynamic.data.mapping.model.DDMDataProviderInstanceLink;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMDataProviderInstanceLinkPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +38,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +78,10 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 	/**
 	 * Adds the ddm data provider instance link to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMDataProviderInstanceLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmDataProviderInstanceLink the ddm data provider instance link
 	 * @return the ddm data provider instance link that was added
 	 */
@@ -105,6 +114,10 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm data provider instance link with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMDataProviderInstanceLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dataProviderInstanceLinkId the primary key of the ddm data provider instance link
 	 * @return the ddm data provider instance link that was removed
 	 * @throws PortalException if a ddm data provider instance link with the primary key could not be found
@@ -122,6 +135,10 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 	/**
 	 * Deletes the ddm data provider instance link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMDataProviderInstanceLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmDataProviderInstanceLink the ddm data provider instance link
 	 * @return the ddm data provider instance link that was removed
 	 */
@@ -132,6 +149,11 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 
 		return ddmDataProviderInstanceLinkPersistence.remove(
 			ddmDataProviderInstanceLink);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return ddmDataProviderInstanceLinkPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -316,6 +338,10 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 				(DDMDataProviderInstanceLink)persistedModel);
 	}
 
+	public BasePersistence<DDMDataProviderInstanceLink> getBasePersistence() {
+		return ddmDataProviderInstanceLinkPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -358,6 +384,10 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 	/**
 	 * Updates the ddm data provider instance link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMDataProviderInstanceLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmDataProviderInstanceLink the ddm data provider instance link
 	 * @return the ddm data provider instance link that was updated
 	 */
@@ -374,7 +404,8 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			DDMDataProviderInstanceLinkLocalService.class,
-			IdentifiableOSGiService.class, PersistedModelLocalService.class
+			IdentifiableOSGiService.class, CTService.class,
+			PersistedModelLocalService.class
 		};
 	}
 
@@ -394,8 +425,24 @@ public abstract class DDMDataProviderInstanceLinkLocalServiceBaseImpl
 		return DDMDataProviderInstanceLinkLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<DDMDataProviderInstanceLink> getCTPersistence() {
+		return ddmDataProviderInstanceLinkPersistence;
+	}
+
+	@Override
+	public Class<DDMDataProviderInstanceLink> getModelClass() {
 		return DDMDataProviderInstanceLink.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DDMDataProviderInstanceLink>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(
+			ddmDataProviderInstanceLinkPersistence);
 	}
 
 	protected String getModelClassName() {

@@ -37,12 +37,12 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.RepositoryLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
-import com.liferay.portal.kernel.test.util.TestDataConstants;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -1501,7 +1501,7 @@ public class DLFileEntryFinderTest {
 		dlFileEntry = DLFileEntryLocalServiceUtil.updateDLFileEntry(
 			dlFileEntry);
 
-		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
+		DLFileVersion dlFileVersion1 = dlFileEntry.getFileVersion();
 
 		addFileEntry(
 			TestPropsValues.getUserId(), repositoryId, folder.getFolderId(),
@@ -1526,15 +1526,15 @@ public class DLFileEntryFinderTest {
 
 		DLFileEntryLocalServiceUtil.updateDLFileEntry(dlFileEntry);
 
-		DLFileVersion dlFileVersion3 = dlFileEntry.getFileVersion();
+		DLFileVersion dlFileVersion2 = dlFileEntry.getFileVersion();
 
-		dlFileVersion3.setExtraSettings("hello=world");
+		dlFileVersion2.setExtraSettings("hello=world");
 
-		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion3);
+		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion2);
 
 		DLTrashServiceUtil.moveFileEntryToTrash(fileEntry.getFileEntryId());
 
-		return new Object[] {folder, dlFileVersion};
+		return new Object[] {folder, dlFileVersion1};
 	}
 
 	private static final long _SMALL_IMAGE_ID = 1234L;

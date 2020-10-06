@@ -18,6 +18,7 @@ import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.info.item.InfoItemIdentifier;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.web.internal.security.permission.resource.JournalArticlePermission;
@@ -29,12 +30,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -93,6 +94,7 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 								_getURL(
 									layoutClassedModelUsage,
 									AssetRendererFactory.TYPE_LATEST_APPROVED,
+									InfoItemIdentifier.VERSION_LATEST_APPROVED,
 									httpServletRequest));
 							dropdownItem.setLabel(
 								LanguageUtil.get(
@@ -126,6 +128,7 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 										_getURL(
 											layoutClassedModelUsage,
 											AssetRendererFactory.TYPE_LATEST,
+											InfoItemIdentifier.VERSION_LATEST,
 											httpServletRequest));
 									dropdownItem.setLabel(label);
 								});
@@ -143,7 +146,7 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 
 	private String _getURL(
 			LayoutClassedModelUsage layoutClassedModelUsage, int previewType,
-			HttpServletRequest httpServletRequest)
+			String previewVersion, HttpServletRequest httpServletRequest)
 		throws PortalException {
 
 		ThemeDisplay themeDisplay =
@@ -168,6 +171,8 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 				String.valueOf(layoutClassedModelUsage.getClassPK()));
 			layoutURL = _http.setParameter(
 				layoutURL, "previewType", String.valueOf(previewType));
+			layoutURL = _http.setParameter(
+				layoutURL, "previewVersion", previewVersion);
 		}
 		else {
 			PortletURL portletURL = PortletURLFactoryUtil.create(
@@ -181,6 +186,7 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 				"previewClassPK",
 				String.valueOf(layoutClassedModelUsage.getClassPK()));
 			portletURL.setParameter("previewType", String.valueOf(previewType));
+			portletURL.setParameter("previewVersion", previewVersion);
 
 			layoutURL = portletURL.toString();
 		}

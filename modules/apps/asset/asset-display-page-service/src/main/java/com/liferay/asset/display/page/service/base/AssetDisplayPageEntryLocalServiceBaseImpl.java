@@ -23,6 +23,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -46,6 +47,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -84,6 +86,10 @@ public abstract class AssetDisplayPageEntryLocalServiceBaseImpl
 	/**
 	 * Adds the asset display page entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetDisplayPageEntry the asset display page entry
 	 * @return the asset display page entry that was added
 	 */
@@ -114,6 +120,10 @@ public abstract class AssetDisplayPageEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the asset display page entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetDisplayPageEntryId the primary key of the asset display page entry
 	 * @return the asset display page entry that was removed
 	 * @throws PortalException if a asset display page entry with the primary key could not be found
@@ -130,6 +140,10 @@ public abstract class AssetDisplayPageEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the asset display page entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetDisplayPageEntry the asset display page entry
 	 * @return the asset display page entry that was removed
 	 */
@@ -139,6 +153,11 @@ public abstract class AssetDisplayPageEntryLocalServiceBaseImpl
 		AssetDisplayPageEntry assetDisplayPageEntry) {
 
 		return assetDisplayPageEntryPersistence.remove(assetDisplayPageEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return assetDisplayPageEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -430,6 +449,10 @@ public abstract class AssetDisplayPageEntryLocalServiceBaseImpl
 			(AssetDisplayPageEntry)persistedModel);
 	}
 
+	public BasePersistence<AssetDisplayPageEntry> getBasePersistence() {
+		return assetDisplayPageEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -521,6 +544,10 @@ public abstract class AssetDisplayPageEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the asset display page entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetDisplayPageEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetDisplayPageEntry the asset display page entry
 	 * @return the asset display page entry that was updated

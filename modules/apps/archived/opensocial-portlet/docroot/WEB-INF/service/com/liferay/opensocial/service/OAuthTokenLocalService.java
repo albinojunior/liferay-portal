@@ -58,7 +58,7 @@ public interface OAuthTokenLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link OAuthTokenLocalServiceUtil} to access the o auth token local service. Add custom service methods to <code>com.liferay.opensocial.service.impl.OAuthTokenLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.opensocial.service.impl.OAuthTokenLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the o auth token local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link OAuthTokenLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public OAuthToken addOAuthToken(
 			long userId, String gadgetKey, String serviceName, long moduleId,
@@ -68,6 +68,10 @@ public interface OAuthTokenLocalService
 
 	/**
 	 * Adds the o auth token to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthToken the o auth token
 	 * @return the o auth token that was added
@@ -93,6 +97,10 @@ public interface OAuthTokenLocalService
 	/**
 	 * Deletes the o auth token with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param oAuthTokenId the primary key of the o auth token
 	 * @return the o auth token that was removed
 	 * @throws PortalException if a o auth token with the primary key could not be found
@@ -108,6 +116,10 @@ public interface OAuthTokenLocalService
 
 	/**
 	 * Deletes the o auth token from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthToken the o auth token
 	 * @return the o auth token that was removed
@@ -263,6 +275,10 @@ public interface OAuthTokenLocalService
 
 	/**
 	 * Updates the o auth token in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect OAuthTokenLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param oAuthToken the o auth token
 	 * @return the o auth token that was updated

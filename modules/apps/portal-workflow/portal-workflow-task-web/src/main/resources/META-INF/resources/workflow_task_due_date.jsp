@@ -27,21 +27,25 @@ WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
 <div class="task-action">
 	<aui:form action="<%= updateURL %>" method="post" name="updateFm">
 		<div class="modal-body task-action-content">
-			<aui:input name="workflowTaskId" type="hidden" value="<%= String.valueOf(workflowTask.getWorkflowTaskId()) %>" />
+			<div class="modal-item-last">
+				<aui:input name="workflowTaskId" type="hidden" value="<%= String.valueOf(workflowTask.getWorkflowTaskId()) %>" />
 
-			<aui:input bean="<%= workflowTask %>" ignoreRequestValue="<%= true %>" model="<%= WorkflowTask.class %>" name="dueDate" required="<%= true %>" />
+				<aui:input bean="<%= workflowTask %>" ignoreRequestValue="<%= true %>" model="<%= WorkflowTask.class %>" name="dueDate" required="<%= true %>" />
 
-			<aui:input cols="55" cssClass="task-content-comment" name="comment" placeholder="comment" rows="1" type="textarea" />
+				<aui:input cols="55" cssClass="task-content-comment" name="comment" placeholder="comment" rows="1" type="textarea" />
+			</div>
 		</div>
 
 		<div class="modal-footer">
-			<div class="btn-group">
-				<div class="btn-group-item">
-					<aui:button name="close" type="cancel" />
-				</div>
+			<div class="modal-item-last">
+				<div class="btn-group">
+					<div class="btn-group-item">
+						<aui:button name="close" type="cancel" />
+					</div>
 
-				<div class="btn-group-item">
-					<aui:button name="done" primary="<%= true %>" value="done" />
+					<div class="btn-group-item">
+						<aui:button name="done" primary="<%= true %>" value="done" />
+					</div>
 				</div>
 			</div>
 		</div>
@@ -56,7 +60,7 @@ WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
 	var done = A.one('#<portlet:namespace />done');
 
 	if (done) {
-		done.on('click', function(event) {
+		done.on('click', function (event) {
 			var data = new FormData(
 				document.querySelector('#<portlet:namespace />updateFm')
 			);
@@ -64,9 +68,9 @@ WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
 			Liferay.Util.fetch('<%= updateURL.toString() %>', {
 				body: data,
 				method: 'POST',
-			}).then(function() {
+			}).then(function () {
 				Liferay.Util.getOpener().<portlet:namespace />refreshPortlet(
-					'<%= redirect.toString() %>'
+					'<%= PortalUtil.escapeRedirect(redirect.toString()) %>'
 				);
 				Liferay.Util.getWindow(
 					'<portlet:namespace />updateDialog'

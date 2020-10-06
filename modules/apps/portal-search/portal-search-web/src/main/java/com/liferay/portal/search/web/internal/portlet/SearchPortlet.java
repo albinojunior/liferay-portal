@@ -54,6 +54,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.css-class-wrapper=portlet-search",
 		"com.liferay.portlet.display-category=category.tools",
+		"com.liferay.portlet.header-portlet-css=/css/main.css",
 		"com.liferay.portlet.icon=/icons/search.png",
 		"com.liferay.portlet.layout-cacheable=true",
 		"com.liferay.portlet.preferences-owned-by-group=true",
@@ -103,10 +104,9 @@ public class SearchPortlet extends MVCPortlet {
 				_portal.getHttpServletResponse(resourceResponse);
 
 			try {
-				byte[] xml = getXML(resourceRequest, resourceResponse);
-
 				ServletResponseUtil.sendFile(
-					httpServletRequest, httpServletResponse, null, xml,
+					httpServletRequest, httpServletResponse, null,
+					getXML(resourceRequest, resourceResponse),
 					ContentTypes.TEXT_XML_UTF8);
 			}
 			catch (Exception exception) {

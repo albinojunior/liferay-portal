@@ -37,16 +37,16 @@ public class LayoutCacheModel
 	implements CacheModel<Layout>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof LayoutCacheModel)) {
+		if (!(object instanceof LayoutCacheModel)) {
 			return false;
 		}
 
-		LayoutCacheModel layoutCacheModel = (LayoutCacheModel)obj;
+		LayoutCacheModel layoutCacheModel = (LayoutCacheModel)object;
 
 		if ((plid == layoutCacheModel.plid) &&
 			(mvccVersion == layoutCacheModel.mvccVersion)) {
@@ -76,7 +76,7 @@ public class LayoutCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(83);
+		StringBundler sb = new StringBundler(85);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -136,6 +136,8 @@ public class LayoutCacheModel
 		sb.append(themeId);
 		sb.append(", colorSchemeId=");
 		sb.append(colorSchemeId);
+		sb.append(", styleBookEntryId=");
+		sb.append(styleBookEntryId);
 		sb.append(", css=");
 		sb.append(css);
 		sb.append(", priority=");
@@ -287,6 +289,8 @@ public class LayoutCacheModel
 			layoutImpl.setColorSchemeId(colorSchemeId);
 		}
 
+		layoutImpl.setStyleBookEntryId(styleBookEntryId);
+
 		if (css == null) {
 			layoutImpl.setCss("");
 		}
@@ -350,7 +354,9 @@ public class LayoutCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		ctCollectionId = objectInput.readLong();
@@ -380,11 +386,11 @@ public class LayoutCacheModel
 		classPK = objectInput.readLong();
 		name = objectInput.readUTF();
 		title = objectInput.readUTF();
-		description = objectInput.readUTF();
+		description = (String)objectInput.readObject();
 		keywords = objectInput.readUTF();
 		robots = objectInput.readUTF();
 		type = objectInput.readUTF();
-		typeSettings = objectInput.readUTF();
+		typeSettings = (String)objectInput.readObject();
 
 		hidden = objectInput.readBoolean();
 
@@ -394,7 +400,9 @@ public class LayoutCacheModel
 		iconImageId = objectInput.readLong();
 		themeId = objectInput.readUTF();
 		colorSchemeId = objectInput.readUTF();
-		css = objectInput.readUTF();
+
+		styleBookEntryId = objectInput.readLong();
+		css = (String)objectInput.readObject();
 
 		priority = objectInput.readInt();
 
@@ -471,10 +479,10 @@ public class LayoutCacheModel
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(description);
+			objectOutput.writeObject(description);
 		}
 
 		if (keywords == null) {
@@ -499,10 +507,10 @@ public class LayoutCacheModel
 		}
 
 		if (typeSettings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(typeSettings);
+			objectOutput.writeObject(typeSettings);
 		}
 
 		objectOutput.writeBoolean(hidden);
@@ -532,11 +540,13 @@ public class LayoutCacheModel
 			objectOutput.writeUTF(colorSchemeId);
 		}
 
+		objectOutput.writeLong(styleBookEntryId);
+
 		if (css == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(css);
+			objectOutput.writeObject(css);
 		}
 
 		objectOutput.writeInt(priority);
@@ -605,6 +615,7 @@ public class LayoutCacheModel
 	public long iconImageId;
 	public String themeId;
 	public String colorSchemeId;
+	public long styleBookEntryId;
 	public String css;
 	public int priority;
 	public long masterLayoutPlid;

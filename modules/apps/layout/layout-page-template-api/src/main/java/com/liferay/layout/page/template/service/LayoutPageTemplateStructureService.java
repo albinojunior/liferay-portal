@@ -15,6 +15,7 @@
 package com.liferay.layout.page.template.service;
 
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -35,6 +36,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @generated
  */
 @AccessControlled
+@CTAware
 @JSONWebService
 @ProviderType
 @Transactional(
@@ -46,7 +48,7 @@ public interface LayoutPageTemplateStructureService extends BaseService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link LayoutPageTemplateStructureServiceUtil} to access the layout page template structure remote service. Add custom service methods to <code>com.liferay.layout.page.template.service.impl.LayoutPageTemplateStructureServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.layout.page.template.service.impl.LayoutPageTemplateStructureServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the layout page template structure remote service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link LayoutPageTemplateStructureServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
@@ -56,9 +58,19 @@ public interface LayoutPageTemplateStructureService extends BaseService {
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateLayoutPageTemplateStructureData(long, long, long,
+	 String)}
+	 */
+	@Deprecated
 	public LayoutPageTemplateStructure updateLayoutPageTemplateStructure(
 			long groupId, long classNameId, long classPK,
 			long segmentsExperienceId, String data)
+		throws PortalException;
+
+	public LayoutPageTemplateStructure updateLayoutPageTemplateStructureData(
+			long groupId, long plid, long segmentsExperienceId, String data)
 		throws PortalException;
 
 }

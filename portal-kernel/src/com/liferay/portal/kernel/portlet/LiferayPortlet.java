@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.portlet;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.portal.kernel.change.tracking.CTTransactionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -110,10 +111,18 @@ public class LiferayPortlet extends GenericPortlet {
 			}
 		}
 		catch (PortletException portletException) {
-			Throwable cause = portletException.getCause();
+			Throwable throwable = portletException.getCause();
 
-			if (isSessionErrorException(cause)) {
-				SessionErrors.add(actionRequest, cause.getClass(), cause);
+			if (throwable instanceof CTTransactionException) {
+				_log.error(throwable, throwable);
+
+				SessionErrors.add(
+					PortalUtil.getHttpServletRequest(actionRequest),
+					throwable.getClass(), throwable);
+			}
+			else if (isSessionErrorException(throwable)) {
+				SessionErrors.add(
+					actionRequest, throwable.getClass(), throwable);
 			}
 			else {
 				throw portletException;
@@ -186,10 +195,10 @@ public class LiferayPortlet extends GenericPortlet {
 			}
 		}
 		catch (InvocationTargetException invocationTargetException) {
-			Throwable cause = invocationTargetException.getCause();
+			Throwable throwable = invocationTargetException.getCause();
 
-			if (cause != null) {
-				throw new PortletException(cause);
+			if (throwable != null) {
+				throw new PortletException(throwable);
 			}
 
 			throw new PortletException(invocationTargetException);
@@ -231,10 +240,10 @@ public class LiferayPortlet extends GenericPortlet {
 			}
 		}
 		catch (InvocationTargetException invocationTargetException) {
-			Throwable cause = invocationTargetException.getCause();
+			Throwable throwable = invocationTargetException.getCause();
 
-			if (cause != null) {
-				throw new PortletException(cause);
+			if (throwable != null) {
+				throw new PortletException(throwable);
 			}
 
 			throw new PortletException(invocationTargetException);
@@ -565,12 +574,12 @@ public class LiferayPortlet extends GenericPortlet {
 		return isProcessPortletRequest(resourceRequest);
 	}
 
-	protected boolean isSessionErrorException(Throwable cause) {
+	protected boolean isSessionErrorException(Throwable throwable) {
 		if (_log.isDebugEnabled()) {
-			_log.debug(cause, cause);
+			_log.debug(throwable, throwable);
 		}
 
-		if (cause instanceof PortalException) {
+		if (throwable instanceof PortalException) {
 			return true;
 		}
 
@@ -620,7 +629,7 @@ public class LiferayPortlet extends GenericPortlet {
 
 	protected void writeJSON(
 			PortletRequest portletRequest, ActionResponse actionResponse,
-			Object jsonObj)
+			Object object)
 		throws IOException {
 
 		HttpServletResponse httpServletResponse =
@@ -629,20 +638,20 @@ public class LiferayPortlet extends GenericPortlet {
 		httpServletResponse.setContentType(getJSONContentType(portletRequest));
 
 		ServletResponseUtil.write(
-			httpServletResponse, _toXSSSafeJSON(jsonObj.toString()));
+			httpServletResponse, _toXSSSafeJSON(object.toString()));
 
 		httpServletResponse.flushBuffer();
 	}
 
 	protected void writeJSON(
 			PortletRequest portletRequest, MimeResponse mimeResponse,
-			Object jsonObj)
+			Object object)
 		throws IOException {
 
 		mimeResponse.setContentType(getJSONContentType(portletRequest));
 
 		PortletResponseUtil.write(
-			mimeResponse, _toXSSSafeJSON(jsonObj.toString()));
+			mimeResponse, _toXSSSafeJSON(object.toString()));
 
 		mimeResponse.flushBuffer();
 	}

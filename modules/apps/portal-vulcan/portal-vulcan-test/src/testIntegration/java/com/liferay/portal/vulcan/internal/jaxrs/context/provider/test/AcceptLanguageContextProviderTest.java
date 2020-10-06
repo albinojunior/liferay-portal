@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.HttpHeaders;
 
@@ -178,9 +178,9 @@ public class AcceptLanguageContextProviderTest {
 		}
 		catch (Exception exception) {
 			Assert.assertEquals(
-				ClientErrorException.class, exception.getClass());
+				NotAcceptableException.class, exception.getClass());
 			Assert.assertEquals(
-				"No available locale matches the accepted languages: es-es",
+				"No locales match the accepted languages: es-es",
 				exception.getMessage());
 		}
 	}

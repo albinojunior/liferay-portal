@@ -14,6 +14,7 @@
 
 package com.liferay.saml.persistence.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -79,6 +81,10 @@ public abstract class SamlIdpSsoSessionLocalServiceBaseImpl
 	/**
 	 * Adds the saml idp sso session to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlIdpSsoSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlIdpSsoSession the saml idp sso session
 	 * @return the saml idp sso session that was added
 	 */
@@ -107,6 +113,10 @@ public abstract class SamlIdpSsoSessionLocalServiceBaseImpl
 	/**
 	 * Deletes the saml idp sso session with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlIdpSsoSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlIdpSsoSessionId the primary key of the saml idp sso session
 	 * @return the saml idp sso session that was removed
 	 * @throws PortalException if a saml idp sso session with the primary key could not be found
@@ -122,6 +132,10 @@ public abstract class SamlIdpSsoSessionLocalServiceBaseImpl
 	/**
 	 * Deletes the saml idp sso session from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlIdpSsoSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlIdpSsoSession the saml idp sso session
 	 * @return the saml idp sso session that was removed
 	 */
@@ -131,6 +145,11 @@ public abstract class SamlIdpSsoSessionLocalServiceBaseImpl
 		SamlIdpSsoSession samlIdpSsoSession) {
 
 		return samlIdpSsoSessionPersistence.remove(samlIdpSsoSession);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return samlIdpSsoSessionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -306,6 +325,10 @@ public abstract class SamlIdpSsoSessionLocalServiceBaseImpl
 			(SamlIdpSsoSession)persistedModel);
 	}
 
+	public BasePersistence<SamlIdpSsoSession> getBasePersistence() {
+		return samlIdpSsoSessionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -344,6 +367,10 @@ public abstract class SamlIdpSsoSessionLocalServiceBaseImpl
 
 	/**
 	 * Updates the saml idp sso session in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlIdpSsoSessionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param samlIdpSsoSession the saml idp sso session
 	 * @return the saml idp sso session that was updated

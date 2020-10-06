@@ -12,117 +12,97 @@
  * details.
  */
 
-import {useEffect, useMemo} from 'react';
+import PropTypes from 'prop-types';
+import {useEffect} from 'react';
 
-import {BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR} from '../../config/constants/backgroundImageFragmentEntryProcessor';
-import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../config/constants/editableFragmentEntryProcessor';
-import {EDITABLE_TYPES} from '../../config/constants/editableTypes';
-import {config} from '../../config/index';
-import Processors from '../../processors/index';
-import selectPrefixedSegmentsExperienceId from '../../selectors/selectPrefixedSegmentsExperienceId';
-import {useDispatch, useSelector} from '../../store/index';
+import selectLanguageId from '../../selectors/selectLanguageId';
+import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
+import {useDispatch, useSelector, useSelectorCallback} from '../../store/index';
 import updateEditableValues from '../../thunks/updateEditableValues';
-import {useActiveItemId} from '../Controls';
+import {useToControlsId} from '../CollectionItemContext';
 import {
 	useEditableProcessorClickPosition,
 	useEditableProcessorUniqueId,
 	useSetEditableProcessorUniqueId,
 } from './EditableProcessorContext';
-import getAllEditables from './getAllEditables';
-import getEditableElementId from './getEditableElementId';
-import getEditableUniqueId from './getEditableUniqueId';
 
 export default function FragmentContentProcessor({
-	element,
 	fragmentEntryLinkId,
+	itemId,
 }) {
-	const activeItemId = useActiveItemId();
 	const dispatch = useDispatch();
 	const editableProcessorClickPosition = useEditableProcessorClickPosition();
 	const editableProcessorUniqueId = useEditableProcessorUniqueId();
+	const languageId = useSelector(selectLanguageId);
+	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 	const setEditableProcessorUniqueId = useSetEditableProcessorUniqueId();
-	const languageId = useSelector(
-		state => state.languageId || config.defaultLanguageId
-	);
-	const segmentsExperienceId = useSelector(
-		selectPrefixedSegmentsExperienceId
+	const toControlsId = useToControlsId();
+
+	const editable = useSelectorCallback(
+		(state) =>
+			Object.values(state.editables?.[toControlsId(itemId)] || {}).find(
+				(editable) =>
+					editableProcessorUniqueId === toControlsId(editable.itemId)
+			),
+		[editableProcessorUniqueId, itemId, toControlsId]
 	);
 
-	const editableElement = useMemo(
-		() =>
-			element
-				? getAllEditables(element).find(
-						editableElement =>
-							getEditableUniqueId(
-								fragmentEntryLinkId,
-								getEditableElementId(editableElement)
-							) === editableProcessorUniqueId
-				  )
-				: null,
-		[editableProcessorUniqueId, element, fragmentEntryLinkId]
+	const editableCollectionItemId = toControlsId(
+		editable ? editable.itemId : ''
 	);
 
-	const editableValues = useSelector(
-		state =>
+	const editableValues = useSelectorCallback(
+		(state) =>
 			state.fragmentEntryLinks[fragmentEntryLinkId] &&
-			state.fragmentEntryLinks[fragmentEntryLinkId].editableValues
+			state.fragmentEntryLinks[fragmentEntryLinkId].editableValues,
+		[fragmentEntryLinkId]
 	);
 
 	useEffect(() => {
-		setEditableProcessorUniqueId(null);
-	}, [activeItemId, setEditableProcessorUniqueId]);
-
-	useEffect(() => {
-		if (!editableElement || !editableValues) {
+		if (
+			!editable ||
+			!editableValues ||
+			editableCollectionItemId !== editableProcessorUniqueId
+		) {
 			return;
 		}
 
-		const editableId = getEditableElementId(editableElement);
-		const editableType =
-			editableElement.getAttribute('type') ||
-			EDITABLE_TYPES.backgroundImage;
+		const editableValue =
+			editableValues[editable.editableValueNamespace][
+				editable.editableId
+			];
 
-		const processorKey =
-			editableType === EDITABLE_TYPES.backgroundImage
-				? BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR
-				: EDITABLE_FRAGMENT_ENTRY_PROCESSOR;
+		editable.processor.createEditor(
+			editable.element,
+			(value, config = {}) => {
+				const defaultValue = editableValue.defaultValue?.trim() ?? '';
+				const previousValue = editableValue[languageId];
 
-		const editableValue = editableValues[processorKey][editableId];
-		const processor = Processors[editableType] || Processors.fallback;
+				if (
+					previousValue === value ||
+					(!previousValue && value === defaultValue)
+				) {
+					return;
+				}
 
-		processor.createEditor(
-			editableElement,
-			value => {
-				let nextEditableValue = {
-					...editableValue,
+				const editableConfig = {
+					...(editableValue.config || {}),
+					...config,
 				};
-
-				if (segmentsExperienceId) {
-					nextEditableValue = {
-						...nextEditableValue,
-
-						[segmentsExperienceId]: {
-							...(nextEditableValue[segmentsExperienceId] || {}),
-							[languageId]: value,
-						},
-					};
-				}
-				else {
-					nextEditableValue = {
-						...nextEditableValue,
-						[languageId]: value,
-					};
-				}
 
 				dispatch(
 					updateEditableValues({
 						editableValues: {
 							...editableValues,
-							[EDITABLE_FRAGMENT_ENTRY_PROCESSOR]: {
+							[editable.editableValueNamespace]: {
 								...editableValues[
-									EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+									editable.editableValueNamespace
 								],
-								[editableId]: nextEditableValue,
+								[editable.editableId]: {
+									...editableValue,
+									config: editableConfig,
+									[languageId]: value,
+								},
 							},
 						},
 						fragmentEntryLinkId,
@@ -131,20 +111,21 @@ export default function FragmentContentProcessor({
 				);
 			},
 			() => {
-				processor.destroyEditor(editableElement, editableValue.config);
-				setEditableProcessorUniqueId(null);
+				if (editableCollectionItemId === editableProcessorUniqueId) {
+					setEditableProcessorUniqueId(null);
+				}
+
+				editable.processor.destroyEditor(
+					editable.element,
+					editableValue.config
+				);
 			},
 			editableProcessorClickPosition
 		);
-
-		return () => {
-			if (!editableProcessorUniqueId) {
-				processor.destroyEditor(editableElement, editableValue.config);
-			}
-		};
 	}, [
 		dispatch,
-		editableElement,
+		editable,
+		editableCollectionItemId,
 		editableProcessorClickPosition,
 		editableProcessorUniqueId,
 		editableValues,
@@ -156,3 +137,7 @@ export default function FragmentContentProcessor({
 
 	return null;
 }
+
+FragmentContentProcessor.propTypes = {
+	fragmentEntryLinkId: PropTypes.string.isRequired,
+};

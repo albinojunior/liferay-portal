@@ -17,15 +17,13 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectUserGroup");
-
 User selUser = PortalUtil.getSelectedUser(request);
 
 SelectUserGroupManagementToolbarDisplayContext selectUserGroupManagementToolbarDisplayContext = new SelectUserGroupManagementToolbarDisplayContext(request, renderRequest, renderResponse);
 
 PortletURL portletURL = selectUserGroupManagementToolbarDisplayContext.getPortletURL();
 
-SearchContainer userGroupSearch = selectUserGroupManagementToolbarDisplayContext.getSearchContainer(filterManageableUserGroups);
+SearchContainer<UserGroup> userGroupSearch = selectUserGroupManagementToolbarDisplayContext.getSearchContainer(filterManageableUserGroups);
 
 renderResponse.setTitle(LanguageUtil.get(request, "user-groups"));
 %>
@@ -64,27 +62,17 @@ renderResponse.setTitle(LanguageUtil.get(request, "user-groups"));
 
 			<liferay-ui:search-container-column-text>
 				<c:if test="<%= UserGroupMembershipPolicyUtil.isMembershipAllowed((selUser != null) ? selUser.getUserId() : 0, userGroup.getUserGroupId()) %>">
-
-					<%
-					Map<String, Object> data = new HashMap<String, Object>();
-
-					data.put("entityid", userGroup.getUserGroupId());
-					data.put("entityname", userGroup.getName());
-
-					boolean disabled = false;
-
-					if (selUser != null) {
-						for (long curUserGroupId : selUser.getUserGroupIds()) {
-							if (curUserGroupId == userGroup.getUserGroupId()) {
-								disabled = true;
-
-								break;
-							}
-						}
-					}
-					%>
-
-					<aui:button cssClass="selector-button" data="<%= data %>" disabled="<%= disabled %>" value="choose" />
+					<aui:button
+						cssClass="selector-button"
+						data='<%=
+							HashMapBuilder.<String, Object>put(
+								"entityid", userGroup.getUserGroupId()
+							).put(
+								"entityname", userGroup.getName()
+							).build()
+						%>'
+						value="choose"
+					/>
 				</c:if>
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
@@ -94,18 +82,3 @@ renderResponse.setTitle(LanguageUtil.get(request, "user-groups"));
 		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<aui:script use="aui-base">
-	var Util = Liferay.Util;
-
-	var openingLiferay = Util.getOpener().Liferay;
-
-	openingLiferay.fire('<portlet:namespace />enableRemovedUserGroups', {
-		selectors: A.all('.selector-button:disabled'),
-	});
-
-	Util.selectEntityHandler(
-		'#<portlet:namespace />selectUserGroupFm',
-		'<%= HtmlUtil.escapeJS(eventName) %>'
-	);
-</aui:script>

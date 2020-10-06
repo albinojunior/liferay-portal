@@ -20,7 +20,7 @@
 		<#local assetTagIds = dataFactory.getAssetTagIds(assetEntryModel)>
 
 		<#list assetTagIds as assetTagId>
-			insert into AssetEntries_AssetTags values (${assetEntryModel.companyId}, ${assetEntryModel.entryId}, ${assetTagId}, 0, null);
+			${dataFactory.toInsertSQL("AssetEntries_AssetTags", assetEntryModel.companyId, assetEntryModel.entryId, assetTagId)}
 		</#list>
 	</#if>
 </#macro>
@@ -127,7 +127,7 @@
 
 				${dataFactory.toInsertSQL(dataFactory.newDDMStructureLinkModel(dlFileEntryMetadataModel))}
 
-				${dataFactory.getCSVWriter("documentLibrary").write(dlFileEntryModel.uuid + "," + dlFolderModel.folderId + "," + dlFileEntryModel.name + "," + dlFileEntryModel.fileEntryId + "\n")}
+				${csvFileWriter.write("documentLibrary", dlFileEntryModel.uuid + "," + dlFolderModel.folderId + "," + dlFileEntryModel.name + "," + dlFileEntryModel.fileEntryId + "\n")}
 			</#list>
 
 			<@insertDLFolder
@@ -168,7 +168,7 @@
 	_mbRootMessageId
 	_mbThreadId
 >
-	<#local mbThreadModel = dataFactory.newMBThreadModel(_mbThreadId, _groupId, _mbRootMessageId, _maxCommentCount)>
+	<#local mbThreadModel = dataFactory.newMBThreadModel(_mbThreadId, _groupId, _mbRootMessageId)>
 
 	${dataFactory.toInsertSQL(mbThreadModel)}
 
@@ -205,10 +205,10 @@
 	${dataFactory.toInsertSQL(dataFactory.newContactModel(_userModel))}
 
 	<#list _roleIds as roleId>
-		insert into Users_Roles values (0, ${roleId}, ${_userModel.userId});
+		${dataFactory.toInsertSQL("Users_Roles", 0, roleId, _userModel.userId)}
 	</#list>
 
 	<#list _groupIds as groupId>
-		insert into Users_Groups values (0, ${groupId}, ${_userModel.userId});
+		${dataFactory.toInsertSQL("Users_Groups", 0, groupId, _userModel.userId)}
 	</#list>
 </#macro>

@@ -29,4 +29,18 @@ definition {
 		selenium.assertLiferayErrors();
 	}
 
+	function javaScriptDoubleClick {
+		WaitForSPARefresh();
+
+		selenium.waitForVisible();
+
+		selenium.mouseOver();
+
+		selenium.javaScriptDoubleClick();
+
+		selenium.assertJavaScriptErrors();
+
+		selenium.assertLiferayErrors();
+	}
+
 }

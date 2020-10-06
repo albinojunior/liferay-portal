@@ -102,12 +102,12 @@ public class BulkLayoutConverterImpl implements BulkLayoutConverter {
 
 				convertedLayoutPlids.add(layout.getPlid());
 			}
-			catch (Throwable t) {
+			catch (Throwable throwable) {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
 						String.format(
 							"Layout with PLID %s cannot be converted", plid),
-						t);
+						throwable);
 				}
 			}
 		}
@@ -188,11 +188,11 @@ public class BulkLayoutConverterImpl implements BulkLayoutConverter {
 
 			actionableDynamicQuery.setPerformActionMethod(
 				(Layout layout) -> {
-					UnicodeProperties typeSettingsProperties =
+					UnicodeProperties typeSettingsUnicodeProperties =
 						layout.getTypeSettingsProperties();
 
 					String layoutTemplateId =
-						typeSettingsProperties.getProperty(
+						typeSettingsUnicodeProperties.getProperty(
 							LayoutTypePortletConstants.LAYOUT_TEMPLATE_ID);
 
 					if (layoutTemplateId != null) {
@@ -313,10 +313,10 @@ public class BulkLayoutConverterImpl implements BulkLayoutConverter {
 			Layout layout, Locale locale)
 		throws LayoutConvertException {
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			layout.getTypeSettingsProperties();
 
-		String layoutTemplateId = typeSettingsProperties.getProperty(
+		String layoutTemplateId = typeSettingsUnicodeProperties.getProperty(
 			LayoutTypePortletConstants.LAYOUT_TEMPLATE_ID);
 
 		if (Validator.isNull(layoutTemplateId)) {
@@ -349,8 +349,7 @@ public class BulkLayoutConverterImpl implements BulkLayoutConverter {
 			throw new PortalException(sb.toString());
 		}
 
-		Layout draftLayout = _layoutLocalService.fetchLayout(
-			_portal.getClassNameId(Layout.class), layout.getPlid());
+		Layout draftLayout = layout.fetchDraftLayout();
 
 		if (draftLayout == null) {
 			draftLayout = _layoutLocalService.addLayout(
@@ -361,7 +360,7 @@ public class BulkLayoutConverterImpl implements BulkLayoutConverter {
 				layout.getDescriptionMap(), layout.getKeywordsMap(),
 				layout.getRobotsMap(), layout.getType(),
 				layout.getTypeSettings(), true, true, Collections.emptyMap(),
-				serviceContext);
+				layout.getMasterLayoutPlid(), serviceContext);
 		}
 
 		try {

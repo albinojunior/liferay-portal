@@ -21,26 +21,19 @@ ContentPageEditorDisplayContext contentPageEditorDisplayContext = (ContentPageEd
 %>
 
 <div class="management-bar navbar navbar-expand-md page-editor__toolbar <%= contentPageEditorDisplayContext.isMasterLayout() ? "page-editor__toolbar--master-layout" : StringPool.BLANK %>" id="<%= contentPageEditorDisplayContext.getPortletNamespace() %>pageEditorToolbar">
-	<div class="container-fluid container-fluid-max-xl">
+	<clay:container-fluid>
 		<ul class="navbar-nav">
 		</ul>
 
 		<ul class="navbar-nav">
-			<li class="nav-item">
-				<button class="btn btn-secondary btn-sm mr-3" disabled type="submit">
-					<c:choose>
-						<c:when test="<%= contentPageEditorDisplayContext.isConversionDraft() %>">
-							<liferay-ui:message key="discard-conversion-draft" />
-						</c:when>
-						<c:when test="<%= contentPageEditorDisplayContext.isSingleSegmentsExperienceMode() %>">
-							<liferay-ui:message key="discard-variant" />
-						</c:when>
-						<c:otherwise>
-							<liferay-ui:message key="discard-draft" />
-						</c:otherwise>
-					</c:choose>
-				</button>
-			</li>
+			<c:if test="<%= contentPageEditorDisplayContext.isSingleSegmentsExperienceMode() %>">
+				<li class="nav-item">
+					<button class="btn btn-secondary btn-sm mr-3" disabled type="submit">
+						<liferay-ui:message key="discard-variant" />
+					</button>
+				</li>
+			</c:if>
+
 			<li class="nav-item">
 				<button class="btn btn-primary btn-sm" disabled type="submit">
 					<c:choose>
@@ -60,5 +53,5 @@ ContentPageEditorDisplayContext contentPageEditorDisplayContext = (ContentPageEd
 				</button>
 			</li>
 		</ul>
-	</div>
+	</clay:container-fluid>
 </div>

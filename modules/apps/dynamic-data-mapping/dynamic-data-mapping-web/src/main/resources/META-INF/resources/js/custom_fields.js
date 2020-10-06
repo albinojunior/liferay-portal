@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-portlet-dynamic-data-mapping-custom-fields',
-	A => {
+	(A) => {
 		var AArray = A.Array;
 
 		var AEscape = A.Escape;
@@ -25,8 +25,6 @@ AUI.add(
 		var LiferayFormBuilderUtil = Liferay.FormBuilder.Util;
 
 		var Lang = A.Lang;
-
-		var LString = Lang.String;
 
 		var booleanParse = A.DataType.Boolean.parse;
 		var camelize = Lang.String.camelize;
@@ -43,7 +41,7 @@ AUI.add(
 		var isUndefined = Lang.isUndefined;
 		var isValue = Lang.isValue;
 
-		var structureFieldIndexEnable = function() {
+		var structureFieldIndexEnable = function () {
 			for (var i = 0; i < Liferay.Portlet.list.length; i++) {
 				var indexableNode = A.one(
 					'#_' + Liferay.Portlet.list[i] + '_indexable'
@@ -159,7 +157,7 @@ AUI.add(
 			'please-enter-a-unique-field-name'
 		);
 
-		DEFAULTS_FORM_VALIDATOR.RULES.structureDuplicateFieldName = function(
+		DEFAULTS_FORM_VALIDATOR.RULES.structureDuplicateFieldName = function (
 			value,
 			editorNode
 		) {
@@ -182,7 +180,7 @@ AUI.add(
 			'please-enter-only-alphanumeric-characters-or-underscore'
 		);
 
-		DEFAULTS_FORM_VALIDATOR.RULES.structureFieldName = function(value) {
+		DEFAULTS_FORM_VALIDATOR.RULES.structureFieldName = function (value) {
 			return LiferayFormBuilderUtil.validateFieldName(value);
 		};
 
@@ -191,18 +189,18 @@ AUI.add(
 			[RESTRICTED_NAME]
 		);
 
-		DEFAULTS_FORM_VALIDATOR.RULES.structureRestrictedFieldName = function(
+		DEFAULTS_FORM_VALIDATOR.RULES.structureRestrictedFieldName = function (
 			value
 		) {
 			return RESTRICTED_NAME !== value;
 		};
 
-		var applyStyles = function(node, styleContent) {
+		var applyStyles = function (node, styleContent) {
 			var styles = styleContent.replace(/\n/g, STR_BLANK).split(';');
 
 			node.setStyle(STR_BLANK);
 
-			styles.forEach(item => {
+			styles.forEach((item) => {
 				var rule = item.split(':');
 
 				if (rule.length == 2) {
@@ -284,7 +282,7 @@ AUI.add(
 						zIndex: 65535,
 					}).render();
 
-					colorPicker.on('select', event => {
+					colorPicker.on('select', (event) => {
 						input.setStyle('color', event.color);
 						input.val(event.color);
 
@@ -403,41 +401,23 @@ AUI.add(
 
 					var portletNamespace = instance.get('portletNamespace');
 
-					Liferay.Loader.require(
-						'frontend-js-web/liferay/ItemSelectorDialog.es',
-						ItemSelectorDialog => {
-							var itemSelectorDialog = new ItemSelectorDialog.default(
-								{
-									eventName:
-										portletNamespace +
-										'selectDocumentLibrary',
-									singleSelect: true,
-									url: instance._getDocumentLibrarySelectorURL(),
-								}
-							);
+					Liferay.Util.openSelectionModal({
+						onSelect: (selectedItem) => {
+							if (selectedItem) {
+								var itemValue = JSON.parse(selectedItem.value);
 
-							itemSelectorDialog.on(
-								'selectedItemChange',
-								event => {
-									var selectedItem = event.selectedItem;
-
-									if (selectedItem) {
-										var itemValue = JSON.parse(
-											selectedItem.value
-										);
-
-										instance._selectFileEntry(
-											itemValue.groupId,
-											itemValue.title,
-											itemValue.uuid
-										);
-									}
-								}
-							);
-
-							itemSelectorDialog.open();
-						}
-					);
+								instance._selectFileEntry(
+									itemValue.groupId,
+									itemValue.title,
+									itemValue.uuid
+								);
+							}
+						},
+						selectEventName:
+							portletNamespace + 'selectDocumentLibrary',
+						title: Liferay.Language.get('select-file'),
+						url: instance._getDocumentLibrarySelectorURL(),
+					});
 				},
 
 				_onClickClear() {
@@ -506,20 +486,23 @@ AUI.add(
 					}
 
 					linkNode.setAttribute('href', url);
-					linkNode.setContent(LString.escapeHTML(title));
+					linkNode.setContent(Liferay.Util.escapeHTML(title));
 				},
 
 				_uiSetValue(val) {
 					var instance = this;
 
 					if (val) {
-						LiferayFormBuilderUtil.getFileEntry(val, fileEntry => {
-							var url = LiferayFormBuilderUtil.getFileEntryURL(
-								fileEntry
-							);
+						LiferayFormBuilderUtil.getFileEntry(
+							val,
+							(fileEntry) => {
+								var url = LiferayFormBuilderUtil.getFileEntryURL(
+									fileEntry
+								);
 
-							instance._syncFileLabel(fileEntry.title, url);
-						});
+								instance._syncFileLabel(fileEntry.title, url);
+							}
+						);
 					}
 					else {
 						instance._syncFileLabel(STR_BLANK, STR_BLANK);
@@ -627,43 +610,23 @@ AUI.add(
 
 					var portletNamespace = instance.get('portletNamespace');
 
-					Liferay.Loader.require(
-						'frontend-js-web/liferay/ItemSelectorDialog.es',
-						ItemSelectorDialog => {
-							var itemSelectorDialog = new ItemSelectorDialog.default(
-								{
-									eventName:
-										portletNamespace + 'selectContent',
-									singleSelect: true,
-									title: Liferay.Language.get(
-										'journal-article'
-									),
-									url: instance._getWebContentSelectorURL(),
-								}
-							);
+					Liferay.Util.openSelectionModal({
+						onSelect: (selectedItem) => {
+							if (selectedItem) {
+								var itemValue = JSON.parse(selectedItem.value);
 
-							itemSelectorDialog.on(
-								'selectedItemChange',
-								event => {
-									var selectedItem = event.selectedItem;
-
-									if (selectedItem) {
-										var itemValue = JSON.parse(
-											selectedItem.value
-										);
-
-										instance.setValue({
-											className: itemValue.className,
-											classPK: itemValue.classPK,
-											title: itemValue.title,
-										});
-									}
-								}
-							);
-
-							itemSelectorDialog.open();
-						}
-					);
+								instance.setValue({
+									className: itemValue.className,
+									classPK: itemValue.classPK,
+									title: itemValue.title,
+								});
+							}
+						},
+						selectEventName:
+							portletNamespace + 'selectDocumentLibrary',
+						title: Liferay.Language.get('journal-article'),
+						url: instance._getWebContentSelectorURL(),
+					});
 				},
 
 				_onClickClear() {
@@ -695,7 +658,7 @@ AUI.add(
 						contentBox.prepend(linkNode);
 					}
 
-					linkNode.setContent(LString.escapeHTML(title));
+					linkNode.setContent(Liferay.Util.escapeHTML(title));
 				},
 
 				_uiSetValue(val) {
@@ -761,11 +724,11 @@ AUI.add(
 			JournalArticleCellEditor,
 		];
 
-		customCellEditors.forEach(item => {
+		customCellEditors.forEach((item) => {
 			Liferay.FormBuilder.CUSTOM_CELL_EDITORS[item.NAME] = item;
 		});
 
-		var LiferayFieldSupport = function() {};
+		var LiferayFieldSupport = function () {};
 
 		LiferayFieldSupport.ATTRS = {
 			autoGeneratedName: {
@@ -814,20 +777,20 @@ AUI.add(
 			},
 		};
 
-		LiferayFieldSupport.prototype.initializer = function() {
+		LiferayFieldSupport.prototype.initializer = function () {
 			var instance = this;
 
 			instance.after('nameChange', instance._afterNameChange);
 		};
 
-		LiferayFieldSupport.prototype._afterNameChange = function(event) {
+		LiferayFieldSupport.prototype._afterNameChange = function (event) {
 			var instance = this;
 
 			UNIQUE_FIELD_NAMES_MAP.remove(event.prevVal);
 			UNIQUE_FIELD_NAMES_MAP.put(event.newVal, instance);
 		};
 
-		LiferayFieldSupport.prototype._handleDeleteEvent = function(event) {
+		LiferayFieldSupport.prototype._handleDeleteEvent = function (event) {
 			var instance = this;
 
 			var strings = instance.getStrings();
@@ -871,13 +834,15 @@ AUI.add(
 			event.stopPropagation();
 		};
 
-		LiferayFieldSupport.prototype._randomString = function(length) {
-			var randomString = Liferay.Util.randomInt().toString(36);
+		LiferayFieldSupport.prototype._randomString = function (length) {
+			var randomString = Math.ceil(
+				Math.random() * Number.MAX_SAFE_INTEGER
+			).toString(36);
 
 			return randomString.substring(0, length);
 		};
 
-		var LocalizableFieldSupport = function() {};
+		var LocalizableFieldSupport = function () {};
 
 		LocalizableFieldSupport.ATTRS = {
 			localizationMap: {
@@ -890,14 +855,14 @@ AUI.add(
 			},
 		};
 
-		LocalizableFieldSupport.prototype.initializer = function() {
+		LocalizableFieldSupport.prototype.initializer = function () {
 			var instance = this;
 
 			var builder = instance.get('builder');
 
 			instance.after('render', instance._afterLocalizableFieldRender);
 
-			LOCALIZABLE_FIELD_ATTRS.forEach(localizableField => {
+			LOCALIZABLE_FIELD_ATTRS.forEach((localizableField) => {
 				instance.after(
 					localizableField + 'Change',
 					instance._afterLocalizableFieldChange
@@ -911,7 +876,7 @@ AUI.add(
 			);
 		};
 
-		LocalizableFieldSupport.prototype._afterEditingLocaleChange = function(
+		LocalizableFieldSupport.prototype._afterEditingLocaleChange = function (
 			event
 		) {
 			var instance = this;
@@ -919,7 +884,7 @@ AUI.add(
 			instance._syncLocaleUI(event.newVal);
 		};
 
-		LocalizableFieldSupport.prototype._afterLocalizableFieldChange = function(
+		LocalizableFieldSupport.prototype._afterLocalizableFieldChange = function (
 			event
 		) {
 			var instance = this;
@@ -936,7 +901,7 @@ AUI.add(
 			);
 		};
 
-		LocalizableFieldSupport.prototype._afterLocalizableFieldRender = function() {
+		LocalizableFieldSupport.prototype._afterLocalizableFieldRender = function () {
 			var instance = this;
 
 			var builder = instance.get('builder');
@@ -948,7 +913,7 @@ AUI.add(
 			instance._updateLocalizationMap(editingLocale);
 		};
 
-		LocalizableFieldSupport.prototype._getReadOnlyAttributes = function(
+		LocalizableFieldSupport.prototype._getReadOnlyAttributes = function (
 			val
 		) {
 			var instance = this;
@@ -967,7 +932,7 @@ AUI.add(
 			return AArray.dedupe(val);
 		};
 
-		LocalizableFieldSupport.prototype._syncLocaleUI = function(locale) {
+		LocalizableFieldSupport.prototype._syncLocaleUI = function (locale) {
 			var instance = this;
 
 			var builder = instance.get('builder');
@@ -986,7 +951,7 @@ AUI.add(
 				localizationMap[locale] || localizationMap[defaultLocale];
 
 			if (isObject(localeMap)) {
-				LOCALIZABLE_FIELD_ATTRS.forEach(item => {
+				LOCALIZABLE_FIELD_ATTRS.forEach((item) => {
 					if (item !== 'options') {
 						var localizedItem = localeMap[item];
 
@@ -1011,14 +976,14 @@ AUI.add(
 			}
 		};
 
-		LocalizableFieldSupport.prototype._syncOptionsLocaleUI = function(
+		LocalizableFieldSupport.prototype._syncOptionsLocaleUI = function (
 			locale
 		) {
 			var instance = this;
 
 			var options = instance.get('options');
 
-			options.forEach(item => {
+			options.forEach((item) => {
 				var localizationMap = item.localizationMap;
 
 				if (isObject(localizationMap)) {
@@ -1033,17 +998,17 @@ AUI.add(
 			instance.set('options', options);
 		};
 
-		LocalizableFieldSupport.prototype._updateLocalizationMap = function(
+		LocalizableFieldSupport.prototype._updateLocalizationMap = function (
 			locale
 		) {
 			var instance = this;
 
-			LOCALIZABLE_FIELD_ATTRS.forEach(item => {
+			LOCALIZABLE_FIELD_ATTRS.forEach((item) => {
 				instance._updateLocalizationMapAttribute(locale, item);
 			});
 		};
 
-		LocalizableFieldSupport.prototype._updateLocalizationMapAttribute = function(
+		LocalizableFieldSupport.prototype._updateLocalizationMapAttribute = function (
 			locale,
 			attributeName
 		) {
@@ -1065,7 +1030,7 @@ AUI.add(
 			}
 		};
 
-		LocalizableFieldSupport.prototype._updateLocalizationMapOptions = function(
+		LocalizableFieldSupport.prototype._updateLocalizationMapOptions = function (
 			locale
 		) {
 			var instance = this;
@@ -1073,7 +1038,7 @@ AUI.add(
 			var options = instance.get('options');
 
 			if (options) {
-				options.forEach(item => {
+				options.forEach((item) => {
 					var localizationMap = item.localizationMap;
 
 					if (!isObject(localizationMap)) {
@@ -1089,14 +1054,14 @@ AUI.add(
 			}
 		};
 
-		var SerializableFieldSupport = function() {};
+		var SerializableFieldSupport = function () {};
 
-		SerializableFieldSupport.prototype._addDefinitionFieldLocalizedAttributes = function(
+		SerializableFieldSupport.prototype._addDefinitionFieldLocalizedAttributes = function (
 			fieldJSON
 		) {
 			var instance = this;
 
-			LOCALIZABLE_FIELD_ATTRS.forEach(attr => {
+			LOCALIZABLE_FIELD_ATTRS.forEach((attr) => {
 				if (attr === 'options') {
 					if (
 						instanceOf(instance, A.FormBuilderMultipleChoiceField)
@@ -1110,17 +1075,17 @@ AUI.add(
 			});
 		};
 
-		SerializableFieldSupport.prototype._addDefinitionFieldUnlocalizedAttributes = function(
+		SerializableFieldSupport.prototype._addDefinitionFieldUnlocalizedAttributes = function (
 			fieldJSON
 		) {
 			var instance = this;
 
-			UNLOCALIZABLE_FIELD_ATTRS.forEach(attr => {
+			UNLOCALIZABLE_FIELD_ATTRS.forEach((attr) => {
 				fieldJSON[attr] = instance.get(attr);
 			});
 		};
 
-		SerializableFieldSupport.prototype._addDefinitionFieldOptions = function(
+		SerializableFieldSupport.prototype._addDefinitionFieldOptions = function (
 			fieldJSON
 		) {
 			var instance = this;
@@ -1138,7 +1103,7 @@ AUI.add(
 					'availableLocales'
 				);
 
-				options.forEach(option => {
+				options.forEach((option) => {
 					var fieldOption = {};
 
 					var localizationMap = option.localizationMap;
@@ -1146,7 +1111,7 @@ AUI.add(
 					fieldOption.value = option.value;
 					fieldOption.label = {};
 
-					availableLocales.forEach(locale => {
+					availableLocales.forEach((locale) => {
 						var label = instance._getValue(
 							'label',
 							locale,
@@ -1165,14 +1130,14 @@ AUI.add(
 			}
 		};
 
-		SerializableFieldSupport.prototype._addDefinitionFieldNestedFields = function(
+		SerializableFieldSupport.prototype._addDefinitionFieldNestedFields = function (
 			fieldJSON
 		) {
 			var instance = this;
 
 			var nestedFields = [];
 
-			instance.get('fields').each(childField => {
+			instance.get('fields').each((childField) => {
 				nestedFields.push(childField.serialize());
 			});
 
@@ -1181,7 +1146,7 @@ AUI.add(
 			}
 		};
 
-		SerializableFieldSupport.prototype._getLocalizedValue = function(
+		SerializableFieldSupport.prototype._getLocalizedValue = function (
 			attribute
 		) {
 			var instance = this;
@@ -1194,7 +1159,7 @@ AUI.add(
 
 			var translationManager = builder.translationManager;
 
-			translationManager.get('availableLocales').forEach(locale => {
+			translationManager.get('availableLocales').forEach((locale) => {
 				localizedValue[locale] = LiferayFormBuilderUtil.normalizeValue(
 					instance._getValue(attribute, locale, localizationMap)
 				);
@@ -1203,7 +1168,7 @@ AUI.add(
 			return localizedValue;
 		};
 
-		SerializableFieldSupport.prototype._getValue = function(
+		SerializableFieldSupport.prototype._getValue = function (
 			attribute,
 			locale,
 			localizationMap
@@ -1245,7 +1210,7 @@ AUI.add(
 			return STR_BLANK;
 		};
 
-		SerializableFieldSupport.prototype.serialize = function() {
+		SerializableFieldSupport.prototype.serialize = function () {
 			var instance = this;
 
 			var fieldJSON = {};
@@ -1267,7 +1232,7 @@ AUI.add(
 
 		var originalGetPropertyModel = FormBuilderProto.getPropertyModel;
 
-		FormBuilderProto.getPropertyModel = function() {
+		FormBuilderProto.getPropertyModel = function () {
 			var instance = this;
 
 			var model = originalGetPropertyModel.call(instance);
@@ -1299,7 +1264,7 @@ AUI.add(
 				};
 			}
 
-			model.forEach(item => {
+			model.forEach((item) => {
 				if (item.attributeName == 'name') {
 					item.editor = new A.TextCellEditor({
 						validator: {
@@ -1585,7 +1550,7 @@ AUI.add(
 						arguments
 					);
 
-					model.forEach(item => {
+					model.forEach((item) => {
 						var attributeName = item.attributeName;
 
 						if (attributeName === 'predefinedValue') {
@@ -1593,7 +1558,7 @@ AUI.add(
 								strings: editorLocalizedStrings,
 							});
 
-							item.formatter = function(obj) {
+							item.formatter = function (obj) {
 								var data = obj.data;
 
 								var label = STR_BLANK;
@@ -1650,7 +1615,7 @@ AUI.add(
 
 					return DDMGeolocationField.superclass.getPropertyModel
 						.apply(instance, arguments)
-						.filter(item => {
+						.filter((item) => {
 							return item.attributeName !== 'predefinedValue';
 						});
 				},
@@ -1817,7 +1782,7 @@ AUI.add(
 					var predefinedValue = instance.get('predefinedValue');
 					var templateNode = instance.get('templateNode');
 
-					A.each(val, item => {
+					A.each(val, (item) => {
 						var checked = predefinedValue === item.value;
 
 						buffer.push(
@@ -1982,7 +1947,7 @@ AUI.add(
 						name: Liferay.Language.get('style'),
 					});
 
-					model.forEach(item => {
+					model.forEach((item) => {
 						var attributeName = item.attributeName;
 
 						if (attributeName === 'predefinedValue') {
@@ -1990,7 +1955,7 @@ AUI.add(
 								strings: editorLocalizedStrings,
 							});
 
-							item.formatter = function(obj) {
+							item.formatter = function (obj) {
 								var data = obj.data;
 
 								var label = STR_BLANK;
@@ -2070,7 +2035,7 @@ AUI.add(
 			DDMTextAreaField,
 		];
 
-		plugins.forEach(item => {
+		plugins.forEach((item) => {
 			FormBuilderTypes[item.OVERRIDE_TYPE || item.NAME] = item;
 		});
 	},

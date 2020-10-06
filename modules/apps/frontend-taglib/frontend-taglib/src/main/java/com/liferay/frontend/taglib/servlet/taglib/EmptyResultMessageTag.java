@@ -23,6 +23,7 @@ import com.liferay.taglib.util.IncludeTag;
 
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
@@ -37,6 +38,10 @@ public class EmptyResultMessageTag extends IncludeTag {
 
 	public EmptyResultMessageKeys.AnimationType getAnimationType() {
 		return _animationType;
+	}
+
+	public String getButtonCssClass() {
+		return _buttonCssClass;
 	}
 
 	public String getComponentId() {
@@ -55,6 +60,14 @@ public class EmptyResultMessageTag extends IncludeTag {
 		return _elementType;
 	}
 
+	public String getPropsTransformer() {
+		return _propsTransformer;
+	}
+
+	public String getTitle() {
+		return _title;
+	}
+
 	public void setActionDropdownItems(List<DropdownItem> actionDropdownItems) {
 		_actionDropdownItems = actionDropdownItems;
 	}
@@ -63,6 +76,10 @@ public class EmptyResultMessageTag extends IncludeTag {
 		EmptyResultMessageKeys.AnimationType animationType) {
 
 		_animationType = animationType;
+	}
+
+	public void setButtonCssClass(String buttonCssClass) {
+		_buttonCssClass = buttonCssClass;
 	}
 
 	public void setComponentId(String componentId) {
@@ -88,21 +105,47 @@ public class EmptyResultMessageTag extends IncludeTag {
 		servletContext = ServletContextUtil.getServletContext();
 	}
 
+	public void setPropsTransformer(String propsTransformer) {
+		_propsTransformer = propsTransformer;
+	}
+
+	public void setPropsTransformerServletContext(
+		ServletContext propsTransformerServletContext) {
+
+		_propsTransformerServletContext = propsTransformerServletContext;
+	}
+
+	public void setTitle(String title) {
+		_title = title;
+	}
+
 	@Override
 	protected void cleanUp() {
 		super.cleanUp();
 
 		_actionDropdownItems = null;
 		_animationType = EmptyResultMessageKeys.AnimationType.EMPTY;
+		_buttonCssClass = "primary";
 		_componentId = null;
 		_defaultEventHandler = null;
 		_description = null;
 		_elementType = null;
+		_propsTransformer = null;
+		_propsTransformerServletContext = null;
+		_title = null;
 	}
 
 	@Override
 	protected String getPage() {
 		return _PAGE;
+	}
+
+	protected ServletContext getPropsTransformerServletContext() {
+		if (_propsTransformerServletContext != null) {
+			return _propsTransformerServletContext;
+		}
+
+		return servletContext;
 	}
 
 	@Override
@@ -113,6 +156,9 @@ public class EmptyResultMessageTag extends IncludeTag {
 		httpServletRequest.setAttribute(
 			"liferay-frontend:empty-result-message:animationTypeCssClass",
 			EmptyResultMessageKeys.getAnimationTypeCssClass(_animationType));
+		httpServletRequest.setAttribute(
+			"liferay-frontend:empty-result-message:buttonCssClass",
+			_buttonCssClass);
 		httpServletRequest.setAttribute(
 			"liferay-frontend:empty-result-message:componentId", _componentId);
 		httpServletRequest.setAttribute(
@@ -127,6 +173,16 @@ public class EmptyResultMessageTag extends IncludeTag {
 
 		httpServletRequest.setAttribute(
 			"liferay-frontend:empty-result-message:elementType", _elementType);
+
+		httpServletRequest.setAttribute(
+			"liferay-frontend:empty-result-message:propsTransformer",
+			_propsTransformer);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:empty-result-message:" +
+				"propsTransformerServletContext",
+			getPropsTransformerServletContext());
+		httpServletRequest.setAttribute(
+			"liferay-frontend:empty-result-message:title", _title);
 	}
 
 	private static final String _PAGE = "/empty_result_message/page.jsp";
@@ -134,9 +190,13 @@ public class EmptyResultMessageTag extends IncludeTag {
 	private List<DropdownItem> _actionDropdownItems;
 	private EmptyResultMessageKeys.AnimationType _animationType =
 		EmptyResultMessageKeys.AnimationType.EMPTY;
+	private String _buttonCssClass = "primary";
 	private String _componentId;
 	private String _defaultEventHandler;
 	private String _description;
 	private String _elementType;
+	private String _propsTransformer;
+	private ServletContext _propsTransformerServletContext;
+	private String _title;
 
 }

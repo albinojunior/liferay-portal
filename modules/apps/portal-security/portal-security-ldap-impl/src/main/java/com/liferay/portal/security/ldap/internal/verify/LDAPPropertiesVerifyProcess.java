@@ -322,9 +322,9 @@ public class LDAPPropertiesVerifyProcess extends VerifyProcess {
 				_companyLocalService.removePreferences(
 					companyId, keys.toArray(new String[0]));
 
-				UnicodeProperties properties = new UnicodeProperties();
+				UnicodeProperties unicodeProperties = new UnicodeProperties();
 
-				properties.put("ldap.server.ids", StringPool.BLANK);
+				unicodeProperties.put("ldap.server.ids", StringPool.BLANK);
 
 				if (_log.isInfoEnabled()) {
 					_log.info(
@@ -334,7 +334,8 @@ public class LDAPPropertiesVerifyProcess extends VerifyProcess {
 							companyId));
 				}
 
-				_companyLocalService.updatePreferences(companyId, properties);
+				_companyLocalService.updatePreferences(
+					companyId, unicodeProperties);
 			}
 		}
 	}
@@ -472,7 +473,9 @@ public class LDAPPropertiesVerifyProcess extends VerifyProcess {
 		List<String> connectionPropertiesList = new ArrayList<>(
 			connectionProperties.size());
 
-		for (Map.Entry entry : connectionProperties.entrySet()) {
+		for (Map.Entry<Object, Object> entry :
+				connectionProperties.entrySet()) {
+
 			String connectionPropertyString =
 				entry.getKey() + StringPool.EQUAL + entry.getValue();
 

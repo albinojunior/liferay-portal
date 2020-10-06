@@ -17,6 +17,7 @@ package com.liferay.batch.engine.service;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTaskContentBlobModel;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -63,11 +64,15 @@ public interface BatchEngineImportTaskLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link BatchEngineImportTaskLocalServiceUtil} to access the batch engine import task local service. Add custom service methods to <code>com.liferay.batch.engine.service.impl.BatchEngineImportTaskLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.batch.engine.service.impl.BatchEngineImportTaskLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the batch engine import task local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link BatchEngineImportTaskLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the batch engine import task to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineImportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineImportTask the batch engine import task
 	 * @return the batch engine import task that was added
@@ -81,7 +86,8 @@ public interface BatchEngineImportTaskLocalService
 		long companyId, long userId, long batchSize, String callbackURL,
 		String className, byte[] content, String contentType,
 		String executeStatus, Map<String, String> fieldNameMappingMap,
-		String operation, Map<String, Serializable> parameters);
+		String operation, Map<String, Serializable> parameters,
+		String taskItemDelegateName);
 
 	/**
 	 * Creates a new batch engine import task with the primary key. Does not add the batch engine import task to the database.
@@ -102,6 +108,10 @@ public interface BatchEngineImportTaskLocalService
 	/**
 	 * Deletes the batch engine import task from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineImportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param batchEngineImportTask the batch engine import task
 	 * @return the batch engine import task that was removed
 	 */
@@ -111,6 +121,10 @@ public interface BatchEngineImportTaskLocalService
 
 	/**
 	 * Deletes the batch engine import task with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineImportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineImportTaskId the primary key of the batch engine import task
 	 * @return the batch engine import task that was removed
@@ -127,6 +141,9 @@ public interface BatchEngineImportTaskLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -295,6 +312,10 @@ public interface BatchEngineImportTaskLocalService
 
 	/**
 	 * Updates the batch engine import task in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineImportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineImportTask the batch engine import task
 	 * @return the batch engine import task that was updated

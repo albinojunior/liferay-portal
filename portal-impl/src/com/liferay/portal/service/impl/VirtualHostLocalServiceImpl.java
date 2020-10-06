@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.exception.AvailableLocaleException;
 import com.liferay.portal.kernel.exception.NoSuchVirtualHostException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -30,11 +32,13 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.TreeMapBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.impl.LayoutSetImpl;
-import com.liferay.portal.model.impl.LayoutSetModelImpl;
 import com.liferay.portal.service.base.VirtualHostLocalServiceBaseImpl;
 import com.liferay.portal.util.PropsValues;
 
 import java.net.IDN;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -63,6 +67,20 @@ public class VirtualHostLocalServiceImpl
 
 	@Override
 	public VirtualHost fetchVirtualHost(String hostname) {
+		if (Validator.isIPv6Address(hostname)) {
+			try {
+				Inet6Address inet6Address = (Inet6Address)InetAddress.getByName(
+					hostname);
+
+				hostname = inet6Address.getHostAddress();
+			}
+			catch (UnknownHostException unknownHostException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(unknownHostException, unknownHostException);
+				}
+			}
+		}
+
 		VirtualHost virtualHost = virtualHostPersistence.fetchByHostname(
 			hostname);
 
@@ -175,7 +193,11 @@ public class VirtualHostLocalServiceImpl
 
 			String languageId = hostnames.get(curHostname);
 
-			Locale locale = LocaleUtil.fromLanguageId(languageId);
+			Locale locale = LocaleUtil.fromLanguageId(languageId, true, false);
+
+			if (locale == null) {
+				locale = LocaleUtil.getSiteDefault();
+			}
 
 			if (!availableLocales.contains(locale)) {
 				ReflectionUtil.throwException(
@@ -190,13 +212,13 @@ public class VirtualHostLocalServiceImpl
 			virtualHostPersistence.update(virtualHost);
 		}
 
-		Iterator<VirtualHost> itr = virtualHosts.iterator();
+		Iterator<VirtualHost> iterator = virtualHosts.iterator();
 
-		while (itr.hasNext()) {
-			VirtualHost virtualHost = itr.next();
+		while (iterator.hasNext()) {
+			VirtualHost virtualHost = iterator.next();
 
 			if (!hostnames.containsKey(virtualHost.getHostname())) {
-				itr.remove();
+				iterator.remove();
 
 				virtualHostPersistence.remove(virtualHost);
 			}
@@ -210,8 +232,7 @@ public class VirtualHostLocalServiceImpl
 			TransactionCommitCallbackUtil.registerCallback(
 				() -> {
 					EntityCacheUtil.removeResult(
-						company.isEntityCacheEnabled(), company.getClass(),
-						company.getPrimaryKeyObj());
+						company.getClass(), company.getPrimaryKeyObj());
 
 					return null;
 				});
@@ -237,7 +258,6 @@ public class VirtualHostLocalServiceImpl
 			TransactionCommitCallbackUtil.registerCallback(
 				() -> {
 					EntityCacheUtil.removeResult(
-						LayoutSetModelImpl.ENTITY_CACHE_ENABLED,
 						LayoutSetImpl.class, layoutSetId);
 
 					return null;
@@ -246,5 +266,8 @@ public class VirtualHostLocalServiceImpl
 
 		return virtualHosts;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		VirtualHostLocalServiceImpl.class);
 
 }

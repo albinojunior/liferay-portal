@@ -13,8 +13,9 @@
  */
 
 import {getClosestAssetElement} from '../utils/assets';
+import {convertUTCDateToLocalDate} from './date';
 
-const onReady = fn => {
+const onReady = (fn) => {
 	if (
 		document.readyState === 'interactive' ||
 		document.readyState === 'complete' ||
@@ -67,4 +68,53 @@ const clickEvent = ({
 	return () => document.removeEventListener('click', onClick);
 };
 
-export {clickEvent, onReady};
+/**
+ * Serializes data and returns the result appending a timestamp
+ * to the returned data as well.
+ *
+ * @param {string} eventId The event Id
+ * @param {string} applicationId The application Id
+ * @param {Object} properties Additional properties to serialize
+ * @protected
+ * @returns {Object}
+ */
+export const normalizeEvent = (
+	eventId,
+	applicationId,
+	properties,
+	contextHash
+) => {
+	const date = new Date();
+	const eventDate = date.toISOString();
+	const eventLocalDate = convertUTCDateToLocalDate(date).toISOString();
+
+	return {
+		applicationId,
+		contextHash,
+		eventDate,
+		eventId,
+		eventLocalDate,
+		properties,
+	};
+};
+
+/**
+ * Sort comparator for ISO 8601 eventDates in ascending order.
+ *
+ * @param {Object} a - First event to compare.
+ * @param {Object} b - Second event to compare.
+ * @returns {Number}    Comparison result.
+ */
+const sortByEventDate = (a, b) => {
+	if (a.eventDate < b.eventDate) {
+		return -1;
+	}
+
+	if (a.eventDate > b.eventDate) {
+		return 1;
+	}
+
+	return 0;
+};
+
+export {clickEvent, onReady, sortByEventDate};

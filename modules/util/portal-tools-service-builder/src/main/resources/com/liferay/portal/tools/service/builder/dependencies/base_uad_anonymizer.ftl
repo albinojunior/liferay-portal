@@ -28,33 +28,33 @@ import org.osgi.service.component.annotations.Reference;
 public abstract class Base${entity.name}UADAnonymizer extends DynamicQueryUADAnonymizer<${entity.name}> {
 
 	@Override
-	public void autoAnonymize(${entity.name} ${entity.varName}, long userId, User anonymousUser) throws PortalException {
+	public void autoAnonymize(${entity.name} ${entity.variableName}, long userId, User anonymousUser) throws PortalException {
 		<#list entity.UADUserIdColumnNames as uadUserIdColumnName>
 			<#assign uadUserIdEntityColumn = entity.getEntityColumn(uadUserIdColumnName) />
 
-					if (${entity.varName}.get${uadUserIdEntityColumn.methodName}() == userId) {
+					if (${entity.variableName}.get${uadUserIdEntityColumn.methodName}() == userId) {
 						<#if entity.UADAutoDelete>
-							delete(${entity.varName});
+							delete(${entity.variableName});
 						<#else>
 							<#list entity.UADAnonymizableEntityColumnsMap[uadUserIdColumnName] as uadAnonymizableEntityColumn>
-								${entity.varName}.set${uadAnonymizableEntityColumn.methodName}(anonymousUser.get${textFormatter.format(uadAnonymizableEntityColumn.UADAnonymizeFieldName, 6)}());
+								${entity.variableName}.set${uadAnonymizableEntityColumn.methodName}(anonymousUser.get${textFormatter.format(uadAnonymizableEntityColumn.UADAnonymizeFieldName, 6)}());
 							</#list>
 						</#if>
 
 						<#if hasAssetEntry && stringUtil.equals(uadUserIdEntityColumn.name, "userId")>
-							autoAnonymizeAssetEntry(${entity.varName}, anonymousUser);
+							autoAnonymizeAssetEntry(${entity.variableName}, anonymousUser);
 						</#if>
 					}
 		</#list>
 
 		<#if !entity.UADAutoDelete>
-			${entity.varName}LocalService.update${entity.name}(${entity.varName});
+			${entity.variableName}LocalService.update${entity.name}(${entity.variableName});
 		</#if>
 	}
 
 	@Override
-	public void delete(${entity.name} ${entity.varName}) throws PortalException {
-		${entity.varName}LocalService.${deleteUADEntityMethodName}(${entity.varName});
+	public void delete(${entity.name} ${entity.variableName}) throws PortalException {
+		${entity.variableName}LocalService.${deleteUADEntityMethodName}(${entity.variableName});
 	}
 
 	@Override
@@ -63,8 +63,8 @@ public abstract class Base${entity.name}UADAnonymizer extends DynamicQueryUADAno
 	}
 
 	<#if hasAssetEntry>
-		protected void autoAnonymizeAssetEntry(${entity.name} ${entity.varName}, User anonymousUser) {
-			AssetEntry assetEntry = fetchAssetEntry(${entity.varName});
+		protected void autoAnonymizeAssetEntry(${entity.name} ${entity.variableName}, User anonymousUser) {
+			AssetEntry assetEntry = fetchAssetEntry(${entity.variableName});
 
 			if (assetEntry != null) {
 				assetEntry.setUserId(anonymousUser.getUserId());
@@ -77,7 +77,7 @@ public abstract class Base${entity.name}UADAnonymizer extends DynamicQueryUADAno
 
 	@Override
 	protected ActionableDynamicQuery doGetActionableDynamicQuery() {
-		return ${entity.varName}LocalService.getActionableDynamicQuery();
+		return ${entity.variableName}LocalService.getActionableDynamicQuery();
 	}
 
 	@Override
@@ -86,8 +86,8 @@ public abstract class Base${entity.name}UADAnonymizer extends DynamicQueryUADAno
 	}
 
 	<#if hasAssetEntry>
-		protected AssetEntry fetchAssetEntry(${entity.name} ${entity.varName}) {
-			return assetEntryLocalService.fetchEntry(${entity.name}.class.getName(), ${entity.varName}.get${entity.getPKMethodName()}());
+		protected AssetEntry fetchAssetEntry(${entity.name} ${entity.variableName}) {
+			return assetEntryLocalService.fetchEntry(${entity.name}.class.getName(), ${entity.variableName}.get${entity.getPKMethodName()}());
 		}
 
 		@Reference
@@ -95,6 +95,6 @@ public abstract class Base${entity.name}UADAnonymizer extends DynamicQueryUADAno
 	</#if>
 
 	@Reference
-	protected ${entity.name}LocalService ${entity.varName}LocalService;
+	protected ${entity.name}LocalService ${entity.variableName}LocalService;
 
 }

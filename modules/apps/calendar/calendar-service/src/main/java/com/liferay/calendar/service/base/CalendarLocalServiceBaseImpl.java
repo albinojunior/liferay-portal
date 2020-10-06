@@ -28,6 +28,7 @@ import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -48,6 +49,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -84,6 +86,10 @@ public abstract class CalendarLocalServiceBaseImpl
 	/**
 	 * Adds the calendar to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param calendar the calendar
 	 * @return the calendar that was added
 	 */
@@ -110,6 +116,10 @@ public abstract class CalendarLocalServiceBaseImpl
 	/**
 	 * Deletes the calendar with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param calendarId the primary key of the calendar
 	 * @return the calendar that was removed
 	 * @throws PortalException if a calendar with the primary key could not be found
@@ -123,6 +133,10 @@ public abstract class CalendarLocalServiceBaseImpl
 	/**
 	 * Deletes the calendar from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param calendar the calendar
 	 * @return the calendar that was removed
 	 * @throws PortalException
@@ -131,6 +145,11 @@ public abstract class CalendarLocalServiceBaseImpl
 	@Override
 	public Calendar deleteCalendar(Calendar calendar) throws PortalException {
 		return calendarPersistence.remove(calendar);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return calendarPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -378,6 +397,10 @@ public abstract class CalendarLocalServiceBaseImpl
 		return calendarLocalService.deleteCalendar((Calendar)persistedModel);
 	}
 
+	public BasePersistence<Calendar> getBasePersistence() {
+		return calendarPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -464,6 +487,10 @@ public abstract class CalendarLocalServiceBaseImpl
 
 	/**
 	 * Updates the calendar in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CalendarLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param calendar the calendar
 	 * @return the calendar that was updated

@@ -17,7 +17,7 @@
 <%@ include file="/com.liferay.portal.settings.web/init.jsp" %>
 
 <%
-long ldapServerId = ParamUtil.getLong(request, "ldapServerId", 0);
+long ldapServerId = ParamUtil.getLong(request, "ldapServerId");
 
 String baseProviderURL = ParamUtil.getString(request, "baseProviderURL");
 String baseDN = ParamUtil.getString(request, "baseDN");
@@ -79,7 +79,7 @@ List<SearchResult> searchResults = new ArrayList<SearchResult>();
 try {
 	safePortalLDAP.getGroups(themeDisplay.getCompanyId(), safeLdapContext, new byte[0], 20, SafeLdapNameFactory.fromUnsafe(baseDN), groupSafeLdapFilter, attributeIds, searchResults);
 }
-catch (NameNotFoundException | InvalidNameException nnfe) {
+catch (InvalidNameException | NameNotFoundException exception) {
 %>
 
 	<liferay-ui:message key="please-enter-a-valid-ldap-base-dn" />

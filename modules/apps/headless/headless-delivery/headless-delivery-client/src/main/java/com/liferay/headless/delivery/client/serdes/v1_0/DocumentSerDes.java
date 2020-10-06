@@ -104,6 +104,20 @@ public class DocumentSerDes {
 			sb.append(String.valueOf(document.getAggregateRating()));
 		}
 
+		if (document.getAssetLibraryKey() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraryKey\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(document.getAssetLibraryKey()));
+
+			sb.append("\"");
+		}
+
 		if (document.getContentUrl() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -114,6 +128,20 @@ public class DocumentSerDes {
 			sb.append("\"");
 
 			sb.append(_escape(document.getContentUrl()));
+
+			sb.append("\"");
+		}
+
+		if (document.getContentValue() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"contentValue\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(document.getContentValue()));
 
 			sb.append("\"");
 		}
@@ -200,6 +228,16 @@ public class DocumentSerDes {
 			sb.append("\"documentFolderId\": ");
 
 			sb.append(document.getDocumentFolderId());
+		}
+
+		if (document.getDocumentType() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"documentType\": ");
+
+			sb.append(String.valueOf(document.getDocumentType()));
 		}
 
 		if (document.getEncodingFormat() != null) {
@@ -292,6 +330,16 @@ public class DocumentSerDes {
 			}
 
 			sb.append("]");
+		}
+
+		if (document.getSiteId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"siteId\": ");
+
+			sb.append(document.getSiteId());
 		}
 
 		if (document.getSizeInBytes() != null) {
@@ -420,11 +468,27 @@ public class DocumentSerDes {
 				String.valueOf(document.getAggregateRating()));
 		}
 
+		if (document.getAssetLibraryKey() == null) {
+			map.put("assetLibraryKey", null);
+		}
+		else {
+			map.put(
+				"assetLibraryKey",
+				String.valueOf(document.getAssetLibraryKey()));
+		}
+
 		if (document.getContentUrl() == null) {
 			map.put("contentUrl", null);
 		}
 		else {
 			map.put("contentUrl", String.valueOf(document.getContentUrl()));
+		}
+
+		if (document.getContentValue() == null) {
+			map.put("contentValue", null);
+		}
+		else {
+			map.put("contentValue", String.valueOf(document.getContentValue()));
 		}
 
 		if (document.getCreator() == null) {
@@ -441,13 +505,23 @@ public class DocumentSerDes {
 			map.put("customFields", String.valueOf(document.getCustomFields()));
 		}
 
-		map.put(
-			"dateCreated",
-			liferayToJSONDateFormat.format(document.getDateCreated()));
+		if (document.getDateCreated() == null) {
+			map.put("dateCreated", null);
+		}
+		else {
+			map.put(
+				"dateCreated",
+				liferayToJSONDateFormat.format(document.getDateCreated()));
+		}
 
-		map.put(
-			"dateModified",
-			liferayToJSONDateFormat.format(document.getDateModified()));
+		if (document.getDateModified() == null) {
+			map.put("dateModified", null);
+		}
+		else {
+			map.put(
+				"dateModified",
+				liferayToJSONDateFormat.format(document.getDateModified()));
+		}
 
 		if (document.getDescription() == null) {
 			map.put("description", null);
@@ -463,6 +537,13 @@ public class DocumentSerDes {
 			map.put(
 				"documentFolderId",
 				String.valueOf(document.getDocumentFolderId()));
+		}
+
+		if (document.getDocumentType() == null) {
+			map.put("documentType", null);
+		}
+		else {
+			map.put("documentType", String.valueOf(document.getDocumentType()));
 		}
 
 		if (document.getEncodingFormat() == null) {
@@ -511,6 +592,13 @@ public class DocumentSerDes {
 			map.put(
 				"relatedContents",
 				String.valueOf(document.getRelatedContents()));
+		}
+
+		if (document.getSiteId() == null) {
+			map.put("siteId", null);
+		}
+		else {
+			map.put("siteId", String.valueOf(document.getSiteId()));
 		}
 
 		if (document.getSizeInBytes() == null) {
@@ -598,9 +686,19 @@ public class DocumentSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "assetLibraryKey")) {
+				if (jsonParserFieldValue != null) {
+					document.setAssetLibraryKey((String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "contentUrl")) {
 				if (jsonParserFieldValue != null) {
 					document.setContentUrl((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "contentValue")) {
+				if (jsonParserFieldValue != null) {
+					document.setContentValue((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "creator")) {
@@ -644,6 +742,12 @@ public class DocumentSerDes {
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "documentType")) {
+				if (jsonParserFieldValue != null) {
+					document.setDocumentType(
+						DocumentTypeSerDes.toDTO((String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "encodingFormat")) {
 				if (jsonParserFieldValue != null) {
 					document.setEncodingFormat((String)jsonParserFieldValue);
@@ -681,6 +785,12 @@ public class DocumentSerDes {
 						).toArray(
 							size -> new RelatedContent[size]
 						));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "siteId")) {
+				if (jsonParserFieldValue != null) {
+					document.setSiteId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "sizeInBytes")) {
@@ -724,9 +834,8 @@ public class DocumentSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else {
-				throw new IllegalArgumentException(
-					"Unsupported field name " + jsonParserFieldName);
+			else if (jsonParserFieldName.equals("status")) {
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -782,10 +891,13 @@ public class DocumentSerDes {
 
 				sb.append("]");
 			}
-			else {
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
+			}
+			else {
+				sb.append(String.valueOf(entry.getValue()));
 			}
 
 			if (iterator.hasNext()) {

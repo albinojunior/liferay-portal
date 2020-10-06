@@ -14,6 +14,7 @@
 
 package com.liferay.portal.tools.service.builder.test.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -71,6 +73,10 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 	/**
 	 * Adds the uad partial entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UADPartialEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param uadPartialEntry the uad partial entry
 	 * @return the uad partial entry that was added
 	 */
@@ -97,6 +103,10 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the uad partial entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UADPartialEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param uadPartialEntryId the primary key of the uad partial entry
 	 * @return the uad partial entry that was removed
 	 * @throws PortalException if a uad partial entry with the primary key could not be found
@@ -112,6 +122,10 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the uad partial entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UADPartialEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param uadPartialEntry the uad partial entry
 	 * @return the uad partial entry that was removed
 	 */
@@ -121,6 +135,11 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 		UADPartialEntry uadPartialEntry) {
 
 		return uadPartialEntryPersistence.remove(uadPartialEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return uadPartialEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -292,6 +311,10 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 			(UADPartialEntry)persistedModel);
 	}
 
+	public BasePersistence<UADPartialEntry> getBasePersistence() {
+		return uadPartialEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -330,6 +353,10 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the uad partial entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect UADPartialEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param uadPartialEntry the uad partial entry
 	 * @return the uad partial entry that was updated

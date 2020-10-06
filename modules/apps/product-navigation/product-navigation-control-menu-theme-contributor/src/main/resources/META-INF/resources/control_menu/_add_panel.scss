@@ -1,13 +1,13 @@
-body.open-admin-panel {
+#wrapper,
+.control-menu-container {
 	@include media-breakpoint-up(sm) {
-		padding-right: $admin-panel-width;
-	}
-}
+		body.sidenav-transition & {
+			@include transition(padding 0.5s ease);
+		}
 
-body.open-admin-panel,
-body.sidenav-transition {
-	@include media-breakpoint-up(sm) {
-		overflow-x: hidden;
+		body.open-admin-panel & {
+			padding-right: $admin-panel-width;
+		}
 	}
 }
 
@@ -22,6 +22,10 @@ body.sidenav-transition {
 
 		.product-menu {
 			width: $admin-panel-width;
+
+			&.light {
+				background-color: white;
+			}
 		}
 	}
 

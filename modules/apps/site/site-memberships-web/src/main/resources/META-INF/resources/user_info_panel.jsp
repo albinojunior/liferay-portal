@@ -46,7 +46,7 @@ Group group = siteMembershipsDisplayContext.getGroup();
 				</c:if>
 			</h4>
 
-			<h6 class="text-muted">
+			<h6 class="text-secondary">
 				<liferay-ui:message arguments="<%= GroupUtil.getGroupTypeLabel(group, locale) %>" key='<%= "membership-type-" + GroupConstants.getTypeLabel(group.getType()) + "-help" %>' translateArguments="<%= false %>" />
 			</h6>
 		</div>
@@ -59,10 +59,11 @@ Group group = siteMembershipsDisplayContext.getGroup();
 			<h5><liferay-ui:message key="num-of-users" /></h5>
 
 			<%
-			LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
-
-			userParams.put("inherit", Boolean.TRUE);
-			userParams.put("usersGroups", Long.valueOf(siteMembershipsDisplayContext.getGroupId()));
+			LinkedHashMap<String, Object> userParams = LinkedHashMapBuilder.<String, Object>put(
+				"inherit", Boolean.TRUE
+			).put(
+				"usersGroups", Long.valueOf(siteMembershipsDisplayContext.getGroupId())
+			).build();
 			%>
 
 			<p>

@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.model.StagedGroupedModel;
+import com.liferay.portal.kernel.model.change.tracking.CTModel;
 
 import java.util.Date;
 
@@ -38,8 +39,9 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface FragmentEntryLinkModel
-	extends AttachedModel, BaseModel<FragmentEntryLink>, MVCCModel,
-			ShardedModel, StagedGroupedModel {
+	extends AttachedModel, BaseModel<FragmentEntryLink>,
+			CTModel<FragmentEntryLink>, MVCCModel, ShardedModel,
+			StagedGroupedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -52,6 +54,7 @@ public interface FragmentEntryLinkModel
 	 *
 	 * @return the primary key of this fragment entry link
 	 */
+	@Override
 	public long getPrimaryKey();
 
 	/**
@@ -59,6 +62,7 @@ public interface FragmentEntryLinkModel
 	 *
 	 * @param primaryKey the primary key of this fragment entry link
 	 */
+	@Override
 	public void setPrimaryKey(long primaryKey);
 
 	/**
@@ -76,6 +80,22 @@ public interface FragmentEntryLinkModel
 	 */
 	@Override
 	public void setMvccVersion(long mvccVersion);
+
+	/**
+	 * Returns the ct collection ID of this fragment entry link.
+	 *
+	 * @return the ct collection ID of this fragment entry link
+	 */
+	@Override
+	public long getCtCollectionId();
+
+	/**
+	 * Sets the ct collection ID of this fragment entry link.
+	 *
+	 * @param ctCollectionId the ct collection ID of this fragment entry link
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId);
 
 	/**
 	 * Returns the uuid of this fragment entry link.
@@ -251,6 +271,20 @@ public interface FragmentEntryLinkModel
 	public void setFragmentEntryId(long fragmentEntryId);
 
 	/**
+	 * Returns the segments experience ID of this fragment entry link.
+	 *
+	 * @return the segments experience ID of this fragment entry link
+	 */
+	public long getSegmentsExperienceId();
+
+	/**
+	 * Sets the segments experience ID of this fragment entry link.
+	 *
+	 * @param segmentsExperienceId the segments experience ID of this fragment entry link
+	 */
+	public void setSegmentsExperienceId(long segmentsExperienceId);
+
+	/**
 	 * Returns the fully qualified class name of this fragment entry link.
 	 *
 	 * @return the fully qualified class name of this fragment entry link
@@ -291,6 +325,20 @@ public interface FragmentEntryLinkModel
 	 */
 	@Override
 	public void setClassPK(long classPK);
+
+	/**
+	 * Returns the plid of this fragment entry link.
+	 *
+	 * @return the plid of this fragment entry link
+	 */
+	public long getPlid();
+
+	/**
+	 * Sets the plid of this fragment entry link.
+	 *
+	 * @param plid the plid of this fragment entry link
+	 */
+	public void setPlid(long plid);
 
 	/**
 	 * Returns the css of this fragment entry link.

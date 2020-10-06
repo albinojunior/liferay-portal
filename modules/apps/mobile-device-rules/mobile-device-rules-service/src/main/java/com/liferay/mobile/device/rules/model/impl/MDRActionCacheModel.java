@@ -37,16 +37,16 @@ public class MDRActionCacheModel
 	implements CacheModel<MDRAction>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof MDRActionCacheModel)) {
+		if (!(object instanceof MDRActionCacheModel)) {
 			return false;
 		}
 
-		MDRActionCacheModel mdrActionCacheModel = (MDRActionCacheModel)obj;
+		MDRActionCacheModel mdrActionCacheModel = (MDRActionCacheModel)object;
 
 		if ((actionId == mdrActionCacheModel.actionId) &&
 			(mvccVersion == mdrActionCacheModel.mvccVersion)) {
@@ -201,7 +201,9 @@ public class MDRActionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
@@ -224,7 +226,7 @@ public class MDRActionCacheModel
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
 		type = objectInput.readUTF();
-		typeSettings = objectInput.readUTF();
+		typeSettings = (String)objectInput.readObject();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -285,10 +287,10 @@ public class MDRActionCacheModel
 		}
 
 		if (typeSettings == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(typeSettings);
+			objectOutput.writeObject(typeSettings);
 		}
 
 		objectOutput.writeLong(lastPublishDate);

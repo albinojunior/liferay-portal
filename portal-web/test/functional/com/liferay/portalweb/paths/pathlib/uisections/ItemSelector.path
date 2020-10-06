@@ -10,7 +10,7 @@
 <tbody>
 <tr>
 	<td>ITEM_SELECTOR_IFRAME</td>
-	<td>//iframe[contains(@src,'ItemSelectorPortlet')]</td>
+	<td>//div[contains(@class,'modal-body')]/iframe</td>
 	<td></td>
 </tr>
 <tr>
@@ -26,6 +26,27 @@
 <tr>
 	<td></td>
 	<td></td>
+	<td></td>
+</tr>
+<!--LOCATION_INFO-->
+<tr>
+	<td>LOCATION_INFO_CARDS</td>
+	<td>//div[contains(@class,'card-row') and contains(.,'${key_title}')]//span[contains(.,'${key_locationName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>LOCATION_INFO_CARDS_2</td>
+	<td>//div[contains(@class,'card-row') and contains(.,'${key_title}')]//div[contains(@class,'card-subtitle') and contains(.,'${key_locationName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>LOCATION_INFO_LIST</td>
+	<td>//div[contains(@data-qa-id,'rowItemContent') and contains(.,'${key_title}')]//span[contains(.,'${key_locationName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>LOCATION_INFO_TABLE</td>
+	<td>//tr[contains(@data-qa-id,'row') and contains(.,'${key_title}')]//td[contains(@class,'lfr-location-column') and contains(.,'${key_locationName}')]</td>
 	<td></td>
 </tr>
 <!--NAVIGATION-->
@@ -178,6 +199,11 @@
 <tr>
 	<td>URL_LABEL</td>
 	<td>//label[contains(.,'URL')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>URL_IMAGE_EXAMPLE</td>
+	<td>//p[contains(@class,'form-text')]</td>
 	<td></td>
 </tr>
 <tr>

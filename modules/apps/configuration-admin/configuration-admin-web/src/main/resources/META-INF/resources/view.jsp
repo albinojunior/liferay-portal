@@ -35,7 +35,9 @@ ConfigurationScopeDisplayContext configurationScopeDisplayContext = Configuratio
 	showSearch="<%= true %>"
 />
 
-<div class="container-fluid container-fluid-max-xl container-view">
+<clay:container-fluid
+	cssClass="container-view"
+>
 	<c:if test="<%= configurationCategorySectionDisplays.isEmpty() %>">
 		<liferay-ui:empty-result-message
 			message="no-configurations-were-found"
@@ -63,14 +65,11 @@ ConfigurationScopeDisplayContext configurationScopeDisplayContext = Configuratio
 						if (configurationCategoryMenuDisplay.isEmpty()) {
 							continue;
 						}
-
-						String viewCategoryHREF = ConfigurationCategoryUtil.getHREF(configurationCategoryMenuDisplay, liferayPortletResponse, renderRequest, renderResponse);
 					%>
 
 						<li class="list-group-card-item">
-							<a href="<%= viewCategoryHREF %>">
+							<a href="<%= ConfigurationCategoryUtil.getHREF(configurationCategoryMenuDisplay, liferayPortletResponse, renderRequest, renderResponse) %>">
 								<clay:icon
-									elementClasses="user-icon-sm"
 									symbol="<%= configurationCategoryDisplay.getCategoryIcon() %>"
 								/>
 
@@ -92,4 +91,4 @@ ConfigurationScopeDisplayContext configurationScopeDisplayContext = Configuratio
 		%>
 
 	</ul>
-</div>
+</clay:container-fluid>

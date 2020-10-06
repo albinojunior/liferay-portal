@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,9 +127,9 @@ public class LiveUsers {
 	public static void joinGroup(long companyId, long groupId, long userId) {
 		Map<Long, Set<Long>> liveUsers = _getLiveUsers(companyId);
 
-		Set<Long> groupUsers = _getGroupUsers(liveUsers, groupId);
-
 		if (_getUserTrackers(companyId, userId) != null) {
+			Set<Long> groupUsers = _getGroupUsers(liveUsers, groupId);
+
 			groupUsers.add(userId);
 		}
 	}
@@ -420,13 +419,13 @@ public class LiveUsers {
 
 		String sessionId = userTracker.getSessionId();
 
-		Iterator<UserTracker> itr = userTrackers.iterator();
+		Iterator<UserTracker> iterator = userTrackers.iterator();
 
-		while (itr.hasNext()) {
-			UserTracker curUserTracker = itr.next();
+		while (iterator.hasNext()) {
+			UserTracker curUserTracker = iterator.next();
 
 			if (sessionId.equals(curUserTracker.getSessionId())) {
-				itr.remove();
+				iterator.remove();
 			}
 		}
 
@@ -443,14 +442,12 @@ public class LiveUsers {
 
 		Map<Long, Set<Long>> liveUsers = _getLiveUsers(companyId);
 
-		LinkedHashMap<String, Object> groupParams =
+		List<Group> groups = GroupLocalServiceUtil.search(
+			companyId, null, null,
 			LinkedHashMapBuilder.<String, Object>put(
 				"usersGroups", userId
-			).build();
-
-		List<Group> groups = GroupLocalServiceUtil.search(
-			companyId, null, null, groupParams, QueryUtil.ALL_POS,
-			QueryUtil.ALL_POS);
+			).build(),
+			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		for (Group group : groups) {
 			Set<Long> groupUsers = _getGroupUsers(

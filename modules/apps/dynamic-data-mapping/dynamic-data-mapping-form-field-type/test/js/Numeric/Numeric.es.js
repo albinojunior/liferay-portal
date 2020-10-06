@@ -12,11 +12,12 @@
  * details.
  */
 
-import {dom} from 'metal-dom';
+import {act, cleanup, fireEvent, render} from '@testing-library/react';
+import {PageProvider} from 'dynamic-data-mapping-form-renderer';
+import React from 'react';
 
 import Numeric from '../../../src/main/resources/META-INF/resources/Numeric/Numeric.es';
 
-let component;
 const spritemap = 'icons.svg';
 
 const defaultNumericConfig = {
@@ -24,201 +25,268 @@ const defaultNumericConfig = {
 	spritemap,
 };
 
+const NumericWithProvider = (props) => (
+	<PageProvider value={{editingLanguageId: 'en_US'}}>
+		<Numeric {...props} />
+	</PageProvider>
+);
+
 describe('Field Numeric', () => {
-	beforeEach(() => {
-		jest.useFakeTimers();
+	// eslint-disable-next-line no-console
+	const originalWarn = console.warn;
+
+	beforeAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = (...args) => {
+			if (/DataProvider: Trying/.test(args[0])) {
+				return;
+			}
+			originalWarn.call(console, ...args);
+		};
 	});
 
-	afterEach(() => {
-		if (component) {
-			component.dispose();
-		}
+	afterAll(() => {
+		// eslint-disable-next-line no-console
+		console.warn = originalWarn;
+	});
+
+	afterEach(cleanup);
+
+	beforeEach(() => {
+		jest.useFakeTimers();
+		fetch.mockResponse(JSON.stringify({}));
 	});
 
 	it('renders the default markup', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			readOnly: false,
+		const {container} = render(
+			<NumericWithProvider {...defaultNumericConfig} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is not readOnly', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			readOnly: false,
+		const {container} = render(
+			<NumericWithProvider {...defaultNumericConfig} readOnly={false} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a helptext', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			tip: 'Type something',
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				tip="Type something"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has an id', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			id: 'ID',
+		const {container} = render(
+			<NumericWithProvider {...defaultNumericConfig} id="ID" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a label', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			label: 'label',
+		const {container} = render(
+			<NumericWithProvider {...defaultNumericConfig} label="label" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a placeholder', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			placeholder: 'Placeholder',
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				placeholder="Placeholder"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('is not required', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			required: false,
+		const {container} = render(
+			<NumericWithProvider {...defaultNumericConfig} required={false} />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('renders Label if showLabel is true', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			label: 'Numeric Field',
-			showLabel: true,
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				label="Numeric Field"
+				showLabel={true}
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
-	});
-
-	it('has a spritemap', () => {
-		component = new Numeric(defaultNumericConfig);
-
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a value', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			value: '123',
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				onChange={jest.fn()}
+				value="123"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
 	it('has a key', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			key: 'key',
+		const {container} = render(
+			<NumericWithProvider {...defaultNumericConfig} key="key" />
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component).toMatchSnapshot();
+		expect(container).toMatchSnapshot();
 	});
 
-	it('emits a field edit event on field value change', () => {
-		jest.useFakeTimers();
+	it('calls the field`s onChange callback', () => {
+		const onChange = jest.fn();
 
-		const handleFieldEdited = jest.fn();
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				key="input"
+				onChange={onChange}
+			/>
+		);
 
-		const events = {fieldEdited: handleFieldEdited};
+		const input = container.querySelector('input');
 
-		component = new Numeric({
-			...defaultNumericConfig,
-			events,
+		fireEvent.change(input, {target: {value: '2'}});
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		dom.triggerEvent(component.element.querySelector('input'), 'input', {});
-
-		jest.runAllTimers();
-
-		expect(handleFieldEdited).toHaveBeenCalled();
-	});
-
-	it('propagates the field edit event', () => {
-		jest.useFakeTimers();
-
-		component = new Numeric({
-			...defaultNumericConfig,
-			key: 'input',
-		});
-
-		const spy = jest.spyOn(component, 'emit');
-
-		dom.triggerEvent(component.element.querySelector('input'), 'input', {});
-
-		jest.runAllTimers();
-
-		expect(spy).toHaveBeenCalled();
-		expect(spy).toHaveBeenCalledWith('fieldEdited', expect.any(Object));
+		expect(onChange).toHaveBeenCalled();
 	});
 
 	it('changes the mask type', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				dataType="double"
+				onChange={jest.fn()}
+				value="22.22"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		jest.runAllTimers();
-
-		component.setState({
-			dataType: 'double',
-		});
-
-		jest.runAllTimers();
-
-		expect(component.dataType).toBe('double');
+		expect(container.querySelector('input').value).toBe('22.22');
 	});
 
-	it('check if event is sent when decimal is being writen', done => {
-		const handleFieldEdited = data => {
-			expect(data).toEqual(
-				expect.objectContaining({
-					fieldInstance: component,
-					originalEvent: expect.any(Object),
-					value: '3.0',
-				})
-			);
-			done();
-		};
+	it('check if event is sent when decimal is being writen', () => {
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				key="input"
+				onChange={jest.fn()}
+			/>
+		);
 
-		const events = {fieldEdited: handleFieldEdited};
+		const input = container.querySelector('input');
 
-		component = new Numeric({
-			...defaultNumericConfig,
-			events,
-			key: 'input',
-		});
-
-		component._handleFieldChanged({
+		fireEvent.change(input, {
 			target: {
 				value: '3.0',
 			},
 		});
+
+		act(() => {
+			jest.runAllTimers();
+		});
+
+		expect(input.value).toBe('3.0');
 	});
 
 	it('check field value is rounded when fieldType is integer but it receives a double', () => {
-		component = new Numeric({
-			...defaultNumericConfig,
-			key: 'input',
-			value: '3.8',
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				key="input"
+				onChange={jest.fn()}
+				value="3.8"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
 		});
 
-		expect(component.value).toEqual('4');
+		const input = container.querySelector('input');
+
+		expect(input.value).toBe('4');
+	});
+
+	it('round up value when changing from decimal to integer when symbol of language is comma', () => {
+		const {container} = render(
+			<NumericWithProvider
+				{...defaultNumericConfig}
+				dataType="integer"
+				onChange={jest.fn()}
+				value="22,82"
+			/>
+		);
+
+		act(() => {
+			jest.runAllTimers();
+		});
+
+		expect(container.querySelector('input').value).toBe('23');
 	});
 });

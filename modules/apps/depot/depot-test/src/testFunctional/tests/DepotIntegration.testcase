@@ -55,6 +55,10 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
+		Depot.viewConnectedSiteNumber(
+			connectedSiteNumber = "0",
+			depotName = "Test Depot Name");
+
 		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
 
 		DepotNavigator.gotoSites(depotName = "Test Depot Name");
@@ -62,6 +66,10 @@ definition {
 		Depot.connectSite(siteList = "Site Name,Private Site Name,Restricted Site Name");
 
 		DepotNavigator.openDepotAdmin();
+
+		Depot.viewConnectedSiteNumber(
+			connectedSiteNumber = "3",
+			depotName = "Test Depot Name");
 
 		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
 
@@ -85,6 +93,8 @@ definition {
 
 		DepotNavigator.gotoSites(depotName = "Test Depot Name");
 
+		Pause(locator1 = "3000");
+
 		Depot.connectSite(siteList = "Site Name");
 
 		DepotNavigator.openDepotAdmin();
@@ -97,7 +107,7 @@ definition {
 			depotName = "Test Depot Name",
 			siteList = "Site Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -112,13 +122,13 @@ definition {
 
 		DepotNavigator.gotoSites(depotName = "Test Depot Name");
 
-		// we need to add an assertion for the label that will later be developed and update the test description
+		// We need to add an assertion for the label that will later be developed and update the test description
 
 		Depot.viewConnectedSite(
 			depotName = "Test Depot Name",
 			siteList = "Site Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -153,6 +163,10 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
+		Depot.viewConnectedSiteNumber(
+			connectedSiteNumber = "1",
+			depotName = "Test Depot Name");
+
 		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
 
 		DepotNavigator.gotoSites(depotName = "Test Depot Name");
@@ -184,8 +198,6 @@ definition {
 			groupName = "Test Depot Name",
 			site = "false",
 			title = "WC WebContent Title");
-
-		PortletEntry.publish();
 
 		DepotNavigator.openDepotAdmin();
 
@@ -254,6 +266,8 @@ definition {
 
 		DepotNavigator.gotoSites(depotName = "Test Depot Name");
 
+		Pause(locator1 = "3000");
+
 		Depot.connectSite(siteList = "Site Name");
 
 		Navigator.gotoSitePage(
@@ -319,11 +333,7 @@ definition {
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMDocument.addCP(
 			dmDocumentDescription = "DM Document Description",
@@ -564,6 +574,8 @@ definition {
 	@description = "This ensures that a depot web content can be searched from the connected site."
 	@priority = "5"
 	test SearchForWebContent {
+		property portal.acceptance = "true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Page Name",
@@ -589,6 +601,8 @@ definition {
 		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
 
 		DepotNavigator.gotoSites(depotName = "Test Depot Name");
+
+		Pause(locator1 = "3000");
 
 		Depot.connectSite(siteList = "Site Name");
 
@@ -655,13 +669,7 @@ definition {
 
 		Depot.connectSite(siteList = "Site Name");
 
-		ProductMenu.gotoSite(site = "Site Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Title");
 
@@ -692,13 +700,7 @@ definition {
 
 		Depot.connectSite(siteList = "Child Site Name");
 
-		ProductMenu.gotoSite(site = "Child Site Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_1.jpg");
 

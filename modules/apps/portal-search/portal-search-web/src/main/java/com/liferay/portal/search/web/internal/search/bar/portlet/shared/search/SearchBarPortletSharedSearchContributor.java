@@ -73,9 +73,16 @@ public class SearchBarPortletSharedSearchContributor
 			return;
 		}
 
+		searchRequestBuilder.withSearchContext(
+			searchContext -> searchContext.setIncludeInternalAssetCategories(
+				false));
+
 		setKeywords(
 			searchRequestBuilder, searchBarPortletPreferences,
 			portletSharedSearchSettings);
+
+		setScopeParameterName(
+			searchBarPortletPreferences, portletSharedSearchSettings);
 
 		filterByThisSite(
 			searchRequestBuilder, searchBarPortletPreferences,
@@ -246,11 +253,9 @@ public class SearchBarPortletSharedSearchContributor
 			return false;
 		}
 
-		SearchBarPortletPreferences searchBarPortletPreferences =
-			getSearchBarPortletPreferences(portlet, themeDisplay);
-
 		if (!SearchBarPortletDestinationUtil.isSameDestination(
-				searchBarPortletPreferences, themeDisplay)) {
+				getSearchBarPortletPreferences(portlet, themeDisplay),
+				themeDisplay)) {
 
 			return false;
 		}
@@ -298,6 +303,14 @@ public class SearchBarPortletSharedSearchContributor
 			searchContext -> searchContext.setAttribute(
 				SearchContextAttributes.ATTRIBUTE_KEY_LUCENE_SYNTAX,
 				Boolean.TRUE));
+	}
+
+	protected void setScopeParameterName(
+		SearchBarPortletPreferences searchBarPortletPreferences,
+		PortletSharedSearchSettings portletSharedSearchSettings) {
+
+		portletSharedSearchSettings.setScopeParameterName(
+			searchBarPortletPreferences.getScopeParameterName());
 	}
 
 	protected boolean shouldContributeToCurrentPageSearch(

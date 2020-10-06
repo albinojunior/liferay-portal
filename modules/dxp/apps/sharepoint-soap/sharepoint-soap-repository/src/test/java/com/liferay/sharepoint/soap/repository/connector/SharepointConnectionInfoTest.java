@@ -14,6 +14,7 @@
 
 package com.liferay.sharepoint.soap.repository.connector;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 
 import java.net.URL;
@@ -69,8 +70,9 @@ public class SharepointConnectionInfoTest {
 		URL serviceURL = sharepointConnectionInfo.getServiceURL();
 
 		Assert.assertEquals(
-			_SERVER_PROTOCOL + "://" + _SERVER_ADDRESS + StringPool.COLON +
-				_SERVER_PORT + sitePath + StringPool.SLASH,
+			StringBundler.concat(
+				_SERVER_PROTOCOL, "://", _SERVER_ADDRESS, StringPool.COLON,
+				_SERVER_PORT, sitePath, StringPool.SLASH),
 			serviceURL.toString());
 	}
 
@@ -79,7 +81,7 @@ public class SharepointConnectionInfoTest {
 
 		return new SharepointConnectionInfo(
 			_SERVER_VERSION, _SERVER_PROTOCOL, _SERVER_ADDRESS, _SERVER_PORT,
-			sitePath, _LIBRARY_NAME, _LIBRARY_PATH, _USERNAME, _PASSWORD);
+			sitePath, _LIBRARY_NAME, _LIBRARY_PATH, _USER_NAME, _PASSWORD);
 	}
 
 	private static final String _LIBRARY_NAME = "Documents";
@@ -97,6 +99,6 @@ public class SharepointConnectionInfoTest {
 	private static final SharepointConnection.ServerVersion _SERVER_VERSION =
 		SharepointConnection.ServerVersion.SHAREPOINT_2013;
 
-	private static final String _USERNAME = "Administrator";
+	private static final String _USER_NAME = "Administrator";
 
 }

@@ -15,11 +15,11 @@
 package com.liferay.portal.util;
 
 import com.liferay.petra.content.ContentUtil;
+import com.liferay.petra.io.unsync.UnsyncStringReader;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.XMLUtil;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.language.LanguageResources;
 
 import java.io.Serializable;
 
@@ -648,11 +647,7 @@ public class LocalizationImpl implements Localization {
 
 	@Override
 	public String getLocalizedName(String name, String languageId) {
-		return name.concat(
-			StringPool.UNDERLINE
-		).concat(
-			languageId
-		);
+		return StringBundler.concat(name, StringPool.UNDERLINE, languageId);
 	}
 
 	@Override
@@ -861,7 +856,7 @@ public class LocalizationImpl implements Localization {
 
 			xmlStreamWriter.writeStartElement(_ROOT);
 
-			StringBundler sb = new StringBundler(2 * map.size() - 1);
+			StringBundler sb = new StringBundler((2 * map.size()) - 1);
 
 			sb.append(defaultLanguageId);
 
@@ -1409,10 +1404,7 @@ public class LocalizationImpl implements Localization {
 			}
 		}
 
-		if (Validator.isNotNull(value)) {
-			value = LanguageResources.fixValue(value);
-		}
-		else {
+		if (Validator.isNull(value)) {
 			value = LanguageUtil.get(locale, key, defaultValue);
 		}
 

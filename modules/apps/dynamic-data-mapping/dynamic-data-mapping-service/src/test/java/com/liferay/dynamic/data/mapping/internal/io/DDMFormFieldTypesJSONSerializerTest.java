@@ -23,7 +23,6 @@ import com.liferay.dynamic.data.mapping.io.DDMFormFieldTypesSerializerSerializeR
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 
@@ -32,7 +31,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -78,17 +76,16 @@ public class DDMFormFieldTypesJSONSerializerTest extends BaseDDMTestCase {
 	}
 
 	protected String createExpectedJSON() {
-		JSONObject jsonObject = JSONUtil.put(
-			"icon", "my-icon"
-		).put(
-			"javaScriptClass", "myJavaScriptClass"
-		).put(
-			"javaScriptModule", "myJavaScriptModule"
-		).put(
-			"name", "Text"
-		);
-
-		JSONArray jsonArray = JSONUtil.put(jsonObject);
+		JSONArray jsonArray = JSONUtil.put(
+			JSONUtil.put(
+				"icon", "my-icon"
+			).put(
+				"javaScriptClass", "myJavaScriptClass"
+			).put(
+				"javaScriptModule", "myJavaScriptModule"
+			).put(
+				"name", "Text"
+			));
 
 		return jsonArray.toString();
 	}
@@ -117,19 +114,17 @@ public class DDMFormFieldTypesJSONSerializerTest extends BaseDDMTestCase {
 			ddmFormFieldRenderer
 		);
 
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
-			"ddm.form.field.type.icon", "my-icon"
-		).put(
-			"ddm.form.field.type.js.class.name", "myJavaScriptClass"
-		).put(
-			"ddm.form.field.type.js.module", "myJavaScriptModule"
-		).build();
-
 		when(
 			ddmFormFieldTypeServicesTracker.getDDMFormFieldTypeProperties(
 				Matchers.anyString())
 		).thenReturn(
-			properties
+			HashMapBuilder.<String, Object>put(
+				"ddm.form.field.type.icon", "my-icon"
+			).put(
+				"ddm.form.field.type.js.class.name", "myJavaScriptClass"
+			).put(
+				"ddm.form.field.type.js.module", "myJavaScriptModule"
+			).build()
 		);
 
 		return ddmFormFieldTypeServicesTracker;

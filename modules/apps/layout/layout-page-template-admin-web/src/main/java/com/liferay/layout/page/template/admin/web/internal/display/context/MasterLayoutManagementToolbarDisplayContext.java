@@ -32,13 +32,15 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletURL;
+import javax.portlet.ResourceURL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -71,6 +73,15 @@ public class MasterLayoutManagementToolbarDisplayContext
 				dropdownItem.setLabel(LanguageUtil.get(request, "delete"));
 				dropdownItem.setQuickAction(true);
 			}
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "exportMasterLayouts");
+				dropdownItem.putData(
+					"exportMasterLayoutURL", _getExportMasterLayoutURL());
+				dropdownItem.setIcon("download");
+				dropdownItem.setLabel(LanguageUtil.get(request, "export"));
+				dropdownItem.setQuickAction(true);
+			}
 		).build();
 	}
 
@@ -78,14 +89,22 @@ public class MasterLayoutManagementToolbarDisplayContext
 			LayoutPageTemplateEntry layoutPageTemplateEntry)
 		throws PortalException {
 
+		List<String> availableActions = new ArrayList<>();
+
 		if (LayoutPageTemplateEntryPermission.contains(
 				_themeDisplay.getPermissionChecker(), layoutPageTemplateEntry,
 				ActionKeys.DELETE)) {
 
-			return "deleteSelectedMasterLayouts";
+			availableActions.add("deleteSelectedMasterLayouts");
 		}
 
-		return StringPool.BLANK;
+		if ((layoutPageTemplateEntry.getLayoutPrototypeId() == 0) &&
+			!layoutPageTemplateEntry.isDraft()) {
+
+			availableActions.add("exportMasterLayouts");
+		}
+
+		return StringUtil.merge(availableActions, StringPool.COMMA);
 	}
 
 	@Override
@@ -119,14 +138,12 @@ public class MasterLayoutManagementToolbarDisplayContext
 
 		return CreationMenuBuilder.addDropdownItem(
 			dropdownItem -> {
-				Map<String, Object> dropDownItemData =
+				dropdownItem.setData(
 					HashMapBuilder.<String, Object>put(
 						"action", "addMasterLayout"
 					).put(
 						"addMasterLayoutURL", addMasterLayoutURL.toString()
-					).build();
-
-				dropdownItem.setData(dropDownItemData);
+					).build());
 
 				dropdownItem.setLabel(LanguageUtil.get(request, "add"));
 			}
@@ -166,6 +183,16 @@ public class MasterLayoutManagementToolbarDisplayContext
 	@Override
 	protected String[] getOrderByKeys() {
 		return new String[] {"create-date", "name"};
+	}
+
+	private String _getExportMasterLayoutURL() {
+		ResourceURL exportMasterLayoutURL =
+			liferayPortletResponse.createResourceURL();
+
+		exportMasterLayoutURL.setResourceID(
+			"/layout_page_template/export_master_layout");
+
+		return exportMasterLayoutURL.toString();
 	}
 
 	private final ThemeDisplay _themeDisplay;

@@ -80,10 +80,6 @@ public class FindKBArticleStrutsAction implements StrutsAction {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
 		long plid = ParamUtil.getLong(httpServletRequest, "plid");
 		long resourcePrimKey = ParamUtil.getLong(
 			httpServletRequest, "resourcePrimKey");
@@ -95,6 +91,10 @@ public class FindKBArticleStrutsAction implements StrutsAction {
 		KBArticle kbArticle = getKBArticle(resourcePrimKey, status);
 
 		if (!isValidPlid(plid)) {
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
 			plid = themeDisplay.getPlid();
 		}
 
@@ -360,14 +360,14 @@ public class FindKBArticleStrutsAction implements StrutsAction {
 			HttpServletRequest httpServletRequest)
 		throws Exception {
 
-		long resourcePrimKey = ParamUtil.getLong(
-			httpServletRequest, "resourcePrimKey");
-
 		String mvcPath = null;
 
 		String rootPortletId = PortletIdCodec.decodePortletName(portletId);
 
-		if (rootPortletId.equals(KBPortletKeys.KNOWLEDGE_BASE_ARTICLE)) {
+		if (rootPortletId.equals(KBPortletKeys.KNOWLEDGE_BASE_ADMIN)) {
+			mvcPath = "/admin/view_article.jsp";
+		}
+		else if (rootPortletId.equals(KBPortletKeys.KNOWLEDGE_BASE_ARTICLE)) {
 			mvcPath = "/article/view_article.jsp";
 		}
 		else if (rootPortletId.equals(KBPortletKeys.KNOWLEDGE_BASE_SECTION)) {
@@ -382,6 +382,9 @@ public class FindKBArticleStrutsAction implements StrutsAction {
 		}
 
 		if ((kbArticle == null) || Validator.isNull(kbArticle.getUrlTitle())) {
+			long resourcePrimKey = ParamUtil.getLong(
+				httpServletRequest, "resourcePrimKey");
+
 			portletURL.setParameter(
 				"resourcePrimKey", String.valueOf(resourcePrimKey));
 		}
@@ -418,6 +421,10 @@ public class FindKBArticleStrutsAction implements StrutsAction {
 
 		if (selPlid != LayoutConstants.DEFAULT_PARENT_LAYOUT_ID) {
 			return KBPortletKeys.KNOWLEDGE_BASE_DISPLAY;
+		}
+
+		if (layout.isTypeControlPanel()) {
+			return KBPortletKeys.KNOWLEDGE_BASE_ADMIN;
 		}
 
 		return KBPortletKeys.KNOWLEDGE_BASE_ARTICLE_DEFAULT_INSTANCE;

@@ -32,7 +32,7 @@ public abstract class Base${entity.name}UADExporter extends DynamicQueryUADExpor
 
 	@Override
 	protected ActionableDynamicQuery doGetActionableDynamicQuery() {
-		return ${entity.varName}LocalService.getActionableDynamicQuery();
+		return ${entity.variableName}LocalService.getActionableDynamicQuery();
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public abstract class Base${entity.name}UADExporter extends DynamicQueryUADExpor
 	}
 
 	@Override
-	protected String toXmlString(${entity.name} ${entity.varName}) {
+	protected String toXmlString(${entity.name} ${entity.variableName}) {
 		StringBundler sb = new StringBundler(${entity.UADEntityColumns?size * 3 + 4});
 
 		sb.append("<model><model-name>");
@@ -51,7 +51,7 @@ public abstract class Base${entity.name}UADExporter extends DynamicQueryUADExpor
 		<#list entity.UADEntityColumns as entityColumn>
 			<#if !stringUtil.equals(entityColumn.type, "Blob") || !entityColumn.lazy>
 				sb.append("<column><column-name>${entityColumn.name}</column-name><column-value><![CDATA[");
-				sb.append(${entity.varName}.get${entityColumn.methodName}());
+				sb.append(${entity.variableName}.get${entityColumn.methodName}());
 				sb.append("]]></column-value></column>");
 			</#if>
 		</#list>
@@ -62,6 +62,6 @@ public abstract class Base${entity.name}UADExporter extends DynamicQueryUADExpor
 	}
 
 	@Reference
-	protected ${entity.name}LocalService ${entity.varName}LocalService;
+	protected ${entity.name}LocalService ${entity.variableName}LocalService;
 
 }

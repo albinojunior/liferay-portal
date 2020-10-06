@@ -19,7 +19,7 @@
 <%
 String closeRedirect = ParamUtil.getString(request, "closeRedirect");
 
-String portletResourceNamespace = ParamUtil.getString(request, "portletResourceNamespace", renderResponse.getNamespace());
+String portletResourceNamespace = ParamUtil.getString(request, "portletResourceNamespace", liferayPortletResponse.getNamespace());
 
 DDMStructure structure = (DDMStructure)request.getAttribute(DDMWebKeys.DYNAMIC_DATA_MAPPING_STRUCTURE);
 
@@ -45,7 +45,6 @@ catch (NoSuchStructureException nsee) {
 
 long classNameId = PortalUtil.getClassNameId(DDMStructure.class);
 long classPK = BeanParamUtil.getLong(structure, request, "structureId");
-String structureKey = BeanParamUtil.getString(structure, request, "structureKey");
 
 String script = null;
 
@@ -91,8 +90,8 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 }
 %>
 
-<div class="container-fluid-1280">
-	<aui:form action="<%= (structure == null) ? addStructureURL : updateStructureURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveStructure();" %>'>
+<clay:container-fluid>
+	<aui:form action="<%= (structure == null) ? addStructureURL : updateStructureURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveStructure();" %>'>
 		<aui:input name="redirect" type="hidden" value="<%= ddmDisplay.getViewTemplatesBackURL(liferayPortletRequest, liferayPortletResponse, classPK) %>" />
 		<aui:input name="closeRedirect" type="hidden" value="<%= closeRedirect %>" />
 		<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
@@ -215,7 +214,7 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 					{
 						label: '<%= UnicodeLanguageUtil.get(request, "view-history") %>',
 						on: {
-							click: function(event) {
+							click: function (event) {
 								event.domEvent.preventDefault();
 
 								window.location.href = '<%= viewHistoryURL %>';
@@ -270,10 +269,14 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 						persistState="<%= true %>"
 						title='<%= LanguageUtil.get(request, "details") %>'
 					>
-						<aui:row cssClass="lfr-ddm-types-form-column">
+						<clay:row
+							cssClass="lfr-ddm-types-form-column"
+						>
 							<c:choose>
 								<c:when test="<%= Validator.isNull(storageTypeValue) %>">
-									<aui:col width="<%= 50 %>">
+									<clay:col
+										md="6"
+									>
 										<aui:field-wrapper>
 											<aui:select disabled="<%= structure != null %>" name="storageType">
 
@@ -289,13 +292,13 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 
 											</aui:select>
 										</aui:field-wrapper>
-									</aui:col>
+									</clay:col>
 								</c:when>
 								<c:otherwise>
 									<aui:input name="storageType" type="hidden" value="<%= storageTypeValue %>" />
 								</c:otherwise>
 							</c:choose>
-						</aui:row>
+						</clay:row>
 
 						<c:if test="<%= !ddmDisplayContext.autogenerateStructureKey() %>">
 							<aui:input disabled="<%= (structure != null) ? true : false %>" label='<%= LanguageUtil.format(request, "x-key", HtmlUtil.escape(ddmDisplay.getStructureName(locale)), false) %>' name="structureKey" />
@@ -308,9 +311,9 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 
 							<aui:input cssClass="lfr-input-text" disabled="<%= true %>" label="" name="parentStructureName" type="text" value="<%= parentStructureName %>" />
 
-							<aui:button onClick='<%= renderResponse.getNamespace() + "openParentStructureSelector();" %>' value="select" />
+							<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "openParentStructureSelector();" %>' value="select" />
 
-							<aui:button disabled="<%= Validator.isNull(parentStructureName) %>" name="removeParentStructureButton" onClick='<%= renderResponse.getNamespace() + "removeParentStructure();" %>' value="remove" />
+							<aui:button disabled="<%= Validator.isNull(parentStructureName) %>" name="removeParentStructureButton" onClick='<%= liferayPortletResponse.getNamespace() + "removeParentStructure();" %>' value="remove" />
 						</aui:field-wrapper>
 
 						<c:if test="<%= structure != null %>">
@@ -333,15 +336,15 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 	</aui:form>
 
 	<aui:button-row>
-		<aui:button onClick='<%= renderResponse.getNamespace() + "saveStructure(false);" %>' primary="<%= true %>" value='<%= LanguageUtil.get(request, "save") %>' />
+		<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "saveStructure(false);" %>' primary="<%= true %>" value='<%= LanguageUtil.get(request, "save") %>' />
 
 		<c:if test="<%= ddmDisplay.isVersioningEnabled() %>">
-			<aui:button onClick='<%= renderResponse.getNamespace() + "saveStructure(true);" %>' value='<%= LanguageUtil.get(request, "save-draft") %>' />
+			<aui:button onClick='<%= liferayPortletResponse.getNamespace() + "saveStructure(true);" %>' value='<%= LanguageUtil.get(request, "save-draft") %>' />
 		</c:if>
 
 		<aui:button href="<%= PortalUtil.escapeRedirect(ddmDisplay.getViewTemplatesBackURL(liferayPortletRequest, liferayPortletResponse, classPK)) %>" type="cancel" />
 	</aui:button-row>
-</div>
+</clay:container-fluid>
 
 <aui:script>
 	function <portlet:namespace />openParentStructureSelector() {
@@ -359,7 +362,7 @@ if (Validator.isNotNull(requestUpdateStructureURL)) {
 				showManageTemplates: false,
 				title: '<%= HtmlUtil.escapeJS(scopeTitle) %>',
 			},
-			function(event) {
+			function (event) {
 				var form = document.<portlet:namespace />fm;
 
 				Liferay.Util.setFormValues(form, {

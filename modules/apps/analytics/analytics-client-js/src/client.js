@@ -12,58 +12,54 @@
  * details.
  */
 
-import middlewares from './middlewares/defaults';
-import hash from './utils/hash';
+import {
+	FLUSH_INTERVAL,
+	LIMIT_FAILED_ATTEMPTS,
+	QUEUE_PRIORITY_DEFAULT,
+	REQUEST_TIMEOUT,
+} from './utils/constants';
+import {getRetryDelay} from './utils/delay';
 
 /**
- * Client used to abstract communication with the Analytics Endpoint. It exposes
- * the send and use methods as only valid entry points for sending and modifiying
- * requests.
- * @class
+ * A Queue Config.
+ *
+ * @typedef {Object} QueueConfig
+ * @property {string} endpointUrl - Url to send the items
+ * @property {string} name - The name to idetify the queue, it must be unique.
+ * @property {number} [priority=1] - Priority of this queue.
+ */
+
+/**
+ * Client used to abstract communication with the Analytics Endpoint. It exposes the send
+ * as only valid entry point for sending and modifying requests.
+ * It process queues to send messages to the server. It will periodically run a task to
+ * process messages in its queue.
  */
 class Client {
-	/**
-	 * Constructor
-	 * @param {*} uri The Endpoint URI where the data should be sent
-	 */
-	constructor(uri) {
-		this.uri = uri;
-	}
+	constructor(config = {}) {
+		this.attemptNumber = 1;
+		this.initialDelay = config.delay || FLUSH_INTERVAL;
+		this.delay = this.initialDelay;
+		this.processing = false;
+		this.queues = [];
 
-	_getContextEvents(analytics, context) {
-		return analytics.events.filter(event => {
-			const contextHash = hash(context, {
-				unorderedObjects: false,
-			});
-
-			let eventId = false;
-
-			if (event.applicationId && event.contextHash === contextHash) {
-				eventId = event.eventId;
-			}
-
-			return eventId;
-		});
+		this._startsFlushLoop();
 	}
 
 	/**
 	 * Returns a Request object with all data from the analytics instance
-	 * includin the batched event objects
-	 * @param {object} analytics The Analytics instance from which the data is extracted
+	 * including the batched event objects
+	 * @param {Object} analytics The Analytics instance from which the data is extracted
 	 * @param {string} userId The userId string representation
 	 * @protected
-	 * @return {object} Request
+	 * @returns {Object} Parameters of the request to be sent.
 	 */
-	_getRequest(analytics, userId, context) {
-		const body = JSON.stringify(
-			this._getRequestBody(analytics, userId, context)
-		);
+	_getRequestParameters() {
 		const headers = new Headers();
 
 		headers.append('Content-Type', 'application/json');
 
 		return {
-			body,
 			cache: 'default',
 			credentials: 'same-origin',
 			headers,
@@ -73,83 +69,202 @@ class Client {
 	}
 
 	/**
-	 * Returns the formatted version of the analytics data that complies to the
-	 * predefined request specification of the endpoint
-	 * @param {object} analytics The Analytics instance from which the data is extracted
-	 * @param {string} userId The userId string representation
-	 * @protected
-	 * @return {object} Body of the request to be sent to the endpoint.
-	 */
-	_getRequestBody(analytics, userId, context) {
-		const events = this._getContextEvents(analytics, context);
-		const {dataSourceId} = analytics.config;
-
-		return {
-			context,
-			dataSourceId,
-			events,
-			protocolVersion: '1.0',
-			userId,
-		};
-	}
-
-	/**
 	 * Returns the Response object or a rejected Promise based on the
 	 * HTTP Response Code of the Response object
-	 * @param {object} response Response
-	 * @return {object} Promise
+	 * @param {Object} response Response
+	 * @returns {Object} Promise
 	 */
 	_validateResponse(response) {
 		if (!response.ok) {
-			response = new Promise((resolve, reject) => reject(response));
+			response = new Promise((_, reject) => reject(response));
 		}
 
 		return response;
 	}
 
 	/**
-	 * Returns a resolved or rejected promise as per the response status
-	 * @param {object} analytics The Analytics instance from which the data is extracted
+	 * Returns a resolved or rejected promise as per the response status or if the request times out.
+	 * @param {Object} analytics The Analytics instance from which the data is extracted
 	 * @param {string} userId The userId string representation
-	 * @return {object} Promise object representing the result of the operation
+	 * @returns {Object} Promise object representing the result of the operation
 	 */
-	send(analytics, userId) {
-		return Promise.all(
-			analytics.contexts
-				.filter(
-					context =>
-						this._getContextEvents(analytics, context).length > 0
-				)
-				.map(context => {
-					const request = this._getRequest(
-						analytics,
-						userId,
-						context
-					);
+	sendWithTimeout({payload, timeout, url}) {
+		return Promise.race([
+			this.send({payload, url}),
+			this._timeout(timeout),
+		]);
+	}
 
-					return fetch(this.uri, request).then(
-						this._validateResponse
-					);
-				})
+	/**
+	 * Send a request with given payload and url.
+	 */
+	send({payload, url}) {
+		return fetch(url, {
+			...this._getRequestParameters(),
+			body: JSON.stringify(payload),
+		}).then(this._validateResponse);
+	}
+
+	/**
+	 * Returns a promise that times out after the given time limit is exceeded
+	 * @param {number} timeout
+	 * @returns {Object} Promise
+	 */
+	_timeout(timeout) {
+		return new Promise((_, reject) => setTimeout(reject, timeout));
+	}
+
+	/**
+	 * Add a queue to be processed by the client
+	 * @param {MessageQueue} queueInstance
+	 * @param {QueueConfig} config
+	 */
+	addQueue(queueInstance, config) {
+		this.queues.push({instance: queueInstance, ...config});
+		this.queues.sort(this._prioritize);
+	}
+
+	/**
+	 * Remove a queue
+	 * @param {string} queueName
+	 */
+	removeQueue(queueName) {
+		this.queues = this.queues.filter(({name}) => queueName !== name);
+	}
+
+	/**
+	 * Function to order queues by priority
+	 * @param {Object} queueA
+	 * @param {Object} queueB
+	 */
+	_prioritize(
+		{priority: pA = QUEUE_PRIORITY_DEFAULT},
+		{priority: pB = QUEUE_PRIORITY_DEFAULT}
+	) {
+		return pB - pA;
+	}
+
+	/**
+	 * Increase the interval time and restart processing loop
+	 */
+	onRequestFail() {
+		this.delay = getRetryDelay(++this.attemptNumber, LIMIT_FAILED_ATTEMPTS);
+		this._startsFlushLoop();
+	}
+
+	/**
+	 * Reset interval time and restart processing loop
+	 */
+	onRequestSuccess() {
+		this.attemptNumber = 1;
+
+		if (this.delay !== this.initialDelay) {
+			this.delay = this.initialDelay;
+			this._startsFlushLoop();
+		}
+	}
+
+	/**
+	 * Go through queues and send their messages.
+	 * If a queue fail, the processing loop is delayed
+	 * and the next queues are not processed.
+	 *
+	 * Note: Because we are using a ProcessLock, no other process should
+	 * be able to acquire a lock for a particular key to run its callback
+	 * until the process with the active lock releases it.
+	 *
+	 */
+	flush() {
+		if (this.processing) {
+			return;
+		}
+
+		this.queues.reduce(
+			(previousPromise, {endpointUrl, instance: queue}) => {
+				return previousPromise.then(
+					() => {
+						if (!queue.hasMessages()) {
+							return Promise.resolve();
+						}
+
+						return queue.acquireLock().then((success) => {
+							if (!success) {
+								return Promise.resolve();
+							}
+
+							this.processing = true;
+							const messages = queue.getMessages();
+							const releaseLock = () =>
+								queue.releaseLock().then(() => {
+									this.processing = false;
+								});
+
+							if (!messages.length) {
+								releaseLock();
+
+								return Promise.resolve();
+							}
+
+							return Promise.all(
+								messages.map(({item, ...newItem}) => {
+									let payload = newItem;
+
+									if (item) {
+										payload = item;
+									}
+
+									return this.sendWithTimeout({
+										payload,
+										timeout: REQUEST_TIMEOUT,
+										url: endpointUrl,
+									}).then(() => {
+										queue._dequeue(payload.id);
+									});
+								})
+							)
+								.then(() => {
+									this.onRequestSuccess();
+									releaseLock();
+
+									return Promise.resolve();
+								})
+								.catch(() => {
+									releaseLock();
+
+									return Promise.reject();
+								});
+						});
+					},
+					() => {
+						this.onRequestFail();
+					}
+				);
+			},
+			Promise.resolve()
 		);
 	}
 
 	/**
-	 * Adds a middleware function to provide ability to transform the request
-	 * that is sent to the endpoint
-	 * @param {Function} middleware A function to alter request
-	 * @example
-	 * Client.use(
-	 *   (req, analytics) => {
-	 *     req.firstEvent = analytics.events[0];
-	 *     req.myMetaInfo = 'myMetaInfo';
-	 *
-	 *     return req;
-	 *   }
-	 * );
+	 * Start a timer to process messages at a specified interval.
 	 */
-	use(middleware) {
-		middlewares.push(middleware);
+	_startsFlushLoop() {
+		if (this.processInterval) {
+			clearInterval(this.processInterval);
+		}
+
+		this.processInterval = setInterval(() => this.flush(), this.delay);
+	}
+
+	/**
+	 * Method for clearing queues and any scheduled processing.
+	 */
+	dispose() {
+		if (this.processInterval) {
+			clearInterval(this.processInterval);
+		}
+
+		this.delay = this.initialDelay;
+		this.queues = [];
 	}
 }
 

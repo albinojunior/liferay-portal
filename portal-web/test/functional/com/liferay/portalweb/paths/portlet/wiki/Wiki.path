@@ -19,6 +19,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ENTRY_TITLE</td>
+	<td>//input[contains(@id,'title')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRONTPAGE_DEFAULT_MESSAGE</td>
 	<td>//div[@class='wiki-body']/div/a</td>
 	<td></td>
@@ -208,7 +213,7 @@
 </tr>
 <tr>
 	<td>COMPARE_VERSIONS_IFRAME</td>
-	<td>//iframe[contains(@id,'compareVersions')]</td>
+	<td>//div[contains(@class,'modal-body')]/iframe[contains(@id,'selectVersionFm')]</td>
 	<td></td>
 </tr>
 <tr>

@@ -42,8 +42,8 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataContextFactoryUtil;
 import com.liferay.exportimport.test.util.TestReaderWriter;
 import com.liferay.exportimport.test.util.TestUserIdStrategy;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.string.StringBundler;
@@ -57,12 +57,12 @@ import com.liferay.portal.kernel.repository.capabilities.ThumbnailCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
-import com.liferay.portal.kernel.test.util.TestDataConstants;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -403,9 +403,7 @@ public class DDMFormValuesExportImportContentProcessorTest {
 		long classNameId = ClassNameLocalServiceUtil.getClassNameId(
 			JournalArticle.class);
 
-		DDMForm ddmForm = _formInstance.getDDMForm();
-
-		structure.setDDMForm(ddmForm);
+		structure.setDDMForm(_formInstance.getDDMForm());
 
 		structure.setClassNameId(classNameId);
 
@@ -456,9 +454,9 @@ public class DDMFormValuesExportImportContentProcessorTest {
 			TestPropsValues.getUserId(), _stagingGroup.getGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
-		InputStream is = new UnsyncByteArrayInputStream(new byte[0]);
+		InputStream inputStream = new UnsyncByteArrayInputStream(new byte[0]);
 		long size = 0;
-		File file = FileUtil.createTempFile(is);
+		File file = FileUtil.createTempFile(inputStream);
 
 		_createDDMFormWithJournalField(_stagingGroup, _journalArticle);
 
@@ -485,7 +483,7 @@ public class DDMFormValuesExportImportContentProcessorTest {
 			MimeTypesUtil.getExtensionContentType("txt"),
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			StringPool.BLANK, dlFileEntryType.getFileEntryTypeId(),
-			ddmFormValuesMap, file, is, size, serviceContext);
+			ddmFormValuesMap, file, inputStream, size, serviceContext);
 
 		_fileEntry = _dlAppLocalService.getFileEntry(
 			dlFileEntry.getFileEntryId());

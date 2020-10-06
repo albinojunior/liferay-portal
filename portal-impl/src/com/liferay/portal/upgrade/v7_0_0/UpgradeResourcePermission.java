@@ -16,8 +16,12 @@ package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
+import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 
@@ -65,7 +69,7 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 						"name = ?")) {
 
 				while (rs1.next()) {
-					List<String> stringPrimKeys = new ArrayList<>();
+					List<String> primKeys = new ArrayList<>();
 
 					String name = rs1.getString("name");
 
@@ -79,19 +83,50 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 								!primKey.contains(
 									PortletConstants.LAYOUT_SEPARATOR)) {
 
-								stringPrimKeys.add(primKey);
+								primKeys.add(primKey);
 							}
 						}
 					}
 
-					_updatePrimKeyIdsByName(name, stringPrimKeys);
+					String[][] primKeysArray = null;
+
+					if (!primKeys.isEmpty()) {
+						primKeysArray = (String[][])ArrayUtil.split(
+							primKeys.toArray(new String[0]),
+							_getPrimKeysSplitSize(primKeys.size()));
+					}
+
+					_updatePrimKeyIdsByName(name, primKeysArray);
 				}
 			}
 		}
 	}
 
-	private void _updatePrimKeyIds(
-			String sql, String name, List<String> primKeys)
+	private String _createInClause(String[] primKeys) {
+		StringBundler sb = new StringBundler(primKeys.length + 1);
+
+		sb.append("in (?");
+
+		for (int i = 1; i < primKeys.length; i++) {
+			sb.append(", ?");
+		}
+
+		sb.append(")");
+
+		return sb.toString();
+	}
+
+	private int _getPrimKeysSplitSize(int primKeysCount) {
+		DB db = DBManagerUtil.getDB();
+
+		if (db.getDBType() == DBType.ORACLE) {
+			return 1000;
+		}
+
+		return primKeysCount;
+	}
+
+	private void _updatePrimKeyIds(String sql, String name, String[] primKeys)
 		throws Exception {
 
 		try (PreparedStatement ps = connection.prepareStatement(
@@ -99,8 +134,8 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 
 			ps.setString(1, name);
 
-			for (int i = 0; i < primKeys.size(); i++) {
-				String primKey = primKeys.get(i);
+			for (int i = 0; i < primKeys.length; i++) {
+				String primKey = primKeys[i];
 
 				ps.setString(i + 2, primKey);
 			}
@@ -109,47 +144,39 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 		}
 	}
 
-	private void _updatePrimKeyIdsByName(String name, List<String> primKeys)
+	private void _updatePrimKeyIdsByName(String name, String[][] primKeysArray)
 		throws Exception {
 
-		if (primKeys.isEmpty()) {
+		if (ArrayUtil.isEmpty(primKeysArray)) {
 			_updatePrimKeyIds(
 				"update ResourcePermission set primKeyId = CAST_LONG(" +
 					"primKey) where name = ? and primKey not like '%_LAYOUT_%'",
-				name, primKeys);
+				name, new String[0]);
 
 			_updatePrimKeyIds(
 				"update ResourcePermission set primKeyId = 0 where name = ? " +
 					"and primKey like '%_LAYOUT_%'",
-				name, primKeys);
+				name, new String[0]);
 
 			return;
 		}
 
-		StringBundler sb = new StringBundler(primKeys.size() + 1);
+		for (String[] primKeys : primKeysArray) {
+			String inClause = _createInClause(primKeys);
 
-		sb.append("in (?");
-
-		for (int i = 1; i < primKeys.size(); i++) {
-			sb.append(", ?");
+			_updatePrimKeyIds(
+				StringBundler.concat(
+					"update ResourcePermission set primKeyId = 0 where name = ",
+					"? and (primKey like '%_LAYOUT_%' or primKey ", inClause,
+					")"),
+				name, primKeys);
 		}
 
-		sb.append(")");
-
-		String inClause = sb.toString();
-
-		_updatePrimKeyIds(
-			StringBundler.concat(
-				"update ResourcePermission set primKeyId = 0 where name = ? ",
-				"and (primKey like '%_LAYOUT_%' or primKey ", inClause, ")"),
-			name, primKeys);
-
-		_updatePrimKeyIds(
+		runSQL(
 			StringBundler.concat(
 				"update ResourcePermission set primKeyId = CAST_LONG(primKey",
-				") where name = ? and (primKey not like '%_LAYOUT_%' and ",
-				"primKey not ", inClause, ")"),
-			name, primKeys);
+				") where name = '", name,
+				"' and (primKey not like '%_LAYOUT_%' and primKeyId != 0)"));
 	}
 
 }

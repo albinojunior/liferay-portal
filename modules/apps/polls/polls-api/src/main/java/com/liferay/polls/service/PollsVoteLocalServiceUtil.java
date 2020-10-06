@@ -41,6 +41,10 @@ public class PollsVoteLocalServiceUtil {
 	/**
 	 * Adds the polls vote to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsVoteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pollsVote the polls vote
 	 * @return the polls vote that was added
 	 */
@@ -95,6 +99,10 @@ public class PollsVoteLocalServiceUtil {
 	/**
 	 * Deletes the polls vote with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsVoteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param voteId the primary key of the polls vote
 	 * @return the polls vote that was removed
 	 * @throws PortalException if a polls vote with the primary key could not be found
@@ -108,6 +116,10 @@ public class PollsVoteLocalServiceUtil {
 	/**
 	 * Deletes the polls vote from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsVoteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param pollsVote the polls vote
 	 * @return the polls vote that was removed
 	 */
@@ -115,6 +127,12 @@ public class PollsVoteLocalServiceUtil {
 		com.liferay.polls.model.PollsVote pollsVote) {
 
 		return getService().deletePollsVote(pollsVote);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -376,6 +394,10 @@ public class PollsVoteLocalServiceUtil {
 
 	/**
 	 * Updates the polls vote in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsVoteLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsVote the polls vote
 	 * @return the polls vote that was updated

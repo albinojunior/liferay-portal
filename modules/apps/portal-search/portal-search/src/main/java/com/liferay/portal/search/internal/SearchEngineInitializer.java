@@ -85,7 +85,7 @@ public class SearchEngineInitializer implements Runnable {
 		}
 
 		if (_log.isInfoEnabled()) {
-			_log.info("Reindexing Lucene started");
+			_log.info("Reindexing started");
 		}
 
 		if (delay < 0) {
@@ -116,26 +116,19 @@ public class SearchEngineInitializer implements Runnable {
 			long backgroundTaskId =
 				BackgroundTaskThreadLocal.getBackgroundTaskId();
 			List<FutureTask<Void>> futureTasks = new ArrayList<>();
-			Set<String> searchEngineIds = new HashSet<>();
 
 			if (_companyId == CompanyConstants.SYSTEM) {
 				_indexers = ServiceTrackerListFactory.open(
-					_bundleContext, Indexer.class, "(system.index=true)");
+					_bundleContext, (Class<Indexer<?>>)(Class<?>)Indexer.class,
+					"(system.index=true)");
 			}
 			else {
 				_indexers = ServiceTrackerListFactory.open(
-					_bundleContext, Indexer.class, "(!(system.index=true))");
+					_bundleContext, (Class<Indexer<?>>)(Class<?>)Indexer.class,
+					"(!(system.index=true))");
 			}
 
 			for (Indexer<?> indexer : _indexers) {
-				String searchEngineId = indexer.getSearchEngineId();
-
-				if (searchEngineIds.add(searchEngineId)) {
-					IndexWriterHelperUtil.deleteEntityDocuments(
-						searchEngineId, _companyId, indexer.getClassName(),
-						true);
-				}
-
 				FutureTask<Void> futureTask = new FutureTask<>(
 					new Callable<Void>() {
 
@@ -167,7 +160,7 @@ public class SearchEngineInitializer implements Runnable {
 
 			if (_log.isInfoEnabled()) {
 				_log.info(
-					"Reindexing Lucene completed in " +
+					"Reindexing completed in " +
 						(stopWatch.getTime() / Time.SECOND) + " seconds");
 			}
 		}
@@ -175,7 +168,7 @@ public class SearchEngineInitializer implements Runnable {
 			_log.error("Error encountered while reindexing", exception);
 
 			if (_log.isInfoEnabled()) {
-				_log.info("Reindexing Lucene failed");
+				_log.info("Reindexing failed");
 			}
 		}
 
@@ -212,7 +205,7 @@ public class SearchEngineInitializer implements Runnable {
 	private final BundleContext _bundleContext;
 	private final long _companyId;
 	private boolean _finished;
-	private ServiceTrackerList<Indexer, Indexer> _indexers;
+	private ServiceTrackerList<Indexer<?>, Indexer<?>> _indexers;
 	private final PortalExecutorManager _portalExecutorManager;
 	private final Set<String> _usedSearchEngineIds = new HashSet<>();
 

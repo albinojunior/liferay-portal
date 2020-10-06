@@ -24,9 +24,11 @@ import com.liferay.dynamic.data.mapping.form.web.internal.display.context.DDMFor
 import com.liferay.dynamic.data.mapping.form.web.internal.instance.lifecycle.AddDefaultSharedFormLayoutPortalInstanceLifecycleListener;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
+import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterTracker;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValuesValidationException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -103,17 +105,18 @@ public class DDMFormPortlet extends MVCPortlet {
 		catch (Exception exception) {
 			_portal.copyRequestParameters(actionRequest, actionResponse);
 
-			Throwable cause = getRootCause(exception);
+			Throwable throwable = getRootCauseThrowable(exception);
 
 			hideDefaultErrorMessage(actionRequest);
 
-			if (cause instanceof DDMFormValuesValidationException) {
-				if (cause instanceof
+			if (throwable instanceof DDMFormValuesValidationException) {
+				if (throwable instanceof
 						DDMFormValuesValidationException.MustSetValidValue ||
-					cause instanceof
+					throwable instanceof
 						DDMFormValuesValidationException.RequiredValue) {
 
-					SessionErrors.add(actionRequest, cause.getClass(), cause);
+					SessionErrors.add(
+						actionRequest, throwable.getClass(), throwable);
 				}
 				else {
 					SessionErrors.add(
@@ -121,7 +124,8 @@ public class DDMFormPortlet extends MVCPortlet {
 				}
 			}
 			else {
-				SessionErrors.add(actionRequest, cause.getClass(), cause);
+				SessionErrors.add(
+					actionRequest, throwable.getClass(), throwable);
 			}
 
 			ThemeDisplay themeDisplay =
@@ -170,7 +174,7 @@ public class DDMFormPortlet extends MVCPortlet {
 		super.render(renderRequest, renderResponse);
 	}
 
-	protected Throwable getRootCause(Throwable throwable) {
+	protected Throwable getRootCauseThrowable(Throwable throwable) {
 		while (throwable.getCause() != null) {
 			throwable = throwable.getCause();
 		}
@@ -179,7 +183,7 @@ public class DDMFormPortlet extends MVCPortlet {
 	}
 
 	@Override
-	protected boolean isSessionErrorException(Throwable cause) {
+	protected boolean isSessionErrorException(Throwable throwable) {
 		return false;
 	}
 
@@ -221,12 +225,12 @@ public class DDMFormPortlet extends MVCPortlet {
 
 		DDMFormDisplayContext ddmFormDisplayContext = new DDMFormDisplayContext(
 			renderRequest, renderResponse, _ddmFormFieldTypeServicesTracker,
-			_ddmFormInstanceLocalService,
+			_ddmFormInstanceLocalService, _ddmFormInstanceRecordLocalService,
 			_ddmFormInstanceRecordVersionLocalService, _ddmFormInstanceService,
 			_ddmFormInstanceVersionLocalService, _ddmFormRenderer,
 			_ddmFormValuesFactory, _ddmFormValuesMerger,
 			_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration(),
-			_groupLocalService, _jsonFactory,
+			_ddmStorageAdapterTracker, _groupLocalService, _jsonFactory,
 			_workflowDefinitionLinkLocalService, _portal);
 
 		renderRequest.setAttribute(
@@ -244,6 +248,10 @@ public class DDMFormPortlet extends MVCPortlet {
 
 	@Reference
 	private DDMFormInstanceLocalService _ddmFormInstanceLocalService;
+
+	@Reference
+	private DDMFormInstanceRecordLocalService
+		_ddmFormInstanceRecordLocalService;
 
 	@Reference
 	private DDMFormInstanceRecordVersionLocalService
@@ -273,6 +281,9 @@ public class DDMFormPortlet extends MVCPortlet {
 	)
 	private volatile DDMFormWebConfigurationActivator
 		_ddmFormWebConfigurationActivator;
+
+	@Reference
+	private DDMStorageAdapterTracker _ddmStorageAdapterTracker;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

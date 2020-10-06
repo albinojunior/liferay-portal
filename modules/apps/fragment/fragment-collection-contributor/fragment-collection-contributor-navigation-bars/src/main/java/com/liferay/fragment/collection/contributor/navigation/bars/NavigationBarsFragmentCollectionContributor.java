@@ -16,6 +16,7 @@ package com.liferay.fragment.collection.contributor.navigation.bars;
 
 import com.liferay.fragment.contributor.BaseFragmentCollectionContributor;
 import com.liferay.fragment.contributor.FragmentCollectionContributor;
+import com.liferay.fragment.contributor.PortletAliasRegistration;
 
 import javax.servlet.ServletContext;
 
@@ -25,7 +26,10 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eudaldo Alonso
  */
-@Component(service = FragmentCollectionContributor.class)
+@Component(
+	property = "fragment.collection.key=NAVIGATION_BARS",
+	service = FragmentCollectionContributor.class
+)
 public class NavigationBarsFragmentCollectionContributor
 	extends BaseFragmentCollectionContributor {
 
@@ -38,6 +42,11 @@ public class NavigationBarsFragmentCollectionContributor
 	public ServletContext getServletContext() {
 		return _servletContext;
 	}
+
+	@Reference(
+		target = "(com.liferay.fragment.entry.processor.portlet.alias=nav)"
+	)
+	private PortletAliasRegistration _portletAliasRegistration;
 
 	@Reference(
 		target = "(osgi.web.symbolicname=com.liferay.fragment.collection.contributor.navigation.bars)"

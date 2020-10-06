@@ -37,17 +37,17 @@ public class KaleoDefinitionVersionCacheModel
 	implements CacheModel<KaleoDefinitionVersion>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof KaleoDefinitionVersionCacheModel)) {
+		if (!(object instanceof KaleoDefinitionVersionCacheModel)) {
 			return false;
 		}
 
 		KaleoDefinitionVersionCacheModel kaleoDefinitionVersionCacheModel =
-			(KaleoDefinitionVersionCacheModel)obj;
+			(KaleoDefinitionVersionCacheModel)object;
 
 		if ((kaleoDefinitionVersionId ==
 				kaleoDefinitionVersionCacheModel.kaleoDefinitionVersionId) &&
@@ -78,7 +78,7 @@ public class KaleoDefinitionVersionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(37);
+		StringBundler sb = new StringBundler(39);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -102,6 +102,8 @@ public class KaleoDefinitionVersionCacheModel
 		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
+		sb.append(", kaleoDefinitionId=");
+		sb.append(kaleoDefinitionId);
 		sb.append(", name=");
 		sb.append(name);
 		sb.append(", title=");
@@ -170,6 +172,8 @@ public class KaleoDefinitionVersionCacheModel
 			kaleoDefinitionVersionImpl.setModifiedDate(new Date(modifiedDate));
 		}
 
+		kaleoDefinitionVersionImpl.setKaleoDefinitionId(kaleoDefinitionId);
+
 		if (name == null) {
 			kaleoDefinitionVersionImpl.setName("");
 		}
@@ -214,7 +218,9 @@ public class KaleoDefinitionVersionCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		kaleoDefinitionVersionId = objectInput.readLong();
@@ -231,10 +237,12 @@ public class KaleoDefinitionVersionCacheModel
 		statusDate = objectInput.readLong();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
+		kaleoDefinitionId = objectInput.readLong();
 		name = objectInput.readUTF();
 		title = objectInput.readUTF();
 		description = objectInput.readUTF();
-		content = objectInput.readUTF();
+		content = (String)objectInput.readObject();
 		version = objectInput.readUTF();
 
 		startKaleoNodeId = objectInput.readLong();
@@ -274,6 +282,8 @@ public class KaleoDefinitionVersionCacheModel
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
+		objectOutput.writeLong(kaleoDefinitionId);
+
 		if (name == null) {
 			objectOutput.writeUTF("");
 		}
@@ -296,10 +306,10 @@ public class KaleoDefinitionVersionCacheModel
 		}
 
 		if (content == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(content);
+			objectOutput.writeObject(content);
 		}
 
 		if (version == null) {
@@ -325,6 +335,7 @@ public class KaleoDefinitionVersionCacheModel
 	public long statusDate;
 	public long createDate;
 	public long modifiedDate;
+	public long kaleoDefinitionId;
 	public String name;
 	public String title;
 	public String description;

@@ -32,13 +32,13 @@ definition {
 			locator1 = "Configuration#SCOPE_SELECT",
 			value1 = "Select");
 
-		MenuItem.click(menuItem = "Other Site...");
+		MenuItem.click(menuItem = "Other Site or Asset Library...");
 
 		SelectFrame(value1 = "relative=top");
 
 		SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
-		Navigator.gotoNavTab(navTab = "My Sites");
+		Navigator.gotoNavTab(navTab = "Sites That I Administer");
 
 		SiteSelector.viewSite(site = "${siteName}");
 	}
@@ -65,13 +65,13 @@ definition {
 		if (isSet(otherSite)) {
 			Click(locator1 = "Configuration#SCOPE_SELECT");
 
-			MenuItem.click(menuItem = "Other Site...");
+			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
 			SelectFrame(value1 = "relative=top");
 
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
-			Navigator.gotoNavTab(navTab = "My Sites");
+			Navigator.gotoNavTab(navTab = "Sites That I Administer");
 
 			SiteSelector.selectSite(site = "${otherSite}");
 		}
@@ -84,7 +84,7 @@ definition {
 
 		SelectFrameTop();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Alert.viewSuccessMessage();
 	}
@@ -255,16 +255,8 @@ definition {
 	}
 
 	macro configureDisplaySettings {
-		if ("${displayPage}" == "true") {
-			var key_portletName = "${portletName}";
+		AssetPublisherPortlet.gotoConfigurationPG(portletName = "${portletName}");
 
-			Click.clickNoWaitForVisible(locator1 = "PageEditor#WIDGETS_OPTIONS_ICON");
-
-			SelectFrame(locator1 = "IFrame#DIALOG");
-		}
-		else {
-			AssetPublisherPortlet.gotoConfigurationPG(portletName = "${portletName}");
-		}
 		Navigator.gotoNavTab(navTab = "Display Settings");
 
 		Panel.expandPanel(panel = "Set and Enable");
@@ -295,7 +287,7 @@ definition {
 	}
 
 	macro configureDisplayTemplatePG {
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Navigator.gotoNavTab(navTab = "Display Settings");
 
@@ -329,8 +321,6 @@ definition {
 			locator1 = "APConfiguration#SOURCE_SCOPE_FILTER_BY_FIELD_SELECT_BUTTON",
 			value1 = "Select");
 
-		SelectFrame();
-
 		SelectFrame(locator1 = "IFrame#SELECT_STRUCTURE_FIELD");
 
 		var key_fieldName = "${fieldFilter}";
@@ -351,12 +341,12 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		if (isSet(fieldValue)) {
-			AssertTextEquals.assertPartialText(
-				locator1 = "APConfiguration#SOURCE_SCOPE_FIELD_FILTER_AND_VALUE",
-				value1 = "${fieldFilter}: ${fieldValue}");
+			AssertElementPresent(
+				key_text = "${fieldFilter}: ${fieldValue}",
+				locator1 = "APConfiguration#SOURCE_SCOPE_FIELD_FILTER_AND_VALUE");
 		}
 
 		PortletEntry.save();
@@ -390,9 +380,9 @@ definition {
 				locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_ASSET",
 				value1 = "${assetType}");
 
-			SelectFrameTop();
+			WaitForElementPresent(locator1 = "APConfigurationManual#ASSET_SELECTION_MANUAL_SELECT_ASSET_ENTRIES_DIALOG");
 
-			SelectFrame(locator1 = "IFrame#DIALOG");
+			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
 
 			var key_assetTitle = "${assetTitle}";
 
@@ -402,9 +392,9 @@ definition {
 
 			SelectFrameTop();
 
-			Button.clickAdd();
+			SelectFrame(locator1 = "IFrame#CONFIGURATION");
 
-			SelectFrame(locator1 = "IFrame#DIALOG");
+			Button.clickAdd();
 		}
 
 		Alert.viewSuccessMessage();
@@ -511,38 +501,46 @@ definition {
 			MenuItem.click(menuItem = "${siteName}");
 		}
 		else {
-			MenuItem.click(menuItem = "Other Site...");
+			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
 			SelectFrame(value1 = "relative=top");
 
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
-			LexiconEntry.changeDisplayStyle(displayStyle = "table");
+			if ("${siteScopeType}" == "Child Site") {
+				Navigator.gotoNavTab(navTab = "Child Sites");
 
-			if ("${siteScopeType}" != "Parent Site") {
-				Type(
-					locator1 = "TextInput#SITE_SEARCH_KEYWORDS",
-					value1 = "${siteName}");
+				LexiconEntry.changeDisplayStyle(displayStyle = "table");
+			}
+			else if ("${siteScopeType}" == "Parent Site") {
+				Navigator.gotoNavTab(navTab = "Parent Sites");
 
-				KeyPress(
-					locator1 = "TextInput#SEARCH",
-					value1 = "\RETURN");
+				LexiconEntry.changeDisplayStyle(displayStyle = "table");
+			}
+			else {
+				Navigator.gotoNavTab(navTab = "Sites That I Administer");
+
+				LexiconEntry.changeDisplayStyle(displayStyle = "table");
 			}
 
 			AssertTextEquals(
 				locator1 = "APConfigurationSites#SITES_TABLE_NAME",
-				value1 = "${siteName} (Opens New Window)");
+				value1 = "${siteName}");
 
 			AssertTextEquals(
 				locator1 = "APConfigurationSites#SITES_TABLE_TYPE",
 				value1 = "${siteScopeType}");
 
-			ClickNoError(locator1 = "SitesSelectSite#SITES_TABLE_CHOOSE_SITE_LINK");
+			Click(locator1 = "SitesSelectSite#SITES_TABLE_CHOOSE_SITE_LINK");
+
+			Alert.viewSuccessMessage();
 
 			SelectFrame(value1 = "relative=top");
 
-			SelectFrame(locator1 = "IFrame#DIALOG");
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 		}
+
+		Panel.expandPanel(panel = "Scope");
 
 		AssertTextEquals.assertPartialText(
 			locator1 = "APConfiguration#SOURCE_SCOPE_NAME",
@@ -600,9 +598,7 @@ definition {
 
 		Panel.expandPanel(panel = "Filter");
 
-		Click(locator1 = "APConfiguration#RULE_BUILDER_ADD_CONDITION");
-
-		if (isSet(aqueryAndOperator)) {
+		if (isSet(queryAndOperator)) {
 			Select(
 				locator1 = "APConfiguration#FILTER_QUERY_AND_OPERATOR",
 				value1 = "${queryAndOperator}");
@@ -630,7 +626,7 @@ definition {
 			portletName = "Asset Publisher",
 			portletOption = "Configuration Templates");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconTable.clickEllipsisItem(
 			item = "Delete",
@@ -666,47 +662,24 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		AssertClick(
-			locator1 = "Button#ADD",
-			value1 = "Add");
-
-		SelectFrame(locator1 = "IFrame#DIALOG");
-
-		PortletEntry.save();
-	}
-
-	macro editConfigureTagsFilterPG {
-		AssetPublisherPortlet.gotoConfigurationPG();
-
-		Navigator.gotoNavTab(navTab = "Asset Selection");
-
-		Panel.expandPanel(panel = "Filter");
-
-		if (isSet(queryAndOperator)) {
-			Select(
-				locator1 = "APConfiguration#FILTER_QUERY_AND_OPERATOR",
-				value1 = "${queryAndOperator}");
+		if (IsElementPresent(locator1 = "//button[contains(.,'Add')]")) {
+			AssertClick(
+				locator1 = "//button[contains(.,'Add')]",
+				value1 = "Add");
+		}
+		else if (IsElementPresent(locator1 = "Button#DONE")) {
+			AssertClick(
+				locator1 = "Button#DONE",
+				value1 = "Done");
 		}
 
-		if (isSet(queryContains)) {
-			Select(
-				locator1 = "APConfiguration#FILTER_QUERY_CONTAINS",
-				value1 = "${queryContains}");
-		}
-
-		Select(
-			locator1 = "APConfiguration#FILTER_CATEGORIZATION_SELECT",
-			value1 = "Tags");
-
-		AssetCategorization.selectTag(tagNameList = "${tagNameList}");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PortletEntry.save();
-
-		IFrame.selectTopFrame();
 	}
 
 	macro enableRSSSubscription {
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Navigator.gotoNavTab(navTab = "Subscriptions");
 
@@ -744,13 +717,13 @@ definition {
 			portletName = "${portletName}",
 			portletOption = "Configuration");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 	}
 
 	macro gotoEditAssetPG {
 		MouseOver(
 			key_assetTitle = "${assetTitle}",
-			locator1 = "APAsset#ASSET_TITLE");
+			locator1 = "AP#ASSET_ABSTRACT_TITLE");
 
 		Click.mouseOverClick(
 			key_assetTitle = "${assetTitle}",
@@ -763,16 +736,6 @@ definition {
 		AssertClick(
 			locator1 = "Link#VIEW_IN_CONTEXT",
 			value1 = "View in Context »");
-	}
-
-	macro rateAssetPG {
-		MouseOver.mouseOverNotVisible(
-			key_emptyStarPosition = "${rating}",
-			locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
-
-		Click.clickWaitForInlineCKEditorNoMouseOver(
-			key_emptyStarPosition = "${rating}",
-			locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
 	}
 
 	macro removeSiteScope {
@@ -798,7 +761,7 @@ definition {
 			portletName = "Asset Publisher",
 			portletOption = "Configuration Templates");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		LexiconTable.clickEllipsisItem(
 			item = "Apply",
@@ -812,7 +775,7 @@ definition {
 			portletName = "Asset Publisher",
 			portletOption = "Configuration Templates");
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PortletEntry.viewEmptyMessage(entity = "Configuration Templates");
 
@@ -842,7 +805,7 @@ definition {
 
 		var key_title = "${assetListName}";
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Navigator.gotoNavTab(navTab = "Asset Selection");
 
@@ -850,26 +813,26 @@ definition {
 
 		Click(locator1 = "APConfiguration#ASSET_SELECTION_ASSET_LIST");
 
-		Panel.expandPanel(panel = "Select Content Set");
+		Panel.expandPanel(panel = "Select Collection");
 
 		Button.clickSelect();
 
-		SelectFrameTop();
-
-		SelectFrame(locator1 = "IFrame#ASSET_LIST_DIALOG");
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#ASSET_LIST_DIALOG");
 
 		if (isSet(depotName)) {
 			AssertClick(
-				key_breadcrumbName = "Sites",
+				key_breadcrumbName = "Sites and Libraries",
 				locator1 = "Breadcrumb#BREADCRUMB_ENTRY",
-				value1 = "Sites");
+				value1 = "Sites and Libraries");
 
 			AssertClick(
 				key_groupTab = "Asset Library",
 				locator1 = "ItemSelector#NAVIGATION_GROUP_TAB",
 				value1 = "Asset Library");
 
-			LexiconCard.clickCard(card = "${depotName}");
+			Click(
+				key_card = "${depotName}",
+				locator1 = "Card#CARD_TITLE");
 
 			Click(locator1 = "AssetLists#ASSET_LIST_ENTRY_TITLE_CARD");
 		}
@@ -881,7 +844,13 @@ definition {
 
 		SelectFrameTop();
 
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		Pause(locator1 = "3000");
+
+		AssertTextEquals(
+			locator1 = "APConfiguration#ASSET_SELECTION_ASSET_LIST_TITLE",
+			value1 = "${assetListName}");
 
 		Button.clickSave();
 
@@ -898,7 +867,7 @@ definition {
 		AssetPublisherPortlet.clickAssetTitle(assetTitle = "${assetTitle}");
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "APAsset#ASSET_TITLE_HEADER",
+			locator1 = "AP#ASSET_ABSTRACT_TITLE",
 			value1 = "${assetTitle}");
 
 		AssertTextEquals.assertPartialText(
@@ -938,51 +907,6 @@ definition {
 			value1 = "${assetContent}");
 	}
 
-	macro viewAssetRatingPG {
-		if ("${rating}" == "0") {
-			AssertElementNotPresent(
-				key_ratingStarPosition = "1",
-				locator1 = "Ratings#YOUR_RATING_STAR");
-		}
-		else {
-			var ratingPosition = "1";
-
-			while ("${ratingPosition}" != "${rating}") {
-				AssertElementPresent(
-					key_ratingStarPosition = "${ratingPosition}",
-					locator1 = "Ratings#YOUR_RATING_STAR");
-
-				var ratingPosition = ${ratingPosition} + 1;
-			}
-
-			AssertElementNotPresent(
-				key_ratingStarPosition = MathUtil.sum("${ratingPosition}", "1"),
-				locator1 = "Ratings#YOUR_RATING_STAR");
-		}
-
-		if ("${rating}" == "5") {
-			AssertElementNotPresent(
-				key_emptyStarPosition = "1",
-				locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
-		}
-		else {
-			var emptyRating = 5 - ${rating};
-			var emptyStarPosition = "1";
-
-			while ("${emptyStarPosition}" != "${emptyRating}") {
-				AssertElementPresent(
-					key_emptyStarPosition = "${emptyStarPosition}",
-					locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
-
-				var emptyStarPosition = ${emptyStarPosition} + 1;
-			}
-
-			AssertElementNotPresent(
-				key_emptyStarPosition = MathUtil.sum("${emptyStarPosition}", "1"),
-				locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
-		}
-	}
-
 	macro viewAssetRelatedAssets {
 		AssertTextEquals(
 			locator1 = "AssetRelatedAssets#HEADER",
@@ -1014,55 +938,6 @@ definition {
 			key_viewCount = "${viewCount}",
 			locator1 = "APAsset#ASSET_VIEW_COUNT",
 			value1 = "${viewCount}");
-	}
-
-	macro viewAverageRatingPG {
-		if ("${averageRating}" == "0") {
-			AssertElementNotPresent(
-				key_averageRatingStar = "1",
-				locator1 = "Ratings#AVERAGE_STAR");
-		}
-		else {
-			var ratingPosition = "1";
-
-			while ("${ratingPosition}" != "${averageRating}") {
-				AssertElementPresent(
-					key_averageRatingStar = "${ratingPosition}",
-					locator1 = "Ratings#AVERAGE_STAR");
-
-				var ratingPosition = ${ratingPosition} + 1;
-			}
-
-			AssertElementNotPresent(
-				key_averageRatingStar = MathUtil.sum("${ratingPosition}", "1"),
-				locator1 = "Ratings#AVERAGE_STAR");
-		}
-
-		if ("${averageRating}" == "5") {
-			AssertElementNotPresent(
-				key_averageEmptyStar = "1",
-				locator1 = "Ratings#AVERAGE_STAR_EMPTY");
-		}
-		else {
-			var emptyRating = 5 - ${averageRating};
-			var emptyStarPosition = "1";
-
-			while ("${emptyStarPosition}" != "${emptyRating}") {
-				AssertElementPresent(
-					key_averageEmptyStar = "${emptyStarPosition}",
-					locator1 = "Ratings#AVERAGE_STAR_EMPTY");
-
-				var emptyStarPosition = ${emptyStarPosition} + 1;
-			}
-
-			AssertElementNotPresent(
-				key_averageEmptyStar = MathUtil.sum("${emptyStarPosition}", "1"),
-				locator1 = "Ratings#AVERAGE_STAR_EMPTY");
-		}
-
-		AssertTextEquals(
-			locator1 = "Ratings#AVERAGE_LABEL",
-			value1 = "Average (1 Vote)");
 	}
 
 	macro viewConfigureAPDisplayTemplateTableBookmarksPG {
@@ -1136,11 +1011,13 @@ definition {
 				locator1 = "MenuItem#ANY_MENU_ITEM",
 				value1 = "Global");
 
-			MenuItem.click(menuItem = "Other Site...");
+			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
 			SelectFrame(value1 = "relative=top");
 
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
+
+			Navigator.gotoNavTab(navTab = "Sites That I Administer");
 
 			var key_siteName = "${liferaySiteName}";
 
@@ -1148,7 +1025,7 @@ definition {
 
 			AssertTextEquals(
 				locator1 = "APConfigurationSites#SITES_TABLE_NAME",
-				value1 = "${liferaySiteName} (Opens New Window)");
+				value1 = "${liferaySiteName}");
 
 			AssertTextEquals(
 				locator1 = "APConfigurationSites#SITES_TABLE_TYPE",
@@ -1164,9 +1041,9 @@ definition {
 
 			if ("${childSite}" == "true") {
 				AssertTextEquals(
-					key_menuItem = "Other Site...",
+					key_menuItem = "Other Site or Asset Library...",
 					locator1 = "MenuItem#ANY_MENU_ITEM",
-					value1 = "Other Site...");
+					value1 = "Other Site or Asset Library...");
 			}
 			else {
 				MenuItem.viewNotPresent(menuItem = "OTHER_SITE");
@@ -1341,8 +1218,6 @@ definition {
 				locator1 = "APConfiguration#SOURCE_SCOPE_FILTER_BY_FIELD_SELECT_BUTTON",
 				value1 = "Select");
 
-			SelectFrame();
-
 			SelectFrame(locator1 = "IFrame#SELECT_STRUCTURE_FIELD");
 
 			for (var assetSubtypeField : list "${assetSubtypeFields}") {
@@ -1386,7 +1261,7 @@ definition {
 	}
 
 	macro viewManualAssetTypesPG {
-		SelectFrame(locator1 = "IFrame#DIALOG");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		Panel.expandPanel(panel = "Asset Entries");
 
@@ -1407,20 +1282,6 @@ definition {
 			key_widgetName = "Asset Publisher",
 			locator1 = "Message#INFO_SPECIFIC_WIDGET",
 			value1 = "There are no results.");
-	}
-
-	macro viewMultipleAssetOrderPGViaAP {
-		AssertTextEquals(
-			locator1 = "AP#ASSET_ABSTRACT_GENERIC_TITLE_1",
-			value1 = "${assetTitle1}");
-
-		AssertTextEquals(
-			locator1 = "AP#ASSET_ABSTRACT_GENERIC_TITLE_2",
-			value1 = "${assetTitle2}");
-
-		AssertTextEquals(
-			locator1 = "AP#ASSET_ABSTRACT_GENERIC_TITLE_3",
-			value1 = "${assetTitle3}");
 	}
 
 	macro viewMultipleDDLRecordsViaAP {
@@ -1481,20 +1342,6 @@ definition {
 		AssertElementNotPresent(locator1 = "AP#ASSET_EDIT");
 	}
 
-	macro viewOrderedFieldPG {
-		AssertTextEquals(
-			locator1 = "AP#ASSET_ORDER_FIRST",
-			value1 = "${firstAsset}");
-
-		AssertTextEquals(
-			locator1 = "AP#ASSET_ORDER_SECOND",
-			value1 = "${secondAsset}");
-
-		AssertTextEquals(
-			locator1 = "AP#ASSET_ORDER_THIRD",
-			value1 = "${thirdAsset}");
-	}
-
 	macro viewPaginatedAssetsPG {
 		var key_pageMod = "${pageMod}";
 		var key_pageNumber = "${pageNumber}";
@@ -1536,7 +1383,7 @@ definition {
 			value1 = "${assetContent}");
 
 		AssertClick(
-			locator1 = "APAsset#ASSET_TITLE",
+			locator1 = "AP#ASSET_ABSTRACT_TITLE",
 			value1 = "${assetTitle}");
 
 		if (isSet(assetPriority)) {

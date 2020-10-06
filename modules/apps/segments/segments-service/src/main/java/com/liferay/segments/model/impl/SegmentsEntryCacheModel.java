@@ -37,17 +37,17 @@ public class SegmentsEntryCacheModel
 	implements CacheModel<SegmentsEntry>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof SegmentsEntryCacheModel)) {
+		if (!(object instanceof SegmentsEntryCacheModel)) {
 			return false;
 		}
 
 		SegmentsEntryCacheModel segmentsEntryCacheModel =
-			(SegmentsEntryCacheModel)obj;
+			(SegmentsEntryCacheModel)object;
 
 		if ((segmentsEntryId == segmentsEntryCacheModel.segmentsEntryId) &&
 			(mvccVersion == segmentsEntryCacheModel.mvccVersion)) {
@@ -77,10 +77,12 @@ public class SegmentsEntryCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(35);
+		StringBundler sb = new StringBundler(37);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", segmentsEntryId=");
@@ -123,6 +125,7 @@ public class SegmentsEntryCacheModel
 		SegmentsEntryImpl segmentsEntryImpl = new SegmentsEntryImpl();
 
 		segmentsEntryImpl.setMvccVersion(mvccVersion);
+		segmentsEntryImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			segmentsEntryImpl.setUuid("");
@@ -214,8 +217,12 @@ public class SegmentsEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 
 		segmentsEntryId = objectInput.readLong();
@@ -233,7 +240,7 @@ public class SegmentsEntryCacheModel
 		description = objectInput.readUTF();
 
 		active = objectInput.readBoolean();
-		criteria = objectInput.readUTF();
+		criteria = (String)objectInput.readObject();
 		source = objectInput.readUTF();
 		type = objectInput.readUTF();
 		lastPublishDate = objectInput.readLong();
@@ -242,6 +249,8 @@ public class SegmentsEntryCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -292,10 +301,10 @@ public class SegmentsEntryCacheModel
 		objectOutput.writeBoolean(active);
 
 		if (criteria == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(criteria);
+			objectOutput.writeObject(criteria);
 		}
 
 		if (source == null) {
@@ -316,6 +325,7 @@ public class SegmentsEntryCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public long segmentsEntryId;
 	public long groupId;

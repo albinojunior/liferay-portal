@@ -19,20 +19,27 @@
 <%
 long accountEntryId = ParamUtil.getLong(request, "accountEntryId");
 
-SearchContainer userSearchContainer = AssignableAccountUserDisplaySearchContainerFactory.create(accountEntryId, liferayPortletRequest, liferayPortletResponse);
+SearchContainer<AccountUserDisplay> userSearchContainer = AssignableAccountUserDisplaySearchContainerFactory.create(accountEntryId, liferayPortletRequest, liferayPortletResponse);
 
 SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementToolbarDisplayContext = new SelectAccountUsersManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, userSearchContainer);
+
+if (selectAccountUsersManagementToolbarDisplayContext.isSingleSelect()) {
+	userSearchContainer.setRowChecker(null);
+}
+
+String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "assignAccountUsers");
 %>
 
 <clay:management-toolbar
 	displayContext="<%= selectAccountUsersManagementToolbarDisplayContext %>"
 />
 
-<aui:container cssClass="container-fluid container-fluid-max-xl">
+<clay:container-fluid
+	id='<%= liferayPortletResponse.getNamespace() + "selectAccountUser" %>'
+>
 	<c:if test='<%= !Objects.equals(selectAccountUsersManagementToolbarDisplayContext.getNavigation(), "all-users") %>'>
 		<clay:alert
-			message='<%= LanguageUtil.get(request, "showing-users-with-valid-domains-only") %>'
-			title='<%= LanguageUtil.get(request, "info") %>'
+			message="showing-users-with-valid-domains-only"
 		/>
 	</c:if>
 
@@ -40,14 +47,14 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 		searchContainer="<%= userSearchContainer %>"
 	>
 		<liferay-ui:search-container-row
-			className="com.liferay.portal.kernel.model.User"
+			className="com.liferay.account.admin.web.internal.display.AccountUserDisplay"
 			keyProperty="userId"
-			modelVar="user"
+			modelVar="accountUserDisplay"
 		>
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-expand-small table-cell-minw-150"
 				name="name"
-				property="fullName"
+				property="name"
 			/>
 
 			<liferay-ui:search-container-column-text
@@ -59,22 +66,42 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-expand-small table-cell-minw-150"
 				name="account-roles"
-				value=""
+				value="<%= accountUserDisplay.getAccountRoleNamesString(accountEntryId, locale) %>"
 			/>
+
+			<c:if test="<%= selectAccountUsersManagementToolbarDisplayContext.isSingleSelect() %>">
+				<liferay-ui:search-container-column-text>
+					<aui:button
+						cssClass="choose-user selector-button"
+						data='<%=
+							HashMapBuilder.<String, Object>put(
+								"emailaddress", accountUserDisplay.getEmailAddress()
+							).put(
+								"entityid", accountUserDisplay.getUserId()
+							).put(
+								"entityname", accountUserDisplay.getName()
+							).put(
+								"jobtitle", accountUserDisplay.getJobTitle()
+							).build()
+						%>'
+						value="choose"
+					/>
+				</liferay-ui:search-container-column-text>
+			</c:if>
 		</liferay-ui:search-container-row>
 
 		<liferay-ui:search-iterator
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</aui:container>
+</clay:container-fluid>
 
 <aui:script use="liferay-search-container">
 	var searchContainer = Liferay.SearchContainer.get(
 		'<portlet:namespace />accountUsers'
 	);
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		var selectedItems = event.elements.allSelectedElements;
 
 		var result = {};
@@ -88,8 +115,34 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 		}
 
 		Liferay.Util.getOpener().Liferay.fire(
-			'<%= HtmlUtil.escapeJS(renderResponse.getNamespace() + "assignAccountUsers") %>',
+			'<%= HtmlUtil.escapeJS(eventName) %>',
 			result
 		);
 	});
+
+	Liferay.Util.selectEntityHandler(
+		'#<portlet:namespace />selectAccountUser',
+		'<%= HtmlUtil.escapeJS(eventName) %>'
+	);
 </aui:script>
+
+<c:if test="<%= selectAccountUsersManagementToolbarDisplayContext.isShowCreateButton() %>">
+	<liferay-portlet:renderURL portletName="<%= AccountPortletKeys.ACCOUNT_USERS_ADMIN %>" var="addAccountEntryUserURL">
+		<portlet:param name="mvcRenderCommandName" value="/account_admin/add_account_user" />
+		<portlet:param name="redirect" value='<%= ParamUtil.getString(request, "redirect") %>' />
+		<portlet:param name="backURL" value='<%= ParamUtil.getString(request, "redirect") %>' />
+		<portlet:param name="accountEntryId" value='<%= ParamUtil.getString(request, "accountEntryId") %>' />
+	</liferay-portlet:renderURL>
+
+	<liferay-frontend:component
+		componentId="<%= selectAccountUsersManagementToolbarDisplayContext.getDefaultEventHandler() %>"
+		context='<%=
+			HashMapBuilder.<String, Object>put(
+				"addAccountEntryUserURL", addAccountEntryUserURL.toString()
+			).put(
+				"openModalOnRedirect", selectAccountUsersManagementToolbarDisplayContext.isOpenModalOnRedirect()
+			).build()
+		%>'
+		module="account_entries_admin/js/SelectAccountUsersManagementToolbarDefaultEventHandler.es"
+	/>
+</c:if>

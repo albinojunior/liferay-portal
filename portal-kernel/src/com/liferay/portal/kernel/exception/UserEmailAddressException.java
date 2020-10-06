@@ -47,6 +47,23 @@ public class UserEmailAddressException extends PortalException {
 
 	}
 
+	public static class MustHaveValidDomain extends UserEmailAddressException {
+
+		public MustHaveValidDomain(String emailAddress, String validDomains) {
+			super(
+				String.format(
+					"Email address %s must have one of the valid domains: %s",
+					emailAddress, validDomains));
+
+			this.emailAddress = emailAddress;
+			this.validDomains = validDomains;
+		}
+
+		public final String emailAddress;
+		public final String validDomains;
+
+	}
+
 	public static class MustNotBeDuplicate extends UserEmailAddressException {
 
 		public MustNotBeDuplicate(
@@ -129,6 +146,27 @@ public class UserEmailAddressException extends PortalException {
 
 		public final String emailAddress;
 		public final String[] reservedEmailAddresses;
+
+	}
+
+	public static class MustNotUseBlockedDomain
+		extends UserEmailAddressException {
+
+		public MustNotUseBlockedDomain(
+			String emailAddress, String blockedDomains) {
+
+			super(
+				String.format(
+					"Email address %s must not use one of the blocked " +
+						"domains: %s",
+					emailAddress, blockedDomains));
+
+			this.emailAddress = emailAddress;
+			this.blockedDomains = blockedDomains;
+		}
+
+		public final String blockedDomains;
+		public final String emailAddress;
 
 	}
 

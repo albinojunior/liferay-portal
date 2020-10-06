@@ -28,7 +28,7 @@
 			name="fm"
 		>
 			<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-			<aui:input name="portletId" type="hidden" value="<%= portletConfigurationCSSPortletDisplayContext.getPortletResource() %>" />
+			<aui:input name="portletId" type="hidden" value="<%= HtmlUtil.escapeJS(portletConfigurationCSSPortletDisplayContext.getPortletResource()) %>" />
 
 			<liferay-frontend:edit-form-body>
 				<liferay-frontend:form-navigator
@@ -49,7 +49,7 @@
 				document.getElementById('<portlet:namespace />fm'),
 				'change',
 				'input[type=checkbox]',
-				function(event) {
+				function (event) {
 					var toggle = event.delegateTarget;
 
 					var disableOnChecked = toggle.dataset.disableonchecked;

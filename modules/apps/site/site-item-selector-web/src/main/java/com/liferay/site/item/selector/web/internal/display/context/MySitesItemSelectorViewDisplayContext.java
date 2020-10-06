@@ -63,13 +63,22 @@ public class MySitesItemSelectorViewDisplayContext
 
 	@Override
 	public GroupSearch getGroupSearch() throws Exception {
-		GroupSearch groupSearch = _groupSearchProvider.getGroupSearch(
-			_portletRequest, getPortletURL());
+		PortletURL portletURL = getPortletURL();
 
-		GroupItemSelectorCriterion groupItemSelectorCriterion =
-			getGroupItemSelectorCriterion();
+		Group group = getGroup();
+
+		if (group != null) {
+			portletURL.setParameter(
+				"groupId", String.valueOf(group.getGroupId()));
+		}
+
+		GroupSearch groupSearch = _groupSearchProvider.getGroupSearch(
+			_portletRequest, portletURL);
 
 		if (groupSearch.getStart() == 0) {
+			GroupItemSelectorCriterion groupItemSelectorCriterion =
+				getGroupItemSelectorCriterion();
+
 			if (groupItemSelectorCriterion.isIncludeUserPersonalSite()) {
 				_prependGroup(
 					groupSearch,

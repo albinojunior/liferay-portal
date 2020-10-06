@@ -16,7 +16,6 @@ package com.liferay.portal.servlet.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -109,13 +108,13 @@ public class I18nServletTest extends I18nServlet {
 
 		_group = GroupTestUtil.addGroup();
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			_group.getTypeSettingsProperties();
 
-		typeSettingsProperties.put(
+		typeSettingsUnicodeProperties.put(
 			GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES, "false");
 
-		_group.setTypeSettingsProperties(typeSettingsProperties);
+		_group.setTypeSettingsProperties(typeSettingsUnicodeProperties);
 
 		_groupLocalService.updateGroup(_group);
 	}
@@ -315,7 +314,7 @@ public class I18nServletTest extends I18nServlet {
 	}
 
 	private I18nServlet.I18nData _getI18nData(Group group, String path)
-		throws PortalException {
+		throws Exception {
 
 		MockHttpServletRequest mockHttpServletRequest =
 			new MockHttpServletRequest();

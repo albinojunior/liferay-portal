@@ -15,7 +15,7 @@
 package com.liferay.source.formatter.checks.configuration;
 
 import com.liferay.petra.string.CharPool;
-import com.liferay.petra.xml.Dom4jUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.source.formatter.checks.util.SourceUtil;
 import com.liferay.source.formatter.util.CheckType;
 import com.liferay.source.formatter.util.FileUtil;
@@ -24,11 +24,11 @@ import java.io.File;
 import java.io.IOException;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Properties;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 /**
@@ -37,7 +37,8 @@ import org.dom4j.Element;
 public class SuppressionsLoader {
 
 	public static SourceFormatterSuppressions loadSuppressions(
-			String baseDirName, List<File> files)
+			String baseDirName, List<File> files,
+			Map<String, Properties> propertiesMap)
 		throws DocumentException, IOException {
 
 		SourceFormatterSuppressions sourceFormatterSuppressions =
@@ -52,27 +53,32 @@ public class SuppressionsLoader {
 
 			String absolutePath = SourceUtil.getAbsolutePath(file);
 
-			if (absolutePath.endsWith("checkstyle-suppressions.xml")) {
-				sourceFormatterSuppressions = _loadCheckstyleSuppressions(
-					sourceFormatterSuppressions, rootElement, absolutePath,
-					true);
-			}
-			else if (absolutePath.endsWith(
-						"source-formatter-suppressions.xml")) {
+			sourceFormatterSuppressions = _loadCheckstyleSuppressions(
+				sourceFormatterSuppressions,
+				rootElement.element(_CHECKSTYLE_ATTRIBUTE_NAME), absolutePath);
+			sourceFormatterSuppressions = _loadSourceChecksSuppressions(
+				sourceFormatterSuppressions,
+				rootElement.element(_SOURCE_CHECK_ATTRIBUTE_NAME),
+				absolutePath);
+		}
 
-				sourceFormatterSuppressions = _loadCheckstyleSuppressions(
-					sourceFormatterSuppressions,
-					rootElement.element(_CHECKSTYLE_ATTRIBUTE_NAME),
-					absolutePath, false);
-				sourceFormatterSuppressions = _loadSourceChecksSuppressions(
-					sourceFormatterSuppressions,
-					rootElement.element(_SOURCE_CHECK_ATTRIBUTE_NAME),
-					absolutePath, false);
-			}
-			else if (absolutePath.endsWith("sourcechecks-suppressions.xml")) {
-				sourceFormatterSuppressions = _loadSourceChecksSuppressions(
-					sourceFormatterSuppressions, rootElement, absolutePath,
-					true);
+		for (Map.Entry<String, Properties> mapEntry :
+				propertiesMap.entrySet()) {
+
+			Properties properties = mapEntry.getValue();
+
+			for (Map.Entry<Object, Object> propertiesEntry :
+					properties.entrySet()) {
+
+				String key = (String)propertiesEntry.getKey();
+
+				if (key.startsWith("checkstyle.") && key.endsWith(".enabled") &&
+					!GetterUtil.getBoolean(propertiesEntry.getValue())) {
+
+					sourceFormatterSuppressions.addSuppression(
+						CheckType.CHECKSTYLE, mapEntry.getKey() + "/",
+						key.substring(11, key.length() - 8), null);
+				}
 			}
 		}
 
@@ -87,8 +93,7 @@ public class SuppressionsLoader {
 
 	private static SourceFormatterSuppressions _loadCheckstyleSuppressions(
 			SourceFormatterSuppressions sourceFormatterSuppressions,
-			Element suppressionsElement, String absolutePath,
-			boolean moveToSourceFormatterSuppressionsFile)
+			Element suppressionsElement, String absolutePath)
 		throws DocumentException, IOException {
 
 		if (suppressionsElement == null) {
@@ -97,11 +102,6 @@ public class SuppressionsLoader {
 
 		List<Element> suppressElements =
 			(List<Element>)suppressionsElement.elements("suppress");
-
-		if (moveToSourceFormatterSuppressionsFile) {
-			_moveSuppressionsToSourceFormatterSuppressionsFile(
-				absolutePath, suppressElements, _CHECKSTYLE_ATTRIBUTE_NAME);
-		}
 
 		String suppressionsFileLocation = _getFileLocation(absolutePath);
 
@@ -117,8 +117,7 @@ public class SuppressionsLoader {
 
 	private static SourceFormatterSuppressions _loadSourceChecksSuppressions(
 			SourceFormatterSuppressions sourceFormatterSuppressions,
-			Element suppressionsElement, String absolutePath,
-			boolean moveToSourceFormatterSuppressionsFile)
+			Element suppressionsElement, String absolutePath)
 		throws DocumentException, IOException {
 
 		if (suppressionsElement == null) {
@@ -127,11 +126,6 @@ public class SuppressionsLoader {
 
 		List<Element> suppressElements =
 			(List<Element>)suppressionsElement.elements("suppress");
-
-		if (moveToSourceFormatterSuppressionsFile) {
-			_moveSuppressionsToSourceFormatterSuppressionsFile(
-				absolutePath, suppressElements, _SOURCE_CHECK_ATTRIBUTE_NAME);
-		}
 
 		String suppressionsFileLocation = _getFileLocation(absolutePath);
 
@@ -143,73 +137,6 @@ public class SuppressionsLoader {
 		}
 
 		return sourceFormatterSuppressions;
-	}
-
-	private static void _moveSuppressionsToSourceFormatterSuppressionsFile(
-			String absolutePath, List<Element> suppressElements, String name)
-		throws DocumentException, IOException {
-
-		int pos = absolutePath.lastIndexOf(CharPool.SLASH);
-
-		String sourceFormatterSuppressionsFileName =
-			absolutePath.substring(0, pos + 1) +
-				"source-formatter-suppressions.xml";
-
-		File sourceFormatterSuppressionsFile = new File(
-			sourceFormatterSuppressionsFileName);
-
-		boolean modified = false;
-
-		Document document = null;
-		Element rootElement = null;
-
-		if (sourceFormatterSuppressionsFile.exists()) {
-			document = SourceUtil.readXML(
-				FileUtil.read(sourceFormatterSuppressionsFile));
-
-			rootElement = document.getRootElement();
-		}
-		else {
-			document = DocumentHelper.createDocument();
-
-			rootElement = document.addElement("suppressions");
-
-			modified = true;
-		}
-
-		Element checkTypeElement = rootElement.element(name);
-
-		if (checkTypeElement == null) {
-			checkTypeElement = rootElement.addElement(name);
-
-			modified = true;
-		}
-
-		outerLoop:
-		for (Element suppressElement : suppressElements) {
-			List<Element> childElements = checkTypeElement.elements();
-
-			for (Element childElement : childElements) {
-				if (Objects.equals(
-						suppressElement.asXML(), childElement.asXML())) {
-
-					continue outerLoop;
-				}
-			}
-
-			suppressElement.detach();
-
-			checkTypeElement.add(suppressElement);
-
-			modified = true;
-		}
-
-		if (modified) {
-			FileUtil.write(
-				sourceFormatterSuppressionsFile, Dom4jUtil.toString(document));
-
-			System.out.println(sourceFormatterSuppressionsFileName);
-		}
 	}
 
 	private static final String _CHECK_ATTRIBUTE_NAME = "checks";

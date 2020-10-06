@@ -14,6 +14,7 @@
 
 package com.liferay.blogs.web.internal.display.context;
 
+import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.web.internal.security.permission.resource.BlogsPermission;
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchContainerManagementToolbarDisplayContext;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
@@ -58,7 +59,7 @@ public class BlogEntriesManagementToolbarDisplayContext
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		SearchContainer searchContainer, TrashHelper trashHelper,
+		SearchContainer<BlogsEntry> searchContainer, TrashHelper trashHelper,
 		String displayStyle) {
 
 		super(
@@ -102,14 +103,17 @@ public class BlogEntriesManagementToolbarDisplayContext
 	}
 
 	public Map<String, Object> getComponentContext() throws PortalException {
-		String cmd = Constants.DELETE;
-
-		if (_trashHelper.isTrashEnabled(_themeDisplay.getScopeGroup())) {
-			cmd = Constants.MOVE_TO_TRASH;
-		}
-
 		return HashMapBuilder.<String, Object>put(
-			"deleteEntriesCmd", cmd
+			"deleteEntriesCmd",
+			() -> {
+				if (_trashHelper.isTrashEnabled(
+						_themeDisplay.getScopeGroup())) {
+
+					return Constants.MOVE_TO_TRASH;
+				}
+
+				return Constants.DELETE;
+			}
 		).put(
 			"deleteEntriesURL",
 			() -> {

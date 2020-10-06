@@ -71,15 +71,14 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 	public void setUp() throws Exception {
 		super.setUp();
 
-		Map<String, String> properties = HashMapBuilder.put(
-			"max-height", "600"
-		).put(
-			"max-width", "800"
-		).build();
-
 		_amImageConfigurationHelper.addAMImageConfigurationEntry(
 			stagingGroup.getCompanyId(), StringUtil.randomString(),
-			StringUtil.randomString(), StringUtil.randomString(), properties);
+			StringUtil.randomString(), StringUtil.randomString(),
+			HashMapBuilder.put(
+				"max-height", "600"
+			).put(
+				"max-width", "800"
+			).build());
 	}
 
 	@Test
@@ -288,7 +287,7 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 		return sb.toString();
 	}
 
-	private ServiceContext _getServiceContext() throws PortalException {
+	private ServiceContext _getServiceContext() throws Exception {
 		return ServiceContextTestUtil.getServiceContext(
 			stagingGroup.getGroupId(), TestPropsValues.getUserId());
 	}

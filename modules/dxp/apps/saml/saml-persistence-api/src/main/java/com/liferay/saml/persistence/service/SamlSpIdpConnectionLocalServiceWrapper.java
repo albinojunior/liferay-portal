@@ -36,6 +36,10 @@ public class SamlSpIdpConnectionLocalServiceWrapper
 	/**
 	 * Adds the saml sp idp connection to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpIdpConnectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpIdpConnection the saml sp idp connection
 	 * @return the saml sp idp connection that was added
 	 */
@@ -135,6 +139,10 @@ public class SamlSpIdpConnectionLocalServiceWrapper
 	/**
 	 * Deletes the saml sp idp connection with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpIdpConnectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpIdpConnectionId the primary key of the saml sp idp connection
 	 * @return the saml sp idp connection that was removed
 	 * @throws PortalException if a saml sp idp connection with the primary key could not be found
@@ -151,6 +159,10 @@ public class SamlSpIdpConnectionLocalServiceWrapper
 	/**
 	 * Deletes the saml sp idp connection from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpIdpConnectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param samlSpIdpConnection the saml sp idp connection
 	 * @return the saml sp idp connection that was removed
 	 */
@@ -162,6 +174,11 @@ public class SamlSpIdpConnectionLocalServiceWrapper
 
 		return _samlSpIdpConnectionLocalService.deleteSamlSpIdpConnection(
 			samlSpIdpConnection);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _samlSpIdpConnectionLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -369,7 +386,8 @@ public class SamlSpIdpConnectionLocalServiceWrapper
 			getSamlSpIdpConnections(
 				long companyId, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
-					orderByComparator) {
+					<com.liferay.saml.persistence.model.SamlSpIdpConnection>
+						orderByComparator) {
 
 		return _samlSpIdpConnectionLocalService.getSamlSpIdpConnections(
 			companyId, start, end, orderByComparator);
@@ -445,6 +463,10 @@ public class SamlSpIdpConnectionLocalServiceWrapper
 
 	/**
 	 * Updates the saml sp idp connection in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect SamlSpIdpConnectionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param samlSpIdpConnection the saml sp idp connection
 	 * @return the saml sp idp connection that was updated

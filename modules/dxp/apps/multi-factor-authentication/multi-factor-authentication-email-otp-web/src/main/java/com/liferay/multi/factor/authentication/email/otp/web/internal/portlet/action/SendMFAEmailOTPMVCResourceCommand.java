@@ -20,16 +20,15 @@ import com.liferay.mail.kernel.template.MailTemplate;
 import com.liferay.mail.kernel.template.MailTemplateContext;
 import com.liferay.mail.kernel.template.MailTemplateContextBuilder;
 import com.liferay.mail.kernel.template.MailTemplateFactoryUtil;
-import com.liferay.multi.factor.authentication.email.otp.web.internal.configuration.MFAEmailOTPConfiguration;
+import com.liferay.multi.factor.authentication.email.otp.configuration.MFAEmailOTPConfiguration;
 import com.liferay.multi.factor.authentication.email.otp.web.internal.constants.MFAEmailOTPPortletKeys;
 import com.liferay.multi.factor.authentication.email.otp.web.internal.constants.MFAEmailOTPWebKeys;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.security.auth.AuthToken;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -40,8 +39,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PwdGenerator;
-
-import java.io.IOException;
 
 import javax.mail.internet.InternetAddress;
 
@@ -97,7 +94,7 @@ public class SendMFAEmailOTPMVCResourceCommand implements MVCResourceCommand {
 			String fromAddress, String fromName, String toAddress, User toUser,
 			String subject, String body,
 			MailTemplateContext mailTemplateContext)
-		throws IOException, PortalException {
+		throws Exception {
 
 		MailTemplate subjectMailTemplate =
 			MailTemplateFactoryUtil.createMailTemplate(subject, false);
@@ -148,7 +145,7 @@ public class SendMFAEmailOTPMVCResourceCommand implements MVCResourceCommand {
 		User user = _userLocalService.getUserById(mfaEmailOTPUserId);
 
 		MFAEmailOTPConfiguration mfaEmailOTPConfiguration =
-			ConfigurationProviderUtil.getCompanyConfiguration(
+			_configurationProvider.getCompanyConfiguration(
 				MFAEmailOTPConfiguration.class, user.getCompanyId());
 
 		if (mfaEmailOTPConfiguration == null) {
@@ -160,18 +157,20 @@ public class SendMFAEmailOTPMVCResourceCommand implements MVCResourceCommand {
 				MFAEmailOTPWebKeys.MFA_EMAIL_OTP_SET_AT_TIME),
 			Long.MIN_VALUE);
 
-		long time =
-			mfaEmailOTPSetAtTime +
-				mfaEmailOTPConfiguration.resendEmailTimeout() * 1000;
+		long resendEmailTimeout = mfaEmailOTPConfiguration.resendEmailTimeout();
 
-		if (System.currentTimeMillis() <= time) {
-			if (_log.isInfoEnabled()) {
-				_log.info(
-					"Refusing to send email before resend timeout for user " +
-						user.getUserId());
+		if (resendEmailTimeout > 0) {
+			long time = mfaEmailOTPSetAtTime + (resendEmailTimeout * 1000);
+
+			if (System.currentTimeMillis() <= time) {
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Refusing to send email before resend timeout for " +
+							"user " + user.getUserId());
+				}
+
+				return false;
 			}
-
-			return false;
 		}
 
 		String generatedMFAEmailOTP = PwdGenerator.getPassword(
@@ -215,13 +214,11 @@ public class SendMFAEmailOTPMVCResourceCommand implements MVCResourceCommand {
 		mailTemplateContextBuilder.put(
 			"[$TO_NAME$]", HtmlUtil.escape(user.getFullName()));
 
-		MailTemplateContext mailTemplateContext =
-			mailTemplateContextBuilder.build();
-
 		_sendNotificationEmail(
 			mfaEmailOTPConfiguration.emailFromAddress(),
 			mfaEmailOTPConfiguration.emailFromName(), user.getEmailAddress(),
-			user, emailOTPSubject, emailOTPBody, mailTemplateContext);
+			user, emailOTPSubject, emailOTPBody,
+			mailTemplateContextBuilder.build());
 
 		return true;
 	}
@@ -234,6 +231,9 @@ public class SendMFAEmailOTPMVCResourceCommand implements MVCResourceCommand {
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private ConfigurationProvider _configurationProvider;
 
 	@Reference
 	private MailService _mailService;

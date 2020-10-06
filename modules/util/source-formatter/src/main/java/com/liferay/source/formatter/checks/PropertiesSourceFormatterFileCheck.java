@@ -16,20 +16,26 @@ package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
+import com.liferay.source.formatter.checks.comparator.PropertyValueComparator;
+import com.liferay.source.formatter.checks.util.SourceUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
 
 /**
  * @author Hugo Huijser
@@ -39,10 +45,41 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 	@Override
 	protected String doProcess(
 			String fileName, String absolutePath, String content)
-		throws IOException {
+		throws Exception {
 
-		if (fileName.endsWith("/source-formatter.properties")) {
+		if (absolutePath.endsWith("/source-formatter.properties")) {
+			content = _fixCheckProperties(content);
+
 			return _formatSourceFormatterProperties(fileName, content);
+		}
+
+		return content;
+	}
+
+	private String _fixCheckProperties(String content) throws Exception {
+		Matcher matcher = _checkPropertyPattern.matcher(content);
+
+		while (matcher.find()) {
+			List<String> checkNames = null;
+
+			if (Objects.equals(matcher.group(1), "checkstyle")) {
+				checkNames = _getCheckstyleCheckNames();
+			}
+			else {
+				checkNames = _getSourceCheckCheckNames();
+			}
+
+			String match = matcher.group(2);
+
+			String formattedMatch = StringUtil.removeChar(
+				match, CharPool.PERIOD);
+
+			for (String checkName : checkNames) {
+				if (StringUtil.equalsIgnoreCase(checkName, formattedMatch)) {
+					return StringUtil.replaceFirst(
+						content, match, checkName, matcher.start());
+				}
+			}
 		}
 
 		return content;
@@ -50,7 +87,7 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 
 	private String _formatSourceFormatterProperties(
 			String fileName, String content)
-		throws IOException {
+		throws Exception {
 
 		int level = ToolsUtil.PLUGINS_MAX_DIR_LEVEL;
 
@@ -62,11 +99,11 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 
 		properties.load(new StringReader(content));
 
-		Enumeration<String> enu =
+		Enumeration<String> enumeration =
 			(Enumeration<String>)properties.propertyNames();
 
-		while (enu.hasMoreElements()) {
-			String key = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
 
 			String value = properties.getProperty(key);
 
@@ -81,7 +118,7 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 				content = _sortPropertyValues(content, key, propertyValues);
 			}
 
-			if (!key.endsWith("excludes")) {
+			if (!key.endsWith("excludes") && !key.endsWith("FileNames")) {
 				continue;
 			}
 
@@ -112,6 +149,69 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 		}
 
 		return content;
+	}
+
+	private List<String> _getCheckstyleCheckNames() throws Exception {
+		List<String> checkstyleCheckNames = new ArrayList<>();
+
+		checkstyleCheckNames.addAll(
+			_getCheckstyleCheckNames(_getRootElement("checkstyle.xml")));
+
+		return checkstyleCheckNames;
+	}
+
+	private List<String> _getCheckstyleCheckNames(Element moduleElement) {
+		List<String> checkstyleCheckNames = new ArrayList<>();
+
+		String checkName = moduleElement.attributeValue("name");
+
+		int x = checkName.lastIndexOf(CharPool.PERIOD);
+
+		if (x != -1) {
+			checkstyleCheckNames.add(checkName.substring(x + 1));
+		}
+		else {
+			checkstyleCheckNames.add(checkName);
+		}
+
+		for (Element childModuleElement :
+				(List<Element>)moduleElement.elements("module")) {
+
+			checkstyleCheckNames.addAll(
+				_getCheckstyleCheckNames(childModuleElement));
+		}
+
+		return checkstyleCheckNames;
+	}
+
+	private Element _getRootElement(String fileName) throws Exception {
+		ClassLoader classLoader =
+			PropertiesSourceFormatterFileCheck.class.getClassLoader();
+
+		String content = StringUtil.read(
+			classLoader.getResourceAsStream(fileName));
+
+		Document document = SourceUtil.readXML(content);
+
+		return document.getRootElement();
+	}
+
+	private List<String> _getSourceCheckCheckNames() throws Exception {
+		List<String> sourceCheckCheckNames = new ArrayList<>();
+
+		Element rootElement = _getRootElement("sourcechecks.xml");
+
+		for (Element sourceProcessorElement :
+				(List<Element>)rootElement.elements("source-processor")) {
+
+			for (Element checkElement :
+					(List<Element>)sourceProcessorElement.elements("check")) {
+
+				sourceCheckCheckNames.add(checkElement.attributeValue("name"));
+			}
+		}
+
+		return sourceCheckCheckNames;
 	}
 
 	private synchronized boolean _hasPrivateAppsDir() {
@@ -214,49 +314,9 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 		return content;
 	}
 
-	private static final char[][] _REVERSE_ORDER_CHARACTERS = {
-		{CharPool.COLON, CharPool.PERIOD}, {CharPool.DASH, CharPool.SLASH}
-	};
+	private static final Pattern _checkPropertyPattern = Pattern.compile(
+		"\n\\s*#?(checkstyle|source\\.check)\\.(.*\\.check)\\.");
 
 	private Boolean _hasPrivateAppsDir;
-
-	private class PropertyValueComparator extends NaturalOrderStringComparator {
-
-		@Override
-		public int compare(String s1, String s2) {
-			int value = super.compare(s1, s2);
-
-			if (s1.startsWith(s2) || s2.startsWith(s1)) {
-				return value;
-			}
-
-			int x = StringUtil.startsWithWeight(s1, s2);
-
-			char c1 = s1.charAt(x);
-			char c2 = s2.charAt(x);
-
-			for (char[] array : _REVERSE_ORDER_CHARACTERS) {
-				if (ArrayUtil.contains(array, c1) &&
-					ArrayUtil.contains(array, c2)) {
-
-					return -value;
-				}
-			}
-
-			if ((x > 0) && (s1.charAt(x - 1) == CharPool.PERIOD)) {
-				if (Character.isUpperCase(c1) && Character.isLowerCase(c2)) {
-					return -1;
-				}
-				else if (Character.isLowerCase(c1) &&
-						 Character.isUpperCase(c2)) {
-
-					return 1;
-				}
-			}
-
-			return value;
-		}
-
-	}
 
 }

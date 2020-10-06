@@ -21,10 +21,11 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
-import com.liferay.dynamic.data.mapping.storage.FieldConstants;
+import com.liferay.dynamic.data.mapping.storage.constants.FieldConstants;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
+import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.configuration.metatype.definitions.ExtendedAttributeDefinition;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -192,6 +193,7 @@ public class ConfigurationModelToDDMFormConverter {
 		setDDMFormFieldPredefinedValue(attributeDefinition, ddmFormField);
 		setDDMFormFieldRequired(attributeDefinition, ddmFormField, required);
 		setDDMFormFieldTip(attributeDefinition, ddmFormField);
+		setDDMFormFieldVisibilityExpression(attributeDefinition, ddmFormField);
 
 		ddmFormField.setLocalizable(true);
 		ddmFormField.setShowLabel(true);
@@ -268,6 +270,9 @@ public class ConfigurationModelToDDMFormConverter {
 		}
 		else if (type == AttributeDefinition.PASSWORD) {
 			return DDMFormFieldType.PASSWORD;
+		}
+		else if (type == ExtendedAttributeDefinition.LOCALIZED_VALUES_MAP) {
+			return DDMFormFieldType.LOCALIZABLE_TEXT;
 		}
 
 		if (!SetUtil.isEmpty(ddmFormFieldOptions.getOptionsValues())) {
@@ -371,6 +376,22 @@ public class ConfigurationModelToDDMFormConverter {
 				attributeDefinition.getDescription(), descriptionArguments));
 
 		ddmFormField.setTip(tip);
+	}
+
+	protected void setDDMFormFieldVisibilityExpression(
+		AttributeDefinition attributeDefinition, DDMFormField ddmFormField) {
+
+		String[] hiddenFieldKeys = {
+			ExtendedObjectClassDefinition.Scope.COMPANY.getPropertyKey(),
+			ExtendedObjectClassDefinition.Scope.COMPANY.getValue()
+		};
+
+		if (ArrayUtil.contains(hiddenFieldKeys, attributeDefinition.getID()) ||
+			ArrayUtil.contains(
+				hiddenFieldKeys, attributeDefinition.getName())) {
+
+			ddmFormField.setVisibilityExpression("FALSE");
+		}
 	}
 
 	protected String translate(String key) {

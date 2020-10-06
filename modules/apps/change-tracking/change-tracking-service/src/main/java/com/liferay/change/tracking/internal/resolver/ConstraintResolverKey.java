@@ -65,7 +65,8 @@ public class ConstraintResolverKey {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(_uniqueIndexNames.length * 2 + 2);
+		StringBundler sb = new StringBundler(
+			(_uniqueIndexNames.length * 2) + 2);
 
 		sb.append("{modelClassName=");
 		sb.append(_modelClassName);

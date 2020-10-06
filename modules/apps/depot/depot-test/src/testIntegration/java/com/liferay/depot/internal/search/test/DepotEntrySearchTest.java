@@ -29,12 +29,15 @@ import com.liferay.portal.kernel.search.SearchResultUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.SearchContextTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -45,6 +48,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +57,7 @@ import org.junit.runner.RunWith;
  * @author Alejandro Tardín
  */
 @RunWith(Arquillian.class)
+@Sync
 public class DepotEntrySearchTest {
 
 	@ClassRule
@@ -60,7 +65,8 @@ public class DepotEntrySearchTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerMethodTestRule.INSTANCE);
+			PermissionCheckerMethodTestRule.INSTANCE,
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Test
 	public void testSearchBothWithoutPermissions() throws Exception {
@@ -84,6 +90,7 @@ public class DepotEntrySearchTest {
 			});
 	}
 
+	@Ignore
 	@Test
 	public void testSearchBothWithPermissions() throws Exception {
 		DepotEntry depotEntry1 = _addDepotEntry(
@@ -172,13 +179,16 @@ public class DepotEntrySearchTest {
 			});
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
 	private DepotEntry _addDepotEntry(User user, String name) throws Exception {
 		DepotEntry depotEntry = _depotEntryService.addDepotEntry(
 			Collections.singletonMap(LocaleUtil.getDefault(), name),
 			Collections.singletonMap(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
 			ServiceContextTestUtil.getServiceContext(
-				user.getGroupId(), user.getUserId()));
+				TestPropsValues.getGroupId(), user.getUserId()));
 
 		_depotEntries.add(depotEntry);
 

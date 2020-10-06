@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-logo-editor',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var LogoEditor = A.Component.create({
@@ -170,8 +170,8 @@ AUI.add(
 							body: new FormData(form),
 							method: 'POST',
 						})
-							.then(response => response.json())
-							.then(response => {
+							.then((response) => response.json())
+							.then((response) => {
 								instance.fire('uploadComplete', {
 									response,
 								});
@@ -283,16 +283,10 @@ AUI.add(
 				},
 
 				_showError(message) {
-					new Liferay.Alert({
-						closeable: true,
-						delay: {
-							hide: 3000,
-							show: 0,
-						},
-						duration: 500,
+					Liferay.Util.openToast({
 						message,
 						type: 'danger',
-					}).render();
+					});
 				},
 
 				bindUI() {
@@ -374,10 +368,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: [
-			'aui-image-cropper',
-			'liferay-alert',
-			'liferay-portlet-base',
-		],
+		requires: ['aui-image-cropper', 'liferay-portlet-base'],
 	}
 );

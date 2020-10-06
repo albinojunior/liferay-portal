@@ -84,6 +84,28 @@ definition {
 
 	macro saveDataProvider {
 		PortletEntry.save();
+
+		Pause(locator1 = "5000");
+	}
+
+	macro teardownDataProviders {
+		while (IsElementPresent(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS")) {
+			LexiconEntry.gotoEllipsisMenuItemNoError(menuItem = "Delete");
+
+			AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
+
+			Alert.viewSuccessMessage();
+		}
+	}
+
+	macro teardownElementSets {
+		while (IsElementPresent(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS")) {
+			LexiconEntry.gotoEllipsisMenuItemNoError(menuItem = "Delete");
+
+			AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
+
+			Alert.viewSuccessMessage();
+		}
 	}
 
 	macro teardownForms {
@@ -169,6 +191,10 @@ definition {
 		AssertElementNotPresent(locator1 = "FormsAdmin#FORM_ENTRY_TABLE_ENTRY");
 	}
 
+	macro viewImageTableEntry {
+		AssertElementPresent(locator1 = "FormFields#IMAGE_TABLE_ENTRY");
+	}
+
 	macro viewMultilineTextEntry {
 		FormsAdmin.viewCannotEditFormEntries();
 
@@ -200,9 +226,7 @@ definition {
 	}
 
 	macro viewNoForms {
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "There are no forms. Click on the plus button to add the first one.");
+		AssertElementPresent(locator1 = "Message#EMPTY_INFO_TAGLIB");
 	}
 
 	macro viewRadioEntry {

@@ -68,9 +68,7 @@ public class JavaVariableTypeCheck extends BaseJavaTermCheck {
 		String absolutePath, JavaClass javaClass, String classContent,
 		JavaVariable javaVariable) {
 
-		String accessModifier = javaVariable.getAccessModifier();
-
-		if (accessModifier.equals(JavaTerm.ACCESS_MODIFIER_PUBLIC)) {
+		if (javaVariable.isPublic()) {
 			return classContent;
 		}
 
@@ -82,14 +80,15 @@ public class JavaVariableTypeCheck extends BaseJavaTermCheck {
 				classContent, javaVariable, fieldType);
 		}
 
-		if (!accessModifier.equals(JavaTerm.ACCESS_MODIFIER_PRIVATE)) {
+		if (!javaVariable.isPrivate()) {
 			return classContent;
 		}
 
 		if (isFinal) {
 			JavaClass parentJavaClass = javaClass.getParentJavaClass();
 
-			if ((parentJavaClass == null) && !javaVariable.isStatic() &&
+			if (!javaClass.isAnonymous() && (parentJavaClass == null) &&
+				!javaVariable.isStatic() &&
 				(_isImmutableField(fieldType, absolutePath) ||
 				 fieldType.matches("Pattern(\\[\\])*") ||
 				 (fieldType.equals("Log") &&
@@ -117,9 +116,9 @@ public class JavaVariableTypeCheck extends BaseJavaTermCheck {
 		Matcher matcher = pattern.matcher(javaVariable.getContent());
 
 		if (matcher.find()) {
-			String nonAccessModifiers = matcher.group(1);
+			String nonaccessModifiers = matcher.group(1);
 
-			if (nonAccessModifiers.contains(modifier)) {
+			if (nonaccessModifiers.contains(modifier)) {
 				return true;
 			}
 		}

@@ -30,11 +30,14 @@ import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.portlet.PortletURL;
+import javax.portlet.ResourceURL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -67,6 +70,15 @@ public class DisplayPageManagementToolbarDisplayContext
 				dropdownItem.setLabel(LanguageUtil.get(request, "delete"));
 				dropdownItem.setQuickAction(true);
 			}
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "exportDisplayPages");
+				dropdownItem.putData(
+					"exportDisplayPageURL", _getExportDisplayPageURL());
+				dropdownItem.setIcon("download");
+				dropdownItem.setLabel(LanguageUtil.get(request, "export"));
+				dropdownItem.setQuickAction(true);
+			}
 		).build();
 	}
 
@@ -74,14 +86,22 @@ public class DisplayPageManagementToolbarDisplayContext
 			LayoutPageTemplateEntry layoutPageTemplateEntry)
 		throws PortalException {
 
+		List<String> availableActions = new ArrayList<>();
+
 		if (LayoutPageTemplateEntryPermission.contains(
 				_themeDisplay.getPermissionChecker(), layoutPageTemplateEntry,
 				ActionKeys.DELETE)) {
 
-			return "deleteSelectedDisplayPages";
+			availableActions.add("deleteSelectedDisplayPages");
 		}
 
-		return StringPool.BLANK;
+		if ((layoutPageTemplateEntry.getLayoutPrototypeId() == 0) &&
+			!layoutPageTemplateEntry.isDraft()) {
+
+			availableActions.add("exportDisplayPages");
+		}
+
+		return StringUtil.merge(availableActions, StringPool.COMMA);
 	}
 
 	@Override
@@ -155,6 +175,16 @@ public class DisplayPageManagementToolbarDisplayContext
 	@Override
 	protected String[] getOrderByKeys() {
 		return new String[] {"create-date", "name"};
+	}
+
+	private String _getExportDisplayPageURL() {
+		ResourceURL exportDisplayPageURL =
+			liferayPortletResponse.createResourceURL();
+
+		exportDisplayPageURL.setResourceID(
+			"/layout_page_template/export_display_page");
+
+		return exportDisplayPageURL.toString();
 	}
 
 	private final ThemeDisplay _themeDisplay;

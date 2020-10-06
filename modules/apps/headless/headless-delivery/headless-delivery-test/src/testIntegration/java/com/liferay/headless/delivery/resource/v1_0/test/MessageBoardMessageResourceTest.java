@@ -18,16 +18,15 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.delivery.client.dto.v1_0.MessageBoardMessage;
 import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.model.MBThread;
+import com.liferay.message.boards.service.MBMessageLocalServiceUtil;
 import com.liferay.message.boards.test.util.MBTestUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -47,42 +46,6 @@ public class MessageBoardMessageResourceTest
 		serviceContext.setScopeGroupId(testGroup.getGroupId());
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testGetMessageBoardMessageMessageBoardMessagesPageWithSortInteger() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetMessageBoardThreadMessageBoardMessagesPageWithSortInteger() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetSiteMessageBoardMessagesPageWithSortInteger() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLDeleteMessageBoardMessage() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetMessageBoardMessage() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetSiteMessageBoardMessagesPage() {
-	}
-
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
 		return new String[] {"articleBody", "headline"};
@@ -90,7 +53,10 @@ public class MessageBoardMessageResourceTest
 
 	@Override
 	protected String[] getIgnoredEntityFieldNames() {
-		return new String[] {"creatorId", "messageBoardSectionId"};
+		return new String[] {
+			"creatorId", "messageBoardSectionId", "messageBoardThreadId",
+			"parentMessageBoardMessageId", "ratingValue"
+		};
 	}
 
 	@Override
@@ -153,11 +119,34 @@ public class MessageBoardMessageResourceTest
 
 	@Override
 	protected MessageBoardMessage
+			testGetSiteMessageBoardMessageByFriendlyUrlPath_addMessageBoardMessage()
+		throws Exception {
+
+		return testPostMessageBoardMessageMessageBoardMessage_addMessageBoardMessage(
+			randomMessageBoardMessage());
+	}
+
+	@Override
+	protected MessageBoardMessage
 			testGetSiteMessageBoardMessagesPage_addMessageBoardMessage(
 				Long siteId, MessageBoardMessage messageBoardMessage)
 		throws Exception {
 
 		return _addMessageBoardMessage(messageBoardMessage, siteId);
+	}
+
+	@Override
+	protected MessageBoardMessage
+			testGraphQLMessageBoardMessage_addMessageBoardMessage()
+		throws Exception {
+
+		MBMessage mbMessage = MBMessageLocalServiceUtil.addMessage(
+			TestPropsValues.getUserId(), "test", testGroup.getGroupId(), 0,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			new ServiceContext());
+
+		return messageBoardMessageResource.getMessageBoardMessage(
+			mbMessage.getMessageId());
 	}
 
 	@Override
@@ -193,7 +182,7 @@ public class MessageBoardMessageResourceTest
 	}
 
 	private MBMessage _addMbMessage(Long siteId, String subject, String body)
-		throws PortalException {
+		throws Exception {
 
 		MBMessage mbMessage = MBTestUtil.addMessage(
 			siteId,

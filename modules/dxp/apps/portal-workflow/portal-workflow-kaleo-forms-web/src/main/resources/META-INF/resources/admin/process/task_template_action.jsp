@@ -20,8 +20,6 @@
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
 KaleoTaskFormPair kaleoTaskFormPair = (KaleoTaskFormPair)row.getObject();
-
-String backURL = (String)row.getParameter("backURL");
 %>
 
 <liferay-ui:icon-menu
@@ -44,12 +42,12 @@ String backURL = (String)row.getParameter("backURL");
 	String initialStateName = KaleoFormsUtil.getInitialStateName(company.getCompanyId(), workflowDefinition);
 
 	String mode = initialStateName.equals(kaleoTaskFormPair.getWorkflowTaskName()) ? DDMTemplateConstants.TEMPLATE_MODE_CREATE : DDMTemplateConstants.TEMPLATE_MODE_EDIT;
-	String paramName = HtmlUtil.escapeJS(renderResponse.getNamespace() + ddmStructureId + workflowDefinition + kaleoTaskFormPair.getWorkflowTaskName());
+	String paramName = HtmlUtil.escapeJS(liferayPortletResponse.getNamespace() + ddmStructureId + workflowDefinition + kaleoTaskFormPair.getWorkflowTaskName());
 	%>
 
 	<liferay-ui:icon
 		message="assign-form"
-		onClick='<%= "javascript:" + renderResponse.getNamespace() + "selectFormTemplate(" + ddmStructureId + ",'" + mode + "', '" + paramName + "');" %>'
+		onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "selectFormTemplate(" + ddmStructureId + ",'" + mode + "', '" + paramName + "');" %>'
 		url="javascript:;"
 	/>
 
@@ -71,27 +69,27 @@ String backURL = (String)row.getParameter("backURL");
 
 		<liferay-ui:icon
 			message="unassign-form"
-			onClick='<%= "javascript:" + renderResponse.getNamespace() + "unassignForm({taskFormPairsParamName: '" + paramName + "', node: this});" %>'
+			onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "unassignForm({taskFormPairsParamName: '" + paramName + "', node: this});" %>'
 			url="javascript:;"
 		/>
 
 		<liferay-portlet:renderURL portletName="<%= PortletProviderUtil.getPortletId(DDMTemplate.class.getName(), PortletProvider.Action.EDIT) %>" var="editFormTemplateURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
 			<portlet:param name="mvcPath" value="/edit_template.jsp" />
 			<portlet:param name="navigationStartsOn" value="<%= DDMNavigationHelper.EDIT_TEMPLATE %>" />
-			<portlet:param name="closeRedirect" value="<%= backURL %>" />
+			<portlet:param name="closeRedirect" value='<%= (String)row.getParameter("backURL") %>' />
 			<portlet:param name="showBackURL" value="<%= Boolean.FALSE.toString() %>" />
-			<portlet:param name="portletResourceNamespace" value="<%= renderResponse.getNamespace() %>" />
+			<portlet:param name="portletResourceNamespace" value="<%= liferayPortletResponse.getNamespace() %>" />
 			<portlet:param name="refererPortletName" value="<%= KaleoFormsPortletKeys.KALEO_FORMS_ADMIN %>" />
 			<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
 			<portlet:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
 			<portlet:param name="templateId" value="<%= String.valueOf(ddmTemplate.getTemplateId()) %>" />
 			<portlet:param name="showCacheableInput" value="<%= Boolean.TRUE.toString() %>" />
-			<portlet:param name="structureAvailableFields" value='<%= renderResponse.getNamespace() + "getAvailableFields" %>' />
+			<portlet:param name="structureAvailableFields" value='<%= liferayPortletResponse.getNamespace() + "getAvailableFields" %>' />
 		</liferay-portlet:renderURL>
 
 		<liferay-ui:icon
 			message="edit-form"
-			onClick='<%= "javascript:" + renderResponse.getNamespace() + "editFormTemplate('" + editFormTemplateURL + "');" %>'
+			onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "editFormTemplate('" + editFormTemplateURL + "');" %>'
 			url="javascript:;"
 		/>
 	</c:if>

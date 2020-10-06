@@ -14,12 +14,12 @@
 
 package com.liferay.calendar.internal.util;
 
+import com.liferay.calendar.constants.CalendarBookingConstants;
 import com.liferay.calendar.exporter.CalendarDataFormat;
 import com.liferay.calendar.exporter.CalendarDataHandler;
 import com.liferay.calendar.exporter.CalendarDataHandlerFactory;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
-import com.liferay.calendar.model.CalendarBookingConstants;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.notification.NotificationType;
 import com.liferay.calendar.recurrence.Recurrence;
@@ -28,12 +28,12 @@ import com.liferay.calendar.service.CalendarBookingServiceUtil;
 import com.liferay.calendar.service.CalendarLocalServiceUtil;
 import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.calendar.util.JCalendarUtil;
-import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
+import com.liferay.calendar.workflow.constants.CalendarBookingWorkflowConstants;
+import com.liferay.petra.io.unsync.UnsyncStringReader;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.User;
@@ -115,15 +115,14 @@ public class CalendarICalDataHandler implements CalendarDataHandler {
 
 	@Override
 	public String exportCalendar(long calendarId) throws Exception {
-		int[] statuses = {
-			WorkflowConstants.STATUS_APPROVED,
-			CalendarBookingWorkflowConstants.STATUS_MAYBE,
-			WorkflowConstants.STATUS_PENDING
-		};
-
 		List<CalendarBooking> calendarBookings =
 			CalendarBookingServiceUtil.getCalendarBookings(
-				calendarId, statuses);
+				calendarId,
+				new int[] {
+					WorkflowConstants.STATUS_APPROVED,
+					CalendarBookingWorkflowConstants.STATUS_MAYBE,
+					WorkflowConstants.STATUS_PENDING
+				});
 
 		net.fortuna.ical4j.model.Calendar iCalCalendar = toICalCalendar(
 			calendarBookings);

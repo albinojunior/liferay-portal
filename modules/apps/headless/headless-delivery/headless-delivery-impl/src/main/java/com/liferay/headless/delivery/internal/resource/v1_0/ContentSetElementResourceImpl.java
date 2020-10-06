@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,6 +52,26 @@ public class ContentSetElementResourceImpl
 	extends BaseContentSetElementResourceImpl {
 
 	@Override
+	public Page<ContentSetElement>
+			getAssetLibraryContentSetByKeyContentSetElementsPage(
+				Long assetLibraryId, String key, Pagination pagination)
+		throws Exception {
+
+		return getSiteContentSetByKeyContentSetElementsPage(
+			assetLibraryId, key, pagination);
+	}
+
+	@Override
+	public Page<ContentSetElement>
+			getAssetLibraryContentSetByUuidContentSetElementsPage(
+				Long assetLibraryId, String uuid, Pagination pagination)
+		throws Exception {
+
+		return getSiteContentSetByUuidContentSetElementsPage(
+			assetLibraryId, uuid, pagination);
+	}
+
+	@Override
 	public Page<ContentSetElement> getContentSetContentSetElementsPage(
 			Long contentSetId, Pagination pagination)
 		throws Exception {
@@ -64,10 +85,8 @@ public class ContentSetElementResourceImpl
 			Long siteId, String key, Pagination pagination)
 		throws Exception {
 
-		AssetListEntry assetListEntry =
-			_assetListEntryService.getAssetListEntry(siteId, key);
-
-		return _getContentSetContentSetElementsPage(assetListEntry, pagination);
+		return _getContentSetContentSetElementsPage(
+			_assetListEntryService.getAssetListEntry(siteId, key), pagination);
 	}
 
 	@Override
@@ -86,11 +105,11 @@ public class ContentSetElementResourceImpl
 	private Context _createSegmentsContext() {
 		Context context = new Context();
 
-		Enumeration<String> headerNames =
+		Enumeration<String> enumeration =
 			contextHttpServletRequest.getHeaderNames();
 
-		while (headerNames.hasMoreElements()) {
-			String key = headerNames.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
 
 			String value = contextHttpServletRequest.getHeader(key);
 
@@ -144,7 +163,7 @@ public class ContentSetElementResourceImpl
 	}
 
 	private ContentSetElement _toContentSetElement(AssetEntry assetEntry) {
-		DTOConverter dtoConverter = _dtoConverterRegistry.getDTOConverter(
+		DTOConverter<?, ?> dtoConverter = _dtoConverterRegistry.getDTOConverter(
 			assetEntry.getClassName());
 
 		return new ContentSetElement() {
@@ -152,7 +171,7 @@ public class ContentSetElementResourceImpl
 				id = assetEntry.getClassPK();
 				title = assetEntry.getTitle(
 					contextAcceptLanguage.getPreferredLocale());
-				title_i18n = LocalizedMapUtil.getLocalizedMap(
+				title_i18n = LocalizedMapUtil.getI18nMap(
 					contextAcceptLanguage.isAcceptAllLanguages(),
 					assetEntry.getTitleMap());
 
@@ -164,7 +183,10 @@ public class ContentSetElementResourceImpl
 
 						return dtoConverter.toDTO(
 							new DefaultDTOConverterContext(
-								_dtoConverterRegistry, assetEntry.getClassPK(),
+								contextAcceptLanguage.isAcceptAllLanguages(),
+								new HashMap<>(), _dtoConverterRegistry,
+								contextHttpServletRequest,
+								assetEntry.getClassPK(),
 								contextAcceptLanguage.getPreferredLocale(),
 								contextUriInfo, contextUser));
 					});

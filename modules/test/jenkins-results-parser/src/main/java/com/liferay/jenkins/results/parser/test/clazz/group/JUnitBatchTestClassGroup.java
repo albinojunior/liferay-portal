@@ -75,11 +75,10 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		for (JUnitBatchTestClassGroup.JunitBatchTestClass junitBatchTestClass :
 				junitTestClasses.values()) {
 
-			TestClass.TestClassFile testClassFile =
-				junitBatchTestClass.getTestClassFile();
+			File testClassFile = junitBatchTestClass.getTestClassFile();
 
-			String testClassFileRelativePath = testClassFile.getRelativePath(
-				junitBatchTestClass.getWorkingDirectory());
+			String testClassFileRelativePath = _getRelativePath(
+				testClassFile, junitBatchTestClass.getWorkingDirectory());
 
 			String className = testClassFile.getName();
 
@@ -130,6 +129,22 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		}
 
 		protected static JunitBatchTestClass getInstance(
+			File testClassFile, GitWorkingDirectory gitWorkingDirectory,
+			File javaFile) {
+
+			if (_junitTestClasses.containsKey(testClassFile)) {
+				return _junitTestClasses.get(testClassFile);
+			}
+
+			JunitBatchTestClass junitTestClass = new JunitBatchTestClass(
+				testClassFile, gitWorkingDirectory, javaFile);
+
+			_junitTestClasses.put(testClassFile, junitTestClass);
+
+			return junitTestClass;
+		}
+
+		protected static JunitBatchTestClass getInstance(
 			String fullClassName, GitWorkingDirectory gitWorkingDirectory) {
 
 			File javaFile = gitWorkingDirectory.getJavaFileFromFullClassName(
@@ -146,8 +161,7 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 
 			packagePath = packagePath + ".class";
 
-			TestClassGroup.TestClass.TestClassFile testClassFile =
-				new TestClass.TestClassFile(packagePath);
+			File testClassFile = new File(packagePath);
 
 			if (_junitTestClasses.containsKey(testClassFile)) {
 				return _junitTestClasses.get(testClassFile);
@@ -156,29 +170,13 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 			return getInstance(testClassFile, gitWorkingDirectory, javaFile);
 		}
 
-		protected static JunitBatchTestClass getInstance(
-			TestClassFile testClassFile,
-			GitWorkingDirectory gitWorkingDirectory, File javaFile) {
-
-			if (_junitTestClasses.containsKey(testClassFile)) {
-				return _junitTestClasses.get(testClassFile);
-			}
-
-			JunitBatchTestClass junitTestClass = new JunitBatchTestClass(
-				testClassFile, gitWorkingDirectory, javaFile);
-
-			_junitTestClasses.put(testClassFile, junitTestClass);
-
-			return junitTestClass;
-		}
-
 		protected static Map<File, JunitBatchTestClass> getJunitTestClasses() {
 			return _junitTestClasses;
 		}
 
 		protected JunitBatchTestClass(
-			TestClassFile testClassFile,
-			GitWorkingDirectory gitWorkingDirectory, File srcFile) {
+			File testClassFile, GitWorkingDirectory gitWorkingDirectory,
+			File srcFile) {
 
 			super(testClassFile);
 
@@ -409,7 +407,7 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 
 		_setAutoBalanceTestFiles();
 
-		_setTestClassNamesExcludesRelativeGlobs();
+		setTestClassNamesExcludesRelativeGlobs();
 		_setTestClassNamesIncludesRelativeGlobs();
 
 		setTestClasses();
@@ -419,16 +417,21 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		setAxisTestClassGroups();
 	}
 
-	protected List<String> getReleaseTestClassNamesRelativeGlobs(
-		List<String> testClassNamesRelativeGlobs) {
+	protected List<String> getReleaseTestClassNamesRelativeIncludesGlobs(
+		List<String> testClassNamesRelativeIncludesGlobs) {
 
-		return testClassNamesRelativeGlobs;
+		return testClassNamesRelativeIncludesGlobs;
 	}
 
-	protected List<String> getRelevantTestClassNamesRelativeGlobs(
-		List<String> testClassNamesRelativeGlobs) {
+	protected List<String> getRelevantTestClassNamesRelativeExcludesGlobs() {
+		return new ArrayList();
+	}
 
-		List<String> relevantTestClassNameRelativeGlobs = new ArrayList<>();
+	protected List<String> getRelevantTestClassNamesRelativeIncludesGlobs(
+		List<String> testClassNamesRelativeIncludesGlobs) {
+
+		List<String> relevantTestClassNameRelativeIncludesGlobs =
+			new ArrayList<>();
 
 		List<File> moduleDirsList = null;
 
@@ -466,13 +469,13 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 				continue;
 			}
 
-			relevantTestClassNameRelativeGlobs.addAll(
-				testClassNamesRelativeGlobs);
+			relevantTestClassNameRelativeIncludesGlobs.addAll(
+				testClassNamesRelativeIncludesGlobs);
 
-			return relevantTestClassNameRelativeGlobs;
+			return relevantTestClassNameRelativeIncludesGlobs;
 		}
 
-		return relevantTestClassNameRelativeGlobs;
+		return relevantTestClassNameRelativeIncludesGlobs;
 	}
 
 	@Override
@@ -527,8 +530,8 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 
 				axisTestClassGroup.addTestClass(
 					JunitBatchTestClass.getInstance(
-						new TestClass.TestClassFile(filePath),
-						portalGitWorkingDirectory, autoBalanceTestFile));
+						new File(filePath), portalGitWorkingDirectory,
+						autoBalanceTestFile));
 			}
 		}
 	}
@@ -583,14 +586,13 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 							String packagePath = matcher.group("packagePath");
 
 							return JunitBatchTestClass.getInstance(
-								new TestClass.TestClassFile(
+								new File(
 									packagePath.replace(".java", ".class")),
 								portalGitWorkingDirectory, path.toFile());
 						}
 
 						return JunitBatchTestClass.getInstance(
-							new TestClass.TestClassFile(
-								filePath.replace(".java", ".class")),
+							new File(filePath.replace(".java", ".class")),
 							portalGitWorkingDirectory, path.toFile());
 					}
 
@@ -606,10 +608,67 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		Collections.sort(testClasses);
 	}
 
+	protected void setTestClassNamesExcludesRelativeGlobs() {
+		String testClassNamesExcludesPropertyValue =
+			_getTestClassNamesExcludesPropertyValue(testSuiteName, false);
+
+		List<String> testClassNamesExcludesRelativeGlobs = new ArrayList<>();
+
+		if ((testClassNamesExcludesPropertyValue != null) &&
+			!testClassNamesExcludesPropertyValue.isEmpty()) {
+
+			Collections.addAll(
+				testClassNamesExcludesRelativeGlobs,
+				JenkinsResultsParserUtil.getGlobsFromProperty(
+					testClassNamesExcludesPropertyValue));
+		}
+
+		if (testRelevantChanges) {
+			testClassNamesExcludesRelativeGlobs.addAll(
+				getRelevantTestClassNamesRelativeExcludesGlobs());
+		}
+
+		if (includeStableTestSuite && isStableTestSuiteBatch()) {
+			String stableTestClassNamesExcludesPropertyValue =
+				_getTestClassNamesExcludesPropertyValue(
+					NAME_STABLE_TEST_SUITE, false);
+
+			if ((stableTestClassNamesExcludesPropertyValue != null) &&
+				!stableTestClassNamesExcludesPropertyValue.isEmpty()) {
+
+				Collections.addAll(
+					testClassNamesExcludesRelativeGlobs,
+					JenkinsResultsParserUtil.getGlobsFromProperty(
+						stableTestClassNamesExcludesPropertyValue));
+			}
+		}
+
+		testClassNamesExcludesPathMatchers.addAll(
+			JenkinsResultsParserUtil.toPathMatchers(
+				JenkinsResultsParserUtil.combine(
+					JenkinsResultsParserUtil.getCanonicalPath(
+						_rootWorkingDirectory),
+					File.separator),
+				testClassNamesExcludesRelativeGlobs.toArray(new String[0])));
+	}
+
 	protected final List<PathMatcher> testClassNamesExcludesPathMatchers =
 		new ArrayList<>();
 	protected final List<PathMatcher> testClassNamesIncludesPathMatchers =
 		new ArrayList<>();
+
+	private String _getRelativePath(File file, File parentFile) {
+		String filePath = JenkinsResultsParserUtil.getCanonicalPath(file);
+		String parentFilePath = JenkinsResultsParserUtil.getCanonicalPath(
+			parentFile);
+
+		if (!filePath.startsWith(parentFilePath)) {
+			throw new IllegalArgumentException(
+				"Working directory does not contain this file");
+		}
+
+		return filePath.replaceAll(parentFilePath, "");
+	}
 
 	private String _getTestClassNamesExcludesPropertyValue(
 		String testSuiteName, boolean useRequiredVariant) {
@@ -706,21 +765,6 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		_includeAutoBalanceTests = _ENABLE_INCLUDE_AUTO_BALANCE_TESTS_DEFAULT;
 	}
 
-	private void _setTestClassNamesExcludesRelativeGlobs() {
-		testClassNamesExcludesPathMatchers.addAll(
-			getPathMatchers(
-				_getTestClassNamesExcludesPropertyValue(testSuiteName, false),
-				portalGitWorkingDirectory.getWorkingDirectory()));
-
-		if (includeStableTestSuite && isStableTestSuiteBatch()) {
-			testClassNamesExcludesPathMatchers.addAll(
-				getPathMatchers(
-					_getTestClassNamesExcludesPropertyValue(
-						NAME_STABLE_TEST_SUITE, false),
-					portalGitWorkingDirectory.getWorkingDirectory()));
-		}
-	}
-
 	private void _setTestClassNamesIncludesRelativeGlobs() {
 		String testClassNamesIncludesPropertyValue =
 			_getTestClassNamesIncludesPropertyValue(testSuiteName, false);
@@ -740,12 +784,12 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 
 		if (testReleaseBundle) {
 			testClassNamesIncludesRelativeGlobs =
-				getReleaseTestClassNamesRelativeGlobs(
+				getReleaseTestClassNamesRelativeIncludesGlobs(
 					testClassNamesIncludesRelativeGlobs);
 		}
 		else if (testRelevantChanges) {
 			testClassNamesIncludesRelativeGlobs =
-				getRelevantTestClassNamesRelativeGlobs(
+				getRelevantTestClassNamesRelativeIncludesGlobs(
 					testClassNamesIncludesRelativeGlobs);
 		}
 

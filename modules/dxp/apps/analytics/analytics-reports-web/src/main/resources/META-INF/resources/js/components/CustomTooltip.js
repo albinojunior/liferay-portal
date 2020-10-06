@@ -18,33 +18,50 @@ import React from 'react';
  */
 export default function CustomTooltip(props) {
 	const {
-		formatter = (value, label) => [value, label],
+		formatter,
 		label,
-		labelFormatter = label => label,
+		labelFormatter,
 		payload,
+		publishDateFill,
 		separator = '',
+		showPublishedDateLabel,
 	} = props;
 
 	return label ? (
 		<div className="custom-tooltip">
 			<p className="mb-1 mt-0">
-				<b>{labelFormatter(label)}</b>
+				<b>{labelFormatter ? labelFormatter(label) : label}</b>
 			</p>
+			<hr className="mb-1 mt-1" />
+			{showPublishedDateLabel && (
+				<span>
+					<span
+						className={'custom-circle mr-1'}
+						style={{
+							backgroundColor: 'white',
+							border: `2px solid ${publishDateFill}`,
+						}}
+					></span>
+					{Liferay.Language.get('published')}
+				</span>
+			)}
 			<ul className="list-unstyled mb-0">
-				{payload.map(item => {
-					const [value, name] = formatter(item.value, item.name);
+				{payload.map((item) => {
+					const [value, name, iconType] = formatter
+						? formatter(item.value, item.name, item.iconType)
+						: [item.value, item.name, item.iconType];
 
 					return (
 						<li key={item.name}>
-							<div
-								className="custom-tooltip-dot"
+							<span
+								className={`custom-${iconType} mr-1`}
 								style={{
 									backgroundColor: item.color,
 								}}
-							></div>
+							></span>
 							{name}
 							{separator}
-							{value}
+							<b>{value}</b>
 						</li>
 					);
 				})}
@@ -63,5 +80,7 @@ CustomTooltip.propTypes = {
 			value: PropTypes.number.isRequired,
 		})
 	),
+	publishDateFill: PropTypes.string,
 	separator: PropTypes.string,
+	showPublishedDateLabel: PropTypes.bool,
 };

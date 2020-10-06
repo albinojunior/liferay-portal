@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -91,6 +93,10 @@ public abstract class KaleoInstanceLocalServiceBaseImpl
 	/**
 	 * Adds the kaleo instance to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoInstance the kaleo instance
 	 * @return the kaleo instance that was added
 	 */
@@ -117,6 +123,10 @@ public abstract class KaleoInstanceLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo instance with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoInstanceId the primary key of the kaleo instance
 	 * @return the kaleo instance that was removed
 	 * @throws PortalException if a kaleo instance with the primary key could not be found
@@ -132,6 +142,10 @@ public abstract class KaleoInstanceLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo instance from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoInstance the kaleo instance
 	 * @return the kaleo instance that was removed
 	 */
@@ -139,6 +153,11 @@ public abstract class KaleoInstanceLocalServiceBaseImpl
 	@Override
 	public KaleoInstance deleteKaleoInstance(KaleoInstance kaleoInstance) {
 		return kaleoInstancePersistence.remove(kaleoInstance);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return kaleoInstancePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -310,6 +329,10 @@ public abstract class KaleoInstanceLocalServiceBaseImpl
 			(KaleoInstance)persistedModel);
 	}
 
+	public BasePersistence<KaleoInstance> getBasePersistence() {
+		return kaleoInstancePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -348,6 +371,10 @@ public abstract class KaleoInstanceLocalServiceBaseImpl
 
 	/**
 	 * Updates the kaleo instance in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoInstanceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoInstance the kaleo instance
 	 * @return the kaleo instance that was updated

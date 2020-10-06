@@ -238,11 +238,11 @@ public class CTTableMapperTest {
 				companyId, leftPrimaryKey, rightPrimaryKey);
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(RuntimeException.class, cause.getClass());
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
 
-			Assert.assertEquals("Database error", cause.getMessage());
+			Assert.assertEquals("Database error", throwable.getMessage());
 		}
 		finally {
 			mockAddCTTableMappingSqlUpdate.setDatabaseError(false);
@@ -397,11 +397,11 @@ public class CTTableMapperTest {
 			Assert.fail();
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(RuntimeException.class, cause.getClass());
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
 
-			Assert.assertEquals("Database error", cause.getMessage());
+			Assert.assertEquals("Database error", throwable.getMessage());
 		}
 		finally {
 			mockContainsTableMappingSQLQuery.setDatabaseError(false);
@@ -437,11 +437,11 @@ public class CTTableMapperTest {
 				companyId, leftPrimaryKey, rightPrimaryKey);
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(RuntimeException.class, cause.getClass());
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
 
-			Assert.assertEquals("Database error", cause.getMessage());
+			Assert.assertEquals("Database error", throwable.getMessage());
 		}
 		finally {
 			mockContainsCTTableMappingSQLQuery.setDatabaseError(false);
@@ -469,16 +469,16 @@ public class CTTableMapperTest {
 					companyId, leftPrimaryKey, rightPrimaryKey));
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(RuntimeException.class, cause.getClass());
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
 
 			Assert.assertEquals(
 				StringBundler.concat(
 					"Unique key violation for left primary key ",
 					leftPrimaryKey, " and right primary key ", rightPrimaryKey,
 					" and ctcollectionId ", ctCollectionId),
-				cause.getMessage());
+				throwable.getMessage());
 		}
 		finally {
 			mockContainsCTTableMappingSQLQuery.setEmptyResultSet(false);
@@ -1177,9 +1177,9 @@ public class CTTableMapperTest {
 
 		Assert.assertEquals(lefts.toString(), 1, lefts.size());
 
-		Left left = lefts.get(0);
+		Left left3 = lefts.get(0);
 
-		Assert.assertEquals(leftPrimaryKey2, left.getPrimaryKeyObj());
+		Assert.assertEquals(leftPrimaryKey2, left3.getPrimaryKeyObj());
 
 		// No such model exception
 
@@ -1192,12 +1192,12 @@ public class CTTableMapperTest {
 				rightPrimaryKey, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(NoSuchModelException.class, cause.getClass());
+			Assert.assertSame(NoSuchModelException.class, throwable.getClass());
 
 			Assert.assertEquals(
-				String.valueOf(leftPrimaryKey1), cause.getMessage());
+				String.valueOf(leftPrimaryKey1), throwable.getMessage());
 		}
 		finally {
 			_leftBasePersistence.setNoSuchModelException(false);
@@ -1290,11 +1290,11 @@ public class CTTableMapperTest {
 			_ctTableMapper.getLeftPrimaryKeys(rightPrimaryKey);
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(RuntimeException.class, cause.getClass());
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
 
-			Assert.assertEquals("Database error", cause.getMessage());
+			Assert.assertEquals("Database error", throwable.getMessage());
 		}
 		finally {
 			mockGetLeftPrimaryKeysByRightPrimaryKeyMappingSqlQuery.
@@ -1441,9 +1441,9 @@ public class CTTableMapperTest {
 
 		Assert.assertEquals(rights.toString(), 1, rights.size());
 
-		Right right = rights.get(0);
+		Right right3 = rights.get(0);
 
-		Assert.assertEquals(rightPrimaryKey2, right.getPrimaryKeyObj());
+		Assert.assertEquals(rightPrimaryKey2, right3.getPrimaryKeyObj());
 
 		// No such model exception
 
@@ -1456,12 +1456,12 @@ public class CTTableMapperTest {
 				leftPrimaryKey, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(NoSuchModelException.class, cause.getClass());
+			Assert.assertSame(NoSuchModelException.class, throwable.getClass());
 
 			Assert.assertEquals(
-				String.valueOf(rightPrimaryKey1), cause.getMessage());
+				String.valueOf(rightPrimaryKey1), throwable.getMessage());
 		}
 		finally {
 			_rightBasePersistence.setNoSuchModelException(false);
@@ -1554,11 +1554,11 @@ public class CTTableMapperTest {
 			_ctTableMapper.getRightPrimaryKeys(leftPrimaryKey);
 		}
 		catch (SystemException systemException) {
-			Throwable cause = systemException.getCause();
+			Throwable throwable = systemException.getCause();
 
-			Assert.assertSame(RuntimeException.class, cause.getClass());
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
 
-			Assert.assertEquals("Database error", cause.getMessage());
+			Assert.assertEquals("Database error", throwable.getMessage());
 		}
 		finally {
 			mockGetRightPrimaryKeysByLeftPrimaryKeyMappingSqlQuery.
@@ -1625,8 +1625,8 @@ public class CTTableMapperTest {
 	private static class MappingKey {
 
 		@Override
-		public boolean equals(Object obj) {
-			MappingKey mappingKey = (MappingKey)obj;
+		public boolean equals(Object object) {
+			MappingKey mappingKey = (MappingKey)object;
 
 			if ((_leftPrimaryKey == mappingKey._leftPrimaryKey) &&
 				(_rightPrimaryKey == mappingKey._rightPrimaryKey) &&
@@ -2219,12 +2219,12 @@ public class CTTableMapperTest {
 			if (sql.equals(
 					StringBundler.concat(
 						"SELECT DISTINCT (", _LEFT_COLUMN_NAME, ") FROM ",
-						_TABLE_NAME, " WHERE (", _RIGHT_COLUMN_NAME,
-						" = ? AND ", _LEFT_COLUMN_NAME, " NOT IN (SELECT ",
+						_TABLE_NAME, " WHERE ", _RIGHT_COLUMN_NAME,
+						" = ? AND ((", _LEFT_COLUMN_NAME, " NOT IN (SELECT ",
 						_LEFT_COLUMN_NAME, " FROM ", _TABLE_NAME, " WHERE ",
 						_RIGHT_COLUMN_NAME, " = ? AND ctCollectionId = ? AND ",
 						"ctChangeType = false) AND ctCollectionId = 0) OR ",
-						"(ctCollectionId = ? AND ctChangeType = true)"))) {
+						"(ctCollectionId = ? AND ctChangeType = true))"))) {
 
 				return (MappingSqlQuery<T>)new MockGetCTLeftPrimaryKeysSqlQuery(
 					dataSource, RowMapper.PRIMARY_KEY, paramSetters);
@@ -2233,12 +2233,12 @@ public class CTTableMapperTest {
 			if (sql.equals(
 					StringBundler.concat(
 						"SELECT DISTINCT (", _RIGHT_COLUMN_NAME, ") FROM ",
-						_TABLE_NAME, " WHERE (", _LEFT_COLUMN_NAME, " = ? AND ",
-						_RIGHT_COLUMN_NAME, " NOT IN (SELECT ",
+						_TABLE_NAME, " WHERE ", _LEFT_COLUMN_NAME,
+						" = ? AND ((", _RIGHT_COLUMN_NAME, " NOT IN (SELECT ",
 						_RIGHT_COLUMN_NAME, " FROM ", _TABLE_NAME, " WHERE ",
 						_LEFT_COLUMN_NAME, " = ? AND ctCollectionId = ? AND ",
 						"ctChangeType = false) AND ctCollectionId = 0) OR ",
-						"(ctCollectionId = ? AND ctChangeType = true)"))) {
+						"(ctCollectionId = ? AND ctChangeType = true))"))) {
 
 				return (MappingSqlQuery<T>)
 					new MockGetCTRightPrimaryKeysSqlQuery(
@@ -2330,12 +2330,13 @@ public class CTTableMapperTest {
 			Assert.assertSame(Long.class, params[2].getClass());
 			Assert.assertSame(Long.class, params[3].getClass());
 
-			Boolean ctChangeType = (Boolean)params[0];
 			Long leftPrimaryKey = (Long)params[1];
 			Long rightPrimaryKey = (Long)params[2];
 			Long ctCollectionId = (Long)params[3];
 
 			if (_containsKey(leftPrimaryKey, rightPrimaryKey, ctCollectionId)) {
+				Boolean ctChangeType = (Boolean)params[0];
+
 				Boolean currentChangeType = _get(
 					leftPrimaryKey, rightPrimaryKey, ctCollectionId);
 

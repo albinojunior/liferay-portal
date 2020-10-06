@@ -16,6 +16,7 @@ package com.liferay.portal.service.permission;
 
 import com.liferay.exportimport.kernel.staging.permission.StagingPermissionUtil;
 import com.liferay.petra.lang.HashUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -440,13 +441,8 @@ public class PortletPermissionImpl implements PortletPermission {
 
 	@Override
 	public String getPrimaryKey(long plid, String portletId) {
-		return String.valueOf(
-			plid
-		).concat(
-			PortletConstants.LAYOUT_SEPARATOR
-		).concat(
-			portletId
-		);
+		return StringBundler.concat(
+			plid, PortletConstants.LAYOUT_SEPARATOR, portletId);
 	}
 
 	@Override
@@ -748,16 +744,16 @@ public class PortletPermissionImpl implements PortletPermission {
 	private static class CacheKey {
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
+		public boolean equals(Object object) {
+			if (this == object) {
 				return true;
 			}
 
-			if (!(obj instanceof CacheKey)) {
+			if (!(object instanceof CacheKey)) {
 				return false;
 			}
 
-			CacheKey cacheKey = (CacheKey)obj;
+			CacheKey cacheKey = (CacheKey)object;
 
 			if ((_groupId == cacheKey._groupId) && (_plid == cacheKey._plid) &&
 				(_layoutMvccVersion == cacheKey._layoutMvccVersion) &&

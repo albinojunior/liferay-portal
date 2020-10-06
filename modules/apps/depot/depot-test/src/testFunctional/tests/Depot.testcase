@@ -39,8 +39,9 @@ definition {
 
 		DepotNavigator.gotoDepot(
 			depotName = "Test Depot Name",
-			listView = "true",
-			portlet = "Documents and Media");
+			listView = "true");
+
+		DepotNavigator.gotoPortlet(portlet = "Web Content");
 	}
 
 	@description = "This ensures that a depot can be accessed in the table view."
@@ -56,8 +57,39 @@ definition {
 
 		DepotNavigator.gotoDepot(
 			depotName = "Test Depot Name",
-			portlet = "Documents and Media",
 			tableView = "true");
+
+		DepotNavigator.gotoPortlet(portlet = "Documents and Media");
+	}
+
+	@description = "This ensures that a depot can be accessed when the Applications Menu is disabled at the system level."
+	@priority = "5"
+	test AccessWithDisabledAppsMenuAtSystemScope {
+		property test.name.skip.portal.instance = "Depot#AccessWithDisabledAppsMenuAtSystemScope";
+
+		JSONDepot.addDepot(
+			depotDescription = "This is the description of a depot",
+			depotName = "Test Depot Name");
+
+		SystemSettings.openSystemSettingsAdmin();
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Navigation",
+			configurationName = "Applications Menu",
+			configurationScope = "Virtual Instance Scope");
+
+		FormFields.disableCheckbox(fieldName = "Enable Applications Menu");
+
+		SystemSettings.saveConfiguration();
+
+		for (var application : list "Documents and Media,Web Content") {
+			DepotNavigator.openDepotAdmin();
+
+			DepotNavigator.gotoDepot(depotName = "Test Depot Name");
+
+			DepotNavigator.gotoPortlet(portlet = "${application}");
+
+		}
 	}
 
 	@description = "This ensures that a user can not create a repository with the same escape characters name as another repository."
@@ -107,13 +139,29 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
-		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
 
-		DepotNavigator.gotoLanguages(depotName = "Test Depot Name");
+		Depot.viewLanguageItems(depotLanguage = "Spanish (Spain)");
 
-		Click.clickNoMouseOverNoWaitForVisible(
-			key_languagesOption = "Define a custom default language and additional active languages for this asset library.",
-			locator1 = "Radio#DEPOT_LANGUAGES_OPTION");
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
+
+		Depot.moveLanguage(
+			depotLanguage = "Spanish (Spain)",
+			moveDown = "true");
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
+
+		Depot.viewLanguageItems(
+			depotLanguage = "Spanish (Spain)",
+			lastLanguageItem = "true");
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
 
 		Depot.configureDefaultLanguage(
 			defaultDepotLanguage = "Spanish (Spain)",
@@ -123,7 +171,8 @@ definition {
 
 		Depot.editDepot(
 			depotName = "Test Depot Name",
-			depotNameEdit = "título");
+			depotNameEdit = "título",
+			language = "es-ES");
 
 		DepotNavigator.openDepotAdmin();
 
@@ -139,7 +188,7 @@ definition {
 			depotDescription = "This depot will duplicate a site name",
 			depotName = "Site Name");
 
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
 			portlet = "Sites");
@@ -178,11 +227,7 @@ definition {
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMFolder.addCP(dmFolderName = "DM Folder Name");
 
@@ -200,11 +245,7 @@ definition {
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMDocument.addMultipleCP(dmDocumentFileList = "Document_1.doc,Document_2.jpg,Document_3.xls");
 
@@ -247,6 +288,32 @@ definition {
 		Depot.viewDefaultCP();
 	}
 
+	@description = "This ensures that a depot can be deleted when the Applications Menu is disabled at the instance level."
+	@priority = "5"
+	test DeleteWithDisabledAppsMenuAtInstanceScope {
+		PortalSettings.disableApplicationsMenu();
+
+		ProductMenuHelper.openProductMenu();
+
+		ProductMenu.gotoPortletWhenDisableApplicationsMenu(
+			category = "Content",
+			panel = "Applications Menu-Applications",
+			portlet = "Asset Libraries");
+
+		Depot.addDepot(
+			depotDescription = "This is the description of a depot",
+			depotName = "Test Depot Name");
+
+		ProductMenu.gotoPortletWhenDisableApplicationsMenu(
+			category = "Content",
+			panel = "Applications Menu-Applications",
+			portlet = "Asset Libraries");
+
+		Depot.deleteCP(depotName = "Test Depot Name");
+
+		Depot.viewDefaultCP();
+	}
+
 	@description = "This ensures that a depot can be edited."
 	@priority = "5"
 	test EditDepot {
@@ -265,9 +332,7 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
-		DepotNavigator.gotoDepot(
-			depotName = "Edited Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.gotoDepot(depotName = "Edited Test Depot Name");
 	}
 
 	@description = "This ensures that a depot can be edited in the list view."
@@ -293,8 +358,7 @@ definition {
 
 		DepotNavigator.gotoDepot(
 			depotName = "Edited Test Depot Name",
-			listView = "true",
-			portlet = "Documents and Media");
+			listView = "true");
 	}
 
 	@description = "This ensures that a depot can be edited in the table view."
@@ -320,7 +384,6 @@ definition {
 
 		DepotNavigator.gotoDepot(
 			depotName = "Edited Test Depot Name",
-			portlet = "Documents and Media",
 			tableView = "true");
 	}
 
@@ -344,9 +407,7 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name 2",
-			portlet = "Documents and Media");
+		DepotNavigator.gotoDepot(depotName = "Test Depot Name 2");
 	}
 
 	@description = "This ensures that a depot's description can be searched."
@@ -378,9 +439,7 @@ definition {
 			resultCount = "3",
 			searchTerm = "Description");
 
-		DepotNavigator.gotoDepot(
-			depotName = "Depot 1",
-			portlet = "Documents and Media");
+		DepotNavigator.gotoDepot(depotName = "Depot 1");
 	}
 
 	@description = "This ensures that a depot's title can be searched."
@@ -404,6 +463,8 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
+		Pause(locator1 = "3000");
+
 		Search.searchCP(searchTerm = "Depot");
 
 		Depot.viewSearchResult(
@@ -412,9 +473,7 @@ definition {
 			resultCount = "3",
 			searchTerm = "Depot");
 
-		DepotNavigator.gotoDepot(
-			depotName = "Depot 1",
-			portlet = "Documents and Media");
+		DepotNavigator.gotoDepot(depotName = "Depot 1");
 	}
 
 	@description = "This ensures that all depots can be deleted when the user selects all."
@@ -478,11 +537,12 @@ definition {
 	@description = "This ensures that a depot can be added."
 	@priority = "5"
 	test Smoke {
+		property environment.acceptance = "true";
 		property portal.acceptance = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Asset Libraries",
-			panel = "Control Panel",
+		ApplicationsMenu.gotoPortlet(
+			category = "Content",
+			panel = "Applications",
 			portlet = "Asset Libraries");
 
 		Depot.addDepot(
@@ -491,9 +551,7 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.gotoDepot(depotName = "Test Depot Name");
 	}
 
 }

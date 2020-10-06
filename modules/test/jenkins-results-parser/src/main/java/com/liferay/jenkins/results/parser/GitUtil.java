@@ -217,7 +217,7 @@ public class GitUtil {
 
 		if (remoteGitBranchName != null) {
 			command = JenkinsResultsParserUtil.combine(
-				"git ls-remote -h ", remoteURL, " ", remoteGitBranchName);
+				"git ls-remote -h -t ", remoteURL, " ", remoteGitBranchName);
 		}
 		else {
 			command = JenkinsResultsParserUtil.combine(
@@ -378,9 +378,6 @@ public class GitUtil {
 				gitHubDevNodeHostname = gitHubDevNodeHostname.substring(6);
 
 				for (int i = 0; i < modifiedCommands.length; i++) {
-					Matcher matcher = GitRemote.getRemoteURLMatcher(
-						modifiedCommands[i]);
-
 					String modifiedCommand = modifiedCommands[i];
 
 					if (!modifiedCommand.contains(
@@ -389,8 +386,13 @@ public class GitUtil {
 						continue;
 					}
 
+					Matcher matcher = GitRemote.getRemoteURLMatcher(
+						modifiedCommands[i]);
+
 					if (matcher != null) {
 						while (matcher.find()) {
+							retryDelay = 0;
+
 							modifiedCommand = modifiedCommand.replaceFirst(
 								matcher.group(0),
 								toSlaveGitHubDevNodeRemoteURL(
@@ -405,6 +407,13 @@ public class GitUtil {
 				for (int i = 0; i < modifiedCommands.length; i++) {
 					modifiedCommands[i] = modifiedCommands[i].replace(
 						_HOSTNAME_GITHUB_CACHE_PROXY, gitHubDevNodeHostname);
+
+					if ((retryDelay != 0) &&
+						modifiedCommands[i].contains(
+							_HOSTNAME_GITHUB_CACHE_PROXY)) {
+
+						retryDelay = 0;
+					}
 				}
 			}
 

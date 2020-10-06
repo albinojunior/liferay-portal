@@ -20,7 +20,7 @@ import com.liferay.fragment.web.internal.security.permission.resource.FragmentPe
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -62,53 +62,47 @@ public class BasicFragmentManagementToolbarDisplayContext
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		return new DropdownItemList() {
-			{
-				add(
-					dropdownItem -> {
-						dropdownItem.putData(
-							"action", "exportSelectedFragmentEntries");
-						dropdownItem.setIcon("import-export");
-						dropdownItem.setLabel(
-							LanguageUtil.get(request, "export"));
-						dropdownItem.setQuickAction(true);
-					});
+		boolean hasManageFragmentEntriesPermission =
+			FragmentPermission.contains(
+				themeDisplay.getPermissionChecker(),
+				themeDisplay.getScopeGroupId(),
+				FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
 
-				if (FragmentPermission.contains(
-						themeDisplay.getPermissionChecker(),
-						themeDisplay.getScopeGroupId(),
-						FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES)) {
-
-					add(
-						dropdownItem -> {
-							dropdownItem.putData(
-								"action", "moveSelectedFragmentEntries");
-							dropdownItem.setIcon("move-folder");
-							dropdownItem.setLabel(
-								LanguageUtil.get(request, "move"));
-							dropdownItem.setQuickAction(true);
-						});
-					add(
-						dropdownItem -> {
-							dropdownItem.putData(
-								"action", "copySelectedFragmentEntries");
-							dropdownItem.setIcon("paste");
-							dropdownItem.setLabel(
-								LanguageUtil.get(request, "make-a-copy"));
-							dropdownItem.setQuickAction(true);
-						});
-					add(
-						dropdownItem -> {
-							dropdownItem.putData(
-								"action", "deleteSelectedFragmentEntries");
-							dropdownItem.setIcon("times-circle");
-							dropdownItem.setLabel(
-								LanguageUtil.get(request, "delete"));
-							dropdownItem.setQuickAction(true);
-						});
-				}
+		return DropdownItemListBuilder.add(
+			dropdownItem -> {
+				dropdownItem.putData(
+					"action", "exportFragmentCompositionsAndFragmentEntries");
+				dropdownItem.setIcon("import-export");
+				dropdownItem.setLabel(LanguageUtil.get(request, "export"));
+				dropdownItem.setQuickAction(true);
 			}
-		};
+		).add(
+			() -> hasManageFragmentEntriesPermission,
+			dropdownItem -> {
+				dropdownItem.putData(
+					"action", "moveFragmentCompositionsAndFragmentEntries");
+				dropdownItem.setIcon("move-folder");
+				dropdownItem.setLabel(LanguageUtil.get(request, "move"));
+				dropdownItem.setQuickAction(true);
+			}
+		).add(
+			() -> hasManageFragmentEntriesPermission,
+			dropdownItem -> {
+				dropdownItem.putData("action", "copySelectedFragmentEntries");
+				dropdownItem.setIcon("paste");
+				dropdownItem.setLabel(LanguageUtil.get(request, "make-a-copy"));
+				dropdownItem.setQuickAction(true);
+			}
+		).add(
+			() -> hasManageFragmentEntriesPermission,
+			dropdownItem -> {
+				dropdownItem.putData(
+					"action", "deleteFragmentCompositionsAndFragmentEntries");
+				dropdownItem.setIcon("times-circle");
+				dropdownItem.setLabel(LanguageUtil.get(request, "delete"));
+				dropdownItem.setQuickAction(true);
+			}
+		).build();
 	}
 
 	@Override
@@ -130,45 +124,51 @@ public class BasicFragmentManagementToolbarDisplayContext
 				return copyFragmentEntryURL.toString();
 			}
 		).put(
-			"deleteFragmentEntriesURL",
+			"deleteFragmentCompositionsAndFragmentEntriesURL",
 			() -> {
-				PortletURL deleteFragmentEntriesURL =
+				PortletURL deleteFragmentCompositionsAndFragmentEntriesURL =
 					liferayPortletResponse.createActionURL();
 
-				deleteFragmentEntriesURL.setParameter(
+				deleteFragmentCompositionsAndFragmentEntriesURL.setParameter(
 					ActionRequest.ACTION_NAME,
-					"/fragment/delete_fragment_entries");
-				deleteFragmentEntriesURL.setParameter(
+					"/fragment/delete_fragment_compositions_and_fragment_" +
+						"entries");
+				deleteFragmentCompositionsAndFragmentEntriesURL.setParameter(
 					"redirect", themeDisplay.getURLCurrent());
 
-				return deleteFragmentEntriesURL.toString();
+				return deleteFragmentCompositionsAndFragmentEntriesURL.
+					toString();
 			}
 		).put(
-			"exportFragmentEntriesURL",
+			"exportFragmentCompositionsAndFragmentEntriesURL",
 			() -> {
-				ResourceURL exportFragmentEntriesURL =
+				ResourceURL exportFragmentCompositionsAndFragmentEntriesURL =
 					liferayPortletResponse.createResourceURL();
 
-				exportFragmentEntriesURL.setResourceID(
-					"/fragment/export_fragment_entries");
+				exportFragmentCompositionsAndFragmentEntriesURL.setResourceID(
+					"/fragment/export_fragment_compositions_and_fragment_" +
+						"entries");
 
-				return exportFragmentEntriesURL.toString();
+				return exportFragmentCompositionsAndFragmentEntriesURL.
+					toString();
 			}
 		).put(
 			"fragmentCollectionId",
 			ParamUtil.getLong(liferayPortletRequest, "fragmentCollectionId")
 		).put(
-			"moveFragmentEntryURL",
+			"moveFragmentCompositionsAndFragmentEntriesURL",
 			() -> {
-				PortletURL moveFragmentEntryURL =
+				PortletURL moveFragmentCompositionsAndFragmentEntriesURL =
 					liferayPortletResponse.createActionURL();
 
-				moveFragmentEntryURL.setParameter(
-					ActionRequest.ACTION_NAME, "/fragment/move_fragment_entry");
-				moveFragmentEntryURL.setParameter(
+				moveFragmentCompositionsAndFragmentEntriesURL.setParameter(
+					ActionRequest.ACTION_NAME,
+					"/fragment/move_fragment_compositions_and_fragment_" +
+						"entries");
+				moveFragmentCompositionsAndFragmentEntriesURL.setParameter(
 					"redirect", themeDisplay.getURLCurrent());
 
-				return moveFragmentEntryURL.toString();
+				return moveFragmentCompositionsAndFragmentEntriesURL.toString();
 			}
 		).put(
 			"selectFragmentCollectionURL",

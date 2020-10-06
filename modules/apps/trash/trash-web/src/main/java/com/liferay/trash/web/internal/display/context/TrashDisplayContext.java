@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.ContainerModel;
+import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
@@ -251,7 +252,7 @@ public class TrashDisplayContext {
 		EntrySearchTerms searchTerms =
 			(EntrySearchTerms)entrySearch.getSearchTerms();
 
-		List trashEntries = null;
+		List<TrashEntry> trashEntries = null;
 
 		if (Validator.isNotNull(searchTerms.getKeywords())) {
 			Sort sort = SortFactoryUtil.getSort(
@@ -418,7 +419,7 @@ public class TrashDisplayContext {
 		return portletURL;
 	}
 
-	public SearchContainer getTrashContainerSearchContainer()
+	public SearchContainer<TrashedModel> getTrashContainerSearchContainer()
 		throws PortalException {
 
 		if (_trashContainerSearchContainer != null) {
@@ -442,14 +443,14 @@ public class TrashDisplayContext {
 			"classNameId", String.valueOf(getClassNameId()));
 		iteratorURL.setParameter("classPK", String.valueOf(getClassPK()));
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<TrashedModel> searchContainer = new SearchContainer(
 			_liferayPortletRequest, iteratorURL, null, emptyResultsMessage);
 
 		searchContainer.setDeltaConfigurable(false);
 
 		TrashHandler trashHandler = getTrashHandler();
 
-		List results = trashHandler.getTrashModelTrashedModels(
+		List<TrashedModel> results = trashHandler.getTrashModelTrashedModels(
 			getClassPK(), searchContainer.getStart(), searchContainer.getEnd(),
 			searchContainer.getOrderByComparator());
 
@@ -464,7 +465,8 @@ public class TrashDisplayContext {
 	}
 
 	public int getTrashContainerTotalItems() throws PortalException {
-		SearchContainer searchContainer = getTrashContainerSearchContainer();
+		SearchContainer<TrashedModel> searchContainer =
+			getTrashContainerSearchContainer();
 
 		return searchContainer.getTotal();
 	}
@@ -697,7 +699,7 @@ public class TrashDisplayContext {
 	private String _navigation;
 	private String _orderByCol;
 	private String _orderByType;
-	private SearchContainer _trashContainerSearchContainer;
+	private SearchContainer<TrashedModel> _trashContainerSearchContainer;
 	private TrashEntry _trashEntry;
 	private TrashHandler _trashHandler;
 	private final TrashHelper _trashHelper;

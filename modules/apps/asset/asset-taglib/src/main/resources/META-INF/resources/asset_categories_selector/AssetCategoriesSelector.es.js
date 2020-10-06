@@ -31,18 +31,19 @@ function AssetCategoriesSelector({
 		<div id={id}>
 			{vocabularies.map((vocabulary, index) => {
 				const label = vocabulary.group
-					? `${vocabulary.title} ${vocabulary.group}`
+					? `${vocabulary.title} (${vocabulary.group})`
 					: vocabulary.title;
+				const vocabularyInputName = inputName + vocabulary.id;
 
 				return (
 					<AssetVocabularyCategoriesSelector
 						eventName={eventName}
 						groupIds={groupIds}
 						id={`namespace_assetCategoriesSelector_${vocabulary.id}`}
-						inputName={inputName}
+						inputName={vocabularyInputName}
 						key={vocabulary.id}
 						label={label}
-						onSelectedItemsChange={selectedItems => {
+						onSelectedItemsChange={(selectedItems) => {
 							const newVocabulary = {
 								...vocabulary,
 								selectedItems,

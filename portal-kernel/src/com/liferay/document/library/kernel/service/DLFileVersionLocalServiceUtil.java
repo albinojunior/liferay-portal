@@ -39,6 +39,10 @@ public class DLFileVersionLocalServiceUtil {
 	/**
 	 * Adds the document library file version to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersion the document library file version
 	 * @return the document library file version that was added
 	 */
@@ -75,6 +79,10 @@ public class DLFileVersionLocalServiceUtil {
 	/**
 	 * Deletes the document library file version from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersion the document library file version
 	 * @return the document library file version that was removed
 	 */
@@ -88,6 +96,10 @@ public class DLFileVersionLocalServiceUtil {
 
 	/**
 	 * Deletes the document library file version with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param fileVersionId the primary key of the document library file version
 	 * @return the document library file version that was removed
@@ -109,6 +121,12 @@ public class DLFileVersionLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -415,6 +433,10 @@ public class DLFileVersionLocalServiceUtil {
 
 	/**
 	 * Updates the document library file version in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dlFileVersion the document library file version
 	 * @return the document library file version that was updated

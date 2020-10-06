@@ -1,3 +1,6 @@
+@import '../../../app/components/variables';
+@import 'atlas-variables';
+
 .page-editor__toolbar-experience {
 	// There could have been done with Bootstrap classes (eg. d-flex and
 	// align-items-center), but we're doing this in here so that we have an
@@ -11,37 +14,24 @@
 		max-width: 100%;
 		width: 12em;
 	}
+}
 
-	.dropdown-menu.toggled {
-		display: block;
-		max-width: 100vw;
-		width: 808px;
-	}
-
-	p {
-		white-space: normal;
-	}
+.page-editor__toolbar-experience__dropdown-menu.toggled {
+	display: block;
+	left: 0;
+	max-width: 100vw;
+	position: absolute;
+	top: 0;
+	width: 808px;
+	z-index: $modalZIndex + 1;
 
 	li.dropdown-menu__experience {
-		background-color: #fff;
-		border: 1px solid #e7e7ed;
-		border-radius: 0;
 		cursor: pointer;
-
-		&:last-child {
-			border-bottom-left-radius: 4px;
-			border-bottom-right-radius: 4px;
-		}
-
-		&:first-child {
-			border-top-left-radius: 4px;
-			border-top-right-radius: 4px;
-		}
 
 		&.dropdown-menu__experience--active,
 		&:focus {
-			background-color: #f0f5ff;
-			border-color: #80acff;
+			background-color: $primary-l3;
+			border: 1px solid $primary-l1;
 		}
 	}
 }

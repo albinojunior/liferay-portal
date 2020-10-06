@@ -21,6 +21,9 @@ import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -50,11 +53,13 @@ import com.liferay.site.navigation.constants.SiteNavigationWebKeys;
 import com.liferay.site.navigation.menu.item.layout.constants.SiteNavigationMenuItemTypeConstants;
 import com.liferay.site.navigation.menu.item.layout.internal.constants.SiteNavigationMenuItemTypeLayoutWebKeys;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
+import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemType;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeContext;
 
 import java.io.IOException;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -206,23 +211,24 @@ public class LayoutSiteNavigationMenuItemType
 			return layout.getName(locale);
 		}
 
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
-		typeSettingsProperties.fastLoad(
+		typeSettingsUnicodeProperties.fastLoad(
 			siteNavigationMenuItem.getTypeSettings());
 
-		String defaultLanguageId = typeSettingsProperties.getProperty(
+		String defaultLanguageId = typeSettingsUnicodeProperties.getProperty(
 			Field.DEFAULT_LANGUAGE_ID,
 			LocaleUtil.toLanguageId(LocaleUtil.getMostRelevantLocale()));
 
-		String defaultTitle = typeSettingsProperties.getProperty(
+		String defaultTitle = typeSettingsUnicodeProperties.getProperty(
 			"name_" + defaultLanguageId);
 
 		if (layout != null) {
 			defaultTitle = layout.getName(locale);
 		}
 
-		return typeSettingsProperties.getProperty(
+		return typeSettingsUnicodeProperties.getProperty(
 			"name_" + LocaleUtil.toLanguageId(locale), defaultTitle);
 	}
 
@@ -330,20 +336,22 @@ public class LayoutSiteNavigationMenuItemType
 		Layout importedLayout = _layoutLocalService.fetchLayout(plid);
 
 		if (importedLayout != null) {
-			UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+			UnicodeProperties typeSettingsUnicodeProperties =
+				new UnicodeProperties();
 
-			typeSettingsProperties.fastLoad(
+			typeSettingsUnicodeProperties.fastLoad(
 				siteNavigationMenuItem.getTypeSettings());
 
-			typeSettingsProperties.put("layoutUuid", importedLayout.getUuid());
-			typeSettingsProperties.put(
+			typeSettingsUnicodeProperties.put(
+				"layoutUuid", importedLayout.getUuid());
+			typeSettingsUnicodeProperties.put(
 				"groupId", String.valueOf(importedLayout.getGroupId()));
-			typeSettingsProperties.put(
+			typeSettingsUnicodeProperties.put(
 				"privateLayout",
 				String.valueOf(importedLayout.isPrivateLayout()));
 
 			importedSiteNavigationMenuItem.setTypeSettings(
-				typeSettingsProperties.toString());
+				typeSettingsUnicodeProperties.toString());
 		}
 
 		return true;
@@ -384,9 +392,47 @@ public class LayoutSiteNavigationMenuItemType
 			Layout curLayout)
 		throws PortalException {
 
-		Layout layout = _fetchLayout(siteNavigationMenuItem);
+		if (!selectable) {
+			return false;
+		}
 
-		return layout.isChildSelected(selectable, curLayout);
+		DynamicQuery dynamicQuery =
+			_siteNavigationMenuItemLocalService.dynamicQuery();
+
+		StringBuilder sb = new StringBuilder(5);
+
+		sb.append(StringPool.PERCENT);
+		sb.append("layoutUuid");
+		sb.append(StringPool.EQUAL);
+		sb.append(curLayout.getUuid());
+		sb.append(StringPool.PERCENT);
+
+		Property typeSettingsProperty = PropertyFactoryUtil.forName(
+			"typeSettings");
+
+		dynamicQuery.add(typeSettingsProperty.like(sb.toString()));
+
+		Property siteNavigationMenuIdProperty = PropertyFactoryUtil.forName(
+			"siteNavigationMenuId");
+
+		dynamicQuery.add(
+			siteNavigationMenuIdProperty.eq(
+				siteNavigationMenuItem.getSiteNavigationMenuId()));
+
+		List<SiteNavigationMenuItem> siteNavigationMenuItems =
+			_siteNavigationMenuItemLocalService.dynamicQuery(dynamicQuery);
+
+		for (SiteNavigationMenuItem curSiteNavigationMenuItem :
+				siteNavigationMenuItems) {
+
+			if (_isAncestor(
+					siteNavigationMenuItem, curSiteNavigationMenuItem)) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
@@ -395,10 +441,17 @@ public class LayoutSiteNavigationMenuItemType
 			Layout curLayout)
 		throws Exception {
 
+		if (!selectable) {
+			return false;
+		}
+
 		Layout layout = _fetchLayout(siteNavigationMenuItem);
 
-		return layout.isSelected(
-			selectable, curLayout, curLayout.getAncestorPlid());
+		if (layout.getPlid() == curLayout.getPlid()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -432,7 +485,7 @@ public class LayoutSiteNavigationMenuItemType
 			_itemSelector);
 
 		httpServletRequest.setAttribute(
-			SiteNavigationMenuItemTypeLayoutWebKeys.SET_CUSTOM_NAME,
+			SiteNavigationMenuItemTypeLayoutWebKeys.USE_CUSTOM_NAME,
 			_isUseCustomName(siteNavigationMenuItem));
 		httpServletRequest.setAttribute(
 			SiteNavigationWebKeys.SITE_NAVIGATION_MENU_ITEM,
@@ -449,15 +502,16 @@ public class LayoutSiteNavigationMenuItemType
 	}
 
 	private Layout _fetchLayout(SiteNavigationMenuItem siteNavigationMenuItem) {
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
-		typeSettingsProperties.fastLoad(
+		typeSettingsUnicodeProperties.fastLoad(
 			siteNavigationMenuItem.getTypeSettings());
 
-		String layoutUuid = typeSettingsProperties.get("layoutUuid");
+		String layoutUuid = typeSettingsUnicodeProperties.get("layoutUuid");
 
 		boolean privateLayout = GetterUtil.getBoolean(
-			typeSettingsProperties.get("privateLayout"));
+			typeSettingsUnicodeProperties.get("privateLayout"));
 
 		return _layoutLocalService.fetchLayoutByUuidAndGroupId(
 			layoutUuid, siteNavigationMenuItem.getGroupId(), privateLayout);
@@ -467,15 +521,16 @@ public class LayoutSiteNavigationMenuItemType
 		PortletDataContext portletDataContext,
 		SiteNavigationMenuItem siteNavigationMenuItem) {
 
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
-		typeSettingsProperties.fastLoad(
+		typeSettingsUnicodeProperties.fastLoad(
 			siteNavigationMenuItem.getTypeSettings());
 
-		String layoutUuid = typeSettingsProperties.get("layoutUuid");
+		String layoutUuid = typeSettingsUnicodeProperties.get("layoutUuid");
 
 		boolean privateLayout = GetterUtil.getBoolean(
-			typeSettingsProperties.get("privateLayout"));
+			typeSettingsUnicodeProperties.get("privateLayout"));
 
 		Layout layout = _layoutLocalService.fetchLayoutByUuidAndGroupId(
 			layoutUuid, siteNavigationMenuItem.getGroupId(), privateLayout);
@@ -507,16 +562,42 @@ public class LayoutSiteNavigationMenuItemType
 		return layout;
 	}
 
+	private boolean _isAncestor(
+		SiteNavigationMenuItem siteNavigationMenuItem1,
+		SiteNavigationMenuItem siteNavigationMenuItem2) {
+
+		long parentSiteNavigationMenuItemId =
+			siteNavigationMenuItem2.getParentSiteNavigationMenuItemId();
+
+		if (parentSiteNavigationMenuItemId == 0) {
+			return false;
+		}
+
+		if (parentSiteNavigationMenuItemId ==
+				siteNavigationMenuItem1.getSiteNavigationMenuItemId()) {
+
+			return true;
+		}
+
+		return _isAncestor(
+			siteNavigationMenuItem1,
+			_siteNavigationMenuItemLocalService.fetchSiteNavigationMenuItem(
+				parentSiteNavigationMenuItemId));
+	}
+
 	private boolean _isUseCustomName(
 		SiteNavigationMenuItem siteNavigationMenuItem) {
 
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+		UnicodeProperties typeSettingsUnicodeProperties =
+			new UnicodeProperties();
 
-		typeSettingsProperties.fastLoad(
+		typeSettingsUnicodeProperties.fastLoad(
 			siteNavigationMenuItem.getTypeSettings());
 
 		return GetterUtil.getBoolean(
-			typeSettingsProperties.get("setCustomName"));
+			typeSettingsUnicodeProperties.get("useCustomName"),
+			GetterUtil.getBoolean(
+				typeSettingsUnicodeProperties.get("setCustomName")));
 	}
 
 	@Reference
@@ -542,5 +623,9 @@ public class LayoutSiteNavigationMenuItemType
 		unbind = "-"
 	)
 	private ServletContext _servletContext;
+
+	@Reference
+	private SiteNavigationMenuItemLocalService
+		_siteNavigationMenuItemLocalService;
 
 }

@@ -82,7 +82,8 @@ public class KnowledgeBaseArticleDTOConverter
 						kbArticle.getResourcePrimKey()));
 				articleBody = kbArticle.getContent();
 				creator = CreatorUtil.toCreator(
-					_portal, _userLocalService.getUser(kbArticle.getUserId()));
+					_portal, dtoConverterContext.getUriInfoOptional(),
+					_userLocalService.fetchUser(kbArticle.getUserId()));
 				customFields = CustomFieldsUtil.toCustomFields(
 					dtoConverterContext.isAcceptAllLanguages(),
 					KBArticle.class.getName(), kbArticle.getKbArticleId(),
@@ -124,8 +125,7 @@ public class KnowledgeBaseArticleDTOConverter
 						KBArticle.class.getName(), kbArticle.getClassPK()),
 					assetCategory ->
 						TaxonomyCategoryBriefUtil.toTaxonomyCategoryBrief(
-							dtoConverterContext.isAcceptAllLanguages(),
-							assetCategory, dtoConverterContext.getLocale()),
+							assetCategory, dtoConverterContext),
 					TaxonomyCategoryBrief.class);
 				title = kbArticle.getTitle();
 

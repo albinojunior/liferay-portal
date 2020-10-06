@@ -23,7 +23,9 @@ describe('Forms Plugin', () => {
 	let duration;
 
 	beforeEach(() => {
+
 		// Force attaching DOM Content Loaded event
+
 		Object.defineProperty(document, 'readyState', {
 			value: 'loading',
 			writable: false,
@@ -81,7 +83,7 @@ describe('Forms Plugin', () => {
 
 			document.dispatchEvent(domContentLoaded);
 
-			const events = Analytics.events.filter(
+			const events = Analytics.getEvents().filter(
 				({eventId}) => eventId === 'formViewed'
 			);
 
@@ -116,7 +118,7 @@ describe('Forms Plugin', () => {
 
 			document.body.appendChild(form);
 
-			form.addEventListener('submit', event => event.preventDefault());
+			form.addEventListener('submit', (event) => event.preventDefault());
 
 			const event = new Event('submit', {
 				cancelable: true,
@@ -124,7 +126,7 @@ describe('Forms Plugin', () => {
 
 			form.dispatchEvent(event);
 
-			const events = Analytics.events.filter(
+			const events = Analytics.getEvents().filter(
 				({eventId}) => eventId === 'formSubmitted'
 			);
 
@@ -159,7 +161,7 @@ describe('Forms Plugin', () => {
 
 			field.dispatchEvent(new Event('focus'));
 
-			const events = Analytics.events.filter(
+			const events = Analytics.getEvents().filter(
 				({eventId}) => eventId === 'fieldFocused'
 			);
 
@@ -195,11 +197,12 @@ describe('Forms Plugin', () => {
 			field.dispatchEvent(new Event('focus'));
 
 			// Fake timing.
+
 			duration = 1500;
 
 			field.dispatchEvent(new Event('blur'));
 
-			const events = Analytics.events.filter(
+			const events = Analytics.getEvents().filter(
 				({eventId}) => eventId === 'fieldBlurred'
 			);
 

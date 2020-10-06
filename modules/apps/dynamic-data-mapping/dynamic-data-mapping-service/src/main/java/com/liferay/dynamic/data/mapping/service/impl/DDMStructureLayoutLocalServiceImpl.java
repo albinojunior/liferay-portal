@@ -60,9 +60,27 @@ import org.osgi.service.component.annotations.Reference;
 public class DDMStructureLayoutLocalServiceImpl
 	extends DDMStructureLayoutLocalServiceBaseImpl {
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #addStructureLayout(long, long, long, String, long,
+	 *             DDMFormLayout, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public DDMStructureLayout addStructureLayout(
 			long userId, long groupId, long structureVersionId,
+			DDMFormLayout ddmFormLayout, ServiceContext serviceContext)
+		throws PortalException {
+
+		return addStructureLayout(
+			userId, groupId, 0, null, structureVersionId, ddmFormLayout,
+			serviceContext);
+	}
+
+	@Override
+	public DDMStructureLayout addStructureLayout(
+			long userId, long groupId, long classNameId,
+			String structureLayoutKey, long structureVersionId,
 			DDMFormLayout ddmFormLayout, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -80,8 +98,13 @@ public class DDMStructureLayoutLocalServiceImpl
 		structureLayout.setCompanyId(user.getCompanyId());
 		structureLayout.setUserId(user.getUserId());
 		structureLayout.setUserName(user.getFullName());
+		structureLayout.setClassNameId(classNameId);
 		structureLayout.setStructureLayoutKey(
-			String.valueOf(counterLocalService.increment()));
+			Optional.ofNullable(
+				structureLayoutKey
+			).orElseGet(
+				() -> String.valueOf(counterLocalService.increment())
+			));
 		structureLayout.setStructureVersionId(structureVersionId);
 		structureLayout.setDefinition(serialize(ddmFormLayout));
 
@@ -262,6 +285,7 @@ public class DDMStructureLayoutLocalServiceImpl
 			groupId, classNameId, structureVersionId);
 	}
 
+	@Override
 	public List<DDMStructureLayout> search(
 			long companyId, long[] groupIds, long classNameId, String keywords,
 			int start, int end,
@@ -279,6 +303,7 @@ public class DDMStructureLayoutLocalServiceImpl
 			ddmStructureLayoutPersistence::findByPrimaryKey);
 	}
 
+	@Override
 	public int searchCount(
 			long companyId, long[] groupIds, long classNameId, String keywords)
 		throws PortalException {

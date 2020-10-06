@@ -190,9 +190,9 @@ public class SiteAdministrationPanelCategoryDisplayContext {
 						portalException.getMessage());
 			}
 			catch (SystemException systemException) {
-				Throwable cause = systemException.getCause();
+				Throwable throwable = systemException.getCause();
 
-				if (!(cause instanceof ConnectException)) {
+				if (!(throwable instanceof ConnectException)) {
 					throw systemException;
 				}
 
@@ -352,23 +352,27 @@ public class SiteAdministrationPanelCategoryDisplayContext {
 	public boolean isDisplaySiteLink() {
 		Group group = getGroup();
 
-		Layout layout = LayoutLocalServiceUtil.fetchFirstLayout(
-			group.getGroupId(), false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
-			false);
+		Layout layout = _getFirstLayout(group);
 
-		if ((layout != null) && !layout.isHidden()) {
-			return true;
+		if ((layout == null) && group.isStaged()) {
+			layout = _getFirstLayout(StagingUtil.getLiveGroup(group));
 		}
 
-		layout = LayoutLocalServiceUtil.fetchFirstLayout(
-			group.getGroupId(), true, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
-			false);
-
-		if ((layout != null) && !layout.isHidden()) {
+		if (layout != null) {
 			return true;
 		}
 
 		return false;
+	}
+
+	public boolean isFirstLayout() {
+		Layout layout = _getFirstLayout(getGroup());
+
+		if ((layout == null) || (layout.getPlid() != _themeDisplay.getPlid())) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public boolean isShowSiteAdministration() throws PortalException {
@@ -480,10 +484,35 @@ public class SiteAdministrationPanelCategoryDisplayContext {
 			PortalUtil.getHttpServletRequest(_portletRequest), _group);
 	}
 
+	private Layout _getFirstLayout(Group group) {
+		if (_firstLayout != null) {
+			return _firstLayout;
+		}
+
+		Layout layout = LayoutLocalServiceUtil.fetchFirstLayout(
+			group.getGroupId(), false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			false);
+
+		if ((layout != null) && !layout.isHidden()) {
+			return layout;
+		}
+
+		layout = LayoutLocalServiceUtil.fetchFirstLayout(
+			group.getGroupId(), true, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			false);
+
+		if ((layout != null) && !layout.isHidden()) {
+			return layout;
+		}
+
+		return null;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		SiteAdministrationPanelCategoryDisplayContext.class);
 
 	private Boolean _collapsedPanel;
+	private Layout _firstLayout;
 	private Group _group;
 	private String _groupName;
 	private final GroupProvider _groupProvider;

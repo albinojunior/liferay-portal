@@ -489,6 +489,20 @@ public interface AssetVocabularyModel
 	public void setSettings(String settings);
 
 	/**
+	 * Returns the visibility type of this asset vocabulary.
+	 *
+	 * @return the visibility type of this asset vocabulary
+	 */
+	public int getVisibilityType();
+
+	/**
+	 * Sets the visibility type of this asset vocabulary.
+	 *
+	 * @param visibilityType the visibility type of this asset vocabulary
+	 */
+	public void setVisibilityType(int visibilityType);
+
+	/**
 	 * Returns the last publish date of this asset vocabulary.
 	 *
 	 * @return the last publish date of this asset vocabulary

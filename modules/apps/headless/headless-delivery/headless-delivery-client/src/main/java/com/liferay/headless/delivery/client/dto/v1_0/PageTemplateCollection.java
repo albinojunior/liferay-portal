@@ -29,6 +29,10 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageTemplateCollection implements Cloneable {
 
+	public static PageTemplateCollection toDTO(String json) {
+		return PageTemplateCollectionSerDes.toDTO(json);
+	}
+
 	public Creator getCreator() {
 		return creator;
 	}

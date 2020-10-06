@@ -27,7 +27,6 @@ import java.io.File;
 import java.nio.file.PathMatcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -75,12 +74,23 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 		return batchName;
 	}
 
+	public Integer getMaximumSlavesPerHost() {
+		String maximumSlavesPerHost = getFirstPropertyValue(
+			"test.batch.maximum.slaves.per.host");
+
+		if (maximumSlavesPerHost == null) {
+			return JenkinsMaster.getSlavesPerHostDefault();
+		}
+
+		return Integer.valueOf(maximumSlavesPerHost);
+	}
+
 	public Integer getMinimumSlaveRAM() {
 		String minimumSlaveRAM = getFirstPropertyValue(
 			"test.batch.minimum.slave.ram");
 
 		if (minimumSlaveRAM == null) {
-			return JenkinsMaster.SLAVE_RAM_DEFAULT;
+			return JenkinsMaster.getSlaveRAMMinimumDefault();
 		}
 
 		return Integer.valueOf(minimumSlaveRAM);
@@ -96,16 +106,14 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 			String batchName,
 			PortalGitWorkingDirectory portalGitWorkingDirectory) {
 
-			TestClassFile testClassFile = new TestClassFile(
+			File testClassFile = new File(
 				portalGitWorkingDirectory.getWorkingDirectory(),
 				"build-test-batch.xml");
 
 			return new BatchTestClass(batchName, testClassFile);
 		}
 
-		protected BatchTestClass(
-			String batchName, TestClassFile testClassFile) {
-
+		protected BatchTestClass(String batchName, File testClassFile) {
 			super(testClassFile);
 
 			addTestClassMethod(batchName);
@@ -554,10 +562,6 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 				}
 
 				requiredModuleDirs.add(requiredModuleDir);
-
-				requiredModuleDirs.addAll(
-					_getRequiredModuleDirs(
-						Arrays.asList(requiredModuleDir), requiredModuleDirs));
 			}
 		}
 

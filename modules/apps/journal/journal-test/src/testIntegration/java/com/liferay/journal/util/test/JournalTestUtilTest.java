@@ -20,10 +20,10 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMTemplateTestUtil;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.exception.NoSuchArticleException;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.portal.kernel.exception.LocaleException;
@@ -196,14 +196,13 @@ public class JournalTestUtilTest {
 
 	@Test
 	public void testAddDynamicContent() throws Exception {
-		Map<Locale, String> contents = HashMapBuilder.put(
-			LocaleUtil.BRAZIL, "Joe Bloggs"
-		).put(
-			LocaleUtil.US, "Joe Bloggs"
-		).build();
-
 		String xml = DDMStructureTestUtil.getSampleStructuredContent(
-			contents, LanguageUtil.getLanguageId(LocaleUtil.US));
+			HashMapBuilder.put(
+				LocaleUtil.BRAZIL, "Joe Bloggs"
+			).put(
+				LocaleUtil.US, "Joe Bloggs"
+			).build(),
+			LanguageUtil.getLanguageId(LocaleUtil.US));
 
 		String content = (String)_transformMethod.invoke(
 			null, null, getTokens(), Constants.VIEW, "en_US",

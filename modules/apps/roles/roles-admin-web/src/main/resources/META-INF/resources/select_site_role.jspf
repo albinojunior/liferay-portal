@@ -18,7 +18,6 @@
 String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
 int step = ParamUtil.getInteger(request, "step", 1);
 String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectSiteRole");
-String syncEntitiesEventName = ParamUtil.getString(request, "syncEntitiesEventName", liferayPortletResponse.getNamespace() + "syncSiteRoles");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
@@ -34,11 +33,13 @@ if (step == 1) {
 		groups = selUser.getSiteGroups();
 	}
 	else {
-		LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
-
-		groupParams.put("inherit", Boolean.FALSE);
-		groupParams.put("site", Boolean.TRUE);
-		groupParams.put("usersGroups", selUser.getUserId());
+		LinkedHashMap<String, Object> groupParams = LinkedHashMapBuilder.<String, Object>put(
+			"inherit", Boolean.FALSE
+		).put(
+			"site", Boolean.TRUE
+		).put(
+			"usersGroups", selUser.getUserId()
+		).build();
 
 		groups = GroupLocalServiceUtil.search(user.getCompanyId(), keywords, groupParams, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
@@ -50,7 +51,9 @@ if (step == 1) {
 	if (Validator.isNull(keywords) && (groups.size() == 1)) {
 		step = 2;
 
-		uniqueGroupId = groups.get(0).getGroupId();
+		Group group = groups.get(0);
+
+		uniqueGroupId = group.getGroupId();
 	}
 }
 
@@ -62,7 +65,7 @@ SelectRoleManagementToolbarDisplayContext selectRoleManagementToolbarDisplayCont
 
 PortletURL portletURL = selectRoleManagementToolbarDisplayContext.getPortletURL();
 
-SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles, groupId);
+SearchContainer<Role> roleSearchContainer = selectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles, groupId);
 %>
 
 <clay:management-toolbar
@@ -105,16 +108,16 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 					/>
 
 					<liferay-ui:search-container-column-text
-						name="roleType"
+						name="type"
 						value="<%= LanguageUtil.get(request, group.getTypeLabel()) %>"
 					/>
 
 					<liferay-ui:search-container-column-text>
 
 						<%
-						Map<String, Object> data = new HashMap<String, Object>();
-
-						data.put("groupid", group.getGroupId());
+						Map<String, Object> data = HashMapBuilder.<String, Object>put(
+							"groupid", group.getGroupId()
+						).build();
 						%>
 
 						<aui:button cssClass="group-selector-button" data="<%= data %>" value="choose" />
@@ -129,7 +132,7 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 			<aui:script require="metal-dom/src/dom as dom">
 				var form = document.<portlet:namespace />selectSiteRoleFm;
 
-				dom.delegate(form, 'click', '.group-selector-button', function(event) {
+				dom.delegate(form, 'click', '.group-selector-button', function (event) {
 					Liferay.Util.postForm(form, {
 						data: {
 							groupId: event.delegateTarget.dataset.groupid,
@@ -190,14 +193,19 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 						<c:if test="<%= Validator.isNull(p_u_i_d) || SiteMembershipPolicyUtil.isRoleAllowed((selUser != null) ? selUser.getUserId() : 0, group.getGroupId(), role.getRoleId()) %>">
 
 							<%
-							Map<String, Object> data = new HashMap<String, Object>();
-
-							data.put("entityid", role.getRoleId());
-							data.put("entityname", role.getTitle(locale));
-							data.put("groupdescriptivename", group.getDescriptiveName(locale));
-							data.put("groupid", group.getGroupId());
-							data.put("iconcssclass", RolesAdminUtil.getIconCssClass(role));
-							data.put("searchcontainername", "siteRoles");
+							Map<String, Object> data = HashMapBuilder.<String, Object>put(
+								"entityid", role.getRoleId()
+							).put(
+								"entityname", role.getTitle(locale)
+							).put(
+								"groupdescriptivename", group.getDescriptiveName(locale)
+							).put(
+								"groupid", group.getGroupId()
+							).put(
+								"iconcssclass", RolesAdminUtil.getIconCssClass(role)
+							).put(
+								"searchcontainername", "siteRoles"
+							).build();
 
 							boolean disabled = false;
 
@@ -213,7 +221,9 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 								}
 							}
 							else {
-								long[] defaultSiteRoleIds = StringUtil.split(group.getTypeSettingsProperties().getProperty("defaultSiteRoleIds"), 0L);
+								UnicodeProperties typeSettingsUnicodeProperties = group.getTypeSettingsProperties();
+
+								long[] defaultSiteRoleIds = StringUtil.split(typeSettingsUnicodeProperties.getProperty("defaultSiteRoleIds"), 0L);
 
 								long[] siteRolesIds = ParamUtil.getLongValues(request, "roleIds", defaultSiteRoleIds);
 
@@ -232,15 +242,7 @@ SearchContainer roleSearchContainer = selectRoleManagementToolbarDisplayContext.
 			</liferay-ui:search-container>
 
 			<aui:script use="aui-base">
-				var Util = Liferay.Util;
-
-				var openingLiferay = Util.getOpener().Liferay;
-
-				openingLiferay.fire('<%= HtmlUtil.escape(syncEntitiesEventName) %>', {
-					selectors: A.all('.selector-button'),
-				});
-
-				Util.selectEntityHandler(
+				Liferay.Util.selectEntityHandler(
 					'#<portlet:namespace />selectSiteRoleFm',
 					'<%= HtmlUtil.escapeJS(eventName) %>'
 				);

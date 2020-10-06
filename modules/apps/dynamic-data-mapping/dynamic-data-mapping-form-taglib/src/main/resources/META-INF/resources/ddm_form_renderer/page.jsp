@@ -25,9 +25,7 @@ if (ddmFormInstance != null) {
 <c:choose>
 	<c:when test="<%= ddmFormInstanceId == 0 %>">
 		<clay:alert
-			message='<%= LanguageUtil.get(resourceBundle, "select-an-existing-form-or-add-a-form-to-be-displayed-in-this-application") %>'
-			style="info"
-			title='<%= LanguageUtil.get(resourceBundle, "info") %>'
+			message="select-an-existing-form-or-add-a-form-to-be-displayed-in-this-application"
 		/>
 	</c:when>
 	<c:otherwise>
@@ -77,15 +75,14 @@ if (ddmFormInstance != null) {
 
 					<c:if test="<%= !hasAddFormInstanceRecordPermission %>">
 						<clay:alert
-							message='<%= LanguageUtil.get(resourceBundle, "you-do-not-have-the-permission-to-submit-this-form") %>'
-							style="warning"
-							title='<%= LanguageUtil.get(resourceBundle, "warning") %>'
+							displayType="warning"
+							message="you-do-not-have-the-permission-to-submit-this-form"
 						/>
 					</c:if>
 
 					<c:if test="<%= showFormBasicInfo %>">
 						<div class="ddm-form-basic-info">
-							<div class="container-fluid-1280">
+							<clay:container-fluid>
 								<h1 class="ddm-form-name"><%= HtmlUtil.escape(ddmFormInstance.getName(displayLocale)) %></h1>
 
 								<%
@@ -95,29 +92,29 @@ if (ddmFormInstance != null) {
 								<c:if test="<%= Validator.isNotNull(description) %>">
 									<h5 class="ddm-form-description"><%= description %></h5>
 								</c:if>
-							</div>
+							</clay:container-fluid>
 						</div>
 					</c:if>
 
-					<div class="container-fluid-1280 ddm-form-builder-app">
+					<clay:container-fluid
+						cssClass="ddm-form-builder-app"
+					>
 						<%= ddmFormHTML %>
 
 						<aui:input name="empty" type="hidden" value="" />
-					</div>
+					</clay:container-fluid>
 				</div>
 			</c:when>
 			<c:when test="<%= !hasViewFormInstancePermission %>">
 				<clay:alert
-					message='<%= LanguageUtil.get(resourceBundle, "you-do-not-have-the-permission-to-view-this-form") %>'
-					style="warning"
-					title='<%= LanguageUtil.get(resourceBundle, "warning") %>'
+					displayType="warning"
+					message="you-do-not-have-the-permission-to-view-this-form"
 				/>
 			</c:when>
 			<c:otherwise>
 				<clay:alert
-					message='<%= LanguageUtil.get(resourceBundle, "this-form-not-available-or-it-was-not-published") %>'
-					style="warning"
-					title='<%= LanguageUtil.get(resourceBundle, "warning") %>'
+					displayType="warning"
+					message="this-form-not-available-or-it-was-not-published"
 				/>
 			</c:otherwise>
 		</c:choose>

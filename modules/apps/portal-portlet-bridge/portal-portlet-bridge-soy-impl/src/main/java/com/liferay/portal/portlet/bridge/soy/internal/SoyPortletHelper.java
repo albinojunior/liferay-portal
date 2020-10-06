@@ -14,6 +14,7 @@
 
 package com.liferay.portal.portlet.bridge.soy.internal;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -50,7 +51,7 @@ import org.osgi.framework.FrameworkUtil;
 public class SoyPortletHelper {
 
 	public SoyPortletHelper(
-			Bundle bundle, MVCCommandCache mvcRenderCommandCache,
+			Bundle bundle, MVCCommandCache<?> mvcRenderCommandCache,
 			FriendlyURLMapper friendlyURLMapper)
 		throws Exception {
 
@@ -142,16 +143,14 @@ public class SoyPortletHelper {
 			List<Route> routes = router.getRoutes();
 
 			for (Route route : routes) {
-				Map<String, Object> mapping =
+				routesMapping.add(
 					HashMapBuilder.<String, Object>put(
 						"implicitParameters", route.getImplicitParameters()
 					).put(
 						"overriddenParameters", route.getOverriddenParameters()
 					).put(
 						"pattern", route.getPattern()
-					).build();
-
-				routesMapping.add(mapping);
+					).build());
 			}
 		}
 
@@ -191,31 +190,21 @@ public class SoyPortletHelper {
 			resourcesPath = resourcesPath.concat(StringPool.SLASH);
 		}
 
-		String filePath = resourcesPath.concat(
-			mvcCommandName
-		).concat(
-			".js"
-		);
+		String filePath = StringBundler.concat(
+			resourcesPath, mvcCommandName, ".js");
 
 		if (bundle.getEntry(filePath) != null) {
 			return filePath;
 		}
 
-		filePath = resourcesPath.concat(
-			mvcCommandName
-		).concat(
-			".es.js"
-		);
+		filePath = StringBundler.concat(
+			resourcesPath, mvcCommandName, ".es.js");
 
 		if (bundle.getEntry(filePath) != null) {
 			return filePath;
 		}
 
-		filePath = resourcesPath.concat(
-			mvcCommandName
-		).concat(
-			".soy"
-		);
+		filePath = StringBundler.concat(resourcesPath, mvcCommandName, ".soy");
 
 		if (bundle.getEntry(filePath) != null) {
 			return filePath;
@@ -244,11 +233,7 @@ public class SoyPortletHelper {
 			return moduleName;
 		}
 
-		return moduleName.concat(
-			StringPool.AT
-		).concat(
-			moduleVersion
-		);
+		return StringBundler.concat(moduleName, StringPool.AT, moduleVersion);
 	}
 
 	protected Bundle getMVCCommandBundle(String mvcCommandName)
@@ -272,7 +257,7 @@ public class SoyPortletHelper {
 	}
 
 	protected Set<String> getMVCRenderCommandNames() {
-		MVCCommandCache mvcRenderCommandCache = _mvcRenderCommandCache;
+		MVCCommandCache<?> mvcRenderCommandCache = _mvcRenderCommandCache;
 
 		return mvcRenderCommandCache.getMVCCommandNames();
 	}
@@ -315,7 +300,7 @@ public class SoyPortletHelper {
 	private final Map<String, String> _javaScriptLoaderModulesMap =
 		new HashMap<>();
 	private final JSONSerializer _jsonSerializer;
-	private final MVCCommandCache _mvcRenderCommandCache;
+	private final MVCCommandCache<?> _mvcRenderCommandCache;
 	private final String _routerJavaScriptTPL;
 
 }

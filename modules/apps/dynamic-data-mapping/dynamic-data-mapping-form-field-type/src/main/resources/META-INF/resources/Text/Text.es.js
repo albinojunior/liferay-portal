@@ -12,396 +12,313 @@
  * details.
  */
 
-import '../FieldBase/FieldBase.es';
-
-import './TextRegister.soy';
-
-import 'clay-autocomplete';
+import ClayAutocomplete from '@clayui/autocomplete';
+import ClayDropDown from '@clayui/drop-down';
+import {ClayInput} from '@clayui/form';
 import {normalizeFieldName} from 'dynamic-data-mapping-form-renderer';
-import {cancelDebounce, debounce} from 'frontend-js-web';
-import Component from 'metal-component';
-import dom from 'metal-dom';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+import {usePrevious} from 'frontend-js-react-web';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 
-import templates from './Text.soy';
+import {FieldBase} from '../FieldBase/ReactFieldBase.es';
+import {useSyncValue} from '../hooks/useSyncValue.es';
 
-class Text extends Component {
-	created() {
-		this.debouncedUpdate = debounce(_value => {
-			if (this.animationFrameRequest) {
-				window.cancelAnimationFrame(this.animationFrameRequest);
-			}
+const Text = ({
+	defaultLanguageId,
+	disabled,
+	editingLanguageId,
+	fieldName,
+	id,
+	localizable,
+	localizedValue,
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	placeholder,
+	syncDelay,
+	value: initialValue,
+}) => {
+	const [value, setValue] = useSyncValue(initialValue, syncDelay);
 
-			this.animationFrameRequest = window.requestAnimationFrame(() => {
-				if (!this.isDisposed()) {
-					this.setState({_value});
+	const prevEditingLanguageId = usePrevious(editingLanguageId);
+
+	useEffect(() => {
+		if (prevEditingLanguageId !== editingLanguageId && localizable) {
+			const newValue =
+				localizedValue[editingLanguageId] !== undefined
+					? localizedValue[editingLanguageId]
+					: localizedValue[defaultLanguageId];
+			setValue(newValue);
+		}
+	}, [
+		defaultLanguageId,
+		editingLanguageId,
+		localizable,
+		localizedValue,
+		prevEditingLanguageId,
+		setValue,
+	]);
+
+	return (
+		<ClayInput
+			className="ddm-field-text"
+			disabled={disabled}
+			id={id ? id : name}
+			name={name}
+			onBlur={onBlur}
+			onChange={(event) => {
+				if (fieldName === 'name') {
+					event.target.value = normalizeFieldName(event.target.value);
 				}
-			});
-		}, 300);
-	}
 
-	attached() {
-		const portalElement = dom.toElement('#clay_dropdown_portal');
-
-		if (portalElement) {
-			dom.addClasses(portalElement, 'show');
-		}
-	}
-
-	dispatchEvent(event, name, value) {
-		this.emit(name, {
-			fieldInstance: this,
-			originalEvent: event,
-			value,
-		});
-	}
-
-	getAutocompleteOptions() {
-		const {options} = this;
-
-		if (!options) {
-			return [];
-		}
-
-		return options.map(option => {
-			return option.label;
-		});
-	}
-
-	prepareStateForRender(state) {
-		const {options} = this;
-
-		return {
-			...state,
-			options: this.getAutocompleteOptions(options),
-		};
-	}
-
-	shouldUpdate(changes) {
-		return Object.keys(changes || {}).some(key => {
-			if (key === 'events' || key === 'value') {
-				return false;
-			}
-
-			if (
-				!Liferay.Util.isEqual(changes[key].newVal, changes[key].prevVal)
-			) {
-				return true;
-			}
-		});
-	}
-
-	willReceiveState(changes) {
-		if (changes.value) {
-			cancelDebounce(this.debouncedUpdate);
-			this.debouncedUpdate(changes.value.newVal);
-		}
-	}
-
-	_handleAutocompleteFieldChanged() {
-		cancelDebounce(this.debouncedUpdate);
-		this.debouncedUpdate(function(event) {
-			const {value} = event.data;
-
-			this.setState(
-				{
-					value,
-				},
-				() => this.dispatchEvent(event, 'fieldEdited', value)
-			);
-		}, 300);
-	}
-
-	_handleAutocompleteFieldFocused() {
-		cancelDebounce(this.debouncedUpdate);
-		this.debouncedUpdate(function(event) {
-			this.dispatchEvent('fieldFocused', event, event.target.inputValue);
-		}, 300);
-	}
-
-	_handleAutocompleteFilteredItemsChanged(filteredItemsReceived) {
-		const {filteredItems} = this;
-
-		if (filteredItemsReceived.newVal.length != filteredItems.length) {
-			this.setState({
-				filteredItems: filteredItemsReceived.newVal,
-			});
-		}
-	}
-
-	_handleAutocompleteSelected(event) {
-		const {value} = event.data.item;
-
-		this.setState(
-			{
-				filteredItems: [],
-				value,
-			},
-			() => {
-				this.dispatchEvent(event, 'fieldEdited', value);
-			}
-		);
-	}
-
-	_handleFieldBlurred(event) {
-		this.dispatchEvent(event, 'fieldBlurred', event.target.value);
-	}
-
-	_handleFieldChanged(event) {
-		const {target} = event;
-		let {value} = target;
-		const {fieldName} = this;
-
-		if (fieldName === 'name') {
-			value = normalizeFieldName(value);
-
-			target.value = value;
-		}
-
-		this.setState(
-			{
-				value,
-			},
-			() => this.dispatchEvent(event, 'fieldEdited', value)
-		);
-	}
-
-	_handleFieldFocused(event) {
-		this.dispatchEvent(event, 'fieldFocused', event.target.value);
-	}
-
-	_internalValueFn() {
-		const {value} = this;
-
-		return value;
-	}
-}
-
-Text.STATE = {
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	_value: Config.string()
-		.internal()
-		.valueFn('_internalValueFn'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	autocompleteEnabled: Config.bool(),
-
-	/**
-	 * @default 'string'
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	dataType: Config.string().value('string'),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Text
-	 * @type {?(boolean|undefined)}
-	 */
-
-	displayErrors: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	displayStyle: Config.string().value('singleline'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	errorMessage: Config.string(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Text
-	 * @type {?bool}
-	 */
-
-	evaluable: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	filteredItems: Config.array()
-		.value([])
-		.internal(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	name: Config.string().required(),
-
-	/**
-	 * @default []
-	 * @memberof Text
-	 * @type {?array<object>}
-	.setter('_loadOptionsFn').
-	 */
-
-	options: Config.arrayOf(
-		Config.shapeOf({
-			active: Config.bool().value(false),
-			disabled: Config.bool().value(false),
-			id: Config.string(),
-			inline: Config.bool().value(false),
-			label: Config.string(),
-			name: Config.string(),
-			showLabel: Config.bool().value(true),
-			value: Config.string(),
-		})
-	).value([]),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	placeholder: Config.string().value(''),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	predefinedValue: Config.string().value(''),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Text
-	 * @type {?bool}
-	 */
-
-	readOnly: Config.bool().value(false),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Text
-	 * @type {?(bool|undefined)}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof Text
-	 * @type {?(bool|undefined)}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	tip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	tooltip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	type: Config.string().value('text'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	value: Config.string().value(''),
+				setValue(event.target.value);
+				onChange(event);
+			}}
+			onFocus={onFocus}
+			placeholder={placeholder}
+			type="text"
+			value={value}
+		/>
+	);
 };
 
-Soy.register(Text, templates);
+const Textarea = ({
+	disabled,
+	id,
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	placeholder,
+	syncDelay,
+	value: initialValue,
+}) => {
+	const [value, setValue] = useSyncValue(initialValue, syncDelay);
 
-export default Text;
+	return (
+		<textarea
+			className="ddm-field-text form-control"
+			disabled={disabled}
+			id={id}
+			name={name}
+			onBlur={onBlur}
+			onChange={(event) => {
+				setValue(event.target.value);
+				onChange(event);
+			}}
+			onFocus={onFocus}
+			placeholder={placeholder}
+			type="text"
+			value={value}
+		/>
+	);
+};
+
+const Autocomplete = ({
+	disabled,
+	id,
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	options,
+	placeholder,
+	syncDelay,
+	value: initialValue,
+}) => {
+	const [value, setValue] = useSyncValue(initialValue, syncDelay);
+	const [visible, setVisible] = useState(false);
+	const inputRef = useRef(null);
+	const itemListRef = useRef(null);
+
+	const filteredItems = options.filter((item) => item && item.match(value));
+
+	useEffect(() => {
+		if (filteredItems.length === 1 && filteredItems.includes(value)) {
+			setVisible(false);
+		}
+		else {
+			setVisible(!!value);
+		}
+	}, [filteredItems, value]);
+
+	const handleFocus = (event, direction) => {
+		const target = event.target;
+		const focusabledElements = event.currentTarget.querySelectorAll(
+			'button'
+		);
+		const targetIndex = [...focusabledElements].findIndex(
+			(current) => current === target
+		);
+
+		let nextElement;
+
+		if (direction) {
+			nextElement = focusabledElements[targetIndex - 1];
+		}
+		else {
+			nextElement = focusabledElements[targetIndex + 1];
+		}
+
+		if (nextElement) {
+			event.preventDefault();
+			event.stopPropagation();
+			nextElement.focus();
+		}
+		else if (targetIndex === 0 && direction) {
+			event.preventDefault();
+			event.stopPropagation();
+			inputRef.current.focus();
+		}
+	};
+
+	return (
+		<ClayAutocomplete>
+			<ClayAutocomplete.Input
+				disabled={disabled}
+				id={id}
+				name={name}
+				onBlur={onBlur}
+				onChange={(event) => {
+					setValue(event.target.value);
+					onChange(event);
+				}}
+				onFocus={onFocus}
+				onKeyDown={(event) => {
+					if (
+						(event.key === 'Tab' || event.key === 'ArrowDown') &&
+						!event.shiftKey &&
+						filteredItems.length > 0 &&
+						visible
+					) {
+						event.preventDefault();
+						event.stopPropagation();
+
+						const firstElement = itemListRef.current.querySelector(
+							'button'
+						);
+						firstElement.focus();
+					}
+				}}
+				placeholder={placeholder}
+				ref={inputRef}
+				value={value}
+			/>
+
+			<ClayAutocomplete.DropDown
+				active={visible && !disabled}
+				onSetActive={setVisible}
+			>
+				<ul
+					className="list-unstyled"
+					onKeyDown={(event) => {
+						switch (event.key) {
+							case 'ArrowDown':
+								handleFocus(event, false);
+								break;
+							case 'ArrowUp':
+								handleFocus(event, true);
+								break;
+							case 'Tab':
+								handleFocus(event, event.shiftKey);
+								break;
+							default:
+								break;
+						}
+					}}
+					ref={itemListRef}
+				>
+					{filteredItems.length === 0 && (
+						<ClayDropDown.Item className="disabled">
+							{Liferay.Language.get('no-results-were-found')}
+						</ClayDropDown.Item>
+					)}
+					{filteredItems.map((label) => (
+						<ClayAutocomplete.Item
+							key={label}
+							match={value}
+							onClick={() => {
+								setValue(label);
+								onChange({target: {value: label}});
+							}}
+							value={label}
+						/>
+					))}
+				</ul>
+			</ClayAutocomplete.DropDown>
+		</ClayAutocomplete>
+	);
+};
+
+const DISPLAY_STYLE = {
+	autocomplete: Autocomplete,
+	multiline: Textarea,
+	singleline: Text,
+};
+
+const Main = ({
+	autocomplete,
+	autocompleteEnabled,
+	defaultLanguageId,
+	displayStyle = 'singleline',
+	editingLanguageId,
+	fieldName,
+	id,
+	localizable,
+	localizedValue = {},
+	name,
+	onBlur,
+	onChange,
+	onFocus,
+	options = [],
+	placeholder,
+	predefinedValue = '',
+	readOnly,
+	syncDelay = true,
+	value,
+	...otherProps
+}) => {
+	const optionsMemo = useMemo(() => options.map((option) => option.label), [
+		options,
+	]);
+	const Component =
+		DISPLAY_STYLE[
+			autocomplete || autocompleteEnabled
+				? 'autocomplete'
+				: displayStyle
+				? displayStyle
+				: `singleline`
+		];
+
+	return (
+		<FieldBase
+			{...otherProps}
+			id={id}
+			localizedValue={localizedValue}
+			name={name}
+			readOnly={readOnly}
+		>
+			<Component
+				defaultLanguageId={defaultLanguageId}
+				disabled={readOnly}
+				editingLanguageId={editingLanguageId}
+				fieldName={fieldName}
+				id={id}
+				localizable={localizable}
+				localizedValue={localizedValue}
+				name={name}
+				onBlur={onBlur}
+				onChange={onChange}
+				onFocus={onFocus}
+				options={optionsMemo}
+				placeholder={placeholder}
+				syncDelay={syncDelay}
+				value={value ? value : predefinedValue}
+			/>
+		</FieldBase>
+	);
+};
+
+Main.displayName = 'Text';
+
+export default Main;

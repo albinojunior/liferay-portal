@@ -36,8 +36,7 @@ portletURL.setParameter("portletResource", portletResource);
 						navigationItem.setActive(tabs3.equals("new-export-process"));
 						navigationItem.setHref(portletURL.toString());
 						navigationItem.setLabel(LanguageUtil.get(request, "new-export-process"));
-					}
-				);
+					});
 
 				portletURL.setParameter("tabs3", "current-and-previous");
 
@@ -46,8 +45,7 @@ portletURL.setParameter("portletResource", portletResource);
 						navigationItem.setActive(tabs3.equals("current-and-previous"));
 						navigationItem.setHref(portletURL.toString());
 						navigationItem.setLabel(LanguageUtil.get(request, "current-and-previous"));
-					}
-				);
+					});
 			}
 		}
 	%>'
@@ -89,7 +87,7 @@ portletURL.setParameter("portletResource", portletResource);
 			<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.EXPORT %>" />
 
 			<div class="export-dialog-tree">
-				<div class="container-fluid-1280">
+				<clay:container-fluid>
 					<aui:fieldset-group markupView="lexicon">
 						<aui:fieldset>
 							<aui:input label="export-the-selected-data-to-the-given-lar-file-name" name="exportFileName" required="<%= true %>" showRequiredLabel="<%= false %>" size="50" value="<%= ExportImportHelperUtil.getPortletExportFileName(selPortlet) %>" />
@@ -141,9 +139,9 @@ portletURL.setParameter("portletResource", portletResource);
 														<span class="selected-labels" id="<portlet:namespace />selectedConfiguration_<%= selPortlet.getRootPortletId() %>"></span>
 
 														<%
-														Map<String, Object> data = new HashMap<String, Object>();
-
-														data.put("portletid", selPortlet.getRootPortletId());
+														Map<String, Object> data = HashMapBuilder.<String, Object>put(
+															"portletid", selPortlet.getRootPortletId()
+														).build();
 														%>
 
 														<aui:a cssClass="configuration-link modify-link" data="<%= data %>" href="javascript:;" label="change" method="get" />
@@ -390,9 +388,9 @@ portletURL.setParameter("portletResource", portletResource);
 																	<span class="selected-labels" id="<portlet:namespace />selectedContent_<%= selPortlet.getRootPortletId() %>"></span>
 
 																	<%
-																	Map<String, Object> data = new HashMap<String, Object>();
-
-																	data.put("portletid", selPortlet.getRootPortletId());
+																	Map<String, Object> data = HashMapBuilder.<String, Object>put(
+																		"portletid", selPortlet.getRootPortletId()
+																	).build();
 																	%>
 
 																	<aui:a cssClass="content-link modify-link" data="<%= data %>" href="javascript:;" id='<%= "contentLink_" + selPortlet.getRootPortletId() %>' label="change" method="get" />
@@ -452,7 +450,7 @@ portletURL.setParameter("portletResource", portletResource);
 							/>
 						</c:if>
 					</aui:fieldset-group>
-				</div>
+				</clay:container-fluid>
 			</div>
 
 			<aui:button-row>
@@ -463,64 +461,64 @@ portletURL.setParameter("portletResource", portletResource);
 		</aui:form>
 
 		<aui:script use="aui-base">
-		var liferayForm = Liferay.Form.get('<portlet:namespace />fm1');
+			var liferayForm = Liferay.Form.get('<portlet:namespace />fm1');
 
-		var form = liferayForm.formNode;
+			var form = liferayForm.formNode;
 
-		form.on('submit', function(event) {
-			event.halt();
+			form.on('submit', function (event) {
+				event.halt();
 
-			var exportImport = Liferay.component(
-				'<portlet:namespace />ExportImportComponent'
-			);
+				var exportImport = Liferay.component(
+					'<portlet:namespace />ExportImportComponent'
+				);
 
-			var dateChecker = exportImport.getDateRangeChecker();
+				var dateChecker = exportImport.getDateRangeChecker();
 
-			if (dateChecker.validRange) {
-				submitForm(form, form.attr('action'), false);
-			}
-			else {
-				exportImport.showNotification(dateChecker);
-			}
-		});
+				if (dateChecker.validRange) {
+					submitForm(form, form.attr('action'), false);
+				}
+				else {
+					exportImport.showNotification(dateChecker);
+				}
+			});
 
-		var oldFieldRules = liferayForm.get('fieldRules');
+			var oldFieldRules = liferayForm.get('fieldRules');
 
-		var fieldRules = [
-			{
-				body: function(val, fieldNode, ruleValue) {
+			var fieldRules = [
+				{
+					body: function (val, fieldNode, ruleValue) {
 
-					<%
-					JSONArray blacklistCharJSONArray = JSONFactoryUtil.createJSONArray();
+						<%
+						JSONArray blacklistCharJSONArray = JSONFactoryUtil.createJSONArray();
 
-					for (String s : PropsValues.DL_CHAR_BLACKLIST) {
-						blacklistCharJSONArray.put(s);
-					}
-					%>
-
-					var blacklistCharJSONArray = <%= blacklistCharJSONArray.toJSONString() %>;
-
-					for (var i = 0; i < blacklistCharJSONArray.length; i++) {
-						if (val.indexOf(blacklistCharJSONArray[i]) !== -1) {
-							return false;
+						for (String s : PropsValues.DL_CHAR_BLACKLIST) {
+							blacklistCharJSONArray.put(s);
 						}
-					}
+						%>
 
-					return true;
+						var blacklistCharJSONArray = <%= blacklistCharJSONArray.toJSONString() %>;
+
+						for (var i = 0; i < blacklistCharJSONArray.length; i++) {
+							if (val.indexOf(blacklistCharJSONArray[i]) !== -1) {
+								return false;
+							}
+						}
+
+						return true;
+					},
+					custom: true,
+					errorMessage:
+						'<%= LanguageUtil.get(request, "the-following-are-invalid-characters") + HtmlUtil.escapeJS(Arrays.toString(PropsValues.DL_CHAR_BLACKLIST)) %>',
+					fieldName: '<portlet:namespace />exportFileName',
+					validatorName: 'custom_exportFileNameValidator',
 				},
-				custom: true,
-				errorMessage:
-					'<%= LanguageUtil.get(request, "the-following-are-invalid-characters") + HtmlUtil.escapeJS(Arrays.toString(PropsValues.DL_CHAR_BLACKLIST)) %>',
-				fieldName: '<portlet:namespace />exportFileName',
-				validatorName: 'custom_exportFileNameValidator',
-			},
-		];
+			];
 
-		if (oldFieldRules) {
-			fieldRules = fieldRules.concat(oldFieldRules);
-		}
+			if (oldFieldRules) {
+				fieldRules = fieldRules.concat(oldFieldRules);
+			}
 
-		liferayForm.set('fieldRules', fieldRules);
+			liferayForm.set('fieldRules', fieldRules);
 		</aui:script>
 	</c:when>
 	<c:when test='<%= tabs3.equals("current-and-previous") %>'>
@@ -560,7 +558,7 @@ portletURL.setParameter("portletResource", portletResource);
 
 	Liferay.component('<portlet:namespace />ExportImportComponent', exportImport);
 
-	Liferay.once('destroyPortlet', function() {
+	Liferay.once('destroyPortlet', function () {
 		exportImport.destroy();
 	});
 </aui:script>

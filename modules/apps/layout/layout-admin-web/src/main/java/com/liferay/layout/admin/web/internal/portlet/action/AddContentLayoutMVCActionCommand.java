@@ -19,15 +19,14 @@ import com.liferay.layout.admin.web.internal.handler.LayoutExceptionRequestHandl
 import com.liferay.layout.admin.web.internal.security.permission.resource.LayoutPageTemplateEntryPermission;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
+import com.liferay.portal.kernel.change.tracking.CTTransactionException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -80,7 +79,6 @@ public class AddContentLayoutMVCActionCommand
 			actionRequest, "privateLayout");
 		long parentLayoutId = ParamUtil.getLong(
 			actionRequest, "parentLayoutId");
-
 		Map<Locale, String> nameMap = HashMapBuilder.put(
 			LocaleUtil.getSiteDefault(),
 			ParamUtil.getString(actionRequest, "name")
@@ -88,8 +86,6 @@ public class AddContentLayoutMVCActionCommand
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			Layout.class.getName(), actionRequest);
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		Layout layout = null;
 
@@ -119,11 +115,11 @@ public class AddContentLayoutMVCActionCommand
 				SitesUtil.mergeLayoutPrototypeLayout(layout.getGroup(), layout);
 			}
 			else {
-				ThemeDisplay themeDisplay =
-					(ThemeDisplay)actionRequest.getAttribute(
-						WebKeys.THEME_DISPLAY);
-
 				if (layoutPageTemplateEntryId > 0) {
+					ThemeDisplay themeDisplay =
+						(ThemeDisplay)actionRequest.getAttribute(
+							WebKeys.THEME_DISPLAY);
+
 					LayoutPageTemplateEntryPermission.check(
 						themeDisplay.getPermissionChecker(),
 						layoutPageTemplateEntryId, ActionKeys.VIEW);
@@ -158,18 +154,26 @@ public class AddContentLayoutMVCActionCommand
 				redirectURL = getContentRedirectURL(actionRequest, layout);
 			}
 
-			jsonObject.put("redirectURL", redirectURL);
-
 			MultiSessionMessages.add(actionRequest, "layoutAdded", layout);
 
 			JSONPortletResponseUtil.writeJSON(
-				actionRequest, actionResponse, jsonObject);
+				actionRequest, actionResponse,
+				JSONUtil.put("redirectURL", redirectURL));
+		}
+		catch (CTTransactionException ctTransactionException) {
+			hideDefaultErrorMessage(actionRequest);
+
+			LiferayPortletResponse liferayPortletResponse =
+				portal.getLiferayPortletResponse(actionResponse);
+
+			JSONPortletResponseUtil.writeJSON(
+				actionRequest, actionResponse,
+				JSONUtil.put(
+					"redirectURL", liferayPortletResponse.createRenderURL()));
+
+			throw ctTransactionException;
 		}
 		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
-			}
-
 			SessionErrors.add(actionRequest, "layoutNameInvalid");
 
 			hideDefaultErrorMessage(actionRequest);
@@ -178,9 +182,6 @@ public class AddContentLayoutMVCActionCommand
 				actionRequest, actionResponse, portalException);
 		}
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		AddContentLayoutMVCActionCommand.class);
 
 	@Reference
 	private LayoutExceptionRequestHandler _layoutExceptionRequestHandler;

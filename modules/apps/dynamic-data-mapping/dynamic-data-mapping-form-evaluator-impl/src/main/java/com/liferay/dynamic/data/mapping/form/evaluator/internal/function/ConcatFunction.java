@@ -24,16 +24,18 @@ import java.util.stream.Stream;
  * @author Leonardo Barros
  */
 public class ConcatFunction
-	implements DDMExpressionFunction.Function1<String[], String> {
+	implements DDMExpressionFunction.Function1<Object[], String> {
 
 	public static final String NAME = "concat";
 
 	@Override
-	public String apply(String[] values) {
+	public String apply(Object[] values) {
 		return Stream.of(
 			values
 		).filter(
 			Validator::isNotNull
+		).map(
+			Object::toString
 		).collect(
 			Collectors.joining()
 		);

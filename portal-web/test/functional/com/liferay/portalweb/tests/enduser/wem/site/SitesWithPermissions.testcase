@@ -30,152 +30,228 @@ definition {
 	test SitesTemplatePermissionPersistence {
 		property testray.component.names = "Permissions,Site Administration";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		task ("Add a new site template") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "search",
-			pageTemplateName = "Search",
-			siteTemplateName = "Community Site");
+		task ("Add widgets to Home page of the new site template") {
+			var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Home",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		Site.addCommunityCP(siteName = "Site Name");
+			ContentPages.clickPencil();
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			PageEditor.addFragment(
+				collectionName = "Layout Elements",
+				fragmentName = "Grid");
 
-		PermissionsInline.gotoConfigurationPG(portletName = "Polls Display");
+			PageEditor.editLayoutGrid(
+				columnCount = "2",
+				panel = "General");
 
-		PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
+			PageEditor.addElementToColumn(
+				columnNumber = "1",
+				navTab = "Widgets",
+				portletName = "Message Boards");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			PageEditor.addElementToColumn(
+				columnNumber = "2",
+				navTab = "Widgets",
+				portletName = "Polls Display");
 
-		PermissionsInline.gotoConfigurationPG(portletName = "Message Boards");
+			PageEditor.clickPublish();
+		}
 
-		PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
+		task ("Add a search page in the new site template") {
+			Close.closeAndSelectWindow(locator1 = "title=Site Templates - Control Panel - ${siteName}");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "search",
+				pageTemplateName = "Search",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Portlet.addPG(portletName = "Asset Publisher");
+		task ("Add a new site based on the new site template") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Sites",
+				panel = "Control Panel",
+				portlet = "Sites");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			Site.addCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name",
+				siteType = "Site Template");
+		}
 
-		Portlet.viewTitle(portletName = "Asset Publisher");
+		task ("Assert permissions of each widgets in Home page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Home",
+				siteName = "Site Name");
 
-		SiteTemplates.resetPageChanges(
-			columnNumberTo = "1",
-			portletName = "Asset Publisher");
+			PermissionsInline.gotoConfigurationPG(portletName = "Polls Display");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
 
-		Portlet.viewNoSpecificPG(portletName = "Asset Publisher");
+			IFrame.closeFrame();
 
-		PermissionsInline.gotoConfigurationPG(portletName = "Polls Display");
+			PermissionsInline.gotoConfigurationPG(portletName = "Message Boards");
 
-		PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
+			PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			IFrame.closeFrame();
 
-		Polls.addPollPG(
-			pollsQuestion = "What is the most important issue for this election?",
-			pollsQuestionChoiceA = "The Economy",
-			pollsQuestionChoiceB = "The National Debt",
-			pollsQuestionTitle = "Election Poll");
+			PageEditor.addElementToColumn(
+				columnNumber = "2",
+				height = "Tall",
+				navTab = "Widgets",
+				portletName = "Asset Publisher",
+				targetFragmentName = "Polls Display");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			PageEditor.clickPublish();
+		}
 
-		Polls.selectPollPG(pollsQuestionTitle = "Election Poll");
+		task ("Reset Page Changes") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Home",
+				siteName = "Site Name");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			AssertElementPresent(
+				key_portletName = "AssetPublisher",
+				locator1 = "Home#PORTLET_BORDERLESS");
 
-		Polls.viewPollPG(
-			pollsQuestion = "What is the most important issue for this election?",
-			pollsQuestionChoiceList = "The Economy,The National Debt");
+			SiteTemplates.resetPageChanges(widgetName = "Asset Publisher");
+		}
 
-		PermissionsInline.gotoConfigurationPG(portletName = "Message Boards");
+		task ("Assert permissions of each widgets in Home page") {
+			ContentPages.clickPencil();
 
-		PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
+			PermissionsInline.gotoConfigurationPG(portletName = "Polls Display");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
 
-		MessageboardsThread.addPG(
-			threadBody = "This is the message boards thread.",
-			threadSubject = "Thread");
+			IFrame.closeFrame();
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			PermissionsInline.gotoConfigurationPG(portletName = "Message Boards");
 
-		MessageboardsThread.gotoPG(
-			lastPostUserName = "Test Test",
-			replyCount = "0",
-			threadBody = "This is the message boards thread.",
-			threadSubject = "Thread");
+			PermissionsInline.assertDefaultPG(roleList = "Guest,Owner,Power User,Site Member,User");
 
-		MessageboardsThread.viewPG(
-			threadBody = "This is the message boards thread.",
-			threadSubject = "Thread");
+			IFrame.closeFrame();
+		}
 
-		User.logoutPG();
+		task ("Add poll in Polls Display") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Home",
+				siteName = "Site Name");
 
-		var portalURL = PropsUtil.get("portal.url");
+			Polls.addPollPG(
+				pollsQuestion = "What is the most important issue for this election?",
+				pollsQuestionChoiceA = "The Economy",
+				pollsQuestionChoiceB = "The National Debt",
+				pollsQuestionTitle = "Election Poll");
 
-		Navigator.openSpecificURL(url = "${portalURL}/web/site-name/home");
+			IFrame.closeFrame();
 
-		Portlet.viewTitle(portletName = "Message Boards");
+			Polls.selectPollPG(pollsQuestionTitle = "Election Poll");
 
-		MessageboardsThread.gotoPG(
-			lastPostUserName = "Test Test",
-			replyCount = "0",
-			threadBody = "This is the message boards thread.",
-			threadSubject = "Thread");
+			IFrame.closeFrame();
 
-		MessageboardsThread.viewPG(
-			threadBody = "This is the message boards thread.",
-			threadSubject = "Thread");
+			Polls.viewPollPG(
+				pollsQuestion = "What is the most important issue for this election?",
+				pollsQuestionChoiceList = "The Economy,The National Debt");
+		}
 
-		Portlet.viewTitle(portletName = "Election Poll");
+		task ("Add thread in Message Boards") {
+			MessageboardsThread.addPG(
+				threadBody = "This is the message boards thread.",
+				threadSubject = "Thread");
 
-		AssertTextEquals(
-			locator1 = "Message#INFO",
-			value1 = "Please sign in to vote.");
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Home",
+				siteName = "Site Name");
 
-		AssertElementPresent(locator1 = "Search#EMBEDDED_SEARCH_BAR");
+			MessageboardsThread.gotoPG(
+				lastPostUserName = "Test Test",
+				replyCount = "0",
+				threadBody = "This is the message boards thread.",
+				threadSubject = "Thread");
 
-		SignIn.signIn(
-			userEmailAddress = "test@liferay.com",
-			userPassword = "test");
+			MessageboardsThread.viewPG(
+				threadBody = "This is the message boards thread.",
+				threadSubject = "Thread");
+		}
 
-		Navigator.openSpecificURL(url = "${portalURL}/web/site-name/home");
+		task ("View poll and thread as guest") {
+			User.logoutPG();
 
-		PermissionsInline.gotoConfigurationPG(portletName = "Polls Display");
+			var portalURL = PropsUtil.get("portal.url");
 
-		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
-			addOrRemoveViewPermission = "Remove",
-			roleList = "Guest,Owner,Power User,Site Member,User");
+			Navigator.openSpecificURL(url = "${portalURL}/web/site-name/home");
 
-		Navigator.openSiteURL(siteName = "Site Name");
+			MessageboardsThread.gotoPG(
+				lastPostUserName = "Test Test",
+				replyCount = "0",
+				threadBody = "This is the message boards thread.",
+				threadSubject = "Thread");
 
-		PermissionsInline.gotoConfigurationPG(portletName = "Message Boards");
+			MessageboardsThread.viewPG(
+				threadBody = "This is the message boards thread.",
+				threadSubject = "Thread");
 
-		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
-			addOrRemoveViewPermission = "Remove",
-			roleList = "Guest,Owner,Power User,Site Member,User");
+			Polls.viewPollPG(
+				pollsQuestion = "What is the most important issue for this election?",
+				pollsQuestionChoiceList = "The Economy,The National Debt");
 
-		User.logoutPG();
+			AssertTextEquals(
+				locator1 = "Message#INFO",
+				value1 = "Please sign in to vote.");
 
-		Navigator.openSpecificURL(url = "${portalURL}/web/site-name/home");
+			AssertElementPresent(locator1 = "Search#EMBEDDED_SEARCH_BAR");
+		}
 
-		AssertTextEquals(
-			locator1 = "Message#ERROR_1_COLUMN_1",
-			value1 = "You do not have the roles required to access this portlet.");
+		task ("Remove guest view permissions of Message Boards and Polls Display") {
+			SignIn.signIn(
+				userEmailAddress = "test@liferay.com",
+				userPassword = "test");
 
-		AssertTextEquals(
-			locator1 = "Message#ERROR_1_COLUMN_2",
-			value1 = "You do not have the roles required to access this portlet.");
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Home",
+				siteName = "Site Name");
+
+			PermissionsInline.gotoConfigurationPG(portletName = "Polls Display");
+
+			PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
+				addOrRemoveViewPermission = "Remove",
+				roleList = "Guest,Owner,Power User,Site Member,User");
+
+			IFrame.closeFrame();
+
+			PermissionsInline.gotoConfigurationPG(portletName = "Message Boards");
+
+			PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
+				addOrRemoveViewPermission = "Remove",
+				roleList = "Guest,Owner,Power User,Site Member,User");
+
+			IFrame.closeFrame();
+
+			PageEditor.clickPublish();
+		}
+
+		task ("Assert the Message Boards and Polls Display are invisible to guest") {
+			User.logoutPG();
+
+			Navigator.openSpecificURL(url = "${portalURL}/web/site-name/home");
+
+			AssertTextEquals(
+				locator1 = "Message#ERROR_1",
+				value1 = "You do not have the roles required to access this portlet.");
+
+			AssertTextEquals(
+				locator1 = "Message#ERROR_2",
+				value1 = "You do not have the roles required to access this portlet.");
+		}
 	}
 
 }

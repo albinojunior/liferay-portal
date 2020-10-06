@@ -43,22 +43,17 @@
 	}
 }
 
+.ddm-form-builder-wrapper {
+	button[disabled],
+	input[disabled],
+	textarea[disabled] {
+		pointer-events: none;
+	}
+}
+
 .ddm-target {
 	height: 100%;
 	width: 100%;
-}
-
-input[class^='form-builder-page-header'] {
-	background: transparent;
-	border: none;
-	height: 36px;
-	margin: 0;
-	padding-top: 0;
-
-	&:focus {
-		background: none;
-		border: none;
-	}
 }
 
 .liferay-ddm-form-rule-builder-timeline .timeline-item .panel-body .dropdown {
@@ -270,22 +265,42 @@ input[class^='form-builder-page-header'] {
 }
 
 .ddm-form-builder {
+	.lfr-ddm-forms-delete-rule {
+		.modal-item-last button.btn-primary {
+			background-color: #da1414;
+			border-color: #da1414;
+		}
+	}
+
 	.modal {
 		display: none;
 		margin: inherit;
 	}
 
-	.modal-sm {
-		max-width: 300px;
-	}
-
 	.modal-dialog {
 		position: relative;
+	}
+
+	.modal-sm {
+		max-width: 300px;
 	}
 }
 
 @media (min-width: 576px) {
 	.ddm-form-builder .modal-sm {
 		max-width: 300px;
+	}
+}
+
+input[class^='form-builder-page-header'] {
+	background: transparent;
+	border: none;
+	height: 36px;
+	margin: 0;
+	padding-top: 0;
+
+	&:focus {
+		background: none;
+		border: none;
 	}
 }

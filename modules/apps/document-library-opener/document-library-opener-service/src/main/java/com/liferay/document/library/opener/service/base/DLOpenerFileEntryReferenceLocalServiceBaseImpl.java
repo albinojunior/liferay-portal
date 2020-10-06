@@ -17,6 +17,7 @@ package com.liferay.document.library.opener.service.base;
 import com.liferay.document.library.opener.model.DLOpenerFileEntryReference;
 import com.liferay.document.library.opener.service.DLOpenerFileEntryReferenceLocalService;
 import com.liferay.document.library.opener.service.persistence.DLOpenerFileEntryReferencePersistence;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +75,10 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 	/**
 	 * Adds the dl opener file entry reference to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLOpenerFileEntryReferenceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlOpenerFileEntryReference the dl opener file entry reference
 	 * @return the dl opener file entry reference that was added
 	 */
@@ -105,6 +111,10 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 	/**
 	 * Deletes the dl opener file entry reference with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLOpenerFileEntryReferenceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlOpenerFileEntryReferenceId the primary key of the dl opener file entry reference
 	 * @return the dl opener file entry reference that was removed
 	 * @throws PortalException if a dl opener file entry reference with the primary key could not be found
@@ -122,6 +132,10 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 	/**
 	 * Deletes the dl opener file entry reference from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLOpenerFileEntryReferenceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlOpenerFileEntryReference the dl opener file entry reference
 	 * @return the dl opener file entry reference that was removed
 	 */
@@ -132,6 +146,11 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 
 		return dlOpenerFileEntryReferencePersistence.remove(
 			dlOpenerFileEntryReference);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return dlOpenerFileEntryReferencePersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -316,6 +335,10 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 				(DLOpenerFileEntryReference)persistedModel);
 	}
 
+	public BasePersistence<DLOpenerFileEntryReference> getBasePersistence() {
+		return dlOpenerFileEntryReferencePersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -357,6 +380,10 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 
 	/**
 	 * Updates the dl opener file entry reference in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLOpenerFileEntryReferenceLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dlOpenerFileEntryReference the dl opener file entry reference
 	 * @return the dl opener file entry reference that was updated

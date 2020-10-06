@@ -32,7 +32,7 @@ if (socialUserStatisticsPortletInstanceConfiguration.rankByContribution()) {
 String[] rankingNames = rankingNamesList.toArray(new String[0]);
 
 if (!rankingNamesList.isEmpty()) {
-	SearchContainer searchContainer = new SearchContainer(renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, 5, portletURL, null, null);
+	SearchContainer<Tuple> searchContainer = new SearchContainer(renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, 5, portletURL, null, null);
 
 	int total = SocialActivityCounterLocalServiceUtil.getUserActivityCountersCount(scopeGroupId, rankingNames);
 
@@ -44,10 +44,12 @@ if (!rankingNamesList.isEmpty()) {
 	selectedNamesList.add(SocialActivityCounterConstants.NAME_PARTICIPATION);
 
 	if (socialUserStatisticsPortletInstanceConfiguration.displayAdditionalActivityCounters()) {
-		int displayActivityCounterNameCount = socialUserStatisticsPortletInstanceConfiguration.displayActivityCounterName().length;
+		String[] displayActivityCounterName = socialUserStatisticsPortletInstanceConfiguration.displayActivityCounterName();
+
+		int displayActivityCounterNameCount = displayActivityCounterName.length;
 
 		for (int displayActivityCounterNameIndex = 0; displayActivityCounterNameIndex < displayActivityCounterNameCount; displayActivityCounterNameIndex++) {
-			selectedNamesList.add(socialUserStatisticsPortletInstanceConfiguration.displayActivityCounterName()[displayActivityCounterNameIndex]);
+			selectedNamesList.add(displayActivityCounterName[displayActivityCounterNameIndex]);
 		}
 	}
 
@@ -57,7 +59,7 @@ if (!rankingNamesList.isEmpty()) {
 
 	searchContainer.setResults(results);
 
-	List resultRows = searchContainer.getResultRows();
+	List<com.liferay.portal.kernel.dao.search.ResultRow> resultRows = searchContainer.getResultRows();
 
 	for (int i = 0; i < results.size(); i++) {
 		Tuple tuple = results.get(i);
@@ -97,7 +99,7 @@ if (!rankingNamesList.isEmpty()) {
 		searchContainer="<%= searchContainer %>"
 	/>
 
-	<c:if test="<%= results.size() > 0 %>">
+	<c:if test="<%= !results.isEmpty() %>">
 		<div class="taglib-search-iterator-page-iterator-bottom" id="<portlet:namespace />searchTopUsers">
 			<liferay-ui:search-paginator
 				searchContainer="<%= searchContainer %>"

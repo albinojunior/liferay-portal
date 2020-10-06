@@ -17,6 +17,8 @@ package com.liferay.document.library.service.base;
 import com.liferay.document.library.model.DLFileVersionPreview;
 import com.liferay.document.library.service.DLFileVersionPreviewLocalService;
 import com.liferay.document.library.service.persistence.DLFileVersionPreviewPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -36,6 +38,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -73,6 +78,10 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 	/**
 	 * Adds the dl file version preview to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was added
 	 */
@@ -103,6 +112,10 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 	/**
 	 * Deletes the dl file version preview with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreviewId the primary key of the dl file version preview
 	 * @return the dl file version preview that was removed
 	 * @throws PortalException if a dl file version preview with the primary key could not be found
@@ -119,6 +132,10 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 	/**
 	 * Deletes the dl file version preview from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was removed
 	 */
@@ -128,6 +145,11 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 		DLFileVersionPreview dlFileVersionPreview) {
 
 		return dlFileVersionPreviewPersistence.remove(dlFileVersionPreview);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return dlFileVersionPreviewPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -311,6 +333,10 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 			(DLFileVersionPreview)persistedModel);
 	}
 
+	public BasePersistence<DLFileVersionPreview> getBasePersistence() {
+		return dlFileVersionPreviewPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -352,6 +378,10 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 	/**
 	 * Updates the dl file version preview in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was updated
 	 */
@@ -367,7 +397,8 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 	public Class<?>[] getAopInterfaces() {
 		return new Class<?>[] {
 			DLFileVersionPreviewLocalService.class,
-			IdentifiableOSGiService.class, PersistedModelLocalService.class
+			IdentifiableOSGiService.class, CTService.class,
+			PersistedModelLocalService.class
 		};
 	}
 
@@ -387,8 +418,23 @@ public abstract class DLFileVersionPreviewLocalServiceBaseImpl
 		return DLFileVersionPreviewLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<DLFileVersionPreview> getCTPersistence() {
+		return dlFileVersionPreviewPersistence;
+	}
+
+	@Override
+	public Class<DLFileVersionPreview> getModelClass() {
 		return DLFileVersionPreview.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DLFileVersionPreview>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(dlFileVersionPreviewPersistence);
 	}
 
 	protected String getModelClassName() {

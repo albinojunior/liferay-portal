@@ -84,10 +84,10 @@ boolean nodeInGroup = false;
 								<%
 								int total = WikiPageLocalServiceUtil.getPagesCount(nodeId, true);
 
-								List pages = WikiPageLocalServiceUtil.getPages(nodeId, true, 0, total);
+								List<WikiPage> pages = WikiPageLocalServiceUtil.getPages(nodeId, true, 0, total);
 
 								for (int i = 0; i < pages.size(); i++) {
-									WikiPage wikiPage = (WikiPage)pages.get(i);
+									WikiPage wikiPage = pages.get(i);
 								%>
 
 									<aui:option label="<%= wikiPage.getTitle() %>" selected="<%= wikiPage.getTitle().equals(title) || (Validator.isNull(title) && wikiPage.getTitle().equals(wikiGroupServiceConfiguration.frontPageName())) %>" />
@@ -113,7 +113,7 @@ boolean nodeInGroup = false;
 					if (nodeIdSelect) {
 						var nodeId = nodeIdSelect.value;
 
-						nodeIdSelect.addEventListener('change', function() {
+						nodeIdSelect.addEventListener('change', function () {
 							if (pageSelectorContainer) {
 								if (nodeIdSelect.value === nodeId) {
 									pageSelectorContainer.classList.remove('hide');

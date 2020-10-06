@@ -18,32 +18,42 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.admin.user.client.dto.v1_0.Role;
 import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.pagination.Pagination;
+import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.DataGuard;
+import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.test.rule.SynchronousMailTestRule;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Javier Gamarra
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class RoleResourceTest extends BaseRoleResourceTestCase {
+
+	@ClassRule
+	@Rule
+	public static final SynchronousMailTestRule synchronousMailTestRule =
+		SynchronousMailTestRule.INSTANCE;
 
 	@Before
 	@Override
@@ -53,16 +63,42 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		_user = UserTestUtil.addGroupAdminUser(testGroup);
 	}
 
-	@After
 	@Override
-	public void tearDown() throws Exception {
-		super.tearDown();
+	@Test
+	public void testDeleteOrganizationRoleUserAccountAssociation()
+		throws Exception {
 
-		for (Role role : _roles) {
-			RoleLocalServiceUtil.deleteRole(role.getId());
-		}
+		Role role = testDeleteOrganizationRoleUserAccountAssociation_addRole();
+		Organization organization = OrganizationTestUtil.addOrganization();
 
-		_roles = new ArrayList<>();
+		assertHttpResponseStatusCode(
+			204,
+			roleResource.
+				deleteOrganizationRoleUserAccountAssociationHttpResponse(
+					role.getId(), _user.getUserId(),
+					organization.getOrganizationId()));
+	}
+
+	@Override
+	@Test
+	public void testDeleteRoleUserAccountAssociation() throws Exception {
+		Role role = testDeleteRoleUserAccountAssociation_addRole();
+
+		assertHttpResponseStatusCode(
+			204,
+			roleResource.deleteRoleUserAccountAssociationHttpResponse(
+				role.getId(), _user.getUserId()));
+	}
+
+	@Override
+	@Test
+	public void testDeleteSiteRoleUserAccountAssociation() throws Exception {
+		Role role = testDeleteSiteRoleUserAccountAssociation_addRole();
+
+		assertHttpResponseStatusCode(
+			204,
+			roleResource.deleteSiteRoleUserAccountAssociationHttpResponse(
+				role.getId(), _user.getUserId(), testGroup.getGroupId()));
 	}
 
 	@Override
@@ -71,25 +107,123 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		Page<Role> page = roleResource.getRolesPage(Pagination.of(1, 100));
 
 		List<Role> roles = new ArrayList<>(page.getItems());
-		long totalCount = page.getTotalCount();
 
-		_addRole(randomRole());
-		_addRole(randomRole());
+		roles.add(_addRole(randomRole()));
+		roles.add(_addRole(randomRole()));
 
-		page = roleResource.getRolesPage(
-			Pagination.of(1, (int)totalCount + _roles.size()));
+		page = roleResource.getRolesPage(Pagination.of(1, roles.size()));
 
-		Assert.assertEquals(totalCount + _roles.size(), page.getTotalCount());
+		Assert.assertEquals(roles.size(), page.getTotalCount());
 
-		assertEqualsIgnoringOrder(
-			ListUtil.concat(roles, _roles), (List<Role>)page.getItems());
+		assertEqualsIgnoringOrder(roles, (List<Role>)page.getItems());
 		assertValid(page);
 	}
 
-	@Ignore
 	@Override
 	@Test
-	public void testGraphQLGetRolesPage() {
+	public void testGraphQLGetRolesPage() throws Exception {
+		GraphQLField graphQLField = new GraphQLField(
+			"roles",
+			(HashMap)HashMapBuilder.put(
+				"page", 1
+			).put(
+				"pageSize", 2
+			).build(),
+			new GraphQLField("page"), new GraphQLField("totalCount"));
+
+		int totalCount = JSONUtil.getValueAsInt(
+			invokeGraphQLQuery(graphQLField), "JSONObject/data",
+			"JSONObject/roles", "Object/totalCount");
+
+		testGraphQLRole_addRole();
+		testGraphQLRole_addRole();
+
+		Assert.assertEquals(
+			totalCount + 2,
+			JSONUtil.getValueAsInt(
+				invokeGraphQLQuery(graphQLField), "JSONObject/data",
+				"JSONObject/roles", "Object/totalCount"));
+	}
+
+	@Override
+	@Test
+	public void testPostOrganizationRoleUserAccountAssociation()
+		throws Exception {
+
+		Role role = testPostOrganizationRoleUserAccountAssociation_addRole();
+		Organization organization = OrganizationTestUtil.addOrganization();
+
+		assertHttpResponseStatusCode(
+			204,
+			roleResource.postOrganizationRoleUserAccountAssociationHttpResponse(
+				role.getId(), _user.getUserId(),
+				organization.getOrganizationId()));
+		assertHttpResponseStatusCode(
+			404,
+			roleResource.postOrganizationRoleUserAccountAssociationHttpResponse(
+				0L, _user.getUserId(), organization.getOrganizationId()));
+		assertHttpResponseStatusCode(
+			500,
+			roleResource.postOrganizationRoleUserAccountAssociationHttpResponse(
+				_getRoleId(_addRole(RoleConstants.TYPE_REGULAR)),
+				_user.getUserId(), organization.getOrganizationId()));
+		assertHttpResponseStatusCode(
+			500,
+			roleResource.postOrganizationRoleUserAccountAssociationHttpResponse(
+				_getRoleId(_addRole(RoleConstants.TYPE_SITE)),
+				_user.getUserId(), organization.getOrganizationId()));
+	}
+
+	@Override
+	@Test
+	public void testPostRoleUserAccountAssociation() throws Exception {
+		Role role = testPostRoleUserAccountAssociation_addRole();
+
+		assertHttpResponseStatusCode(
+			204,
+			roleResource.postRoleUserAccountAssociationHttpResponse(
+				role.getId(), _user.getUserId()));
+
+		assertHttpResponseStatusCode(
+			404,
+			roleResource.postRoleUserAccountAssociationHttpResponse(
+				0L, _user.getUserId()));
+		assertHttpResponseStatusCode(
+			500,
+			roleResource.postRoleUserAccountAssociationHttpResponse(
+				_getRoleId(_addRole(RoleConstants.TYPE_ORGANIZATION)),
+				_user.getUserId()));
+		assertHttpResponseStatusCode(
+			500,
+			roleResource.postRoleUserAccountAssociationHttpResponse(
+				_getRoleId(_addRole(RoleConstants.TYPE_SITE)),
+				_user.getUserId()));
+	}
+
+	@Override
+	@Test
+	public void testPostSiteRoleUserAccountAssociation() throws Exception {
+		Role role = testPostSiteRoleUserAccountAssociation_addRole();
+
+		assertHttpResponseStatusCode(
+			204,
+			roleResource.postSiteRoleUserAccountAssociationHttpResponse(
+				role.getId(), _user.getUserId(), testGroup.getGroupId()));
+
+		assertHttpResponseStatusCode(
+			404,
+			roleResource.postSiteRoleUserAccountAssociationHttpResponse(
+				0L, _user.getUserId(), testGroup.getGroupId()));
+		assertHttpResponseStatusCode(
+			500,
+			roleResource.postSiteRoleUserAccountAssociationHttpResponse(
+				_getRoleId(_addRole(RoleConstants.TYPE_REGULAR)),
+				_user.getUserId(), testGroup.getGroupId()));
+		assertHttpResponseStatusCode(
+			500,
+			roleResource.postSiteRoleUserAccountAssociationHttpResponse(
+				_getRoleId(_addRole(RoleConstants.TYPE_ORGANIZATION)),
+				_user.getUserId(), testGroup.getGroupId()));
 	}
 
 	@Override
@@ -110,6 +244,27 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 	}
 
 	@Override
+	protected Role testDeleteOrganizationRoleUserAccountAssociation_addRole()
+		throws Exception {
+
+		return _addRole(RoleConstants.TYPE_ORGANIZATION);
+	}
+
+	@Override
+	protected Role testDeleteRoleUserAccountAssociation_addRole()
+		throws Exception {
+
+		return _addRole(RoleConstants.TYPE_REGULAR);
+	}
+
+	@Override
+	protected Role testDeleteSiteRoleUserAccountAssociation_addRole()
+		throws Exception {
+
+		return _addRole(RoleConstants.TYPE_SITE);
+	}
+
+	@Override
 	protected Role testGetRole_addRole() throws Exception {
 		return _addRole(randomRole());
 	}
@@ -117,6 +272,35 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 	@Override
 	protected Role testGraphQLRole_addRole() throws Exception {
 		return testGetRole_addRole();
+	}
+
+	@Override
+	protected Role testPostOrganizationRoleUserAccountAssociation_addRole()
+		throws Exception {
+
+		return _addRole(RoleConstants.TYPE_ORGANIZATION);
+	}
+
+	@Override
+	protected Role testPostRoleUserAccountAssociation_addRole()
+		throws Exception {
+
+		return _addRole(RoleConstants.TYPE_REGULAR);
+	}
+
+	@Override
+	protected Role testPostSiteRoleUserAccountAssociation_addRole()
+		throws Exception {
+
+		return _addRole(RoleConstants.TYPE_SITE);
+	}
+
+	private Role _addRole(int type) throws Exception {
+		Role role = randomRole();
+
+		role.setRoleType(RoleConstants.getTypeLabel(type));
+
+		return _addRole(role);
 	}
 
 	private Role _addRole(Role role) throws Exception {
@@ -141,11 +325,11 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		RoleLocalServiceUtil.addUserRole(_user.getUserId(), serviceBuilderRole);
 
-		Role newRole = _toRole(serviceBuilderRole);
+		return _toRole(serviceBuilderRole);
+	}
 
-		_roles.add(newRole);
-
-		return newRole;
+	private long _getRoleId(Role role) {
+		return role.getId();
 	}
 
 	private Role _toRole(com.liferay.portal.kernel.model.Role role) {
@@ -173,9 +357,6 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 			"Invalid role type label " + roleTypeLabel);
 	}
 
-	private List<Role> _roles = new ArrayList<>();
-
-	@DeleteAfterTestRun
 	private User _user;
 
 }

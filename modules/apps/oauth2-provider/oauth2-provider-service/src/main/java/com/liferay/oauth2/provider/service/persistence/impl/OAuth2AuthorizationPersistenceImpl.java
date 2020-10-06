@@ -16,6 +16,7 @@ package com.liferay.oauth2.provider.service.persistence.impl;
 
 import com.liferay.oauth2.provider.exception.NoSuchOAuth2AuthorizationException;
 import com.liferay.oauth2.provider.model.OAuth2Authorization;
+import com.liferay.oauth2.provider.model.OAuth2AuthorizationTable;
 import com.liferay.oauth2.provider.model.OAuth2ScopeGrant;
 import com.liferay.oauth2.provider.model.impl.OAuth2AuthorizationImpl;
 import com.liferay.oauth2.provider.model.impl.OAuth2AuthorizationModelImpl;
@@ -23,6 +24,7 @@ import com.liferay.oauth2.provider.service.persistence.OAuth2AuthorizationPersis
 import com.liferay.oauth2.provider.service.persistence.impl.constants.OAuthTwoPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -33,13 +35,14 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -53,9 +56,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -247,10 +253,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -582,8 +584,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -760,10 +760,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1103,8 +1099,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1295,10 +1289,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -1668,8 +1658,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -1866,10 +1854,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -2239,8 +2223,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(finderPath, finderArgs);
-
 				throw processException(exception);
 			}
 			finally {
@@ -2260,17 +2242,19 @@ public class OAuth2AuthorizationPersistenceImpl
 			"oAuth2Authorization.refreshTokenContentHash = ?";
 
 	public OAuth2AuthorizationPersistenceImpl() {
-		setModelClass(OAuth2Authorization.class);
-
-		setModelImplClass(OAuth2AuthorizationImpl.class);
-		setModelPKClass(long.class);
-
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put(
 			"oAuth2ApplicationScopeAliasesId", "oA2AScopeAliasesId");
 
 		setDBColumnNames(dbColumnNames);
+
+		setModelClass(OAuth2Authorization.class);
+
+		setModelImplClass(OAuth2AuthorizationImpl.class);
+		setModelPKClass(long.class);
+
+		setTable(OAuth2AuthorizationTable.INSTANCE);
 	}
 
 	/**
@@ -2281,10 +2265,8 @@ public class OAuth2AuthorizationPersistenceImpl
 	@Override
 	public void cacheResult(OAuth2Authorization oAuth2Authorization) {
 		entityCache.putResult(
-			entityCacheEnabled, OAuth2AuthorizationImpl.class,
-			oAuth2Authorization.getPrimaryKey(), oAuth2Authorization);
-
-		oAuth2Authorization.resetOriginalValues();
+			OAuth2AuthorizationImpl.class, oAuth2Authorization.getPrimaryKey(),
+			oAuth2Authorization);
 	}
 
 	/**
@@ -2296,13 +2278,10 @@ public class OAuth2AuthorizationPersistenceImpl
 	public void cacheResult(List<OAuth2Authorization> oAuth2Authorizations) {
 		for (OAuth2Authorization oAuth2Authorization : oAuth2Authorizations) {
 			if (entityCache.getResult(
-					entityCacheEnabled, OAuth2AuthorizationImpl.class,
+					OAuth2AuthorizationImpl.class,
 					oAuth2Authorization.getPrimaryKey()) == null) {
 
 				cacheResult(oAuth2Authorization);
-			}
-			else {
-				oAuth2Authorization.resetOriginalValues();
 			}
 		}
 	}
@@ -2333,22 +2312,14 @@ public class OAuth2AuthorizationPersistenceImpl
 	@Override
 	public void clearCache(OAuth2Authorization oAuth2Authorization) {
 		entityCache.removeResult(
-			entityCacheEnabled, OAuth2AuthorizationImpl.class,
-			oAuth2Authorization.getPrimaryKey());
-
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+			OAuth2AuthorizationImpl.class, oAuth2Authorization);
 	}
 
 	@Override
 	public void clearCache(List<OAuth2Authorization> oAuth2Authorizations) {
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
 		for (OAuth2Authorization oAuth2Authorization : oAuth2Authorizations) {
 			entityCache.removeResult(
-				entityCacheEnabled, OAuth2AuthorizationImpl.class,
-				oAuth2Authorization.getPrimaryKey());
+				OAuth2AuthorizationImpl.class, oAuth2Authorization);
 		}
 	}
 
@@ -2359,8 +2330,7 @@ public class OAuth2AuthorizationPersistenceImpl
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Serializable primaryKey : primaryKeys) {
-			entityCache.removeResult(
-				entityCacheEnabled, OAuth2AuthorizationImpl.class, primaryKey);
+			entityCache.removeResult(OAuth2AuthorizationImpl.class, primaryKey);
 		}
 	}
 
@@ -2506,10 +2476,8 @@ public class OAuth2AuthorizationPersistenceImpl
 		try {
 			session = openSession();
 
-			if (oAuth2Authorization.isNew()) {
+			if (isNew) {
 				session.save(oAuth2Authorization);
-
-				oAuth2Authorization.setNew(false);
 			}
 			else {
 				oAuth2Authorization = (OAuth2Authorization)session.merge(
@@ -2523,160 +2491,13 @@ public class OAuth2AuthorizationPersistenceImpl
 			closeSession(session);
 		}
 
-		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (!_columnBitmaskEnabled) {
-			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-		else if (isNew) {
-			Object[] args = new Object[] {
-				oAuth2AuthorizationModelImpl.getUserId()
-			};
-
-			finderCache.removeResult(_finderPathCountByUserId, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByUserId, args);
-
-			args = new Object[] {
-				oAuth2AuthorizationModelImpl.getOAuth2ApplicationId()
-			};
-
-			finderCache.removeResult(
-				_finderPathCountByOAuth2ApplicationId, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByOAuth2ApplicationId, args);
-
-			args = new Object[] {
-				oAuth2AuthorizationModelImpl.getCompanyId(),
-				oAuth2AuthorizationModelImpl.getAccessTokenContentHash()
-			};
-
-			finderCache.removeResult(
-				_finderPathCountByAccessTokenContentHash, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByAccessTokenContentHash, args);
-
-			args = new Object[] {
-				oAuth2AuthorizationModelImpl.getCompanyId(),
-				oAuth2AuthorizationModelImpl.getRefreshTokenContentHash()
-			};
-
-			finderCache.removeResult(
-				_finderPathCountByRefreshTokenContentHash, args);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindByRefreshTokenContentHash,
-				args);
-
-			finderCache.removeResult(_finderPathCountAll, FINDER_ARGS_EMPTY);
-			finderCache.removeResult(
-				_finderPathWithoutPaginationFindAll, FINDER_ARGS_EMPTY);
-		}
-		else {
-			if ((oAuth2AuthorizationModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByUserId.getColumnBitmask()) !=
-					 0) {
-
-				Object[] args = new Object[] {
-					oAuth2AuthorizationModelImpl.getOriginalUserId()
-				};
-
-				finderCache.removeResult(_finderPathCountByUserId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByUserId, args);
-
-				args = new Object[] {oAuth2AuthorizationModelImpl.getUserId()};
-
-				finderCache.removeResult(_finderPathCountByUserId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByUserId, args);
-			}
-
-			if ((oAuth2AuthorizationModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByOAuth2ApplicationId.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					oAuth2AuthorizationModelImpl.
-						getOriginalOAuth2ApplicationId()
-				};
-
-				finderCache.removeResult(
-					_finderPathCountByOAuth2ApplicationId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByOAuth2ApplicationId,
-					args);
-
-				args = new Object[] {
-					oAuth2AuthorizationModelImpl.getOAuth2ApplicationId()
-				};
-
-				finderCache.removeResult(
-					_finderPathCountByOAuth2ApplicationId, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByOAuth2ApplicationId,
-					args);
-			}
-
-			if ((oAuth2AuthorizationModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByAccessTokenContentHash.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					oAuth2AuthorizationModelImpl.getOriginalCompanyId(),
-					oAuth2AuthorizationModelImpl.
-						getOriginalAccessTokenContentHash()
-				};
-
-				finderCache.removeResult(
-					_finderPathCountByAccessTokenContentHash, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByAccessTokenContentHash,
-					args);
-
-				args = new Object[] {
-					oAuth2AuthorizationModelImpl.getCompanyId(),
-					oAuth2AuthorizationModelImpl.getAccessTokenContentHash()
-				};
-
-				finderCache.removeResult(
-					_finderPathCountByAccessTokenContentHash, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByAccessTokenContentHash,
-					args);
-			}
-
-			if ((oAuth2AuthorizationModelImpl.getColumnBitmask() &
-				 _finderPathWithoutPaginationFindByRefreshTokenContentHash.
-					 getColumnBitmask()) != 0) {
-
-				Object[] args = new Object[] {
-					oAuth2AuthorizationModelImpl.getOriginalCompanyId(),
-					oAuth2AuthorizationModelImpl.
-						getOriginalRefreshTokenContentHash()
-				};
-
-				finderCache.removeResult(
-					_finderPathCountByRefreshTokenContentHash, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByRefreshTokenContentHash,
-					args);
-
-				args = new Object[] {
-					oAuth2AuthorizationModelImpl.getCompanyId(),
-					oAuth2AuthorizationModelImpl.getRefreshTokenContentHash()
-				};
-
-				finderCache.removeResult(
-					_finderPathCountByRefreshTokenContentHash, args);
-				finderCache.removeResult(
-					_finderPathWithoutPaginationFindByRefreshTokenContentHash,
-					args);
-			}
-		}
-
 		entityCache.putResult(
-			entityCacheEnabled, OAuth2AuthorizationImpl.class,
-			oAuth2Authorization.getPrimaryKey(), oAuth2Authorization, false);
+			OAuth2AuthorizationImpl.class, oAuth2AuthorizationModelImpl, false,
+			true);
+
+		if (isNew) {
+			oAuth2Authorization.setNew(false);
+		}
 
 		oAuth2Authorization.resetOriginalValues();
 
@@ -2859,10 +2680,6 @@ public class OAuth2AuthorizationPersistenceImpl
 				}
 			}
 			catch (Exception exception) {
-				if (useFinderCache) {
-					finderCache.removeResult(finderPath, finderArgs);
-				}
-
 				throw processException(exception);
 			}
 			finally {
@@ -2909,9 +2726,6 @@ public class OAuth2AuthorizationPersistenceImpl
 					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
 			catch (Exception exception) {
-				finderCache.removeResult(
-					_finderPathCountAll, FINDER_ARGS_EMPTY);
-
 				throw processException(exception);
 			}
 			finally {
@@ -3280,9 +3094,14 @@ public class OAuth2AuthorizationPersistenceImpl
 	 * Initializes the o auth2 authorization persistence.
 	 */
 	@Activate
-	public void activate() {
-		OAuth2AuthorizationModelImpl.setEntityCacheEnabled(entityCacheEnabled);
-		OAuth2AuthorizationModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+	public void activate(BundleContext bundleContext) {
+		_bundleContext = bundleContext;
+
+		_argumentsResolverServiceRegistration = _bundleContext.registerService(
+			ArgumentsResolver.class,
+			new OAuth2AuthorizationModelArgumentsResolver(),
+			MapUtil.singletonDictionary(
+				"model.class.name", OAuth2Authorization.class.getName()));
 
 		oAuth2AuthorizationToOAuth2ScopeGrantTableMapper =
 			TableMapperFactory.getTableMapper(
@@ -3290,127 +3109,115 @@ public class OAuth2AuthorizationPersistenceImpl
 				"OA2Auths_OA2ScopeGrants", "companyId", "oAuth2AuthorizationId",
 				"oAuth2ScopeGrantId", this, OAuth2ScopeGrant.class);
 
-		_finderPathWithPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+		_finderPathWithPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
+			new String[0], true);
 
-		_finderPathWithoutPaginationFindAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
-			new String[0]);
+		_finderPathWithoutPaginationFindAll = _createFinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0],
+			new String[0], true);
 
-		_finderPathCountAll = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountAll = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
-			new String[0]);
+			new String[0], new String[0], false);
 
-		_finderPathWithPaginationFindByUserId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
+		_finderPathWithPaginationFindByUserId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"userId"}, true);
 
-		_finderPathWithoutPaginationFindByUserId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
+		_finderPathWithoutPaginationFindByUserId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUserId",
-			new String[] {Long.class.getName()},
-			OAuth2AuthorizationModelImpl.USERID_COLUMN_BITMASK);
+			new String[] {Long.class.getName()}, new String[] {"userId"}, true);
 
-		_finderPathCountByUserId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByUserId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
-			new String[] {Long.class.getName()});
+			new String[] {Long.class.getName()}, new String[] {"userId"},
+			false);
 
-		_finderPathWithPaginationFindByOAuth2ApplicationId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
+		_finderPathWithPaginationFindByOAuth2ApplicationId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByOAuth2ApplicationId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
-			});
+			},
+			new String[] {"oAuth2ApplicationId"}, true);
 
-		_finderPathWithoutPaginationFindByOAuth2ApplicationId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
+		_finderPathWithoutPaginationFindByOAuth2ApplicationId =
+			_createFinderPath(
+				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+				"findByOAuth2ApplicationId",
+				new String[] {Long.class.getName()},
+				new String[] {"oAuth2ApplicationId"}, true);
+
+		_finderPathCountByOAuth2ApplicationId = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"findByOAuth2ApplicationId", new String[] {Long.class.getName()},
-			OAuth2AuthorizationModelImpl.OAUTH2APPLICATIONID_COLUMN_BITMASK);
+			"countByOAuth2ApplicationId", new String[] {Long.class.getName()},
+			new String[] {"oAuth2ApplicationId"}, false);
 
-		_finderPathCountByOAuth2ApplicationId = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByOAuth2ApplicationId", new String[] {Long.class.getName()});
-
-		_finderPathWithPaginationFindByAccessTokenContentHash = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByAccessTokenContentHash",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				Integer.class.getName(), Integer.class.getName(),
-				OrderByComparator.class.getName()
-			});
+		_finderPathWithPaginationFindByAccessTokenContentHash =
+			_createFinderPath(
+				FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
+				"findByAccessTokenContentHash",
+				new String[] {
+					Long.class.getName(), Long.class.getName(),
+					Integer.class.getName(), Integer.class.getName(),
+					OrderByComparator.class.getName()
+				},
+				new String[] {"companyId", "accessTokenContentHash"}, true);
 
 		_finderPathWithoutPaginationFindByAccessTokenContentHash =
-			new FinderPath(
-				entityCacheEnabled, finderCacheEnabled,
-				OAuth2AuthorizationImpl.class,
+			_createFinderPath(
 				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 				"findByAccessTokenContentHash",
 				new String[] {Long.class.getName(), Long.class.getName()},
-				OAuth2AuthorizationModelImpl.COMPANYID_COLUMN_BITMASK |
-				OAuth2AuthorizationModelImpl.
-					ACCESSTOKENCONTENTHASH_COLUMN_BITMASK);
+				new String[] {"companyId", "accessTokenContentHash"}, true);
 
-		_finderPathCountByAccessTokenContentHash = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByAccessTokenContentHash = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countByAccessTokenContentHash",
-			new String[] {Long.class.getName(), Long.class.getName()});
+			new String[] {Long.class.getName(), Long.class.getName()},
+			new String[] {"companyId", "accessTokenContentHash"}, false);
 
-		_finderPathWithPaginationFindByRefreshTokenContentHash = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled,
-			OAuth2AuthorizationImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByRefreshTokenContentHash",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				Integer.class.getName(), Integer.class.getName(),
-				OrderByComparator.class.getName()
-			});
+		_finderPathWithPaginationFindByRefreshTokenContentHash =
+			_createFinderPath(
+				FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
+				"findByRefreshTokenContentHash",
+				new String[] {
+					Long.class.getName(), Long.class.getName(),
+					Integer.class.getName(), Integer.class.getName(),
+					OrderByComparator.class.getName()
+				},
+				new String[] {"companyId", "refreshTokenContentHash"}, true);
 
 		_finderPathWithoutPaginationFindByRefreshTokenContentHash =
-			new FinderPath(
-				entityCacheEnabled, finderCacheEnabled,
-				OAuth2AuthorizationImpl.class,
+			_createFinderPath(
 				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 				"findByRefreshTokenContentHash",
 				new String[] {Long.class.getName(), Long.class.getName()},
-				OAuth2AuthorizationModelImpl.COMPANYID_COLUMN_BITMASK |
-				OAuth2AuthorizationModelImpl.
-					REFRESHTOKENCONTENTHASH_COLUMN_BITMASK);
+				new String[] {"companyId", "refreshTokenContentHash"}, true);
 
-		_finderPathCountByRefreshTokenContentHash = new FinderPath(
-			entityCacheEnabled, finderCacheEnabled, Long.class,
+		_finderPathCountByRefreshTokenContentHash = _createFinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countByRefreshTokenContentHash",
-			new String[] {Long.class.getName(), Long.class.getName()});
+			new String[] {Long.class.getName(), Long.class.getName()},
+			new String[] {"companyId", "refreshTokenContentHash"}, false);
 	}
 
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(OAuth2AuthorizationImpl.class.getName());
-		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		_argumentsResolverServiceRegistration.unregister();
+
+		for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
 
 		TableMapperFactory.removeTableMapper(
 			"OA2Auths_OA2ScopeGrants#oAuth2AuthorizationId");
@@ -3422,12 +3229,6 @@ public class OAuth2AuthorizationPersistenceImpl
 		unbind = "-"
 	)
 	public void setConfiguration(Configuration configuration) {
-		super.setConfiguration(configuration);
-
-		_columnBitmaskEnabled = GetterUtil.getBoolean(
-			configuration.get(
-				"value.object.column.bitmask.enabled.com.liferay.oauth2.provider.model.OAuth2Authorization"),
-			true);
 	}
 
 	@Override
@@ -3448,7 +3249,7 @@ public class OAuth2AuthorizationPersistenceImpl
 		super.setSessionFactory(sessionFactory);
 	}
 
-	private boolean _columnBitmaskEnabled;
+	private BundleContext _bundleContext;
 
 	@Reference
 	protected EntityCache entityCache;
@@ -3492,6 +3293,109 @@ public class OAuth2AuthorizationPersistenceImpl
 		catch (ClassNotFoundException classNotFoundException) {
 			throw new ExceptionInInitializerError(classNotFoundException);
 		}
+	}
+
+	private FinderPath _createFinderPath(
+		String cacheName, String methodName, String[] params,
+		String[] columnNames, boolean baseModelResult) {
+
+		FinderPath finderPath = new FinderPath(
+			cacheName, methodName, params, columnNames, baseModelResult);
+
+		if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+			_serviceRegistrations.add(
+				_bundleContext.registerService(
+					FinderPath.class, finderPath,
+					MapUtil.singletonDictionary("cache.name", cacheName)));
+		}
+
+		return finderPath;
+	}
+
+	private ServiceRegistration<ArgumentsResolver>
+		_argumentsResolverServiceRegistration;
+	private Set<ServiceRegistration<FinderPath>> _serviceRegistrations =
+		new HashSet<>();
+
+	private static class OAuth2AuthorizationModelArgumentsResolver
+		implements ArgumentsResolver {
+
+		@Override
+		public Object[] getArguments(
+			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
+			boolean original) {
+
+			String[] columnNames = finderPath.getColumnNames();
+
+			if ((columnNames == null) || (columnNames.length == 0)) {
+				if (baseModel.isNew()) {
+					return FINDER_ARGS_EMPTY;
+				}
+
+				return null;
+			}
+
+			OAuth2AuthorizationModelImpl oAuth2AuthorizationModelImpl =
+				(OAuth2AuthorizationModelImpl)baseModel;
+
+			long columnBitmask =
+				oAuth2AuthorizationModelImpl.getColumnBitmask();
+
+			if (!checkColumn || (columnBitmask == 0)) {
+				return _getValue(
+					oAuth2AuthorizationModelImpl, columnNames, original);
+			}
+
+			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
+				finderPath);
+
+			if (finderPathColumnBitmask == null) {
+				finderPathColumnBitmask = 0L;
+
+				for (String columnName : columnNames) {
+					finderPathColumnBitmask |=
+						oAuth2AuthorizationModelImpl.getColumnBitmask(
+							columnName);
+				}
+
+				_finderPathColumnBitmasksCache.put(
+					finderPath, finderPathColumnBitmask);
+			}
+
+			if ((columnBitmask & finderPathColumnBitmask) != 0) {
+				return _getValue(
+					oAuth2AuthorizationModelImpl, columnNames, original);
+			}
+
+			return null;
+		}
+
+		private Object[] _getValue(
+			OAuth2AuthorizationModelImpl oAuth2AuthorizationModelImpl,
+			String[] columnNames, boolean original) {
+
+			Object[] arguments = new Object[columnNames.length];
+
+			for (int i = 0; i < arguments.length; i++) {
+				String columnName = columnNames[i];
+
+				if (original) {
+					arguments[i] =
+						oAuth2AuthorizationModelImpl.getColumnOriginalValue(
+							columnName);
+				}
+				else {
+					arguments[i] = oAuth2AuthorizationModelImpl.getColumnValue(
+						columnName);
+				}
+			}
+
+			return arguments;
+		}
+
+		private static Map<FinderPath, Long> _finderPathColumnBitmasksCache =
+			new ConcurrentHashMap<>();
+
 	}
 
 }

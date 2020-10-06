@@ -1,5 +1,11 @@
 apply plugin: "com.liferay.alloy.taglib"
 
+buildCSS {
+	imports = [
+		new File(npmInstall.nodeModulesDir, "@clayui/css/src/scss")
+	]
+}
+
 buildTaglibs {
 	componentsXmlFiles "liferay-data-engine.xml"
 	javaPackage = "com.liferay.data.engine.taglib.servlet"
@@ -19,9 +25,11 @@ dependencies {
 	compileOnly project(":apps:data-engine:data-engine-api")
 	compileOnly project(":apps:data-engine:data-engine-rest-api")
 	compileOnly project(":apps:dynamic-data-mapping:dynamic-data-mapping-api")
+	compileOnly project(":apps:dynamic-data-mapping:dynamic-data-mapping-spi")
 	compileOnly project(":apps:frontend-editor:frontend-editor-taglib")
 	compileOnly project(":apps:frontend-js:frontend-js-loader-modules-extender-api")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib")
+	compileOnly project(":apps:frontend-taglib:frontend-taglib-clay")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib-react")
 	compileOnly project(":core:petra:petra-function")
 	compileOnly project(":core:petra:petra-lang")

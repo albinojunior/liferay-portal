@@ -16,12 +16,12 @@ package com.liferay.journal.internal.validation;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.exception.DuplicateFolderNameException;
 import com.liferay.journal.exception.InvalidDDMStructureException;
 import com.liferay.journal.exception.InvalidFolderException;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFolder;
-import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.journal.service.persistence.JournalFolderPersistence;
@@ -107,8 +107,13 @@ public class JournalFolderModelValidator
 		}
 
 		for (JournalFolder curFolder : folders) {
-			validateArticleDDMStructures(
-				curFolder.getFolderId(), ddmStructureIds);
+			if (curFolder.getRestrictionType() !=
+					JournalFolderConstants.
+						RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) {
+
+				validateArticleDDMStructures(
+					curFolder.getFolderId(), ddmStructureIds);
+			}
 		}
 	}
 

@@ -39,6 +39,10 @@ public class CompanyLocalServiceUtil {
 	/**
 	 * Adds the company to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param company the company
 	 * @return the company that was added
 	 */
@@ -49,8 +53,10 @@ public class CompanyLocalServiceUtil {
 	}
 
 	/**
-	 * Adds a company.
+	 * Adds a company with the primary key.
 	 *
+	 * @param companyId the primary key of the company (optionally <code>null</code> or
+	 <code>0</code> to generate a key automatically)
 	 * @param webId the the company's web domain
 	 * @param virtualHostname the company's virtual host name
 	 * @param mx the company's mail domain
@@ -61,6 +67,32 @@ public class CompanyLocalServiceUtil {
 	 * @param active whether the company is active
 	 * @return the company
 	 */
+	public static com.liferay.portal.kernel.model.Company addCompany(
+			Long companyId, String webId, String virtualHostname, String mx,
+			boolean system, int maxUsers, boolean active)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addCompany(
+			companyId, webId, virtualHostname, mx, system, maxUsers, active);
+	}
+
+	/**
+	 * Adds a company.
+	 *
+	 * @param webId the the company's web domain
+	 * @param virtualHostname the company's virtual host name
+	 * @param mx the company's mail domain
+	 * @param system whether the company is the very first company (i.e.,
+	 the super company)
+	 * @param maxUsers the max number of company users (optionally
+	 <code>0</code>)
+	 * @param active whether the company is active
+	 * @return the company
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #addCompany(Long, String, String, String, boolean, int,
+	 boolean)}
+	 */
+	@Deprecated
 	public static com.liferay.portal.kernel.model.Company addCompany(
 			String webId, String virtualHostname, String mx, boolean system,
 			int maxUsers, boolean active)
@@ -87,8 +119,7 @@ public class CompanyLocalServiceUtil {
 	}
 
 	/**
-	 * Returns the company with the web domain and mail domain. If no such
-	 * company exits, the method will create a new company.
+	 * Returns the company with the web domain and mail domain.
 	 *
 	 * The method goes through a series of checks to ensure that the company
 	 * contains default users, groups, etc.
@@ -141,6 +172,10 @@ public class CompanyLocalServiceUtil {
 	/**
 	 * Deletes the company from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param company the company
 	 * @return the company that was removed
 	 * @throws PortalException
@@ -154,6 +189,10 @@ public class CompanyLocalServiceUtil {
 
 	/**
 	 * Deletes the company with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param companyId the primary key of the company
 	 * @return the company that was removed
@@ -188,6 +227,12 @@ public class CompanyLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -564,6 +609,10 @@ public class CompanyLocalServiceUtil {
 	/**
 	 * Updates the company in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect CompanyLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param company the company
 	 * @return the company that was updated
 	 */
@@ -684,14 +733,14 @@ public class CompanyLocalServiceUtil {
 	 * Update the company's logo.
 	 *
 	 * @param companyId the primary key of the company
-	 * @param is the input stream of the company's logo image
+	 * @param inputStream the input stream of the company's logo image
 	 * @return the company with the primary key
 	 */
 	public static com.liferay.portal.kernel.model.Company updateLogo(
-			long companyId, java.io.InputStream is)
+			long companyId, java.io.InputStream inputStream)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return getService().updateLogo(companyId, is);
+		return getService().updateLogo(companyId, inputStream);
 	}
 
 	/**
@@ -699,14 +748,15 @@ public class CompanyLocalServiceUtil {
 	 * found in portal.properties.
 	 *
 	 * @param companyId the primary key of the company
-	 * @param properties the company's properties. See {@link UnicodeProperties}
+	 * @param unicodeProperties the company's properties. See {@link
+	 UnicodeProperties}
 	 */
 	public static void updatePreferences(
 			long companyId,
-			com.liferay.portal.kernel.util.UnicodeProperties properties)
+			com.liferay.portal.kernel.util.UnicodeProperties unicodeProperties)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		getService().updatePreferences(companyId, properties);
+		getService().updatePreferences(companyId, unicodeProperties);
 	}
 
 	/**

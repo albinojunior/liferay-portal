@@ -50,7 +50,6 @@ export default function EditCommentForm({
 					message: Liferay.Language.get(
 						'the-comment-could-not-be-edited'
 					),
-					title: Liferay.Language.get('error'),
 					type: 'danger',
 				});
 
@@ -65,7 +64,7 @@ export default function EditCommentForm({
 			loading={editingComment}
 			onCancelButtonClick={() => onCloseForm()}
 			onSubmitButtonClick={_handleCommentButtonClick}
-			onTextareaChange={content => setTextareaContent(content)}
+			onTextareaChange={(content) => setTextareaContent(content)}
 			showButtons
 			submitButtonLabel={Liferay.Language.get('update')}
 			textareaContent={textareaContent}

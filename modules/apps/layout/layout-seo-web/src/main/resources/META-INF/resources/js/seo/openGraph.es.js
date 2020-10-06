@@ -12,21 +12,14 @@
  * details.
  */
 
-import {ItemSelectorDialog} from 'frontend-js-web';
+import {openSelectionModal, toggleDisabled} from 'frontend-js-web';
 
 import {previewSeoFireChange} from './PreviewSeoEvents.es';
 
-export default function({namespace, uploadOpenGraphImageURL}) {
+export default function ({namespace, uploadOpenGraphImageURL}) {
 	const openGraphImageButton = document.getElementById(
 		`${namespace}openGraphImageButton`
 	);
-
-	const itemSelectorDialog = new ItemSelectorDialog({
-		eventName: `${namespace}openGraphImageSelectedItem`,
-		singleSelect: true,
-		title: Liferay.Language.get('open-graph-image'),
-		url: uploadOpenGraphImageURL,
-	});
 
 	const openGraphImageFileEntryId = document.getElementById(
 		`${namespace}openGraphImageFileEntryId`
@@ -40,37 +33,35 @@ export default function({namespace, uploadOpenGraphImageURL}) {
 		`${namespace}openGraphImageAlt`
 	);
 	const openGraphImageAltFieldDefaultLocale = document.getElementById(
-		`${namespace}openGraphImageAlt_${Liferay.ThemeDisplay.getLanguageId()}`
+		`${namespace}openGraphImageAlt_${Liferay.ThemeDisplay.getDefaultLanguageId()}`
 	);
 	const openGraphImageAltLabel = document.querySelector(
 		`[for="${namespace}openGraphImageAlt"`
 	);
 
-	itemSelectorDialog.on('selectedItemChange', event => {
-		const selectedItem = event.selectedItem;
-
-		if (selectedItem) {
-			const itemValue = JSON.parse(selectedItem.value);
-
-			openGraphImageFileEntryId.value = itemValue.fileEntryId;
-			openGraphImageTitle.value = itemValue.title;
-
-			Liferay.Util.toggleDisabled(openGraphImageAltField, false);
-			Liferay.Util.toggleDisabled(
-				openGraphImageAltFieldDefaultLocale,
-				false
-			);
-			Liferay.Util.toggleDisabled(openGraphImageAltLabel, false);
-
-			previewSeoFireChange(namespace, {
-				type: 'imgUrl',
-				value: itemValue.url,
-			});
-		}
-	});
-
 	openGraphImageButton.addEventListener('click', () => {
-		itemSelectorDialog.open();
+		openSelectionModal({
+			onSelect: (selectedItem) => {
+				if (selectedItem) {
+					const itemValue = JSON.parse(selectedItem.value);
+
+					openGraphImageFileEntryId.value = itemValue.fileEntryId;
+					openGraphImageTitle.value = itemValue.title;
+
+					previewSeoFireChange(namespace, {
+						type: 'imgUrl',
+						value: itemValue.url,
+					});
+
+					toggleDisabled(openGraphImageAltField, false);
+					toggleDisabled(openGraphImageAltFieldDefaultLocale, false);
+					toggleDisabled(openGraphImageAltLabel, false);
+				}
+			},
+			selectEventName: `${namespace}openGraphImageSelectedItem`,
+			title: Liferay.Language.get('open-graph-image'),
+			url: uploadOpenGraphImageURL,
+		});
 	});
 
 	const openGraphClearImageButton = document.getElementById(
@@ -81,9 +72,9 @@ export default function({namespace, uploadOpenGraphImageURL}) {
 		openGraphImageFileEntryId.value = '';
 		openGraphImageTitle.value = '';
 
-		Liferay.Util.toggleDisabled(openGraphImageAltField, true);
-		Liferay.Util.toggleDisabled(openGraphImageAltFieldDefaultLocale, true);
-		Liferay.Util.toggleDisabled(openGraphImageAltLabel, true);
+		toggleDisabled(openGraphImageAltField, true);
+		toggleDisabled(openGraphImageAltFieldDefaultLocale, true);
+		toggleDisabled(openGraphImageAltLabel, true);
 
 		previewSeoFireChange(namespace, {
 			type: 'imgUrl',
@@ -101,11 +92,11 @@ export default function({namespace, uploadOpenGraphImageURL}) {
 		`${namespace}openGraphTitle_${Liferay.ThemeDisplay.getLanguageId()}`
 	);
 
-	openGraphTitleEnabledCheck.addEventListener('click', event => {
+	openGraphTitleEnabledCheck.addEventListener('click', (event) => {
 		const disabled = !event.target.checked;
 
-		Liferay.Util.toggleDisabled(openGraphTitleField, disabled);
-		Liferay.Util.toggleDisabled(openGraphTitleFieldDefaultLocale, disabled);
+		toggleDisabled(openGraphTitleField, disabled);
+		toggleDisabled(openGraphTitleFieldDefaultLocale, disabled);
 
 		previewSeoFireChange(namespace, {
 			disabled,
@@ -124,14 +115,11 @@ export default function({namespace, uploadOpenGraphImageURL}) {
 		`${namespace}openGraphDescription_${Liferay.ThemeDisplay.getLanguageId()}`
 	);
 
-	openGraphDescriptionEnabledCheck.addEventListener('click', event => {
+	openGraphDescriptionEnabledCheck.addEventListener('click', (event) => {
 		const disabled = !event.target.checked;
 
-		Liferay.Util.toggleDisabled(openGraphDescriptionField, disabled);
-		Liferay.Util.toggleDisabled(
-			openGraphDescriptionFieldDefaultLocale,
-			disabled
-		);
+		toggleDisabled(openGraphDescriptionField, disabled);
+		toggleDisabled(openGraphDescriptionFieldDefaultLocale, disabled);
 
 		previewSeoFireChange(namespace, {
 			disabled,

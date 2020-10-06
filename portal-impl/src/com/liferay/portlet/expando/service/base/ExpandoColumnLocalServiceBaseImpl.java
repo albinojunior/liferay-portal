@@ -20,6 +20,8 @@ import com.liferay.expando.kernel.service.persistence.ExpandoColumnPersistence;
 import com.liferay.expando.kernel.service.persistence.ExpandoRowPersistence;
 import com.liferay.expando.kernel.service.persistence.ExpandoTablePersistence;
 import com.liferay.expando.kernel.service.persistence.ExpandoValuePersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,10 +41,12 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.SystemEventPersistence;
 import com.liferay.portal.kernel.service.persistence.UserFinder;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -77,6 +81,10 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 	/**
 	 * Adds the expando column to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoColumnLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param expandoColumn the expando column
 	 * @return the expando column that was added
 	 */
@@ -103,6 +111,10 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 	/**
 	 * Deletes the expando column with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoColumnLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param columnId the primary key of the expando column
 	 * @return the expando column that was removed
 	 * @throws PortalException if a expando column with the primary key could not be found
@@ -118,6 +130,10 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 	/**
 	 * Deletes the expando column from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoColumnLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param expandoColumn the expando column
 	 * @return the expando column that was removed
 	 */
@@ -125,6 +141,11 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 	@Override
 	public ExpandoColumn deleteExpandoColumn(ExpandoColumn expandoColumn) {
 		return expandoColumnPersistence.remove(expandoColumn);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return expandoColumnPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -295,6 +316,10 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 			(ExpandoColumn)persistedModel);
 	}
 
+	public BasePersistence<ExpandoColumn> getBasePersistence() {
+		return expandoColumnPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -333,6 +358,10 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 
 	/**
 	 * Updates the expando column in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect ExpandoColumnLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param expandoColumn the expando column
 	 * @return the expando column that was updated
@@ -723,8 +752,23 @@ public abstract class ExpandoColumnLocalServiceBaseImpl
 		return ExpandoColumnLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<ExpandoColumn> getCTPersistence() {
+		return expandoColumnPersistence;
+	}
+
+	@Override
+	public Class<ExpandoColumn> getModelClass() {
 		return ExpandoColumn.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<ExpandoColumn>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(expandoColumnPersistence);
 	}
 
 	protected String getModelClassName() {

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.service.base;
 
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -92,6 +94,10 @@ public abstract class KaleoDefinitionLocalServiceBaseImpl
 	/**
 	 * Adds the kaleo definition to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoDefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoDefinition the kaleo definition
 	 * @return the kaleo definition that was added
 	 */
@@ -118,6 +124,10 @@ public abstract class KaleoDefinitionLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo definition with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoDefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoDefinitionId the primary key of the kaleo definition
 	 * @return the kaleo definition that was removed
 	 * @throws PortalException if a kaleo definition with the primary key could not be found
@@ -133,6 +143,10 @@ public abstract class KaleoDefinitionLocalServiceBaseImpl
 	/**
 	 * Deletes the kaleo definition from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoDefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param kaleoDefinition the kaleo definition
 	 * @return the kaleo definition that was removed
 	 */
@@ -142,6 +156,11 @@ public abstract class KaleoDefinitionLocalServiceBaseImpl
 		KaleoDefinition kaleoDefinition) {
 
 		return kaleoDefinitionPersistence.remove(kaleoDefinition);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return kaleoDefinitionPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -313,6 +332,10 @@ public abstract class KaleoDefinitionLocalServiceBaseImpl
 			(KaleoDefinition)persistedModel);
 	}
 
+	public BasePersistence<KaleoDefinition> getBasePersistence() {
+		return kaleoDefinitionPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -351,6 +374,10 @@ public abstract class KaleoDefinitionLocalServiceBaseImpl
 
 	/**
 	 * Updates the kaleo definition in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect KaleoDefinitionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param kaleoDefinition the kaleo definition
 	 * @return the kaleo definition that was updated

@@ -14,7 +14,8 @@
 
 package com.liferay.analytics.message.sender.internal.model.listener;
 
-import com.liferay.analytics.message.sender.model.EntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.BaseEntityModelListener;
+import com.liferay.analytics.message.sender.model.listener.EntityModelListener;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.model.ModelListener;
@@ -37,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 public class UserGroupModelListener extends BaseEntityModelListener<UserGroup> {
 
 	@Override
-	public List<String> getAttributeNames() {
+	public List<String> getAttributeNames(long companyId) {
 		return _attributeNames;
 	}
 
@@ -54,6 +55,14 @@ public class UserGroupModelListener extends BaseEntityModelListener<UserGroup> {
 	@Override
 	public void onAfterRemove(UserGroup userGroup)
 		throws ModelListenerException {
+
+		if (!analyticsConfigurationTracker.isActive()) {
+			return;
+		}
+
+		if (isExcluded(userGroup)) {
+			return;
+		}
 
 		updateConfigurationProperties(
 			userGroup.getCompanyId(), "syncedUserGroupIds",

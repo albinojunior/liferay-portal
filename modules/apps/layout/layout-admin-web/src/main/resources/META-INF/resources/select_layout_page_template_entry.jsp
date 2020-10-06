@@ -33,9 +33,14 @@ portletDisplay.setURLBack(backURL);
 renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 %>
 
-<div class="container-fluid container-fluid-max-xl container-view" id="<portlet:namespace />layoutPageTemplateEntries">
-	<div class="row">
-		<div class="col-lg-3">
+<clay:container-fluid
+	cssClass="container-view"
+	id='<%= liferayPortletResponse.getNamespace() + "layoutPageTemplateEntries" %>'
+>
+	<clay:row>
+		<clay:col
+			lg="3"
+		>
 			<nav class="menubar menubar-transparent menubar-vertical-expand-lg">
 				<ul class="nav nav-nested">
 					<li class="nav-item">
@@ -65,22 +70,12 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 							%>
 
 							<li class="nav-item">
-
-								<%
-								String basicTemplatesURL = layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "basic-templates", layoutsAdminDisplayContext.isPrivateLayout());
-								%>
-
-								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isBasicTemplates() ? "active" : StringPool.BLANK %>" href="<%= basicTemplatesURL %>">
+								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isBasicTemplates() ? "active" : StringPool.BLANK %>" href="<%= layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "basic-templates", layoutsAdminDisplayContext.isPrivateLayout()) %>">
 									<liferay-ui:message key="basic-templates" />
 								</a>
 							</li>
 							<li class="nav-item">
-
-								<%
-								String globalTemplatesURL = layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "global-templates", layoutsAdminDisplayContext.isPrivateLayout());
-								%>
-
-								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isGlobalTemplates() ? "active" : StringPool.BLANK %>" href="<%= globalTemplatesURL %>">
+								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isGlobalTemplates() ? "active" : StringPool.BLANK %>" href="<%= layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "global-templates", layoutsAdminDisplayContext.isPrivateLayout()) %>">
 									<liferay-ui:message key="global-templates" />
 								</a>
 							</li>
@@ -88,13 +83,21 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 					</li>
 				</ul>
 			</nav>
-		</div>
+		</clay:col>
 
-		<div class="col-lg-9">
-			<div class="sheet">
+		<clay:col
+			lg="9"
+		>
+			<clay:sheet
+				size="full"
+			>
 				<h2 class="sheet-title">
-					<div class="autofit-row autofit-row-center">
-						<div class="autofit-col autofit-col-expand">
+					<clay:content-row
+						verticalAlign="center"
+					>
+						<clay:content-col
+							expand="<%= true %>"
+						>
 							<span class="text-uppercase">
 								<c:choose>
 									<c:when test="<%= selectLayoutPageTemplateEntryDisplayContext.isContentPages() %>">
@@ -115,8 +118,8 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 									</c:when>
 								</c:choose>
 							</span>
-						</div>
-					</div>
+						</clay:content-col>
+					</clay:content-row>
 				</h2>
 
 				<c:choose>
@@ -159,10 +162,10 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 						<liferay-util:include page="/select_global_templates.jsp" servletContext="<%= application %>" />
 					</c:otherwise>
 				</c:choose>
-			</div>
-		</div>
-	</div>
-</div>
+			</clay:sheet>
+		</clay:col>
+	</clay:row>
+</clay:container-fluid>
 
 <aui:script require="metal-dom/src/all/dom as dom">
 	var layoutPageTemplateEntries = document.getElementById(
@@ -173,22 +176,13 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 		layoutPageTemplateEntries,
 		'click',
 		'.add-layout-action-option',
-		function(event) {
-			var actionElement = event.delegateTarget;
-
-			Liferay.Util.openWindow({
-				dialog: {
-					destroyOnHide: true,
-					height: 480,
-					resizable: false,
-					width: 640,
-				},
-				dialogIframe: {
-					bodyCssClass: 'dialog-with-footer',
-				},
+		function (event) {
+			Liferay.Util.openModal({
+				height: '540px',
 				id: '<portlet:namespace />addLayoutDialog',
+				size: 'md',
 				title: '<liferay-ui:message key="add-page" />',
-				uri: actionElement.dataset.addLayoutUrl,
+				url: event.delegateTarget.dataset.addLayoutUrl,
 			});
 		}
 	);

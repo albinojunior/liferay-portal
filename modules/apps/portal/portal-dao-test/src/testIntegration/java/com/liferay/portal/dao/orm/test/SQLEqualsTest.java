@@ -132,8 +132,30 @@ public class SQLEqualsTest {
 		_assert("typeVarchar", 3, " != ");
 	}
 
-	private static void _assert(
-			String columnName, long expectedPK, String compare)
+	private static void _insert(
+			PreparedStatement ps, int pk, String typeBlob, boolean typeBoolean,
+			long typeDate, double typeDouble, int typeInteger, long typeLong,
+			String typeString, String typeText, String typeVarchar)
+		throws Exception {
+
+		ps.setLong(1, pk);
+		ps.setBlob(
+			2,
+			new UnsyncByteArrayInputStream(
+				typeBlob.getBytes(StandardCharsets.US_ASCII)));
+		ps.setBoolean(3, typeBoolean);
+		ps.setDate(4, new Date(typeDate));
+		ps.setDouble(5, typeDouble);
+		ps.setInt(6, typeInteger);
+		ps.setLong(7, typeLong);
+		ps.setString(8, typeString);
+		ps.setString(9, typeText);
+		ps.setString(10, typeVarchar);
+
+		ps.executeUpdate();
+	}
+
+	private void _assert(String columnName, long expectedPK, String compare)
 		throws Exception {
 
 		DB db = DBManagerUtil.getDB();
@@ -150,7 +172,18 @@ public class SQLEqualsTest {
 		sb.append("select t1.pk from SQLEqualsTest t1 inner join ");
 		sb.append("SQLEqualsTest t2 on t1.pk != 1 and t2.pk = 1 and ");
 
-		if (columnName.equals("typeText")) {
+		if (columnName.equals("typeBlob") &&
+			(db.getDBType() == DBType.SQLSERVER)) {
+
+			sb.append("CAST(t1.");
+			sb.append(columnName);
+			sb.append(" as varbinary)");
+			sb.append(compare);
+			sb.append("CAST(t2.");
+			sb.append(columnName);
+			sb.append(" as varbinary)");
+		}
+		else if (columnName.equals("typeText")) {
 			sb.append("CAST_CLOB_TEXT(t1.");
 			sb.append(columnName);
 			sb.append(")");
@@ -177,29 +210,6 @@ public class SQLEqualsTest {
 			Assert.assertEquals(sql, expectedPK, rs.getLong(1));
 			Assert.assertFalse(sql, rs.next());
 		}
-	}
-
-	private static void _insert(
-			PreparedStatement ps, int pk, String typeBlob, boolean typeBoolean,
-			long typeDate, double typeDouble, int typeInteger, long typeLong,
-			String typeString, String typeText, String typeVarchar)
-		throws Exception {
-
-		ps.setLong(1, pk);
-		ps.setBlob(
-			2,
-			new UnsyncByteArrayInputStream(
-				typeBlob.getBytes(StandardCharsets.US_ASCII)));
-		ps.setBoolean(3, typeBoolean);
-		ps.setDate(4, new Date(typeDate));
-		ps.setDouble(5, typeDouble);
-		ps.setInt(6, typeInteger);
-		ps.setLong(7, typeLong);
-		ps.setString(8, typeString);
-		ps.setString(9, typeText);
-		ps.setString(10, typeVarchar);
-
-		ps.executeUpdate();
 	}
 
 	private static DB _db;

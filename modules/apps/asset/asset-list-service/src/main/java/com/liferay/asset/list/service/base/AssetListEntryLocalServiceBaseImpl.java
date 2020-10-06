@@ -26,6 +26,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -47,6 +48,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -84,6 +86,10 @@ public abstract class AssetListEntryLocalServiceBaseImpl
 	/**
 	 * Adds the asset list entry to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetListEntry the asset list entry
 	 * @return the asset list entry that was added
 	 */
@@ -110,6 +116,10 @@ public abstract class AssetListEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the asset list entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetListEntryId the primary key of the asset list entry
 	 * @return the asset list entry that was removed
 	 * @throws PortalException if a asset list entry with the primary key could not be found
@@ -125,13 +135,25 @@ public abstract class AssetListEntryLocalServiceBaseImpl
 	/**
 	 * Deletes the asset list entry from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param assetListEntry the asset list entry
 	 * @return the asset list entry that was removed
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public AssetListEntry deleteAssetListEntry(AssetListEntry assetListEntry) {
+	public AssetListEntry deleteAssetListEntry(AssetListEntry assetListEntry)
+		throws PortalException {
+
 		return assetListEntryPersistence.remove(assetListEntry);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return assetListEntryPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -386,6 +408,10 @@ public abstract class AssetListEntryLocalServiceBaseImpl
 			(AssetListEntry)persistedModel);
 	}
 
+	public BasePersistence<AssetListEntry> getBasePersistence() {
+		return assetListEntryPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -473,6 +499,10 @@ public abstract class AssetListEntryLocalServiceBaseImpl
 
 	/**
 	 * Updates the asset list entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AssetListEntryLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param assetListEntry the asset list entry
 	 * @return the asset list entry that was updated

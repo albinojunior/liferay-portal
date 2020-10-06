@@ -1,23 +1,9 @@
 $c: '.ddm-form-builder';
 
 #{$c} {
-	.ddm-resize-column {
-		margin-left: -25px;
-		width: 21px;
-	}
-
-	.ddm-resize-column {
-		top: 0 !important;
-	}
-
 	.ddm-resize-handle {
 		top: calc(50% - 4px);
-	}
-
-	@for $range from 1 to 13 {
-		.ddm-resize-column:nth-child(#{$range}) {
-			left: $range * (100% / 12);
-		}
+		z-index: 1;
 	}
 
 	.ddm-field-container {
@@ -39,32 +25,45 @@ $c: '.ddm-form-builder';
 			opacity: 0;
 		}
 
-		&:hover,
-		&:active {
-			.ddm-resize-handle-left,
-			.ddm-resize-handle-right {
+		&:active,
+		&.hovered {
+			> .ddm-resize-handle-left,
+			> .ddm-resize-handle-right {
 				opacity: 0.5;
 			}
 		}
 	}
 
 	.resizeable .ddm-field-container {
-		&:hover,
 		&.dragging,
 		&.expanded,
+		&.hovered,
 		&.selected {
-			.ddm-resize-handle-left,
-			.ddm-resize-handle-right {
+			> .ddm-resize-handle-left,
+			> .ddm-resize-handle-right {
 				background-color: #1c67fb;
 				cursor: col-resize;
 				opacity: 1;
 			}
 		}
 	}
+
+	.resizeable .ddm-field-container {
+		&.ddm-fieldset {
+			&.hovered,
+			&.selected {
+				> .ddm-resize-handle-left,
+				> .ddm-resize-handle-right {
+					background-color: #5aca75;
+				}
+			}
+		}
+	}
 }
 
-.ddm-resize-handle,
-.ddm-resize-column {
+.ddm-resize-handle {
+	border: none !important;
+	border-radius: unset !important;
 	height: 8px;
 	position: absolute;
 	width: 8px;

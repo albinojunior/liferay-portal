@@ -21,13 +21,15 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
@@ -55,10 +57,11 @@ public class UsersManagementToolbarDisplayContext
 	extends SearchContainerManagementToolbarDisplayContext {
 
 	public UsersManagementToolbarDisplayContext(
-		HttpServletRequest httpServletRequest,
-		LiferayPortletRequest liferayPortletRequest,
-		LiferayPortletResponse liferayPortletResponse,
-		UsersDisplayContext usersDisplayContext) {
+			HttpServletRequest httpServletRequest,
+			LiferayPortletRequest liferayPortletRequest,
+			LiferayPortletResponse liferayPortletResponse,
+			UsersDisplayContext usersDisplayContext)
+		throws PortalException {
 
 		super(
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
@@ -250,27 +253,21 @@ public class UsersManagementToolbarDisplayContext
 
 		Role role = _usersDisplayContext.getRole();
 
-		return new LabelItemList() {
-			{
-				if (role != null) {
-					add(
-						labelItem -> {
-							PortletURL removeLabelURL = PortletURLUtil.clone(
-								currentURLObj, liferayPortletResponse);
+		return LabelItemListBuilder.add(
+			() -> role != null,
+			labelItem -> {
+				PortletURL removeLabelURL = PortletURLUtil.clone(
+					currentURLObj, liferayPortletResponse);
 
-							removeLabelURL.setParameter("roleId", "0");
+				removeLabelURL.setParameter("roleId", "0");
 
-							labelItem.putData(
-								"removeLabelURL", removeLabelURL.toString());
+				labelItem.putData("removeLabelURL", removeLabelURL.toString());
 
-							labelItem.setCloseable(true);
+				labelItem.setCloseable(true);
 
-							labelItem.setLabel(
-								role.getTitle(themeDisplay.getLocale()));
-						});
-				}
+				labelItem.setLabel(role.getTitle(themeDisplay.getLocale()));
 			}
-		};
+		).build();
 	}
 
 	@Override
@@ -377,6 +374,17 @@ public class UsersManagementToolbarDisplayContext
 		selectURL.setParameter("mvcPath", mvcPath);
 		selectURL.setParameter(
 			"groupId", String.valueOf(_usersDisplayContext.getGroupId()));
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Group scopeGroup = themeDisplay.getScopeGroup();
+
+		if (scopeGroup.isDepot()) {
+			selectURL.setParameter(
+				"roleType", String.valueOf(RoleConstants.TYPE_DEPOT));
+		}
+
 		selectURL.setWindowState(LiferayWindowState.POP_UP);
 
 		return selectURL.toString();

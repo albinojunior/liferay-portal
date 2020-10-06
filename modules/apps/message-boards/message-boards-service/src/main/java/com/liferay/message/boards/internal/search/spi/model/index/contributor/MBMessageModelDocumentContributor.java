@@ -105,6 +105,7 @@ public class MBMessageModelDocumentContributor
 		}
 
 		document.addKeyword("threadId", mbMessage.getThreadId());
+		document.addKeywordSortable("urlSubject", mbMessage.getUrlSubject());
 
 		if (!mbMessage.isDiscussion()) {
 			return;
@@ -152,9 +153,7 @@ public class MBMessageModelDocumentContributor
 				exception);
 		}
 
-		content = HtmlUtil.extractText(content);
-
-		return content;
+		return HtmlUtil.extractText(content);
 	}
 
 	@Reference

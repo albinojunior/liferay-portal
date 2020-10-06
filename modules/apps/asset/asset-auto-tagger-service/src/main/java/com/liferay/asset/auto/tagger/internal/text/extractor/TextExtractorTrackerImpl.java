@@ -34,11 +34,13 @@ import org.osgi.service.component.annotations.Deactivate;
 @Component(service = TextExtractorTracker.class)
 public class TextExtractorTrackerImpl implements TextExtractorTracker {
 
-	public TextExtractor getTextExtractor(String className) {
+	@Override
+	public TextExtractor<?> getTextExtractor(String className) {
 		return _serviceTrackerMap.getService(className);
 	}
 
-	public List<TextExtractor> getTextExtractors() {
+	@Override
+	public List<TextExtractor<?>> getTextExtractors() {
 		return new ArrayList<>(_serviceTrackerMap.values());
 	}
 

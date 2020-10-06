@@ -23,8 +23,11 @@ MBMessage message = (MBMessage)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_
 MBCategory category = (MBCategory)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CATEGORY);
 MBThread thread = (MBThread)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_THREAD);
 MBThreadFlag threadFlag = (MBThreadFlag)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_THREAD_FLAG);
-boolean lastNode = ((Boolean)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_LAST_NODE)).booleanValue();
-int depth = ((Integer)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH)).intValue();
+Boolean lastNodeBoolean = (Boolean)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_LAST_NODE);
+
+boolean lastNode = lastNodeBoolean.booleanValue();
+
+int depth = (Integer)request.getAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH);
 
 long threadFlagModifiedTime = 0;
 
@@ -109,13 +112,13 @@ if (threadFlag != null) {
 </c:if>
 
 <%
-List messages = treeWalker.getMessages();
+List<MBMessage> messages = treeWalker.getMessages();
 int[] range = treeWalker.getChildrenRange(message);
 
 depth++;
 
 for (int i = range[0]; i < range[1]; i++) {
-	MBMessage curMessage = (MBMessage)messages.get(i);
+	MBMessage curMessage = messages.get(i);
 
 	if (!MBUtil.isViewableMessage(themeDisplay, curMessage, message)) {
 		continue;

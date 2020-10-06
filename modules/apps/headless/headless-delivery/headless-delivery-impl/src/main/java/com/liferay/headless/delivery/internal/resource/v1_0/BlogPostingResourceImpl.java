@@ -20,7 +20,7 @@ import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.headless.common.spi.resource.SPIRatingResource;
-import com.liferay.headless.common.spi.service.context.ServiceContextUtil;
+import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.headless.delivery.dto.v1_0.BlogPosting;
 import com.liferay.headless.delivery.dto.v1_0.Image;
 import com.liferay.headless.delivery.dto.v1_0.Rating;
@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -50,7 +51,6 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.LocalDateTimeUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
-import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
 
 import java.io.Serializable;
@@ -112,18 +112,34 @@ public class BlogPostingResourceImpl
 
 	@Override
 	public Page<BlogPosting> getSiteBlogPostingsPage(
-			Long siteId, String search, Filter filter, Pagination pagination,
-			Sort[] sorts)
+			Long siteId, String search, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
-			_getListActions(siteId),
+			HashMapBuilder.put(
+				"create",
+				addAction(
+					"ADD_ENTRY", "postSiteBlogPosting", "com.liferay.blogs",
+					siteId)
+			).put(
+				"subscribe",
+				addAction(
+					"SUBSCRIBE", "putSiteBlogPostingSubscribe",
+					"com.liferay.blogs", siteId)
+			).put(
+				"unsubscribe",
+				addAction(
+					"SUBSCRIBE", "putSiteBlogPostingUnsubscribe",
+					"com.liferay.blogs", siteId)
+			).build(),
 			booleanQuery -> {
 			},
 			filter, BlogsEntry.class, search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
 				searchContext.setAttribute(
 					Field.STATUS, WorkflowConstants.STATUS_APPROVED);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
@@ -162,10 +178,11 @@ public class BlogPostingResourceImpl
 				localDateTime.getHour(), localDateTime.getMinute(), true, true,
 				new String[0], _getCaption(image), _getImageSelector(image),
 				null,
-				ServiceContextUtil.createServiceContext(
+				ServiceContextRequestUtil.createServiceContext(
 					blogPosting.getTaxonomyCategoryIds(),
 					blogPosting.getKeywords(),
 					_getExpandoBridgeAttributes(blogPosting), siteId,
+					contextHttpServletRequest,
 					blogPosting.getViewableByAsString())));
 	}
 
@@ -189,11 +206,11 @@ public class BlogPostingResourceImpl
 				localDateTime.getHour(), localDateTime.getMinute(), true, true,
 				new String[0], _getCaption(image), _getImageSelector(image),
 				null,
-				ServiceContextUtil.createServiceContext(
+				ServiceContextRequestUtil.createServiceContext(
 					blogPosting.getTaxonomyCategoryIds(),
 					blogPosting.getKeywords(),
 					_getExpandoBridgeAttributes(blogPosting),
-					blogsEntry.getGroupId(),
+					blogsEntry.getGroupId(), contextHttpServletRequest,
 					blogPosting.getViewableByAsString())));
 	}
 
@@ -245,20 +262,6 @@ public class BlogPostingResourceImpl
 		}
 	}
 
-	private Map<String, Map<String, String>> _getActions(
-		BlogsEntry blogsEntry) {
-
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"delete", addAction("DELETE", blogsEntry, "deleteBlogPosting")
-		).put(
-			"get", addAction("VIEW", blogsEntry, "getBlogPosting")
-		).put(
-			"replace", addAction("UPDATE", blogsEntry, "putBlogPosting")
-		).put(
-			"update", addAction("UPDATE", blogsEntry, "patchBlogPosting")
-		).build();
-	}
-
 	private String _getCaption(Image image) {
 		if (image == null) {
 			return null;
@@ -296,49 +299,30 @@ public class BlogPostingResourceImpl
 		}
 	}
 
-	private Map<String, Map<String, String>> _getListActions(Long siteId) {
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"create",
-			addAction(
-				"ADD_ENTRY", "postSiteBlogPosting", "com.liferay.blogs", siteId)
-		).put(
-			"subscribe",
-			addAction(
-				"SUBSCRIBE", "putSiteBlogPostingSubscribe", "com.liferay.blogs",
-				siteId)
-		).put(
-			"unsubscribe",
-			addAction(
-				"SUBSCRIBE", "putSiteBlogPostingUnsubscribe",
-				"com.liferay.blogs", siteId)
-		).build();
-	}
-
-	private Map<String, Map<String, String>> _getRatingActions(
-			RatingsEntry ratingsEntry)
-		throws Exception {
-
-		BlogsEntry blogsEntry = _blogsEntryService.getEntry(
-			ratingsEntry.getClassPK());
-
-		return HashMapBuilder.<String, Map<String, String>>put(
-			"create", addAction("UPDATE", blogsEntry, "postBlogPostingMyRating")
-		).put(
-			"delete",
-			addAction("UPDATE", blogsEntry, "deleteBlogPostingMyRating")
-		).put(
-			"get", addAction("VIEW", blogsEntry, "getBlogPostingMyRating")
-		).put(
-			"replace", addAction("UPDATE", blogsEntry, "putBlogPostingMyRating")
-		).build();
-	}
-
 	private SPIRatingResource<Rating> _getSPIRatingResource() {
 		return new SPIRatingResource<>(
 			BlogsEntry.class.getName(), _ratingsEntryLocalService,
-			ratingsEntry -> RatingUtil.toRating(
-				_getRatingActions(ratingsEntry), _portal, ratingsEntry,
-				_userLocalService),
+			ratingsEntry -> {
+				BlogsEntry blogsEntry = _blogsEntryService.getEntry(
+					ratingsEntry.getClassPK());
+
+				return RatingUtil.toRating(
+					HashMapBuilder.put(
+						"create",
+						addAction("VIEW", blogsEntry, "postBlogPostingMyRating")
+					).put(
+						"delete",
+						addAction(
+							"VIEW", blogsEntry, "deleteBlogPostingMyRating")
+					).put(
+						"get",
+						addAction("VIEW", blogsEntry, "getBlogPostingMyRating")
+					).put(
+						"replace",
+						addAction("VIEW", blogsEntry, "putBlogPostingMyRating")
+					).build(),
+					_portal, ratingsEntry, _userLocalService);
+			},
 			contextUser);
 	}
 
@@ -346,8 +330,18 @@ public class BlogPostingResourceImpl
 		return _blogPostingDTOConverter.toDTO(
 			new DefaultDTOConverterContext(
 				contextAcceptLanguage.isAcceptAllLanguages(),
-				_getActions(blogsEntry), _dtoConverterRegistry,
-				blogsEntry.getEntryId(),
+				HashMapBuilder.put(
+					"delete",
+					addAction("DELETE", blogsEntry, "deleteBlogPosting")
+				).put(
+					"get", addAction("VIEW", blogsEntry, "getBlogPosting")
+				).put(
+					"replace", addAction("UPDATE", blogsEntry, "putBlogPosting")
+				).put(
+					"update",
+					addAction("UPDATE", blogsEntry, "patchBlogPosting")
+				).build(),
+				_dtoConverterRegistry, blogsEntry.getEntryId(),
 				contextAcceptLanguage.getPreferredLocale(), contextUriInfo,
 				contextUser));
 	}

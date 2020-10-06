@@ -137,12 +137,11 @@ public class SingleLogoutProfileImpl
 			EntityDescriptor entityDescriptor = metadataResolver.resolveSingle(
 				new CriteriaSet(new EntityIdCriterion(entityId)));
 
-			IDPSSODescriptor idpSSODescriptor =
-				entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
-
 			SingleLogoutService singleLogoutService =
 				SamlUtil.resolveSingleLogoutService(
-					idpSSODescriptor, SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+					entityDescriptor.getIDPSSODescriptor(
+						SAMLConstants.SAML20P_NS),
+					SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 
 			if (singleLogoutService != null) {
 				String binding = singleLogoutService.getBinding();
@@ -269,10 +268,10 @@ public class SingleLogoutProfileImpl
 			MessageContext<?> messageContext = decodeSamlMessage(
 				httpServletRequest, httpServletResponse, samlBinding, true);
 
-			InOutOperationContext inOutOperationContext =
+			InOutOperationContext<?, ?> inOutOperationContext =
 				messageContext.getSubcontext(InOutOperationContext.class);
 
-			MessageContext inboundMessageContext =
+			MessageContext<?> inboundMessageContext =
 				inOutOperationContext.getInboundMessageContext();
 
 			Object inboundSamlMessage = inboundMessageContext.getMessage();
@@ -442,7 +441,7 @@ public class SingleLogoutProfileImpl
 		String samlSsoSessionId = getSamlSsoSessionId(httpServletRequest);
 
 		if (messageContext != null) {
-			InOutOperationContext inOutOperationContext =
+			InOutOperationContext<LogoutRequest, ?> inOutOperationContext =
 				messageContext.getSubcontext(InOutOperationContext.class);
 
 			MessageContext<LogoutRequest> inboundMessageContext =
@@ -491,13 +490,9 @@ public class SingleLogoutProfileImpl
 			httpServletRequest, null);
 
 		if (samlSloContext != null) {
-			String portalURL = portal.getPortalURL(httpServletRequest);
-
-			String redirect = portalURL.concat(
-				portal.getPathMain()
-			).concat(
-				"/portal/saml/slo_logout"
-			);
+			String redirect = StringBundler.concat(
+				portal.getPortalURL(httpServletRequest), portal.getPathMain(),
+				"/portal/saml/slo_logout");
 
 			httpServletResponse.sendRedirect(redirect);
 		}
@@ -742,7 +737,7 @@ public class SingleLogoutProfileImpl
 						" without an active SSO session");
 		}
 
-		InOutOperationContext inOutOperationContext =
+		InOutOperationContext<LogoutResponse, ?> inOutOperationContext =
 			messageContext.getSubcontext(InOutOperationContext.class);
 
 		MessageContext<LogoutResponse> inboundMessageContext =
@@ -815,8 +810,9 @@ public class SingleLogoutProfileImpl
 			MessageContext<?> messageContext)
 		throws Exception {
 
-		InOutOperationContext inOutOperationContext =
-			messageContext.getSubcontext(InOutOperationContext.class);
+		InOutOperationContext<LogoutRequest, LogoutResponse>
+			inOutOperationContext = messageContext.getSubcontext(
+				InOutOperationContext.class);
 
 		MessageContext<LogoutRequest> inboundMessageContext =
 			inOutOperationContext.getInboundMessageContext();
@@ -877,7 +873,7 @@ public class SingleLogoutProfileImpl
 
 		LogoutResponse logoutResponse = OpenSamlUtil.buildLogoutResponse();
 
-		MessageContext outboundMessageContext =
+		MessageContext<LogoutResponse> outboundMessageContext =
 			inOutOperationContext.getOutboundMessageContext();
 
 		SecurityParametersContext securityParametersContext =
@@ -934,8 +930,9 @@ public class SingleLogoutProfileImpl
 
 		logoutResponse.setDestination(singleLogoutService.getLocation());
 
-		outboundMessageContext.addSubcontext(samlSelfEntityContext);
+		outboundMessageContext.addSubcontext(samlBindingContext);
 		outboundMessageContext.addSubcontext(samlPeerEntityContext);
+		outboundMessageContext.addSubcontext(samlSelfEntityContext);
 
 		sendSamlMessage(messageContext, httpServletResponse);
 	}
@@ -960,19 +957,16 @@ public class SingleLogoutProfileImpl
 			terminateSpSession(httpServletRequest, httpServletResponse);
 		}
 
-		String portalURL = portal.getPortalURL(httpServletRequest);
-
-		String redirect = portalURL.concat(
-			portal.getPathMain()
-		).concat(
-			"/portal/logout"
-		);
+		String redirect = StringBundler.concat(
+			portal.getPortalURL(httpServletRequest), portal.getPathMain(),
+			"/portal/logout");
 
 		httpServletResponse.sendRedirect(redirect);
 	}
 
 	protected void sendAsyncLogoutRequest(
-			MessageContext messageContext, SamlSloContext samlSloContext,
+			MessageContext<LogoutRequest> messageContext,
+			SamlSloContext samlSloContext,
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
@@ -1058,9 +1052,10 @@ public class SingleLogoutProfileImpl
 			SamlSloRequestInfo samlSloRequestInfo)
 		throws Exception {
 
-		MessageContext<?> messageContext = getMessageContext(
-			httpServletRequest, httpServletResponse,
-			samlSloRequestInfo.getEntityId());
+		MessageContext<LogoutRequest> messageContext =
+			(MessageContext<LogoutRequest>)getMessageContext(
+				httpServletRequest, httpServletResponse,
+				samlSloRequestInfo.getEntityId());
 
 		SAMLPeerEntityContext samlPeerEntityContext =
 			messageContext.getSubcontext(SAMLPeerEntityContext.class);
@@ -1131,8 +1126,9 @@ public class SingleLogoutProfileImpl
 
 		MessageContext<?> messageContext = samlSloContext.getMessageContext();
 
-		InOutOperationContext inOutOperationContext =
-			messageContext.getSubcontext(InOutOperationContext.class);
+		InOutOperationContext<LogoutRequest, LogoutResponse>
+			inOutOperationContext = messageContext.getSubcontext(
+				InOutOperationContext.class);
 
 		MessageContext<LogoutRequest> inboundMessageContext =
 			inOutOperationContext.getInboundMessageContext();
@@ -1179,7 +1175,7 @@ public class SingleLogoutProfileImpl
 
 		logoutResponse.setVersion(SAMLVersion.VERSION_20);
 
-		MessageContext outboundMessageContext =
+		MessageContext<LogoutResponse> outboundMessageContext =
 			inOutOperationContext.getOutboundMessageContext();
 
 		outboundMessageContext.setMessage(logoutResponse);
@@ -1235,12 +1231,13 @@ public class SingleLogoutProfileImpl
 		MessageContext<?> messageContext = getMessageContext(
 			httpServletRequest, httpServletResponse, entityId);
 
-		InOutOperationContext inOutOperationContext = new InOutOperationContext(
-			new MessageContext(), new MessageContext());
+		InOutOperationContext<?, LogoutRequest> inOutOperationContext =
+			new InOutOperationContext(
+				new MessageContext(), new MessageContext());
 
 		messageContext.addSubcontext(inOutOperationContext);
 
-		MessageContext outboundMessageContext =
+		MessageContext<LogoutRequest> outboundMessageContext =
 			inOutOperationContext.getOutboundMessageContext();
 
 		outboundMessageContext.setMessage(logoutRequest);
@@ -1346,10 +1343,11 @@ public class SingleLogoutProfileImpl
 
 		addSessionIndex(logoutRequest, samlSloContext.getSamlSsoSessionId());
 
-		InOutOperationContext inOutOperationContext =
-			messageContext.getSubcontext(InOutOperationContext.class);
+		InOutOperationContext<LogoutResponse, LogoutRequest>
+			inOutOperationContext = messageContext.getSubcontext(
+				InOutOperationContext.class);
 
-		MessageContext outboundMessageContext =
+		MessageContext<LogoutRequest> outboundMessageContext =
 			inOutOperationContext.getOutboundMessageContext();
 
 		outboundMessageContext.addSubcontext(samlPeerEndpointSubcontext);

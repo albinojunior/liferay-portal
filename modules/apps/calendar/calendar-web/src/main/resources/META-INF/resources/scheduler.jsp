@@ -103,7 +103,7 @@ String viewCalendarBookingURL = ParamUtil.getString(request, "viewCalendarBookin
 	</c:if>
 
 	<c:if test="<%= !readOnly && (defaultCalendar != null) %>">
-		var width = Math.min(Liferay.Util.getWindowWidth(), 550);
+		var width = Math.min(window.innerWidth, 550);
 
 		window.<portlet:namespace />eventRecorder = new Liferay.SchedulerEventRecorder({
 			bodyTemplate: new A.Template(
@@ -235,7 +235,7 @@ String viewCalendarBookingURL = ParamUtil.getString(request, "viewCalendarBookin
 		views: views,
 	});
 
-	var destroySchedulers = function(event) {
+	var destroySchedulers = function (event) {
 		if (event.portletId === '<%= portletDisplay.getId() %>') {
 			window.<portlet:namespace />scheduler.destroy();
 

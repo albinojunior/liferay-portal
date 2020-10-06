@@ -36,6 +36,10 @@ public class BatchEngineExportTaskLocalServiceWrapper
 	/**
 	 * Adds the batch engine export task to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param batchEngineExportTask the batch engine export task
 	 * @return the batch engine export task that was added
 	 */
@@ -55,11 +59,12 @@ public class BatchEngineExportTaskLocalServiceWrapper
 			long companyId, long userId, String callbackURL, String className,
 			String contentType, String executeStatus,
 			java.util.List<String> fieldNamesList,
-			java.util.Map<String, java.io.Serializable> parameters) {
+			java.util.Map<String, java.io.Serializable> parameters,
+			String taskItemDelegateName) {
 
 		return _batchEngineExportTaskLocalService.addBatchEngineExportTask(
 			companyId, userId, callbackURL, className, contentType,
-			executeStatus, fieldNamesList, parameters);
+			executeStatus, fieldNamesList, parameters, taskItemDelegateName);
 	}
 
 	/**
@@ -91,6 +96,10 @@ public class BatchEngineExportTaskLocalServiceWrapper
 	/**
 	 * Deletes the batch engine export task from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param batchEngineExportTask the batch engine export task
 	 * @return the batch engine export task that was removed
 	 */
@@ -106,6 +115,10 @@ public class BatchEngineExportTaskLocalServiceWrapper
 
 	/**
 	 * Deletes the batch engine export task with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineExportTaskId the primary key of the batch engine export task
 	 * @return the batch engine export task that was removed
@@ -130,6 +143,11 @@ public class BatchEngineExportTaskLocalServiceWrapper
 
 		return _batchEngineExportTaskLocalService.deletePersistedModel(
 			persistedModel);
+	}
+
+	@Override
+	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+		return _batchEngineExportTaskLocalService.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -385,6 +403,10 @@ public class BatchEngineExportTaskLocalServiceWrapper
 
 	/**
 	 * Updates the batch engine export task in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect BatchEngineExportTaskLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param batchEngineExportTask the batch engine export task
 	 * @return the batch engine export task that was updated

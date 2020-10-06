@@ -26,31 +26,32 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 public class OAuth2AuthenticationConfig {
 
 	public String getConsumerKey() {
-		return _consumerKey;
+		return consumerKey;
 	}
 
 	public String getConsumerSecret() {
-		return _consumerSecret;
+		return consumerSecret;
 	}
 
-	public void setConsumerKey(String consumerKey) {
-		_consumerKey = consumerKey;
-	}
-
-	public void setConsumerSecret(String consumerSecret) {
-		_consumerSecret = consumerSecret;
+	public String getOpenApiSpecPath() {
+		return openApiSpecPath;
 	}
 
 	@DisplayName("Consumer Key")
 	@Expression(ExpressionSupport.NOT_SUPPORTED)
 	@Parameter
-	@Placement(order = 1)
-	private String _consumerKey;
+	@Placement(order = 2)
+	private String consumerKey;
 
 	@DisplayName("Consumer Secret")
 	@Expression(ExpressionSupport.NOT_SUPPORTED)
 	@Parameter
-	@Placement(order = 2)
-	private String _consumerSecret;
+	@Placement(order = 3)
+	private String consumerSecret;
+
+	@DisplayName("OpenAPI Spec URL")
+	@Parameter
+	@Placement(order = 1)
+	private String openApiSpecPath;
 
 }

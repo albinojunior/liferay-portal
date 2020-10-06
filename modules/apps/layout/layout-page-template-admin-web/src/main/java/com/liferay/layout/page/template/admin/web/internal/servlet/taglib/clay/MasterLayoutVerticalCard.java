@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.portlet.RenderRequest;
@@ -112,11 +113,8 @@ public class MasterLayoutVerticalCard
 			Layout layout = LayoutLocalServiceUtil.getLayout(
 				_layoutPageTemplateEntry.getPlid());
 
-			Layout draftLayout = LayoutLocalServiceUtil.fetchLayout(
-				PortalUtil.getClassNameId(Layout.class), layout.getPlid());
-
 			String layoutFullURL = PortalUtil.getLayoutFullURL(
-				draftLayout, _themeDisplay);
+				layout.fetchDraftLayout(), _themeDisplay);
 
 			layoutFullURL = HttpUtil.setParameter(
 				layoutFullURL, "p_l_mode", Constants.EDIT);
@@ -142,9 +140,28 @@ public class MasterLayoutVerticalCard
 
 	@Override
 	public List<LabelItem> getLabels() {
+		if (_isBlankMasterLayout()) {
+			return LabelItemListBuilder.add(
+				labelItem -> labelItem.setStatus(
+					WorkflowConstants.STATUS_APPROVED)
+			).build();
+		}
+
+		Layout layout = LayoutLocalServiceUtil.fetchLayout(
+			_layoutPageTemplateEntry.getPlid());
+
+		if (layout == null) {
+			return Collections.emptyList();
+		}
+
+		Layout draftLayout = layout.fetchDraftLayout();
+
+		if (draftLayout == null) {
+			return Collections.emptyList();
+		}
+
 		return LabelItemListBuilder.add(
-			labelItem -> labelItem.setStatus(
-				_layoutPageTemplateEntry.getStatus())
+			labelItem -> labelItem.setStatus(draftLayout.getStatus())
 		).build();
 	}
 
@@ -172,7 +189,7 @@ public class MasterLayoutVerticalCard
 
 	@Override
 	public String getSubtitle() {
-		int layoutsCount = LayoutLocalServiceUtil.getLayoutsCount(
+		int layoutsCount = LayoutLocalServiceUtil.getMasterLayoutsCount(
 			_themeDisplay.getScopeGroupId(),
 			_layoutPageTemplateEntry.getPlid());
 
@@ -188,6 +205,14 @@ public class MasterLayoutVerticalCard
 	@Override
 	public boolean isSelectable() {
 		if (_layoutPageTemplateEntry.getLayoutPageTemplateEntryId() > 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isBlankMasterLayout() {
+		if (_layoutPageTemplateEntry.getLayoutPageTemplateEntryId() == 0L) {
 			return true;
 		}
 

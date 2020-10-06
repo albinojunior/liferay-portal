@@ -24,8 +24,8 @@ const openGraphTagPatterns = [
 
 /**
  * Determines whether the given element is a valid OpenGraph meta tag
- * @param {object} element
- * @return {boolean}
+ * @param {Object} element
+ * @returns {boolean}
  */
 function isOpenGraphElement(element) {
 	let openGraphMetaTag = false;
@@ -34,7 +34,7 @@ function isOpenGraphElement(element) {
 		const property = element.getAttribute('property');
 
 		if (property) {
-			openGraphMetaTag = openGraphTagPatterns.some(regExp =>
+			openGraphMetaTag = openGraphTagPatterns.some((regExp) =>
 				property.match(regExp)
 			);
 		}
@@ -45,9 +45,9 @@ function isOpenGraphElement(element) {
 
 /**
  * Updates context with OpenGraph information
- * @param {object} request Request object to alter
- * @param {object} analytics Analytics instance
- * @return {object} The updated request object
+ * @param {Object} request Request object to alter
+ * @param {Object} analytics Analytics instance
+ * @returns {Object} The updated request object
  */
 function openGraph(request) {
 	const elements = [].slice.call(document.querySelectorAll('meta'));

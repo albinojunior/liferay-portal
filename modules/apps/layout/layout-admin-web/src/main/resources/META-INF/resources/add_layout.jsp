@@ -22,7 +22,9 @@ long sourcePlid = ParamUtil.getLong(request, "sourcePlid");
 List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.getAutoSiteNavigationMenus();
 %>
 
-<div class="container-fluid-1280 pt-2">
+<clay:container-fluid
+	cssClass="pb-9 pt-2"
+>
 	<liferay-frontend:edit-form
 		action="<%= (sourcePlid <= 0) ? layoutsAdminDisplayContext.getAddLayoutURL() : layoutsAdminDisplayContext.getCopyLayoutURL(sourcePlid) %>"
 		method="post"
@@ -30,7 +32,7 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 		onSubmit="event.preventDefault();"
 	>
 		<liferay-frontend:edit-form-body>
-			<aui:input label="name" name="name" required="<%= true %>" />
+			<aui:input autoFocus="<%= true %>" label="name" name="name" required="<%= true %>" />
 
 			<c:choose>
 				<c:when test="<%= autoSiteNavigationMenus.size() > 1 %>">
@@ -38,23 +40,27 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 
 					<liferay-ui:message key="add-this-page-to-the-following-menus" />
 
-					<div class="auto-site-navigation-menus container my-3">
-						<div class="row">
+					<clay:container-fluid
+						cssClass="auto-site-navigation-menus mt-3"
+					>
+						<clay:row>
 
 							<%
 							for (SiteNavigationMenu autoSiteNavigationMenu : autoSiteNavigationMenus) {
 							%>
 
-								<div class="col-6">
+								<clay:col
+									size="6"
+								>
 									<aui:input id='<%= "menu_" + autoSiteNavigationMenu.getSiteNavigationMenuId() %>' label="<%= HtmlUtil.escape(autoSiteNavigationMenu.getName()) %>" name="TypeSettingsProperties--siteNavigationMenuId--" type="checkbox" value="<%= autoSiteNavigationMenu.getSiteNavigationMenuId() %>" />
-								</div>
+								</clay:col>
 
 							<%
 							}
 							%>
 
-						</div>
-					</div>
+						</clay:row>
+					</clay:container-fluid>
 				</c:when>
 				<c:when test="<%= autoSiteNavigationMenus.size() == 1 %>">
 
@@ -62,11 +68,13 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 					SiteNavigationMenu autoSiteNavigationMenu = autoSiteNavigationMenus.get(0);
 					%>
 
-					<div class="auto-site-navigation-menus container mt-3">
-						<div class="row">
+					<clay:container-fluid
+						cssClass="auto-site-navigation-menus mt-3"
+					>
+						<clay:row>
 							<aui:input id='<%= "menu_" + autoSiteNavigationMenu.getSiteNavigationMenuId() %>' label='<%= LanguageUtil.format(request, "add-this-page-to-x", HtmlUtil.escape(autoSiteNavigationMenu.getName())) %>' name="TypeSettingsProperties--siteNavigationMenuId--" type="checkbox" value="<%= autoSiteNavigationMenu.getSiteNavigationMenuId() %>" />
-						</div>
-					</div>
+						</clay:row>
+					</clay:container-fluid>
 				</c:when>
 			</c:choose>
 
@@ -80,6 +88,7 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 								className="<%= Layout.class.getName() %>"
 								classPK="<%= 0 %>"
 								showOnlyRequiredVocabularies="<%= true %>"
+								visibilityTypes="<%= AssetVocabularyConstants.VISIBILITY_TYPES %>"
 							/>
 						</c:when>
 						<c:otherwise>
@@ -94,29 +103,38 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 
 		<liferay-frontend:edit-form-footer>
 			<clay:button
-				label='<%= LanguageUtil.get(resourceBundle, "add") %>'
+				label="add"
 				type="submit"
 			/>
 
 			<clay:button
-				elementClasses="btn-cancel btn-secondary"
-				label='<%= LanguageUtil.get(resourceBundle, "cancel") %>'
+				displayType="secondary"
+				elementClasses="btn-cancel"
+				label="cancel"
 			/>
 		</liferay-frontend:edit-form-footer>
 	</liferay-frontend:edit-form>
-</div>
+</clay:container-fluid>
 
-<aui:script use="liferay-alert">
+<aui:script>
 	var form = document.<portlet:namespace />fm;
 
-	form.addEventListener('submit', function(event) {
+	form.addEventListener('submit', function (event) {
 		event.stopPropagation();
 
 		var formData = new FormData();
 
+		formData.append('p_auth', Liferay.authToken);
+
+		formActionURL = new URL(form.action);
+
+		formActionURL.searchParams.delete('p_auth');
+
+		form.action = formActionURL;
+
 		Array.prototype.slice
 			.call(form.querySelectorAll('input'))
-			.forEach(function(input) {
+			.forEach(function (input) {
 				if (input.type == 'checkbox' && !input.checked) {
 					return;
 				}
@@ -130,10 +148,10 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 			body: formData,
 			method: 'POST',
 		})
-			.then(function(response) {
+			.then(function (response) {
 				return response.json();
 			})
-			.then(function(response) {
+			.then(function (response) {
 				if (response.redirectURL) {
 					var redirectURL = new URL(
 						response.redirectURL,
@@ -142,22 +160,18 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 
 					redirectURL.searchParams.set('p_p_state', 'normal');
 
-					Liferay.fire('closeWindow', {
+					var opener = Liferay.Util.getOpener();
+
+					opener.Liferay.fire('closeModal', {
 						id: '<portlet:namespace />addLayoutDialog',
 						redirect: redirectURL.toString(),
 					});
 				}
 				else {
-					new Liferay.Alert({
-						delay: {
-							hide: 3000,
-							show: 0,
-						},
-						duration: 500,
-						icon: 'exclamation-circle',
+					Liferay.Util.openToast({
 						message: response.errorMessage,
 						type: 'danger',
-					}).render();
+					});
 				}
 			});
 	});

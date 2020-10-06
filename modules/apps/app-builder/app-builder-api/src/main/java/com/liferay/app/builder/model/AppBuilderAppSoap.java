@@ -24,8 +24,10 @@ import java.util.List;
  * This class is used by SOAP remote services.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class AppBuilderAppSoap implements Serializable {
 
 	public static AppBuilderAppSoap toSoapModel(AppBuilderApp model) {
@@ -39,11 +41,13 @@ public class AppBuilderAppSoap implements Serializable {
 		soapModel.setUserName(model.getUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
+		soapModel.setActive(model.isActive());
+		soapModel.setDdlRecordSetId(model.getDdlRecordSetId());
 		soapModel.setDdmStructureId(model.getDdmStructureId());
 		soapModel.setDdmStructureLayoutId(model.getDdmStructureLayoutId());
 		soapModel.setDeDataListViewId(model.getDeDataListViewId());
 		soapModel.setName(model.getName());
-		soapModel.setStatus(model.getStatus());
+		soapModel.setScope(model.getScope());
 
 		return soapModel;
 	}
@@ -161,6 +165,26 @@ public class AppBuilderAppSoap implements Serializable {
 		_modifiedDate = modifiedDate;
 	}
 
+	public boolean getActive() {
+		return _active;
+	}
+
+	public boolean isActive() {
+		return _active;
+	}
+
+	public void setActive(boolean active) {
+		_active = active;
+	}
+
+	public long getDdlRecordSetId() {
+		return _ddlRecordSetId;
+	}
+
+	public void setDdlRecordSetId(long ddlRecordSetId) {
+		_ddlRecordSetId = ddlRecordSetId;
+	}
+
 	public long getDdmStructureId() {
 		return _ddmStructureId;
 	}
@@ -193,12 +217,12 @@ public class AppBuilderAppSoap implements Serializable {
 		_name = name;
 	}
 
-	public int getStatus() {
-		return _status;
+	public String getScope() {
+		return _scope;
 	}
 
-	public void setStatus(int status) {
-		_status = status;
+	public void setScope(String scope) {
+		_scope = scope;
 	}
 
 	private String _uuid;
@@ -209,10 +233,12 @@ public class AppBuilderAppSoap implements Serializable {
 	private String _userName;
 	private Date _createDate;
 	private Date _modifiedDate;
+	private boolean _active;
+	private long _ddlRecordSetId;
 	private long _ddmStructureId;
 	private long _ddmStructureLayoutId;
 	private long _deDataListViewId;
 	private String _name;
-	private int _status;
+	private String _scope;
 
 }

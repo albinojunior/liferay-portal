@@ -21,7 +21,7 @@
 >
 
 	<%
-	boolean numberInputType = ((type == ExpandoColumnConstants.DOUBLE) || (type == ExpandoColumnConstants.DOUBLE_ARRAY) || (type == ExpandoColumnConstants.FLOAT) || (type == ExpandoColumnConstants.FLOAT_ARRAY) || (type == ExpandoColumnConstants.INTEGER) || (type == ExpandoColumnConstants.INTEGER_ARRAY) || (type == ExpandoColumnConstants.LONG) || (type == ExpandoColumnConstants.LONG_ARRAY) || (type == ExpandoColumnConstants.SHORT) || (type == ExpandoColumnConstants.SHORT_ARRAY));
+	boolean numberInputType = (type == ExpandoColumnConstants.DOUBLE) || (type == ExpandoColumnConstants.DOUBLE_ARRAY) || (type == ExpandoColumnConstants.FLOAT) || (type == ExpandoColumnConstants.FLOAT_ARRAY) || (type == ExpandoColumnConstants.INTEGER) || (type == ExpandoColumnConstants.INTEGER_ARRAY) || (type == ExpandoColumnConstants.LONG) || (type == ExpandoColumnConstants.LONG_ARRAY) || (type == ExpandoColumnConstants.SHORT) || (type == ExpandoColumnConstants.SHORT_ARRAY);
 	%>
 
 	<div class="<%= numberInputType ? "" : "hide" %>" id="<portlet:namespace />precisionTypeAdvanced">
@@ -113,11 +113,7 @@
 		</div>
 	</aui:field-wrapper>
 
-	<%
-	boolean textInputType = (propertyDisplayType.equals(ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_INPUT_FIELD) || propertyDisplayType.equals(ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) && ((type == ExpandoColumnConstants.STRING) || (type == ExpandoColumnConstants.STRING_LOCALIZED));
-	%>
-
-	<c:if test="<%= textInputType %>">
+	<c:if test="<%= (propertyDisplayType.equals(ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_INPUT_FIELD) || propertyDisplayType.equals(ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) && ((type == ExpandoColumnConstants.STRING) || (type == ExpandoColumnConstants.STRING_LOCALIZED)) %>">
 		<div id="<portlet:namespace />widthAdvancedSetting">
 			<aui:field-wrapper cssClass="form-group lfr-input-text-container">
 				<aui:input label="width" name="Property--width--" type="text" value="<%= propertyWidth %>">
@@ -150,7 +146,7 @@
 	function populatePrecisionType(precisionTypeElement, numberSize) {
 		var numberSizeOptions = '';
 
-		numberSize.forEach(function(bit) {
+		numberSize.forEach(function (bit) {
 			numberSizeOptions += '<option value="' + bit + '">' + bit + '</option>';
 		});
 

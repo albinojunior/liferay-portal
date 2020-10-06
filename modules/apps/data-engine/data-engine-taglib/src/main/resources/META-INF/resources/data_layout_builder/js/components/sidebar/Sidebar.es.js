@@ -12,85 +12,22 @@
  * details.
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
-import ClayForm from '@clayui/form';
+import ClayLayout from '@clayui/layout';
 import classNames from 'classnames';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 
-import Button from '../button/Button.es';
 import SearchInput from '../search-input/SearchInput.es';
 
-const Sidebar = React.forwardRef(
-	(
-		{
-			children,
-			className,
-			closeable = true,
-			closed = false,
-			onSearch = null,
-			onToggle = () => {},
-		},
-		ref
-	) => {
-		const [isClosed, setClosed] = useState(closed);
-
-		const handleToggle = () => {
-			const closed = !isClosed;
-			setClosed(closed);
-			onToggle(closed);
-		};
-
-		useEffect(() => {
-			setClosed(closed);
-		}, [closed]);
-
-		return (
-			<div className={className} ref={ref}>
-				<div
-					className={classNames(
-						'data-layout-builder-sidebar',
-						'main',
-						{
-							closed: isClosed,
-						}
-					)}
-				>
-					<div className="sidebar sidebar-light">
-						{(closeable || onSearch) && (
-							<ClayForm
-								onSubmit={event => event.preventDefault()}
-							>
-								<SidebarSearchInput
-									closeable={closeable}
-									onSearch={onSearch}
-									onToggle={handleToggle}
-								/>
-							</ClayForm>
-						)}
-						{children}
-					</div>
-				</div>
-				{closeable && (
-					<div
-						className={classNames(
-							'data-layout-builder-sidebar',
-							'mini',
-							{
-								closed: !isClosed,
-							}
-						)}
-					>
-						<Button
-							displayType="secondary"
-							onClick={handleToggle}
-							symbol="angle-left"
-						/>
-					</div>
-				)}
-			</div>
-		);
-	}
-);
+const Sidebar = React.forwardRef(({children, className}, ref) => {
+	return (
+		<div
+			className={classNames(className, 'data-layout-builder-sidebar')}
+			ref={ref}
+		>
+			<div className="sidebar sidebar-light">{children}</div>
+		</div>
+	);
+});
 
 const SidebarBody = ({children, className}) => {
 	return (
@@ -110,55 +47,71 @@ const SidebarHeader = ({children, className}) => {
 	);
 };
 
-const SidebarSearchInput = ({closeable, onSearch, onToggle}) => (
-	<SidebarHeader>
-		<div className="autofit-row sidebar-section">
-			<div className="autofit-col autofit-col-expand">
-				{onSearch && (
-					<SearchInput
-						onChange={searchText => onSearch(searchText)}
-					/>
-				)}
-			</div>
-			<div className="autofit-col ml-2">
-				{closeable && (
-					<ClayButtonWithIcon
-						displayType="secondary"
-						onClick={onToggle}
-						symbol="angle-right"
-					/>
-				)}
-			</div>
-		</div>
-	</SidebarHeader>
+const SidebarSearchInput = ({children, onSearch, searchText}) => (
+	<ClayLayout.ContentRow className="sidebar-section">
+		<ClayLayout.ContentCol expand>
+			{onSearch && (
+				<SearchInput
+					onChange={(searchText) => onSearch(searchText)}
+					searchText={searchText}
+				/>
+			)}
+		</ClayLayout.ContentCol>
+
+		{children}
+	</ClayLayout.ContentRow>
 );
 
-const SidebarTab = ({tabs}) => {
+const SidebarTabs = ({
+	initialSelectedTab = 0,
+	setKeywords = () => {},
+	tabs,
+}) => {
+	const [selectedTab, setSelectedTab] = useState(initialSelectedTab);
+
+	return (
+		<>
+			<SidebarTab
+				onTabClick={(value) => {
+					setSelectedTab(value);
+					setKeywords('');
+				}}
+				selectedTab={selectedTab}
+				tabs={tabs}
+			/>
+
+			<SidebarTabContent>{tabs[selectedTab].render()}</SidebarTabContent>
+		</>
+	);
+};
+
+const SidebarTab = ({onTabClick, selectedTab, tabs}) => {
 	return (
 		<nav className="component-tbar tbar">
-			<div className="container-fluid">
+			<ClayLayout.ContainerFluid>
 				<ul className="nav nav-underline" role="tablist">
-					{tabs.map(({active, label, onClick}, index) => (
+					{tabs.map(({label}, index) => (
 						<li className="nav-item" key={index}>
-							<a
-								className={classNames('nav-link', {active})}
-								data-senna-off
-								href=""
-								onClick={event => {
-									event.preventDefault();
-
-									if (onClick) {
-										onClick(index);
+							<button
+								className={classNames(
+									'btn btn-unstyled nav-link',
+									{
+										active: selectedTab === index,
 									}
+								)}
+								data-senna-off
+								onClick={(event) => {
+									event.preventDefault();
+									onTabClick(index);
 								}}
 								role="tab"
 							>
 								{label}
-							</a>
+							</button>
 						</li>
 					))}
 				</ul>
-			</div>
+			</ClayLayout.ContainerFluid>
 		</nav>
 	);
 };
@@ -173,14 +126,24 @@ const SidebarTabContent = ({children}) => {
 	);
 };
 
+const SidebarTitle = ({title}) => (
+	<ClayLayout.ContentRow className="mb-3 sidebar-section">
+		<ClayLayout.ContentCol expand>
+			<div className="component-title">
+				<span className="text-truncate-inline">{title}</span>
+			</div>
+		</ClayLayout.ContentCol>
+	</ClayLayout.ContentRow>
+);
+
 Sidebar.Body = SidebarBody;
 Sidebar.Footer = SidebarFooter;
 Sidebar.Header = SidebarHeader;
 Sidebar.SearchInput = SidebarSearchInput;
 Sidebar.Tab = SidebarTab;
+Sidebar.Tabs = SidebarTabs;
 Sidebar.TabContent = SidebarTabContent;
-
-export default Sidebar;
+Sidebar.Title = SidebarTitle;
 
 export {
 	SidebarBody,
@@ -188,5 +151,8 @@ export {
 	SidebarHeader,
 	SidebarSearchInput,
 	SidebarTab,
+	SidebarTabs,
 	SidebarTabContent,
 };
+
+export default Sidebar;

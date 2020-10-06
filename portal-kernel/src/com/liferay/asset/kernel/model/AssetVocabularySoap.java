@@ -24,8 +24,10 @@ import java.util.List;
  * This class is used by SOAP remote services, specifically {@link com.liferay.portlet.asset.service.http.AssetVocabularyServiceSoap}.
  *
  * @author Brian Wing Shun Chan
+ * @deprecated As of Athanasius (7.3.x), with no direct replacement
  * @generated
  */
+@Deprecated
 public class AssetVocabularySoap implements Serializable {
 
 	public static AssetVocabularySoap toSoapModel(AssetVocabulary model) {
@@ -46,6 +48,7 @@ public class AssetVocabularySoap implements Serializable {
 		soapModel.setTitle(model.getTitle());
 		soapModel.setDescription(model.getDescription());
 		soapModel.setSettings(model.getSettings());
+		soapModel.setVisibilityType(model.getVisibilityType());
 		soapModel.setLastPublishDate(model.getLastPublishDate());
 
 		return soapModel;
@@ -226,6 +229,14 @@ public class AssetVocabularySoap implements Serializable {
 		_settings = settings;
 	}
 
+	public int getVisibilityType() {
+		return _visibilityType;
+	}
+
+	public void setVisibilityType(int visibilityType) {
+		_visibilityType = visibilityType;
+	}
+
 	public Date getLastPublishDate() {
 		return _lastPublishDate;
 	}
@@ -249,6 +260,7 @@ public class AssetVocabularySoap implements Serializable {
 	private String _title;
 	private String _description;
 	private String _settings;
+	private int _visibilityType;
 	private Date _lastPublishDate;
 
 }

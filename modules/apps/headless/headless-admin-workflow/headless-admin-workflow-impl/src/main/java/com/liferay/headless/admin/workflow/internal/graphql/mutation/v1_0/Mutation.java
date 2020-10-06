@@ -22,14 +22,27 @@ import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTask;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToMe;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToRole;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignToUser;
+import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignableUsers;
+import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskIds;
+import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskTransitions;
+import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTasksBulkSelection;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowInstanceResource;
+import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowTaskAssignableUsersResource;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowTaskResource;
+import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowTaskTransitionsResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.pagination.Page;
+import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.util.function.BiFunction;
 
 import javax.annotation.Generated;
 
@@ -69,6 +82,24 @@ public class Mutation {
 
 		_workflowTaskResourceComponentServiceObjects =
 			workflowTaskResourceComponentServiceObjects;
+	}
+
+	public static void
+		setWorkflowTaskAssignableUsersResourceComponentServiceObjects(
+			ComponentServiceObjects<WorkflowTaskAssignableUsersResource>
+				workflowTaskAssignableUsersResourceComponentServiceObjects) {
+
+		_workflowTaskAssignableUsersResourceComponentServiceObjects =
+			workflowTaskAssignableUsersResourceComponentServiceObjects;
+	}
+
+	public static void
+		setWorkflowTaskTransitionsResourceComponentServiceObjects(
+			ComponentServiceObjects<WorkflowTaskTransitionsResource>
+				workflowTaskTransitionsResourceComponentServiceObjects) {
+
+		_workflowTaskTransitionsResourceComponentServiceObjects =
+			workflowTaskTransitionsResourceComponentServiceObjects;
 	}
 
 	@GraphQLField
@@ -131,21 +162,6 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	public WorkflowDefinition createWorkflowDefinitionUpdateTitle(
-			@GraphQLName("name") String name,
-			@GraphQLName("title") String title,
-			@GraphQLName("version") String version)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_workflowDefinitionResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			workflowDefinitionResource ->
-				workflowDefinitionResource.postWorkflowDefinitionUpdateTitle(
-					name, title, version));
-	}
-
-	@GraphQLField
 	public WorkflowInstance createWorkflowInstanceSubmit(
 			@GraphQLName("workflowInstanceSubmit") WorkflowInstanceSubmit
 				workflowInstanceSubmit)
@@ -189,6 +205,30 @@ public class Mutation {
 	}
 
 	@GraphQLField
+	public java.util.Collection<WorkflowTask> createWorkflowTasksPage(
+			@GraphQLName("pageSize") int pageSize,
+			@GraphQLName("page") int page,
+			@GraphQLName("sort") String sortsString,
+			@GraphQLName("workflowTasksBulkSelection")
+				WorkflowTasksBulkSelection workflowTasksBulkSelection)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_workflowTaskResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowTaskResource -> {
+				Page paginationPage =
+					workflowTaskResource.postWorkflowTasksPage(
+						Pagination.of(page, pageSize),
+						_sortsBiFunction.apply(
+							workflowTaskResource, sortsString),
+						workflowTasksBulkSelection);
+
+				return paginationPage.getItems();
+			});
+	}
+
+	@GraphQLField
 	public boolean patchWorkflowTaskAssignToUser(
 			@GraphQLName("workflowTaskAssignToUsers") WorkflowTaskAssignToUser[]
 				workflowTaskAssignToUsers)
@@ -216,6 +256,22 @@ public class Mutation {
 			workflowTaskResource ->
 				workflowTaskResource.patchWorkflowTaskChangeTransition(
 					changeTransitions));
+
+		return true;
+	}
+
+	@GraphQLField
+	public boolean patchWorkflowTaskUpdateDueDate(
+			@GraphQLName("workflowTaskAssignToMes") WorkflowTaskAssignToMe[]
+				workflowTaskAssignToMes)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_workflowTaskResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowTaskResource ->
+				workflowTaskResource.patchWorkflowTaskUpdateDueDate(
+					workflowTaskAssignToMes));
 
 		return true;
 	}
@@ -294,6 +350,32 @@ public class Mutation {
 					workflowTaskId, workflowTaskAssignToMe));
 	}
 
+	@GraphQLField
+	public WorkflowTaskAssignableUsers createWorkflowTaskAssignableUser(
+			@GraphQLName("workflowTaskIds") WorkflowTaskIds workflowTaskIds)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_workflowTaskAssignableUsersResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowTaskAssignableUsersResource ->
+				workflowTaskAssignableUsersResource.
+					postWorkflowTaskAssignableUser(workflowTaskIds));
+	}
+
+	@GraphQLField
+	public WorkflowTaskTransitions createWorkflowTaskTransition(
+			@GraphQLName("workflowTaskIds") WorkflowTaskIds workflowTaskIds)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_workflowTaskTransitionsResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowTaskTransitionsResource ->
+				workflowTaskTransitionsResource.postWorkflowTaskTransition(
+					workflowTaskIds));
+	}
+
 	private <T, R, E1 extends Throwable, E2 extends Throwable> R
 			_applyComponentServiceObjects(
 				ComponentServiceObjects<T> componentServiceObjects,
@@ -344,6 +426,8 @@ public class Mutation {
 			_httpServletResponse);
 		workflowDefinitionResource.setContextUriInfo(_uriInfo);
 		workflowDefinitionResource.setContextUser(_user);
+		workflowDefinitionResource.setGroupLocalService(_groupLocalService);
+		workflowDefinitionResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(
@@ -358,6 +442,8 @@ public class Mutation {
 			_httpServletResponse);
 		workflowInstanceResource.setContextUriInfo(_uriInfo);
 		workflowInstanceResource.setContextUser(_user);
+		workflowInstanceResource.setGroupLocalService(_groupLocalService);
+		workflowInstanceResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(
@@ -371,6 +457,46 @@ public class Mutation {
 			_httpServletResponse);
 		workflowTaskResource.setContextUriInfo(_uriInfo);
 		workflowTaskResource.setContextUser(_user);
+		workflowTaskResource.setGroupLocalService(_groupLocalService);
+		workflowTaskResource.setRoleLocalService(_roleLocalService);
+	}
+
+	private void _populateResourceContext(
+			WorkflowTaskAssignableUsersResource
+				workflowTaskAssignableUsersResource)
+		throws Exception {
+
+		workflowTaskAssignableUsersResource.setContextAcceptLanguage(
+			_acceptLanguage);
+		workflowTaskAssignableUsersResource.setContextCompany(_company);
+		workflowTaskAssignableUsersResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		workflowTaskAssignableUsersResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		workflowTaskAssignableUsersResource.setContextUriInfo(_uriInfo);
+		workflowTaskAssignableUsersResource.setContextUser(_user);
+		workflowTaskAssignableUsersResource.setGroupLocalService(
+			_groupLocalService);
+		workflowTaskAssignableUsersResource.setRoleLocalService(
+			_roleLocalService);
+	}
+
+	private void _populateResourceContext(
+			WorkflowTaskTransitionsResource workflowTaskTransitionsResource)
+		throws Exception {
+
+		workflowTaskTransitionsResource.setContextAcceptLanguage(
+			_acceptLanguage);
+		workflowTaskTransitionsResource.setContextCompany(_company);
+		workflowTaskTransitionsResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		workflowTaskTransitionsResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		workflowTaskTransitionsResource.setContextUriInfo(_uriInfo);
+		workflowTaskTransitionsResource.setContextUser(_user);
+		workflowTaskTransitionsResource.setGroupLocalService(
+			_groupLocalService);
+		workflowTaskTransitionsResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private static ComponentServiceObjects<WorkflowDefinitionResource>
@@ -379,12 +505,19 @@ public class Mutation {
 		_workflowInstanceResourceComponentServiceObjects;
 	private static ComponentServiceObjects<WorkflowTaskResource>
 		_workflowTaskResourceComponentServiceObjects;
+	private static ComponentServiceObjects<WorkflowTaskAssignableUsersResource>
+		_workflowTaskAssignableUsersResourceComponentServiceObjects;
+	private static ComponentServiceObjects<WorkflowTaskTransitionsResource>
+		_workflowTaskTransitionsResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
 	private com.liferay.portal.kernel.model.Company _company;
-	private com.liferay.portal.kernel.model.User _user;
+	private GroupLocalService _groupLocalService;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
+	private RoleLocalService _roleLocalService;
+	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
+	private com.liferay.portal.kernel.model.User _user;
 
 }

@@ -26,6 +26,10 @@ public class DataRecordCollectionUtil {
 	public static DataRecordCollection toDataRecordCollection(
 		DDLRecordSet ddlRecordSet) {
 
+		if (ddlRecordSet == null) {
+			return new DataRecordCollection();
+		}
+
 		return new DataRecordCollection() {
 			{
 				dataDefinitionId = ddlRecordSet.getDDMStructureId();

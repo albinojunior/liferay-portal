@@ -20,6 +20,8 @@ import com.liferay.document.library.kernel.service.persistence.DLFileEntryMetada
 import com.liferay.document.library.kernel.service.persistence.DLFileEntryMetadataPersistence;
 import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypeFinder;
 import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypePersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -39,7 +41,9 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -74,6 +78,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	/**
 	 * Adds the document library file entry metadata to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileEntryMetadataLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileEntryMetadata the document library file entry metadata
 	 * @return the document library file entry metadata that was added
 	 */
@@ -104,6 +112,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	/**
 	 * Deletes the document library file entry metadata with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileEntryMetadataLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param fileEntryMetadataId the primary key of the document library file entry metadata
 	 * @return the document library file entry metadata that was removed
 	 * @throws PortalException if a document library file entry metadata with the primary key could not be found
@@ -120,6 +132,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	/**
 	 * Deletes the document library file entry metadata from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileEntryMetadataLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileEntryMetadata the document library file entry metadata
 	 * @return the document library file entry metadata that was removed
 	 */
@@ -129,6 +145,11 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 		DLFileEntryMetadata dlFileEntryMetadata) {
 
 		return dlFileEntryMetadataPersistence.remove(dlFileEntryMetadata);
+	}
+
+	@Override
+	public <T> T dslQuery(DSLQuery dslQuery) {
+		return dlFileEntryMetadataPersistence.dslQuery(dslQuery);
 	}
 
 	@Override
@@ -324,6 +345,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 			(DLFileEntryMetadata)persistedModel);
 	}
 
+	public BasePersistence<DLFileEntryMetadata> getBasePersistence() {
+		return dlFileEntryMetadataPersistence;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -381,6 +406,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 
 	/**
 	 * Updates the document library file entry metadata in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileEntryMetadataLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dlFileEntryMetadata the document library file entry metadata
 	 * @return the document library file entry metadata that was updated
@@ -606,8 +635,23 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 		return DLFileEntryMetadataLocalService.class.getName();
 	}
 
-	protected Class<?> getModelClass() {
+	@Override
+	public CTPersistence<DLFileEntryMetadata> getCTPersistence() {
+		return dlFileEntryMetadataPersistence;
+	}
+
+	@Override
+	public Class<DLFileEntryMetadata> getModelClass() {
 		return DLFileEntryMetadata.class;
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DLFileEntryMetadata>, R, E>
+				updateUnsafeFunction)
+		throws E {
+
+		return updateUnsafeFunction.apply(dlFileEntryMetadataPersistence);
 	}
 
 	protected String getModelClassName() {

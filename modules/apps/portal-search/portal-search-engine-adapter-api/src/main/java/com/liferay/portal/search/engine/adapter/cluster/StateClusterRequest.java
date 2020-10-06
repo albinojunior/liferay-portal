@@ -25,6 +25,8 @@ public class StateClusterRequest
 
 	public StateClusterRequest(String[] indexNames) {
 		_indexNames = indexNames;
+
+		setPreferLocalCluster(true);
 	}
 
 	@Override

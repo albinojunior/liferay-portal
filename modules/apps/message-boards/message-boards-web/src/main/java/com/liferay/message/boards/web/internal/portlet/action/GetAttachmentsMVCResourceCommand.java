@@ -16,10 +16,8 @@ package com.liferay.message.boards.web.internal.portlet.action;
 
 import com.liferay.message.boards.constants.MBPortletKeys;
 import com.liferay.message.boards.model.MBMessage;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
@@ -89,33 +87,32 @@ public class GetAttachmentsMVCResourceCommand extends BaseMVCResourceCommand {
 	private JSONArray _getAttachmentsJSONArray(
 			MBMessage message, List<FileEntry> attachmentsFileEntries,
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws PortalException {
+		throws Exception {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (FileEntry fileEntry : attachmentsFileEntries) {
-			JSONObject jsonObject = JSONUtil.put(
-				"deleteURL",
-				_getDeleteURL(
-					message, resourceRequest, resourceResponse, fileEntry)
-			).put(
-				"id", fileEntry.getFileEntryId()
-			).put(
-				"size",
-				LanguageUtil.formatStorageSize(
-					fileEntry.getSize(), resourceRequest.getLocale())
-			).put(
-				"title", fileEntry.getTitle()
-			);
-
-			jsonArray.put(jsonObject);
+			jsonArray.put(
+				JSONUtil.put(
+					"deleteURL",
+					_getDeleteURL(
+						message, resourceRequest, resourceResponse, fileEntry)
+				).put(
+					"id", fileEntry.getFileEntryId()
+				).put(
+					"size",
+					LanguageUtil.formatStorageSize(
+						fileEntry.getSize(), resourceRequest.getLocale())
+				).put(
+					"title", fileEntry.getTitle()
+				));
 		}
 
 		return jsonArray;
 	}
 
 	private String _getDeleteCommand(ResourceRequest resourceRequest)
-		throws PortalException {
+		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -130,7 +127,7 @@ public class GetAttachmentsMVCResourceCommand extends BaseMVCResourceCommand {
 	private PortletURL _getDeleteURL(
 			MBMessage message, ResourceRequest resourceRequest,
 			ResourceResponse resourceResponse, FileEntry fileEntry)
-		throws PortalException {
+		throws Exception {
 
 		PortletURL deleteURL = resourceResponse.createActionURL();
 

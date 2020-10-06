@@ -41,6 +41,10 @@ public class DLFileVersionPreviewLocalServiceUtil {
 	/**
 	 * Adds the dl file version preview to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was added
 	 */
@@ -89,6 +93,10 @@ public class DLFileVersionPreviewLocalServiceUtil {
 	/**
 	 * Deletes the dl file version preview from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was removed
 	 */
@@ -102,6 +110,10 @@ public class DLFileVersionPreviewLocalServiceUtil {
 
 	/**
 	 * Deletes the dl file version preview with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dlFileVersionPreviewId the primary key of the dl file version preview
 	 * @return the dl file version preview that was removed
@@ -123,6 +135,12 @@ public class DLFileVersionPreviewLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -336,6 +354,10 @@ public class DLFileVersionPreviewLocalServiceUtil {
 
 	/**
 	 * Updates the dl file version preview in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DLFileVersionPreviewLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dlFileVersionPreview the dl file version preview
 	 * @return the dl file version preview that was updated

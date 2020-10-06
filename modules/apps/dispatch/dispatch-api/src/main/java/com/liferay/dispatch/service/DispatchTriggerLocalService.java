@@ -15,6 +15,7 @@
 package com.liferay.dispatch.service;
 
 import com.liferay.dispatch.model.DispatchTrigger;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -47,7 +48,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * credentials because this service can only be accessed from within the same
  * VM.
  *
- * @author Alessio Antonio Rendina
+ * @author Matija Petanjek
  * @see DispatchTriggerLocalServiceUtil
  * @generated
  */
@@ -62,11 +63,15 @@ public interface DispatchTriggerLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link DispatchTriggerLocalServiceUtil} to access the dispatch trigger local service. Add custom service methods to <code>com.liferay.dispatch.service.impl.DispatchTriggerLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.dispatch.service.impl.DispatchTriggerLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the dispatch trigger local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link DispatchTriggerLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the dispatch trigger to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dispatchTrigger the dispatch trigger
 	 * @return the dispatch trigger that was added
@@ -75,8 +80,8 @@ public interface DispatchTriggerLocalService
 	public DispatchTrigger addDispatchTrigger(DispatchTrigger dispatchTrigger);
 
 	public DispatchTrigger addDispatchTrigger(
-			long userId, String name, boolean system, String type,
-			UnicodeProperties typeSettingsProperties)
+			long userId, String name, boolean system,
+			UnicodeProperties taskSettingsUnicodeProperties, String taskType)
 		throws PortalException;
 
 	/**
@@ -97,6 +102,10 @@ public interface DispatchTriggerLocalService
 	/**
 	 * Deletes the dispatch trigger from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dispatchTrigger the dispatch trigger
 	 * @return the dispatch trigger that was removed
 	 * @throws PortalException
@@ -109,6 +118,10 @@ public interface DispatchTriggerLocalService
 
 	/**
 	 * Deletes the dispatch trigger with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param dispatchTriggerId the primary key of the dispatch trigger
 	 * @return the dispatch trigger that was removed
@@ -124,6 +137,9 @@ public interface DispatchTriggerLocalService
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -267,6 +283,10 @@ public interface DispatchTriggerLocalService
 	/**
 	 * Updates the dispatch trigger in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DispatchTriggerLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param dispatchTrigger the dispatch trigger
 	 * @return the dispatch trigger that was updated
 	 */
@@ -284,7 +304,7 @@ public interface DispatchTriggerLocalService
 
 	public DispatchTrigger updateDispatchTrigger(
 			long dispatchTriggerId, String name,
-			UnicodeProperties typeSettingsProperties)
+			UnicodeProperties taskSettingsUnicodeProperties)
 		throws PortalException;
 
 }

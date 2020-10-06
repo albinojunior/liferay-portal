@@ -134,10 +134,7 @@ public class DeployUtil {
 			destDir = PropsValues.AUTO_DEPLOY_DEFAULT_DEST_DIR;
 		}
 
-		destDir = StringUtil.replace(
-			destDir, CharPool.BACK_SLASH, CharPool.SLASH);
-
-		return destDir;
+		return StringUtil.replace(destDir, CharPool.BACK_SLASH, CharPool.SLASH);
 	}
 
 	public static String getResourcePath(Set<Path> tempPaths, String resource)
@@ -251,7 +248,7 @@ public class DeployUtil {
 	}
 
 	private String _getResourcePath(Set<Path> tempDirPaths, String resource)
-		throws IOException {
+		throws Exception {
 
 		Class<?> clazz = getClass();
 

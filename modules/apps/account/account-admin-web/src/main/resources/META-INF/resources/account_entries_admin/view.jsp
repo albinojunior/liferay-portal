@@ -17,7 +17,7 @@
 <%@ include file="/init.jsp" %>
 
 <%
-SearchContainer accountEntryDisplaySearchContainer = AccountEntryDisplaySearchContainerFactory.create(liferayPortletRequest, liferayPortletResponse);
+SearchContainer<AccountEntryDisplay> accountEntryDisplaySearchContainer = AccountEntryDisplaySearchContainerFactory.create(liferayPortletRequest, liferayPortletResponse);
 
 ViewAccountEntriesManagementToolbarDisplayContext viewAccountEntriesManagementToolbarDisplayContext = new ViewAccountEntriesManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, accountEntryDisplaySearchContainer);
 %>
@@ -26,7 +26,7 @@ ViewAccountEntriesManagementToolbarDisplayContext viewAccountEntriesManagementTo
 	displayContext="<%= viewAccountEntriesManagementToolbarDisplayContext %>"
 />
 
-<div class="container-fluid container-fluid-max-xl">
+<clay:container-fluid>
 	<aui:form method="post" name="fm">
 		<aui:input name="accountEntryIds" type="hidden" />
 
@@ -63,21 +63,22 @@ ViewAccountEntriesManagementToolbarDisplayContext viewAccountEntriesManagementTo
 					cssClass="table-cell-expand table-title"
 					href="<%= rowURL %>"
 					name="name"
-					property="name"
+					value="<%= HtmlUtil.escape(accountEntryDisplay.getName()) %>"
 				/>
 
 				<liferay-ui:search-container-column-text
 					cssClass="table-cell-expand"
 					href="<%= rowURL %>"
-					name="parent-account"
-					property="parentAccountEntryName"
+					name="organizations"
+					property="organizationNames"
 				/>
 
 				<liferay-ui:search-container-column-text
 					cssClass="table-cell-expand"
 					href="<%= rowURL %>"
-					name="account-owner"
-					value=""
+					name="type"
+					property="type"
+					translate="<%= true %>"
 				/>
 
 				<liferay-ui:search-container-column-text
@@ -85,8 +86,8 @@ ViewAccountEntriesManagementToolbarDisplayContext viewAccountEntriesManagementTo
 					name="status"
 				>
 					<clay:label
-						label="<%= StringUtil.toUpperCase(LanguageUtil.get(request, accountEntryDisplay.getStatusLabel()), locale) %>"
-						style="<%= accountEntryDisplay.getStatusLabelStyle() %>"
+						displayType="<%= accountEntryDisplay.getStatusLabelStyle() %>"
+						label="<%= accountEntryDisplay.getStatusLabel() %>"
 					/>
 				</liferay-ui:search-container-column-text>
 
@@ -100,7 +101,7 @@ ViewAccountEntriesManagementToolbarDisplayContext viewAccountEntriesManagementTo
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <liferay-frontend:component
 	componentId="<%= viewAccountEntriesManagementToolbarDisplayContext.getDefaultEventHandler() %>"

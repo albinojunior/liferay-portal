@@ -36,6 +36,48 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-113740."
+	@priority = "4"
+	test ChangeSitePageVariationInPagesAdmin {
+		Staging.addSitePagesVariationPG(
+			copySitePagesVariationName = "Main Variation",
+			sitePagesVariationName = "Summer");
+
+		SitePages.openPagesAdmin(siteURLKey = "site-name-staging");
+
+		Staging.viewSitePagesVariationActiveCP(sitePagesVariationName = "Summer");
+
+		SitePages.addPublicPageUnderSitePagesVariation(pageName = "Test Page Name");
+
+		SitePages.openPagesAdmin(siteURLKey = "site-name-staging");
+
+		Staging.changeSitePageVariationCP(sitePagesVariationName = "Main Variation");
+
+		Refresh();
+
+		AssertElementNotPresent(
+			key_itemName = "Test Page Name",
+			locator1 = "SitePages#LIST_GROUP_ITEM");
+
+		Navigator.gotoStagedSitePage(
+			pageName = "Staging Test Page",
+			siteName = "Site Name");
+
+		Staging.viewSitePagesVariationPG(sitePagesVariationName = "Summer");
+
+		Staging.changeSitePageVariationPG(
+			sitePagesVariationMenulistName = "Main Variation",
+			sitePagesVariationName = "Summer");
+
+		Navigator.gotoStagedSitePage(
+			pageName = "Test Page Name",
+			siteName = "Site Name");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "Staging#STAGING_BAR_PAGE_VARIATIONS_ALERT",
+			value1 = "The page Test Page Name is not enabled in Main Variation, but is available for other pages variations.");
+	}
+
 	@priority = "4"
 	test DeleteChildPageFromVariationWhereNotEnabled {
 		Staging.addSitePagesVariationPG(
@@ -101,7 +143,6 @@ definition {
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
-			panel = "Site Administration",
 			portlet = "Pages");
 
 		Page.viewNoPage(
@@ -266,7 +307,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",
@@ -300,7 +341,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Portlet.viewSpecificPG(portletName = "Web Content Display");
 
@@ -327,7 +368,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",
@@ -349,7 +390,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Portlet.viewSpecificPG(portletName = "Web Content Display");
 
@@ -398,7 +439,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Navigator.gotoSitePage(
 			pageName = "Page 2",
@@ -484,7 +525,7 @@ definition {
 
 		Staging.publishToLive();
 
-		ProductMenu.gotoLiveSite();
+		ProductMenu.gotoLiveSite(site = "Site Name");
 
 		Navigator.gotoSitePage(
 			pageName = "Staging Test Page",
@@ -720,6 +761,10 @@ definition {
 			pageName = "Test Page Name",
 			pageTemplateName = "Page Template Name");
 
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
 		SitePages.togglePrivacy(privacy = "Public Pages");
 
 		SitePages.gotoPageMenuItem(
@@ -731,11 +776,7 @@ definition {
 
 	@priority = "4"
 	test StagingVersionHistory {
-		Click(locator1 = "Icon#STAGING_BAR_VERTICAL_ELLIPSIS");
-
-		Click(locator1 = "Staging#HISTORY_BUTTON");
-
-		SelectFrame(locator1 = "IFrame#METADATA_SETS_IFRAME");
+		Staging.gotoHistory();
 
 		AssertElementPresent(locator1 = "Staging#HISTORY_VERSION");
 
@@ -807,6 +848,10 @@ definition {
 
 		SitePages.addPublicPage(pageName = "Page1");
 
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
 			pageName = "Page1");
@@ -821,6 +866,10 @@ definition {
 		SitePages.addPublicChildPage(
 			childPageName = "Page2",
 			parentPageName = "Page1");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
 
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
@@ -840,7 +889,7 @@ definition {
 			defaultLanguageLocalizationMessage = "Display the page in English (United States).",
 			pageName = "Página2",
 			preferredLanguageLocalizationMessage = "Establecer español (España) como su idioma preferido.",
-			sitePageURL = "${portalURL}/es/web/site-name-staging/page-2",
+			sitePageURL = "${portalURL}/es/web/site-name-staging/page2",
 			translationLanguageLocalizationMessage = "This page is displayed in Spanish (Spain).");
 	}
 

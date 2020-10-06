@@ -16,6 +16,7 @@ import {config} from '../config/index';
 import serviceFetch from './serviceFetch';
 
 export default {
+
 	/**
 	 * Adds a Widget to the current layout
 	 * @param {object} options
@@ -31,6 +32,7 @@ export default {
 		onNetworkStatus,
 		parentItemId,
 		portletId,
+		portletItemId,
 		position,
 		segmentsExperienceId,
 	}) {
@@ -40,6 +42,7 @@ export default {
 				body: {
 					parentItemId,
 					portletId,
+					portletItemId,
 					position,
 					segmentsExperienceId,
 				},

@@ -14,7 +14,7 @@
 
 import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import {fetch, objectToFormData} from 'frontend-js-web';
+import {fetch, objectToFormData, openToast} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useCallback, useState} from 'react';
 
@@ -28,20 +28,20 @@ function LayoutFinder(props) {
 	const [loading, setLoading] = useState(false);
 	const [totalCount, setTotalCount] = useState(0);
 
-	const handleFormSubmit = useCallback(event => {
+	const handleFormSubmit = useCallback((event) => {
 		event.preventDefault();
 		event.stopPropagation();
 	}, []);
 
 	const [updatePageResults, cancelUpdatePageResults] = useDebounceCallback(
-		newKeywords => {
+		(newKeywords) => {
 			fetch(props.findLayoutsURL, {
 				body: objectToFormData({
 					[`${props.namespace}keywords`]: newKeywords,
 				}),
 				method: 'post',
 			})
-				.then(response => {
+				.then((response) => {
 					return response.ok
 						? response.json()
 						: {
@@ -49,7 +49,7 @@ function LayoutFinder(props) {
 								totalCount: 0,
 						  };
 				})
-				.then(response => {
+				.then((response) => {
 					setLoading(false);
 					setLayouts(response.layouts);
 					setTotalCount(response.totalCount);
@@ -59,7 +59,7 @@ function LayoutFinder(props) {
 	);
 
 	const handleOnChange = useCallback(
-		event => {
+		(event) => {
 			const newKeywords = event.target.value;
 
 			setKeywords(newKeywords);
@@ -90,16 +90,50 @@ function LayoutFinder(props) {
 	);
 
 	const handleOnClick = useCallback(() => {
+		Liferay.Portlet.destroy(`#p_p_id${props.namespace}`, true);
+
 		Liferay.Util.Session.set(
 			'com.liferay.product.navigation.product.menu.web_pagesTreeState',
 			'closed'
-		).then(() => Liferay.Util.navigate(window.location.href));
-	}, []);
+		).then(() => {
+			fetch(props.productMenuPortletURL)
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error();
+					}
+
+					return response.text();
+				})
+				.then((productMenuContent) => {
+					const sidebar = document.querySelector(
+						'.lfr-product-menu-sidebar .sidebar-body'
+					);
+
+					sidebar.innerHTML = '';
+
+					const range = document.createRange();
+					range.selectNode(sidebar);
+
+					sidebar.appendChild(
+						range.createContextualFragment(productMenuContent)
+					);
+				})
+				.catch(() => {
+					openToast({
+						message: Liferay.Language.get(
+							'an-unexpected-error-occurred'
+						),
+						title: Liferay.Language.get('error'),
+						type: 'danger',
+					});
+				});
+		});
+	}, [props]);
 
 	return (
 		<div className="layout-finder">
 			<button
-				className={`back-to-menu btn-sm btn-unstyled mb-3`}
+				className={`back-to-menu btn btn-sm btn-unstyled mb-3 pr-3`}
 				onClick={handleOnClick}
 			>
 				<ClayIcon className={`icon-monospaced`} symbol="angle-left" />
@@ -134,28 +168,42 @@ function LayoutFinder(props) {
 							(layout, layoutIndex) =>
 								layoutIndex < MAX_ITEMS_TO_SHOW && (
 									<>
-										{layout.path && layout.path.length > 0 && (
-											<ol className="breadcrumb">
-												{layout.path.map(layoutPath => (
-													<li
-														className="breadcrumb-item"
-														key={layoutPath}
-													>
-														<span className="breadcrumb-text-truncate">
-															{layoutPath}
-														</span>
-													</li>
-												))}
-											</ol>
-										)}
+										<ol className="breadcrumb">
+											{layout.path &&
+												layout.path.length > 0 && (
+													<>
+														{layout.path.map(
+															(layoutPath) => (
+																<li
+																	className="breadcrumb-item text-secondary"
+																	key={
+																		layoutPath
+																	}
+																>
+																	<span className="breadcrumb-text-truncate">
+																		{
+																			layoutPath
+																		}
+																	</span>
+																</li>
+															)
+														)}
+													</>
+												)}
 
-										<a
-											className="d-block font-weight-bold mb-2 text-break"
-											href={layout.url}
-											key={layout.url}
-										>
-											{layout.name}
-										</a>
+											<li
+												className="breadcrumb-item"
+												key={layout.name}
+											>
+												<a
+													className="d-block font-weight-bold mb-2 text-break"
+													href={layout.url}
+													key={layout.url}
+												>
+													{layout.name}
+												</a>
+											</li>
+										</ol>
 									</>
 								)
 						)}
@@ -204,9 +252,8 @@ LayoutFinder.propTypes = {
 	administrationPortletURL: PropTypes.string,
 	findLayoutsURL: PropTypes.string,
 	namespace: PropTypes.string,
+	productMenuPortletURL: PropTypes.string,
 	viewInPageAdministrationURL: PropTypes.string,
 };
 
-export default function(props) {
-	return <LayoutFinder {...props} />;
-}
+export default LayoutFinder;

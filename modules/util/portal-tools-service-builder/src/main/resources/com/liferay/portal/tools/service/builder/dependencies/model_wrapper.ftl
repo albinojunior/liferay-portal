@@ -40,18 +40,18 @@ public class ${entity.name}Wrapper
 	<#assign entityFieldName = "model" />
 
 	<#if serviceBuilder.isVersionLTE_7_1_0()>
-		<#assign entityFieldName = "_${entity.varName}" />
+		<#assign entityFieldName = "_${entity.variableName}" />
 	<#else>
 		extends BaseModelWrapper<${entity.name}>
 	</#if>
 
 	implements ${entity.name}, ModelWrapper<${entity.name}> {
 
-	public ${entity.name}Wrapper(${entity.name} ${entity.varName}) {
+	public ${entity.name}Wrapper(${entity.name} ${entity.variableName}) {
 		<#if serviceBuilder.isVersionLTE_7_1_0()>
-			${entityFieldName} = ${entity.varName};
+			${entityFieldName} = ${entity.variableName};
 		<#else>
-			super(${entity.varName});
+			super(${entity.variableName});
 		</#if>
 	}
 
@@ -174,18 +174,18 @@ public class ${entity.name}Wrapper
 
 	<#if serviceBuilder.isVersionLTE_7_1_0()>
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
+		public boolean equals(Object object) {
+			if (this == object) {
 				return true;
 			}
 
-			if (!(obj instanceof ${entity.name}Wrapper)) {
+			if (!(object instanceof ${entity.name}Wrapper)) {
 				return false;
 			}
 
-			${entity.name}Wrapper ${entity.varName}Wrapper = (${entity.name}Wrapper)obj;
+			${entity.name}Wrapper ${entity.variableName}Wrapper = (${entity.name}Wrapper)object;
 
-			if (Objects.equals(${entityFieldName}, ${entity.varName}Wrapper.${entityFieldName})) {
+			if (Objects.equals(${entityFieldName}, ${entity.variableName}Wrapper.${entityFieldName})) {
 				return true;
 			}
 
@@ -248,8 +248,8 @@ public class ${entity.name}Wrapper
 		}
 
 		@Override
-		public void populateVersionModel(${versionEntity.name} ${versionEntity.varName}) {
-			${entityFieldName}.populateVersionModel(${versionEntity.varName});
+		public void populateVersionModel(${versionEntity.name} ${versionEntity.variableName}) {
+			${entityFieldName}.populateVersionModel(${versionEntity.variableName});
 		}
 	<#elseif entity.versionedEntity??>
 		<#assign versionedEntity = entity.versionedEntity />
@@ -265,8 +265,8 @@ public class ${entity.name}Wrapper
 		}
 
 		@Override
-		public void populateVersionedModel(${versionedEntity.name} ${versionedEntity.varName}) {
-			${entityFieldName}.populateVersionedModel(${versionedEntity.varName});
+		public void populateVersionedModel(${versionedEntity.name} ${versionedEntity.variableName}) {
+			${entityFieldName}.populateVersionedModel(${versionedEntity.variableName});
 		}
 
 		@Override
@@ -299,8 +299,8 @@ public class ${entity.name}Wrapper
 		private final ${entity.name} ${entityFieldName};
 	<#else>
 		@Override
-		protected ${entity.name}Wrapper wrap(${entity.name} ${entity.varName}) {
-			return new ${entity.name}Wrapper(${entity.varName});
+		protected ${entity.name}Wrapper wrap(${entity.name} ${entity.variableName}) {
+			return new ${entity.name}Wrapper(${entity.variableName});
 		}
 	</#if>
 

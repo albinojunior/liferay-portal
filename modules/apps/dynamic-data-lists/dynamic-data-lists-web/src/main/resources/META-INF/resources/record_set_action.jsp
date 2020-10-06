@@ -17,9 +17,9 @@
 <%@ include file="/init.jsp" %>
 
 <%
-SearchContainer searchContainer = (SearchContainer)request.getAttribute(WebKeys.SEARCH_CONTAINER);
+SearchContainer<?> searchContainer = (SearchContainer)request.getAttribute(WebKeys.SEARCH_CONTAINER);
 
-String redirect = searchContainer.getIteratorURL().toString();
+String redirect = String.valueOf(searchContainer.getIteratorURL());
 
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
@@ -84,7 +84,7 @@ boolean hasViewPermission = ddlDisplayContext.isAdminPortlet() && DDLRecordSetPe
 		StringBundler sb = new StringBundler(5);
 
 		sb.append("javascript:");
-		sb.append(renderResponse.getNamespace());
+		sb.append(liferayPortletResponse.getNamespace());
 		sb.append("exportRecordSet('");
 		sb.append(exportRecordSetURL);
 		sb.append("');");

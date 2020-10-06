@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -46,6 +48,7 @@ public class DDMDataProviderInstanceWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("uuid", getUuid());
 		attributes.put("dataProviderInstanceId", getDataProviderInstanceId());
 		attributes.put("groupId", getGroupId());
@@ -58,6 +61,7 @@ public class DDMDataProviderInstanceWrapper
 		attributes.put("description", getDescription());
 		attributes.put("definition", getDefinition());
 		attributes.put("type", getType());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -68,6 +72,12 @@ public class DDMDataProviderInstanceWrapper
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
 		}
 
 		String uuid = (String)attributes.get("uuid");
@@ -142,6 +152,12 @@ public class DDMDataProviderInstanceWrapper
 		if (type != null) {
 			setType(type);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -167,6 +183,16 @@ public class DDMDataProviderInstanceWrapper
 	@Override
 	public Date getCreateDate() {
 		return model.getCreateDate();
+	}
+
+	/**
+	 * Returns the ct collection ID of this ddm data provider instance.
+	 *
+	 * @return the ct collection ID of this ddm data provider instance
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
 	}
 
 	/**
@@ -278,6 +304,16 @@ public class DDMDataProviderInstanceWrapper
 	@Override
 	public long getGroupId() {
 		return model.getGroupId();
+	}
+
+	/**
+	 * Returns the last publish date of this ddm data provider instance.
+	 *
+	 * @return the last publish date of this ddm data provider instance
+	 */
+	@Override
+	public Date getLastPublishDate() {
+		return model.getLastPublishDate();
 	}
 
 	/**
@@ -477,6 +513,16 @@ public class DDMDataProviderInstanceWrapper
 	}
 
 	/**
+	 * Sets the ct collection ID of this ddm data provider instance.
+	 *
+	 * @param ctCollectionId the ct collection ID of this ddm data provider instance
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
+	}
+
+	/**
 	 * Sets the data provider instance ID of this ddm data provider instance.
 	 *
 	 * @param dataProviderInstanceId the data provider instance ID of this ddm data provider instance
@@ -571,6 +617,16 @@ public class DDMDataProviderInstanceWrapper
 	@Override
 	public void setGroupId(long groupId) {
 		model.setGroupId(groupId);
+	}
+
+	/**
+	 * Sets the last publish date of this ddm data provider instance.
+	 *
+	 * @param lastPublishDate the last publish date of this ddm data provider instance
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		model.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -714,6 +770,20 @@ public class DDMDataProviderInstanceWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public Map<String, Function<DDMDataProviderInstance, Object>>
+		getAttributeGetterFunctions() {
+
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<DDMDataProviderInstance, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

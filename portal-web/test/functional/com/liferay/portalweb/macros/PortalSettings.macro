@@ -189,7 +189,7 @@ definition {
 			locator1 = "Button#SAVE",
 			value1 = "Save");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
 	}
 
 	macro configureLDAPSetting {
@@ -254,6 +254,36 @@ definition {
 		Type(
 			locator1 = "TextArea#CONFIGURATION",
 			value1 = "${editor}");
+	}
+
+	macro disableApplicationsMenu {
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Navigation",
+			configurationName = "Applications Menu",
+			configurationScope = "Virtual Instance Scope");
+
+		AssertElementNotPresent(locator1 = "ProductMenu#TOGGLE");
+
+		AssertElementPresent(locator1 = "ApplicationsMenu#TOGGLE");
+
+		FormFields.disableCheckbox(fieldName = "enableApplicationsMenu");
+
+		if (IsElementPresent(locator1 = "Button#SAVE")) {
+			AssertClick(
+				locator1 = "Button#SAVE",
+				value1 = "Save");
+		}
+		else if (IsElementPresent(locator1 = "Button#UPDATE")) {
+			AssertClick(
+				locator1 = "Button#UPDATE",
+				value1 = "Update");
+		}
+
+		Alert.viewSuccessMessage();
+
+		AssertElementPresent(locator1 = "ProductMenu#TOGGLE");
+
+		AssertElementNotPresent(locator1 = "ApplicationsMenu#TOGGLE");
 	}
 
 	macro editConfigurationAuthenticationCAS {
@@ -531,6 +561,41 @@ definition {
 			value1 = "${virtualHostName}");
 	}
 
+	macro enableApplicationsMenu {
+		ProductMenu.gotoPortletWhenDisableApplicationsMenu(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "Instance Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Navigation",
+			configurationName = "Applications Menu",
+			configurationScope = "Virtual Instance Scope");
+
+		AssertElementPresent(locator1 = "ProductMenu#TOGGLE");
+
+		AssertElementNotPresent(locator1 = "ApplicationsMenu#TOGGLE");
+
+		FormFields.enableCheckbox(fieldName = "enableApplicationsMenu");
+
+		if (IsElementPresent(locator1 = "Button#SAVE")) {
+			AssertClick(
+				locator1 = "Button#SAVE",
+				value1 = "Save");
+		}
+		else if (IsElementPresent(locator1 = "Button#UPDATE")) {
+			AssertClick(
+				locator1 = "Button#UPDATE",
+				value1 = "Update");
+		}
+
+		Alert.viewSuccessMessage();
+
+		AssertElementNotPresent(locator1 = "ProductMenu#TOGGLE");
+
+		AssertElementPresent(locator1 = "ApplicationsMenu#TOGGLE");
+	}
+
 	macro enableGoogleSSOCP {
 		Check(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_GOOGLE_ENABLED_CHECKBOX");
 
@@ -546,19 +611,20 @@ definition {
 	}
 
 	macro enableOpenIDConnectCP {
-		Check(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_CONNECT_ENABLED_CHECKBOX");
+		if (isSet(systemLevel)) {
+			Click.clickAtNotVisible(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_CONNECT_ENABLED_CHECKBOX_SYSTEM_LEVEL");
 
-		PortletEntry.save();
+			PortletEntry.save();
 
-		AssertChecked(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_CONNECT_ENABLED_CHECKBOX");
-	}
+			AssertChecked.assertCheckedNotVisible(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_CONNECT_ENABLED_CHECKBOX_SYSTEM_LEVEL");
+		}
+		else {
+			Click.clickAtNotVisible(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_CONNECT_ENABLED_CHECKBOX");
 
-	macro enableOpenIDCP {
-		Check(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_ENABLED_CHECKBOX");
+			PortletEntry.save();
 
-		PortletEntry.save();
-
-		AssertChecked(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_ENABLED_CHECKBOX");
+			AssertChecked.assertCheckedNotVisible(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_CONNECT_ENABLED_CHECKBOX");
+		}
 	}
 
 	macro enterReservedEmailAddressCP {
@@ -614,7 +680,7 @@ definition {
 	}
 
 	macro gotoConfiguration {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "Instance Settings");
@@ -626,7 +692,7 @@ definition {
 	}
 
 	macro gotoPortalSettings {
-		ProductMenu.gotoPortlet(
+		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
 			portlet = "Instance Settings");
@@ -972,15 +1038,6 @@ definition {
 			value1 = "TEMP_OBFUSCATION_VALUE");
 	}
 
-	macro viewAuthenticationOpenIDCP {
-		PortalSettings.gotoConfiguration(
-			configurationCategory = "SSO",
-			configurationName = "OpenID",
-			configurationScope = "Virtual Instance Scope");
-
-		AssertElementPresent(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_OPEN_ID_ENABLED_CHECKBOX");
-	}
-
 	macro viewAuthenticationOpenSSOCP {
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "SSO",
@@ -1277,6 +1334,18 @@ definition {
 		AssertTextEquals(
 			locator1 = "PortalSettingsUsers#RESERVED_CREDENTIALS_EMAIL_ADDRESSES_FIELD",
 			value1 = "");
+	}
+
+	macro viewToggleSwitchChecked {
+		AssertChecked.assertCheckedNotVisible(
+			key_toggleSwitchLabel = "${portalSetting}",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+	}
+
+	macro viewToggleSwitchNotChecked {
+		AssertNotChecked.assertNotCheckedNotVisible(
+			key_toggleSwitchLabel = "${portalSetting}",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 	}
 
 }

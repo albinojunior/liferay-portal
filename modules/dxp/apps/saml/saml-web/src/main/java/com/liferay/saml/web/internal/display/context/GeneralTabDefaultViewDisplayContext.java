@@ -16,6 +16,7 @@ package com.liferay.saml.web.internal.display.context;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.saml.runtime.configuration.SamlConfiguration;
 import com.liferay.saml.runtime.metadata.LocalEntityManager;
 
 import java.security.KeyStoreException;
@@ -31,9 +32,11 @@ import java.util.Map;
 public class GeneralTabDefaultViewDisplayContext {
 
 	public GeneralTabDefaultViewDisplayContext(
-		LocalEntityManager localEntityManager) {
+		LocalEntityManager localEntityManager,
+		SamlConfiguration samlConfiguration) {
 
 		_localEntityManager = localEntityManager;
+		_samlConfiguration = samlConfiguration;
 	}
 
 	public X509CertificateStatus getX509CertificateStatus() {
@@ -65,21 +68,20 @@ public class GeneralTabDefaultViewDisplayContext {
 			}
 		}
 		catch (Exception exception) {
-			Throwable cause = _getCause(exception, KeyStoreException.class);
+			Throwable throwable = _getCauseThrowable(
+				exception, KeyStoreException.class);
 			X509CertificateStatus.Status status;
 
-			if (cause != null) {
-				Throwable unrecoverableKeyException;
+			if (throwable != null) {
+				Throwable unrecoverableKeyThrowable = _getCauseThrowable(
+					throwable, UnrecoverableKeyException.class);
 
-				unrecoverableKeyException = _getCause(
-					cause, UnrecoverableKeyException.class);
-
-				if (unrecoverableKeyException != null) {
+				if (unrecoverableKeyThrowable != null) {
 					if (_log.isDebugEnabled()) {
 						_log.debug(
 							"Unable to get local entity certificate because " +
 								"of incorrect keystore password",
-							cause);
+							throwable);
 					}
 
 					status =
@@ -91,7 +93,7 @@ public class GeneralTabDefaultViewDisplayContext {
 						_log.debug(
 							"Unable to get local entity certificate because " +
 								"of keystore loading issue",
-							cause);
+							throwable);
 					}
 
 					status =
@@ -99,14 +101,15 @@ public class GeneralTabDefaultViewDisplayContext {
 				}
 			}
 			else {
-				cause = _getCause(exception, UnrecoverableKeyException.class);
+				throwable = _getCauseThrowable(
+					exception, UnrecoverableKeyException.class);
 
-				if (cause != null) {
+				if (throwable != null) {
 					if (_log.isDebugEnabled()) {
 						_log.debug(
 							"Unable to get local entity certificate because " +
 								"of incorrect key credential password",
-							cause);
+							throwable);
 					}
 
 					status =
@@ -135,6 +138,10 @@ public class GeneralTabDefaultViewDisplayContext {
 		_x509CertificateStatuses.put(certificateUsage, x509CertificateStatus);
 
 		return x509CertificateStatus;
+	}
+
+	public boolean isRoleIdPAvailable() {
+		return _samlConfiguration.idpRoleConfigurationEnabled();
 	}
 
 	public static class X509CertificateStatus {
@@ -166,19 +173,21 @@ public class GeneralTabDefaultViewDisplayContext {
 
 	}
 
-	private Throwable _getCause(Throwable e, Class<?> exceptionType) {
-		if (e == null) {
+	private Throwable _getCauseThrowable(
+		Throwable throwable, Class<?> exceptionType) {
+
+		if (throwable == null) {
 			return null;
 		}
 
-		Throwable cause = e.getCause();
+		Throwable causeThrowable = throwable.getCause();
 
-		while (cause != null) {
-			if (exceptionType.isInstance(cause)) {
-				return cause;
+		while (causeThrowable != null) {
+			if (exceptionType.isInstance(causeThrowable)) {
+				return causeThrowable;
 			}
 
-			cause = cause.getCause();
+			causeThrowable = causeThrowable.getCause();
 		}
 
 		return null;
@@ -188,6 +197,7 @@ public class GeneralTabDefaultViewDisplayContext {
 		GeneralTabDefaultViewDisplayContext.class);
 
 	private final LocalEntityManager _localEntityManager;
+	private final SamlConfiguration _samlConfiguration;
 	private Map<LocalEntityManager.CertificateUsage, X509CertificateStatus>
 		_x509CertificateStatuses = new HashMap<>();
 

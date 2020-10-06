@@ -20,6 +20,7 @@ import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -79,6 +80,41 @@ import javax.ws.rs.core.UriInfo;
 public abstract class BaseAppResourceImpl
 	implements AppResource, EntityModelResource,
 			   VulcanBatchEngineTaskItemDelegate<App> {
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/app-builder/v1.0/apps'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.QUERY, name = "active"),
+			@Parameter(in = ParameterIn.QUERY, name = "deploymentTypes"),
+			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
+			@Parameter(in = ParameterIn.QUERY, name = "scope"),
+			@Parameter(in = ParameterIn.QUERY, name = "userIds"),
+			@Parameter(in = ParameterIn.QUERY, name = "page"),
+			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
+			@Parameter(in = ParameterIn.QUERY, name = "sort")
+		}
+	)
+	@Path("/apps")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "App")})
+	public Page<App> getAppsPage(
+			@Parameter(hidden = true) @QueryParam("active") Boolean active,
+			@Parameter(hidden = true) @QueryParam("deploymentTypes") String[]
+				deploymentTypes,
+			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
+			@Parameter(hidden = true) @QueryParam("scope") String scope,
+			@Parameter(hidden = true) @QueryParam("userIds") Long[] userIds,
+			@Context Pagination pagination, @Context Sort[] sorts)
+		throws Exception {
+
+		return Page.of(Collections.emptyList());
+	}
 
 	/**
 	 * Invoke this method with the command line:
@@ -153,7 +189,7 @@ public abstract class BaseAppResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/app-builder/v1.0/apps/{appId}' -d $'{"appDeployments": ___, "dataDefinitionId": ___, "dataLayoutId": ___, "dataListViewId": ___, "dateCreated": ___, "dateModified": ___, "id": ___, "name": ___, "siteId": ___, "status": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/app-builder/v1.0/apps/{appId}' -d $'{"active": ___, "appDeployments": ___, "dataDefinitionId": ___, "dataLayoutId": ___, "dataListViewId": ___, "dataRecordCollectionId": ___, "dateCreated": ___, "dateModified": ___, "id": ___, "name": ___, "scope": ___, "siteId": ___, "userId": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -209,23 +245,34 @@ public abstract class BaseAppResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/app-builder/v1.0/apps/{appId}/deployment'  -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/app-builder/v1.0/apps/{appId}/deploy'  -u 'test@liferay.com:test'
 	 */
 	@Override
 	@PUT
-	@Parameters(
-		value = {
-			@Parameter(in = ParameterIn.PATH, name = "appId"),
-			@Parameter(in = ParameterIn.QUERY, name = "deploymentAction")
-		}
-	)
-	@Path("/apps/{appId}/deployment")
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "appId")})
+	@Path("/apps/{appId}/deploy")
 	@Tags(value = {@Tag(name = "App")})
-	public Response putAppDeployment(
-			@NotNull @Parameter(hidden = true) @PathParam("appId") Long appId,
-			@NotNull @Parameter(hidden = true) @QueryParam("deploymentAction")
-				com.liferay.app.builder.rest.constant.v1_0.DeploymentAction
-					deploymentAction)
+	public Response putAppDeploy(
+			@NotNull @Parameter(hidden = true) @PathParam("appId") Long appId)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/app-builder/v1.0/apps/{appId}/undeploy'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@PUT
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "appId")})
+	@Path("/apps/{appId}/undeploy")
+	@Tags(value = {@Tag(name = "App")})
+	public Response putAppUndeploy(
+			@NotNull @Parameter(hidden = true) @PathParam("appId") Long appId)
 		throws Exception {
 
 		Response.ResponseBuilder responseBuilder = Response.ok();
@@ -244,6 +291,7 @@ public abstract class BaseAppResourceImpl
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId"),
 			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
+			@Parameter(in = ParameterIn.QUERY, name = "scope"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
 			@Parameter(in = ParameterIn.QUERY, name = "sort")
@@ -256,6 +304,7 @@ public abstract class BaseAppResourceImpl
 			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
 				Long dataDefinitionId,
 			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
+			@Parameter(hidden = true) @QueryParam("scope") String scope,
 			@Context Pagination pagination, @Context Sort[] sorts)
 		throws Exception {
 
@@ -265,7 +314,7 @@ public abstract class BaseAppResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/app-builder/v1.0/data-definitions/{dataDefinitionId}/apps' -d $'{"appDeployments": ___, "dataDefinitionId": ___, "dataLayoutId": ___, "dataListViewId": ___, "dateCreated": ___, "dateModified": ___, "id": ___, "name": ___, "siteId": ___, "status": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/app-builder/v1.0/data-definitions/{dataDefinitionId}/apps' -d $'{"active": ___, "appDeployments": ___, "dataDefinitionId": ___, "dataLayoutId": ___, "dataListViewId": ___, "dataRecordCollectionId": ___, "dateCreated": ___, "dateModified": ___, "id": ___, "name": ___, "scope": ___, "siteId": ___, "userId": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -296,6 +345,7 @@ public abstract class BaseAppResourceImpl
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "siteId"),
 			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
+			@Parameter(in = ParameterIn.QUERY, name = "scope"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
 			@Parameter(in = ParameterIn.QUERY, name = "sort")
@@ -307,6 +357,7 @@ public abstract class BaseAppResourceImpl
 	public Page<App> getSiteAppsPage(
 			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
 			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
+			@Parameter(hidden = true) @QueryParam("scope") String scope,
 			@Context Pagination pagination, @Context Sort[] sorts)
 		throws Exception {
 
@@ -355,7 +406,7 @@ public abstract class BaseAppResourceImpl
 
 		return getSiteAppsPage(
 			(Long)parameters.get("siteId"), (String)parameters.get("keywords"),
-			pagination, sorts);
+			(String)parameters.get("scope"), pagination, sorts);
 	}
 
 	@Override
@@ -426,6 +477,14 @@ public abstract class BaseAppResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
+		this.roleLocalService = roleLocalService;
+	}
+
 	protected Map<String, String> addAction(
 		String actionName, GroupedModel groupedModel, String methodName) {
 
@@ -435,12 +494,21 @@ public abstract class BaseAppResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, Long id, String methodName, String permissionName,
-		Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-			actionName, getClass(), id, methodName, permissionName,
-			contextScopeChecker, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
+	}
+
+	protected Map<String, String> addAction(
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
+
+		return ActionUtil.addAction(
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
@@ -448,10 +516,7 @@ public abstract class BaseAppResourceImpl
 		Long siteId) {
 
 		return addAction(
-			actionName, siteId, methodName, permissionName, siteId);
-	}
-
-	protected void preparePatch(App app, App existingApp) {
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R> List<R> transform(

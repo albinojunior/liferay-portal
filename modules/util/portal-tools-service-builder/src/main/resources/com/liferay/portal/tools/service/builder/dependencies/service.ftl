@@ -3,6 +3,7 @@ package ${apiPackagePath}.service;
 import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
 
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -60,6 +61,10 @@ import ${import};
 </#if>
  * @generated
  */
+</#if>
+
+<#if entity.isChangeTrackingEnabled()>
+	@CTAware
 </#if>
 
 <#if classDeprecated>
@@ -132,9 +137,9 @@ public interface ${entity.name}${sessionTypeName}Service
 	 * NOTE FOR DEVELOPERS:
 	 *
 <#if stringUtil.equals(sessionTypeName, "Local")>
-	 * Never modify or reference this interface directly. Always use {@link ${entity.name}LocalServiceUtil} to access the ${entity.humanName} local service. Add custom service methods to <code>${packagePath}.service.impl.${entity.name}LocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>${packagePath}.service.impl.${entity.name}LocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the ${entity.humanName} local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ${entity.name}LocalServiceUtil} if injection and service tracking are not available.
 <#else>
-	 * Never modify or reference this interface directly. Always use {@link ${entity.name}ServiceUtil} to access the ${entity.humanName} remote service. Add custom service methods to <code>${packagePath}.service.impl.${entity.name}ServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>${packagePath}.service.impl.${entity.name}ServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the ${entity.humanName} remote service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ${entity.name}ServiceUtil} if injection and service tracking are not available.
 </#if>
 	 */
 
@@ -157,7 +162,7 @@ public interface ${entity.name}${sessionTypeName}Service
 			</#if>
 			public
 
-			<#if method.name = "dynamicQuery" && (serviceBuilder.getTypeGenericsName(method.returns) == "java.util.List<T>")>
+			<#if (method.name = "dslQuery" && (serviceBuilder.getTypeGenericsName(method.returns) == "T")) || (method.name = "dynamicQuery" && (serviceBuilder.getTypeGenericsName(method.returns) == "java.util.List<T>"))>
 				<T>
 			</#if>
 

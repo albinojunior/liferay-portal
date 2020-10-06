@@ -15,17 +15,22 @@
 package com.liferay.blogs.web.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetCategoryConstants;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.model.AssetVocabularyConstants;
+import com.liferay.asset.kernel.service.AssetCategoryLocalService;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryService;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
@@ -43,34 +48,17 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceTracker;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-
-import javax.portlet.MutableRenderParameters;
-import javax.portlet.MutableResourceParameters;
-import javax.portlet.PortletException;
-import javax.portlet.PortletMode;
-import javax.portlet.PortletModeException;
-import javax.portlet.PortletSecurityException;
-import javax.portlet.WindowState;
-import javax.portlet.WindowStateException;
-import javax.portlet.annotations.PortletSerializable;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -108,9 +96,8 @@ public class BlogEntriesDisplayContextTest {
 		sb.append("com.liferay.blogs.web.internal.portlet.action.");
 		sb.append("BlogsAdminViewMVCRenderCommand)");
 
-		Filter filter = registry.getFilter(sb.toString());
-
-		_serviceTracker = registry.trackServices(filter);
+		_serviceTracker = registry.trackServices(
+			registry.getFilter(sb.toString()));
 
 		_serviceTracker.open();
 	}
@@ -134,7 +121,7 @@ public class BlogEntriesDisplayContextTest {
 			_addBlogEntry("alpha_" + i);
 		}
 
-		SearchContainer searchContainer = _getSearchContainer(
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
 			_getMockHttpServletRequest());
 
 		Assert.assertEquals(
@@ -159,7 +146,7 @@ public class BlogEntriesDisplayContextTest {
 			new IdentityServiceContextFunction(
 				ServiceContextTestUtil.getServiceContext()));
 
-		SearchContainer searchContainer = _getSearchContainer(
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
 			_getMockHttpServletRequestWithSearch(commentBody));
 
 		Assert.assertEquals(1, searchContainer.getTotal());
@@ -170,27 +157,104 @@ public class BlogEntriesDisplayContextTest {
 	}
 
 	@Test
-	public void testGetSearchContainerWithSearch() throws Exception {
-		for (int i = 0; i <= SearchContainer.DEFAULT_DELTA; i++) {
-			_addBlogEntry("alpha_" + i);
-		}
+	public void testGetSearchContainerByInternalAssetCategory()
+		throws Exception {
 
-		SearchContainer searchContainer = _getSearchContainer(
-			_getMockHttpServletRequestWithSearch("alpha"));
+		AssetVocabulary assetVocabulary = _addAssetVocabulary(
+			AssetVocabularyConstants.VISIBILITY_TYPE_INTERNAL);
 
-		Assert.assertEquals(
-			SearchContainer.DEFAULT_DELTA + 1, searchContainer.getTotal());
+		AssetCategory assetCategory = _addAssetCategory(assetVocabulary);
+
+		BlogsEntry blogsEntry = _addBlogEntry(
+			new long[] {assetCategory.getCategoryId()});
+
+		_addBlogEntry(RandomTestUtil.randomString());
+
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
+			_getMockHttpServletRequestWithSearch(assetCategory.getName()));
+
+		Assert.assertEquals(1, searchContainer.getTotal());
 
 		List<BlogsEntry> blogsEntries = searchContainer.getResults();
 
+		Assert.assertEquals(blogsEntries.toString(), 1, blogsEntries.size());
+
+		BlogsEntry returnedBlogsEntry = blogsEntries.get(0);
+
 		Assert.assertEquals(
-			blogsEntries.toString(), SearchContainer.DEFAULT_DELTA,
-			blogsEntries.size());
+			returnedBlogsEntry.getTitle(), blogsEntry.getTitle());
+	}
+
+	@Test
+	public void testGetSearchContainerByPublicAssetCategory() throws Exception {
+		AssetVocabulary assetVocabulary = _addAssetVocabulary(
+			AssetVocabularyConstants.VISIBILITY_TYPE_PUBLIC);
+
+		AssetCategory assetCategory = _addAssetCategory(assetVocabulary);
+
+		BlogsEntry blogsEntry = _addBlogEntry(
+			new long[] {assetCategory.getCategoryId()});
+
+		_addBlogEntry(RandomTestUtil.randomString());
+
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
+			_getMockHttpServletRequestWithSearch(assetCategory.getName()));
+
+		Assert.assertEquals(1, searchContainer.getTotal());
+
+		List<BlogsEntry> blogsEntries = searchContainer.getResults();
+
+		Assert.assertEquals(blogsEntries.toString(), 1, blogsEntries.size());
+
+		BlogsEntry returnedBlogsEntry = blogsEntries.get(0);
+
+		Assert.assertEquals(
+			returnedBlogsEntry.getTitle(), blogsEntry.getTitle());
+	}
+
+	private AssetCategory _addAssetCategory(AssetVocabulary assetVocabulary)
+		throws Exception {
+
+		return _assetCategoryLocalService.addCategory(
+			TestPropsValues.getUserId(), _group.getGroupId(),
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID,
+			HashMapBuilder.put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			null, assetVocabulary.getVocabularyId(), null,
+			new ServiceContext());
+	}
+
+	private AssetVocabulary _addAssetVocabulary(int visibilityTypePublic)
+		throws Exception {
+
+		return _assetVocabularyLocalService.addVocabulary(
+			TestPropsValues.getUserId(), _group.getGroupId(), null,
+			HashMapBuilder.put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			null, null, visibilityTypePublic, new ServiceContext());
+	}
+
+	private BlogsEntry _addBlogEntry(long[] assetCategoryIds) throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		serviceContext.setAssetCategoryIds(assetCategoryIds);
+
+		return _addBlogEntry(RandomTestUtil.randomString(), serviceContext);
 	}
 
 	private BlogsEntry _addBlogEntry(String title) throws Exception {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+		return _addBlogEntry(
+			title,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+	}
+
+	private BlogsEntry _addBlogEntry(
+			String title, ServiceContext serviceContext)
+		throws Exception {
 
 		return _blogsEntryService.addEntry(
 			title, RandomTestUtil.randomString(), RandomTestUtil.randomString(),
@@ -200,7 +264,7 @@ public class BlogEntriesDisplayContextTest {
 	}
 
 	private MockHttpServletRequest _getMockHttpServletRequest()
-		throws PortalException {
+		throws Exception {
 
 		MockHttpServletRequest mockHttpServletRequest =
 			new MockHttpServletRequest();
@@ -213,7 +277,7 @@ public class BlogEntriesDisplayContextTest {
 
 	private MockHttpServletRequest _getMockHttpServletRequestWithSearch(
 			String keywords)
-		throws PortalException {
+		throws Exception {
 
 		MockHttpServletRequest mockHttpServletRequest =
 			_getMockHttpServletRequest();
@@ -225,26 +289,29 @@ public class BlogEntriesDisplayContextTest {
 		return mockHttpServletRequest;
 	}
 
-	private SearchContainer _getSearchContainer(
-			HttpServletRequest httpServletRequest)
-		throws PortletException {
+	private SearchContainer<BlogsEntry> _getSearchContainer(
+			MockHttpServletRequest mockHttpServletRequest)
+		throws Exception {
 
 		MVCRenderCommand mvcRenderCommand = _serviceTracker.getService();
 
-		MockRenderRequest mockRenderRequest = new MockRenderRequest(
-			httpServletRequest);
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			new MockLiferayPortletRenderRequest(mockHttpServletRequest);
 
-		mvcRenderCommand.render(mockRenderRequest, new MockRenderResponse());
+		mvcRenderCommand.render(
+			mockLiferayPortletRenderRequest,
+			new MockLiferayPortletRenderResponse());
 
-		Object blogEntriesDisplayContext = mockRenderRequest.getAttribute(
-			"BLOG_ENTRIES_DISPLAY_CONTEXT");
+		Object blogEntriesDisplayContext =
+			mockLiferayPortletRenderRequest.getAttribute(
+				"BLOG_ENTRIES_DISPLAY_CONTEXT");
 
 		return ReflectionTestUtil.invoke(
 			blogEntriesDisplayContext, "getSearchContainer", new Class<?>[0],
 			null);
 	}
 
-	private ThemeDisplay _getThemeDisplay() throws PortalException {
+	private ThemeDisplay _getThemeDisplay() throws Exception {
 		ThemeDisplay themeDisplay = new ThemeDisplay();
 
 		themeDisplay.setCompany(_company);
@@ -261,6 +328,15 @@ public class BlogEntriesDisplayContextTest {
 		_serviceTracker;
 
 	@Inject
+	private AssetCategoryLocalService _assetCategoryLocalService;
+
+	@Inject
+	private AssetEntryLocalService _assetEntryLocalService;
+
+	@Inject
+	private AssetVocabularyLocalService _assetVocabularyLocalService;
+
+	@Inject
 	private BlogsEntryService _blogsEntryService;
 
 	private Company _company;
@@ -272,280 +348,5 @@ public class BlogEntriesDisplayContextTest {
 	private Group _group;
 
 	private Layout _layout;
-
-	private static class MockLiferayPortletURL implements LiferayPortletURL {
-
-		@Override
-		public void addParameterIncludedInPath(String name) {
-		}
-
-		@Override
-		public void addProperty(String key, String value) {
-		}
-
-		@Override
-		public Appendable append(Appendable out) throws IOException {
-			return null;
-		}
-
-		@Override
-		public Appendable append(Appendable out, boolean escapeXML)
-			throws IOException {
-
-			return null;
-		}
-
-		@Override
-		public String getCacheability() {
-			return null;
-		}
-
-		@Override
-		public String getLifecycle() {
-			return null;
-		}
-
-		@Override
-		public String getParameter(String name) {
-			return null;
-		}
-
-		@Override
-		public Map<String, String[]> getParameterMap() {
-			return null;
-		}
-
-		@Override
-		public Set<String> getParametersIncludedInPath() {
-			return null;
-		}
-
-		@Override
-		public long getPlid() {
-			return 0;
-		}
-
-		@Override
-		public String getPortletId() {
-			return null;
-		}
-
-		@Override
-		public PortletMode getPortletMode() {
-			return null;
-		}
-
-		@Override
-		public Set<String> getRemovedParameterNames() {
-			return null;
-		}
-
-		@Override
-		public MutableRenderParameters getRenderParameters() {
-			return null;
-		}
-
-		@Override
-		public String getResourceID() {
-			return null;
-		}
-
-		@Override
-		public MutableResourceParameters getResourceParameters() {
-			return null;
-		}
-
-		@Override
-		public WindowState getWindowState() {
-			return null;
-		}
-
-		@Override
-		public boolean isAnchor() {
-			return false;
-		}
-
-		@Override
-		public boolean isCopyCurrentRenderParameters() {
-			return false;
-		}
-
-		@Override
-		public boolean isEncrypt() {
-			return false;
-		}
-
-		@Override
-		public boolean isEscapeXml() {
-			return false;
-		}
-
-		@Override
-		public boolean isParameterIncludedInPath(String name) {
-			return false;
-		}
-
-		@Override
-		public boolean isSecure() {
-			return false;
-		}
-
-		@Override
-		public void removePublicRenderParameter(String name) {
-		}
-
-		@Override
-		public void setAnchor(boolean anchor) {
-		}
-
-		@Override
-		public void setBeanParameter(PortletSerializable bean) {
-		}
-
-		@Override
-		public void setCacheability(String cacheLevel) {
-		}
-
-		@Override
-		public void setCopyCurrentRenderParameters(
-			boolean copyCurrentRenderParameters) {
-		}
-
-		@Override
-		public void setDoAsGroupId(long doAsGroupId) {
-		}
-
-		@Override
-		public void setDoAsUserId(long doAsUserId) {
-		}
-
-		@Override
-		public void setDoAsUserLanguageId(String doAsUserLanguageId) {
-		}
-
-		@Override
-		public void setEncrypt(boolean encrypt) {
-		}
-
-		@Override
-		public void setEscapeXml(boolean escapeXml) {
-		}
-
-		@Override
-		public void setLifecycle(String lifecycle) {
-		}
-
-		@Override
-		public void setParameter(String name, String value) {
-		}
-
-		@Override
-		public void setParameter(String name, String... values) {
-		}
-
-		@Override
-		public void setParameter(String name, String value, boolean append) {
-		}
-
-		@Override
-		public void setParameter(String name, String[] values, boolean append) {
-		}
-
-		@Override
-		public void setParameters(Map<String, String[]> parameters) {
-		}
-
-		@Override
-		public void setPlid(long plid) {
-		}
-
-		@Override
-		public void setPortletId(String portletId) {
-		}
-
-		@Override
-		public void setPortletMode(PortletMode portletMode)
-			throws PortletModeException {
-		}
-
-		@Override
-		public void setProperty(String key, String value) {
-		}
-
-		@Override
-		public void setRefererGroupId(long refererGroupId) {
-		}
-
-		@Override
-		public void setRefererPlid(long refererPlid) {
-		}
-
-		@Override
-		public void setRemovedParameterNames(Set<String> removedParamNames) {
-		}
-
-		@Override
-		public void setResourceID(String resourceID) {
-		}
-
-		@Override
-		public void setSecure(boolean secure) throws PortletSecurityException {
-		}
-
-		@Override
-		public void setWindowState(WindowState windowState)
-			throws WindowStateException {
-		}
-
-		@Override
-		public void setWindowStateRestoreCurrentView(
-			boolean windowStateRestoreCurrentView) {
-		}
-
-		@Override
-		public void visitReservedParameters(
-			BiConsumer<String, String> biConsumer) {
-		}
-
-		@Override
-		public void write(Writer out) throws IOException {
-		}
-
-		@Override
-		public void write(Writer out, boolean escapeXML) throws IOException {
-		}
-
-	}
-
-	private static class MockRenderRequest
-		extends MockLiferayPortletRenderRequest {
-
-		public MockRenderRequest(HttpServletRequest httpServletRequest) {
-			_httpServletRequest = httpServletRequest;
-		}
-
-		@Override
-		public HttpServletRequest getHttpServletRequest() {
-			return _httpServletRequest;
-		}
-
-		private final HttpServletRequest _httpServletRequest;
-
-	}
-
-	private static class MockRenderResponse
-		extends MockLiferayPortletRenderResponse {
-
-		@Override
-		public LiferayPortletURL createLiferayPortletURL(String lifecycle) {
-			return new MockLiferayPortletURL();
-		}
-
-		@Override
-		public MockLiferayPortletURL createRenderURL() {
-			return new MockLiferayPortletURL();
-		}
-
-	}
 
 }

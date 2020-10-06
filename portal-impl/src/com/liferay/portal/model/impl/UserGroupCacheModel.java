@@ -37,16 +37,16 @@ public class UserGroupCacheModel
 	implements CacheModel<UserGroup>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof UserGroupCacheModel)) {
+		if (!(object instanceof UserGroupCacheModel)) {
 			return false;
 		}
 
-		UserGroupCacheModel userGroupCacheModel = (UserGroupCacheModel)obj;
+		UserGroupCacheModel userGroupCacheModel = (UserGroupCacheModel)object;
 
 		if ((userGroupId == userGroupCacheModel.userGroupId) &&
 			(mvccVersion == userGroupCacheModel.mvccVersion)) {
@@ -76,10 +76,12 @@ public class UserGroupCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
+		sb.append(", ctCollectionId=");
+		sb.append(ctCollectionId);
 		sb.append(", uuid=");
 		sb.append(uuid);
 		sb.append(", externalReferenceCode=");
@@ -114,6 +116,7 @@ public class UserGroupCacheModel
 		UserGroupImpl userGroupImpl = new UserGroupImpl();
 
 		userGroupImpl.setMvccVersion(mvccVersion);
+		userGroupImpl.setCtCollectionId(ctCollectionId);
 
 		if (uuid == null) {
 			userGroupImpl.setUuid("");
@@ -180,6 +183,8 @@ public class UserGroupCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
+
+		ctCollectionId = objectInput.readLong();
 		uuid = objectInput.readUTF();
 		externalReferenceCode = objectInput.readUTF();
 
@@ -202,6 +207,8 @@ public class UserGroupCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
+
+		objectOutput.writeLong(ctCollectionId);
 
 		if (uuid == null) {
 			objectOutput.writeUTF("");
@@ -253,6 +260,7 @@ public class UserGroupCacheModel
 	}
 
 	public long mvccVersion;
+	public long ctCollectionId;
 	public String uuid;
 	public String externalReferenceCode;
 	public long userGroupId;

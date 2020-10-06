@@ -39,8 +39,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 
 import java.io.IOException;
 
-import java.util.Map;
-
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -104,18 +102,16 @@ public abstract class BaseGadgetPortlet extends MVCPortlet {
 			Role userRole = RoleLocalServiceUtil.getRole(
 				expandoColumn.getCompanyId(), RoleConstants.USER);
 
-			Map<Long, String[]> roleIdsToActionIds = HashMapBuilder.put(
-				guestRole.getRoleId(), new String[] {ActionKeys.VIEW}
-			).put(
-				userRole.getRoleId(),
-				new String[] {ActionKeys.UPDATE, ActionKeys.VIEW}
-			).build();
-
 			ResourcePermissionLocalServiceUtil.setResourcePermissions(
 				expandoColumn.getCompanyId(), ExpandoColumn.class.getName(),
 				ResourceConstants.SCOPE_INDIVIDUAL,
 				String.valueOf(expandoColumn.getColumnId()),
-				roleIdsToActionIds);
+				HashMapBuilder.put(
+					guestRole.getRoleId(), new String[] {ActionKeys.VIEW}
+				).put(
+					userRole.getRoleId(),
+					new String[] {ActionKeys.UPDATE, ActionKeys.VIEW}
+				).build());
 		}
 	}
 
@@ -125,9 +121,6 @@ public abstract class BaseGadgetPortlet extends MVCPortlet {
 
 		checkExpando(renderRequest, renderResponse);
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		Gadget gadget = getGadget(renderRequest);
 
 		if (gadget == null) {
@@ -135,6 +128,9 @@ public abstract class BaseGadgetPortlet extends MVCPortlet {
 		}
 
 		GadgetSpec gadgetSpec = ShindigUtil.getGadgetSpec(gadget.getUrl());
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
@@ -145,9 +141,8 @@ public abstract class BaseGadgetPortlet extends MVCPortlet {
 
 		renderRequest.setAttribute(WebKeys.GADGET, gadget);
 
-		String view = getView(renderRequest, gadgetSpec);
-
-		renderRequest.setAttribute(WebKeys.VIEW, view);
+		renderRequest.setAttribute(
+			WebKeys.VIEW, getView(renderRequest, gadgetSpec));
 	}
 
 	protected abstract Gadget getGadget(RenderRequest renderRequest)
@@ -173,13 +168,13 @@ public abstract class BaseGadgetPortlet extends MVCPortlet {
 	protected String getView(
 		RenderRequest renderRequest, GadgetSpec gadgetSpec) {
 
-		WindowState windowState = renderRequest.getWindowState();
-
 		String view = ParamUtil.getString(renderRequest, "view");
 
 		if (gadgetSpec.getView(view) != null) {
 			return view;
 		}
+
+		WindowState windowState = renderRequest.getWindowState();
 
 		if (windowState.equals(WindowState.NORMAL)) {
 			if (gadgetSpec.getView("default") != null) {

@@ -49,22 +49,14 @@ definition {
 
 		AssertChecked.assertCheckedNotVisible(locator1 = "Checkbox#ENABLE_AUTO_TAGGING");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_4.jpg",
-			dmDocumentTitle = "DM Document JPG");
+			dmDocumentTitle = "DM Document JPG",
+			groupName = "Test Depot Name",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_4.jpg");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document JPG");
 
@@ -82,22 +74,14 @@ definition {
 			assetType = "Document",
 			confidenceThreshold = "0.05");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMDocument.addCP(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentFile = "Alice's Adventures in Wonderland.pdf",
 			dmDocumentTitle = "DM Document PDF");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document PDF");
 
@@ -118,17 +102,14 @@ definition {
 		JSONWebcontent.addWebContent(
 			content = "Digital Transformation or Digital Experience? When selecting a DXP, companies should decide whether they are ready for deep transformation of their business operations, or are focused primarily on marketing and brand awareness, as these priorities tend to reflect the different strengths among the DXP vendors. Having an attractive website or mobile app is good, but more substantial gains in customer experience require processes to be re-optimized with the customer in mind. In a Forrester presentation, analyst Liz Herbert notes that real digital transformation spans both the experience layer and the operations core. Having an attractive website or mobile app is good, but more substantial gains in customer experience require processes to be re-optimized with the customer in mind. This responsiveness to customer needs can be achieved in a number of ways, from basic personalization of experience, to more advanced configurable workflows, to full modularization of business services that can be quickly re-assembled in new ways. However, not all companies are prepared for that level of change, and may in the meantime want to start segmenting audiences in order to target personalized offers. Some vendors, particularly those that have had content management systems, can do this well. Ideally, your platform will have both operational and marketing capabilities, so that even if you start with digital marketing, you won’t have to go through a second vendor selection process when you are ready for operational transformation. Also, there isn’t just one way to achieve these goals. Using any category heritage of DXP in combination with an overall architecture for integration and modular services can get you there.",
 			groupName = "Test Depot Name",
+			site = "false",
 			title = "Digital Transformation or Digital Experience?");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Web Content");
+		DepotNavigator.openDepotWebContentAdmin(depotName = "Test Depot Name");
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Digital Transformation or Digital Experience?");
 
-		Panel.expandPanel(panel = "Metadata");
+		Panel.expandPanel(panel = "Categorization");
 
 		AssertTextEquals(
 			key_tagName = "dxp",
@@ -148,31 +129,24 @@ definition {
 		JSONWebcontent.addWebContent(
 			content = "Digital Transformation or Digital Experience? When selecting a DXP, companies should decide whether they are ready for deep transformation of their business operations, or are focused primarily on marketing and brand awareness, as these priorities tend to reflect the different strengths among the DXP vendors. Having an attractive website or mobile app is good, but more substantial gains in customer experience require processes to be re-optimized with the customer in mind. In a Forrester presentation, analyst Liz Herbert notes that real digital transformation spans both the experience layer and the operations core. Having an attractive website or mobile app is good, but more substantial gains in customer experience require processes to be re-optimized with the customer in mind. This responsiveness to customer needs can be achieved in a number of ways, from basic personalization of experience, to more advanced configurable workflows, to full modularization of business services that can be quickly re-assembled in new ways. However, not all companies are prepared for that level of change, and may in the meantime want to start segmenting audiences in order to target personalized offers. Some vendors, particularly those that have had content management systems, can do this well. Ideally, your platform will have both operational and marketing capabilities, so that even if you start with digital marketing, you won’t have to go through a second vendor selection process when you are ready for operational transformation. Also, there isn’t just one way to achieve these goals. Using any category heritage of DXP in combination with an overall architecture for integration and modular services can get you there.",
 			groupName = "Test Depot Name",
+			site = "false",
 			title = "Digital Transformation or Digital Experience?");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Web Content");
+		DepotNavigator.openDepotWebContentAdmin(depotName = "Test Depot Name");
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Digital Transformation or Digital Experience?");
 
-		Panel.expandPanel(panel = "Metadata");
+		Panel.expandPanel(panel = "Categorization");
 
 		AssertTextEquals(
 			key_tagName = "dxp",
 			locator1 = "AssetCategorization#TAG",
 			value1 = "dxp");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Web Content");
+		DepotNavigator.openDepotWebContentAdmin(depotName = "Test Depot Name");
 
 		WebContent.deleteCP(
-			siteURLKey = "test-depot-name",
+			depotName = "Test Depot Name",
 			webContentTitle = "Digital Transformation or Digital Experience?");
 	}
 
@@ -189,22 +163,14 @@ definition {
 
 		Depot.configureAutoTagging(autoTagging = "Disabled");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_4.jpg",
-			dmDocumentTitle = "DM Document JPG");
+			dmDocumentTitle = "DM Document JPG",
+			groupName = "Test Depot Name",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_4.jpg");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document JPG");
 
@@ -228,22 +194,14 @@ definition {
 
 		Depot.configureAutoTagging(autoTagging = "Disabled");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMDocument.addCP(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentFile = "Alice's Adventures in Wonderland.pdf",
 			dmDocumentTitle = "DM Document PDF");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document PDF");
 
@@ -270,17 +228,14 @@ definition {
 		JSONWebcontent.addWebContent(
 			content = "Digital Transformation or Digital Experience? When selecting a DXP, companies should decide whether they are ready for deep transformation of their business operations, or are focused primarily on marketing and brand awareness, as these priorities tend to reflect the different strengths among the DXP vendors. Having an attractive website or mobile app is good, but more substantial gains in customer experience require processes to be re-optimized with the customer in mind. In a Forrester presentation, analyst Liz Herbert notes that real digital transformation spans both the experience layer and the operations core. Having an attractive website or mobile app is good, but more substantial gains in customer experience require processes to be re-optimized with the customer in mind. This responsiveness to customer needs can be achieved in a number of ways, from basic personalization of experience, to more advanced configurable workflows, to full modularization of business services that can be quickly re-assembled in new ways. However, not all companies are prepared for that level of change, and may in the meantime want to start segmenting audiences in order to target personalized offers. Some vendors, particularly those that have had content management systems, can do this well. Ideally, your platform will have both operational and marketing capabilities, so that even if you start with digital marketing, you won’t have to go through a second vendor selection process when you are ready for operational transformation. Also, there isn’t just one way to achieve these goals. Using any category heritage of DXP in combination with an overall architecture for integration and modular services can get you there.",
 			groupName = "Test Depot Name",
+			site = "false",
 			title = "Digital Transformation or Digital Experience?");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Web Content");
+		DepotNavigator.openDepotWebContentAdmin(depotName = "Test Depot Name");
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Digital Transformation or Digital Experience?");
 
-		Panel.expandPanel(panel = "Metadata");
+		Panel.expandPanel(panel = "Categorization");
 
 		AutoTagging.assertNoAutoTag(tagName = "dxp");
 	}
@@ -298,11 +253,7 @@ definition {
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMDocument.addCP(
 			dmDocumentDescription = "DM Document Description",
@@ -316,11 +267,7 @@ definition {
 		AutoTagging.assertAutoTagPresent(tagName = "adventures");
 		AutoTagging.assertAutoTagPresent(tagName = "alice");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		DMDocument.removeTag(removeTag = "alice");
 

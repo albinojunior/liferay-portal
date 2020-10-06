@@ -33,7 +33,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<portlet:actionURL name="/document_library/edit_repository" var="editRepositoryURL">
 		<portlet:param name="mvcRenderCommandName" value="/document_library/edit_repository" />
 	</portlet:actionURL>
@@ -169,7 +169,7 @@ renderResponse.setTitle(headerTitle);
 		%>
 
 	</div>
-</div>
+</clay:container-fluid>
 
 <aui:script require="metal-dom/src/dom as dom">
 	var settingsParametersContainer = document.getElementById(
@@ -210,7 +210,7 @@ renderResponse.setTitle(headerTitle);
 	);
 
 	if (repositoryTypesSelect) {
-		repositoryTypesSelect.addEventListener('change', function(event) {
+		repositoryTypesSelect.addEventListener('change', function (event) {
 			showConfiguration(repositoryTypesSelect);
 		});
 

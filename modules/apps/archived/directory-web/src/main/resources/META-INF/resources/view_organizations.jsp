@@ -27,8 +27,6 @@ long parentOrganizationId = ParamUtil.getLong(request, "parentOrganizationId", O
 if (parentOrganizationId > 0) {
 	portletURL.setParameter("parentOrganizationId", String.valueOf(parentOrganizationId));
 }
-
-boolean showSearch = ParamUtil.getBoolean(request, "showSearch", true);
 %>
 
 <liferay-frontend:management-bar>
@@ -53,7 +51,7 @@ boolean showSearch = ParamUtil.getBoolean(request, "showSearch", true);
 			portletURL="<%= portletURL %>"
 		/>
 
-		<c:if test="<%= showSearch %>">
+		<c:if test='<%= ParamUtil.getBoolean(request, "showSearch", true) %>'>
 			<li>
 				<liferay-util:include page="/organization_search.jsp" servletContext="<%= application %>" />
 			</li>
@@ -78,11 +76,13 @@ boolean showSearch = ParamUtil.getBoolean(request, "showSearch", true);
 		}
 
 		if (portletName.equals(PortletKeys.MY_SITES_DIRECTORY)) {
-			LinkedHashMap<String, Object> groupParams = new LinkedHashMap<String, Object>();
-
-			groupParams.put("inherit", Boolean.FALSE);
-			groupParams.put("site", Boolean.TRUE);
-			groupParams.put("usersGroups", user.getUserId());
+			LinkedHashMap<String, Object> groupParams = LinkedHashMapBuilder.<String, Object>put(
+				"inherit", Boolean.FALSE
+			).put(
+				"site", Boolean.TRUE
+			).put(
+				"usersGroups", user.getUserId()
+			).build();
 
 			List<Group> groups = GroupLocalServiceUtil.search(user.getCompanyId(), groupParams, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 

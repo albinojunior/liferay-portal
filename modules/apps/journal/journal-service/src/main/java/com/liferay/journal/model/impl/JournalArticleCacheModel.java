@@ -37,17 +37,17 @@ public class JournalArticleCacheModel
 	implements CacheModel<JournalArticle>, Externalizable, MVCCModel {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof JournalArticleCacheModel)) {
+		if (!(object instanceof JournalArticleCacheModel)) {
 			return false;
 		}
 
 		JournalArticleCacheModel journalArticleCacheModel =
-			(JournalArticleCacheModel)obj;
+			(JournalArticleCacheModel)object;
 
 		if ((id == journalArticleCacheModel.id) &&
 			(mvccVersion == journalArticleCacheModel.mvccVersion)) {
@@ -352,7 +352,7 @@ public class JournalArticleCacheModel
 
 		version = objectInput.readDouble();
 		urlTitle = objectInput.readUTF();
-		content = objectInput.readUTF();
+		content = (String)objectInput.readObject();
 		DDMStructureKey = objectInput.readUTF();
 		DDMTemplateKey = objectInput.readUTF();
 		defaultLanguageId = objectInput.readUTF();
@@ -442,10 +442,10 @@ public class JournalArticleCacheModel
 		}
 
 		if (content == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(content);
+			objectOutput.writeObject(content);
 		}
 
 		if (DDMStructureKey == null) {

@@ -20,7 +20,6 @@ import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -73,8 +72,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.mock.web.MockHttpServletRequest;
-
 /**
  * @author Cristina González
  */
@@ -120,8 +117,8 @@ public class DLAdminDisplayContextTest {
 			_addDLFileEntry("alpha_" + i + ".txt", "alpha");
 		}
 
-		SearchContainer searchContainer = _getSearchContainer(
-			_getMockHttpServletRequest());
+		SearchContainer<Object> searchContainer = _getSearchContainer(
+			_getMockLiferayPortletActionRequest());
 
 		Assert.assertEquals(25, searchContainer.getTotal());
 	}
@@ -132,8 +129,8 @@ public class DLAdminDisplayContextTest {
 			_addDLFileEntry("alpha_" + i + ".txt", "alpha");
 		}
 
-		SearchContainer searchContainer = _getSearchContainer(
-			_getMockHttpServletRequestWithSearch("alpha"));
+		SearchContainer<Object> searchContainer = _getSearchContainer(
+			_getMockLiferayPortletActionRequestWithSearch("alpha"));
 
 		Assert.assertEquals(25, searchContainer.getTotal());
 	}
@@ -152,49 +149,42 @@ public class DLAdminDisplayContextTest {
 			serviceContext);
 	}
 
-	private HttpServletRequest _getHttpServletRequest(
-		HttpServletRequest httpServletRequest) {
+	private MockLiferayPortletActionRequest
+			_getMockLiferayPortletActionRequest()
+		throws Exception {
 
-		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
 
-		mockHttpServletRequest.setAttribute(
+		mockLiferayPortletActionRequest.setAttribute(
+			JavaConstants.JAVAX_PORTLET_CONFIG, null);
+		mockLiferayPortletActionRequest.setAttribute(
 			JavaConstants.JAVAX_PORTLET_REQUEST,
-			new MockActionRequest(httpServletRequest));
-		mockHttpServletRequest.setAttribute(
+			mockLiferayPortletActionRequest);
+		mockLiferayPortletActionRequest.setAttribute(
 			JavaConstants.JAVAX_PORTLET_RESPONSE, new MockActionResponse());
-
-		return mockHttpServletRequest;
-	}
-
-	private MockHttpServletRequest _getMockHttpServletRequest()
-		throws PortalException {
-
-		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
-
-		mockHttpServletRequest.setAttribute(
+		mockLiferayPortletActionRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, _getThemeDisplay());
 
-		return mockHttpServletRequest;
+		return mockLiferayPortletActionRequest;
 	}
 
-	private MockHttpServletRequest _getMockHttpServletRequestWithSearch(
-			String keywords)
-		throws PortalException {
+	private MockLiferayPortletActionRequest
+			_getMockLiferayPortletActionRequestWithSearch(String keywords)
+		throws Exception {
 
-		MockHttpServletRequest mockHttpServletRequest =
-			_getMockHttpServletRequest();
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			_getMockLiferayPortletActionRequest();
 
-		mockHttpServletRequest.setParameter(
+		mockLiferayPortletActionRequest.setParameter(
 			"mvcRenderCommandName", "/document_library/search");
-		mockHttpServletRequest.setParameter("keywords", keywords);
+		mockLiferayPortletActionRequest.setParameter("keywords", keywords);
 
-		return mockHttpServletRequest;
+		return mockLiferayPortletActionRequest;
 	}
 
-	private SearchContainer _getSearchContainer(
-		MockHttpServletRequest mockHttpServletRequest) {
+	private SearchContainer<Object> _getSearchContainer(
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest) {
 
 		Object dlAdminDisplayContextProvider = _serviceTracker.getService();
 
@@ -203,13 +193,13 @@ public class DLAdminDisplayContextTest {
 			new Class<?>[] {
 				HttpServletRequest.class, HttpServletResponse.class
 			},
-			_getHttpServletRequest(mockHttpServletRequest), null);
+			mockLiferayPortletActionRequest.getHttpServletRequest(), null);
 
 		return ReflectionTestUtil.invoke(
 			dlAdminDisplayContext, "getSearchContainer", new Class<?>[0], null);
 	}
 
-	private ThemeDisplay _getThemeDisplay() throws PortalException {
+	private ThemeDisplay _getThemeDisplay() throws Exception {
 		ThemeDisplay themeDisplay = new ThemeDisplay();
 
 		themeDisplay.setCompany(_company);
@@ -236,22 +226,6 @@ public class DLAdminDisplayContextTest {
 	private Group _group;
 
 	private Layout _layout;
-
-	private static class MockActionRequest
-		extends MockLiferayPortletActionRequest {
-
-		public MockActionRequest(HttpServletRequest httpServletRequest) {
-			_httpServletRequest = httpServletRequest;
-		}
-
-		@Override
-		public HttpServletRequest getHttpServletRequest() {
-			return _httpServletRequest;
-		}
-
-		private final HttpServletRequest _httpServletRequest;
-
-	}
 
 	private static class MockActionResponse
 		extends MockLiferayPortletActionResponse {

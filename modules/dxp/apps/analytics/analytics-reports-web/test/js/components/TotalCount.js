@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, render, wait, within} from '@testing-library/react';
+import {cleanup, render, wait} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -24,6 +24,7 @@ describe('TotalCount', () => {
 		const mockDataProvider = jest.fn(() => {
 			return Promise.resolve(9999);
 		});
+
 		const testProps = {
 			dataProvider: mockDataProvider,
 			label: 'Total Views',
@@ -32,7 +33,7 @@ describe('TotalCount', () => {
 				'This number refers to the total number of views since the content was published.',
 		};
 
-		const {getByText} = render(
+		const {getByRole, getByText} = render(
 			<TotalCount
 				dataProvider={testProps.dataProvider}
 				label={testProps.label}
@@ -41,24 +42,29 @@ describe('TotalCount', () => {
 			/>
 		);
 
-		await wait(() => expect(getByText('9999')));
+		await wait(() => expect(mockDataProvider).toHaveBeenCalled());
+
+		expect(getByText('9,999')).toBeInTheDocument();
 
 		const label = getByText(testProps.label);
 		expect(label).toBeInTheDocument();
 
-		const helpTextIcon = within(label).getByRole('presentation');
+		const helpTextIcon = getByRole('presentation');
 
 		userEvent.click(helpTextIcon);
 
 		getByText(
 			'This number refers to the total number of views since the content was published.'
 		);
+
+		expect(mockDataProvider).toHaveBeenCalledTimes(1);
 	});
 
 	it('renders a dash instead of total count number when there is an error', async () => {
 		const mockDataProvider = jest.fn(() => {
 			return Promise.reject('-');
 		});
+
 		const testProps = {
 			dataProvider: mockDataProvider,
 			label: 'Total Views',
@@ -76,6 +82,10 @@ describe('TotalCount', () => {
 			/>
 		);
 
-		await wait(() => expect(getByText('-')));
+		await wait(() => expect(mockDataProvider).toHaveBeenCalled());
+
+		expect(getByText('-')).toBeInTheDocument();
+
+		expect(mockDataProvider).toHaveBeenCalledTimes(1);
 	});
 });

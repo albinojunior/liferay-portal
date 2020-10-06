@@ -15,14 +15,13 @@
 package com.liferay.bookmarks.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.bookmarks.constants.BookmarksFolderConstants;
 import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.model.BookmarksFolder;
-import com.liferay.bookmarks.model.BookmarksFolderConstants;
 import com.liferay.bookmarks.service.BookmarksEntryLocalServiceUtil;
 import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
 import com.liferay.bookmarks.test.util.BookmarksTestUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -70,11 +69,9 @@ public class BookmarksEntryLocalServiceTreeTest {
 		BookmarksFolder folderAA = BookmarksTestUtil.addFolder(
 			_group.getGroupId(), folderA.getFolderId(), "Folder AA");
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
 		BookmarksEntry entry = BookmarksTestUtil.addEntry(
-			folderAA.getFolderId(), true, serviceContext);
+			folderAA.getFolderId(), true,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		BookmarksFolderLocalServiceUtil.moveFolder(
 			folderAA.getFolderId(),
@@ -117,11 +114,9 @@ public class BookmarksEntryLocalServiceTreeTest {
 		BookmarksFolder folder = BookmarksTestUtil.addFolder(
 			_group.getGroupId(), "Folder A");
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
 		BookmarksEntry entryAA = BookmarksTestUtil.addEntry(
-			folder.getFolderId(), true, serviceContext);
+			folder.getFolderId(), true,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		entries.add(entryAA);
 

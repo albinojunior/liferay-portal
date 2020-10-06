@@ -14,19 +14,30 @@
 
 package com.liferay.portal.dao.orm.hibernate;
 
+import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
+import com.liferay.petra.sql.dsl.spi.ast.DefaultASTNodeListener;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.kernel.dao.orm.LockMode;
 import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 
 import java.io.Serializable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+
+import java.util.List;
 
 import org.hibernate.LockOptions;
+import org.hibernate.engine.EntityKey;
+import org.hibernate.engine.PersistenceContext;
+import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.event.EventSource;
 
 /**
  * @author Brian Wing Shun Chan
@@ -48,6 +59,18 @@ public class SessionImpl implements Session {
 
 		_session = session;
 		_sessionFactoryClassLoader = sessionFactoryClassLoader;
+	}
+
+	@Override
+	public void apply(UnsafeConsumer<Connection, SQLException> unsafeConsumer)
+		throws ORMException {
+
+		try {
+			_session.doWork(unsafeConsumer::accept);
+		}
+		catch (Exception exception) {
+			throw ExceptionTranslator.translate(exception);
+		}
 	}
 
 	@Override
@@ -128,6 +151,30 @@ public class SessionImpl implements Session {
 	}
 
 	@Override
+	public SQLQuery createSynchronizedSQLQuery(DSLQuery dslQuery)
+		throws ORMException {
+
+		DefaultASTNodeListener defaultASTNodeListener =
+			new DefaultASTNodeListener();
+
+		SQLQuery sqlQuery = createSynchronizedSQLQuery(
+			dslQuery.toSQL(defaultASTNodeListener), true,
+			defaultASTNodeListener.getTableNames());
+
+		List<Object> scalarValues = defaultASTNodeListener.getScalarValues();
+
+		if (!scalarValues.isEmpty()) {
+			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			for (Object value : scalarValues) {
+				queryPos.add(value);
+			}
+		}
+
+		return sqlQuery;
+	}
+
+	@Override
 	public SQLQuery createSynchronizedSQLQuery(String queryString)
 		throws ORMException {
 
@@ -139,14 +186,23 @@ public class SessionImpl implements Session {
 			String queryString, boolean strictName)
 		throws ORMException {
 
+		return createSynchronizedSQLQuery(
+			queryString, strictName,
+			SQLQueryTableNamesUtil.getTableNames(queryString));
+	}
+
+	@Override
+	public SQLQuery createSynchronizedSQLQuery(
+			String queryString, boolean strictName, String[] tableNames)
+		throws ORMException {
+
 		try {
 			queryString = SQLTransformer.transformFromJPQLToHQL(queryString);
 
 			SQLQuery sqlQuery = new SQLQueryImpl(
 				_session.createSQLQuery(queryString), strictName);
 
-			sqlQuery.addSynchronizedQuerySpaces(
-				SQLQueryTableNamesUtil.getTableNames(queryString));
+			sqlQuery.addSynchronizedQuerySpaces(tableNames);
 
 			return sqlQuery;
 		}
@@ -159,6 +215,35 @@ public class SessionImpl implements Session {
 	public void delete(Object object) throws ORMException {
 		try {
 			_session.delete(object);
+		}
+		catch (Exception exception) {
+			throw ExceptionTranslator.translate(exception);
+		}
+	}
+
+	@Override
+	public void evict(Class<?> clazz, Serializable id) throws ORMException {
+		try {
+			EventSource eventSource = (EventSource)_session;
+
+			PersistenceContext persistenceContext =
+				eventSource.getPersistenceContext();
+
+			SessionFactoryImplementor sessionFactoryImplementor =
+				eventSource.getFactory();
+
+			Object object = persistenceContext.getEntity(
+				new EntityKey(
+					id,
+					sessionFactoryImplementor.getEntityPersister(
+						clazz.getName()),
+					eventSource.getEntityMode()));
+
+			if (object == null) {
+				return;
+			}
+
+			eventSource.evict(object);
 		}
 		catch (Exception exception) {
 			throw ExceptionTranslator.translate(exception);

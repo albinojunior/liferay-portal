@@ -50,7 +50,7 @@ if (fileEntryId != 0) {
 	<liferay-util:buffer
 		var="selectFileLink"
 	>
-		<a class="browse-image btn btn-secondary" href="javascript:;" id="<%= randomNamespace + "browseImage" %>"><liferay-ui:message key="select-file" /></a>
+		<a class="browse-image btn btn-secondary" href="javascript:;" id="<%= randomNamespace %>browseImage"><liferay-ui:message key="select-file" /></a>
 	</liferay-util:buffer>
 
 	<div class="browse-image-controls <%= (fileEntryId != 0) ? "hide" : StringPool.BLANK %>">
@@ -115,19 +115,18 @@ if (fileEntryId != 0) {
 
 	<div class="change-image-controls <%= (fileEntryId != 0) ? StringPool.BLANK : "hide" %>">
 		<clay:button
-			elementClasses="browse-image"
+			cssClass="browse-image"
+			displayType="secondary"
 			icon="picture"
-			monospaced="<%= true %>"
-			style="secondary"
-			title='<%= LanguageUtil.get(resourceBundle, "change-image") %>'
+			title="change-image"
 		/>
 
 		<clay:button
-			elementClasses="btn-monospaced"
+			displayType="secondary"
 			icon="trash"
 			id='<%= randomNamespace + "removeImage" %>'
-			style="secondary"
-			title='<%= LanguageUtil.get(resourceBundle, "remove-image") %>'
+			monospaced="<%= true %>"
+			title="remove-image"
 		/>
 	</div>
 </div>
@@ -162,7 +161,7 @@ if (!draggableImage.equals("none")) {
 		});
 	</c:if>
 
-	var destroyInstance = function(event) {
+	var destroyInstance = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			imageSelector.destroy();
 

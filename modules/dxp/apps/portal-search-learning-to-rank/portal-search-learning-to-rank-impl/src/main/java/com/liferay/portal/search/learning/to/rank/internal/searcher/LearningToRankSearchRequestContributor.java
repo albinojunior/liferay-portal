@@ -77,28 +77,26 @@ public class LearningToRankSearchRequestContributor
 	}
 
 	protected Query getRescoreQuery(String model, String keywords) {
-		String query = JSONUtil.put(
-			"sltr",
+		return queries.wrapper(
 			JSONUtil.put(
-				"model", model
-			).put(
-				"params", JSONUtil.put("keywords", keywords)
-			)
-		).toString();
-
-		return queries.wrapper(query);
+				"sltr",
+				JSONUtil.put(
+					"model", model
+				).put(
+					"params", JSONUtil.put("keywords", keywords)
+				)
+			).toString());
 	}
 
 	protected List<Rescore> getRescores(
 		SearchRequest searchRequest, RescoreBuilder rescoreBuilder) {
 
-		Rescore rescore = rescoreBuilder.query(
-			getRescoreQuery(_model, searchRequest.getQueryString())
-		).windowSize(
-			1000
-		).build();
-
-		return Arrays.asList(rescore);
+		return Arrays.asList(
+			rescoreBuilder.query(
+				getRescoreQuery(_model, searchRequest.getQueryString())
+			).windowSize(
+				1000
+			).build());
 	}
 
 	@Reference

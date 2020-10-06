@@ -16,8 +16,6 @@ package com.liferay.portal.security.ldap.internal.model.listener;
 
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.MembershipRequest;
 import com.liferay.portal.kernel.model.MembershipRequestConstants;
@@ -28,13 +26,11 @@ import com.liferay.portal.kernel.security.ldap.LDAPSettings;
 import com.liferay.portal.kernel.service.MembershipRequestLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.security.exportimport.UserExporter;
 import com.liferay.portal.security.ldap.internal.UserImportTransactionThreadLocal;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -102,27 +98,8 @@ public class UserModelListener extends BaseLDAPExportModelListener<User> {
 			user.getOriginalEmailAddress());
 	}
 
-	protected void exportToLDAP(final User user) {
-		if (user.isDefaultUser() ||
-			UserImportTransactionThreadLocal.isOriginatesFromImport()) {
-
-			return;
-		}
-
-		Callable<Void> callable = CallableUtil.getCallable(
-			expandoBridgeAttributes -> {
-				try {
-					_userExporter.exportUser(user, expandoBridgeAttributes);
-				}
-				catch (Exception exception) {
-					_log.error(
-						"Unable to export user with user ID " +
-							user.getUserId() + " to LDAP on after create",
-						exception);
-				}
-			});
-
-		TransactionCommitCallbackUtil.registerCallback(callable);
+	protected void exportToLDAP(final User user) throws Exception {
+		exportToLDAP(user, _userExporter, _ldapSettings);
 	}
 
 	protected void updateMembershipRequestStatus(long userId, long groupId)
@@ -146,9 +123,6 @@ public class UserModelListener extends BaseLDAPExportModelListener<User> {
 				new ServiceContext());
 		}
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		UserModelListener.class);
 
 	@Reference(
 		policy = ReferencePolicy.DYNAMIC,

@@ -58,6 +58,13 @@ public class DepotEntryGroupRelServiceUtil {
 		return getService().getDepotEntryGroupRels(groupId, start, end);
 	}
 
+	public static int getDepotEntryGroupRelsCount(
+			com.liferay.depot.model.DepotEntry depotEntry)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().getDepotEntryGroupRelsCount(depotEntry);
+	}
+
 	public static int getDepotEntryGroupRelsCount(long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -71,6 +78,15 @@ public class DepotEntryGroupRelServiceUtil {
 	 */
 	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static com.liferay.depot.model.DepotEntryGroupRel
+			updateDDMStructuresAvailable(
+				long depotEntryGroupRelId, boolean ddmStructuresAvailable)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateDDMStructuresAvailable(
+			depotEntryGroupRelId, ddmStructuresAvailable);
 	}
 
 	public static com.liferay.depot.model.DepotEntryGroupRel updateSearchable(

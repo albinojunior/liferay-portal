@@ -15,6 +15,7 @@
 package com.liferay.polls.service;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.polls.model.PollsChoice;
 import com.liferay.polls.model.PollsQuestion;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -67,11 +68,15 @@ public interface PollsQuestionLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link PollsQuestionLocalServiceUtil} to access the polls question local service. Add custom service methods to <code>com.liferay.polls.service.impl.PollsQuestionLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.polls.service.impl.PollsQuestionLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the polls question local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link PollsQuestionLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the polls question to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was added
@@ -132,6 +137,10 @@ public interface PollsQuestionLocalService
 	/**
 	 * Deletes the polls question with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param questionId the primary key of the polls question
 	 * @return the polls question that was removed
 	 * @throws PortalException if a polls question with the primary key could not be found
@@ -142,6 +151,10 @@ public interface PollsQuestionLocalService
 
 	/**
 	 * Deletes the polls question from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was removed
@@ -158,6 +171,9 @@ public interface PollsQuestionLocalService
 	public void deleteQuestion(PollsQuestion question) throws PortalException;
 
 	public void deleteQuestions(long groupId) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -350,6 +366,11 @@ public interface PollsQuestionLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PollsQuestion> search(
+		long groupId, int start, int end,
+		OrderByComparator<PollsQuestion> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<PollsQuestion> search(
 		long companyId, long[] groupIds, String keywords, int start, int end,
 		OrderByComparator<PollsQuestion> orderByComparator);
 
@@ -358,6 +379,9 @@ public interface PollsQuestionLocalService
 		long companyId, long[] groupIds, String name, String description,
 		boolean andOperator, int start, int end,
 		OrderByComparator<PollsQuestion> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int searchCount(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int searchCount(long companyId, long[] groupIds, String keywords);
@@ -369,6 +393,10 @@ public interface PollsQuestionLocalService
 
 	/**
 	 * Updates the polls question in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect PollsQuestionLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was updated

@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
@@ -101,20 +102,43 @@ public class StatusModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long MODIFIEDDATE_COLUMN_BITMASK = 1L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long ONLINE_COLUMN_BITMASK = 2L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long USERID_COLUMN_BITMASK = 4L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *		#getColumnBitmask(String)
+	 */
+	@Deprecated
 	public static final long STATUSID_COLUMN_BITMASK = 8L;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
-		_entityCacheEnabled = entityCacheEnabled;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
-		_finderCacheEnabled = finderCacheEnabled;
 	}
 
 	public StatusModelImpl() {
@@ -166,9 +190,6 @@ public class StatusModelImpl
 			attributes.put(
 				attributeName, attributeGetterFunction.apply((Status)this));
 		}
-
-		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
-		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
 
 		return attributes;
 	}
@@ -279,6 +300,10 @@ public class StatusModelImpl
 
 	@Override
 	public void setStatusId(long statusId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_statusId = statusId;
 	}
 
@@ -289,12 +314,8 @@ public class StatusModelImpl
 
 	@Override
 	public void setUserId(long userId) {
-		_columnBitmask |= USERID_COLUMN_BITMASK;
-
-		if (!_setOriginalUserId) {
-			_setOriginalUserId = true;
-
-			_originalUserId = _userId;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_userId = userId;
@@ -316,8 +337,13 @@ public class StatusModelImpl
 	public void setUserUuid(String userUuid) {
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalUserId() {
-		return _originalUserId;
+		return GetterUtil.getLong(this.<Long>getColumnOriginalValue("userId"));
 	}
 
 	@Override
@@ -327,19 +353,21 @@ public class StatusModelImpl
 
 	@Override
 	public void setModifiedDate(long modifiedDate) {
-		_columnBitmask |= MODIFIEDDATE_COLUMN_BITMASK;
-
-		if (!_setOriginalModifiedDate) {
-			_setOriginalModifiedDate = true;
-
-			_originalModifiedDate = _modifiedDate;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_modifiedDate = modifiedDate;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public long getOriginalModifiedDate() {
-		return _originalModifiedDate;
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("modifiedDate"));
 	}
 
 	@Override
@@ -354,19 +382,21 @@ public class StatusModelImpl
 
 	@Override
 	public void setOnline(boolean online) {
-		_columnBitmask |= ONLINE_COLUMN_BITMASK;
-
-		if (!_setOriginalOnline) {
-			_setOriginalOnline = true;
-
-			_originalOnline = _online;
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
 		}
 
 		_online = online;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
 	public boolean getOriginalOnline() {
-		return _originalOnline;
+		return GetterUtil.getBoolean(
+			this.<Boolean>getColumnOriginalValue("online_"));
 	}
 
 	@Override
@@ -381,6 +411,10 @@ public class StatusModelImpl
 
 	@Override
 	public void setAwake(boolean awake) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_awake = awake;
 	}
 
@@ -396,6 +430,10 @@ public class StatusModelImpl
 
 	@Override
 	public void setActivePanelIds(String activePanelIds) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_activePanelIds = activePanelIds;
 	}
 
@@ -411,6 +449,10 @@ public class StatusModelImpl
 
 	@Override
 	public void setMessage(String message) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_message = message;
 	}
 
@@ -426,10 +468,32 @@ public class StatusModelImpl
 
 	@Override
 	public void setPlaySound(boolean playSound) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
 		_playSound = playSound;
 	}
 
 	public long getColumnBitmask() {
+		if (_columnBitmask > 0) {
+			return _columnBitmask;
+		}
+
+		if ((_columnOriginalValues == null) ||
+			(_columnOriginalValues == Collections.EMPTY_MAP)) {
+
+			return 0;
+		}
+
+		for (Map.Entry<String, Object> entry :
+				_columnOriginalValues.entrySet()) {
+
+			if (entry.getValue() != getColumnValue(entry.getKey())) {
+				_columnBitmask |= _columnBitmasks.get(entry.getKey());
+			}
+		}
+
 		return _columnBitmask;
 	}
 
@@ -495,16 +559,16 @@ public class StatusModelImpl
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof Status)) {
+		if (!(object instanceof Status)) {
 			return false;
 		}
 
-		Status status = (Status)obj;
+		Status status = (Status)object;
 
 		long primaryKey = status.getPrimaryKey();
 
@@ -521,33 +585,29 @@ public class StatusModelImpl
 		return (int)getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return _entityCacheEnabled;
+		return true;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return _finderCacheEnabled;
+		return true;
 	}
 
 	@Override
 	public void resetOriginalValues() {
-		StatusModelImpl statusModelImpl = this;
+		_columnOriginalValues = Collections.emptyMap();
 
-		statusModelImpl._originalUserId = statusModelImpl._userId;
-
-		statusModelImpl._setOriginalUserId = false;
-
-		statusModelImpl._originalModifiedDate = statusModelImpl._modifiedDate;
-
-		statusModelImpl._setOriginalModifiedDate = false;
-
-		statusModelImpl._originalOnline = statusModelImpl._online;
-
-		statusModelImpl._setOriginalOnline = false;
-
-		statusModelImpl._columnBitmask = 0;
+		_columnBitmask = 0;
 	}
 
 	@Override
@@ -591,7 +651,7 @@ public class StatusModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			4 * attributeGetterFunctions.size() + 2);
+			(4 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -622,7 +682,7 @@ public class StatusModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			5 * attributeGetterFunctions.size() + 4);
+			(5 * attributeGetterFunctions.size()) + 4);
 
 		sb.append("<model><model-name>");
 		sb.append(getModelClassName());
@@ -653,23 +713,94 @@ public class StatusModelImpl
 
 	}
 
-	private static boolean _entityCacheEnabled;
-	private static boolean _finderCacheEnabled;
-
 	private long _statusId;
 	private long _userId;
-	private long _originalUserId;
-	private boolean _setOriginalUserId;
 	private long _modifiedDate;
-	private long _originalModifiedDate;
-	private boolean _setOriginalModifiedDate;
 	private boolean _online;
-	private boolean _originalOnline;
-	private boolean _setOriginalOnline;
 	private boolean _awake;
 	private String _activePanelIds;
 	private String _message;
 	private boolean _playSound;
+
+	public <T> T getColumnValue(String columnName) {
+		columnName = _attributeNames.getOrDefault(columnName, columnName);
+
+		Function<Status, Object> function = _attributeGetterFunctions.get(
+			columnName);
+
+		if (function == null) {
+			throw new IllegalArgumentException(
+				"No attribute getter function found for " + columnName);
+		}
+
+		return (T)function.apply((Status)this);
+	}
+
+	public <T> T getColumnOriginalValue(String columnName) {
+		if (_columnOriginalValues == null) {
+			return null;
+		}
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		return (T)_columnOriginalValues.get(columnName);
+	}
+
+	private void _setColumnOriginalValues() {
+		_columnOriginalValues = new HashMap<String, Object>();
+
+		_columnOriginalValues.put("statusId", _statusId);
+		_columnOriginalValues.put("userId", _userId);
+		_columnOriginalValues.put("modifiedDate", _modifiedDate);
+		_columnOriginalValues.put("online_", _online);
+		_columnOriginalValues.put("awake", _awake);
+		_columnOriginalValues.put("activePanelIds", _activePanelIds);
+		_columnOriginalValues.put("message", _message);
+		_columnOriginalValues.put("playSound", _playSound);
+	}
+
+	private static final Map<String, String> _attributeNames;
+
+	static {
+		Map<String, String> attributeNames = new HashMap<>();
+
+		attributeNames.put("online_", "online");
+
+		_attributeNames = Collections.unmodifiableMap(attributeNames);
+	}
+
+	private transient Map<String, Object> _columnOriginalValues;
+
+	public static long getColumnBitmask(String columnName) {
+		return _columnBitmasks.get(columnName);
+	}
+
+	private static final Map<String, Long> _columnBitmasks;
+
+	static {
+		Map<String, Long> columnBitmasks = new HashMap<>();
+
+		columnBitmasks.put("statusId", 1L);
+
+		columnBitmasks.put("userId", 2L);
+
+		columnBitmasks.put("modifiedDate", 4L);
+
+		columnBitmasks.put("online_", 8L);
+
+		columnBitmasks.put("awake", 16L);
+
+		columnBitmasks.put("activePanelIds", 32L);
+
+		columnBitmasks.put("message", 64L);
+
+		columnBitmasks.put("playSound", 128L);
+
+		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
+	}
+
 	private long _columnBitmask;
 	private Status _escapedModel;
 

@@ -37,7 +37,6 @@ import com.liferay.segments.service.SegmentsEntryLocalService;
 import com.liferay.segments.web.internal.util.comparator.SegmentsEntryModifiedDateComparator;
 import com.liferay.segments.web.internal.util.comparator.SegmentsEntryNameComparator;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -141,12 +140,14 @@ public class SelectSegmentsEntryDisplayContext {
 		return portletURL.toString();
 	}
 
-	public SearchContainer getSearchContainer() throws PortalException {
+	public SearchContainer<SegmentsEntry> getSearchContainer()
+		throws PortalException {
+
 		if (_searchContainer != null) {
 			return _searchContainer;
 		}
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<SegmentsEntry> searchContainer = new SearchContainer(
 			_renderRequest, _getPortletURL(), null, "there-are-no-segments");
 
 		searchContainer.setId("selectSegmentsEntry");
@@ -154,18 +155,17 @@ public class SelectSegmentsEntryDisplayContext {
 		searchContainer.setOrderByComparator(_getOrderByComparator());
 		searchContainer.setOrderByType(getOrderByType());
 
-		LinkedHashMap<String, Object> params =
-			LinkedHashMapBuilder.<String, Object>put(
-				"excludedSegmentsEntryIds", _getExcludedSegmentsEntryIds()
-			).put(
-				"excludedSources", _getExcludedSources()
-			).build();
-
 		BaseModelSearchResult<SegmentsEntry> baseModelSearchResult =
 			_segmentsEntryLocalService.searchSegmentsEntries(
 				_themeDisplay.getCompanyId(), _themeDisplay.getScopeGroupId(),
-				_getKeywords(), true, params, searchContainer.getStart(),
-				searchContainer.getEnd(), _getSort());
+				_getKeywords(), true,
+				LinkedHashMapBuilder.<String, Object>put(
+					"excludedSegmentsEntryIds", _getExcludedSegmentsEntryIds()
+				).put(
+					"excludedSources", _getExcludedSources()
+				).build(),
+				searchContainer.getStart(), searchContainer.getEnd(),
+				_getSort());
 
 		searchContainer.setResults(baseModelSearchResult.getBaseModels());
 		searchContainer.setTotal(baseModelSearchResult.getLength());
@@ -173,6 +173,10 @@ public class SelectSegmentsEntryDisplayContext {
 		_searchContainer = searchContainer;
 
 		return _searchContainer;
+	}
+
+	public String getSearchContainerId() {
+		return "selectSegmentsEntrySegments";
 	}
 
 	public long[] getSelectedSegmentsEntryIds() {
@@ -321,6 +325,7 @@ public class SelectSegmentsEntryDisplayContext {
 		}
 
 		portletURL.setParameter("displayStyle", getDisplayStyle());
+		portletURL.setParameter("eventName", getEventName());
 		portletURL.setParameter(
 			"excludedSegmentsEntryIds",
 			StringUtil.merge(_getExcludedSegmentsEntryIds()));
@@ -384,7 +389,7 @@ public class SelectSegmentsEntryDisplayContext {
 	private String _orderByType;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
-	private SearchContainer _searchContainer;
+	private SearchContainer<SegmentsEntry> _searchContainer;
 	private final SegmentsEntryLocalService _segmentsEntryLocalService;
 	private final ThemeDisplay _themeDisplay;
 

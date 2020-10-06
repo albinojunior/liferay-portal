@@ -14,6 +14,30 @@
 
 Liferay.DDM = {
 	FormSettings: {
-		spritemap: '/lexicon/icons.svg',
+		restrictedFormURL: 'http://localhost:8080/group/forms/shared/-/form/',
+		sharedFormURL: 'http://localhost:8080/web/forms/shared/-/form/',
+		spritemap: '/clay/icons.svg',
 	},
+};
+
+window.themeDisplay = {
+	getLanguageId: () => 'en_US',
+};
+
+window.Liferay = {
+	...(window.Liferay || {}),
+	ThemeDisplay: window.themeDisplay,
+};
+
+const REGEX_SUB = /\x$/g;
+
+window.Liferay.Util.sub = function (string, data) {
+	if (
+		arguments.length > 2 ||
+		(typeof data !== 'object' && typeof data !== 'function')
+	) {
+		data = Array.prototype.slice.call(arguments, 1);
+	}
+
+	return string.replace(REGEX_SUB, data);
 };

@@ -9,20 +9,21 @@
  * distribution rights of the Software.
  */
 
+import ClayIcon from '@clayui/icon';
 import React, {useEffect, useRef} from 'react';
 import MaskedInput from 'react-text-mask';
 
-import Icon from '../../shared/components/Icon.es';
 import {
 	addClickOutsideListener,
 	handleClickOutside,
 	removeClickOutsideListener,
 } from '../../shared/components/filter/util/filterEvents.es';
+import {getMaskByDateFormat} from '../../shared/util/date.es';
 import {sub} from '../../shared/util/lang.es';
 import {useCustomTimeRange} from './hooks/useCustomTimeRange.es';
 
 const CustomTimeRangeForm = ({
-	filterKey,
+	handleSelectFilter,
 	items,
 	prefixKey = '',
 	setFormVisible,
@@ -31,18 +32,19 @@ const CustomTimeRangeForm = ({
 	const {
 		applyCustomFilter,
 		dateEnd,
+		dateFormat,
 		dateStart,
 		errors = {},
 		setDateEnd,
 		setDateStart,
 		validate,
-	} = useCustomTimeRange(filterKey, prefixKey, withoutRouteParams);
+	} = useCustomTimeRange(prefixKey, withoutRouteParams);
 	const wrapperRef = useRef();
 
-	const dateFormat = 'MM/DD/YYYY';
+	const dateMask = getMaskByDateFormat(dateFormat);
 
 	const activeCustomFilter = () => {
-		items.forEach(item => {
+		items.forEach((item) => {
 			item.active = item.key === 'custom';
 		});
 	};
@@ -55,7 +57,7 @@ const CustomTimeRangeForm = ({
 		setFormVisible(false);
 	};
 
-	const onChange = setter => ({target: {value}}) => {
+	const onChange = (setter) => ({target: {value}}) => {
 		setter(value);
 	};
 
@@ -64,12 +66,10 @@ const CustomTimeRangeForm = ({
 
 		if (!dateEndError && !dateStartError) {
 			activeCustomFilter();
-			applyCustomFilter();
+			applyCustomFilter(handleSelectFilter);
 			setFormVisible(false);
 		}
 	};
-
-	const dateMask = [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/];
 
 	useEffect(() => {
 		const onClickOutside = handleClickOutside(() => {
@@ -83,10 +83,7 @@ const CustomTimeRangeForm = ({
 
 	return (
 		<div className="custom-range-wrapper" ref={wrapperRef}>
-			<form
-				className="custom-range-form"
-				data-testid="customTimeRangeForm"
-			>
+			<form className="custom-range-form">
 				<h4 className="mb-2">{Liferay.Language.get('custom-range')}</h4>
 
 				<span className="form-text mb-3 text-semi-bold">
@@ -103,7 +100,6 @@ const CustomTimeRangeForm = ({
 
 						<MaskedInput
 							className="form-control"
-							data-testid="dateStartInput"
 							defaultValue={dateStart}
 							mask={dateMask}
 							name="dateStart"
@@ -120,7 +116,6 @@ const CustomTimeRangeForm = ({
 
 						<MaskedInput
 							className="form-control"
-							data-testid="dateEndInput"
 							defaultValue={dateEnd}
 							mask={dateMask}
 							name="dateEnd"
@@ -135,19 +130,11 @@ const CustomTimeRangeForm = ({
 			<div className="dropdown-divider" />
 
 			<div className="custom-range-footer">
-				<button
-					className="btn btn-secondary"
-					data-testid="cancelButton"
-					onMouseDown={onCancel}
-				>
+				<button className="btn btn-secondary" onMouseDown={onCancel}>
 					{Liferay.Language.get('cancel')}
 				</button>
 
-				<button
-					className="btn btn-primary ml-3"
-					data-testid="applyButton"
-					onClick={onApply}
-				>
+				<button className="btn btn-primary ml-3" onClick={onApply}>
 					{Liferay.Language.get('apply')}
 				</button>
 			</div>
@@ -165,12 +152,10 @@ const FormGroupItem = ({children, error}) => (
 			<div className="form-feedback-group">
 				<div className="form-feedback-item">
 					<span className="form-feedback-indicator mr-2">
-						<Icon iconName="exclamation-full" />
+						<ClayIcon symbol="exclamation-full" />
 					</span>
 
-					<span className="text-semi-bold" data-testid="errorSpan">
-						{error}
-					</span>
+					<span className="text-semi-bold">{error}</span>
 				</div>
 			</div>
 		)}

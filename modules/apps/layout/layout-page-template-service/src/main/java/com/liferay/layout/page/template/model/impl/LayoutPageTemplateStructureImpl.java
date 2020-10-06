@@ -32,6 +32,7 @@ public class LayoutPageTemplateStructureImpl
 	public LayoutPageTemplateStructureImpl() {
 	}
 
+	@Override
 	public String getData(long segmentsExperienceId) {
 		LayoutPageTemplateStructureRel layoutPageTemplateStructureRel =
 			LayoutPageTemplateStructureRelLocalServiceUtil.
@@ -45,6 +46,7 @@ public class LayoutPageTemplateStructureImpl
 		return StringPool.BLANK;
 	}
 
+	@Override
 	public String getData(long[] segmentsExperienceIds) throws PortalException {
 		long segmentsExperienceId = _getFirstSegmentsExperienceId(
 			segmentsExperienceIds);
@@ -52,14 +54,19 @@ public class LayoutPageTemplateStructureImpl
 		return getData(segmentsExperienceId);
 	}
 
+	@Override
+	public long getPlid() {
+		return getClassPK();
+	}
+
 	private long _getFirstSegmentsExperienceId(long[] segmentsExperienceIds) {
 		if (segmentsExperienceIds.length == 1) {
 			return segmentsExperienceIds[0];
 		}
 
-		LongStream stream = Arrays.stream(segmentsExperienceIds);
+		LongStream longStream = Arrays.stream(segmentsExperienceIds);
 
-		return stream.filter(
+		return longStream.filter(
 			segmentsExperienceId -> {
 				LayoutPageTemplateStructureRel layoutPageTemplateStructureRel =
 					LayoutPageTemplateStructureRelLocalServiceUtil.

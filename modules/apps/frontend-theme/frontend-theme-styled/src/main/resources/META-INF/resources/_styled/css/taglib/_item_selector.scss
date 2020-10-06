@@ -60,7 +60,7 @@
 	}
 }
 
-.dialog-iframe-popup {
+.portal-popup {
 	background-color: #fff;
 }
 
@@ -69,8 +69,8 @@
 }
 
 .item-selector {
-	.card-row {
-		align-items: center;
+	.card-row > .autofit-col-expand {
+		padding-top: 4px;
 	}
 
 	.drop-zone {

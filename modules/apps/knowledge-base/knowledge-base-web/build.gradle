@@ -5,7 +5,7 @@ buildCSS {
 }
 
 dependencies {
-	compileOnly group: "com.liferay", name: "biz.aQute.bnd.annotation", version: "4.2.0.LIFERAY-PATCHED-1"
+	compileOnly group: "biz.aQute.bnd", name: "biz.aQute.bnd.annotation", version: "4.2.0"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.util.java", version: "default"
@@ -22,6 +22,7 @@ dependencies {
 	compileOnly project(":apps:document-library:document-library-taglib")
 	compileOnly project(":apps:expando:expando-taglib")
 	compileOnly project(":apps:export-import:export-import-api")
+	compileOnly project(":apps:frontend-editor:frontend-editor-taglib")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib-clay")
 	compileOnly project(":apps:frontend-taglib:frontend-taglib-soy")
@@ -30,6 +31,7 @@ dependencies {
 	compileOnly project(":apps:knowledge-base:knowledge-base-api")
 	compileOnly project(":apps:message-boards:message-boards-api")
 	compileOnly project(":apps:portal:portal-upgrade-api")
+	compileOnly project(":apps:ratings:ratings-taglib")
 	compileOnly project(":apps:rss:rss-taglib")
 	compileOnly project(":apps:social:social-bookmarks-taglib")
 	compileOnly project(":apps:static:osgi:osgi-util")

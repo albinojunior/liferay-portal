@@ -9,11 +9,11 @@
  * distribution rights of the Software.
  */
 
+import ClayIcon from '@clayui/icon';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
 import {useRouter} from '../../hooks/useRouter.es';
-import Icon from '../Icon.es';
 import Portal from '../portal/Portal.es';
 import {parse} from '../router/queryString.es';
 
@@ -31,14 +31,20 @@ const HeaderBackButton = ({basePath, container}) => {
 	}
 
 	return (
-		<Portal container={container}>
-			<li className="control-menu-nav-item">
-				<Link className="control-menu-icon lfr-icon-item" to={backPath}>
-					<span className="icon-monospaced">
-						<Icon iconName="angle-left" />
-					</span>
-				</Link>
-			</li>
+		<Portal
+			className="control-menu-nav-item"
+			container={container}
+			elementId="backButton"
+		>
+			<Link
+				className="control-menu-icon"
+				data-testid="headerBackButton"
+				to={backPath}
+			>
+				<span className="icon-monospaced">
+					<ClayIcon symbol="angle-left" />
+				</span>
+			</Link>
 		</Portal>
 	);
 };

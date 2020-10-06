@@ -17,11 +17,11 @@ package com.liferay.layout.page.template.util;
 import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.layout.util.constants.LayoutDataItemTypeConstants;
 import com.liferay.layout.util.structure.ColumnLayoutStructureItem;
-import com.liferay.layout.util.structure.ContainerLayoutStructureItem;
+import com.liferay.layout.util.structure.ContainerStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.DropZoneLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
-import com.liferay.layout.util.structure.RowLayoutStructureItem;
+import com.liferay.layout.util.structure.RowStyledLayoutStructureItem;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -77,44 +77,65 @@ public class LayoutDataConverter {
 			if (inputRowJSONObject.getInt("type") ==
 					FragmentConstants.TYPE_COMPONENT) {
 
-				ContainerLayoutStructureItem containerLayoutStructureItem =
-					(ContainerLayoutStructureItem)
-						layoutStructure.addContainerLayoutStructureItem(
-							rootLayoutStructureItem.getItemId(), i);
+				ContainerStyledLayoutStructureItem
+					containerStyledLayoutStructureItem =
+						(ContainerStyledLayoutStructureItem)
+							layoutStructure.addContainerLayoutStructureItem(
+								rootLayoutStructureItem.getItemId(), i);
 
 				JSONObject inputRowConfigJSONObject =
 					inputRowJSONObject.getJSONObject("config");
 
 				if (inputRowConfigJSONObject != null) {
-					containerLayoutStructureItem.setBackgroundColorCssClass(
-						inputRowConfigJSONObject.getString(
-							"backgroundColorCssClass"));
-					containerLayoutStructureItem.setBackgroundImageJSONObject(
-						_getBackgroundImageJSONObject(
-							inputRowConfigJSONObject));
-					containerLayoutStructureItem.setContainerType(
-						inputRowConfigJSONObject.getString(
-							"containerType", "fixed"));
-					containerLayoutStructureItem.setPaddingBottom(
-						inputRowConfigJSONObject.getInt("paddingVertical", 3));
-					containerLayoutStructureItem.setPaddingHorizontal(
-						inputRowConfigJSONObject.getInt(
-							"paddingHorizontal", 3));
-					containerLayoutStructureItem.setPaddingTop(
-						inputRowConfigJSONObject.getInt("paddingVertical", 3));
+					JSONObject stylesJSONObject = JSONUtil.put(
+						"backgroundImage",
+						_getBackgroundImageJSONObject(inputRowConfigJSONObject)
+					).put(
+						"paddingBottom",
+						inputRowConfigJSONObject.getInt("paddingVertical", 0)
+					).put(
+						"paddingLeft",
+						inputRowConfigJSONObject.getInt("paddingHorizontal", 0)
+					).put(
+						"paddingRight",
+						inputRowConfigJSONObject.getInt("paddingHorizontal", 0)
+					).put(
+						"paddingTop",
+						inputRowConfigJSONObject.getInt("paddingVertical", 0)
+					);
+
+					if (inputRowConfigJSONObject.has("containerType")) {
+						containerStyledLayoutStructureItem.setWidthType(
+							inputRowConfigJSONObject.getString(
+								"containerType", "fixed"));
+					}
+					else {
+						containerStyledLayoutStructureItem.setWidthType(
+							inputRowConfigJSONObject.getString(
+								"widthType", "fixed"));
+					}
+
+					containerStyledLayoutStructureItem.updateItemConfig(
+						JSONUtil.put(
+							"backgroundColorCssClass",
+							inputRowConfigJSONObject.getString(
+								"backgroundColorCssClass")
+						).put(
+							"styles", stylesJSONObject
+						));
 				}
 
-				RowLayoutStructureItem rowLayoutStructureItem =
-					(RowLayoutStructureItem)
+				RowStyledLayoutStructureItem rowStyledLayoutStructureItem =
+					(RowStyledLayoutStructureItem)
 						layoutStructure.addRowLayoutStructureItem(
-							containerLayoutStructureItem.getItemId(), 0,
+							containerStyledLayoutStructureItem.getItemId(), 0,
 							columnsJSONArray.length());
 
 				if (inputRowConfigJSONObject != null) {
 					boolean columnSpacing = inputRowConfigJSONObject.getBoolean(
 						"columnSpacing", true);
 
-					rowLayoutStructureItem.setGutters(columnSpacing);
+					rowStyledLayoutStructureItem.setGutters(columnSpacing);
 				}
 
 				for (int j = 0; j < columnsJSONArray.length(); j++) {
@@ -124,7 +145,7 @@ public class LayoutDataConverter {
 					ColumnLayoutStructureItem columnLayoutStructureItem =
 						(ColumnLayoutStructureItem)
 							layoutStructure.addColumnLayoutStructureItem(
-								rowLayoutStructureItem.getItemId(), j);
+								rowStyledLayoutStructureItem.getItemId(), j);
 
 					columnLayoutStructureItem.setSize(
 						inputColumnJSONObject.getInt("size"));
@@ -204,7 +225,7 @@ public class LayoutDataConverter {
 		JSONObject inputRowConfigJSONObject) {
 
 		if (inputRowConfigJSONObject.isNull("backgroundImage")) {
-			return null;
+			return JSONFactoryUtil.createJSONObject();
 		}
 
 		Object backgroundImage = inputRowConfigJSONObject.get(

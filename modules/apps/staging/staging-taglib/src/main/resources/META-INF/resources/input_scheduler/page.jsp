@@ -18,7 +18,21 @@
 
 <ul class="hide options portlet-list select-options" id="<portlet:namespace />selectSchedule">
 	<li>
-		<liferay-ui:error exception="<%= com.liferay.portal.kernel.scheduler.SchedulerException.class %>" message="a-wrong-end-date-was-specified-the-scheduled-process-will-never-run" />
+		<liferay-ui:error exception="<%= SchedulerException.class %>">
+
+			<%
+			SchedulerException schedulerException = (SchedulerException)errorException;
+			%>
+
+			<c:choose>
+				<c:when test="<%= schedulerException.getType() == SchedulerException.TYPE_INVALID_START_DATE %>">
+					<liferay-ui:message key="a-wrong-start-date-was-specified-the-scheduled-process-cannot-start-in-the-past" />
+				</c:when>
+				<c:otherwise>
+					<liferay-ui:message key="a-wrong-end-date-was-specified-the-scheduled-process-will-never-run" />
+				</c:otherwise>
+			</c:choose>
+		</liferay-ui:error>
 
 		<aui:input name="jobName" type="hidden" />
 
@@ -38,8 +52,6 @@
 		int startMinute = ParamUtil.get(request, "schedulerStartDateMinute", cal.get(Calendar.MINUTE));
 		int startMonth = ParamUtil.get(request, "schedulerStartDateMonth", cal.get(Calendar.MONTH));
 		int startYear = ParamUtil.get(request, "schedulerStartDateYear", cal.get(Calendar.YEAR));
-
-		String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-repeat:cssClass"));
 
 		Recurrence recurrence = null;
 
@@ -64,7 +76,6 @@
 
 		int[] monthIds = CalendarUtil.getMonthIds();
 		String[] months = CalendarUtil.getMonths(locale);
-		String timeZoneID = timeZone.getID();
 		%>
 
 		<table class="staging-publish-schedule">
@@ -81,6 +92,7 @@
 								dayValue="<%= startDay %>"
 								disabled="<%= false %>"
 								firstDayOfWeek="<%= cal.getFirstDayOfWeek() - 1 %>"
+								firstEnabledDate="<%= new Date() %>"
 								monthParam="schedulerStartDateMonth"
 								monthValue="<%= startMonth %>"
 								name="schedulerStartDate"
@@ -115,7 +127,7 @@
 						<liferay-ui:message key="time-zone" />:
 					</th>
 					<td class="staging-scheduler-content">
-						<aui:input cssClass="calendar-portlet-time-zone-field" label="" name="timeZoneId" type="timeZone" value="<%= timeZoneID %>" />
+						<aui:input cssClass="calendar-portlet-time-zone-field" label="" name="timeZoneId" type="timeZone" value="<%= timeZone.getID() %>" />
 					</td>
 				</tr>
 			</tbody>
@@ -229,7 +241,9 @@
 						String[] days = CalendarUtil.getDays(locale);
 						%>
 
-						<div class="row weekdays">
+						<clay:row
+							cssClass="weekdays"
+						>
 
 							<%
 							int firstDayOfWeek = cal.getFirstDayOfWeek();
@@ -241,15 +255,17 @@
 							for (Weekday weekday : weekdaysArray) {
 							%>
 
-								<div class="col-md-3">
+								<clay:col
+									md="3"
+								>
 									<aui:input inlineLabel="right" label="<%= days[weekday.getCalendarWeekday() - 1] %>" name='<%= "weeklyDayPos" + weekday.getCalendarWeekday() %>' type="checkbox" value="<%= _getWeeklyDayPos(request, weekday.getCalendarWeekday(), recurrence) %>" />
-								</div>
+								</clay:col>
 
 							<%
 							}
 							%>
 
-						</div>
+						</clay:row>
 					</td>
 				</tr>
 			</tbody>
@@ -438,7 +454,7 @@
 		</table>
 
 		<script>
-			(function() {
+			(function () {
 				var tables = document.querySelectorAll(
 					'#<portlet:namespace />recurrenceTypeDailyTable, #<portlet:namespace />recurrenceTypeMonthlyTable, #<portlet:namespace />recurrenceTypeNeverTable, #<portlet:namespace />recurrenceTypeWeeklyTable, #<portlet:namespace />recurrenceTypeYearlyTable'
 				);
@@ -447,13 +463,13 @@
 				);
 
 				if (recurrenceTypeSelect) {
-					recurrenceTypeSelect.addEventListener('change', function(event) {
+					recurrenceTypeSelect.addEventListener('change', function (event) {
 						var selectedTableId =
 							'<portlet:namespace />' +
 							recurrenceTypeSelect[recurrenceTypeSelect.selectedIndex].id +
 							'Table';
 
-						Array.prototype.forEach.call(tables, function(table) {
+						Array.prototype.forEach.call(tables, function (table) {
 							if (table.id !== selectedTableId) {
 								table.classList.add('hide');
 							}

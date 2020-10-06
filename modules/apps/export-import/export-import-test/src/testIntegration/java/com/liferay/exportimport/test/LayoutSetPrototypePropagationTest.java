@@ -21,6 +21,7 @@ import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.test.util.JournalTestUtil;
+import com.liferay.journal.util.JournalContent;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -57,16 +58,18 @@ import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.servlet.filters.cache.CacheUtil;
+import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.sites.kernel.util.Sites;
 import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,7 +133,7 @@ public class LayoutSetPrototypePropagationTest
 	}
 
 	@Test
-	public void testLayoutDeleteAndReaddWithSameFriendlyURL() throws Exception {
+	public void testLayoutDeleteAndReadWithSameFriendlyURL() throws Exception {
 		setLinkEnabled(true);
 
 		Layout layout = LayoutTestUtil.addLayout(
@@ -699,16 +702,21 @@ public class LayoutSetPrototypePropagationTest
 
 		setLinkEnabled(linkEnabled);
 
-		String content = _layoutSetPrototypeJournalArticle.getContent();
+		Map<String, String> content = new HashMap<>();
 
 		for (String languageId : journalArticle.getAvailableLanguageIds()) {
-			String localization = LocalizationUtil.getLocalization(
-				content, languageId);
+			String localization = _journalContent.getContent(
+				_layoutSetPrototypeJournalArticle.getGroupId(),
+				_layoutSetPrototypeJournalArticle.getArticleId(),
+				Constants.VIEW, languageId);
 
-			String importedLocalization = LocalizationUtil.getLocalization(
-				journalArticle.getContent(), languageId);
+			String importedLocalization = _journalContent.getContent(
+				journalArticle.getGroupId(), journalArticle.getArticleId(),
+				Constants.VIEW, languageId);
 
 			Assert.assertEquals(localization, importedLocalization);
+
+			content.put(languageId, localization);
 		}
 
 		String newContent = DDMStructureTestUtil.getSampleStructuredContent(
@@ -722,11 +730,11 @@ public class LayoutSetPrototypePropagationTest
 		// Portlet data is no longer propagated once the group has been created
 
 		for (String languageId : journalArticle.getAvailableLanguageIds()) {
-			String localization = LocalizationUtil.getLocalization(
-				content, languageId);
+			String localization = content.get(languageId);
 
-			String importedLocalization = LocalizationUtil.getLocalization(
-				journalArticle.getContent(), languageId);
+			String importedLocalization = _journalContent.getContent(
+				journalArticle.getGroupId(), journalArticle.getArticleId(),
+				Constants.VIEW, languageId);
 
 			Assert.assertEquals(localization, importedLocalization);
 		}
@@ -770,13 +778,13 @@ public class LayoutSetPrototypePropagationTest
 			Layout layout, boolean layoutUpdateable)
 		throws Exception {
 
-		UnicodeProperties typeSettingsProperties =
+		UnicodeProperties typeSettingsUnicodeProperties =
 			layout.getTypeSettingsProperties();
 
-		typeSettingsProperties.put(
+		typeSettingsUnicodeProperties.put(
 			Sites.LAYOUT_UPDATEABLE, String.valueOf(layoutUpdateable));
 
-		layout.setTypeSettingsProperties(typeSettingsProperties);
+		layout.setTypeSettingsProperties(typeSettingsUnicodeProperties);
 
 		return LayoutLocalServiceUtil.updateLayout(layout);
 	}
@@ -829,6 +837,10 @@ public class LayoutSetPrototypePropagationTest
 
 	private int _initialLayoutCount;
 	private int _initialPrototypeLayoutCount;
+
+	@Inject
+	private JournalContent _journalContent;
+
 	private Layout _layout;
 
 	@DeleteAfterTestRun

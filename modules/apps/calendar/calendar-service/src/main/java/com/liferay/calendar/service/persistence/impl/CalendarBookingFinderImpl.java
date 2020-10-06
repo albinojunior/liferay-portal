@@ -410,10 +410,10 @@ public class CalendarBookingFinderImpl
 				queryPos.add(statuses);
 			}
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -548,7 +548,7 @@ public class CalendarBookingFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(calendarIds.length * 2 + 1);
+		StringBundler sb = new StringBundler((calendarIds.length * 2) + 1);
 
 		sb.append(" (");
 
@@ -571,7 +571,7 @@ public class CalendarBookingFinderImpl
 		}
 
 		StringBundler sb = new StringBundler(
-			calendarResourceIds.length * 2 + 1);
+			(calendarResourceIds.length * 2) + 1);
 
 		sb.append(" (");
 
@@ -623,7 +623,7 @@ public class CalendarBookingFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(statuses.length * 2 + 1);
+		StringBundler sb = new StringBundler((statuses.length * 2) + 1);
 
 		sb.append("AND (");
 

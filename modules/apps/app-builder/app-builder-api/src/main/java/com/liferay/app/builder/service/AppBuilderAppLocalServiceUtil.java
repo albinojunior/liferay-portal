@@ -41,6 +41,10 @@ public class AppBuilderAppLocalServiceUtil {
 	/**
 	 * Adds the app builder app to the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderApp the app builder app
 	 * @return the app builder app that was added
 	 */
@@ -51,14 +55,45 @@ public class AppBuilderAppLocalServiceUtil {
 	}
 
 	public static com.liferay.app.builder.model.AppBuilderApp addAppBuilderApp(
-			long groupId, long companyId, long userId, long ddmStructureId,
-			long ddmStructureLayoutId, long deDataListViewId,
-			java.util.Map<java.util.Locale, String> nameMap, int status)
+			long groupId, long companyId, long userId, boolean active,
+			long ddlRecordSetId, long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId,
+			java.util.Map<java.util.Locale, String> nameMap, String scope)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().addAppBuilderApp(
-			groupId, companyId, userId, ddmStructureId, ddmStructureLayoutId,
-			deDataListViewId, nameMap, status);
+			groupId, companyId, userId, active, ddlRecordSetId, ddmStructureId,
+			ddmStructureLayoutId, deDataListViewId, nameMap, scope);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #addAppBuilderApp(long, long, long, boolean, long, long,
+	 long, Map, String)}
+	 */
+	@Deprecated
+	public static com.liferay.app.builder.model.AppBuilderApp addAppBuilderApp(
+			long groupId, long companyId, long userId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId,
+			java.util.Map<java.util.Locale, String> nameMap)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addAppBuilderApp(
+			groupId, companyId, userId, active, ddmStructureId,
+			ddmStructureLayoutId, deDataListViewId, nameMap);
+	}
+
+	public static com.liferay.app.builder.model.AppBuilderApp addAppBuilderApp(
+			long groupId, long companyId, long userId, boolean active,
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId,
+			java.util.Map<java.util.Locale, String> nameMap, String scope)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addAppBuilderApp(
+			groupId, companyId, userId, active, ddmStructureId,
+			ddmStructureLayoutId, deDataListViewId, nameMap, scope);
 	}
 
 	/**
@@ -86,6 +121,10 @@ public class AppBuilderAppLocalServiceUtil {
 	/**
 	 * Deletes the app builder app from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderApp the app builder app
 	 * @return the app builder app that was removed
 	 */
@@ -98,6 +137,10 @@ public class AppBuilderAppLocalServiceUtil {
 
 	/**
 	 * Deletes the app builder app with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param appBuilderAppId the primary key of the app builder app
 	 * @return the app builder app that was removed
@@ -125,6 +168,12 @@ public class AppBuilderAppLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deletePersistedModel(persistedModel);
+	}
+
+	public static <T> T dslQuery(
+		com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
+
+		return getService().dslQuery(dslQuery);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.DynamicQuery
@@ -267,9 +316,9 @@ public class AppBuilderAppLocalServiceUtil {
 	}
 
 	public static java.util.List<Long> getAppBuilderAppIds(
-		int status, String type) {
+		boolean active, String type) {
 
-		return getService().getAppBuilderAppIds(status, type);
+		return getService().getAppBuilderAppIds(active, type);
 	}
 
 	/**
@@ -296,9 +345,15 @@ public class AppBuilderAppLocalServiceUtil {
 	}
 
 	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
-		getAppBuilderApps(long companyId, int status) {
+		getAppBuilderApps(long companyId, boolean active) {
 
-		return getService().getAppBuilderApps(companyId, status);
+		return getService().getAppBuilderApps(companyId, active);
+	}
+
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(long companyId, boolean active, String scope) {
+
+		return getService().getAppBuilderApps(companyId, active, scope);
 	}
 
 	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
@@ -322,6 +377,30 @@ public class AppBuilderAppLocalServiceUtil {
 
 		return getService().getAppBuilderApps(
 			groupId, companyId, ddmStructureId, start, end, orderByComparator);
+	}
+
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(
+			long groupId, long companyId, long ddmStructureId, String scope,
+			int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getAppBuilderApps(
+			groupId, companyId, ddmStructureId, scope, start, end,
+			orderByComparator);
+	}
+
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(
+			long groupId, String scope, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getAppBuilderApps(
+			groupId, scope, start, end, orderByComparator);
 	}
 
 	/**
@@ -379,6 +458,49 @@ public class AppBuilderAppLocalServiceUtil {
 			groupId, companyId, ddmStructureId);
 	}
 
+	public static int getAppBuilderAppsCount(
+		long groupId, long companyId, long ddmStructureId, String scope) {
+
+		return getService().getAppBuilderAppsCount(
+			groupId, companyId, ddmStructureId, scope);
+	}
+
+	public static int getAppBuilderAppsCount(long groupId, String scope) {
+		return getService().getAppBuilderAppsCount(groupId, scope);
+	}
+
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getCompanyAppBuilderApps(
+			long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getCompanyAppBuilderApps(
+			companyId, start, end, orderByComparator);
+	}
+
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getCompanyAppBuilderApps(
+			long companyId, String scope, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getCompanyAppBuilderApps(
+			companyId, scope, start, end, orderByComparator);
+	}
+
+	public static int getCompanyAppBuilderAppsCount(long companyId) {
+		return getService().getCompanyAppBuilderAppsCount(companyId);
+	}
+
+	public static int getCompanyAppBuilderAppsCount(
+		long companyId, String scope) {
+
+		return getService().getCompanyAppBuilderAppsCount(companyId, scope);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext
@@ -416,6 +538,10 @@ public class AppBuilderAppLocalServiceUtil {
 	/**
 	 * Updates the app builder app in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect AppBuilderAppLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param appBuilderApp the app builder app
 	 * @return the app builder app that was updated
 	 */
@@ -428,14 +554,15 @@ public class AppBuilderAppLocalServiceUtil {
 
 	public static com.liferay.app.builder.model.AppBuilderApp
 			updateAppBuilderApp(
-				long userId, long appBuilderAppId, long ddmStructureId,
-				long ddmStructureLayoutId, long deDataListViewId,
-				java.util.Map<java.util.Locale, String> nameMap, int status)
+				long userId, long appBuilderAppId, boolean active,
+				long ddmStructureId, long ddmStructureLayoutId,
+				long deDataListViewId,
+				java.util.Map<java.util.Locale, String> nameMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().updateAppBuilderApp(
-			userId, appBuilderAppId, ddmStructureId, ddmStructureLayoutId,
-			deDataListViewId, nameMap, status);
+			userId, appBuilderAppId, active, ddmStructureId,
+			ddmStructureLayoutId, deDataListViewId, nameMap);
 	}
 
 	public static AppBuilderAppLocalService getService() {

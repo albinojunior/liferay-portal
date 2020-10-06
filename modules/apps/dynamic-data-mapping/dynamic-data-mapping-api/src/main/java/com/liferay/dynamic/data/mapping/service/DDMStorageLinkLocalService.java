@@ -15,6 +15,9 @@
 package com.liferay.dynamic.data.mapping.service;
 
 import com.liferay.dynamic.data.mapping.model.DDMStorageLink;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.sql.dsl.query.DSLQuery;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -27,6 +30,8 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -48,22 +53,28 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see DDMStorageLinkLocalServiceUtil
  * @generated
  */
+@CTAware
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
 )
 public interface DDMStorageLinkLocalService
-	extends BaseLocalService, PersistedModelLocalService {
+	extends BaseLocalService, CTService<DDMStorageLink>,
+			PersistedModelLocalService {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link DDMStorageLinkLocalServiceUtil} to access the ddm storage link local service. Add custom service methods to <code>com.liferay.dynamic.data.mapping.service.impl.DDMStorageLinkLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.dynamic.data.mapping.service.impl.DDMStorageLinkLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the ddm storage link local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link DDMStorageLinkLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
 	 * Adds the ddm storage link to the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStorageLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param ddmStorageLink the ddm storage link
 	 * @return the ddm storage link that was added
@@ -72,8 +83,9 @@ public interface DDMStorageLinkLocalService
 	public DDMStorageLink addDDMStorageLink(DDMStorageLink ddmStorageLink);
 
 	public DDMStorageLink addStorageLink(
-		long classNameId, long classPK, long structureVersionId,
-		ServiceContext serviceContext);
+			long classNameId, long classPK, long structureVersionId,
+			ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	 * Creates a new ddm storage link with the primary key. Does not add the ddm storage link to the database.
@@ -95,6 +107,10 @@ public interface DDMStorageLinkLocalService
 	/**
 	 * Deletes the ddm storage link from the database. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStorageLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStorageLink the ddm storage link
 	 * @return the ddm storage link that was removed
 	 */
@@ -103,6 +119,10 @@ public interface DDMStorageLinkLocalService
 
 	/**
 	 * Deletes the ddm storage link with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStorageLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
 	 *
 	 * @param storageLinkId the primary key of the ddm storage link
 	 * @return the ddm storage link that was removed
@@ -124,6 +144,9 @@ public interface DDMStorageLinkLocalService
 	public void deleteStorageLink(long storageLinkId);
 
 	public void deleteStructureStorageLinks(long structureId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public <T> T dslQuery(DSLQuery dslQuery);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -296,6 +319,10 @@ public interface DDMStorageLinkLocalService
 	/**
 	 * Updates the ddm storage link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
+	 * <p>
+	 * <strong>Important:</strong> Inspect DDMStorageLinkLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * </p>
+	 *
 	 * @param ddmStorageLink the ddm storage link
 	 * @return the ddm storage link that was updated
 	 */
@@ -305,5 +332,20 @@ public interface DDMStorageLinkLocalService
 	public DDMStorageLink updateStorageLink(
 			long storageLinkId, long classNameId, long classPK)
 		throws PortalException;
+
+	@Override
+	@Transactional(enabled = false)
+	public CTPersistence<DDMStorageLink> getCTPersistence();
+
+	@Override
+	@Transactional(enabled = false)
+	public Class<DDMStorageLink> getModelClass();
+
+	@Override
+	@Transactional(rollbackFor = Throwable.class)
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<DDMStorageLink>, R, E>
+				updateUnsafeFunction)
+		throws E;
 
 }
