@@ -15,7 +15,7 @@
 </tr>
 <tr>
 	<td>DELETED_CALENDAR_SUCCESS_MESSAGE</td>
-	<td>//div[contains(@class,'alert') and contains(@class,'alert-success')]//div[@class='yui3-widget-bd']</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-success')]</td>
 	<td></td>
 </tr>
 <tr>

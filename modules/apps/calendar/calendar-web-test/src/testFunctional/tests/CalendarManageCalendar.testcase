@@ -259,8 +259,6 @@ definition {
 
 	@priority = "4"
 	test DeleteCalendarMyCalendars {
-		property portal.upstream = "quarantine";
-
 		Calendar.add(
 			calendarName = "Calendar Name",
 			calendarType = "My Calendars");
