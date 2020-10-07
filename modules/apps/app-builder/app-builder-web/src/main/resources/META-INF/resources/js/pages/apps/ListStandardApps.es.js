@@ -13,6 +13,7 @@
  */
 
 import ClayPopover from '@clayui/popover';
+import {openModal} from 'frontend-js-web';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import {AppContext} from '../../AppContext.es';
@@ -23,7 +24,7 @@ import NewAppPopover from './NewAppPopover.es';
 import {COLUMNS, FILTERS} from './constants.es';
 
 export default ({scope, ...restProps}) => {
-	const {userId} = useContext(AppContext);
+	const {editKaleoDefinitionURL, userId} = useContext(AppContext);
 	const popoverRef = useRef();
 
 	const [alignElement, setAlignElement] = useState();
@@ -32,9 +33,16 @@ export default ({scope, ...restProps}) => {
 
 	const onClickAddButton = (event) => {
 		event.stopPropagation();
-		setAlignElement(event.target);
-		setPopoverVisible(!isPopoverVisible);
-		setShowTooltip(false);
+
+		openModal({
+			size: 'xl',
+			title: 'New Workflow',
+			url: editKaleoDefinitionURL,
+		});
+
+		// setAlignElement(event.target);
+		// setPopoverVisible(!isPopoverVisible);
+		// setShowTooltip(false);
 	};
 
 	const updateAlignElement = (element) => {
