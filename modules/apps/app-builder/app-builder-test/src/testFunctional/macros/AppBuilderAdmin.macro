@@ -261,7 +261,7 @@ definition {
 	macro gotoCustomAppApplicationsMenuApplications {
 		Navigator.openURL();
 
-		ProductMenuHelper.closeProductMenu();
+		// ProductMenuHelper.closeProductMenu();
 
 		ApplicationsMenu.gotoPortlet(
 			category = "${portlet}",

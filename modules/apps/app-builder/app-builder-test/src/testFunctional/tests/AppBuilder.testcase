@@ -2093,8 +2093,8 @@ definition {
 	@description = "Set App Builder manage permission for User and Portal Content Reviewer and perform CRUD operations"
 	@priority = "5"
 	test SetAppBuilderManagePermissionFor2RolesAndPerformCRUD {
-		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
@@ -2114,7 +2114,7 @@ definition {
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Users and Organizations");
 
 		User.editPasswordCP(
