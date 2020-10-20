@@ -12,6 +12,8 @@
  * details.
  */
 
+import ClayButton from '@clayui/button';
+import ClayModal from '@clayui/modal';
 import {
 	DataLayoutBuilderActions,
 	DataLayoutVisitor,
@@ -26,7 +28,10 @@ import {errorToast, successToast} from '../../utils/toast.es';
 import {getValidName} from '../../utils/utils.es';
 import FormViewContext from './FormViewContext.es';
 
-export default ({newCustomObject, showTranslationManager}) => {
+export default function FormViewUpperToolbar({
+	newCustomObject,
+	showTranslationManager,
+}) {
 	const [defaultLanguageId, setDefaultLanguageId] = useState('');
 	const [editingLanguageId, setEditingLanguageId] = useState('');
 	const [isLoading, setLoading] = useState(false);
@@ -85,8 +90,7 @@ export default ({newCustomObject, showTranslationManager}) => {
 	const onCancel = () => {
 		if (newCustomObject) {
 			Liferay.Util.navigate(basePortletURL);
-		}
-		else {
+		} else {
 			Liferay.Util.navigate(listUrl);
 		}
 	};
@@ -160,7 +164,7 @@ export default ({newCustomObject, showTranslationManager}) => {
 				value={dataLayout.name[editingLanguageId] || ''}
 			/>
 
-			<UpperToolbar.Group>
+			{/* <UpperToolbar.Group>
 				<UpperToolbar.Button displayType="secondary" onClick={onCancel}>
 					{Liferay.Language.get('cancel')}
 				</UpperToolbar.Button>
@@ -177,7 +181,28 @@ export default ({newCustomObject, showTranslationManager}) => {
 				>
 					{Liferay.Language.get('save')}
 				</UpperToolbar.Button>
-			</UpperToolbar.Group>
+			</UpperToolbar.Group> */}
+
+			<div className="dialog-footer">
+				<ClayButton.Group spaced>
+					<ClayButton displayType="secondary" onClick={onCancel}>
+						{Liferay.Language.get('cancel')}
+					</ClayButton>
+
+					<ClayButton
+						disabled={
+							isLoading ||
+							!dataLayout.name[editingLanguageId] ||
+							DataLayoutVisitor.isDataLayoutEmpty(
+								dataLayout.dataLayoutPages
+							)
+						}
+						onClick={onSave}
+					>
+						{Liferay.Language.get('save')}
+					</ClayButton>
+				</ClayButton.Group>
+			</div>
 		</UpperToolbar>
 	);
-};
+}

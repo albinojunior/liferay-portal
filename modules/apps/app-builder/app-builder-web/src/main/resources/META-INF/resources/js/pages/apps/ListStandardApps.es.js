@@ -13,6 +13,7 @@
  */
 
 import ClayPopover from '@clayui/popover';
+import {openModal} from 'frontend-js-web';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import {AppContext} from '../../AppContext.es';
@@ -23,7 +24,7 @@ import NewAppPopover from './NewAppPopover.es';
 import {COLUMNS, FILTERS} from './constants.es';
 
 export default ({scope, ...restProps}) => {
-	const {userId} = useContext(AppContext);
+	const {editKaleoDefinitionURL, objectsPortletURL, userId} = useContext(AppContext);
 	const popoverRef = useRef();
 
 	const [alignElement, setAlignElement] = useState();
@@ -32,9 +33,24 @@ export default ({scope, ...restProps}) => {
 
 	const onClickAddButton = (event) => {
 		event.stopPropagation();
-		setAlignElement(event.target);
-		setPopoverVisible(!isPopoverVisible);
-		setShowTooltip(false);
+
+		// openModal({
+		// 	title: 'New Form View',
+		// 	url: Liferay.Util.PortletURL.createRenderURL(objectsPortletURL, {
+		// 		dataDefinitionId: '46116',
+		// 		mvcRenderCommandName: '/edit_form_view',
+		// 		windowState: 'pop_up'
+		// 	}),
+		// });
+		
+		openModal({
+			title: 'New Form View',
+			url: editKaleoDefinitionURL,
+		});
+
+		// setAlignElement(event.target);
+		// setPopoverVisible(!isPopoverVisible);
+		// setShowTooltip(false);
 	};
 
 	const updateAlignElement = (element) => {

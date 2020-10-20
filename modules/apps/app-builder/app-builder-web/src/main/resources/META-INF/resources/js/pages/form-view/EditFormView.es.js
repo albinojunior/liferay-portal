@@ -61,10 +61,10 @@ const EditFormView = (props) => {
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<FormViewContextProvider dataLayoutBuilder={dataLayoutBuilder}>
-				<FormViewControlMenu
+				{/* <FormViewControlMenu
 					backURL={backURL}
 					dataLayoutId={dataLayoutId}
-				/>
+				/> */}
 
 				<FormViewUpperToolbar
 					newCustomObject={newCustomObject}
