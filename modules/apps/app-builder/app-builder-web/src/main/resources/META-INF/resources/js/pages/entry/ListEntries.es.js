@@ -12,6 +12,7 @@
  * details.
  */
 
+import ClayLabel from '@clayui/label';
 import React, {useContext} from 'react';
 
 import {AppContext} from '../../AppContext.es';
@@ -43,14 +44,20 @@ export default function ListEntries() {
 
 	const permissions = usePermissions();
 
-	const formColumns = columns.map(({value, ...column}) => ({
-		...column,
-		value: getLocalizedUserPreferenceValue(
-			value,
-			userLanguageId,
-			dataDefinition.defaultLanguageId
-		),
-	}));
+	const formColumns = [
+		...columns.map(({value, ...column}) => ({
+			...column,
+			value: getLocalizedUserPreferenceValue(
+				value,
+				userLanguageId,
+				dataDefinition.defaultLanguageId
+			),
+		})),
+		{
+			key: 'status',
+			value: Liferay.Language.get('status'),
+		},
+	];
 
 	const portletParams = {
 		languageId: userLanguageId,
@@ -102,12 +109,36 @@ export default function ListEntries() {
 				queryParams={{dataListViewId}}
 				scope={appId}
 			>
-				{buildEntries({
-					dataDefinition,
-					fieldNames,
-					permissions,
-					scope: appId,
-				})}
+				{(entry, index) => {
+					const statuses = {
+						approved: {
+							displayType: 'success',
+							label: Liferay.Language.get('approved'),
+						},
+						pending: {
+							displayType: 'info',
+							label: Liferay.Language.get('pending'),
+						},
+					};
+
+					const {displayType, label} = statuses[
+						entry.status ?? 'approved'
+					];
+
+					return {
+						...buildEntries({
+							dataDefinition,
+							fieldNames,
+							permissions,
+							scope: appId,
+						})(entry, index),
+						status: (
+							<ClayLabel displayType={displayType}>
+								{label}
+							</ClayLabel>
+						),
+					};
+				}}
 			</ListView>
 		</Loading>
 	);
