@@ -13,6 +13,7 @@
  */
 
 import ClayButton from '@clayui/button';
+import {createResourceURL, fetch} from 'frontend-js-web';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 
 import {AppContext} from '../../AppContext.es';
@@ -23,7 +24,7 @@ import withDDMForm, {
 	useDDMFormSubmit,
 	useDDMFormValidation,
 } from '../../hooks/withDDMForm.es';
-import {addItem, updateItem} from '../../utils/client.es';
+import {updateItem} from '../../utils/client.es';
 import {errorToast, successToast} from '../../utils/toast.es';
 
 export const EditEntry = ({
@@ -33,9 +34,15 @@ export const EditEntry = ({
 	redirect,
 	userLanguageId,
 }) => {
-	const {basePortletURL, portletId, showFormView, showTableView} = useContext(
-		AppContext
-	);
+	const {
+		appId,
+		basePortletURL,
+		baseResourceURL,
+		namespace,
+		portletId,
+		showFormView,
+		showTableView,
+	} = useContext(AppContext);
 	const {availableLanguageIds, defaultLanguageId} = useDataDefinition(
 		dataDefinitionId
 	);
@@ -87,9 +94,19 @@ export const EditEntry = ({
 							.catch(onError);
 					}
 					else {
-						addItem(
-							`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-records`,
-							dataRecord
+						fetch(
+							createResourceURL(baseResourceURL, {
+								p_p_resource_id: '/app_builder/add_data_record',
+							}),
+							{
+								body: new URLSearchParams(
+									Liferay.Util.ns(namespace, {
+										appBuilderAppId: appId,
+										dataRecord: JSON.stringify(dataRecord),
+									})
+								),
+								method: 'POST',
+							}
 						)
 							.then(() => {
 								successToast(
@@ -104,7 +121,14 @@ export const EditEntry = ({
 					setSubmitting(false);
 				});
 		},
-		[dataDefinitionId, dataRecordId, onCancel, validateForm]
+		[
+			appId,
+			baseResourceURL,
+			dataRecordId,
+			namespace,
+			onCancel,
+			validateForm,
+		]
 	);
 
 	useDDMFormSubmit(ddmForm, onSubmit);
