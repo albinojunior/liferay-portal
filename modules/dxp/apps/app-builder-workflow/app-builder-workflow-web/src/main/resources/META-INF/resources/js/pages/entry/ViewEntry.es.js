@@ -195,14 +195,6 @@ export default function ViewEntry({
 			});
 	};
 
-	const onCloseModal = (isRefetch) => {
-		setModalVisible(false);
-
-		if (isRefetch) {
-			doFetch();
-		}
-	};
-
 	useEffect(() => {
 		if (!isEqualObjects(query, previousQuery) || !previousIndex) {
 			doFetch();
@@ -294,7 +286,8 @@ export default function ViewEntry({
 			{isModalVisible && (
 				<ReassignEntryModal
 					entry={workflowInfo}
-					onCloseModal={onCloseModal}
+					onCloseModal={() => setModalVisible(false)}
+					refetch={doFetch}
 				/>
 			)}
 		</div>

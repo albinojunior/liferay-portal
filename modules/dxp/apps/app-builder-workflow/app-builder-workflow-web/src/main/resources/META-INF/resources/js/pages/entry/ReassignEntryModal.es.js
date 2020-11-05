@@ -106,7 +106,7 @@ export function AssigneeInput({
 	);
 }
 
-export default function ReassignEntryModal({entry, onCloseModal}) {
+export default function ReassignEntryModal({entry, onCloseModal, refetch}) {
 	const [
 		{comment, error, isLoading, isReassigning, selectedAssignee, taskId},
 		setState,
@@ -162,10 +162,11 @@ export default function ReassignEntryModal({entry, onCloseModal}) {
 			{assigneeId, comment}
 		)
 			.then(() => {
-				onCloseModal(true);
+				onClose();
 				successToast(
 					Liferay.Language.get('this-entry-has-been-reassigned')
 				);
+				refetch();
 			})
 			.catch(() => {
 				setState((state) => ({

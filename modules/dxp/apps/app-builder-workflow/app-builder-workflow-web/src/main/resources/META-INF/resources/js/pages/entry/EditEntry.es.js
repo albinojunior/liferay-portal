@@ -389,6 +389,7 @@ export default function EditEntry({
 				<ReassignEntryModal
 					entry={workflowInfo}
 					onCloseModal={onCloseModal}
+					refetch={doFetch}
 				/>
 			)}
 		</>

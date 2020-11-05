@@ -172,13 +172,9 @@ export default function ListEntries({history}) {
 
 	const refetch = () => doFetch(query, appWorkflowDefinitionId);
 
-	const onCloseModal = (isRefetch) => {
+	const onCloseModal = () => {
 		setModalVisible(false);
 		setSelectedEntry();
-
-		if (isRefetch) {
-			refetch();
-		}
 	};
 
 	const buildWorkflowItems = (items) => {
@@ -373,6 +369,7 @@ export default function ListEntries({history}) {
 				<ReassignEntryModal
 					entry={selectedEntry}
 					onCloseModal={onCloseModal}
+					refetch={refetch}
 				/>
 			)}
 		</Loading>
