@@ -39,7 +39,7 @@ const context = {
 	showFormView: true,
 };
 
-const mockOnCloseModal = jest.fn();
+const mockRefetch = jest.fn();
 
 const workflowTasks = {
 	items: [
@@ -75,6 +75,13 @@ jest.mock('app-builder-web/js/utils/client.es', () => ({
 	getItem: () => mockGetItem(),
 }));
 
+const mockToast = jest.fn();
+
+jest.mock('app-builder-web/js/utils/toast.es', () => ({
+	__esModule: true,
+	successToast: (message) => mockToast(message),
+}));
+
 describe('ReassignEntryModal', () => {
 	it('renders correctly', async () => {
 		jest.useFakeTimers();
@@ -83,7 +90,8 @@ describe('ReassignEntryModal', () => {
 			<AppContextProviderWrapper appContext={context}>
 				<ReassignEntryModal
 					entry={{instanceId: 123}}
-					onCloseModal={mockOnCloseModal}
+					onCloseModal={() => {}}
+					refetch={mockRefetch}
 				/>
 			</AppContextProviderWrapper>,
 			{wrapper: PermissionsContextProviderWrapper}
@@ -109,6 +117,9 @@ describe('ReassignEntryModal', () => {
 			await fireEvent.click(getByText('done'));
 		});
 
-		expect(mockOnCloseModal).toHaveBeenCalled();
+		expect(mockToast).toHaveBeenCalledWith(
+			'this-entry-has-been-reassigned'
+		);
+		expect(mockRefetch).toHaveBeenCalled();
 	});
 });
