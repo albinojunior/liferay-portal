@@ -24,7 +24,7 @@ import {START_NODE_KEYS, STOP_NODE_KEYS} from '../SLAFormConstants.es';
 const useSLAFormState = ({errors, id, processId, setErrors}) => {
 	const [sla, setSLA] = useState({
 		calendarKey: null,
-		days: null,
+		days: '',
 		description: '',
 		hours: '',
 		name: '',
