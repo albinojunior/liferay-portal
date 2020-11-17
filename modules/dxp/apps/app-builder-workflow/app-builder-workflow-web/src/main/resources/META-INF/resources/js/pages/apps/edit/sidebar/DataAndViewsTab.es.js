@@ -199,7 +199,7 @@ export default function DataAndViewsTab({
 	};
 
 	const openFormViewModal = (dataDefinitionId, defaultLanguageId) => {
-		window.top?.Liferay.on('newFormViewCreated', ({newFormView}) => {
+		window.top?.Liferay.once('newFormViewCreated', ({newFormView}) => {
 			successToast(
 				Liferay.Language.get('the-form-view-was-saved-successfully')
 			);
