@@ -88,11 +88,16 @@ export default function FormViewUpperToolbar({
 	};
 
 	const onCancel = () => {
-		if (newCustomObject) {
-			Liferay.Util.navigate(basePortletURL);
+		if (popUpWindow) {
+			window.top?.Liferay.fire('closeModal');
 		}
 		else {
-			Liferay.Util.navigate(listUrl);
+			if (newCustomObject) {
+				Liferay.Util.navigate(basePortletURL);
+			}
+			else {
+				Liferay.Util.navigate(listUrl);
+			}
 		}
 	};
 
