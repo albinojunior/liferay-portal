@@ -198,7 +198,11 @@ export default function DataAndViewsTab({
 		});
 	};
 
-	const openFormViewModal = (dataDefinitionId, defaultLanguageId) => {
+	const openFormViewModal = (
+		dataDefinitionId,
+		defaultLanguageId,
+		selectFormView
+	) => {
 		window.top?.Liferay.once('newFormViewCreated', ({newFormView}) => {
 			successToast(
 				Liferay.Language.get('the-form-view-was-saved-successfully')
@@ -216,7 +220,7 @@ export default function DataAndViewsTab({
 				}
 			);
 
-			updateFormView({
+			selectFormView({
 				...newFormView,
 				name: getLocalizedValue(defaultLanguageId, newFormView.name),
 			});
@@ -246,8 +250,28 @@ export default function DataAndViewsTab({
 			type: 'custom',
 		});
 
-		openFormViewModal(id, defaultLanguageId);
+		openFormViewModal(id, defaultLanguageId, updateFormView);
 	};
+
+	const addFormViewButton = (selectFormView) => (
+		<ClayTooltipProvider>
+			<Button
+				className="btn btn-monospaced btn-secondary mr-2 nav-btn nav-btn-monospaced"
+				data-tooltip-align="bottom-right"
+				data-tooltip-delay="0"
+				displayType="secondary"
+				onClick={() =>
+					openFormViewModal(
+						dataObject.id,
+						dataObject.defaultLanguageId,
+						selectFormView
+					)
+				}
+				symbol="plus"
+				title={Liferay.Language.get('new-form-view')}
+			/>
+		</ClayTooltipProvider>
+	);
 
 	const duplicatedFieldsMessage =
 		duplicatedFields.length === 1
@@ -318,6 +342,9 @@ export default function DataAndViewsTab({
 								</label>
 
 								<SelectFormView
+									addButton={addFormViewButton((formView) =>
+										updateStepFormView(formView, index)
+									)}
 									ariaLabelId="form-view-label"
 									items={availableFormViews}
 									onSelect={(formView) =>
@@ -426,26 +453,7 @@ export default function DataAndViewsTab({
 							</label>
 
 							<SelectFormView
-								addButton={
-									<ClayTooltipProvider>
-										<Button
-											className="btn btn-monospaced btn-secondary mr-2 nav-btn nav-btn-monospaced"
-											data-tooltip-align="bottom-right"
-											data-tooltip-delay="0"
-											displayType="secondary"
-											onClick={() =>
-												openFormViewModal(
-													dataObject.id,
-													dataObject.defaultLanguageId
-												)
-											}
-											symbol="plus"
-											title={Liferay.Language.get(
-												'new-form-view'
-											)}
-										/>
-									</ClayTooltipProvider>
-								}
+								addButton={addFormViewButton(updateFormView)}
 								ariaLabelId="form-view-label"
 								isLoading={fetching}
 								items={formViews}
