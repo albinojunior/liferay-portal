@@ -203,30 +203,37 @@ export default function DataAndViewsTab({
 		defaultLanguageId,
 		selectFormView
 	) => {
-		window.top?.Liferay.once('newFormViewCreated', ({newFormView}) => {
-			successToast(
-				Liferay.Language.get('the-form-view-was-saved-successfully')
-			);
+		const event = window.top?.Liferay.once(
+			'newFormViewCreated',
+			({newFormView}) => {
+				successToast(
+					Liferay.Language.get('the-form-view-was-saved-successfully')
+				);
 
-			getFormViews(dataDefinitionId, defaultLanguageId).then(
-				(formViews) => {
-					dispatchConfig({
-						listItems: {
-							fetching: false,
-							formViews,
-						},
-						type: UPDATE_LIST_ITEMS,
-					});
-				}
-			);
+				getFormViews(dataDefinitionId, defaultLanguageId).then(
+					(formViews) => {
+						dispatchConfig({
+							listItems: {
+								fetching: false,
+								formViews,
+							},
+							type: UPDATE_LIST_ITEMS,
+						});
+					}
+				);
 
-			selectFormView({
-				...newFormView,
-				name: getLocalizedValue(defaultLanguageId, newFormView.name),
-			});
-		});
+				selectFormView({
+					...newFormView,
+					name: getLocalizedValue(
+						defaultLanguageId,
+						newFormView.name
+					),
+				});
+			}
+		);
 
 		openModal({
+			onClose: () => event?.detach(),
 			title: Liferay.Language.get('new-form-view'),
 			url: Liferay.Util.PortletURL.createRenderURL(objectsPortletURL, {
 				dataDefinitionId,
