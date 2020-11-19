@@ -19,7 +19,7 @@ import EditAppContext, {
 } from 'app-builder-web/js/pages/apps/edit/EditAppContext.es';
 import {getItem, parseResponse} from 'app-builder-web/js/utils/client.es';
 import {errorToast, successToast} from 'app-builder-web/js/utils/toast.es';
-import {createResourceURL, fetch} from 'frontend-js-web';
+import {createResourceURL, fetch, openToast} from 'frontend-js-web';
 import React, {useContext, useEffect, useReducer, useState} from 'react';
 
 import '../../../../css/EditApp.scss';
@@ -183,8 +183,7 @@ export default ({
 						type: UPDATE_LIST_ITEMS,
 					});
 				});
-		}
-		else {
+		} else {
 			Promise.all(promises)
 				.then(([assigneeRoles, dataObjects]) => {
 					dispatchConfig({
@@ -257,8 +256,7 @@ export default ({
 
 		if (appId) {
 			params.appBuilderAppId = appId;
-		}
-		else {
+		} else {
 			params.dataDefinitionId = app.dataDefinitionId;
 		}
 
@@ -282,6 +280,18 @@ export default ({
 				callback();
 				successToast(message);
 				setSaving(false);
+
+				openToast({
+					autoClose: true,
+					message: `${Liferay.Language.get(
+						'refresh-the-table-to-see-the-updated-information'
+					)}<div><button class="btn btn-secondary btn-sm mt-2" onclick="window.top?.Liferay.fire('refreshTable')" type="button"><span class="inline-item inline-item-before">${Liferay.Util.getLexiconIconTpl(
+						'reload'
+					)}</span>${Liferay.Language.get(
+						'refresh'
+					)}</button></div>`,
+					type: 'info',
+				});
 
 				onCancel();
 			})

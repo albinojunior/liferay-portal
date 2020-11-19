@@ -89,6 +89,12 @@ export default withRouter(
 			}
 		}, [error]);
 
+		useEffect(() => {
+			const event = window.top?.Liferay.on('refreshTable', refetch);
+
+			return () => event?.detach();
+		}, [refetch]);
+
 		let refetchOnActions;
 
 		if (actions && actions.length > 0) {
