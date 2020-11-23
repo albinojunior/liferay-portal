@@ -162,7 +162,7 @@ public class IndexResourceImpl extends BaseIndexResourceImpl {
 	}
 
 	protected void removeWorkflowMetricsIndexNameBuilder(
-		WorkflowMetricsReindexer workflowMetricsReindexer,
+		WorkflowMetricsIndexNameBuilder workflowMetricsIndexNameBuilder,
 		Map<String, Object> properties) {
 
 		String workflowMetricsIndexEntityName = GetterUtil.getString(
