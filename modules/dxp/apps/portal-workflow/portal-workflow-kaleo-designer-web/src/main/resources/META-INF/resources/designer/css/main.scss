@@ -259,6 +259,13 @@
 	}
 }
 
+.full-width-content {
+	&,
+	> * {
+		width: 100%;
+	}
+}
+
 .portal-popup,
 .info-bar-container {
 	background: #fff;
