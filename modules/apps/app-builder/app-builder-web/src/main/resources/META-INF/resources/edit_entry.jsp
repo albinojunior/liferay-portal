@@ -111,4 +111,6 @@ List<Long> dataLayoutIds = appBuilderAppPortletTabContext.getDataLayoutIds();
 			</clay:col>
 		</clay:row>
 	</clay:container-fluid>
+
+	<liferay-util:dynamic-include key="com.liferay.app.builder.web#/edit_app_entry.jsp#post" />
 </div>
