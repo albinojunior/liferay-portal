@@ -15,8 +15,6 @@
 (function (A, Liferay) {
 	A.use('aui-base-lang');
 
-	var AArray = A.Array;
-
 	var Lang = A.Lang;
 
 	var EVENT_CLICK = 'click';
@@ -1127,31 +1125,23 @@
 				};
 			}
 
-			var eventHandles = [
-				iframeBody.delegate('submit', detachEventHandles, 'form'),
+			var cancelEventHandler = iframeBody.delegate(
+				EVENT_CLICK,
+				(event) => {
+					dialog.set(
+						'visible',
+						false,
+						event.currentTarget.hasClass('lfr-hide-dialog')
+							? SRC_HIDE_LINK
+							: null
+					);
 
-				iframeBody.delegate(
-					EVENT_CLICK,
-					(event) => {
-						dialog.set(
-							'visible',
-							false,
-							event.currentTarget.hasClass('lfr-hide-dialog')
-								? SRC_HIDE_LINK
-								: null
-						);
+					cancelEventHandler.detach();
 
-						detachEventHandles();
-					},
-					'.btn-cancel,.lfr-hide-dialog'
-				),
-			];
-
-			function detachEventHandles() {
-				AArray.invoke(eventHandles, 'detach');
-
-				iframeDocument.purge(true);
-			}
+					iframeDocument.purge(true);
+				},
+				'.btn-cancel,.lfr-hide-dialog'
+			);
 
 			Liferay.fire('modalIframeLoaded', {
 				src: event.dialog.iframe.node.getAttribute('src'),
