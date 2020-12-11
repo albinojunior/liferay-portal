@@ -1128,7 +1128,7 @@
 			}
 
 			var eventHandles = [
-				iframeBody.delegate('submit', detachEventHandles, 'form'),
+				iframeBody.delegate('submit', () => {}, 'form'),
 
 				iframeBody.delegate(
 					EVENT_CLICK,
