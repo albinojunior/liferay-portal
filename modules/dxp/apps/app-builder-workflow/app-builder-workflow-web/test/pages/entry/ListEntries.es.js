@@ -130,7 +130,7 @@ describe('ListEntries', () => {
 
 		expect(mockRenderURL).toHaveBeenCalledWith('portlet_url', {
 			dataRecordId: 0,
-			mvcPath: '/edit_entry.jsp',
+			mvcPath: '/edit_app_entry.jsp',
 		});
 	});
 

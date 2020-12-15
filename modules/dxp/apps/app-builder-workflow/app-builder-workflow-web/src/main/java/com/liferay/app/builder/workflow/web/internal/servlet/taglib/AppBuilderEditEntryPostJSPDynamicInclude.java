@@ -79,12 +79,12 @@ public class AppBuilderEditEntryPostJSPDynamicInclude
 	@Override
 	public void register(DynamicIncludeRegistry dynamicIncludeRegistry) {
 		dynamicIncludeRegistry.register(
-			"com.liferay.app.builder.web#/edit_entry.jsp#post");
+			"com.liferay.app.builder.web#/edit_app_entry.jsp#post");
 	}
 
 	@Override
 	protected String getJspPath() {
-		return "/dynamic_include/edit_entry.jsp";
+		return "/dynamic_include/edit_app_entry.jsp";
 	}
 
 	@Override
