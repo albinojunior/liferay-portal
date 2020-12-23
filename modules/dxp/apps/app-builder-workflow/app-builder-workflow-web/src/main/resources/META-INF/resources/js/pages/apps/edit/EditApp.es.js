@@ -39,6 +39,7 @@ import configReducer, {
 	getInitialConfig,
 } from './configReducer.es';
 import EditAppSidebar from './sidebar/EditAppSidebar.es';
+import {verifyRequiredFieldsOnFormViews} from './utils.es';
 import WorkflowBuilder from './workflow-builder/WorkflowBuilder.es';
 
 export default ({
@@ -106,7 +107,10 @@ export default ({
 					dispatchConfig({
 						listItems: {
 							fetching: false,
-							formViews,
+							formViews: verifyRequiredFieldsOnFormViews(
+								formViews,
+								config.dataObject
+							),
 							tableViews,
 						},
 						type: UPDATE_LIST_ITEMS,
@@ -183,8 +187,7 @@ export default ({
 						type: UPDATE_LIST_ITEMS,
 					});
 				});
-		}
-		else {
+		} else {
 			Promise.all(promises)
 				.then(([assigneeRoles, dataObjects]) => {
 					dispatchConfig({
@@ -257,8 +260,7 @@ export default ({
 
 		if (appId) {
 			params.appBuilderAppId = appId;
-		}
-		else {
+		} else {
 			params.dataDefinitionId = app.dataDefinitionId;
 		}
 

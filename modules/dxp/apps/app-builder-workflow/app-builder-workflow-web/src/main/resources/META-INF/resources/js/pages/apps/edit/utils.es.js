@@ -102,3 +102,18 @@ export function validateSelectedFormViews(formViews = []) {
 
 	return {duplicatedFields, errorIndexes};
 }
+
+export function verifyRequiredFieldsOnFormViews(formViews = [], dataObject) {
+	const requiredFields = dataObject.dataDefinitionFields
+		.filter(({required}) => required)
+		.map(({name}) => name);
+
+	return formViews.map((formView) => {
+		return {
+			...formView,
+			missingRequiredFields: !requiredFields.every((field) =>
+				formView.fields.includes(field)
+			),
+		};
+	});
+}
