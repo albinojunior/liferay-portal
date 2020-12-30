@@ -19,6 +19,8 @@ import {EVENT_TYPES} from '../actions/eventTypes.es';
 
 const formatDataRecord = (languageId, pages, preserveValue) => {
 	const dataRecordValues = {};
+	let previousFieldName;
+	let repeatableIndex = 0;
 
 	const visitor = new PagesVisitor(pages);
 
@@ -42,25 +44,19 @@ const formatDataRecord = (languageId, pages, preserveValue) => {
 			_value = '';
 		}
 
+		if (previousFieldName !== fieldName) {
+			repeatableIndex = 0;
+		}
+
+		previousFieldName = fieldName;
+
 		if (localizable) {
 			const edited =
 				!!localizedValue[languageId] ||
 				(localizedValueEdited && localizedValueEdited[languageId]);
 
 			if (!dataRecordValues[fieldName]) {
-				if (preserveValue) {
-					dataRecordValues[fieldName] = {
-						...localizedValue,
-						[languageId]: value,
-					};
-				}
-				else if (!repeatable && edited) {
-					dataRecordValues[fieldName] = {
-						[languageId]: [],
-						...localizedValue,
-					};
-				}
-				else if (repeatable) {
+				if (repeatable) {
 					Object.keys(localizedValue).forEach((key) => {
 						dataRecordValues[fieldName] = {
 							...dataRecordValues[fieldName],
@@ -69,32 +65,37 @@ const formatDataRecord = (languageId, pages, preserveValue) => {
 						};
 					});
 				}
+				else if (edited) {
+					dataRecordValues[fieldName] = {...localizedValue};
+				}
+				else if (preserveValue) {
+					dataRecordValues[fieldName] = {
+						...localizedValue,
+						[languageId]: value,
+					};
+				}
 			}
 
 			if (repeatable) {
 				Object.keys(localizedValue).forEach((key) => {
 					if (edited && key === languageId) {
-						dataRecordValues[fieldName][key].push(_value);
+						dataRecordValues[fieldName][key][
+							repeatableIndex
+						] = _value;
 					}
 					else {
-						dataRecordValues[fieldName][key].push(
-							localizedValue[key]
-						);
+						dataRecordValues[fieldName][key][repeatableIndex] =
+							localizedValue[key];
 					}
 				});
+
+				repeatableIndex++;
 			}
 			else if (edited) {
 				dataRecordValues[fieldName] = {
 					...localizedValue,
 					[languageId]: _value,
 				};
-			}
-
-			if (preserveValue) {
-				Object.keys(dataRecordValues[fieldName]).forEach((key) => {
-					dataRecordValues[fieldName][key] =
-						dataRecordValues[fieldName][languageId];
-				});
 			}
 		}
 		else {
@@ -195,12 +196,7 @@ export default function pageLanguageUpdate({
 				const visitor = new PagesVisitor(response.pages);
 				const newPages = visitor.mapFields(
 					(field) => {
-						if (
-							(previousField &&
-								previousField.repeatable &&
-								previousField.fieldName !== field.fieldName) ||
-							!field.repeatable
-						) {
+						if (previousField?.fieldName !== field.fieldName) {
 							repeatableIndex = 0;
 						}
 
