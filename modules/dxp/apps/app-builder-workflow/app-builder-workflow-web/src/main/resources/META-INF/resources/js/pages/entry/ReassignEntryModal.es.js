@@ -166,7 +166,10 @@ export default function ReassignEntryModal({entry, onCloseModal, refetch}) {
 				successToast(
 					Liferay.Language.get('this-entry-has-been-reassigned')
 				);
-				refetch(true);
+				refetch({
+					entryInstanceId: entry.instanceId,
+					newAssignee: selectedAssignee,
+				});
 			})
 			.catch(() => {
 				setState((state) => ({

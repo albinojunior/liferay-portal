@@ -18,6 +18,7 @@ import {getItem} from 'app-builder-web/js/utils/client.es';
 import {getLocalizedUserPreferenceValue} from 'app-builder-web/js/utils/lang.es';
 import {errorToast, successToast} from 'app-builder-web/js/utils/toast.es';
 import Loading from 'data-engine-js-components-web/js/components/loading/Loading.es';
+import {useTimeout} from 'frontend-js-react-web';
 import {createResourceURL, fetch} from 'frontend-js-web';
 import React, {
 	useCallback,
@@ -84,6 +85,7 @@ export default function EditEntry({
 		appId,
 		useMemo(() => [dataRecordId], [dataRecordId])
 	);
+	const delay = useTimeout();
 
 	const appWorkflow = useAppWorkflow(appId);
 
@@ -115,7 +117,7 @@ export default function EditEntry({
 	);
 
 	const doFetch = useCallback(
-		(refreshIndexes) => {
+		({newAssignee} = {}) => {
 			setLoading(true);
 
 			if (appWorkflowDefinitionId) {
@@ -125,17 +127,27 @@ export default function EditEntry({
 							`/o/portal-workflow-metrics/v1.0/processes/${appWorkflowDefinitionId}/instances`,
 							{classPKs: [dataRecordId]}
 						).then(({items}) => {
-							setLoading(false);
-
+							let retryCount = 0;
 							if (items.length) {
 								const {id, ...instance} = items.pop();
 
 								const [assignee] = instance.assignees || [];
 
+								if (
+									newAssignee &&
+									newAssignee.id !== assignee?.id &&
+									retryCount <= 5
+								) {
+									retryCount++;
+
+									return delay(getWorkflowInfo, 1000);
+								}
+
 								const assignedToUser =
 									Number(themeDisplay.getUserId()) ===
 									assignee?.id;
 
+								setLoading(false);
 								setWorkflowInfo({
 									...instance,
 									appVersion,
@@ -145,17 +157,13 @@ export default function EditEntry({
 									tasks: appWorkflowTasks,
 								});
 							}
+							else {
+								setLoading(false);
+							}
 						});
 					};
 
-					if (refreshIndexes) {
-						refreshIndex(METRIC_INDEXES_KEY)
-							.then(getWorkflowInfo)
-							.catch(getWorkflowInfo);
-					}
-					else {
-						getWorkflowInfo();
-					}
+					getWorkflowInfo();
 				}
 				else {
 					setLoading(false);
@@ -174,14 +182,6 @@ export default function EditEntry({
 			Liferay.Util.navigate(basePortletURL);
 		}
 	}, [basePortletURL, redirect]);
-
-	const onCloseModal = (isRefetch) => {
-		setModalVisible(false);
-
-		if (isRefetch) {
-			doFetch();
-		}
-	};
 
 	const saveDataRecord = useCallback(
 		({transitionName}, dataRecord) => {
@@ -411,7 +411,7 @@ export default function EditEntry({
 			{isModalVisible && (
 				<ReassignEntryModal
 					entry={workflowInfo}
-					onCloseModal={onCloseModal}
+					onCloseModal={() => setModalVisible(false)}
 					refetch={doFetch}
 				/>
 			)}

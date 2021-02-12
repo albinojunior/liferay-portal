@@ -22,7 +22,7 @@ import {getLocalizedUserPreferenceValue} from 'app-builder-web/js/utils/lang.es'
 import {errorToast} from 'app-builder-web/js/utils/toast.es';
 import {isEqualObjects} from 'app-builder-web/js/utils/utils.es';
 import Loading from 'data-engine-js-components-web/js/components/loading/Loading.es';
-import {usePrevious} from 'frontend-js-react-web';
+import {usePrevious, useTimeout} from 'frontend-js-react-web';
 import React, {useContext, useEffect, useState} from 'react';
 
 import WorkflowInfoBar from '../../components/workflow-info-bar/WorkflowInfoBar.es';
@@ -73,6 +73,7 @@ export default function ViewEntry({
 
 	const dataDefinition = useDataDefinition(dataDefinitionId);
 	const dataLayouts = useDataLayouts(dataLayoutIds);
+	const delay = useTimeout();
 
 	const [
 		{dataRecord, isFetching, page, totalCount, workflowInfo},
@@ -96,7 +97,7 @@ export default function ViewEntry({
 	const previousQuery = usePrevious(query);
 	const previousIndex = usePrevious(entryIndex);
 
-	const doFetch = () => {
+	const doFetch = ({newAssignee} = {}) => {
 		setState({
 			dataRecord: {},
 			isFetching: true,
@@ -133,41 +134,69 @@ export default function ViewEntry({
 										appWorkflowTasks: tasks,
 									},
 								} = items.pop();
+								let retryCount = 0;
 
-								return getItem(
-									`/o/portal-workflow-metrics/v1.0/processes/${appWorkflowDefinitionId}/instances`,
-									{classPKs: dataRecordIds}
-								).then(({items}) => {
-									if (items.length) {
-										const {id, ...instance} = items.pop();
+								const getWorkflowInfo = () => {
+									getItem(
+										`/o/portal-workflow-metrics/v1.0/processes/${appWorkflowDefinitionId}/instances`,
+										{classPKs: dataRecordIds}
+									).then(({items}) => {
+										if (items.length) {
+											const {
+												id,
+												...instance
+											} = items.pop();
 
-										const [assignee] =
-											instance.assignees || [];
+											const [assignee] =
+												instance.assignees || [];
 
-										const assignedToUser =
-											Number(themeDisplay.getUserId()) ===
-											assignee?.id;
+											if (
+												newAssignee &&
+												newAssignee?.id !==
+													assignee?.id &&
+												retryCount <= 5
+											) {
+												retryCount++;
 
-										state.workflowInfo = {
-											...instance,
-											appVersion,
-											canReassign:
-												assignedToUser ||
-												assignee?.reviewer,
-											instanceId: id,
-											tasks,
-										};
+												return delay(
+													getWorkflowInfo,
+													1000
+												);
+											}
 
-										setDataLayoutIds(
-											getDataLayoutIds(state.workflowInfo)
-										);
-									}
+											const assignedToUser =
+												Number(
+													themeDisplay.getUserId()
+												) === assignee?.id;
 
-									setState((prevState) => ({
-										...prevState,
-										...state,
-									}));
-								});
+											state.workflowInfo = {
+												...instance,
+												appVersion,
+												assignees: [
+													newAssignee || assignee,
+												],
+												canReassign:
+													assignedToUser ||
+													assignee?.reviewer,
+												instanceId: id,
+												tasks,
+											};
+
+											setDataLayoutIds(
+												getDataLayoutIds(
+													state.workflowInfo
+												)
+											);
+										}
+
+										setState((prevState) => ({
+											...prevState,
+											...state,
+										}));
+									});
+								};
+
+								getWorkflowInfo();
 							}
 							else {
 								setDataLayoutIds([Number(dataLayoutId)]);

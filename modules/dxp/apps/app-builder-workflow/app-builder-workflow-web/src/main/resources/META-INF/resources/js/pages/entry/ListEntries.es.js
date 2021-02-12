@@ -32,13 +32,12 @@ import {getLocalizedUserPreferenceValue} from 'app-builder-web/js/utils/lang.es'
 import {errorToast} from 'app-builder-web/js/utils/toast.es';
 import {concatValues, isEqualObjects} from 'app-builder-web/js/utils/utils.es';
 import Loading from 'data-engine-js-components-web/js/components/loading/Loading.es';
-import {usePrevious} from 'frontend-js-react-web';
+import {usePrevious, useTimeout} from 'frontend-js-react-web';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 
 import useAppWorkflow from '../../hooks/useAppWorkflow.es';
 import useDataRecordApps from '../../hooks/useDataRecordApps.es';
 import ReassignEntryModal from './ReassignEntryModal.es';
-import {METRIC_INDEXES_KEY, refreshIndex} from './actions.es';
 
 const WORKFLOW_COLUMNS = [
 	{key: 'status', value: Liferay.Language.get('status')},
@@ -63,6 +62,7 @@ export default function ListEntries({history}) {
 
 	const {appWorkflowDefinitionId} = useAppWorkflow(appId);
 	const dataRecordApps = useDataRecordApps(appId, dataRecordIds);
+	const delay = useTimeout();
 	const permissions = usePermissions();
 
 	const {
@@ -97,7 +97,12 @@ export default function ListEntries({history}) {
 
 	const previousQuery = usePrevious(query);
 
-	const doFetch = (query, workflowDefinitionId, refreshIndexes) => {
+	const doFetch = ({
+		entryInstanceId,
+		newAssignee,
+		query,
+		workflowDefinitionId,
+	}) => {
 		if (workflowDefinitionId) {
 			setFetchState((prevState) => ({
 				...prevState,
@@ -120,7 +125,7 @@ export default function ListEntries({history}) {
 						setDataRecordIds(classPKs);
 
 						const getWorkflowInfo = () => {
-							return getItem(
+							getItem(
 								`/o/portal-workflow-metrics/v1.0/processes/${workflowDefinitionId}/instances`,
 								{
 									classPKs,
@@ -129,6 +134,25 @@ export default function ListEntries({history}) {
 								}
 							).then((workflowResponse) => {
 								let items = response.items;
+								let retryCount = 0;
+
+								if (entryInstanceId) {
+									const {
+										assignees,
+									} = workflowResponse.items.find(
+										({id}) => id === entryInstanceId
+									);
+
+									if (
+										newAssignee &&
+										newAssignee.id !== assignees?.[0]?.id &&
+										retryCount <= 5
+									) {
+										retryCount++;
+
+										return delay(getWorkflowInfo, 1000);
+									}
+								}
 
 								if (workflowResponse.totalCount > 0) {
 									items = response.items.map((item) => {
@@ -161,14 +185,7 @@ export default function ListEntries({history}) {
 							});
 						};
 
-						if (refreshIndexes) {
-							refreshIndex(METRIC_INDEXES_KEY)
-								.then(getWorkflowInfo)
-								.catch(getWorkflowInfo);
-						}
-						else {
-							getWorkflowInfo();
-						}
+						getWorkflowInfo();
 					}
 				})
 				.catch(() => {
@@ -187,8 +204,13 @@ export default function ListEntries({history}) {
 			languageId: userLanguageId,
 		});
 
-	const refetch = (refreshIndexes) =>
-		doFetch(query, appWorkflowDefinitionId, refreshIndexes);
+	const refetch = ({entryInstanceId, newAssignee} = {}) =>
+		doFetch({
+			entryInstanceId,
+			newAssignee,
+			query,
+			workflowDefinitionId: appWorkflowDefinitionId,
+		});
 
 	const onCloseModal = () => {
 		setModalVisible(false);
@@ -284,7 +306,7 @@ export default function ListEntries({history}) {
 	}, [query]);
 
 	useEffect(() => {
-		doFetch(query, appWorkflowDefinitionId);
+		doFetch({query, workflowDefinitionId: appWorkflowDefinitionId});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [appWorkflowDefinitionId]);
 
